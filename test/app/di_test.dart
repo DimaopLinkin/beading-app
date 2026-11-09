@@ -6,12 +6,16 @@ import 'package:beading/core/id_generator.dart';
 import 'package:beading/data/platform/wakelock_plus_screen_wake_lock.dart';
 import 'package:beading/data/settings/drift_device_id_provider.dart';
 import 'package:beading/data/settings/drift_settings_repository.dart';
+import 'package:beading/data/settings/package_info_app_info_provider.dart';
 import 'package:beading/data/settings/repository_keep_screen_awake_setting.dart';
+import 'package:beading/domain/settings/app_info.dart';
 import 'package:beading/domain/settings/device_id_provider.dart';
 import 'package:beading/domain/settings/keep_screen_awake_setting.dart';
 import 'package:beading/domain/settings/screen_wake_lock.dart';
+import 'package:beading/domain/settings/secret_tap_handler.dart';
 import 'package:beading/domain/settings/settings_repository.dart';
 import 'package:beading/domain/settings/wakelock_controller.dart';
+import 'package:beading/presentation/settings/settings_cubit.dart';
 import 'package:beading/presentation/theme/theme_mode_cubit.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get_it/get_it.dart';
@@ -34,6 +38,9 @@ void main() {
     expect(locator<KeepScreenAwakeSetting>(), isA<RepositoryKeepScreenAwakeSetting>());
     expect(locator<WakelockController>(), isNotNull);
     expect(locator<ThemeModeCubit>(), isA<ThemeModeCubit>());
+    expect(locator<SettingsCubit>(), isA<SettingsCubit>());
+    expect(locator<AppInfoProvider>(), isA<PackageInfoAppInfoProvider>());
+    expect(locator<SecretTapHandler>(), isA<NoopSecretTapHandler>());
   });
 
   test('повторная настройка не падает и пересоздаёт регистрации', () async {

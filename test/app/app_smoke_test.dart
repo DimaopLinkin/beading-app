@@ -6,6 +6,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get_it/get_it.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 
 import '../support/fake_platform.dart';
 import '../support/in_memory_database.dart';
@@ -25,6 +26,13 @@ Future<Widget> bootstrapWithFakes(
 
 void main() {
   setUp(() async {
+    PackageInfo.setMockInitialValues(
+      appName: 'Бисер',
+      packageName: 'app.beading',
+      version: '0.1.0',
+      buildNumber: '1',
+      buildSignature: '',
+    );
     await GetIt.instance.reset();
   });
 
@@ -78,5 +86,31 @@ void main() {
     expect(orientation.portraitCalls, 1);
     expect(window.configs.single.size, const Size(480, 900));
     expect(lock.calls, <String>['enable']);
+  });
+
+  testWidgets('из «Моих работ» открываются настройки и «О приложении»', (tester) async {
+    await tester.pumpWidget(await bootstrapWithFakes(tester));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.bySemanticsLabel('Настройки'));
+    await tester.pumpAndSettle();
+    expect(find.text('Не гасить экран'), findsOneWidget);
+
+    await tester.dragUntilVisible(find.text('О приложении'), find.byType(ListView), const Offset(0, -200));
+    await tester.tap(find.text('О приложении'));
+    await tester.pumpAndSettle();
+    expect(find.text('Каждая бусинка на своём месте. Плети с удовольствием!'), findsOneWidget);
+  });
+
+  testWidgets('выбор тёмной темы в настройках сразу применяется', (tester) async {
+    await tester.pumpWidget(await bootstrapWithFakes(tester));
+    await tester.pumpAndSettle();
+    await tester.tap(find.bySemanticsLabel('Настройки'));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Тёмная'));
+    await tester.pumpAndSettle();
+
+    expect(CupertinoTheme.brightnessOf(tester.element(find.text('Не гасить экран'))), Brightness.dark);
   });
 }

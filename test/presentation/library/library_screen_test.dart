@@ -20,4 +20,27 @@ void main() {
       expect(find.text('Мои работы'), findsOneWidget);
     });
   }
+
+  testWidgets('кнопка настроек вызывает onOpenSettings', (tester) async {
+    var opened = 0;
+    await tester.pumpWidget(
+      CupertinoApp(
+        theme: AppTheme.light,
+        builder: AppTheme.builder,
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
+        home: LibraryScreen(onOpenSettings: () => opened++),
+      ),
+    );
+
+    await tester.tap(find.bySemanticsLabel('Настройки'));
+
+    expect(opened, 1);
+  });
+
+  testWidgets('без onOpenSettings кнопки настроек нет', (tester) async {
+    await tester.pumpWidget(wrap(AppTheme.light));
+
+    expect(find.bySemanticsLabel('Настройки'), findsNothing);
+  });
 }

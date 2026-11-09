@@ -102,6 +102,204 @@ abstract class AppLocalizations {
   /// In ru, this message translates to:
   /// **'Мои работы'**
   String get libraryTitle;
+
+  /// Заголовок экрана настроек и подпись кнопки открытия настроек
+  ///
+  /// In ru, this message translates to:
+  /// **'Настройки'**
+  String get settingsTitle;
+
+  /// No description provided for @settingsSectionAppearance.
+  ///
+  /// In ru, this message translates to:
+  /// **'Оформление'**
+  String get settingsSectionAppearance;
+
+  /// No description provided for @settingsThemeLabel.
+  ///
+  /// In ru, this message translates to:
+  /// **'Тема'**
+  String get settingsThemeLabel;
+
+  /// No description provided for @settingsThemeSystem.
+  ///
+  /// In ru, this message translates to:
+  /// **'Как в системе'**
+  String get settingsThemeSystem;
+
+  /// No description provided for @settingsThemeLight.
+  ///
+  /// In ru, this message translates to:
+  /// **'Светлая'**
+  String get settingsThemeLight;
+
+  /// No description provided for @settingsThemeDark.
+  ///
+  /// In ru, this message translates to:
+  /// **'Тёмная'**
+  String get settingsThemeDark;
+
+  /// No description provided for @settingsSectionWork.
+  ///
+  /// In ru, this message translates to:
+  /// **'Работа'**
+  String get settingsSectionWork;
+
+  /// No description provided for @settingsKeepScreenAwake.
+  ///
+  /// In ru, this message translates to:
+  /// **'Не гасить экран'**
+  String get settingsKeepScreenAwake;
+
+  /// No description provided for @settingsKeepScreenAwakeFooter.
+  ///
+  /// In ru, this message translates to:
+  /// **'Экран не погаснет, пока приложение открыто.'**
+  String get settingsKeepScreenAwakeFooter;
+
+  /// No description provided for @settingsSymbolMode.
+  ///
+  /// In ru, this message translates to:
+  /// **'Символы на схеме'**
+  String get settingsSymbolMode;
+
+  /// No description provided for @settingsSymbolModeFooter.
+  ///
+  /// In ru, this message translates to:
+  /// **'Показывать на схеме символы вместо цветов по умолчанию.'**
+  String get settingsSymbolModeFooter;
+
+  /// No description provided for @settingsDefaultBrand.
+  ///
+  /// In ru, this message translates to:
+  /// **'Производитель бисера'**
+  String get settingsDefaultBrand;
+
+  /// No description provided for @settingsSectionData.
+  ///
+  /// In ru, this message translates to:
+  /// **'Данные'**
+  String get settingsSectionData;
+
+  /// No description provided for @settingsBackup.
+  ///
+  /// In ru, this message translates to:
+  /// **'Резервная копия'**
+  String get settingsBackup;
+
+  /// No description provided for @settingsSync.
+  ///
+  /// In ru, this message translates to:
+  /// **'Синхронизация с iCloud'**
+  String get settingsSync;
+
+  /// No description provided for @settingsSoon.
+  ///
+  /// In ru, this message translates to:
+  /// **'Скоро'**
+  String get settingsSoon;
+
+  /// No description provided for @settingsAbout.
+  ///
+  /// In ru, this message translates to:
+  /// **'О приложении'**
+  String get settingsAbout;
+
+  /// No description provided for @settingsSaveFailed.
+  ///
+  /// In ru, this message translates to:
+  /// **'Не удалось сохранить настройку. Попробуй ещё раз.'**
+  String get settingsSaveFailed;
+
+  /// No description provided for @aboutTitle.
+  ///
+  /// In ru, this message translates to:
+  /// **'О приложении'**
+  String get aboutTitle;
+
+  /// No description provided for @aboutTagline.
+  ///
+  /// In ru, this message translates to:
+  /// **'Каждая бусинка на своём месте. Плети с удовольствием!'**
+  String get aboutTagline;
+
+  /// No description provided for @aboutVersion.
+  ///
+  /// In ru, this message translates to:
+  /// **'Версия {version}'**
+  String aboutVersion(String version);
+
+  /// No description provided for @hiddenTitle.
+  ///
+  /// In ru, this message translates to:
+  /// **'Секретный раздел'**
+  String get hiddenTitle;
+
+  /// No description provided for @hiddenSectionName.
+  ///
+  /// In ru, this message translates to:
+  /// **'Как к тебе обращаться'**
+  String get hiddenSectionName;
+
+  /// No description provided for @hiddenNameHint.
+  ///
+  /// In ru, this message translates to:
+  /// **'Имя'**
+  String get hiddenNameHint;
+
+  /// No description provided for @hiddenSectionDates.
+  ///
+  /// In ru, this message translates to:
+  /// **'Особые даты'**
+  String get hiddenSectionDates;
+
+  /// No description provided for @hiddenDatesFooter.
+  ///
+  /// In ru, this message translates to:
+  /// **'В эти дни приложение скажет что-нибудь особенное.'**
+  String get hiddenDatesFooter;
+
+  /// No description provided for @hiddenAddDate.
+  ///
+  /// In ru, this message translates to:
+  /// **'Добавить дату'**
+  String get hiddenAddDate;
+
+  /// No description provided for @hiddenDateLabelHint.
+  ///
+  /// In ru, this message translates to:
+  /// **'Название, например «День рождения»'**
+  String get hiddenDateLabelHint;
+
+  /// No description provided for @hiddenDateDefaultLabel.
+  ///
+  /// In ru, this message translates to:
+  /// **'Особый день'**
+  String get hiddenDateDefaultLabel;
+
+  /// No description provided for @hiddenDateSave.
+  ///
+  /// In ru, this message translates to:
+  /// **'Добавить'**
+  String get hiddenDateSave;
+
+  /// No description provided for @hiddenDateCancel.
+  ///
+  /// In ru, this message translates to:
+  /// **'Отмена'**
+  String get hiddenDateCancel;
+
+  /// No description provided for @hiddenDateRemove.
+  ///
+  /// In ru, this message translates to:
+  /// **'Удалить дату'**
+  String get hiddenDateRemove;
+
+  /// No description provided for @cancel.
+  ///
+  /// In ru, this message translates to:
+  /// **'Отмена'**
+  String get cancel;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {
