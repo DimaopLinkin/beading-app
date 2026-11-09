@@ -101,15 +101,17 @@ scripts/release_notes.sh --check
 
 ```bash
 #!/usr/bin/env bash
-# Проверяет направление зависимостей между слоями по импортам.
+# Проверяет направление зависимостей между слоями по импортам и экспортам.
+# Использование: scripts/check_architecture.sh [корень проекта] — по умолчанию корень репозитория.
 set -euo pipefail
-cd "$(dirname "$0")/.."
+cd "${1:-$(dirname "$0")/..}"
 pkg=$(awk '/^name:/ {print $2; exit}' pubspec.yaml)
 fail=0
 
 forbid() {  # forbid <каталог> <регулярка импорта> <сообщение>
   local hits
-  hits=$(grep -rnE "^import '($2)" "$1" --include='*.dart' || true)
+  [[ -d "$1" ]] || return 0
+  hits=$(grep -rnE "^(import|export) ['\"]($2)" "$1" --include='*.dart' || true)
   if [[ -n "$hits" ]]; then echo "ARCH: $3"; echo "$hits"; fail=1; fi
 }
 
@@ -133,7 +135,7 @@ scripts/analyze.sh
 scripts/test.sh "$@"
 ```
 
-CI (`.github/workflows/check.yml`, задача T00): на каждый PR в `dev` и `main` — `ubuntu-latest`, Flutter 3.41.0, `scripts/check.sh`; отдельная джоба `macos-latest` собирает `flutter build macos --debug` и `flutter build ios --no-codesign --debug`.
+CI (задача T00): `.github/workflows/check.yml` — на каждый PR в `dev` и `main`, `ubuntu-latest`, Flutter 3.41.0, `scripts/check.sh`. Нативную сборку (`flutter build macos`, `flutter build ios --no-codesign`) в CI не гоняем: минуты macOS дороги, проблемы нативной сборки решаем при подготовке релиза (решение Дмитрия).
 
 ## Определение готовности задачи (DoD)
 

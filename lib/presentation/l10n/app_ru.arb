@@ -1,0 +1,7 @@
+{
+  "@@locale": "ru",
+  "appTitle": "Бисер",
+  "@appTitle": {"description": "Название приложения"},
+  "libraryTitle": "Мои работы",
+  "@libraryTitle": {"description": "Заголовок главного экрана со списком проектов"}
+}
