@@ -71,7 +71,7 @@
 
 ### Дизайнер (Sonnet)
 
-- **Промпты и UI kit (отдельный тред, редко):** ведёт [design-prompts.md](design-prompts.md). Когда Дмитрий приносит результат Claude Design, готовит из него спецификацию токенов для T01b.
+- **Промпты и UI kit (отдельный тред, редко):** ведёт [design-prompts.md](design-prompts.md). Результат Claude Design приходит через `docs/design/inbox/` ([design/README.md](design/README.md), `scripts/design_review.sh`); тред ревьюит его и готовит из него спецификацию токенов для T01b.
 - **Ревью экранов (сабагент в задачах `ui`):**
   - **Вход:** diff `lib/presentation/` и изменённые golden-файлы, макет экрана из [design-prompts.md](design-prompts.md), раздел `ui` чек-листа, [cross-cutting.md](cross-cutting.md) (темы, портрет, пасхалки).
   - **Проверяет:** соответствие макету, обе темы, тач-зоны ≥ 44pt, крупный шрифт, `Semantics`, строки из ARB, тон текстов для Насти.
