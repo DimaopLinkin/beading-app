@@ -11,7 +11,8 @@ class AppMenuActions {
   final VoidCallback? onPreferences;
 }
 
-/// Нативная строка меню macOS (ADR-0001): Правка (⌘Z, ⇧⌘Z) и «Настройки…» (⌘,).
+/// Нативная строка меню macOS (ADR-0001): меню приложения (О программе, «Настройки…» ⌘,, Скрыть, Выйти ⌘Q),
+/// Правка (⌘Z, ⇧⌘Z) и Окно. Пока ни один экран не задаёт обработчики, пункты правки и настроек неактивны.
 /// На других платформах возвращает [child] без изменений.
 class AppMenuBar extends StatelessWidget {
   const AppMenuBar({
@@ -20,6 +21,7 @@ class AppMenuBar extends StatelessWidget {
     this.platform,
     this.undoLabel = 'Отменить',
     this.redoLabel = 'Повторить',
+    this.appLabel = 'Бисер',
     this.editLabel = 'Правка',
     this.preferencesLabel = 'Настройки…',
     super.key,
@@ -30,6 +32,7 @@ class AppMenuBar extends StatelessWidget {
   final TargetPlatform? platform;
   final String undoLabel;
   final String redoLabel;
+  final String appLabel;
   final String editLabel;
   final String preferencesLabel;
 
@@ -40,6 +43,36 @@ class AppMenuBar extends StatelessWidget {
     }
     return PlatformMenuBar(
       menus: <PlatformMenuItem>[
+        PlatformMenu(
+          label: appLabel,
+          menus: <PlatformMenuItem>[
+            const PlatformProvidedMenuItem(type: PlatformProvidedMenuItemType.about),
+            PlatformMenuItemGroup(
+              members: <PlatformMenuItem>[
+                PlatformMenuItem(
+                  label: preferencesLabel,
+                  shortcut: const SingleActivator(LogicalKeyboardKey.comma, meta: true),
+                  onSelected: actions.onPreferences,
+                ),
+              ],
+            ),
+            const PlatformMenuItemGroup(
+              members: <PlatformMenuItem>[
+                PlatformProvidedMenuItem(type: PlatformProvidedMenuItemType.servicesSubmenu),
+              ],
+            ),
+            const PlatformMenuItemGroup(
+              members: <PlatformMenuItem>[
+                PlatformProvidedMenuItem(type: PlatformProvidedMenuItemType.hide),
+                PlatformProvidedMenuItem(type: PlatformProvidedMenuItemType.hideOtherApplications),
+                PlatformProvidedMenuItem(type: PlatformProvidedMenuItemType.showAllApplications),
+              ],
+            ),
+            const PlatformMenuItemGroup(
+              members: <PlatformMenuItem>[PlatformProvidedMenuItem(type: PlatformProvidedMenuItemType.quit)],
+            ),
+          ],
+        ),
         PlatformMenu(
           label: editLabel,
           menus: <PlatformMenuItem>[
@@ -55,14 +88,11 @@ class AppMenuBar extends StatelessWidget {
             ),
           ],
         ),
-        PlatformMenu(
-          label: preferencesLabel,
+        const PlatformMenu(
+          label: 'Окно',
           menus: <PlatformMenuItem>[
-            PlatformMenuItem(
-              label: preferencesLabel,
-              shortcut: const SingleActivator(LogicalKeyboardKey.comma, meta: true),
-              onSelected: actions.onPreferences,
-            ),
+            PlatformProvidedMenuItem(type: PlatformProvidedMenuItemType.minimizeWindow),
+            PlatformProvidedMenuItem(type: PlatformProvidedMenuItemType.zoomWindow),
           ],
         ),
       ],
