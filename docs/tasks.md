@@ -2,7 +2,7 @@
 
 Каждая задача — отдельный тред, отдельная ветка `task/<ID>-<slug>`, отдельный PR. Тред получает бриф менеджера (см. [team.md](team.md#менеджер)): раздел задачи отсюда (`scripts/team/task_brief.sh <ID>`), [workflow.md](workflow.md), [team.md](team.md), нужные разделы [architecture.md](architecture.md), [data-and-sync.md](data-and-sync.md) (если задача про данные), [cross-cutting.md](cross-cutting.md) (если про UI), действующие правила из [review/rules.md](review/rules.md). Модель треда и состав ревью — по типу задачи, таблица ниже. ID потребностей (`MUST-…`, `NICE-…`) — из [research.md](research.md).
 
-Задача стартует, когда **все её зависимости влиты в `dev`**. Общие для всех задач требования (TDD, `scripts/check.sh`, DoD, ARB, обе темы, фрагмент changelog) описаны в [workflow.md](workflow.md) и здесь не повторяются.
+Задача стартует, когда **все её зависимости влиты в `dev`**. Общие для всех задач требования (TDD, `scripts/check.sh`, DoD, ARB, обе темы, нативный вид по [ADR-0001](decisions/0001-native-look.md), фрагмент changelog) описаны в [workflow.md](workflow.md) и здесь не повторяются.
 
 Ветки задач создаются от `dev`, PR открываются в `dev`; после закрытого ревью и зелёного CI тред задачи сам мёржит PR. Релизы собираются только из `main` (см. [workflow.md](workflow.md#ветки-и-pr)).
 
@@ -76,24 +76,24 @@
 
 ### T01 — Тема и базовые токены
 - **Покрывает:** MUST-G2. **Зависит от:** T00. **Параллельно:** T02, T03, T11, T12.
-- **Сделать:** `AppTheme.light/dark` из временных токенов (Material 3 как база, стекло добавляет T01g) (`presentation/theme/tokens.dart` — цвета, типографика, отступы, радиусы, в одном месте, чтобы T01b заменил значения); `ThemeModeCubit` (system/light/dark) поверх интерфейса `SettingsRepository` (реализация в T03, здесь — фейк в тестах, в DI до T03 — in-memory); стиль цифр счётчика (tabular figures); цвета подсветки ряда и притушения как `ThemeExtension`.
-- **Приёмка:** cubit переключает и восстанавливает режим; widget-тест, что приложение собирается в обеих темах; golden-образец набора токенов в обеих темах.
+- **Сделать:** по [ADR-0001](decisions/0001-native-look.md) (Cupertino-first): `AppTheme.light/dark` на `CupertinoThemeData` + `CupertinoDynamicColor` из временных токенов (`presentation/theme/tokens.dart` — цвета, типографика, отступы, радиусы, в одном месте, чтобы T01b заменил значения); токены через `InheritedWidget` `AppTokens` (`context.tokens`); перевести `lib/app/app.dart` на `CupertinoApp.router`, `library_screen.dart` на Cupertino-виджеты; `AppIcons` (на `CupertinoIcons`); `presentation/theme/material_bridge.dart`; правило в `scripts/check_architecture.sh`: прямой `package:flutter/material.dart` в `lib/presentation` и `lib/app` запрещён, кроме `material_bridge.dart` (+ тест правила); `ThemeModeCubit` (system/light/dark) поверх интерфейса `SettingsRepository` (реализация в T03, здесь — фейк в тестах, в DI до T03 — in-memory); стиль цифр счётчика (tabular figures); цвета подсветки ряда и притушения как поля `AppTokens`.
+- **Приёмка:** cubit переключает и восстанавливает режим; widget-тест, что приложение собирается в обеих темах и в корне `CupertinoApp`; golden-образец набора токенов в обеих темах; `check_architecture.sh` падает на тестовой фикстуре с импортом `material.dart` и пропускает `material_bridge.dart`.
 - **Вне объёма:** виджеты UI kit (делают задачи экранов).
 
 ### T01g — Спайк: реализация Liquid Glass во Flutter
 - **Покрывает:** пожелание про Liquid Glass ([cross-cutting.md](cross-cutting.md#liquid-glass)). **Зависит от:** T01. **Параллельно:** T01b, M1-задачи без UI (T04, T08-домен и др.).
-- **Сделать:** сравнить 2–3 способа получить Liquid Glass на iOS 26 и macOS 26 (нативные platform view со SwiftUI `glassEffect`, актуальные пакеты, собственный шейдер/`BackdropFilter`); для каждого прототип `GlassPanel`/`GlassButton`/`GlassBar` над сеткой 100×400 и фото страницы; замерить кадры и совместимость с Flutter 3.41; описать запасной вариант для iOS ниже 26. Выбрать, оформить `docs/decisions/0001-liquid-glass.md`, реализовать виджеты `presentation/widgets/glass/` с golden-тестами (обе темы, запасной вариант).
+- **Сделать:** сравнить 2–3 способа получить Liquid Glass на iOS 26 и macOS 26 (нативные platform view со SwiftUI `glassEffect`, актуальные пакеты, собственный шейдер/`BackdropFilter`); для каждого прототип `GlassPanel`/`GlassButton`/`GlassBar` над сеткой 100×400 и фото страницы; замерить кадры и совместимость с Flutter 3.41; описать запасной вариант для iOS ниже 26. Выбрать, оформить `docs/decisions/0002-liquid-glass-implementation.md` (по [ADR-0001](decisions/0001-native-look.md))`, реализовать виджеты `presentation/widgets/glass/` с golden-тестами (обе темы, запасной вариант).
 - **Приёмка:** решение с обоснованием; виджеты работают на iOS 26 и macOS 26 и в запасном режиме; перерисовка сетки под стеклом не роняет 60 fps; чтение текста поверх ярких цветов проверено.
 - **Вне объёма:** экраны.
 
 ### T01b — Перенос UI kit из Claude Design
 - **Зависит от:** T01 и готового UI kit (промпт 1 в [design-prompts.md](design-prompts.md)). **Параллельно:** любые.
-- **Сделать:** заменить значения токенов (в том числе параметры материалов Liquid Glass для T01g), иконку приложения (iOS/macOS), обновить golden.
+- **Сделать:** заменить значения токенов `AppTokens` (в том числе параметры материалов Liquid Glass для T01g), иконку приложения (iOS/macOS), обновить golden.
 - **Приёмка:** golden обновлены осознанно; контраст текста ≥ 4.5:1 в обеих темах (тест по токенам).
 
 ### T02 — Платформенная оболочка: портрет, экран не гаснет, окно macOS
 - **Покрывает:** MUST-F5, MUST-G1. **Зависит от:** T00. **Параллельно:** T01, T03, T11, T12.
-- **Сделать:** по [cross-cutting.md](cross-cutting.md): `Info.plist` только портрет + `SystemChrome`; `ScreenWakeLock` (интерфейс в domain/settings, реализация на `wakelock_plus` в data), `WakelockController` по жизненному циклу и настройке «Не гасить экран» (по умолчанию вкл.); `window_manager` на macOS: 480×900, минимум 400×700.
+- **Сделать:** по [cross-cutting.md](cross-cutting.md): `Info.plist` только портрет + `SystemChrome`; `ScreenWakeLock` (интерфейс в domain/settings, реализация на `wakelock_plus` в data), `WakelockController` по жизненному циклу и настройке «Не гасить экран» (по умолчанию вкл.); `window_manager` на macOS: 480×900, минимум 400×700; нативное оформление окна (скрытая полоса заголовка, контент на всё окно) и строка меню `PlatformMenuBar` с `⌘Z`/`⇧⌘Z`/`⌘,` ([ADR-0001](decisions/0001-native-look.md)).
 - **Приёмка:** юнит-тесты контроллера (вкл. при resume, выкл. при pause, уважение настройки) с фейком; тест, что `bootstrap` выставляет ориентацию (через инжектируемый адаптер).
 
 ### T03 — База drift и настройки

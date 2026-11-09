@@ -121,6 +121,7 @@ forbid lib/core "package:flutter/|package:drift|package:$pkg/(domain|data|presen
   "core ни от чего не зависит"
 forbid lib/data "package:$pkg/(presentation|app)/" "data не знает о UI"
 forbid lib/presentation "package:drift|package:$pkg/(data|app)/" "presentation не импортирует data"
+# Cupertino-first (ADR-0001): Material только через lib/presentation/theme/material_bridge.dart (добавляет T01)
 
 exit $fail
 ```
