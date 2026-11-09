@@ -1,4 +1,5 @@
 import 'package:beading/domain/settings/app_theme_mode.dart';
+import 'package:beading/domain/settings/setting_keys.dart';
 import 'package:beading/domain/settings/settings_repository.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -11,7 +12,7 @@ class ThemeModeCubit extends Cubit<AppThemeMode> {
 
   /// Подставляет сохранённый режим; вызывается один раз при запуске.
   Future<void> restore() async {
-    final AppThemeMode saved = await _settings.loadThemeMode();
+    final AppThemeMode saved = (await _settings.read(SettingKeys.themeMode)).valueOrNull ?? state;
     // Выбор пользователя важнее восстановленного значения, если он успел раньше.
     if (!_selected && saved != state) emit(saved);
   }
@@ -19,6 +20,6 @@ class ThemeModeCubit extends Cubit<AppThemeMode> {
   Future<void> select(AppThemeMode mode) async {
     _selected = true;
     emit(mode);
-    await _settings.saveThemeMode(mode);
+    await _settings.write(SettingKeys.themeMode, mode);
   }
 }

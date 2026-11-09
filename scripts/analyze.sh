@@ -5,7 +5,8 @@ cd "$(dirname "$0")/.."
 
 flutter pub get
 dart run build_runner build --delete-conflicting-outputs
-dart format --output=none --set-exit-if-changed lib test
+# Сгенерированный *.g.dart не форматируем: он в .gitignore и пересоздаётся при каждой сборке.
+find lib test -name '*.dart' ! -name '*.g.dart' -print0 | xargs -0 dart format --output=none --set-exit-if-changed
 flutter analyze --fatal-infos --fatal-warnings
 scripts/check_architecture.sh
 scripts/release_notes.sh --check
