@@ -7,11 +7,13 @@
 ```markdown
 # T05 — Импорт изображения
 
-| ID | Раунд | Серьёзность | Категория | Где | Суть | Повтор | Статус |
-|---|---|---|---|---|---|---|---|
-| T05-R1-01 | 1 | major | test | lib/domain/generator/quantizer.dart:42 | Нет теста на изображение из одного цвета | — | fixed 1a2b3c |
-| T05-R1-02 | 1 | minor | arch | lib/presentation/generator/generator_cubit.dart:10 | Импорт из data | recurrence of T03-R2-01 | fixed 4d5e6f |
-| T05-R2-01 | 2 | nit | style | ... | ... | — | rejected: ... (принято ревьюером) |
+| ID | Раунд | Кто | Серьёзность | Категория | Где | Суть | Повтор | Статус |
+|---|---|---|---|---|---|---|---|---|
+| T05-R1-01 | 1 | code | major | test | lib/domain/generator/quantizer.dart:42 | Нет теста на изображение из одного цвета | — | fixed 1a2b3c |
+| T05-R1-02 | 1 | code | minor | arch | lib/presentation/generator/generator_cubit.dart:10 | Импорт из data | recurrence of T03-R2-01 | fixed 4d5e6f |
+| T05-R2-01 | 2 | design | nit | style | ... | ... | — | rejected: ... (принято ревьюером) |
 ```
+
+«Кто»: `code`, `arch`, `design`, `research`, `fact` (см. [team.md](../../team.md)). Строки дописывает тред задачи скриптом `scripts/team/record_review.sh`, дословно из ответа ревьюера.
 
 Статусы: `open`, `fixed <commit>`, `rejected: <причина>` (только с согласия ревьюера), `reopened`.
