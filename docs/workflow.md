@@ -41,7 +41,7 @@
 
 ## Скрипты
 
-Все проверки — только скриптами, руками ничего не гоняем. Задача T00 создаёт их в `scripts/` в этом виде (`chmod +x`).
+Все проверки — только скриптами, руками ничего не гоняем. Задача T00 создаёт их в `scripts/` в этом виде (`chmod +x`). `scripts/release_notes.sh` уже есть в репозитории (см. [changelog.md](changelog.md)).
 
 `scripts/test.sh`:
 
@@ -85,6 +85,7 @@ dart run build_runner build --delete-conflicting-outputs
 dart format --output=none --set-exit-if-changed lib test
 flutter analyze --fatal-infos --fatal-warnings
 scripts/check_architecture.sh
+scripts/release_notes.sh --check
 ```
 
 `scripts/check_architecture.sh`:
@@ -133,6 +134,7 @@ CI (`.github/workflows/check.yml`, задача T00): на каждый PR в `m
 - [ ] Новые строки UI — в ARB (ru).
 - [ ] Новые экраны проверены в светлой и тёмной теме (widget-тест или golden).
 - [ ] Изменение схемы БД — с миграцией и тестом миграции.
+- [ ] Есть фрагмент `changelog.d/<ID>.md` по правилам [changelog.md](changelog.md).
 - [ ] PR открыт, ревью закрыто (все замечания исправлены или отклонены с согласия ревьюера).
 
 ## Цикл ревью и журнал повторов

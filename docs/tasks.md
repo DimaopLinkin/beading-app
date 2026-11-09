@@ -2,7 +2,7 @@
 
 Каждая задача — отдельный тред, отдельная ветка `task/<ID>-<slug>`, отдельный PR. Тред получает: текст задачи отсюда, [workflow.md](workflow.md), [architecture.md](architecture.md), [data-and-sync.md](data-and-sync.md) (если задача про данные), [cross-cutting.md](cross-cutting.md) (если про UI), действующие правила из [review/rules.md](review/rules.md). ID потребностей (`MUST-…`, `NICE-…`) — из [research.md](research.md).
 
-Задача стартует, когда **все её зависимости влиты в `main`**. Общие для всех задач требования (TDD, `scripts/check.sh`, DoD, ARB, обе темы) описаны в [workflow.md](workflow.md) и здесь не повторяются.
+Задача стартует, когда **все её зависимости влиты в `main`**. Общие для всех задач требования (TDD, `scripts/check.sh`, DoD, ARB, обе темы, фрагмент changelog) описаны в [workflow.md](workflow.md) и здесь не повторяются.
 
 ## Вехи
 
@@ -46,6 +46,7 @@
   - Зависимости: flutter_bloc, bloc_test, get_it, go_router, equatable, uuid, mocktail, drift/drift_dev/build_runner, sqlite3_flutter_libs, flutter_localizations/intl. Остальное добавляют задачи.
   - Локализация ru (ARB, `l10n.yaml`), одна строка-заголовок.
   - `.gitignore`: `*.g.dart`, `coverage/`.
+  - Версия в `pubspec.yaml`: `0.0.1+1`.
 - **Приёмка:** `scripts/check.sh` зелёный; тесты на `Result`, `IdGenerator` (формат v7, монотонность), smoke-тест запуска приложения; `check_architecture.sh` ловит намеренно плохой импорт (тест скрипта на временной фикстуре).
 
 ### T01 — Тема и базовые токены
@@ -103,7 +104,7 @@
 
 ### T10 — Подпись и выкладка: TestFlight и macOS
 - **Зависит от:** T00 и наличия Apple Developer Program у Дмитрия. **Параллельно:** любые.
-- **Сделать:** bundle id, команда, иконки-заглушки, `ios/` и `macos/` entitlements (sandbox, файлы, камера, фото — тексты разрешений по-русски), `scripts/release_ios.sh` (сборка ipa и загрузка через `xcrun altool`/Transporter), `scripts/release_macos.sh` (подписанный и нотаризованный .app/.dmg). Инструкция в `docs/release.md`.
+- **Сделать:** выпуск версии по [changelog.md](changelog.md) (поднять версию, `scripts/release_notes.sh`, тег); bundle id, команда, иконки-заглушки, `ios/` и `macos/` entitlements (sandbox, файлы, камера, фото — тексты разрешений по-русски), `scripts/release_ios.sh` (сборка ipa и загрузка через `xcrun altool`/Transporter), `scripts/release_macos.sh` (подписанный и нотаризованный .app/.dmg). Инструкция в `docs/release.md`.
 - **Приёмка:** Дмитрий ставит сборку через TestFlight и на Mac. (Требует действий Дмитрия — тред готовит всё и пишет пошаговую инструкцию.)
 
 ## M2 Свои схемы
