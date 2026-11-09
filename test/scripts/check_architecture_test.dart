@@ -25,7 +25,16 @@ void main() {
   test('чистый проект проходит', () {
     write('lib/domain/a.dart', "import 'dart:math';\n");
     write('lib/data/b.dart', "import 'package:demo/domain/a.dart';\n");
-    write('lib/presentation/c.dart', "import 'package:flutter/material.dart';\nimport 'package:demo/domain/a.dart';\n");
+    write(
+      'lib/presentation/c.dart',
+      "import 'package:flutter/cupertino.dart';\nimport 'package:demo/domain/a.dart';\n",
+    );
+
+    expect(run().exitCode, 0);
+  });
+
+  test('material_bridge.dart может импортировать Material', () {
+    write('lib/presentation/theme/material_bridge.dart', "import 'package:flutter/material.dart';\n");
 
     expect(run().exitCode, 0);
   });
@@ -43,6 +52,7 @@ void main() {
     'lib/data/f.dart': "import 'package:demo/presentation/x.dart';",
     'lib/presentation/g.dart': "import 'package:demo/data/x.dart';",
     'lib/presentation/h.dart': "import 'package:drift/drift.dart';",
+    'lib/presentation/i.dart': "import 'package:flutter/material.dart';",
   };
 
   violations.forEach((path, line) {

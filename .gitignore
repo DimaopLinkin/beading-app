@@ -47,3 +47,4 @@ app.*.map.json
 # Beading
 *.g.dart
 !/lib/presentation/l10n/**
+**/failures/
