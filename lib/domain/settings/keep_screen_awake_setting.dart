@@ -1,6 +1,6 @@
 /// Настройка «Не гасить экран». По умолчанию включена.
 ///
-/// До появления базы настроек (T03) реализация хранит значение в памяти; T03 подменит её в DI.
+/// Реализация — поверх `SettingsRepository` (ключ `SettingKeys.keepScreenAwake`).
 abstract interface class KeepScreenAwakeSetting {
   Future<bool> read();
 
