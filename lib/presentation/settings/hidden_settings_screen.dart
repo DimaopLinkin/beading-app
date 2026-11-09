@@ -32,14 +32,17 @@ class _HiddenSettingsScreenState extends State<HiddenSettingsScreen> {
   @override
   void dispose() {
     // Имя, введённое без «Готово», тоже сохраняем: кубит живёт дольше экрана.
-    unawaited(_cubit.setUserName(_name.text));
+    if (_nameChanged) unawaited(_cubit.setUserName(_name.text));
     _nameFocus.dispose();
     _name.dispose();
     super.dispose();
   }
 
+  // Пишем только изменённое имя: так не будет лишних записей и затирания загруженного значения.
+  bool get _nameChanged => _name.text.trim() != _cubit.state.userName;
+
   Future<void> _commitName() async {
-    await _cubit.setUserName(_name.text);
+    if (_nameChanged) await _cubit.setUserName(_name.text);
     // Пустое имя превращается в имя по умолчанию: показываем его в поле.
     if (mounted && _name.text != _cubit.state.userName) _name.text = _cubit.state.userName;
   }
@@ -71,10 +74,7 @@ class _HiddenSettingsScreenState extends State<HiddenSettingsScreen> {
                     focusNode: _nameFocus,
                     placeholder: l10n.hiddenNameHint,
                     textInputAction: TextInputAction.done,
-                    onEditingComplete: () {
-                      unawaited(_commitName());
-                      _nameFocus.unfocus();
-                    },
+                    onEditingComplete: _nameFocus.unfocus,
                   ),
                 ],
               ),
