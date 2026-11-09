@@ -3,10 +3,7 @@ import 'package:flutter/cupertino.dart';
 
 /// Тема приложения на Cupertino. Шрифт системный (SF), размер следует Dynamic Type.
 abstract final class AppTheme {
-  static const CupertinoDynamicColor _primary = CupertinoDynamicColor.withBrightness(
-    color: Color(0xFF8E4EC6),
-    darkColor: Color(0xFFB57EDC),
-  );
+  static const CupertinoDynamicColor _primary = AppTokensData.accentColor;
 
   /// Яркость берётся из системы.
   static const CupertinoThemeData system = CupertinoThemeData(primaryColor: _primary);

@@ -56,6 +56,7 @@ class AppTokensData {
   const AppTokensData({
     required this.spacing,
     required this.radius,
+    required this.accent,
     required this.rowHighlight,
     required this.rowDim,
     required this.glassSurface,
@@ -64,10 +65,16 @@ class AppTokensData {
     this.minTapTarget = 44,
   });
 
+  static const CupertinoDynamicColor accentColor = CupertinoDynamicColor.withBrightness(
+    color: Color(0xFF8E4EC6),
+    darkColor: Color(0xFFB57EDC),
+  );
+
   /// Временные значения до переноса UI kit (T01b).
   static const AppTokensData standard = AppTokensData(
     spacing: SpacingTokens(xs: 4, s: 8, m: 12, l: 16, xl: 24, xxl: 32),
     radius: RadiusTokens(s: 10, m: 16, l: 24, xl: 32),
+    accent: accentColor,
     rowHighlight: CupertinoDynamicColor.withBrightness(
       color: Color(0x66FFD60A),
       darkColor: Color(0x80FFD60A),
@@ -79,7 +86,7 @@ class AppTokensData {
     glassSurface: GlassTokens(
       blurSigma: 24,
       tint: CupertinoDynamicColor.withBrightness(color: Color(0x80FFFFFF), darkColor: Color(0x661C1C1E)),
-      border: CupertinoDynamicColor.withBrightness(color: Color(0x40FFFFFF), darkColor: Color(0x26FFFFFF)),
+      border: CupertinoDynamicColor.withBrightness(color: Color(0x33000000), darkColor: Color(0x26FFFFFF)),
       highlight: CupertinoDynamicColor.withBrightness(color: Color(0xCCFFFFFF), darkColor: Color(0x33FFFFFF)),
     ),
     glassBar: GlassTokens(
@@ -93,6 +100,9 @@ class AppTokensData {
 
   final SpacingTokens spacing;
   final RadiusTokens radius;
+
+  /// Акцентный цвет приложения.
+  final CupertinoDynamicColor accent;
 
   /// Подсветка текущего ряда.
   final CupertinoDynamicColor rowHighlight;

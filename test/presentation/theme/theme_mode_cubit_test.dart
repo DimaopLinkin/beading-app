@@ -45,4 +45,14 @@ void main() {
     expect(restored.state, AppThemeMode.light);
     expect(repository.saveCount, 1);
   });
+
+  test('select до завершения restore не перезаписывается восстановленным значением', () async {
+    final ThemeModeCubit cubit = ThemeModeCubit(FakeSettingsRepository(themeMode: AppThemeMode.dark));
+
+    final Future<void> restoring = cubit.restore();
+    await cubit.select(AppThemeMode.light);
+    await restoring;
+
+    expect(cubit.state, AppThemeMode.light);
+  });
 }

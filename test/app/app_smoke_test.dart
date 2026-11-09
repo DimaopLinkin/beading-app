@@ -31,7 +31,7 @@ void main() {
     expect(CupertinoTheme.brightnessOf(tester.element(find.text('Мои работы'))), Brightness.dark);
   });
 
-  testWidgets('выбор режима темы переключает приложение и переживает перезапуск', (tester) async {
+  testWidgets('выбор режима темы переключает приложение', (tester) async {
     await tester.pumpWidget(await bootstrap());
     await tester.pumpAndSettle();
     final BuildContext context = tester.element(find.text('Мои работы'));
