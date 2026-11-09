@@ -2,7 +2,7 @@ import 'dart:async';
 
 import 'package:beading/domain/settings/keep_screen_awake_setting.dart';
 
-/// Временное хранилище настройки в памяти (до T03). По умолчанию включено.
+/// Временное хранилище настройки в памяти; T03 удалит его и подключит `SettingsRepository`. По умолчанию включено.
 class InMemoryKeepScreenAwakeSetting implements KeepScreenAwakeSetting {
   InMemoryKeepScreenAwakeSetting({bool initial = true}) : _value = initial;
 

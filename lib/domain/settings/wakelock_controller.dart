@@ -20,11 +20,13 @@ class WakelockController {
 
   /// Читает настройку, подписывается на её изменения и применяет состояние для переднего плана.
   Future<void> start() async {
-    _enabledBySetting = await _setting.read();
+    await _subscription?.cancel();
+    // Сначала подписка, потом чтение: изменение между ними не потеряется.
     _subscription = _setting.watch().listen((value) {
       _enabledBySetting = value;
       unawaited(_apply());
     });
+    _enabledBySetting = await _setting.read();
     _foreground = true;
     await _apply();
   }

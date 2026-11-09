@@ -102,4 +102,14 @@ void main() {
     await pumpEventQueue();
     expect(lock.calls, <String>['enable', 'disable']);
   });
+
+  test('повторный start не оставляет вторую подписку', () async {
+    await controller.start();
+    await controller.start();
+
+    expect(setting.controller.hasListener, isTrue);
+    setting.change(to: false);
+    await pumpEventQueue();
+    expect(lock.calls, <String>['enable', 'disable']);
+  });
 }

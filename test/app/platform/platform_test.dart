@@ -2,6 +2,7 @@ import 'package:beading/app/platform/app_lifecycle_binding.dart';
 import 'package:beading/app/platform/app_menu_bar.dart';
 import 'package:beading/app/platform/desktop_window.dart';
 import 'package:beading/app/platform/orientation_lock.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -93,6 +94,7 @@ void main() {
     });
 
     testWidgets('на macOS есть ⌘Z, ⇧⌘Z и ⌘, с нужными обработчиками', (tester) async {
+      debugDefaultTargetPlatformOverride = TargetPlatform.macOS;
       final List<String> fired = <String>[];
       await tester.pumpWidget(
         Directionality(
@@ -109,10 +111,22 @@ void main() {
         ),
       );
 
+      debugDefaultTargetPlatformOverride = null;
       final PlatformMenuBar bar = tester.widget(find.byType(PlatformMenuBar));
-      final List<PlatformMenuItem> items = bar.menus
+      final List<PlatformMenuItem> all = bar.menus
           .expand((m) => m is PlatformMenu ? m.menus : <PlatformMenuItem>[m])
+          .expand((m) => m is PlatformMenuItemGroup ? m.members : <PlatformMenuItem>[m])
           .toList();
+      expect(
+        all.whereType<PlatformProvidedMenuItem>().map((i) => i.type),
+        containsAll(<PlatformProvidedMenuItemType>[
+          PlatformProvidedMenuItemType.about,
+          PlatformProvidedMenuItemType.hide,
+          PlatformProvidedMenuItemType.quit,
+          PlatformProvidedMenuItemType.minimizeWindow,
+        ]),
+      );
+      final List<PlatformMenuItem> items = all.where((i) => i is! PlatformProvidedMenuItem).toList();
       final Map<String, SingleActivator> shortcuts = <String, SingleActivator>{
         for (final PlatformMenuItem item in items) item.label: item.shortcut! as SingleActivator,
       };
@@ -124,7 +138,7 @@ void main() {
       for (final PlatformMenuItem item in items) {
         item.onSelected!();
       }
-      expect(fired, <String>['undo', 'redo', 'prefs']);
+      expect(fired, <String>['prefs', 'undo', 'redo']);
     });
   });
 }
