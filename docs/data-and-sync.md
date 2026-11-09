@@ -19,13 +19,13 @@ drift (SQLite) — единственный источник правды на �
 | `projects` | name, craft (`beading`/`crossStitch`), status (`idea`/`inProgress`/`done`), technique, content_kind (`image`/`grid`/`steps`), notes, cover_path NULL, last_worked_at | Корень библиотеки |
 | `image_patterns` | project_id FK | Схема из книги. |
 | `image_pattern_pages` | image_pattern_id FK, position, file_path, pdf_page NULL, width_px, height_px, ruler_top, ruler_height, ruler_step, current_row, view_scale, view_dx, view_dy | Страница схемы из книги или PDF и её прогресс (линейка). Файл копируется в Application Support, путь относительный. |
-| `grid_patterns` | project_id FK, geometry, drop, width, height, cell_metrics, current_row, current_bead, cells BLOB, cells_codec_version, layers BLOB NULL, layers_codec_version NULL | Сетка одним BLOB (индексы палитры), а не строкой на бусину: 30×400 = 12 000 строк на схему — слишком дорого. Кодек версионирован и покрыт тестами. |
+| `grid_patterns` | project_id FK, geometry, drop, width, height, cell_metrics, current_row, current_bead, cells BLOB, cells_codec_version, layers BLOB NULL, layers_codec_version NULL (слои пишет T38) | Сетка одним BLOB (индексы палитры), а не строкой на бусину: 30×400 = 12 000 строк на схему — слишком дорого. Кодек версионирован и покрыт тестами. |
 | `pattern_colors` | grid_pattern_id FK, position, rgb, name, components (JSON: 1–2 пары бренд+код, сложения), finish NULL, symbol | Палитра-снимок схемы: значения скопированы, а не ссылка на каталог |
 | `catalog_colors` | material (`bead`/`floss`), brand, series, code, name, rgb, finish, size | Каталог бисера (Miyuki Delica, Toho, Preciosa) и мулине (DMC, Anchor, Madeira, «Гамма»; T36). Наполняется из `assets/catalog/*.json` при первом запуске/миграции, не синхронизируется. |
 | `grid_progress_rows` | grid_pattern_id FK, row_index, completed_at | Отмеченные ряды. Отдельная таблица, потому что при слиянии это множество (объединяем), а не одно значение. Текущая бусина — в `grid_patterns.current_row/current_bead`. |
-| `grid_progress_cells` | grid_pattern_id FK, block_index, done_bits BLOB, undone_bits BLOB, undone_at | Прогресс вышивки по клеткам блоками 16×16 (T38). Слияние — ИЛИ отметок, снятия — с временем |
+| `grid_progress_cells` | grid_pattern_id FK, block_index, bits BLOB | Прогресс вышивки по клеткам блоками 16×16 (T38). Служебные поля как у всех; слияние — LWW по блоку |
 | `work_sessions` | project_id FK, started_at, ended_at NULL | Учёт времени плетения |
-| `inventory` | bead_color_id, grams | Бонус: запасы бисера |
+| `inventory` | catalog_color_id, amount (граммы бисера / мотки мулине) | Бонус: запасы бисера |
 | `settings` | key PK, value | Тема, wakelock, имя для пасхалок |
 | `easter_egg_log` | egg_id, shown_at | Чтобы пасхалки не повторялись и были редкими. Локальная, не синхронизируется. |
 
@@ -57,7 +57,7 @@ drift (SQLite) — единственный источник правды на �
    - Вся логика слияния — в Dart, в `domain/sync`, чистыми функциями со 100% покрытием:
      - запись целиком — *last-writer-wins* по `updated_at`, при равенстве — по `device_id`;
      - `grid_progress_rows` — объединение множеств (отметку ряда нельзя «потерять»), снятие отметки — tombstone;
-     - `grid_progress_cells` — побитовое ИЛИ отметок по блоку, снятие действует, если оно новее отметки ([ADR 0001](adr/0001-crafts-in-domain.md));
+     - `grid_progress_cells` — last-writer-wins по блоку 16×16 целиком; при правке одного блока на двух устройствах без связи теряются отметки одного из них только в этом блоке ([ADR 0001](adr/0001-crafts-in-domain.md));
      - удаление — tombstone, физическая очистка через 30 дней.
    - Интерфейс `SyncRemote` в домене позволяет подменить транспорт на iCloud Drive без переписывания логики.
 
