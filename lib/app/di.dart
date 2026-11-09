@@ -1,5 +1,12 @@
+import 'package:beading/app/platform/desktop_window.dart';
+import 'package:beading/app/platform/orientation_lock.dart';
 import 'package:beading/core/clock.dart';
 import 'package:beading/core/id_generator.dart';
+import 'package:beading/data/platform/wakelock_plus_screen_wake_lock.dart';
+import 'package:beading/data/settings/in_memory_keep_screen_awake_setting.dart';
+import 'package:beading/domain/settings/keep_screen_awake_setting.dart';
+import 'package:beading/domain/settings/screen_wake_lock.dart';
+import 'package:beading/domain/settings/wakelock_controller.dart';
 import 'package:get_it/get_it.dart';
 
 /// Глобальный контейнер зависимостей. Регистрируем только здесь.
@@ -12,5 +19,13 @@ Future<void> configureDependencies([GetIt? locator]) async {
   await container.reset();
   container
     ..registerLazySingleton<Clock>(SystemClock.new)
-    ..registerLazySingleton<IdGenerator>(() => UuidV7IdGenerator(clock: container<Clock>()));
+    ..registerLazySingleton<IdGenerator>(() => UuidV7IdGenerator(clock: container<Clock>()))
+    ..registerLazySingleton<OrientationLock>(SystemChromeOrientationLock.new)
+    ..registerLazySingleton<DesktopWindow>(WindowManagerDesktopWindow.new)
+    ..registerLazySingleton<ScreenWakeLock>(WakelockPlusScreenWakeLock.new)
+    // До T03 настройка живёт в памяти.
+    ..registerLazySingleton<KeepScreenAwakeSetting>(InMemoryKeepScreenAwakeSetting.new)
+    ..registerLazySingleton<WakelockController>(
+      () => WakelockController(wakeLock: container<ScreenWakeLock>(), setting: container<KeepScreenAwakeSetting>()),
+    );
 }
