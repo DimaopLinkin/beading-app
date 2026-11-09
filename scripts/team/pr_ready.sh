@@ -17,7 +17,8 @@ else
   echo "scripts/check.sh ещё нет (до T00)" >"$out"
 fi
 
-title=$(grep -m1 -E "^### ${id} — " docs/tasks.md | sed -E "s/^### //" || echo "$id")
+title=$(grep -m1 -E "^### ${id} — " docs/tasks.md | sed -E "s/^### //" || true)
+title="${title:-$id}"
 cat <<MD
 ## ${title}
 

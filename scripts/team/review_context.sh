@@ -13,8 +13,11 @@ scripts/team/task_brief.sh "$id"
 log="docs/review/findings/${id}.md"
 echo
 echo "## Журнал ${log}"
-if (( round > 1 )); then
-  grep -vE '\| *fixed [0-9a-f]+ *\|$' "$log" || true   # закрытые не показываем
+if [[ ! -f "$log" ]]; then
+  echo "(журнала нет)"
+elif (( round > 1 )); then
+  # закрытые (fixed, принятые rejected) не показываем
+  grep -vE '\| *(fixed [0-9a-f]{6,}|rejected: .*\(принято\)) *\| *$' "$log" || true
 else
   echo "(раунд 1)"
 fi
