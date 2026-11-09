@@ -1,11 +1,18 @@
+import 'package:beading/app/platform/desktop_window.dart';
+import 'package:beading/app/platform/orientation_lock.dart';
 import 'package:beading/core/clock.dart';
 import 'package:beading/core/id_generator.dart';
 import 'package:beading/data/db/app_database.dart';
 import 'package:beading/data/db/open_database.dart';
+import 'package:beading/data/platform/wakelock_plus_screen_wake_lock.dart';
 import 'package:beading/data/settings/drift_device_id_provider.dart';
 import 'package:beading/data/settings/drift_settings_repository.dart';
+import 'package:beading/data/settings/repository_keep_screen_awake_setting.dart';
 import 'package:beading/domain/settings/device_id_provider.dart';
+import 'package:beading/domain/settings/keep_screen_awake_setting.dart';
+import 'package:beading/domain/settings/screen_wake_lock.dart';
 import 'package:beading/domain/settings/settings_repository.dart';
+import 'package:beading/domain/settings/wakelock_controller.dart';
 import 'package:beading/presentation/theme/theme_mode_cubit.dart';
 import 'package:get_it/get_it.dart';
 
@@ -33,6 +40,15 @@ Future<void> configureDependencies({GetIt? locator, AppDatabase? database}) asyn
         deviceIds: container<DeviceIdProvider>(),
         clock: container<Clock>(),
       ),
+    )
+    ..registerLazySingleton<OrientationLock>(SystemChromeOrientationLock.new)
+    ..registerLazySingleton<DesktopWindow>(WindowManagerDesktopWindow.new)
+    ..registerLazySingleton<ScreenWakeLock>(WakelockPlusScreenWakeLock.new)
+    ..registerLazySingleton<KeepScreenAwakeSetting>(
+      () => RepositoryKeepScreenAwakeSetting(container<SettingsRepository>()),
+    )
+    ..registerLazySingleton<WakelockController>(
+      () => WakelockController(wakeLock: container<ScreenWakeLock>(), setting: container<KeepScreenAwakeSetting>()),
     )
     ..registerFactory<ThemeModeCubit>(() => ThemeModeCubit(container<SettingsRepository>()));
 }
