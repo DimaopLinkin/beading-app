@@ -62,5 +62,5 @@ type: added
   1. Ветка `release/0.1.0` от свежего `dev`.
   2. `scripts/release_notes.sh 0.1.0` — обновит `CHANGELOG.md`, создаст `docs/release-notes/0.1.0.md`, удалит фрагменты.
   3. Поднять `version:` в `pubspec.yaml`.
-  4. PR `release/0.1.0` → `main` (merge commit, не squash). Мёрж в `main` — только с согласия Дмитрия. После мёржа — тег `v0.1.0` на коммит в `main` и обратный мёрж `main` → `dev`, чтобы `dev` получил собранный `CHANGELOG.md`.
+  4. PR `release/0.1.0` → `main` (merge commit, не squash). Claude только предлагает его: аппрув и мёрж делает Дмитрий. После мёржа — тег `v0.1.0` на коммит в `main` (Дмитрий или GitHub Release при мёрже) и PR `main` → `dev`, чтобы `dev` получил собранный `CHANGELOG.md`; этот PR Claude может влить сам.
   5. Сборка для TestFlight и macOS — из тега в `main`; текст из `docs/release-notes/0.1.0.md` — в TestFlight и ей.
