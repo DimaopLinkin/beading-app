@@ -12,6 +12,28 @@ final class ProjectCompleted extends AppEvent {
   final String projectId;
 }
 
+/// Приложение запущено.
+final class AppStarted extends AppEvent {
+  const AppStarted();
+}
+
+/// Отмечен ряд. [total] — сколько рядов отмечено за всё время (после этого ряда).
+final class RowsCompleted extends AppEvent {
+  const RowsCompleted(this.total);
+
+  final int total;
+}
+
+/// Сессия идёт дольше порога (`EasterEggPolicy.longSession`).
+final class LongSession extends AppEvent {
+  const LongSession();
+}
+
+/// Секрет: 7 нажатий на логотип в «О приложении».
+final class SecretTapped extends AppEvent {
+  const SecretTapped();
+}
+
 /// Шина событий: публикуем в одном месте, слушаем в другом.
 abstract interface class AppEvents {
   Stream<AppEvent> get stream;
