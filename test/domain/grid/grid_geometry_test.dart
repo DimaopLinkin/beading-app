@@ -226,6 +226,54 @@ void main() {
     };
 
     for (final MapEntry<String, GridGeometry> geometry in geometries.entries) {
+      test('cellAt даёт ту же ячейку для внутренних точек у углов: ${geometry.key}', () {
+        const int columns = 6;
+        const int rows = 5;
+        const FakeCellMetrics cell = FakeCellMetrics(1.3, 1.6);
+        final GridGeometry g = geometry.value;
+        // в кирпичном стежке ячейка 1,6 × 1,3
+        final double halfWidth = (g is BrickGeometry ? 1.6 : 1.3) * 0.49;
+        final double halfHeight = (g is BrickGeometry ? 1.3 : 1.6) * 0.49;
+        for (int row = 0; row < rows; row++) {
+          for (int column = 0; column < columns; column++) {
+            final CellPosition expected = _p(column, row);
+            final MmPoint center = g.cellCenter(cell, expected);
+            for (final double dx in <double>[-1, 1]) {
+              for (final double dy in <double>[-1, 1]) {
+                final MmPoint point = MmPoint(center.x + dx * halfWidth, center.y + dy * halfHeight);
+
+                expect(
+                  g.cellAt(cell, columns: columns, rows: rows, point: point),
+                  expected,
+                  reason: '$expected $dx $dy',
+                );
+              }
+            }
+          }
+        }
+      });
+
+      test('cellAt вне схемы и на нефинитных точках — null: ${geometry.key}', () {
+        final GridGeometry g = geometry.value;
+        final MmSize size = g.extent(_wide, columns: 4, rows: 3);
+
+        expect(g.cellAt(_wide, columns: 4, rows: 3, point: MmPoint(size.width + 0.1, 1)), isNull);
+        expect(g.cellAt(_wide, columns: 4, rows: 3, point: MmPoint(1, size.height + 0.1)), isNull);
+        expect(g.cellAt(_wide, columns: 4, rows: 3, point: const MmPoint(double.nan, 1)), isNull);
+        expect(g.cellAt(_wide, columns: 4, rows: 3, point: const MmPoint(1, double.infinity)), isNull);
+        expect(g.cellAt(_wide, columns: 4, rows: 3, point: const MmPoint(double.negativeInfinity, 1)), isNull);
+      });
+    }
+
+    test('пейот на реальной бусине: Delica 11/0 в мозаике как на станке по осям', () {
+      const GridGeometry geometry = GridGeometry.peyote();
+      final MmPoint center = geometry.cellCenter(BeadSize.delica11, _p(1, 0));
+
+      expect(center.x, closeTo(1.5 * BeadSize.delica11.holeLengthMm, 1e-9));
+      expect(center.y, closeTo(BeadSize.delica11.diameterMm, 1e-9));
+    });
+
+    for (final MapEntry<String, GridGeometry> geometry in geometries.entries) {
       for (final MapEntry<String, FakeCellMetrics> cell in metrics.entries) {
         test('hit-test обратен центрам: ${geometry.key}, ${cell.key}', () {
           const int columns = 7;

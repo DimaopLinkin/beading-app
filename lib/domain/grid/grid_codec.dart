@@ -10,7 +10,7 @@ import 'package:beading/domain/grid/grid.dart';
 /// version:u8  width:u16le  height:u16le  { value:u16le  count:varint }*
 /// ```
 ///
-/// Серии идут по рядам, слева направо; `count` — число подряд идущих ячеек с одним значением (LEB128, не меньше 1).
+/// Серии идут по рядам, слева направо; `count` — число подряд идущих ячеек с одним значением (LEB128 в каноническом виде, не меньше 1).
 /// Сумма счётчиков равна `width × height`.
 abstract final class GridCodec {
   /// Текущая версия формата.
@@ -54,7 +54,8 @@ abstract final class GridCodec {
     }
 
     final int total = width * height;
-    final Uint16List cells = Uint16List(total);
+    // Сначала проверяем серии и только потом выделяем память: заголовок из пяти байт не должен давать большую аллокацию.
+    final List<(int, int)> runs = <(int, int)>[];
     int offset = _headerLength;
     int filled = 0;
     while (offset < bytes.length) {
@@ -65,12 +66,15 @@ abstract final class GridCodec {
       int count = 0;
       int shift = 0;
       bool finished = false;
+      int length = 0;
       for (int i = 0; i < _maxVarintBytes && offset < bytes.length; i++) {
         final int byte = bytes[offset++];
+        length++;
         count |= (byte & 0x7f) << shift;
         shift += 7;
         if (byte & 0x80 == 0) {
           finished = true;
+          if (length > 1 && byte == 0) return const Err<Grid>(ValidationFailure('Неканоническая запись счётчика'));
           break;
         }
       }
@@ -78,10 +82,17 @@ abstract final class GridCodec {
       if (count < 1) return const Err<Grid>(ValidationFailure('Серия нулевой длины'));
       if (filled + count > total) return const Err<Grid>(ValidationFailure('Серии длиннее сетки'));
 
-      cells.fillRange(filled, filled + count, value);
+      runs.add((value, count));
       filled += count;
     }
     if (filled != total) return const Err<Grid>(ValidationFailure('Серии короче сетки'));
+
+    final Uint16List cells = Uint16List(total);
+    int position = 0;
+    for (final (int value, int count) in runs) {
+      cells.fillRange(position, position + count, value);
+      position += count;
+    }
     return Success<Grid>(Grid.fromCells(width: width, height: height, cells: cells));
   }
 

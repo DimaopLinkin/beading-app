@@ -150,5 +150,29 @@ void main() {
 
       expect(GridCodec.decode(bytes).failureOrNull, isA<ValidationFailure>());
     });
+
+    test('максимальная сетка 4096×4096 туда и обратно', () {
+      final Grid grid = Grid.empty(width: Grid.maxSide, height: Grid.maxSide);
+
+      expect(_decodeOrFail(GridCodec.encode(grid)), grid);
+    });
+
+    test('размер в заголовке больше maxSide — ValidationFailure', () {
+      final Uint8List bytes = GridCodec.encode(Grid.empty(width: 2, height: 2));
+      for (final int side in <int>[Grid.maxSide + 1, 65535]) {
+        final Uint8List wide = Uint8List.fromList(bytes)..buffer.asByteData().setUint16(1, side, Endian.little);
+        final Uint8List tall = Uint8List.fromList(bytes)..buffer.asByteData().setUint16(3, side, Endian.little);
+
+        expect(GridCodec.decode(wide).failureOrNull, isA<ValidationFailure>(), reason: 'width $side');
+        expect(GridCodec.decode(tall).failureOrNull, isA<ValidationFailure>(), reason: 'height $side');
+      }
+    });
+
+    test('неканонический varint — ValidationFailure', () {
+      // 1×1, значение 0, счётчик 1 записан как 0x81 0x00
+      final Uint8List bytes = Uint8List.fromList(<int>[1, 1, 0, 1, 0, 0, 0, 0x81, 0x00]);
+
+      expect(GridCodec.decode(bytes).failureOrNull, isA<ValidationFailure>());
+    });
   });
 }

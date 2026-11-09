@@ -14,6 +14,12 @@ void main() {
       expect(grid.cells.length, 6);
     });
 
+    test('максимальная сетка допустима', () {
+      final Grid grid = Grid.empty(width: Grid.maxSide, height: Grid.maxSide);
+
+      expect(grid.at(Grid.maxSide - 1, Grid.maxSide - 1), 0);
+    });
+
     test('сетка 1×1 допустима', () {
       final Grid grid = Grid.empty(width: 1, height: 1);
 

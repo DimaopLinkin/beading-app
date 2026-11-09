@@ -49,7 +49,7 @@ final class RectangularGeometry extends GridGeometry {
 
   @override
   CellPosition? cellAt(CellMetrics metrics, {required int columns, required int rows, required MmPoint point}) {
-    if (point.x < 0 || point.y < 0) return null;
+    if (!point.x.isFinite || !point.y.isFinite || point.x < 0 || point.y < 0) return null;
     final int column = (point.x / metrics.widthMm).floor();
     final int row = (point.y / metrics.heightMm).floor();
     if (column >= columns || row >= rows) return null;
@@ -91,7 +91,7 @@ final class PeyoteGeometry extends GridGeometry {
 
   @override
   CellPosition? cellAt(CellMetrics metrics, {required int columns, required int rows, required MmPoint point}) {
-    if (point.x < 0 || point.y < 0) return null;
+    if (!point.x.isFinite || !point.y.isFinite || point.x < 0 || point.y < 0) return null;
     final int column = (point.x / metrics.widthMm).floor();
     if (column >= columns) return null;
     final double top = _isShifted(column) ? metrics.heightMm / 2 : 0;
