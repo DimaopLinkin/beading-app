@@ -1,7 +1,6 @@
 import 'package:beading/app/app.dart';
 import 'package:beading/app/di.dart';
 import 'package:beading/app/platform/app_lifecycle_binding.dart';
-import 'package:beading/app/platform/app_menu_bar.dart';
 import 'package:beading/app/platform/desktop_window.dart';
 import 'package:beading/app/platform/orientation_lock.dart';
 import 'package:beading/data/db/app_database.dart';
@@ -26,5 +25,5 @@ Future<Widget> bootstrap({
   await wakelock.start();
   // Живёт всё время работы приложения.
   AppLifecycleBinding(wakelock);
-  return const AppMenuBar(child: BeadingApp());
+  return const BeadingApp();
 }

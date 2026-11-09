@@ -12,6 +12,7 @@ import 'package:beading/data/platform/wakelock_plus_screen_wake_lock.dart';
 import 'package:beading/data/projects/drift_project_repository.dart';
 import 'package:beading/data/settings/drift_device_id_provider.dart';
 import 'package:beading/data/settings/drift_settings_repository.dart';
+import 'package:beading/data/settings/package_info_app_info_provider.dart';
 import 'package:beading/data/settings/repository_keep_screen_awake_setting.dart';
 import 'package:beading/domain/easter_eggs/compliment_source.dart';
 import 'package:beading/domain/easter_eggs/easter_egg_log.dart';
@@ -28,12 +29,16 @@ import 'package:beading/domain/projects/use_cases/rename_project.dart';
 import 'package:beading/domain/projects/use_cases/touch_project.dart';
 import 'package:beading/domain/projects/use_cases/update_notes.dart';
 import 'package:beading/domain/projects/use_cases/watch_projects.dart';
+import 'package:beading/domain/settings/app_events_secret_tap_handler.dart';
+import 'package:beading/domain/settings/app_info.dart';
 import 'package:beading/domain/settings/device_id_provider.dart';
 import 'package:beading/domain/settings/keep_screen_awake_setting.dart';
 import 'package:beading/domain/settings/screen_wake_lock.dart';
+import 'package:beading/domain/settings/secret_tap_handler.dart';
 import 'package:beading/domain/settings/settings_repository.dart';
 import 'package:beading/domain/settings/wakelock_controller.dart';
 import 'package:beading/presentation/easter_eggs/compliment_banner_cubit.dart';
+import 'package:beading/presentation/settings/settings_cubit.dart';
 import 'package:beading/presentation/theme/theme_mode_cubit.dart';
 import 'package:get_it/get_it.dart';
 
@@ -126,5 +131,8 @@ Future<void> configureDependencies({GetIt? locator, AppDatabase? database}) asyn
       dispose: (value) => value.dispose(),
     )
     ..registerFactory<ComplimentBannerCubit>(() => ComplimentBannerCubit(container<EasterEggService>().shown))
-    ..registerFactory<ThemeModeCubit>(() => ThemeModeCubit(container<SettingsRepository>()));
+    ..registerFactory<ThemeModeCubit>(() => ThemeModeCubit(container<SettingsRepository>()))
+    ..registerFactory<SettingsCubit>(() => SettingsCubit(container<SettingsRepository>()))
+    ..registerLazySingleton<AppInfoProvider>(PackageInfoAppInfoProvider.new)
+    ..registerLazySingleton<SecretTapHandler>(() => AppEventsSecretTapHandler(container<AppEvents>()));
 }

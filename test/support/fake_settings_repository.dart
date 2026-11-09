@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:beading/core/failure.dart';
 import 'package:beading/core/result.dart';
 import 'package:beading/domain/settings/app_theme_mode.dart';
 import 'package:beading/domain/settings/setting_key.dart';
@@ -15,6 +16,9 @@ class FakeSettingsRepository implements SettingsRepository {
   final Map<String, Object?> values = <String, Object?>{};
   int saveCount = 0;
 
+  /// Если `true`, записи возвращают ошибку хранилища.
+  bool failWrites = false;
+
   AppThemeMode get themeMode => _valueOf(SettingKeys.themeMode);
 
   @override
@@ -22,6 +26,7 @@ class FakeSettingsRepository implements SettingsRepository {
 
   @override
   Future<Result<void>> write<T>(SettingKey<T> key, T value) async {
+    if (failWrites) return const Err<void>(StorageFailure('boom'));
     saveCount++;
     values[key.name] = value;
     return const Success<void>(null);
