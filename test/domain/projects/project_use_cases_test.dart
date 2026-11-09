@@ -39,6 +39,14 @@ class _FakeCloner implements ProjectContentCloner {
   }
 }
 
+class _ThrowingCloner implements ProjectContentCloner {
+  @override
+  bool supports(ContentKind kind) => true;
+
+  @override
+  Future<Result<void>> clone({required Project source, required String targetId}) => throw StateError('boom');
+}
+
 void main() {
   late FakeProjectRepository repository;
   late FakeIdGenerator ids;
@@ -308,6 +316,24 @@ void main() {
       final Project copy = (await duplicate(<ProjectContentCloner>[])(source.id)).valueOrNull!;
       expect(copy.name.length, maxProjectNameLength);
       expect(copy.name, endsWith(DuplicateProject.copySuffix));
+    });
+
+    test('клонер, бросивший исключение, тоже приводит к откату копии', () async {
+      final Project source = await created();
+      final Result<Project> result = await duplicate(<ProjectContentCloner>[_ThrowingCloner()])(source.id);
+      expect(result.failureOrNull, isA<UnexpectedFailure>());
+      expect((await WatchProjects(repository)().first).map((p) => p.id), <String>[source.id]);
+    });
+
+    test('усечение не оставляет пробела перед суффиксом и не режет эмодзи', () async {
+      const int keep = maxProjectNameLength - DuplicateProject.copySuffix.length;
+      // Граница усечения падает между «я» и пробелом, эмодзи стоит сразу после.
+      final Project source = await created(name: '${'я' * (keep - 1)} 😀😀');
+      final Project copy = (await duplicate(<ProjectContentCloner>[])(source.id)).valueOrNull!;
+      expect(copy.name.length, lessThanOrEqualTo(maxProjectNameLength));
+      expect(copy.name, endsWith(DuplicateProject.copySuffix));
+      expect(copy.name, isNot(contains('  ')));
+      expect(copy.name.codeUnits.every((u) => u < 0xD800 || u > 0xDFFF), isTrue);
     });
 
     test('неизвестный проект и ошибка записи — Failure', () async {

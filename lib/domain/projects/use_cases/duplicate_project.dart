@@ -1,4 +1,5 @@
 import 'package:beading/core/clock.dart';
+import 'package:beading/core/failure.dart';
 import 'package:beading/core/id_generator.dart';
 import 'package:beading/core/result.dart';
 import 'package:beading/domain/projects/project.dart';
@@ -33,7 +34,7 @@ class DuplicateProject {
     }
     final Project source = found.valueOrNull!;
     final String base = source.name.length + copySuffix.length > maxProjectNameLength
-        ? source.name.substring(0, maxProjectNameLength - copySuffix.length)
+        ? String.fromCharCodes(source.name.runes.take(maxProjectNameLength - copySuffix.length)).trimRight()
         : source.name;
     final Project copy = Project(
       id: _ids.next(),
@@ -51,7 +52,13 @@ class DuplicateProject {
       return Err<Project>(failure);
     }
     for (final ProjectContentCloner cloner in _cloners.where((c) => c.supports(source.contentKind))) {
-      final Result<void> cloned = await cloner.clone(source: source, targetId: copy.id);
+      Result<void> cloned;
+      try {
+        cloned = await cloner.clone(source: source, targetId: copy.id);
+      } on Object catch (error) {
+        // Контракт клонера — вернуть Err, но копию на всякий случай откатываем и при исключении.
+        cloned = Err<void>(UnexpectedFailure('$error'));
+      }
       if (cloned case Err<void>(:final failure)) {
         await _repository.delete(copy.id);
         return Err<Project>(failure);
