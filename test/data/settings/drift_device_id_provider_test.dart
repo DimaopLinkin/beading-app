@@ -1,7 +1,10 @@
+import 'dart:io';
+
 import 'package:beading/core/id_generator.dart';
 import 'package:beading/core/result.dart';
 import 'package:beading/data/db/app_database.dart';
 import 'package:beading/data/settings/drift_device_id_provider.dart';
+import 'package:drift/native.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import '../../support/fake_clock.dart';
@@ -71,5 +74,29 @@ void main() {
     final Result<String> result = await provider.deviceId();
 
     expect(result.isFailure, isTrue);
+  });
+
+  test('идентификатор переживает перезапуск базы в файле', () async {
+    final Directory directory = Directory.systemTemp.createTempSync('beading_db_');
+    addTearDown(() => directory.deleteSync(recursive: true));
+    final File file = File('${directory.path}/beading.sqlite');
+
+    final AppDatabase first = AppDatabase(NativeDatabase(file));
+    final Result<String> created = await DriftDeviceIdProvider(
+      dao: first.settingsDao,
+      ids: ids,
+      clock: clock,
+    ).deviceId();
+    await first.close();
+
+    final AppDatabase second = AppDatabase(NativeDatabase(file));
+    addTearDown(second.close);
+    final Result<String> restored = await DriftDeviceIdProvider(
+      dao: second.settingsDao,
+      ids: _SequenceIds(),
+      clock: clock,
+    ).deviceId();
+
+    expect(restored, created);
   });
 }

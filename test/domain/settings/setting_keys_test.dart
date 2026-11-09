@@ -28,7 +28,9 @@ void main() {
       ];
 
       expect(names.toSet(), hasLength(names.length));
-      expect(names.where((name) => name.startsWith('local.')), isEmpty);
+      expect(names.where(SettingKey.isLocalName), isEmpty);
+      expect(SettingKeys.userName.isLocal, isFalse);
+      expect(SettingKey.isLocalName('local.deviceId'), isTrue);
     });
   });
 

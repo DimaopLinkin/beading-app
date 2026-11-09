@@ -1,3 +1,4 @@
+import 'package:async/async.dart' show StreamQueue;
 import 'package:beading/core/failure.dart';
 import 'package:beading/core/id_generator.dart';
 import 'package:beading/core/result.dart';
@@ -187,15 +188,14 @@ void main() {
 
   group('watch', () {
     test('отдаёт текущее значение и каждое изменение', () async {
-      final Stream<AppThemeMode> stream = repository.watch(SettingKeys.themeMode);
-      final Future<List<AppThemeMode>> collected = stream.take(3).toList();
+      final StreamQueue<AppThemeMode> queue = StreamQueue<AppThemeMode>(repository.watch(SettingKeys.themeMode));
+      addTearDown(queue.cancel);
 
-      await Future<void>.delayed(Duration.zero);
+      expect(await queue.next, AppThemeMode.system);
       await repository.write(SettingKeys.themeMode, AppThemeMode.dark);
-      await Future<void>.delayed(Duration.zero);
+      expect(await queue.next, AppThemeMode.dark);
       await repository.reset(SettingKeys.themeMode);
-
-      expect(await collected, <AppThemeMode>[AppThemeMode.system, AppThemeMode.dark, AppThemeMode.system]);
+      expect(await queue.next, AppThemeMode.system);
     });
   });
 }

@@ -11,4 +11,10 @@ class AppDatabase extends _$AppDatabase {
 
   @override
   int get schemaVersion => 1;
+
+  @override
+  MigrationStrategy get migration => MigrationStrategy(
+    // Шаги миграций (`stepByStep` из `make-migrations`) добавляются здесь при `schemaVersion++`.
+    beforeOpen: (details) => customStatement('PRAGMA foreign_keys = ON'),
+  );
 }

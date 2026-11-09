@@ -8,6 +8,6 @@ import 'package:flutter/widgets.dart';
 /// [database] подменяет файловую базу (в тестах).
 Future<Widget> bootstrap({AppDatabase? database}) async {
   WidgetsFlutterBinding.ensureInitialized();
-  await configureDependencies(null, database);
+  await configureDependencies(database: database);
   return const BeadingApp();
 }

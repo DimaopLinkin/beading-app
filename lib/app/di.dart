@@ -16,7 +16,7 @@ final GetIt getIt = GetIt.instance;
 /// повторный вызов сначала сбрасывает прежние регистрации.
 ///
 /// [database] — готовая база (в тестах — в памяти); без неё открывается файл в Application Support.
-Future<void> configureDependencies([GetIt? locator, AppDatabase? database]) async {
+Future<void> configureDependencies({GetIt? locator, AppDatabase? database}) async {
   final GetIt container = locator ?? getIt;
   await container.reset();
   final AppDatabase db = database ?? await openAppDatabase();

@@ -30,6 +30,8 @@ abstract final class SettingKeys {
   );
 
   /// Производитель бисера по умолчанию (значение каталога `catalog_colors.brand`).
+  ///
+  /// Строки-заглушки: T36 сверит их с названиями брендов каталога.
   static const SettingKey<String> defaultBeadBrand = SettingKey<String>(
     name: 'defaultBeadBrand',
     defaultValue: 'Miyuki',
@@ -71,6 +73,7 @@ abstract final class SettingKeys {
     _ => null,
   };
 
+  // Имя значения enum хранится в базе: переименовывать значения нельзя, иначе настройка сбросится на умолчание.
   static String _encodeEnum(AppThemeMode value) => value.name;
 
   static AppThemeMode? _decodeThemeMode(String raw) {
@@ -86,6 +89,7 @@ abstract final class SettingKeys {
     for (final SpecialDate date in value) <String, Object>{'label': date.label, 'month': date.month, 'day': date.day},
   ]);
 
+  // Проверяем только диапазоны: невозможные даты вроде 31 февраля сверяются при показе.
   static List<SpecialDate>? _decodeSpecialDates(String raw) {
     final Object? json;
     try {

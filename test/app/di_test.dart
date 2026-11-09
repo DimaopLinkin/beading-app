@@ -15,7 +15,7 @@ void main() {
   test('configureDependencies регистрирует базовые сервисы', () async {
     final GetIt locator = GetIt.asNewInstance();
 
-    await configureDependencies(locator, createInMemoryDatabase());
+    await configureDependencies(locator: locator, database: createInMemoryDatabase());
 
     expect(locator<Clock>(), isA<SystemClock>());
     expect(locator<IdGenerator>(), isA<UuidV7IdGenerator>());
@@ -27,8 +27,8 @@ void main() {
   test('повторная настройка не падает и пересоздаёт регистрации', () async {
     final GetIt locator = GetIt.asNewInstance();
 
-    await configureDependencies(locator, createInMemoryDatabase());
-    await configureDependencies(locator, createInMemoryDatabase());
+    await configureDependencies(locator: locator, database: createInMemoryDatabase());
+    await configureDependencies(locator: locator, database: createInMemoryDatabase());
 
     expect(locator.isRegistered<Clock>(), isTrue);
   });

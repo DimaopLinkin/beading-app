@@ -5,6 +5,7 @@ import 'package:beading/data/db/app_database.dart';
 import 'package:beading/data/db/daos/settings_dao.dart';
 import 'package:beading/data/settings/storage_guard.dart';
 import 'package:beading/domain/settings/device_id_provider.dart';
+import 'package:beading/domain/settings/setting_key.dart';
 
 /// Хранит идентификатор устройства в `settings` под ключом `local.deviceId`.
 class DriftDeviceIdProvider implements DeviceIdProvider {
@@ -14,7 +15,7 @@ class DriftDeviceIdProvider implements DeviceIdProvider {
       _clock = clock;
 
   /// Префикс `local.`: такие ключи не синхронизируются.
-  static const String storageKey = 'local.deviceId';
+  static const String storageKey = '${SettingKey.localPrefix}deviceId';
 
   final SettingsDao _dao;
   final IdGenerator _ids;
