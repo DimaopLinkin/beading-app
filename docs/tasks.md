@@ -2,7 +2,9 @@
 
 Каждая задача — отдельный тред, отдельная ветка `task/<ID>-<slug>`, отдельный PR. Тред получает: текст задачи отсюда, [workflow.md](workflow.md), [architecture.md](architecture.md), [data-and-sync.md](data-and-sync.md) (если задача про данные), [cross-cutting.md](cross-cutting.md) (если про UI), действующие правила из [review/rules.md](review/rules.md). ID потребностей (`MUST-…`, `NICE-…`) — из [research.md](research.md).
 
-Задача стартует, когда **все её зависимости влиты в `main`**. Общие для всех задач требования (TDD, `scripts/check.sh`, DoD, ARB, обе темы, фрагмент changelog) описаны в [workflow.md](workflow.md) и здесь не повторяются.
+Задача стартует, когда **все её зависимости влиты в `dev`**. Общие для всех задач требования (TDD, `scripts/check.sh`, DoD, ARB, обе темы, фрагмент changelog) описаны в [workflow.md](workflow.md) и здесь не повторяются.
+
+Ветки задач создаются от `dev`, PR открываются в `dev`; после закрытого ревью и зелёного CI оркестратор сам мёржит PR. Релизы собираются только из `main` (см. [workflow.md](workflow.md#ветки-и-pr)).
 
 ## Вехи
 

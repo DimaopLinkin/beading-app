@@ -58,8 +58,9 @@ type: added
 
 - SemVer, до первого «настоящего» релиза — `0.x`. Вехи: M1 → `0.1.0`, M2 → `0.2.0`, M3 → `0.3.0`; промежуточные сборки для TestFlight — патч-версии (`0.1.1`).
 - Номер сборки (`+N` в `pubspec.yaml`) растёт с каждой загрузкой в TestFlight.
-- Выпуск (делает оркестратор или тред выпуска, отдельным PR `release/<версия>`):
-  1. `scripts/release_notes.sh 0.1.0` — обновит `CHANGELOG.md`, создаст `docs/release-notes/0.1.0.md`, удалит фрагменты.
-  2. Поднять `version:` в `pubspec.yaml`.
-  3. После мёржа — тег `v0.1.0` на коммит в `main`.
-  4. Текст из `docs/release-notes/0.1.0.md` — в TestFlight и ей.
+- Выпуск (делает оркестратор или тред выпуска). Релизы собираются **только из `main`**:
+  1. Ветка `release/0.1.0` от свежего `dev`.
+  2. `scripts/release_notes.sh 0.1.0` — обновит `CHANGELOG.md`, создаст `docs/release-notes/0.1.0.md`, удалит фрагменты.
+  3. Поднять `version:` в `pubspec.yaml`.
+  4. PR `release/0.1.0` → `main` (merge commit, не squash), после мёржа — тег `v0.1.0` на коммит в `main` и обратный мёрж `main` → `dev`, чтобы `dev` получил собранный `CHANGELOG.md`.
+  5. Сборка для TestFlight и macOS — из тега в `main`; текст из `docs/release-notes/0.1.0.md` — в TestFlight и ей.
