@@ -7,7 +7,7 @@
 | Flutter | 3.41.0 (`environment.flutter: ">=3.41.0"`) |
 | Dart | 3.11.0 (`environment.sdk: ^3.11.0`) |
 | Xcode | 27.1 |
-| Целевые платформы | iOS (iPhone 13 Pro Max) и macOS (нативная Flutter-сборка). Android/Web/Windows не собираем. |
+| Целевые платформы | iOS (iPhone 13 Pro Max), deployment target **iOS 18.0**; macOS (нативная Flutter-сборка), deployment target **macOS 26.0** (у неё 26.x, не 27). Android/Web/Windows не собираем. |
 | Анализатор | `analysis_options.yaml` Дмитрия, копия — [setup/analysis_options.yaml](setup/analysis_options.yaml). Правила не ослабляем без согласования. |
 
 ## Чистая слоёная архитектура

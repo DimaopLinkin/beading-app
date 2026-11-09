@@ -39,7 +39,7 @@
 ### T00 — Каркас проекта, скрипты, CI
 - **Зависит от:** —. **Параллельно:** нет, блокирует всё.
 - **Сделать:**
-  - `flutter create --platforms=ios,macos --org <согласовать> beading` в корне репозитория; `environment: sdk: ^3.11.0, flutter: ">=3.41.0"`.
+  - `flutter create --platforms=ios,macos --org <согласовать> beading` в корне репозитория; `environment: sdk: ^3.11.0, flutter: ">=3.41.0"`. Deployment target: iOS 18.0 (`ios/Podfile`, Xcode-проект), macOS 26.0 (`macos/Podfile`, `MACOSX_DEPLOYMENT_TARGET`).
   - `analysis_options.yaml` — дословно из [setup/analysis_options.yaml](setup/analysis_options.yaml).
   - `scripts/test.sh`, `analyze.sh`, `check_architecture.sh`, `check.sh` — из [workflow.md](workflow.md).
   - `.github/workflows/check.yml` (ubuntu: `scripts/check.sh`; macos: сборка ios `--no-codesign` и macos).
@@ -96,7 +96,7 @@
 
 ### T08 — Пасхалки-комплименты
 - **Покрывает:** MUST-G7. **Зависит от:** T01, T03. **Параллельно:** волна 3.
-- **Сделать:** всё по [cross-cutting.md](cross-cutting.md): `EasterEggPolicy` (чистая, `Clock` + `Random`), `AppEvents` поток событий (`AppStarted`, `ProjectCompleted`, `RowsCompleted(total)`, `LongSession`, `SecretTapped`), таблица `easter_egg_log` (миграция), `assets/compliments/ru.json` с 40–60 текстами по группам, оверлей-баннер поверх навигатора, подписка в `app`. Триггер особых дат и имени — из настроек T03.
+- **Сделать:** всё по [cross-cutting.md](cross-cutting.md): `EasterEggPolicy` (чистая, `Clock` + `Random`), `AppEvents` поток событий (`AppStarted`, `ProjectCompleted`, `RowsCompleted(total)`, `LongSession`, `SecretTapped`), таблица `easter_egg_log` (миграция), `assets/compliments/ru.json` с 40–60 текстами по группам (часть с `{name}`, имя по умолчанию «Настя»), оверлей-баннер поверх навигатора, подписка в `app`. Триггер особых дат и имени — из настроек T03.
 - **Приёмка:** политика: частота (не чаще 1 раза в 3 дня), исключения (готово, дата, секрет), неповторяемость до исчерпания группы, тишина первые 2 минуты, один за сессию — всё с фиксированным сидом; баннер исчезает через 5 с, закрывается свайпом, не перекрывает нижние 120pt; тексты валидируются тестом (не пустые, уникальные, ≤ 70 символов).
 
 ### T09 — Настройки и «О приложении»
@@ -105,7 +105,7 @@
 - **Приёмка:** cubit + widget-тесты; изменения сразу применяются (тема, wakelock).
 
 ### T10 — Подпись и выкладка: TestFlight и macOS
-- **Зависит от:** T00 и наличия Apple Developer Program у Дмитрия. **Параллельно:** любые.
+- **Зависит от:** T00 (Apple Developer Program у Дмитрия есть). **Параллельно:** любые.
 - **Сделать:** выпуск версии по [changelog.md](changelog.md) (поднять версию, `scripts/release_notes.sh`, тег); bundle id, команда, иконки-заглушки, `ios/` и `macos/` entitlements (sandbox, файлы, камера, фото — тексты разрешений по-русски), `scripts/release_ios.sh` (сборка ipa и загрузка через `xcrun altool`/Transporter), `scripts/release_macos.sh` (подписанный и нотаризованный .app/.dmg). Инструкция в `docs/release.md`.
 - **Приёмка:** Дмитрий ставит сборку через TestFlight и на Mac. (Требует действий Дмитрия — тред готовит всё и пишет пошаговую инструкцию.)
 
