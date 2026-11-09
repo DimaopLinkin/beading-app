@@ -2,9 +2,13 @@ import 'package:beading/app/platform/desktop_window.dart';
 import 'package:beading/app/platform/orientation_lock.dart';
 import 'package:beading/core/clock.dart';
 import 'package:beading/core/id_generator.dart';
+import 'package:beading/data/db/app_database.dart';
+import 'package:beading/data/db/open_database.dart';
 import 'package:beading/data/platform/wakelock_plus_screen_wake_lock.dart';
-import 'package:beading/data/settings/in_memory_keep_screen_awake_setting.dart';
-import 'package:beading/data/settings/in_memory_settings_repository.dart';
+import 'package:beading/data/settings/drift_device_id_provider.dart';
+import 'package:beading/data/settings/drift_settings_repository.dart';
+import 'package:beading/data/settings/repository_keep_screen_awake_setting.dart';
+import 'package:beading/domain/settings/device_id_provider.dart';
 import 'package:beading/domain/settings/keep_screen_awake_setting.dart';
 import 'package:beading/domain/settings/screen_wake_lock.dart';
 import 'package:beading/domain/settings/settings_repository.dart';
@@ -17,21 +21,34 @@ final GetIt getIt = GetIt.instance;
 
 /// Регистрирует сервисы в [locator]. Вызывается один раз при запуске (и в каждом тесте заново):
 /// повторный вызов сначала сбрасывает прежние регистрации.
-Future<void> configureDependencies([GetIt? locator]) async {
+///
+/// [database] — готовая база (в тестах — в памяти); без неё открывается файл в Application Support.
+Future<void> configureDependencies({GetIt? locator, AppDatabase? database}) async {
   final GetIt container = locator ?? getIt;
   await container.reset();
+  final AppDatabase db = database ?? await openAppDatabase();
   container
+    ..registerSingleton<AppDatabase>(db, dispose: (value) => value.close())
     ..registerLazySingleton<Clock>(SystemClock.new)
     ..registerLazySingleton<IdGenerator>(() => UuidV7IdGenerator(clock: container<Clock>()))
+    ..registerLazySingleton<DeviceIdProvider>(
+      () => DriftDeviceIdProvider(dao: db.settingsDao, ids: container<IdGenerator>(), clock: container<Clock>()),
+    )
+    ..registerLazySingleton<SettingsRepository>(
+      () => DriftSettingsRepository(
+        dao: db.settingsDao,
+        deviceIds: container<DeviceIdProvider>(),
+        clock: container<Clock>(),
+      ),
+    )
     ..registerLazySingleton<OrientationLock>(SystemChromeOrientationLock.new)
     ..registerLazySingleton<DesktopWindow>(WindowManagerDesktopWindow.new)
     ..registerLazySingleton<ScreenWakeLock>(WakelockPlusScreenWakeLock.new)
-    // До T03 настройка живёт в памяти.
-    ..registerLazySingleton<KeepScreenAwakeSetting>(InMemoryKeepScreenAwakeSetting.new)
+    ..registerLazySingleton<KeepScreenAwakeSetting>(
+      () => RepositoryKeepScreenAwakeSetting(container<SettingsRepository>()),
+    )
     ..registerLazySingleton<WakelockController>(
       () => WakelockController(wakeLock: container<ScreenWakeLock>(), setting: container<KeepScreenAwakeSetting>()),
     )
-    // До T03 настройки живут в памяти.
-    ..registerLazySingleton<SettingsRepository>(InMemorySettingsRepository.new)
     ..registerFactory<ThemeModeCubit>(() => ThemeModeCubit(container<SettingsRepository>()));
 }

@@ -8,12 +8,20 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:get_it/get_it.dart';
 
 import '../support/fake_platform.dart';
+import '../support/in_memory_database.dart';
 
-Future<Widget> bootstrapWithFakes({FakeOrientationLock? orientation, FakeDesktopWindow? window}) => bootstrap(
-  orientationLock: orientation ?? FakeOrientationLock(),
-  desktopWindow: window ?? FakeDesktopWindow(),
-  wakelockController: fakeWakelockController(),
-);
+Future<Widget> bootstrapWithFakes(
+  WidgetTester tester, {
+  FakeOrientationLock? orientation,
+  FakeDesktopWindow? window,
+}) async => (await tester.runAsync(
+  () => bootstrap(
+    database: createInMemoryDatabase(),
+    orientationLock: orientation ?? FakeOrientationLock(),
+    desktopWindow: window ?? FakeDesktopWindow(),
+    wakelockController: fakeWakelockController(),
+  ),
+))!;
 
 void main() {
   setUp(() async {
@@ -21,7 +29,7 @@ void main() {
   });
 
   testWidgets('приложение запускается и показывает «Мои работы»', (tester) async {
-    await tester.pumpWidget(await bootstrapWithFakes());
+    await tester.pumpWidget(await bootstrapWithFakes(tester));
     await tester.pumpAndSettle();
 
     expect(find.text('Мои работы'), findsOneWidget);
@@ -32,7 +40,7 @@ void main() {
     tester.platformDispatcher.platformBrightnessTestValue = Brightness.dark;
     addTearDown(tester.platformDispatcher.clearAllTestValues);
 
-    await tester.pumpWidget(await bootstrapWithFakes());
+    await tester.pumpWidget(await bootstrapWithFakes(tester));
     await tester.pumpAndSettle();
 
     expect(find.text('Мои работы'), findsOneWidget);
@@ -40,7 +48,7 @@ void main() {
   });
 
   testWidgets('выбор режима темы переключает приложение', (tester) async {
-    await tester.pumpWidget(await bootstrapWithFakes());
+    await tester.pumpWidget(await bootstrapWithFakes(tester));
     await tester.pumpAndSettle();
     final BuildContext context = tester.element(find.text('Мои работы'));
 
@@ -57,11 +65,14 @@ void main() {
     final FakeOrientationLock orientation = FakeOrientationLock();
     final FakeDesktopWindow window = FakeDesktopWindow();
     final FakeScreenWakeLock lock = FakeScreenWakeLock();
-    final Widget app = await bootstrap(
-      orientationLock: orientation,
-      desktopWindow: window,
-      wakelockController: fakeWakelockController(lock),
-    );
+    final Widget app = (await tester.runAsync(
+      () => bootstrap(
+        database: createInMemoryDatabase(),
+        orientationLock: orientation,
+        desktopWindow: window,
+        wakelockController: fakeWakelockController(lock),
+      ),
+    ))!;
     await tester.pumpWidget(app);
 
     expect(orientation.portraitCalls, 1);
