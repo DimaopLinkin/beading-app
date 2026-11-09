@@ -34,7 +34,7 @@ abstract final class SettingKeys {
 
   /// Производитель бисера по умолчанию (значение каталога `catalog_colors.brand`).
   ///
-  /// Строка-заглушка: T13 (каталог бисера) сверит её с `catalog_colors.brand`.
+  /// Совпадает с брендом из `assets/catalog` (проверяет `bundled_catalog_test`).
   static const SettingKey<String> defaultBeadBrand = SettingKey<String>(
     name: 'defaultBeadBrand',
     defaultValue: 'Miyuki',

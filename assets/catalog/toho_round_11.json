@@ -1,0 +1,213 @@
+{
+  "version": 1,
+  "material": "bead",
+  "brand": "Toho",
+  "series": "Round",
+  "sizeCode": "11/0",
+  "colors": [
+    {
+      "code": "8",
+      "name": "Transparent Cobalt",
+      "rgb": "#1f3f9a",
+      "finish": "transparent"
+    },
+    {
+      "code": "19",
+      "name": "Sugar Plum",
+      "rgb": "#8f4f8a",
+      "finish": "opaque"
+    },
+    {
+      "code": "42",
+      "name": "Dandelion Opaque",
+      "rgb": "#f0cf2a",
+      "finish": "opaque"
+    },
+    {
+      "code": "43",
+      "name": "Blue Turquoise Opaque",
+      "rgb": "#1fa0b8",
+      "finish": "opaque"
+    },
+    {
+      "code": "44",
+      "name": "Opaque Sour Apple",
+      "rgb": "#a8c83a",
+      "finish": "opaque"
+    },
+    {
+      "code": "45A",
+      "name": "Cherry Opaque",
+      "rgb": "#b02030",
+      "finish": "opaque"
+    },
+    {
+      "code": "47",
+      "name": "Green Mint Opaque",
+      "rgb": "#9fd3b0",
+      "finish": "opaque"
+    },
+    {
+      "code": "49",
+      "name": "Opaque Jet",
+      "rgb": "#111111",
+      "finish": "opaque"
+    },
+    {
+      "code": "51",
+      "name": "Opaque Lt. Beige",
+      "rgb": "#e3d3b8",
+      "finish": "opaque"
+    },
+    {
+      "code": "118",
+      "name": "Green Emerald Luster",
+      "rgb": "#2a8f5a",
+      "finish": "luster"
+    },
+    {
+      "code": "123D",
+      "name": "Dark Beige Opaque Luster",
+      "rgb": "#b89a78",
+      "finish": "luster"
+    },
+    {
+      "code": "128",
+      "name": "Dandelion Luster",
+      "rgb": "#e8c85a",
+      "finish": "luster"
+    },
+    {
+      "code": "130",
+      "name": "Mint Green Luster",
+      "rgb": "#a8d8c0",
+      "finish": "luster"
+    },
+    {
+      "code": "133",
+      "name": "Lavender Luster",
+      "rgb": "#c0aad8",
+      "finish": "luster"
+    },
+    {
+      "code": "145L",
+      "name": "Soft Pink Ceylon",
+      "rgb": "#f0d0d8",
+      "finish": "ceylon"
+    },
+    {
+      "code": "150",
+      "name": "Smoke Ceylon",
+      "rgb": "#a09aa0",
+      "finish": "ceylon"
+    },
+    {
+      "code": "161",
+      "name": "Crystal Rainbow",
+      "rgb": "#e8e8ee",
+      "finish": "rainbow"
+    },
+    {
+      "code": "246",
+      "name": "Luster Black Diamond/Opaque Yellow Lined",
+      "rgb": "#8a7a30",
+      "finish": "lined"
+    },
+    {
+      "code": "262",
+      "name": "Crystal Gold Lined",
+      "rgb": "#e0d090",
+      "finish": "gold_lined"
+    },
+    {
+      "code": "612",
+      "name": "Gun Metal Matte",
+      "rgb": "#4a4a50",
+      "finish": "matte"
+    },
+    {
+      "code": "706",
+      "name": "Matte Iris Teal",
+      "rgb": "#3a6f7a",
+      "finish": "matte"
+    },
+    {
+      "code": "904",
+      "name": "Apricot Ceylon",
+      "rgb": "#f0c8a8",
+      "finish": "ceylon"
+    },
+    {
+      "code": "905",
+      "name": "Peach Blush Ceylon",
+      "rgb": "#f0b8a8",
+      "finish": "ceylon"
+    },
+    {
+      "code": "7B",
+      "name": "Green Grass",
+      "rgb": "#3f9a4a",
+      "finish": "transparent"
+    },
+    {
+      "code": "21F",
+      "name": "Silver Lined Frosted Crystal",
+      "rgb": "#d8dadc",
+      "finish": "frosted"
+    },
+    {
+      "code": "27BD",
+      "name": "Teal Silver Lined",
+      "rgb": "#2a8a90",
+      "finish": "silver_lined"
+    },
+    {
+      "code": "45F",
+      "name": "Red Pepper Frosted",
+      "rgb": "#c03a30",
+      "finish": "frosted"
+    },
+    {
+      "code": "48F",
+      "name": "Navy Blue Frosted",
+      "rgb": "#2a3a6a",
+      "finish": "frosted"
+    },
+    {
+      "code": "148F",
+      "name": "Ceylon Frosted Peach Cobbler",
+      "rgb": "#f0c0a0",
+      "finish": "frosted"
+    },
+    {
+      "code": "252",
+      "name": "Aqua/Purple Lined",
+      "rgb": "#7a60a8",
+      "finish": "lined"
+    },
+    {
+      "code": "252F",
+      "name": "Aqua/Purple Lined Frosted",
+      "rgb": "#8a78b0",
+      "finish": "frosted"
+    },
+    {
+      "code": "999",
+      "name": "Black Diamond Rainbow Gold Lined",
+      "rgb": "#7a6a50",
+      "finish": "rainbow"
+    },
+    {
+      "code": "2602F",
+      "name": "Honeydew Semi Glazed",
+      "rgb": "#b8d8a0",
+      "finish": "semi_glazed"
+    },
+    {
+      "code": "2611F",
+      "name": "Orange Semi Glazed",
+      "rgb": "#e8903a",
+      "finish": "semi_glazed"
+    }
+  ]
+}

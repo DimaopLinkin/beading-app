@@ -3,6 +3,8 @@ import 'package:beading/app/di.dart';
 import 'package:beading/app/platform/app_lifecycle_binding.dart';
 import 'package:beading/app/platform/desktop_window.dart';
 import 'package:beading/app/platform/orientation_lock.dart';
+import 'package:beading/core/result.dart';
+import 'package:beading/data/catalog/catalog_seeder.dart';
 import 'package:beading/data/db/app_database.dart';
 import 'package:beading/domain/settings/wakelock_controller.dart';
 import 'package:flutter/widgets.dart';
@@ -25,5 +27,10 @@ Future<Widget> bootstrap({
   await wakelock.start();
   // Живёт всё время работы приложения.
   AppLifecycleBinding(wakelock);
+  // Битый файл каталога не должен мешать запуску: остальные файлы загружены, ошибка уходит в журнал.
+  final Result<void> seeded = await getIt<CatalogSeeder>().seed();
+  if (seeded case Err<void>(:final failure)) {
+    debugPrint('Каталог загружен не полностью: ${failure.message}');
+  }
   return const BeadingApp();
 }

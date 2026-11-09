@@ -4,6 +4,9 @@ import 'package:beading/app/platform/desktop_window.dart';
 import 'package:beading/app/platform/orientation_lock.dart';
 import 'package:beading/core/clock.dart';
 import 'package:beading/core/id_generator.dart';
+import 'package:beading/data/catalog/catalog_asset_source.dart';
+import 'package:beading/data/catalog/catalog_seeder.dart';
+import 'package:beading/data/catalog/drift_catalog_repository.dart';
 import 'package:beading/data/db/app_database.dart';
 import 'package:beading/data/db/open_database.dart';
 import 'package:beading/data/easter_eggs/asset_compliment_source.dart';
@@ -19,6 +22,7 @@ import 'package:beading/data/settings/drift_device_id_provider.dart';
 import 'package:beading/data/settings/drift_settings_repository.dart';
 import 'package:beading/data/settings/package_info_app_info_provider.dart';
 import 'package:beading/data/settings/repository_keep_screen_awake_setting.dart';
+import 'package:beading/domain/catalog/catalog_repository.dart';
 import 'package:beading/domain/easter_eggs/compliment_source.dart';
 import 'package:beading/domain/easter_eggs/easter_egg_log.dart';
 import 'package:beading/domain/easter_eggs/easter_egg_policy.dart';
@@ -64,7 +68,8 @@ final GetIt getIt = GetIt.instance;
 /// повторный вызов сначала сбрасывает прежние регистрации.
 ///
 /// [database] — готовая база (в тестах — в памяти); без неё открывается файл в Application Support.
-Future<void> configureDependencies({GetIt? locator, AppDatabase? database}) async {
+/// [catalogAssets] подменяет файлы каталога (в тестах).
+Future<void> configureDependencies({GetIt? locator, AppDatabase? database, CatalogAssetSource? catalogAssets}) async {
   final GetIt container = locator ?? getIt;
   await container.reset();
   final AppDatabase db = database ?? await openAppDatabase();
@@ -194,6 +199,11 @@ Future<void> configureDependencies({GetIt? locator, AppDatabase? database}) asyn
       dispose: (value) => value.dispose(),
     )
     ..registerFactory<ComplimentBannerCubit>(() => ComplimentBannerCubit(container<EasterEggService>().shown))
+    ..registerLazySingleton<CatalogAssetSource>(() => catalogAssets ?? BundleCatalogAssetSource())
+    ..registerLazySingleton<CatalogSeeder>(
+      () => CatalogSeeder(dao: db.catalogDao, assets: container<CatalogAssetSource>()),
+    )
+    ..registerLazySingleton<CatalogRepository>(() => DriftCatalogRepository(db.catalogDao))
     ..registerFactory<ThemeModeCubit>(() => ThemeModeCubit(container<SettingsRepository>()))
     ..registerFactory<SettingsCubit>(() => SettingsCubit(container<SettingsRepository>()))
     ..registerLazySingleton<AppInfoProvider>(PackageInfoAppInfoProvider.new)
