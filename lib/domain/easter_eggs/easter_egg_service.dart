@@ -69,6 +69,9 @@ class EasterEggService {
   }
 
   Future<void> _handle(AppEvent event) async {
+    if (!EasterEggPolicy.canTrigger(event)) {
+      return;
+    }
     try {
       final ComplimentCatalog? catalog = await _loadCatalog();
       final List<EggLogEntry>? history = (await _log.all()).valueOrNull;

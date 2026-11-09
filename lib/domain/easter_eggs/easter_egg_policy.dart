@@ -29,6 +29,12 @@ class EasterEggPolicy {
 
   final Random _random;
 
+  /// Может ли событие вообще привести к комплименту. Дешёвая проверка до чтения журнала и настроек.
+  static bool canTrigger(AppEvent event) => switch (event) {
+    RowsCompleted(:final int total) => total > 0 && total % rowsMilestone == 0,
+    _ => true,
+  };
+
   /// Комплимент для показа или `null` — промолчать.
   Compliment? decide({
     required AppEvent event,
@@ -56,8 +62,7 @@ class EasterEggPolicy {
         _isSpecialDay(specialDates, now) && !_shownToday(history, now)
             ? pick(EggGroup.specialDate)
             : chance(EggGroup.appStart, appStartChance),
-      RowsCompleted(:final int total) =>
-        total > 0 && total % rowsMilestone == 0 ? chance(EggGroup.rows, rowsChance) : null,
+      RowsCompleted() => canTrigger(event) ? chance(EggGroup.rows, rowsChance) : null,
       LongSession() => chance(EggGroup.longSession, longSessionChance),
     };
   }

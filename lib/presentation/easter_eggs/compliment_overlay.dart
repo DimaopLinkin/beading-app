@@ -41,7 +41,8 @@ class ComplimentOverlay extends StatelessWidget {
                 child: compliment == null
                     ? const SizedBox.shrink()
                     : Dismissible(
-                        key: ValueKey<String>(compliment.text),
+                        // Идентичность объекта: тот же текст, показанный снова, получает новый ключ.
+                        key: ObjectKey(compliment),
                         direction: DismissDirection.up,
                         onDismissed: (_) => context.read<ComplimentBannerCubit>().dismiss(),
                         child: ComplimentBanner(text: compliment.text),
@@ -55,7 +56,7 @@ class ComplimentOverlay extends StatelessWidget {
   );
 }
 
-/// Сам баннер: стеклянная панель с иконкой-бусинкой и текстом в одну-две строки.
+/// Сам баннер: стеклянная панель с иконкой-бусинкой и текстом в одну и более строк (при крупном шрифте растёт, но текст не обрезается).
 class ComplimentBanner extends StatelessWidget {
   const ComplimentBanner({required this.text, super.key});
 
@@ -85,8 +86,6 @@ class ComplimentBanner extends StatelessWidget {
               Expanded(
                 child: Text(
                   text,
-                  maxLines: 2,
-                  overflow: TextOverflow.ellipsis,
                   style: CupertinoTheme.of(context).textTheme.textStyle,
                 ),
               ),

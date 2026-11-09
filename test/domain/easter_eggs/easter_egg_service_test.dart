@@ -223,6 +223,15 @@ void main() {
     expect(out, hasLength(1));
   });
 
+  test('несотый ряд не трогает ни журнал, ни тексты', () async {
+    service.start();
+
+    await emit(const RowsCompleted(99));
+
+    expect(source.loads, 0);
+    expect(shown, isEmpty);
+  });
+
   test('каталог загружается один раз', () async {
     service.start();
 

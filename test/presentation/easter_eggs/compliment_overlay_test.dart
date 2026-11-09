@@ -127,6 +127,49 @@ void main() {
     expect(banner.top, greaterThanOrEqualTo(0));
   });
 
+  testWidgets('нажатие вне баннера доходит до экрана под ним', (tester) async {
+    int taps = 0;
+    source = StreamController<ShownCompliment>(sync: true);
+    cubit = ComplimentBannerCubit(source.stream);
+    addTearDown(source.close);
+    await tester.pumpWidget(
+      CupertinoApp(
+        debugShowCheckedModeBanner: false,
+        builder: (context, app) => AppTheme.builder(
+          context,
+          BlocProvider<ComplimentBannerCubit>(
+            create: (_) => cubit,
+            child: ComplimentOverlay(child: app ?? const SizedBox.shrink()),
+          ),
+        ),
+        home: CupertinoPageScaffold(
+          child: Center(
+            child: GestureDetector(
+              onTap: () => taps++,
+              child: const SizedBox.square(dimension: 100, child: Text('Кнопка')),
+            ),
+          ),
+        ),
+      ),
+    );
+    await show(tester, 'Привет');
+
+    await tester.tap(find.text('Кнопка'));
+
+    expect(taps, 1);
+    expect(find.text('Привет'), findsOneWidget);
+  });
+
+  testWidgets('очень крупный шрифт: текст не обрезается многоточием', (tester) async {
+    await pumpOverlay(tester);
+    await show(tester, 'Ты так увлечена. Не забудь размять плечи и выпить воды');
+
+    final Text text = tester.widget<Text>(find.text('Ты так увлечена. Не забудь размять плечи и выпить воды'));
+
+    expect(text.maxLines, isNull);
+    expect(text.overflow, isNull);
+  });
+
   testWidgets('длинный текст переносится на вторую строку и не вылезает за экран', (tester) async {
     tester.view.physicalSize = const Size(320, 640);
     tester.view.devicePixelRatio = 1;
