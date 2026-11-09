@@ -5,5 +5,5 @@
 | № | Решение | Статус |
 |---|---|---|
 | [0001](0001-native-look.md) | Нативный вид на iOS и macOS: Cupertino-first, только Apple-платформы | принято |
-| 0002 | Реализация Liquid Glass (результат спайка T01g) | ожидает T01g |
+| [0002](0002-liquid-glass-implementation.md) | Реализация Liquid Glass: собственное приближение на размытии фона (T01g) | принято |
 | [0003](0003-crafts-in-domain.md) | Бисер и вышивка крестиком в одной доменной модели (A04, [cross-stitch.md](../cross-stitch.md)) | принято |
