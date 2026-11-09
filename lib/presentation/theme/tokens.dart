@@ -45,7 +45,9 @@ class GlassTokens {
     required this.highlight,
     required this.denseTint,
     required this.opaqueFill,
+    required this.opaqueBorder,
     this.borderWidth = 0.5,
+    this.opaqueBorderWidth = 1,
   });
 
   final double blurSigma;
@@ -54,7 +56,11 @@ class GlassTokens {
   final CupertinoDynamicColor highlight;
   final CupertinoDynamicColor denseTint;
   final CupertinoDynamicColor opaqueFill;
+
+  /// Заметная граница непрозрачного варианта (повышенная контрастность).
+  final CupertinoDynamicColor opaqueBorder;
   final double borderWidth;
+  final double opaqueBorderWidth;
 }
 
 /// Все токены дизайна в одном месте: T01b заменит значения, а не структуру.
@@ -97,6 +103,7 @@ class AppTokensData {
       highlight: CupertinoDynamicColor.withBrightness(color: Color(0xCCFFFFFF), darkColor: Color(0x33FFFFFF)),
       denseTint: CupertinoDynamicColor.withBrightness(color: Color(0xE6FFFFFF), darkColor: Color(0xE61C1C1E)),
       opaqueFill: CupertinoDynamicColor.withBrightness(color: Color(0xFFF2F2F7), darkColor: Color(0xFF2C2C2E)),
+      opaqueBorder: CupertinoDynamicColor.withBrightness(color: Color(0xCC000000), darkColor: Color(0xCCFFFFFF)),
     ),
     glassBar: GlassTokens(
       blurSigma: 30,
@@ -105,6 +112,7 @@ class AppTokensData {
       highlight: CupertinoDynamicColor.withBrightness(color: Color(0xE6FFFFFF), darkColor: Color(0x40FFFFFF)),
       denseTint: CupertinoDynamicColor.withBrightness(color: Color(0xF2FFFFFF), darkColor: Color(0xF21C1C1E)),
       opaqueFill: CupertinoDynamicColor.withBrightness(color: Color(0xFFF2F2F7), darkColor: Color(0xFF2C2C2E)),
+      opaqueBorder: CupertinoDynamicColor.withBrightness(color: Color(0xCC000000), darkColor: Color(0xCCFFFFFF)),
     ),
     counterTextStyle: TextStyle(fontFeatures: <FontFeature>[FontFeature.tabularFigures()]),
   );

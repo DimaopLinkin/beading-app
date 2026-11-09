@@ -7,6 +7,8 @@ import 'package:flutter/cupertino.dart';
 ///
 /// [semanticLabel] обязателен: у иконки-кнопки иначе нет имени для VoiceOver. Нажатие подсвечивается накладкой, а не
 /// прозрачностью: `Opacity` над `BackdropFilter` отключает размытие.
+///
+/// Для текста над схемой берите `density: GlassDensity.dense`: контраст на ярких бусинах гарантирован только им.
 class GlassButton extends StatefulWidget {
   const GlassButton({
     required this.child,
@@ -38,7 +40,7 @@ class _GlassButtonState extends State<GlassButton> {
     final bool enabled = widget.onPressed != null;
     final Color pressOverlay = CupertinoColors.label.resolveFrom(context).withValues(alpha: 0.12);
 
-    Widget visual = GlassSurface(
+    final Widget visual = GlassSurface(
       density: widget.density,
       shape: const StadiumBorder(),
       child: Padding(
@@ -46,10 +48,11 @@ class _GlassButtonState extends State<GlassButton> {
         child: Opacity(opacity: enabled ? 1 : 0.4, child: widget.child),
       ),
     );
-    if (_pressed) {
-      visual = Stack(
-        children: <Widget>[
-          visual,
+    // Stack постоянный: смена типа виджета в слоте пересоздавала бы BackdropFilter на каждое нажатие.
+    final Widget stacked = Stack(
+      children: <Widget>[
+        visual,
+        if (_pressed)
           Positioned.fill(
             child: IgnorePointer(
               child: DecoratedBox(
@@ -58,9 +61,8 @@ class _GlassButtonState extends State<GlassButton> {
               ),
             ),
           ),
-        ],
-      );
-    }
+      ],
+    );
 
     return Semantics(
       button: true,
@@ -74,7 +76,7 @@ class _GlassButtonState extends State<GlassButton> {
         onTapUp: enabled ? (_) => _setPressed(value: false) : null,
         onTapCancel: enabled ? () => _setPressed(value: false) : null,
         onTap: widget.onPressed,
-        child: MinTapTarget(child: visual),
+        child: MinTapTarget(child: stacked),
       ),
     );
   }

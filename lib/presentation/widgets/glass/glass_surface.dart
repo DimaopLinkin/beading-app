@@ -28,6 +28,7 @@ class GlassSurface extends StatelessWidget {
   final GlassMaterial material;
   final GlassDensity density;
 
+  /// `CupertinoDynamicColor` не равен обычному `Color` с тем же значением; отдаём простой цвет.
   static Color _plain(Color color) => Color(color.toARGB32());
 
   @override
@@ -46,7 +47,7 @@ class GlassSurface extends StatelessWidget {
         context,
       ),
     );
-    final Color border = _plain(CupertinoDynamicColor.resolve(glass.border, context));
+    final Color border = _plain(CupertinoDynamicColor.resolve(opaque ? glass.opaqueBorder : glass.border, context));
     final Color highlight = _plain(CupertinoDynamicColor.resolve(glass.highlight, context));
 
     Widget content = DecoratedBox(
@@ -54,7 +55,7 @@ class GlassSurface extends StatelessWidget {
       decoration: ShapeDecoration(
         color: fill,
         shape: shape.copyWith(
-          side: BorderSide(color: border, width: glass.borderWidth),
+          side: BorderSide(color: border, width: opaque ? glass.opaqueBorderWidth : glass.borderWidth),
         ),
       ),
       child: opaque

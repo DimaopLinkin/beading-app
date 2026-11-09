@@ -120,6 +120,20 @@ void main() {
       expect(pressOverlay, findsNothing);
     });
 
+    testWidgets('нажатие не пересоздаёт размытие: тот же BackdropFilter-элемент', (tester) async {
+      await pumpGlass(
+        tester,
+        GlassButton(semanticLabel: 'Далее', onPressed: () {}, child: const Icon(CupertinoIcons.add)),
+      );
+      final Element before = tester.element(find.byType(BackdropFilter));
+
+      final TestGesture gesture = await tester.startGesture(tester.getCenter(find.byType(GlassButton)));
+      await tester.pump();
+
+      expect(tester.element(find.byType(BackdropFilter)), same(before));
+      await gesture.up();
+    });
+
     testWidgets('отмена жеста снимает подсветку и не вызывает onPressed', (tester) async {
       var taps = 0;
       await pumpGlass(

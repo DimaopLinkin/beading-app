@@ -146,7 +146,7 @@ M5 идёт после M3 и до M4 (решение Дмитрия, 2026-11-09)
 ### T10 — Подпись и прямая раздача: iPhone (Ad Hoc) и macOS (Developer ID)
 - **Зависит от:** T00 (Apple Developer Program у Дмитрия есть; приложение не публикуется, записи в App Store Connect нет). **Параллельно:** любые.
 - **Сделать:** выпуск версии по [changelog.md](changelog.md) (поднять версию, `scripts/release_notes.sh`, тег); bundle id, команда, иконки-заглушки, `ios/` и `macos/` entitlements (sandbox, файлы, камера, фото — тексты разрешений по-русски), App ID и iCloud-контейнер в портале разработчика (тред пишет пошаговую инструкцию, создаёт Дмитрий); `scripts/release_ios.sh` (архив + экспорт Ad Hoc `.ipa` через `xcodebuild -exportArchive` с `ExportOptions.plist`, `method: ad-hoc`; установка `.ipa` на зарегистрированный iPhone через Finder/Apple Configurator или `xcrun devicectl`), `scripts/release_macos.sh` (архив, подпись Developer ID, нотаризация `xcrun notarytool submit --wait`, `xcrun stapler staple`, упаковка в `.dmg`). Дополнить `docs/release.md` пошаговой инструкцией: регистрация UDID, срок профилей (1 год), как передать сборку ей, как поставить на Mac (Gatekeeper).
-- **Приёмка:** Дмитрий ставит Ad Hoc `.ipa` на iPhone и открывает нотаризованный `.app` на Mac без предупреждений Gatekeeper. (Требует действий Дмитрия — тред готовит всё и пишет пошаговую инструкцию.)
+- **Приёмка:** Дмитрий ставит Ad Hoc `.ipa` на iPhone и открывает нотаризованный `.app` на Mac без предупреждений Gatekeeper. (Требует действий Дмитрия — тред готовит всё и пишет пошаговую инструкцию.) Заодно проверка стекла на устройстве по [ADR-0002](decisions/0002-liquid-glass-implementation.md): кадры на схеме 100×400, вид панелей, платформенный канал «Уменьшить прозрачность».
 
 ## M2 Свои схемы
 

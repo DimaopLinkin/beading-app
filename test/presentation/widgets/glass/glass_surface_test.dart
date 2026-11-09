@@ -94,13 +94,20 @@ void main() {
       expect(find.byType(BackdropFilter), findsOneWidget);
     });
 
-    testWidgets('содержимое изолировано RepaintBoundary, чтобы размытие не перерисовывало сетку', (tester) async {
+    testWidgets('поверхность целиком обёрнута в собственный RepaintBoundary', (tester) async {
       await pumpGlass(tester, surface);
 
-      expect(
-        find.descendant(of: find.byType(GlassSurface), matching: find.byType(RepaintBoundary)),
-        findsWidgets,
-      );
+      final Finder boundary = find.descendant(of: find.byType(GlassSurface), matching: find.byType(RepaintBoundary));
+      expect(find.descendant(of: boundary.first, matching: find.byType(ClipPath)), findsOneWidget);
+    });
+
+    testWidgets('в непрозрачном режиме граница заметнее', (tester) async {
+      await pumpGlass(tester, surface, highContrast: true);
+
+      final DecoratedBox box = tester.widget<DecoratedBox>(find.byKey(_fillKey));
+      final OutlinedBorder shape = (box.decoration as ShapeDecoration).shape as OutlinedBorder;
+      expect(shape.side.width, AppTokensData.standard.glassSurface.opaqueBorderWidth);
+      expect(shape.side.width, greaterThanOrEqualTo(1));
     });
 
     testWidgets('блик и заливка не перехватывают касания', (tester) async {
