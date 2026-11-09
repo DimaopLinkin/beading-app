@@ -2,7 +2,7 @@
 
 Каждая задача — отдельный тред, отдельная ветка `task/<ID>-<slug>`, отдельный PR. Тред получает бриф менеджера (см. [team.md](team.md#менеджер)): раздел задачи отсюда (`scripts/team/task_brief.sh <ID>`), [workflow.md](workflow.md), [team.md](team.md), нужные разделы [architecture.md](architecture.md), [data-and-sync.md](data-and-sync.md) (если задача про данные), [cross-cutting.md](cross-cutting.md) (если про UI), действующие правила из [review/rules.md](review/rules.md). Модель треда и состав ревью — по типу задачи, таблица ниже. ID потребностей (`MUST-…`, `NICE-…`) — из [research.md](research.md).
 
-Задача стартует, когда **все её зависимости влиты в `dev`**. Общие для всех задач требования (TDD, `scripts/check.sh`, DoD, ARB, обе темы, фрагмент changelog) описаны в [workflow.md](workflow.md) и здесь не повторяются.
+Задача стартует, когда **все её зависимости влиты в `dev`**. Общие для всех задач требования (TDD, `scripts/check.sh`, DoD, ARB, обе темы, нативный вид по [ADR-0001](decisions/0001-native-look.md), фрагмент changelog) описаны в [workflow.md](workflow.md) и здесь не повторяются.
 
 Ветки задач создаются от `dev`, PR открываются в `dev`; после закрытого ревью и зелёного CI тред задачи сам мёржит PR. Релизы собираются только из `main` (см. [workflow.md](workflow.md#ветки-и-pr)).
 
@@ -42,8 +42,8 @@ M5 идёт после M3 и до M4 (решение Дмитрия, 2026-11-09)
 |---|---|---|---|
 | A01 | Обратная связь Насти после M1: что мешает, что важнее в M2/M3 | после релиза 0.1.0 | правки приоритетов и волн в этом файле, вопросы Дмитрию |
 | A02 | Детализация M4 (T29–T35): «Сделать», «Приёмка», граничные случаи | после M2, перед стартом M4 | разделы задач в этом файле |
-| A03 | Синхронизация iCloud: проверить `CKSyncEngine` через Swift-плагин против альтернатив, модель слияния | перед T26 | ADR в `docs/adr/`, детализация T26–T28 |
-| A04 | Вышивка крестиком: инструменты, форматы, место в доменной модели | сделано | [cross-stitch.md](cross-stitch.md), [ADR 0001](adr/0001-crafts-in-domain.md), правки этого файла |
+| A03 | Синхронизация iCloud: проверить `CKSyncEngine` через Swift-плагин против альтернатив, модель слияния | перед T26 | ADR в `docs/decisions/`, детализация T26–T28 |
+| A04 | Вышивка крестиком: инструменты, форматы, место в доменной модели | сделано | [cross-stitch.md](cross-stitch.md), [ADR-0003](decisions/0003-crafts-in-domain.md), правки этого файла |
 | A05 | Спайк: векторный PDF дизайнера → сетка (NICE-X4) на 3–5 PDF из её наборов | после M5 | да/нет и оценка задачи |
 | A06 | Облачный ИИ-помощник генератора: провайдер, цена, хранение ключа API, согласие на отправку фото (NICE-X7) | перед M4 | ADR и задача в M4 |
 
@@ -56,7 +56,7 @@ M5 идёт после M3 и до M4 (решение Дмитрия, 2026-11-09)
 | 1 | T00 |
 | 2 | T01 (T00), T02 (T00), T03 (T00), T11 (T00), T12 (T00) |
 | 3 | T15 (T01, T11, T12), T04 (T03), T08 (T01, T03), T09 (T01, T02, T03), T10 (T00), T13 (T03, T12), T16 (T11), T18 (T11, T12), T22 (T11, T12), T24 (T11, T12) |
-| 4 | T05 (T01, T04), T06 (T04), T14 (T04, T11, T12), T01b (T01 + готовый UI kit из Claude Design) |
+| 4 | T05 (T01, T04), T06 (T04), T14 (T04, T11, T12), T01b (T01 + готовый UI kit из Claude Design), T01g (T01) |
 | 5 | T07 (T01, T02, T06), T47 (T24) |
 | 6 | T17 (T13, T14, T15, T16), T19 (T08, T14, T15, T18), T20 (T13, T14, T18), T21 (T06, T14), T23 (T05, T14, T15, T22), T25 (T05, T13, T14, T15, T24) |
 | 7 | T48 (T24, T25) |
@@ -75,7 +75,7 @@ M5 идёт после M3 и до M4 (решение Дмитрия, 2026-11-09)
   - `flutter create --platforms=ios,macos --org <согласовать> beading` в корне репозитория; `environment: sdk: ^3.11.0, flutter: ">=3.41.0"`. Deployment target: iOS 18.0 (`ios/Podfile`, Xcode-проект), macOS 26.0 (`macos/Podfile`, `MACOSX_DEPLOYMENT_TARGET`).
   - `analysis_options.yaml` — дословно из [setup/analysis_options.yaml](setup/analysis_options.yaml).
   - `scripts/test.sh`, `analyze.sh`, `check_architecture.sh`, `check.sh` — из [workflow.md](workflow.md).
-  - `.github/workflows/check.yml` (ubuntu: `scripts/check.sh`; macos: сборка ios `--no-codesign` и macos).
+  - `.github/workflows/check.yml` (ubuntu: `scripts/check.sh`, каждый PR). Сборку iOS/macOS в CI не делаем — её проверяем при релизе.
   - Каталоги слоёв из [architecture.md](architecture.md), `lib/core`: `Result`/`Failure` (sealed), `Clock` + `SystemClock` + `FakeClock` в `test/`, `IdGenerator` (UUID v7).
   - `lib/app`: `di.dart` (get_it), `router.dart` (go_router), `bootstrap.dart`, пустой главный экран «Мои работы».
   - Зависимости: flutter_bloc, bloc_test, get_it, go_router, equatable, uuid, mocktail, drift/drift_dev/build_runner, sqlite3_flutter_libs, flutter_localizations/intl. Остальное добавляют задачи.
@@ -86,30 +86,36 @@ M5 идёт после M3 и до M4 (решение Дмитрия, 2026-11-09)
 
 ### T01 — Тема и базовые токены
 - **Покрывает:** MUST-G2. **Зависит от:** T00. **Параллельно:** T02, T03, T11, T12.
-- **Сделать:** `AppTheme.light/dark` (Material 3) из временных токенов (`presentation/theme/tokens.dart` — цвета, типографика, отступы, радиусы, в одном месте, чтобы T01b заменил значения); `ThemeModeCubit` (system/light/dark) поверх интерфейса `SettingsRepository` (реализация в T03, здесь — фейк в тестах, в DI до T03 — in-memory); стиль цифр счётчика (tabular figures); цвета подсветки ряда и притушения как `ThemeExtension`.
-- **Приёмка:** cubit переключает и восстанавливает режим; widget-тест, что приложение собирается в обеих темах; golden-образец набора токенов в обеих темах.
+- **Сделать:** по [ADR-0001](decisions/0001-native-look.md) (Cupertino-first): `AppTheme.light/dark` на `CupertinoThemeData` + `CupertinoDynamicColor` из временных токенов (`presentation/theme/tokens.dart` — цвета, типографика, отступы, радиусы, в одном месте, чтобы T01b заменил значения); токены через `InheritedWidget` `AppTokens` (`context.tokens`); перевести `lib/app/app.dart` на `CupertinoApp.router`, `library_screen.dart` на Cupertino-виджеты; `AppIcons` (на `CupertinoIcons`); `presentation/theme/material_bridge.dart`; правило в `scripts/check_architecture.sh`: прямой `package:flutter/material.dart` в `lib/presentation` и `lib/app` запрещён, кроме `material_bridge.dart` (+ тест правила); `ThemeModeCubit` (system/light/dark) поверх интерфейса `SettingsRepository` (реализация в T03, здесь — фейк в тестах, в DI до T03 — in-memory); стиль цифр счётчика (tabular figures); цвета подсветки ряда и притушения как поля `AppTokens`.
+- **Приёмка:** cubit переключает и восстанавливает режим; widget-тест, что приложение собирается в обеих темах и в корне `CupertinoApp`; golden-образец набора токенов в обеих темах; `check_architecture.sh` падает на тестовой фикстуре с импортом `material.dart` и пропускает `material_bridge.dart`.
 - **Вне объёма:** виджеты UI kit (делают задачи экранов).
+
+### T01g — Спайк: реализация Liquid Glass во Flutter
+- **Покрывает:** пожелание про Liquid Glass ([cross-cutting.md](cross-cutting.md#liquid-glass)). **Зависит от:** T01. **Параллельно:** T01b, M1-задачи без UI (T04, T08-домен и др.).
+- **Сделать:** сравнить 2–3 способа получить Liquid Glass на iOS 26 и macOS 26 (нативные platform view со SwiftUI `glassEffect`, актуальные пакеты, собственный шейдер/`BackdropFilter`); для каждого прототип `GlassPanel`/`GlassButton`/`GlassBar` над сеткой 100×400 и фото страницы; замерить кадры и совместимость с Flutter 3.41; описать запасной вариант для iOS ниже 26. Выбрать, оформить `docs/decisions/0002-liquid-glass-implementation.md` (по [ADR-0001](decisions/0001-native-look.md))`, реализовать виджеты `presentation/widgets/glass/` с golden-тестами (обе темы, запасной вариант).
+- **Приёмка:** решение с обоснованием; виджеты работают на iOS 26 и macOS 26 и в запасном режиме; перерисовка сетки под стеклом не роняет 60 fps; чтение текста поверх ярких цветов проверено.
+- **Вне объёма:** экраны.
 
 ### T01b — Перенос UI kit из Claude Design
 - **Зависит от:** T01 и готового UI kit (промпт 1 в [design-prompts.md](design-prompts.md)). **Параллельно:** любые.
-- **Сделать:** заменить значения токенов, иконку приложения (iOS/macOS), обновить golden.
+- **Сделать:** заменить значения токенов `AppTokens` (в том числе параметры материалов Liquid Glass для T01g), иконку приложения (iOS/macOS), обновить golden.
 - **Приёмка:** golden обновлены осознанно; контраст текста ≥ 4.5:1 в обеих темах (тест по токенам).
 
 ### T02 — Платформенная оболочка: портрет, экран не гаснет, окно macOS
 - **Покрывает:** MUST-F5, MUST-G1. **Зависит от:** T00. **Параллельно:** T01, T03, T11, T12.
-- **Сделать:** по [cross-cutting.md](cross-cutting.md): `Info.plist` только портрет + `SystemChrome`; `ScreenWakeLock` (интерфейс в domain/settings, реализация на `wakelock_plus` в data), `WakelockController` по жизненному циклу и настройке «Не гасить экран» (по умолчанию вкл.); `window_manager` на macOS: 480×900, минимум 400×700.
+- **Сделать:** по [cross-cutting.md](cross-cutting.md): `Info.plist` только портрет + `SystemChrome`; `ScreenWakeLock` (интерфейс в domain/settings, реализация на `wakelock_plus` в data), `WakelockController` по жизненному циклу и настройке «Не гасить экран» (по умолчанию вкл.); `window_manager` на macOS: 480×900, минимум 400×700; нативное оформление окна (скрытая полоса заголовка, контент на всё окно) и строка меню `PlatformMenuBar` с `⌘Z`/`⇧⌘Z`/`⌘,` ([ADR-0001](decisions/0001-native-look.md)).
 - **Приёмка:** юнит-тесты контроллера (вкл. при resume, выкл. при pause, уважение настройки) с фейком; тест, что `bootstrap` выставляет ориентацию (через инжектируемый адаптер).
 
 ### T03 — База drift и настройки
 - **Покрывает:** MUST-G3, MUST-G6. **Зависит от:** T00. **Параллельно:** T01, T02, T11, T12.
-- **Сделать:** `AppDatabase` (schemaVersion 1), миксин служебных колонок синхронизации из [data-and-sync.md](data-and-sync.md), таблица `settings`, `SettingsRepository` (типизированные ключи: тема, wakelock, режим символов, бренд по умолчанию **отдельно для бисера и для мулине** — `defaultBeadBrand`, `defaultFlossBrand` (см. [ADR 0001](adr/0001-crafts-in-domain.md)), имя и даты для пасхалок), `DeviceId` (генерируется один раз, хранится в settings), инфраструктура тестов миграций (`drift_dev make-migrations`, папка схем), подключение в DI вместо in-memory из T01.
+- **Сделать:** `AppDatabase` (schemaVersion 1), миксин служебных колонок синхронизации из [data-and-sync.md](data-and-sync.md), таблица `settings`, `SettingsRepository` (типизированные ключи: тема, wakelock, режим символов, бренд по умолчанию **отдельно для бисера и для мулине** — `defaultBeadBrand`, `defaultFlossBrand` (см. [ADR-0003](decisions/0003-crafts-in-domain.md)), имя и даты для пасхалок), `DeviceId` (генерируется один раз, хранится в settings), инфраструктура тестов миграций (`drift_dev make-migrations`, папка схем), подключение в DI вместо in-memory из T01.
 - **Приёмка:** репозиторий на `NativeDatabase.memory()`; сохранение/чтение каждого ключа и значения по умолчанию; тест миграции v1 сгенерирован и проходит; `updated_at`/`device_id` проставляются.
 
 ## M1 Схемы из книг
 
 ### T04 — Проекты: домен и данные
 - **Покрывает:** MUST-A1, A2, A3 (логика), B4. **Зависит от:** T03. **Параллельно:** T08, T09, T10, T13, T16, T18, T22, T24.
-- **Сделать:** сущность `Project` (id, name, status `idea/inProgress/done`, **craft `beading/crossStitch`** (по умолчанию `beading`, [ADR 0001](adr/0001-crafts-in-domain.md)), technique — допустимые значения зависят от craft (бисер: loom, peyote, brick, square, off-loom; вышивка: crossStitch, tent), contentKind `image/grid/steps`, notes, coverPath, lastWorkedAt), таблица `projects` (миграция v2), `ProjectRepository` (поток списка, мягкое удаление), use cases: `CreateProject`, `RenameProject`, `DuplicateProject` (через интерфейс `ProjectContentCloner`, который подключат T06 и T14), `DeleteProject`, `ChangeProjectStatus` (переход в `done` публикует событие `ProjectCompleted` для пасхалок — интерфейс `AppEvents` в domain), `WatchProjects(filter: craft, technique, status, query)`, `UpdateNotes`, `TouchProject` (lastWorkedAt).
+- **Сделать:** сущность `Project` (id, name, status `idea/inProgress/done`, **craft `beading/crossStitch`** (по умолчанию `beading`, [ADR-0003](decisions/0003-crafts-in-domain.md)), technique — допустимые значения зависят от craft (бисер: loom, peyote, brick, square, off-loom; вышивка: crossStitch, tent), contentKind `image/grid/steps`, notes, coverPath, lastWorkedAt), таблица `projects` (миграция v2), `ProjectRepository` (поток списка, мягкое удаление), use cases: `CreateProject`, `RenameProject`, `DuplicateProject` (через интерфейс `ProjectContentCloner`, который подключат T06 и T14), `DeleteProject`, `ChangeProjectStatus` (переход в `done` публикует событие `ProjectCompleted` для пасхалок — интерфейс `AppEvents` в domain), `WatchProjects(filter: craft, technique, status, query)`, `UpdateNotes`, `TouchProject` (lastWorkedAt).
 - **Приёмка:** тесты use cases с фейковым репозиторием; репозиторий на in-memory БД; поиск без учёта регистра и «ё/е»; сортировка по lastWorkedAt; удалённые не видны; техника не из своего ремесла → `Failure`; фильтр по craft; тест миграции v1→v2.
 
 ### T05 — Библиотека проектов: экран
@@ -147,19 +153,19 @@ M5 идёт после M3 и до M4 (решение Дмитрия, 2026-11-09)
 ### T11 — Геометрия сеток и сетка (домен)
 - **Покрывает:** MUST-C1, C2 (модель). **Зависит от:** T00. **Параллельно:** волна 2.
 - **Сделать:** `GridGeometry` (sealed: `rectangular`, `peyote(drop)`, `brick`) — центры ячеек с учётом `CellMetrics`, hit-test точка→ячейка, соседи ячейки, габариты; `Grid` (иммутабельный, `Uint16List`), `GridCodec` v1 (заголовок с версией, run-length сжатие).
-  - `CellMetrics` — интерфейс размера ячейки (ширина и высота в мм), геометрия зависит **только от него**, не от `BeadSize` ([ADR 0001](adr/0001-crafts-in-domain.md): вторая реализация — канва `Fabric` для вышивки в T36).
+  - `CellMetrics` — интерфейс размера ячейки (ширина и высота в мм), геометрия зависит **только от него**, не от `BeadSize` ([ADR-0003](decisions/0003-crafts-in-domain.md): вторая реализация — канва `Fabric` для вышивки в T36).
   - `BeadSize implements CellMetrics`: Delica 15/0, 11/0, 10/0, рокайль 15/0, 11/0, 8/0 — диаметр, длина вдоль отверстия, вес бусины. Пропорция ячейки зависит от того, как лежит отверстие в технике: на станке и в мозаике вдоль ряда, в кирпичном стежке поперёк. Геометрия сама выбирает, что из размеров бусины ширина ячейки, а что высота.
   - Вне объёма: разные размеры и формы бусин в одной схеме (стеклярус, кубики, капли).
 - **Приёмка:** табличные тесты координат для всех геометрий, включая пары «Delica на станке», «рокайль в кирпичном стежке» и квадратную ячейку (фейковый `CellMetrics` 1×1); hit-test обратен центрам; property-тест `decode(encode(g)) == g` на случайных сетках; отказ на неизвестной версии кодека → `Failure`.
 
 ### T12 — Цвета: Lab, ΔE, символы (домен)
 - **Покрывает:** MUST-C6, D2, D4 (логика). **Зависит от:** T00. **Параллельно:** волна 2.
-- **Сделать:** `Rgb`, `Lab` (sRGB→XYZ D65→Lab), ΔE2000, `NearestColorMatcher` (top-N из каталога), `PatternColor` (снимок: rgb, name, `components: List<CatalogRef>` — 1–2 позиции каталога (бренд, код): у бисера одна, у смешанной нити мулине две, RGB бленда — среднее в линейном RGB; `finish` — отделка бисера или признак спецнити; symbol; см. [ADR 0001](adr/0001-crafts-in-domain.md)), `PaletteSnapshot` (добавить/переименовать/изменить/удалить с переиндексацией сетки — через интерфейс к Grid из T11 не зависеть: операции над палитрой возвращают карту переиндексации), `SymbolAssigner` (A–Z, затем цифры и знаки, стабильный, **не меньше 120 различимых символов** — в схемах вышивки 50–100 цветов).
+- **Сделать:** `Rgb`, `Lab` (sRGB→XYZ D65→Lab), ΔE2000, `NearestColorMatcher` (top-N из каталога), `PatternColor` (снимок: rgb, name, `components: List<CatalogRef>` — 1–2 позиции каталога (бренд, код): у бисера одна, у смешанной нити мулине две, RGB бленда — среднее в линейном RGB; `finish` — отделка бисера или признак спецнити; symbol; см. [ADR-0003](decisions/0003-crafts-in-domain.md)), `PaletteSnapshot` (добавить/переименовать/изменить/удалить с переиндексацией сетки — через интерфейс к Grid из T11 не зависеть: операции над палитрой возвращают карту переиндексации), `SymbolAssigner` (A–Z, затем цифры и знаки, стабильный, **не меньше 120 различимых символов** — в схемах вышивки 50–100 цветов).
 - **Приёмка:** ΔE2000 на эталонных парах Sharma (2005) с точностью 1e-4; ближайший цвет; символы уникальны и стабильны при добавлении цвета; 120 цветов получают 120 разных символов; RGB бленда двух цветов.
 
 ### T13 — Каталог бисера
 - **Покрывает:** MUST-D1, D2. **Зависит от:** T03, T12. **Параллельно:** волна 3.
-- **Сделать:** `assets/catalog/miyuki_delica_11.json`, `miyuki_rocailles_11.json`, `toho_round_11.json`, `preciosa_rocailles_11.json` (размер — поле записи: файлы 15/0, 8/0 и Delica 10/0, 15/0 добавляет T50 без изменения схемы) — только артикул, название, приблизительный RGB, отделка (без фото производителей); источник значений указать в `assets/catalog/README.md`. Таблица `catalog_colors` с колонкой `material` (`bead` сейчас, `floss` добавит T36; [ADR 0001](adr/0001-crafts-in-domain.md)), наполнение в миграции/при первом запуске (идемпотентно, обновление при смене версии файла), `CatalogRepository`: поиск по артикулу/названию, фильтр по материалу и бренду, ближайшие по RGB через T12.
+- **Сделать:** `assets/catalog/miyuki_delica_11.json`, `miyuki_rocailles_11.json`, `toho_round_11.json`, `preciosa_rocailles_11.json` (размер — поле записи: файлы 15/0, 8/0 и Delica 10/0, 15/0 добавляет T50 без изменения схемы) — только артикул, название, приблизительный RGB, отделка (без фото производителей); источник значений указать в `assets/catalog/README.md`. Таблица `catalog_colors` с колонкой `material` (`bead` сейчас, `floss` добавит T36; [ADR-0003](decisions/0003-crafts-in-domain.md)), наполнение в миграции/при первом запуске (идемпотентно, обновление при смене версии файла), `CatalogRepository`: поиск по артикулу/названию, фильтр по материалу и бренду, ближайшие по RGB через T12.
 - **Приёмка:** валидация JSON-файлов тестом (уникальные коды, валидный RGB, не меньше N записей); повторное наполнение не дублирует; поиск «10», «DB-0010», «db10» находит одно и то же.
 
 ### T14 — Хранение сеточных схем
@@ -234,7 +240,7 @@ M5 идёт после M3 и до M4 (решение Дмитрия, 2026-11-09)
 - **Сделать:** доменный интерфейс `ImageMasks` (маска объекта, маска важности); реализация в data через платформенный канал на Swift (общий для iOS и macOS): Apple Vision `VNGenerateForegroundInstanceMaskRequest` (объект/фон), `VNDetectFaceLandmarksRequest` (глаза, губы), `VNGenerateAttentionBasedSaliencyImageRequest` (значимость); без сети. В мастере T25: «фон: оставить / упростить / убрать», кисть «важное», сравнение «до/после» удержанием.
 - **Приёмка:** фейк `ImageMasks` в тестах cubit мастера; на фикстуре с лицом маска важности покрывает глаза; при ошибке Vision мастер работает без масок; ручная проверка на iPhone и Mac.
 
-## M5 Вышивка (детализация — [cross-stitch.md](cross-stitch.md), [ADR 0001](adr/0001-crafts-in-domain.md))
+## M5 Вышивка (детализация — [cross-stitch.md](cross-stitch.md), [ADR-0003](decisions/0003-crafts-in-domain.md))
 
 Разделы «Сделать» и «Приёмка» уточняет аналитик перед стартом вехи, с ответами Насти на вопросы из [cross-stitch.md](cross-stitch.md#10-риски-и-открытые-вопросы).
 

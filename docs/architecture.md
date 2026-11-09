@@ -71,7 +71,7 @@ test/             # зеркалит lib/
 
 ## Доменная модель
 
-Основа — выводы [research.md](research.md), раздел 8, и [ADR 0001](adr/0001-crafts-in-domain.md) (бисер и вышивка крестиком в одной модели, подробности — [cross-stitch.md](cross-stitch.md)). Корень — `Project` (то, что видно в библиотеке). Содержимое проекта — одна из трёх видов схем, у каждой свой прогресс.
+Основа — выводы [research.md](research.md), раздел 8, и [ADR-0003](decisions/0003-crafts-in-domain.md) (бисер и вышивка крестиком в одной модели, подробности — [cross-stitch.md](cross-stitch.md)). Корень — `Project` (то, что видно в библиотеке). Содержимое проекта — одна из трёх видов схем, у каждой свой прогресс.
 
 ```text
 Project ─┬─ content: sealed PatternContent
