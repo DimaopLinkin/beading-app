@@ -1,7 +1,6 @@
 import 'package:beading/app/di.dart';
 import 'package:beading/core/clock.dart';
 import 'package:beading/domain/settings/app_info.dart';
-import 'package:beading/domain/settings/secret_tap_detector.dart';
 import 'package:beading/domain/settings/secret_tap_handler.dart';
 import 'package:beading/presentation/library/library_screen.dart';
 import 'package:beading/presentation/settings/about_screen.dart';
@@ -30,8 +29,8 @@ GoRouter createRouter() => GoRouter(
     GoRoute(
       path: AppRoutes.about,
       builder: (context, _) => AboutScreen(
-        appInfo: getIt<AppInfoProvider>().load(),
-        detector: SecretTapDetector(clock: getIt<Clock>()),
+        appInfoProvider: getIt<AppInfoProvider>(),
+        clock: getIt<Clock>(),
         secretTapHandler: getIt<SecretTapHandler>(),
         onOpenHidden: () => context.push(AppRoutes.hidden),
       ),

@@ -151,23 +151,11 @@ abstract class AppLocalizations {
   /// **'Не гасить экран'**
   String get settingsKeepScreenAwake;
 
-  /// No description provided for @settingsKeepScreenAwakeFooter.
-  ///
-  /// In ru, this message translates to:
-  /// **'Экран не погаснет, пока приложение открыто.'**
-  String get settingsKeepScreenAwakeFooter;
-
   /// No description provided for @settingsSymbolMode.
   ///
   /// In ru, this message translates to:
   /// **'Символы на схеме'**
   String get settingsSymbolMode;
-
-  /// No description provided for @settingsSymbolModeFooter.
-  ///
-  /// In ru, this message translates to:
-  /// **'Показывать на схеме символы вместо цветов по умолчанию.'**
-  String get settingsSymbolModeFooter;
 
   /// No description provided for @settingsDefaultBrand.
   ///

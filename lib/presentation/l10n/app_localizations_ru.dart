@@ -39,13 +39,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get settingsKeepScreenAwake => 'Не гасить экран';
 
   @override
-  String get settingsKeepScreenAwakeFooter => 'Экран не погаснет, пока приложение открыто.';
-
-  @override
   String get settingsSymbolMode => 'Символы на схеме';
-
-  @override
-  String get settingsSymbolModeFooter => 'Показывать на схеме символы вместо цветов по умолчанию.';
 
   @override
   String get settingsDefaultBrand => 'Производитель бисера';

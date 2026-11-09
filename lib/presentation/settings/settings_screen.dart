@@ -34,7 +34,6 @@ class SettingsScreen extends StatelessWidget {
                 ),
                 CupertinoListSection.insetGrouped(
                   header: Text(l10n.settingsSectionWork),
-                  footer: Text('${l10n.settingsKeepScreenAwakeFooter} ${l10n.settingsSymbolModeFooter}'),
                   children: <Widget>[
                     CupertinoListTile.notched(
                       title: Text(l10n.settingsKeepScreenAwake),

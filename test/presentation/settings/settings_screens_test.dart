@@ -1,6 +1,5 @@
 import 'package:beading/domain/settings/app_info.dart';
 import 'package:beading/domain/settings/app_theme_mode.dart';
-import 'package:beading/domain/settings/secret_tap_detector.dart';
 import 'package:beading/domain/settings/secret_tap_handler.dart';
 import 'package:beading/domain/settings/setting_keys.dart';
 import 'package:beading/domain/settings/special_date.dart';
@@ -23,6 +22,11 @@ class _RecordingHandler implements SecretTapHandler {
 
   @override
   void onSecretTapped() => calls++;
+}
+
+class _FakeAppInfoProvider implements AppInfoProvider {
+  @override
+  Future<AppInfo> load() async => const AppInfo(version: '0.1.0', build: '3');
 }
 
 void main() {
@@ -152,8 +156,8 @@ void main() {
 
     Widget about({CupertinoThemeData themeData = AppTheme.light}) => wrap(
       AboutScreen(
-        appInfo: Future<AppInfo>.value(const AppInfo(version: '0.1.0', build: '3')),
-        detector: SecretTapDetector(clock: clock),
+        appInfoProvider: _FakeAppInfoProvider(),
+        clock: clock,
         secretTapHandler: handler,
         onOpenHidden: () => hiddenOpened++,
       ),
@@ -219,6 +223,26 @@ void main() {
       expect(repo.values[SettingKeys.userName.name], 'Оля');
     });
 
+    testWidgets('имя сохраняется и при уходе с экрана без «Готово»', (tester) async {
+      await tester.pumpWidget(wrap(const HiddenSettingsScreen()));
+      await tester.enterText(find.byKey(const ValueKey<String>('hidden-name')), 'Маша');
+
+      await tester.pumpWidget(wrap(const SizedBox()));
+      await tester.pump();
+
+      expect(settings.state.userName, 'Маша');
+    });
+
+    testWidgets('пустое имя в поле заменяется именем по умолчанию', (tester) async {
+      await tester.pumpWidget(wrap(const HiddenSettingsScreen()));
+
+      await tester.enterText(find.byKey(const ValueKey<String>('hidden-name')), '  ');
+      await tester.testTextInput.receiveAction(TextInputAction.done);
+      await tester.pump();
+
+      expect(find.widgetWithText(CupertinoTextFormFieldRow, 'Настя'), findsOneWidget);
+    });
+
     testWidgets('добавляет дату через лист и удаляет её', (tester) async {
       await tester.pumpWidget(wrap(const HiddenSettingsScreen()));
 
@@ -232,7 +256,7 @@ void main() {
       expect(settings.state.specialDates.single.label, 'День рождения');
       expect(find.text('День рождения'), findsOneWidget);
 
-      await tester.tap(find.bySemanticsLabel('Удалить дату'));
+      await tester.tap(find.byKey(const ValueKey<String>('remove-День рождения')));
       await tester.pumpAndSettle();
 
       expect(settings.state.specialDates, isEmpty);

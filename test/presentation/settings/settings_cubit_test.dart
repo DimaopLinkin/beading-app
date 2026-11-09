@@ -88,4 +88,24 @@ void main() {
     await cubit.setSymbolMode(value: true);
     expect(cubit.state.saveFailed, isFalse);
   });
+
+  test('откат не затирает более свежее значение', () async {
+    repo.failWrites = true;
+    final Future<void> first = cubit.setSymbolMode(value: true);
+    repo.failWrites = false;
+    await cubit.setSymbolMode(value: false);
+    await first;
+    // Первая запись упала, но поле уже изменено второй: оно остаётся как есть.
+    expect(cubit.state.symbolMode, isFalse);
+  });
+
+  test('load не затирает значение, которое успели изменить', () async {
+    repo.values[SettingKeys.symbolMode.name] = false;
+    final Future<void> loading = cubit.load();
+    await cubit.setSymbolMode(value: true);
+    await loading;
+
+    expect(cubit.state.symbolMode, isTrue);
+    expect(cubit.state.loaded, isTrue);
+  });
 }

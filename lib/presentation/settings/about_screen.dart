@@ -1,3 +1,4 @@
+import 'package:beading/core/clock.dart';
 import 'package:beading/domain/settings/app_info.dart';
 import 'package:beading/domain/settings/secret_tap_detector.dart';
 import 'package:beading/domain/settings/secret_tap_handler.dart';
@@ -11,15 +12,15 @@ import 'package:flutter/cupertino.dart';
 /// скрытый раздел ([onOpenHidden]).
 class AboutScreen extends StatefulWidget {
   const AboutScreen({
-    required this.appInfo,
-    required this.detector,
+    required this.appInfoProvider,
+    required this.clock,
     required this.secretTapHandler,
     required this.onOpenHidden,
     super.key,
   });
 
-  final Future<AppInfo> appInfo;
-  final SecretTapDetector detector;
+  final AppInfoProvider appInfoProvider;
+  final Clock clock;
   final SecretTapHandler secretTapHandler;
   final VoidCallback onOpenHidden;
 
@@ -28,8 +29,12 @@ class AboutScreen extends StatefulWidget {
 }
 
 class _AboutScreenState extends State<AboutScreen> {
+  // Создаём один раз: при пересборке (смена темы) серия нажатий и загрузка версии не сбрасываются.
+  late final Future<AppInfo> _appInfo = widget.appInfoProvider.load();
+  late final SecretTapDetector _detector = SecretTapDetector(clock: widget.clock);
+
   void _onLogoTap() {
-    if (widget.detector.register()) widget.secretTapHandler.onSecretTapped();
+    if (_detector.register()) widget.secretTapHandler.onSecretTapped();
   }
 
   @override
@@ -54,15 +59,23 @@ class _AboutScreenState extends State<AboutScreen> {
                 SizedBox(height: tokens.spacing.l),
                 Text(l10n.appTitle, style: CupertinoTheme.of(context).textTheme.navLargeTitleTextStyle),
                 SizedBox(height: tokens.spacing.s),
-                GestureDetector(
-                  key: const ValueKey<String>('about-version'),
-                  behavior: HitTestBehavior.opaque,
+                Semantics(
                   onLongPress: widget.onOpenHidden,
-                  child: FutureBuilder<AppInfo>(
-                    future: widget.appInfo,
-                    builder: (context, snapshot) => Text(
-                      snapshot.hasData ? l10n.aboutVersion(snapshot.requireData.display) : '',
-                      style: TextStyle(color: CupertinoColors.secondaryLabel.resolveFrom(context)),
+                  child: GestureDetector(
+                    key: const ValueKey<String>('about-version'),
+                    behavior: HitTestBehavior.opaque,
+                    onLongPress: widget.onOpenHidden,
+                    child: ConstrainedBox(
+                      constraints: BoxConstraints(minHeight: tokens.minTapTarget, minWidth: tokens.minTapTarget),
+                      child: Center(
+                        child: FutureBuilder<AppInfo>(
+                          future: _appInfo,
+                          builder: (context, snapshot) => Text(
+                            snapshot.hasData ? l10n.aboutVersion(snapshot.requireData.display) : '',
+                            style: TextStyle(color: CupertinoColors.secondaryLabel.resolveFrom(context)),
+                          ),
+                        ),
+                      ),
                     ),
                   ),
                 ),

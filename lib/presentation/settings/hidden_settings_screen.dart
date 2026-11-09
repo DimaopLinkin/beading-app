@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:beading/domain/settings/special_date.dart';
 import 'package:beading/presentation/l10n/app_localizations.dart';
 import 'package:beading/presentation/settings/settings_cubit.dart';
@@ -15,12 +17,31 @@ class HiddenSettingsScreen extends StatefulWidget {
 }
 
 class _HiddenSettingsScreenState extends State<HiddenSettingsScreen> {
-  late final TextEditingController _name = TextEditingController(text: context.read<SettingsCubit>().state.userName);
+  late final SettingsCubit _cubit = context.read<SettingsCubit>();
+  late final TextEditingController _name = TextEditingController(text: _cubit.state.userName);
+  final FocusNode _nameFocus = FocusNode();
+
+  @override
+  void initState() {
+    super.initState();
+    _nameFocus.addListener(() {
+      if (!_nameFocus.hasFocus) unawaited(_commitName());
+    });
+  }
 
   @override
   void dispose() {
+    // Имя, введённое без «Готово», тоже сохраняем: кубит живёт дольше экрана.
+    unawaited(_cubit.setUserName(_name.text));
+    _nameFocus.dispose();
     _name.dispose();
     super.dispose();
+  }
+
+  Future<void> _commitName() async {
+    await _cubit.setUserName(_name.text);
+    // Пустое имя превращается в имя по умолчанию: показываем его в поле.
+    if (mounted && _name.text != _cubit.state.userName) _name.text = _cubit.state.userName;
   }
 
   Future<void> _addDate(SettingsCubit cubit) async {
@@ -47,10 +68,13 @@ class _HiddenSettingsScreenState extends State<HiddenSettingsScreen> {
                   CupertinoTextFormFieldRow(
                     key: const ValueKey<String>('hidden-name'),
                     controller: _name,
+                    focusNode: _nameFocus,
                     placeholder: l10n.hiddenNameHint,
                     textInputAction: TextInputAction.done,
-                    onFieldSubmitted: cubit.setUserName,
-                    onEditingComplete: () => cubit.setUserName(_name.text),
+                    onEditingComplete: () {
+                      unawaited(_commitName());
+                      _nameFocus.unfocus();
+                    },
                   ),
                 ],
               ),
@@ -63,13 +87,11 @@ class _HiddenSettingsScreenState extends State<HiddenSettingsScreen> {
                       title: Text(date.label),
                       additionalInfo: Text(_format(date)),
                       trailing: CupertinoButton(
+                        key: ValueKey<String>('remove-${date.label}'),
                         padding: EdgeInsets.zero,
                         minimumSize: const Size.square(44),
                         onPressed: () => cubit.removeSpecialDate(date),
-                        child: Semantics(
-                          label: l10n.hiddenDateRemove,
-                          child: const Icon(CupertinoIcons.minus_circle, color: CupertinoColors.systemRed),
-                        ),
+                        child: const Icon(CupertinoIcons.minus_circle, color: CupertinoColors.systemRed),
                       ),
                     ),
                   CupertinoListTile.notched(

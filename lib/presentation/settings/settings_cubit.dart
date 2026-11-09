@@ -13,6 +13,9 @@ class SettingsCubit extends Cubit<SettingsState> {
 
   final SettingsRepository _settings;
 
+  /// Ключи, которые пользовательница уже меняла: поздняя загрузка их не затирает.
+  final Set<String> _touched = <String>{};
+
   Future<void> load() async {
     final bool keepAwake = await _read(SettingKeys.keepScreenAwake);
     final bool symbols = await _read(SettingKeys.symbolMode);
@@ -20,13 +23,14 @@ class SettingsCubit extends Cubit<SettingsState> {
     final String name = await _read(SettingKeys.userName);
     final List<SpecialDate> dates = await _read(SettingKeys.specialDates);
     if (isClosed) return;
+    bool free(SettingKey<Object?> key) => !_touched.contains(key.name);
     emit(
       state.copyWith(
-        keepScreenAwake: keepAwake,
-        symbolMode: symbols,
-        defaultBeadBrand: brand,
-        userName: name,
-        specialDates: dates,
+        keepScreenAwake: free(SettingKeys.keepScreenAwake) ? keepAwake : null,
+        symbolMode: free(SettingKeys.symbolMode) ? symbols : null,
+        defaultBeadBrand: free(SettingKeys.defaultBeadBrand) ? brand : null,
+        userName: free(SettingKeys.userName) ? name : null,
+        specialDates: free(SettingKeys.specialDates) ? dates : null,
         loaded: true,
       ),
     );
@@ -35,21 +39,21 @@ class SettingsCubit extends Cubit<SettingsState> {
   Future<void> setKeepScreenAwake({required bool value}) => _apply(
     SettingKeys.keepScreenAwake,
     value,
-    state.keepScreenAwake,
+    (s) => s.keepScreenAwake,
     (s, v) => s.copyWith(keepScreenAwake: v),
   );
 
   Future<void> setSymbolMode({required bool value}) => _apply(
     SettingKeys.symbolMode,
     value,
-    state.symbolMode,
+    (s) => s.symbolMode,
     (s, v) => s.copyWith(symbolMode: v),
   );
 
   Future<void> setDefaultBeadBrand(String brand) => _apply(
     SettingKeys.defaultBeadBrand,
     brand,
-    state.defaultBeadBrand,
+    (s) => s.defaultBeadBrand,
     (s, v) => s.copyWith(defaultBeadBrand: v),
   );
 
@@ -59,7 +63,7 @@ class SettingsCubit extends Cubit<SettingsState> {
     return _apply(
       SettingKeys.userName,
       trimmed.isEmpty ? SettingKeys.userName.defaultValue : trimmed,
-      state.userName,
+      (s) => s.userName,
       (s, v) => s.copyWith(userName: v),
     );
   }
@@ -71,22 +75,27 @@ class SettingsCubit extends Cubit<SettingsState> {
   Future<void> _setDates(List<SpecialDate> dates) => _apply(
     SettingKeys.specialDates,
     List<SpecialDate>.unmodifiable(dates),
-    state.specialDates,
+    (s) => s.specialDates,
     (s, v) => s.copyWith(specialDates: v),
   );
 
   Future<T> _read<T>(SettingKey<T> key) async => (await _settings.read(key)).valueOrNull ?? key.defaultValue;
 
+  /// Применяет значение сразу и пишет его. Если запись не удалась, откатывает поле, но только если его
+  /// за это время не изменили ещё раз: иначе откат затёр бы более свежее значение.
   Future<void> _apply<T>(
     SettingKey<T> key,
     T value,
-    T previous,
+    T Function(SettingsState state) read,
     SettingsState Function(SettingsState state, T value) update,
   ) async {
+    final T previous = read(state);
+    _touched.add(key.name);
     emit(update(state, value).copyWith(saveFailed: false));
     final Result<void> result = await _settings.write(key, value);
     if (result.isFailure && !isClosed) {
-      emit(update(state, previous).copyWith(saveFailed: true));
+      final SettingsState failed = state.copyWith(saveFailed: true);
+      emit(read(state) == value ? update(failed, previous) : failed);
     }
   }
 }
