@@ -10,6 +10,7 @@
 | [workflow.md](workflow.md) | Роли, ветки, TDD, скрипты тестов и анализатора, DoD, цикл ревью и журнал повторов |
 | [cross-cutting.md](cross-cutting.md) | Пасхалки, экран без блокировки, портрет, темы, дополнения, открытые вопросы |
 | [design-prompts.md](design-prompts.md) | Промпты для Claude Design: UI kit и экраны |
+| [design/README.md](design/README.md) | Обмен с Claude Design через репозиторий: очередь промптов, inbox, ревью |
 | [tasks.md](tasks.md) | Задачи по вехам, зависимости и волны параллельности |
 | [decisions/](decisions/README.md) | ADR: принятые архитектурные решения (нативный вид, Liquid Glass, бисер и вышивка в одной модели) |
 | [release.md](release.md) | Как собираем и передаём сборки (без App Store и TestFlight) |
