@@ -58,7 +58,7 @@ void main() {
           debugShowCheckedModeBanner: false,
           builder: AppTheme.builder,
           theme: brightness == Brightness.light ? AppTheme.light : AppTheme.dark,
-          home: const Align(alignment: Alignment.topLeft, child: _TokenSwatch()),
+          home: const SizedBox(width: 560, child: _TokenSwatch()),
         ),
       );
 
