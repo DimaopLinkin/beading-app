@@ -135,7 +135,7 @@ scripts/analyze.sh
 scripts/test.sh "$@"
 ```
 
-CI (задача T00): `.github/workflows/check.yml` — на каждый PR в `dev` и `main`, `ubuntu-latest`, Flutter 3.41.0, `scripts/check.sh`. `.github/workflows/build-apple.yml` — `macos-latest`, `flutter build macos --debug` и `flutter build ios --no-codesign --debug`; запускается только когда PR меняет `ios/**`, `macos/**`, `pubspec.yaml`, `pubspec.lock` или сам workflow, и вручную (`workflow_dispatch`) — обязательно перед релизом. Причина: минуты macOS в приватном репозитории в 10 раз дороже.
+CI (задача T00): `.github/workflows/check.yml` — на каждый PR в `dev` и `main`, `ubuntu-latest`, Flutter 3.41.0, `scripts/check.sh`. Нативную сборку (`flutter build macos`, `flutter build ios --no-codesign`) в CI не гоняем: минуты macOS дороги, проблемы нативной сборки решаем при подготовке релиза (решение Дмитрия).
 
 ## Определение готовности задачи (DoD)
 

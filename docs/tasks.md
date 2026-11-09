@@ -65,7 +65,7 @@
   - `flutter create --platforms=ios,macos --org <согласовать> beading` в корне репозитория; `environment: sdk: ^3.11.0, flutter: ">=3.41.0"`. Deployment target: iOS 18.0 (`ios/Podfile`, Xcode-проект), macOS 26.0 (`macos/Podfile`, `MACOSX_DEPLOYMENT_TARGET`).
   - `analysis_options.yaml` — дословно из [setup/analysis_options.yaml](setup/analysis_options.yaml).
   - `scripts/test.sh`, `analyze.sh`, `check_architecture.sh`, `check.sh` — из [workflow.md](workflow.md).
-  - `.github/workflows/check.yml` (ubuntu: `scripts/check.sh`, каждый PR) и `build-apple.yml` (macos: сборка ios `--no-codesign` и macos; только при изменении `ios/**`, `macos/**`, `pubspec.*` и вручную).
+  - `.github/workflows/check.yml` (ubuntu: `scripts/check.sh`, каждый PR). Сборку iOS/macOS в CI не делаем — её проверяем при релизе.
   - Каталоги слоёв из [architecture.md](architecture.md), `lib/core`: `Result`/`Failure` (sealed), `Clock` + `SystemClock` + `FakeClock` в `test/`, `IdGenerator` (UUID v7).
   - `lib/app`: `di.dart` (get_it), `router.dart` (go_router), `bootstrap.dart`, пустой главный экран «Мои работы».
   - Зависимости: flutter_bloc, bloc_test, get_it, go_router, equatable, uuid, mocktail, drift/drift_dev/build_runner, sqlite3_flutter_libs, flutter_localizations/intl. Остальное добавляют задачи.
