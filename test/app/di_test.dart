@@ -3,11 +3,18 @@ import 'package:beading/app/platform/desktop_window.dart';
 import 'package:beading/app/platform/orientation_lock.dart';
 import 'package:beading/core/clock.dart';
 import 'package:beading/core/id_generator.dart';
+import 'package:beading/data/easter_eggs/asset_compliment_source.dart';
+import 'package:beading/data/easter_eggs/drift_easter_egg_log.dart';
 import 'package:beading/data/platform/wakelock_plus_screen_wake_lock.dart';
 import 'package:beading/data/settings/drift_device_id_provider.dart';
 import 'package:beading/data/settings/drift_settings_repository.dart';
 import 'package:beading/data/settings/package_info_app_info_provider.dart';
 import 'package:beading/data/settings/repository_keep_screen_awake_setting.dart';
+import 'package:beading/domain/easter_eggs/compliment_source.dart';
+import 'package:beading/domain/easter_eggs/easter_egg_log.dart';
+import 'package:beading/domain/easter_eggs/easter_egg_service.dart';
+import 'package:beading/domain/easter_eggs/long_session_watcher.dart';
+import 'package:beading/domain/settings/app_events_secret_tap_handler.dart';
 import 'package:beading/domain/settings/app_info.dart';
 import 'package:beading/domain/settings/device_id_provider.dart';
 import 'package:beading/domain/settings/keep_screen_awake_setting.dart';
@@ -40,7 +47,11 @@ void main() {
     expect(locator<ThemeModeCubit>(), isA<ThemeModeCubit>());
     expect(locator<SettingsCubit>(), isA<SettingsCubit>());
     expect(locator<AppInfoProvider>(), isA<PackageInfoAppInfoProvider>());
-    expect(locator<SecretTapHandler>(), isA<NoopSecretTapHandler>());
+    expect(locator<SecretTapHandler>(), isA<AppEventsSecretTapHandler>());
+    expect(locator<EasterEggLog>(), isA<DriftEasterEggLog>());
+    expect(locator<ComplimentSource>(), isA<AssetComplimentSource>());
+    expect(locator<EasterEggService>(), same(locator<EasterEggService>()));
+    expect(locator<LongSessionWatcher>(), isA<LongSessionWatcher>());
   });
 
   test('повторная настройка не падает и пересоздаёт регистрации', () async {

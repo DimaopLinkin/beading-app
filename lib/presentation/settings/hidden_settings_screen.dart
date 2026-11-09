@@ -1,11 +1,13 @@
 import 'dart:async';
 
+import 'package:beading/domain/settings/setting_keys.dart';
 import 'package:beading/domain/settings/special_date.dart';
 import 'package:beading/presentation/l10n/app_localizations.dart';
 import 'package:beading/presentation/settings/settings_cubit.dart';
 import 'package:beading/presentation/settings/settings_state.dart';
 import 'package:beading/presentation/theme/app_icons.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 /// Скрытый раздел: имя для комплиментов и особые даты. Открывается долгим нажатием на версию.
@@ -72,6 +74,7 @@ class _HiddenSettingsScreenState extends State<HiddenSettingsScreen> {
                     key: const ValueKey<String>('hidden-name'),
                     controller: _name,
                     focusNode: _nameFocus,
+                    inputFormatters: <TextInputFormatter>[LengthLimitingTextInputFormatter(userNameMaxLength)],
                     placeholder: l10n.hiddenNameHint,
                     textInputAction: TextInputAction.done,
                     onEditingComplete: _nameFocus.unfocus,

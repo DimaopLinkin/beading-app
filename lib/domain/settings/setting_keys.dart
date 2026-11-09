@@ -4,6 +4,9 @@ import 'package:beading/domain/settings/app_theme_mode.dart';
 import 'package:beading/domain/settings/setting_key.dart';
 import 'package:beading/domain/settings/special_date.dart';
 
+/// Самое длинное имя для комплиментов `{name}`: текст комплимента целиком не длиннее 70 символов.
+const int userNameMaxLength = 70;
+
 /// Все настройки приложения. Новая настройка — новая константа здесь, без миграции БД.
 abstract final class SettingKeys {
   static const SettingKey<AppThemeMode> themeMode = SettingKey<AppThemeMode>(

@@ -223,6 +223,25 @@ void main() {
       expect(repo.values[SettingKeys.userName.name], 'Оля');
     });
 
+    testWidgets('поле имени не принимает больше userNameMaxLength символов', (tester) async {
+      await tester.pumpWidget(wrap(const HiddenSettingsScreen()));
+
+      await tester.enterText(find.byKey(const ValueKey<String>('hidden-name')), 'б' * 100);
+
+      expect(
+        tester
+            .widget<EditableText>(
+              find.descendant(
+                of: find.byKey(const ValueKey<String>('hidden-name')),
+                matching: find.byType(EditableText),
+              ),
+            )
+            .controller
+            .text,
+        hasLength(userNameMaxLength),
+      );
+    });
+
     testWidgets('имя сохраняется и при уходе с экрана без «Готово»', (tester) async {
       await tester.pumpWidget(wrap(const HiddenSettingsScreen()));
       await tester.enterText(find.byKey(const ValueKey<String>('hidden-name')), 'Маша');

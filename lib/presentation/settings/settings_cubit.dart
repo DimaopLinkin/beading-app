@@ -57,12 +57,13 @@ class SettingsCubit extends Cubit<SettingsState> {
     (s, v) => s.copyWith(defaultBeadBrand: v),
   );
 
-  /// Пустое имя (после обрезки пробелов) возвращает имя по умолчанию.
+  /// Пустое имя (после обрезки пробелов) возвращает имя по умолчанию; длиннее [userNameMaxLength] обрезается.
   Future<void> setUserName(String name) {
     final String trimmed = name.trim();
+    final String limited = trimmed.length > userNameMaxLength ? trimmed.substring(0, userNameMaxLength) : trimmed;
     return _apply(
       SettingKeys.userName,
-      trimmed.isEmpty ? SettingKeys.userName.defaultValue : trimmed,
+      limited.isEmpty ? SettingKeys.userName.defaultValue : limited,
       (s) => s.userName,
       (s, v) => s.copyWith(userName: v),
     );

@@ -108,4 +108,10 @@ void main() {
     expect(cubit.state.symbolMode, isTrue);
     expect(cubit.state.loaded, isTrue);
   });
+
+  test('слишком длинное имя обрезается до userNameMaxLength', () async {
+    await cubit.setUserName('а' * 100);
+
+    expect(cubit.state.userName, hasLength(userNameMaxLength));
+  });
 }
