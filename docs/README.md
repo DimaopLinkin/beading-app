@@ -5,6 +5,7 @@
 | [research.md](research.md) | Анализ существующих инструментов, обязательные (MUST) и бонусные (NICE) потребности |
 | [architecture.md](architecture.md) | Платформы, слои, структура каталогов, доменная модель |
 | [data-and-sync.md](data-and-sync.md) | Схема drift, миграции, синхронизация iPhone ↔ Mac |
+| [team.md](team.md) | Роли команды, модели, кто тред и кто сабагент, экономия токенов |
 | [workflow.md](workflow.md) | Роли, ветки, TDD, скрипты тестов и анализатора, DoD, цикл ревью и журнал повторов |
 | [cross-cutting.md](cross-cutting.md) | Пасхалки, экран без блокировки, портрет, темы, дополнения, открытые вопросы |
 | [design-prompts.md](design-prompts.md) | Промпты для Claude Design: UI kit и экраны |
