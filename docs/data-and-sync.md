@@ -42,7 +42,7 @@ drift (SQLite) — единственный источник правды на �
 | Вариант | Плюсы | Минусы | Вывод |
 |---|---|---|---|
 | **Экспорт/импорт файла** (`.biser` = zip с JSON, через AirDrop/«Поделиться») | Просто, без аккаунтов, заодно даёт обмен схемами | Ручной, прогресс не переносится сам | **MVP**, делаем в любом случае |
-| **iCloud / CloudKit, приватная база** (`CKSyncEngine`, iOS 17+/macOS 14+) | Бесплатно, работает под её Apple ID, без своего сервера, фоновые уведомления | Нужен платный Apple Developer Program, Swift-плагин для iOS и macOS | **Рекомендую** как основной автосинк |
+| **iCloud / CloudKit, приватная база** (`CKSyncEngine`, iOS 17+/macOS 14+) | Бесплатно, работает под её Apple ID, без своего сервера, фоновые уведомления | Нужен платный Apple Developer Program (есть), Swift-плагин для iOS и macOS, настройка контейнера в портале разработчика | **Рекомендую** как основной автосинк |
 | iCloud Drive: файл-журнал изменений в ubiquity-контейнере | Проще CloudKit, Swift почти не нужен | Задержки iCloud Drive, конфликты файлов, свой формат журнала | Запасной вариант, если CloudKit не пойдёт |
 | Свой бэкенд (Supabase/Firebase) | Кроссплатформенно | Аккаунт, сервер, приватность, поддержка | Не нужно для двух устройств одного человека |
 | Локальная сеть (Bonjour) | Без облака | Оба устройства должны быть рядом и открыты | Нет |
@@ -60,5 +60,27 @@ drift (SQLite) — единственный источник правды на �
 
 ### Предпосылки этапа 2 (выполнены)
 
-- Apple Developer Program оплачен — есть CloudKit, TestFlight и подписанная сборка для Mac.
+- Apple Developer Program оплачен — есть CloudKit и подписанные сборки. Приложение **не публикуется** и записи в App Store Connect не будет: для CloudKit она не нужна.
 - macOS 26.x и iOS 18+ — `CKSyncEngine` (iOS 17+/macOS 14+) доступен без обходных путей.
+
+### CloudKit без App Store Connect
+
+Запись приложения в App Store Connect для CloudKit **не нужна**. Нужно только в [портале разработчика](https://developer.apple.com/account) (Certificates, Identifiers & Profiles) и в [CloudKit Console](https://icloud.developer.apple.com):
+
+1. **App ID** с bundle id приложения и включёнными iCloud (CloudKit) для iOS и macOS. Один и тот же bundle id на обеих платформах.
+2. **iCloud-контейнер** `iCloud.<bundle id>`, привязанный к этому App ID.
+3. **Схема CloudKit** (типы записей) создаётся в среде Development и перед выпуском **деплоится в Production** кнопкой *Deploy Schema Changes to Production* в CloudKit Console. Без этого релизные сборки не увидят типы записей.
+4. После каждого изменения набора синхронизируемых полей — повторный деплой схемы в Production. Это шаг чек-листа задач про синхронизацию (T26–T28) и релиза.
+
+**Среды CloudKit и способы установки.** У CloudKit две раздельные среды, данные между ними не пересекаются:
+
+| Сборка | Среда CloudKit | Можно ли синхронизировать с Mac-релизом |
+|---|---|---|
+| iPhone, Xcode development build | Development | Нет |
+| iPhone, **Ad Hoc** (устройство зарегистрировано в портале) | Production | **Да** |
+| Mac, Developer ID `.app` (релиз) | Production | Да |
+| Mac, запуск из Xcode (разработка) | Development | Нет |
+
+Поэтому для **её** iPhone ставим только Ad Hoc сборку из релиза, иначе синхронизации с Mac не будет. Development-сборки — для разработки Дмитрия, у них своя тестовая база.
+
+**Профили и сроки.** Профили Development и Ad Hoc действуют 1 год, после чего сборку нужно пересобрать и поставить заново (напоминание в `docs/release.md`). Для Developer ID сборки Mac с iCloud нужен provisioning profile типа Developer ID с включёнными iCloud-возможностями. UDID её iPhone регистрируется в портале один раз (лимит 100 устройств в год на аккаунт).
