@@ -66,7 +66,7 @@ void main() {
       expect(c.finish, isNull);
     });
 
-    test('copyWith меняет только заданное, withSymbol — символ', () {
+    test('copyWith меняет только заданное', () {
       final PatternColor c = _color('a', const Rgb(1, 2, 3), symbol: 'A');
       expect(c.copyWith(name: 'b').name, 'b');
       expect(c.copyWith(name: 'b').symbol, 'A');
@@ -242,6 +242,16 @@ void main() {
       final PaletteEdit e = p.merge(from: 1, into: 3).valueOrNull!;
       expect(e.palette.colors.map((c) => c.name), <String>['c1', 'c2']);
       expect(<int>[0, 1, 2, 3].map(e.reindex.apply), <int>[0, 2, 1, 2]);
+    });
+
+    test('merge в цвет с меньшим индексом: ячейки from получают into, старшие сдвигаются', () {
+      PaletteSnapshot p = empty;
+      for (int i = 0; i < 4; i++) {
+        p = p.add(_color('c$i', Rgb(i, i, i))).valueOrNull!.palette;
+      }
+      final PaletteEdit e = p.merge(from: 3, into: 1).valueOrNull!;
+      expect(e.palette.colors.map((c) => c.name), <String>['c0', 'c1', 'c3']);
+      expect(<int>[0, 1, 2, 3, 4].map(e.reindex.apply), <int>[0, 1, 2, 1, 3]);
     });
 
     test('индекс вне палитры и merge с самим собой — ValidationFailure', () {
