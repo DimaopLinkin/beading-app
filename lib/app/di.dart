@@ -5,9 +5,20 @@ import 'package:beading/core/id_generator.dart';
 import 'package:beading/data/db/app_database.dart';
 import 'package:beading/data/db/open_database.dart';
 import 'package:beading/data/platform/wakelock_plus_screen_wake_lock.dart';
+import 'package:beading/data/projects/drift_project_repository.dart';
 import 'package:beading/data/settings/drift_device_id_provider.dart';
 import 'package:beading/data/settings/drift_settings_repository.dart';
 import 'package:beading/data/settings/repository_keep_screen_awake_setting.dart';
+import 'package:beading/domain/events/app_events.dart';
+import 'package:beading/domain/projects/project_repository.dart';
+import 'package:beading/domain/projects/use_cases/change_project_status.dart';
+import 'package:beading/domain/projects/use_cases/create_project.dart';
+import 'package:beading/domain/projects/use_cases/delete_project.dart';
+import 'package:beading/domain/projects/use_cases/duplicate_project.dart';
+import 'package:beading/domain/projects/use_cases/rename_project.dart';
+import 'package:beading/domain/projects/use_cases/touch_project.dart';
+import 'package:beading/domain/projects/use_cases/update_notes.dart';
+import 'package:beading/domain/projects/use_cases/watch_projects.dart';
 import 'package:beading/domain/settings/device_id_provider.dart';
 import 'package:beading/domain/settings/keep_screen_awake_setting.dart';
 import 'package:beading/domain/settings/screen_wake_lock.dart';
@@ -49,6 +60,42 @@ Future<void> configureDependencies({GetIt? locator, AppDatabase? database}) asyn
     )
     ..registerLazySingleton<WakelockController>(
       () => WakelockController(wakeLock: container<ScreenWakeLock>(), setting: container<KeepScreenAwakeSetting>()),
+    )
+    ..registerLazySingleton<AppEvents>(
+      BroadcastAppEvents.new,
+      dispose: (events) => (events as BroadcastAppEvents).dispose(),
+    )
+    ..registerLazySingleton<ProjectRepository>(
+      () => DriftProjectRepository(
+        dao: db.projectsDao,
+        deviceIds: container<DeviceIdProvider>(),
+        clock: container<Clock>(),
+      ),
+    )
+    ..registerFactory<CreateProject>(
+      () => CreateProject(
+        repository: container<ProjectRepository>(),
+        ids: container<IdGenerator>(),
+        clock: container<Clock>(),
+      ),
+    )
+    ..registerFactory<RenameProject>(() => RenameProject(container<ProjectRepository>()))
+    ..registerFactory<UpdateNotes>(() => UpdateNotes(container<ProjectRepository>()))
+    ..registerFactory<DeleteProject>(() => DeleteProject(container<ProjectRepository>()))
+    ..registerFactory<WatchProjects>(() => WatchProjects(container<ProjectRepository>()))
+    ..registerFactory<TouchProject>(
+      () => TouchProject(repository: container<ProjectRepository>(), clock: container<Clock>()),
+    )
+    ..registerFactory<ChangeProjectStatus>(
+      () => ChangeProjectStatus(repository: container<ProjectRepository>(), events: container<AppEvents>()),
+    )
+    // Клонеры содержимого (`ProjectContentCloner`) подключат T06 и T14: они же перерегистрируют эту фабрику.
+    ..registerFactory<DuplicateProject>(
+      () => DuplicateProject(
+        repository: container<ProjectRepository>(),
+        ids: container<IdGenerator>(),
+        clock: container<Clock>(),
+      ),
     )
     ..registerFactory<ThemeModeCubit>(() => ThemeModeCubit(container<SettingsRepository>()));
 }
