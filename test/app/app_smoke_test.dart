@@ -7,13 +7,15 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get_it/get_it.dart';
 
+import '../support/in_memory_database.dart';
+
 void main() {
   setUp(() async {
     await GetIt.instance.reset();
   });
 
   testWidgets('приложение запускается и показывает «Мои работы»', (tester) async {
-    await tester.pumpWidget(await bootstrap());
+    await tester.pumpWidget((await tester.runAsync(() => bootstrap(database: createInMemoryDatabase())))!);
     await tester.pumpAndSettle();
 
     expect(find.text('Мои работы'), findsOneWidget);
@@ -24,7 +26,7 @@ void main() {
     tester.platformDispatcher.platformBrightnessTestValue = Brightness.dark;
     addTearDown(tester.platformDispatcher.clearAllTestValues);
 
-    await tester.pumpWidget(await bootstrap());
+    await tester.pumpWidget((await tester.runAsync(() => bootstrap(database: createInMemoryDatabase())))!);
     await tester.pumpAndSettle();
 
     expect(find.text('Мои работы'), findsOneWidget);
@@ -32,7 +34,7 @@ void main() {
   });
 
   testWidgets('выбор режима темы переключает приложение', (tester) async {
-    await tester.pumpWidget(await bootstrap());
+    await tester.pumpWidget((await tester.runAsync(() => bootstrap(database: createInMemoryDatabase())))!);
     await tester.pumpAndSettle();
     final BuildContext context = tester.element(find.text('Мои работы'));
 

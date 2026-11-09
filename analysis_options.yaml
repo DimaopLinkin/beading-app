@@ -8,6 +8,7 @@ analyzer:
     - "**/android/**"
     - "**/assets/**"
     - "**/build/**"
+    - "test/**/generated/**" # drift_dev schema generate, не правим руками
     - "**/macos/**"
     - "**/windows/**"
 
