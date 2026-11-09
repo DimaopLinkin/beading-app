@@ -2,7 +2,12 @@ import 'dart:async';
 
 import 'package:beading/app/di.dart';
 import 'package:beading/app/router.dart';
+import 'package:beading/domain/easter_eggs/easter_egg_service.dart';
+import 'package:beading/domain/easter_eggs/long_session_watcher.dart';
+import 'package:beading/domain/events/app_events.dart';
 import 'package:beading/domain/settings/app_theme_mode.dart';
+import 'package:beading/presentation/easter_eggs/compliment_banner_cubit.dart';
+import 'package:beading/presentation/easter_eggs/compliment_overlay.dart';
 import 'package:beading/presentation/l10n/app_localizations.dart';
 import 'package:beading/presentation/theme/app_theme.dart';
 import 'package:beading/presentation/theme/theme_mode_cubit.dart';
@@ -20,17 +25,35 @@ class BeadingApp extends StatefulWidget {
 class _BeadingAppState extends State<BeadingApp> {
   late final GoRouter _router = createRouter();
   late final ThemeModeCubit _themeModeCubit = getIt<ThemeModeCubit>()..restore();
+  final ComplimentBannerCubit _complimentCubit = getIt<ComplimentBannerCubit>();
+  final EasterEggService _easterEggs = getIt<EasterEggService>();
+  final LongSessionWatcher _longSession = getIt<LongSessionWatcher>();
+
+  @override
+  void initState() {
+    super.initState();
+    // Баннер уже слушает поток комплиментов (cubit создан в поле), теперь можно запускать пасхалки.
+    _easterEggs.start();
+    _longSession.start();
+    getIt<AppEvents>().publish(const AppStarted());
+  }
 
   @override
   void dispose() {
     _router.dispose();
+    _longSession.dispose();
+    unawaited(_easterEggs.dispose());
+    unawaited(_complimentCubit.close());
     unawaited(_themeModeCubit.close());
     super.dispose();
   }
 
   @override
-  Widget build(BuildContext context) => BlocProvider<ThemeModeCubit>.value(
-    value: _themeModeCubit,
+  Widget build(BuildContext context) => MultiBlocProvider(
+    providers: <BlocProvider<dynamic>>[
+      BlocProvider<ThemeModeCubit>.value(value: _themeModeCubit),
+      BlocProvider<ComplimentBannerCubit>.value(value: _complimentCubit),
+    ],
     child: BlocBuilder<ThemeModeCubit, AppThemeMode>(
       builder: (context, mode) => CupertinoApp.router(
         onGenerateTitle: (context) => AppLocalizations.of(context).appTitle,
@@ -43,7 +66,8 @@ class _BeadingAppState extends State<BeadingApp> {
           AppThemeMode.light => AppTheme.light,
           AppThemeMode.dark => AppTheme.dark,
         },
-        builder: AppTheme.builder,
+        builder: (context, child) =>
+            AppTheme.builder(context, ComplimentOverlay(child: child ?? const SizedBox.shrink())),
       ),
     ),
   );

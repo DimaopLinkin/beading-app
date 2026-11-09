@@ -1,14 +1,23 @@
+import 'dart:math';
+
 import 'package:beading/app/platform/desktop_window.dart';
 import 'package:beading/app/platform/orientation_lock.dart';
 import 'package:beading/core/clock.dart';
 import 'package:beading/core/id_generator.dart';
 import 'package:beading/data/db/app_database.dart';
 import 'package:beading/data/db/open_database.dart';
+import 'package:beading/data/easter_eggs/asset_compliment_source.dart';
+import 'package:beading/data/easter_eggs/drift_easter_egg_log.dart';
 import 'package:beading/data/platform/wakelock_plus_screen_wake_lock.dart';
 import 'package:beading/data/projects/drift_project_repository.dart';
 import 'package:beading/data/settings/drift_device_id_provider.dart';
 import 'package:beading/data/settings/drift_settings_repository.dart';
 import 'package:beading/data/settings/repository_keep_screen_awake_setting.dart';
+import 'package:beading/domain/easter_eggs/compliment_source.dart';
+import 'package:beading/domain/easter_eggs/easter_egg_log.dart';
+import 'package:beading/domain/easter_eggs/easter_egg_policy.dart';
+import 'package:beading/domain/easter_eggs/easter_egg_service.dart';
+import 'package:beading/domain/easter_eggs/long_session_watcher.dart';
 import 'package:beading/domain/events/app_events.dart';
 import 'package:beading/domain/projects/project_repository.dart';
 import 'package:beading/domain/projects/use_cases/change_project_status.dart';
@@ -24,6 +33,7 @@ import 'package:beading/domain/settings/keep_screen_awake_setting.dart';
 import 'package:beading/domain/settings/screen_wake_lock.dart';
 import 'package:beading/domain/settings/settings_repository.dart';
 import 'package:beading/domain/settings/wakelock_controller.dart';
+import 'package:beading/presentation/easter_eggs/compliment_banner_cubit.dart';
 import 'package:beading/presentation/theme/theme_mode_cubit.dart';
 import 'package:get_it/get_it.dart';
 
@@ -97,5 +107,24 @@ Future<void> configureDependencies({GetIt? locator, AppDatabase? database}) asyn
         clock: container<Clock>(),
       ),
     )
+    ..registerLazySingleton<EasterEggLog>(() => DriftEasterEggLog(db.easterEggLogDao))
+    ..registerLazySingleton<ComplimentSource>(AssetComplimentSource.new)
+    ..registerLazySingleton<EasterEggService>(
+      () => EasterEggService(
+        events: container<AppEvents>(),
+        // Композиционный корень: единственное место, где создаётся источник случайности пасхалок.
+        policy: EasterEggPolicy(random: Random()),
+        log: container<EasterEggLog>(),
+        source: container<ComplimentSource>(),
+        settings: container<SettingsRepository>(),
+        clock: container<Clock>(),
+      ),
+      dispose: (value) => value.dispose(),
+    )
+    ..registerLazySingleton<LongSessionWatcher>(
+      () => LongSessionWatcher(events: container<AppEvents>(), clock: container<Clock>()),
+      dispose: (value) => value.dispose(),
+    )
+    ..registerFactory<ComplimentBannerCubit>(() => ComplimentBannerCubit(container<EasterEggService>().shown))
     ..registerFactory<ThemeModeCubit>(() => ThemeModeCubit(container<SettingsRepository>()));
 }

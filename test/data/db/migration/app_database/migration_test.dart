@@ -1,13 +1,11 @@
-// dart format width=80
-// ignore_for_file: unused_local_variable, unused_import
+import 'package:beading/data/db/app_database.dart';
 import 'package:drift/drift.dart';
 import 'package:drift_dev/api/migrations_native.dart';
-import 'package:beading/data/db/app_database.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'generated/schema.dart';
 
-import 'generated/schema_v1.dart' as v1;
+import 'generated/schema.dart';
 import 'generated/schema_v2.dart' as v2;
+import 'generated/schema_v3.dart' as v3;
 
 void main() {
   driftRuntimeOptions.dontWarnAboutMultipleDatabases = true;
@@ -36,26 +34,31 @@ void main() {
     }
   });
 
-  // The following template shows how to write tests ensuring your migrations
-  // preserve existing data.
-  // Testing this can be useful for migrations that change existing columns
-  // (e.g. by alterating their type or constraints). Migrations that only add
-  // tables or columns typically don't need these advanced tests. For more
-  // information, see https://drift.simonbinder.eu/migrations/tests/#verifying-data-integrity
-  // TODO: This generated template shows how these tests could be written. Adopt
-  // it to your own needs when testing migrations with data integrity.
-  test('migration from v1 to v2 does not corrupt data', () async {
-    // Add data to insert into the old database, and the expected rows after the
-    // migration.
-    // TODO: Fill these lists
-    final oldSettingsData = <v1.SettingsData>[];
-    final expectedNewSettingsData = <v2.SettingsData>[];
+  test('миграция v2 → v3 сохраняет настройки и создаёт пустую easter_egg_log', () async {
+    final oldSettingsData = <v2.SettingsData>[
+      const v2.SettingsData(
+        key: 'userName',
+        value: 'Маша',
+        createdAt: 1,
+        updatedAt: 2,
+        deviceId: 'device-a',
+      ),
+    ];
+    final expectedNewSettingsData = <v3.SettingsData>[
+      const v3.SettingsData(
+        key: 'userName',
+        value: 'Маша',
+        createdAt: 1,
+        updatedAt: 2,
+        deviceId: 'device-a',
+      ),
+    ];
 
     await verifier.testWithDataIntegrity(
-      oldVersion: 1,
-      newVersion: 2,
-      createOld: v1.DatabaseAtV1.new,
-      createNew: v2.DatabaseAtV2.new,
+      oldVersion: 2,
+      newVersion: 3,
+      createOld: v2.DatabaseAtV2.new,
+      createNew: v3.DatabaseAtV3.new,
       openTestedDatabase: AppDatabase.new,
       createItems: (batch, oldDb) {
         batch.insertAll(oldDb.settings, oldSettingsData);
@@ -65,6 +68,7 @@ void main() {
           expectedNewSettingsData,
           await newDb.select(newDb.settings).get(),
         );
+        expect(await newDb.select(newDb.easterEggLog).get(), isEmpty);
       },
     );
   });
