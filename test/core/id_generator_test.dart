@@ -63,6 +63,21 @@ void main() {
     expect(second.compareTo(first), greaterThan(0));
   });
 
+  test('после переполнения счётчика и отката часов id продолжают расти', () {
+    final FakeClock clock = FakeClock(DateTime.utc(2026));
+    final UuidV7IdGenerator generator = create(clock);
+
+    final List<String> ids = List<String>.generate(5000, (_) => generator.next());
+    clock.set(DateTime.utc(2025));
+    ids.addAll(List<String>.generate(10, (_) => generator.next()));
+
+    expect(ids, orderedEquals(<String>[...ids]..sort()));
+    expect(ids.toSet(), hasLength(ids.length));
+    final int firstMillis = int.parse(ids.first.replaceAll('-', '').substring(0, 12), radix: 16);
+    final int lastMillis = int.parse(ids.last.replaceAll('-', '').substring(0, 12), radix: 16);
+    expect(lastMillis, greaterThan(firstMillis));
+  });
+
   test('одинаковые зерно и время дают одинаковые id, разные зёрна — разные', () {
     final DateTime time = DateTime.utc(2026);
 

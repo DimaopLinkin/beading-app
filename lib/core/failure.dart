@@ -8,7 +8,7 @@ sealed class Failure extends Equatable {
   final String message;
 
   @override
-  List<Object?> get props => <Object?>[runtimeType, message];
+  List<Object?> get props => <Object?>[message];
 }
 
 /// Сущность не найдена.
