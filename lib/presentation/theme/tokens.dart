@@ -32,7 +32,10 @@ class RadiusTokens {
 }
 
 /// Параметры материала «стекло» (Liquid Glass): размытие фона, тонировка, граница и блик.
-/// Сами эффекты рисуют виджеты T01g; здесь только значения, одинаково реализуемые на iOS и macOS.
+/// Сами эффекты рисуют виджеты `presentation/widgets/glass/`; здесь только значения, одинаково реализуемые на iOS и macOS.
+///
+/// [denseTint] — плотная тонировка для текста поверх ярких цветов бусин; [opaqueFill] — непрозрачная заливка вместо
+/// стекла при «Уменьшить прозрачность» и повышенной контрастности.
 @immutable
 class GlassTokens {
   const GlassTokens({
@@ -40,6 +43,8 @@ class GlassTokens {
     required this.tint,
     required this.border,
     required this.highlight,
+    required this.denseTint,
+    required this.opaqueFill,
     this.borderWidth = 0.5,
   });
 
@@ -47,6 +52,8 @@ class GlassTokens {
   final CupertinoDynamicColor tint;
   final CupertinoDynamicColor border;
   final CupertinoDynamicColor highlight;
+  final CupertinoDynamicColor denseTint;
+  final CupertinoDynamicColor opaqueFill;
   final double borderWidth;
 }
 
@@ -88,12 +95,16 @@ class AppTokensData {
       tint: CupertinoDynamicColor.withBrightness(color: Color(0x80FFFFFF), darkColor: Color(0x661C1C1E)),
       border: CupertinoDynamicColor.withBrightness(color: Color(0x33000000), darkColor: Color(0x26FFFFFF)),
       highlight: CupertinoDynamicColor.withBrightness(color: Color(0xCCFFFFFF), darkColor: Color(0x33FFFFFF)),
+      denseTint: CupertinoDynamicColor.withBrightness(color: Color(0xE6FFFFFF), darkColor: Color(0xE61C1C1E)),
+      opaqueFill: CupertinoDynamicColor.withBrightness(color: Color(0xFFF2F2F7), darkColor: Color(0xFF2C2C2E)),
     ),
     glassBar: GlassTokens(
       blurSigma: 30,
       tint: CupertinoDynamicColor.withBrightness(color: Color(0xB3FFFFFF), darkColor: Color(0xB31C1C1E)),
       border: CupertinoDynamicColor.withBrightness(color: Color(0x4D000000), darkColor: Color(0x33FFFFFF)),
       highlight: CupertinoDynamicColor.withBrightness(color: Color(0xE6FFFFFF), darkColor: Color(0x40FFFFFF)),
+      denseTint: CupertinoDynamicColor.withBrightness(color: Color(0xF2FFFFFF), darkColor: Color(0xF21C1C1E)),
+      opaqueFill: CupertinoDynamicColor.withBrightness(color: Color(0xFFF2F2F7), darkColor: Color(0xFF2C2C2E)),
     ),
     counterTextStyle: TextStyle(fontFeatures: <FontFeature>[FontFeature.tabularFigures()]),
   );
