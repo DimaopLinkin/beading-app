@@ -5,7 +5,11 @@
 # Использование: scripts/team/find_recurrence.sh T05 arch импорт data
 set -euo pipefail
 cd "$(dirname "$0")/../.."
-case "${LC_ALL:-${LANG:-}}" in *UTF-8* | *utf8*) ;; *) export LC_ALL=C.UTF-8 ;; esac
+# Регистронезависимый поиск по кириллице требует UTF-8 локали (на macOS C.UTF-8 может не быть).
+case "${LC_ALL:-${LANG:-}}" in
+  *UTF-8* | *utf8*) ;;
+  *) if locale -a 2>/dev/null | grep -qiE '^c\.utf-?8$'; then export LC_ALL=C.UTF-8; else export LC_ALL=en_US.UTF-8; fi ;;
+esac
 id="${1:?ID задачи}"; category="${2:?категория}"; shift 2
 shopt -s nullglob
 logs=()
