@@ -17,6 +17,7 @@ inbox() {  # inbox <ссылка на дерево> — HTML в inbox
   # Файлы inbox/<id>-v<N>.html и каталоги docs/design/<id>/ (так Claude Design кладёт артборды сам)
   if [[ "$1" == "." ]]; then
     find docs/design/inbox -maxdepth 1 -name '*.html' -printf '%f\n' 2>/dev/null
+    find docs/design/inbox -mindepth 1 -maxdepth 1 -type d -printf '%f.dir\n' 2>/dev/null
     find docs/design -mindepth 1 -maxdepth 1 -type d -not -name queue -not -name inbox -not -name accepted -printf '%f.dir\n'
   else
     git ls-tree --name-only "$1" docs/design/inbox/ 2>/dev/null | sed 's|.*/||' | grep '\.html$' || true
