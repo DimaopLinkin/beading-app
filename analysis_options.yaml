@@ -9,6 +9,7 @@ analyzer:
     - "**/assets/**"
     - "**/build/**"
     - "test/**/generated/**" # drift_dev schema generate, не правим руками
+    - "test/**/migration/*/migration_test.dart" # сгенерирован `drift_dev make-migrations`
     - "**/macos/**"
     - "**/windows/**"
 
