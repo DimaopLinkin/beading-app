@@ -25,7 +25,7 @@ drift (SQLite) — единственный источник правды на �
 | `grid_progress_rows` | grid_pattern_id FK, row_index, completed_at | Отмеченные ряды. Отдельная таблица, потому что при слиянии это множество (объединяем), а не одно значение. Текущая бусина — в `grid_patterns.current_row/current_bead`. |
 | `grid_progress_cells` | grid_pattern_id FK, block_index, bits BLOB | Прогресс вышивки по клеткам блоками 16×16 (T38). Служебные поля как у всех; слияние — LWW по блоку |
 | `work_sessions` | project_id FK, started_at, ended_at NULL | Учёт времени плетения |
-| `inventory` | catalog_color_id, amount (граммы бисера / мотки мулине) | Бонус: запасы бисера |
+| `inventory` | catalog_color_id, amount (граммы бисера / мотки мулине) | Бонус: запасы бисера и мулине |
 | `settings` | key PK, value | Тема, wakelock, имя для пасхалок |
 | `easter_egg_log` | egg_id, shown_at | Чтобы пасхалки не повторялись и были редкими. Локальная, не синхронизируется. |
 
