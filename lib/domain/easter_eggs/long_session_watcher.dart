@@ -7,10 +7,13 @@ import 'package:beading/domain/easter_eggs/easter_egg_policy.dart';
 
 /// Шлёт [LongSession], когда сессия идёт дольше [EasterEggPolicy.longSession]. Один раз за сессию.
 class LongSessionWatcher {
-  LongSessionWatcher({required AppEvents events, required Clock clock, Duration checkEvery = const Duration(minutes: 1)})
-    : _events = events,
-      _clock = clock,
-      _checkEvery = checkEvery;
+  LongSessionWatcher({
+    required AppEvents events,
+    required Clock clock,
+    Duration checkEvery = const Duration(minutes: 1),
+  }) : _events = events,
+       _clock = clock,
+       _checkEvery = checkEvery;
 
   final AppEvents _events;
   final Clock _clock;

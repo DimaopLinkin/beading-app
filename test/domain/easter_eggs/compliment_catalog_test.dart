@@ -51,7 +51,10 @@ void main() {
 
     test('не строка или пустой/пробельный текст — ошибка', () {
       expect(ComplimentCatalog.parse(_json(_full()..['rows'] = <Object>[1])).failureOrNull, isA<ValidationFailure>());
-      expect(ComplimentCatalog.parse(_json(_full()..['rows'] = <String>['  '])).failureOrNull, isA<ValidationFailure>());
+      expect(
+        ComplimentCatalog.parse(_json(_full()..['rows'] = <String>['  '])).failureOrNull,
+        isA<ValidationFailure>(),
+      );
     });
 
     test('повтор текста внутри группы — ошибка', () {

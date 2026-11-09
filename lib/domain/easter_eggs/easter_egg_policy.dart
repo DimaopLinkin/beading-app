@@ -65,7 +65,8 @@ class EasterEggPolicy {
   bool _shownRecently(List<EggLogEntry> history, DateTime now) =>
       history.any((e) => e.group != EggGroup.secret && now.difference(e.shownAt) < minInterval);
 
-  bool _isSpecialDay(List<SpecialDate> dates, DateTime now) => dates.any((d) => d.month == now.month && d.day == now.day);
+  bool _isSpecialDay(List<SpecialDate> dates, DateTime now) =>
+      dates.any((d) => d.month == now.month && d.day == now.day);
 
   bool _shownToday(List<EggLogEntry> history, DateTime now) => history.any(
     (e) =>

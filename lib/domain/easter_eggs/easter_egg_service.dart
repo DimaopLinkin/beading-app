@@ -1,7 +1,6 @@
 import 'dart:async';
 
 import 'package:beading/core/clock.dart';
-import 'package:beading/core/result.dart';
 import 'package:beading/domain/easter_eggs/app_event.dart';
 import 'package:beading/domain/easter_eggs/app_events.dart';
 import 'package:beading/domain/easter_eggs/compliment_catalog.dart';
@@ -57,13 +56,13 @@ class EasterEggService {
     }
     _sessionStart = _clock.now();
     // asyncMap обрабатывает события строго по очереди: счётчики сессии и журнал не гоняются.
+    // Отменяется в dispose.
     _subscription = _events.stream.asyncMap(_handle).listen((_) {});
   }
 
   Future<void> dispose() async {
-    final StreamSubscription<void>? subscription = _subscription;
+    await _subscription?.cancel();
     _subscription = null;
-    await subscription?.cancel();
     if (!_shown.isClosed) {
       await _shown.close();
     }

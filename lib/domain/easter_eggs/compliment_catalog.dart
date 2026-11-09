@@ -50,12 +50,16 @@ final class ComplimentCatalog extends Equatable {
     for (final EggGroup group in EggGroup.values) {
       final Object? raw = json[group.name];
       if (raw is! List<Object?> || raw.isEmpty) {
-        return Err<ComplimentCatalog>(ValidationFailure('compliments: группа "${group.name}" должна быть непустым списком'));
+        return Err<ComplimentCatalog>(
+          ValidationFailure('compliments: группа "${group.name}" должна быть непустым списком'),
+        );
       }
       final List<Compliment> items = <Compliment>[];
       for (final Object? item in raw) {
         if (item is! String || item.trim().isEmpty) {
-          return Err<ComplimentCatalog>(ValidationFailure('compliments: в "${group.name}" есть пустой или не строковый текст'));
+          return Err<ComplimentCatalog>(
+            ValidationFailure('compliments: в "${group.name}" есть пустой или не строковый текст'),
+          );
         }
         items.add(Compliment(group: group, text: item));
       }

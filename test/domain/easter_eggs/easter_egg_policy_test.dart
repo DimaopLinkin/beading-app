@@ -148,15 +148,29 @@ void main() {
     });
 
     test('«готово», особая дата и секрет игнорируют интервал, сессию и тишину первых минут', () {
-      final List<EggLogEntry> history = <EggLogEntry>[_entry(EggGroup.rows, at: now.subtract(const Duration(hours: 1)))];
+      final List<EggLogEntry> history = <EggLogEntry>[
+        _entry(EggGroup.rows, at: now.subtract(const Duration(hours: 1))),
+      ];
       const List<SpecialDate> today = <SpecialDate>[SpecialDate(label: 'ДР', month: 11, day: 9)];
 
       expect(
-        _decide(luckyPolicy(), const ProjectCompleted(), history: history, shownThisSession: true, sinceStart: Duration.zero),
+        _decide(
+          luckyPolicy(),
+          const ProjectCompleted(),
+          history: history,
+          shownThisSession: true,
+          sinceStart: Duration.zero,
+        ),
         isNotNull,
       );
       expect(
-        _decide(luckyPolicy(), const SecretTapped(), history: history, shownThisSession: true, sinceStart: Duration.zero),
+        _decide(
+          luckyPolicy(),
+          const SecretTapped(),
+          history: history,
+          shownThisSession: true,
+          sinceStart: Duration.zero,
+        ),
         isNotNull,
       );
       expect(
@@ -227,7 +241,13 @@ void main() {
       for (int i = 0; i < 3; i++) {
         final Compliment shown = _decide(policy, const ProjectCompleted(), history: history)!;
         seen.add(shown.id);
-        history.add(EggLogEntry(group: shown.group, eggId: shown.id, shownAt: _start.add(Duration(days: i))));
+        history.add(
+          EggLogEntry(
+            group: shown.group,
+            eggId: shown.id,
+            shownAt: _start.add(Duration(days: i)),
+          ),
+        );
       }
 
       expect(seen, hasLength(3), reason: 'три показа — три разных текста из трёх');
@@ -241,7 +261,13 @@ void main() {
       for (int i = 0; i < 6; i++) {
         final Compliment shown = _decide(policy, const ProjectCompleted(), history: history)!;
         order.add(shown.id);
-        history.add(EggLogEntry(group: shown.group, eggId: shown.id, shownAt: _start.add(Duration(days: i))));
+        history.add(
+          EggLogEntry(
+            group: shown.group,
+            eggId: shown.id,
+            shownAt: _start.add(Duration(days: i)),
+          ),
+        );
       }
 
       expect(order.sublist(0, 3).toSet(), hasLength(3));
@@ -250,7 +276,12 @@ void main() {
 
     test('история одной группы не влияет на другую', () {
       final List<EggLogEntry> history = <EggLogEntry>[
-        for (int i = 0; i < 2; i++) _entry(EggGroup.rows, at: _start.add(Duration(days: i)), index: i),
+        for (int i = 0; i < 2; i++)
+          _entry(
+            EggGroup.rows,
+            at: _start.add(Duration(days: i)),
+            index: i,
+          ),
       ];
 
       final Set<String> seen = <String>{};
@@ -273,8 +304,16 @@ void main() {
     test('выбор среди оставшихся определяется Random', () {
       final List<EggLogEntry> history = <EggLogEntry>[_entry(EggGroup.completed, at: _start)];
 
-      final Compliment? first = _decide(EasterEggPolicy(random: _ScriptedRandom(<double>[0.0])), const ProjectCompleted(), history: history);
-      final Compliment? last = _decide(EasterEggPolicy(random: _ScriptedRandom(<double>[0.99])), const ProjectCompleted(), history: history);
+      final Compliment? first = _decide(
+        EasterEggPolicy(random: _ScriptedRandom(<double>[0.0])),
+        const ProjectCompleted(),
+        history: history,
+      );
+      final Compliment? last = _decide(
+        EasterEggPolicy(random: _ScriptedRandom(<double>[0.99])),
+        const ProjectCompleted(),
+        history: history,
+      );
 
       expect(first!.text, 'completed 1');
       expect(last!.text, 'completed 2');
@@ -282,7 +321,7 @@ void main() {
   });
 
   test('пустая группа каталога — тишина, а не падение', () {
-    final ComplimentCatalog empty = ComplimentCatalog(<EggGroup, List<Compliment>>{});
+    const ComplimentCatalog empty = ComplimentCatalog(<EggGroup, List<Compliment>>{});
 
     expect(_decide(luckyPolicy(), const ProjectCompleted(), catalog: empty), isNull);
   });
@@ -290,7 +329,6 @@ void main() {
   test('порог долгой сессии — 90 минут', () {
     expect(EasterEggPolicy.longSession, const Duration(minutes: 90));
   });
-
 }
 
 EasterEggPolicy unluckyPolicy() => EasterEggPolicy(random: _ScriptedRandom(<double>[0.999]));
