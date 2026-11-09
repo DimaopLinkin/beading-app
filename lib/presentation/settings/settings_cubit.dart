@@ -60,7 +60,8 @@ class SettingsCubit extends Cubit<SettingsState> {
   /// Пустое имя (после обрезки пробелов) возвращает имя по умолчанию; длиннее [userNameMaxLength] обрезается.
   Future<void> setUserName(String name) {
     final String trimmed = name.trim();
-    final String limited = trimmed.length > userNameMaxLength ? trimmed.substring(0, userNameMaxLength) : trimmed;
+    // По кодовым точкам, а не по UTF-16: суррогатная пара (эмодзи) не должна разорваться.
+    final String limited = String.fromCharCodes(trimmed.runes.take(userNameMaxLength));
     return _apply(
       SettingKeys.userName,
       limited.isEmpty ? SettingKeys.userName.defaultValue : limited,

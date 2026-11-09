@@ -1,5 +1,5 @@
-/// Принимает событие «нашла секрет» (7 нажатий по логотипу). T08 подставит реализацию, которая шлёт `SecretTapped`
-/// в поток событий пасхалок; до тех пор — [NoopSecretTapHandler].
+/// Принимает событие «нашла секрет» (7 нажатий по логотипу). В приложении это `AppEventsSecretTapHandler`
+/// (шлёт `SecretTapped` в поток событий пасхалок); [NoopSecretTapHandler] — для мест, где пасхалки не нужны.
 abstract interface class SecretTapHandler {
   void onSecretTapped();
 }

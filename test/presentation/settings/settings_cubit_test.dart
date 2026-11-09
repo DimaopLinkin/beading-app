@@ -114,4 +114,11 @@ void main() {
 
     expect(cubit.state.userName, hasLength(userNameMaxLength));
   });
+
+  test('обрезка имени не рвёт эмодзи', () async {
+    await cubit.setUserName('😀' * 100);
+
+    expect(cubit.state.userName.runes, hasLength(userNameMaxLength));
+    expect(cubit.state.userName.runes.every((r) => r == 0x1F600), isTrue);
+  });
 }
