@@ -31,7 +31,7 @@ abstract final class SettingKeys {
 
   /// Производитель бисера по умолчанию (значение каталога `catalog_colors.brand`).
   ///
-  /// Строки-заглушки: T36 сверит их с названиями брендов каталога.
+  /// Строка-заглушка: T13 (каталог бисера) сверит её с `catalog_colors.brand`.
   static const SettingKey<String> defaultBeadBrand = SettingKey<String>(
     name: 'defaultBeadBrand',
     defaultValue: 'Miyuki',
@@ -40,6 +40,8 @@ abstract final class SettingKeys {
   );
 
   /// Производитель мулине по умолчанию (значение каталога `catalog_colors.brand`). Отдельно от бисера: ADR-0003.
+  ///
+  /// Строка-заглушка: T36 (каталог мулине) сверит её с `catalog_colors.brand`.
   static const SettingKey<String> defaultFlossBrand = SettingKey<String>(
     name: 'defaultFlossBrand',
     defaultValue: 'DMC',
