@@ -20,4 +20,11 @@ forbid lib/core "package:flutter/|package:drift|package:$pkg/(domain|data|presen
 forbid lib/data "package:$pkg/(presentation|app)/" "data не знает о UI"
 forbid lib/presentation "package:drift|package:$pkg/(data|app)/" "presentation не импортирует data"
 
+# Material — только через мост: приложение собрано на Cupertino (ADR о нативном виде).
+if [[ -d lib/presentation ]]; then
+  hits=$(grep -rnE "^(import|export) ['\"]package:flutter/material\.dart" lib --include='*.dart' \
+    | grep -v '^lib/presentation/theme/material_bridge\.dart:' || true)
+  if [[ -n "$hits" ]]; then echo "ARCH: Material импортируем только в presentation/theme/material_bridge.dart"; echo "$hits"; fail=1; fi
+fi
+
 exit $fail

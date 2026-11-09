@@ -5,9 +5,12 @@ import 'package:beading/core/clock.dart';
 import 'package:beading/core/id_generator.dart';
 import 'package:beading/data/platform/wakelock_plus_screen_wake_lock.dart';
 import 'package:beading/data/settings/in_memory_keep_screen_awake_setting.dart';
+import 'package:beading/data/settings/in_memory_settings_repository.dart';
 import 'package:beading/domain/settings/keep_screen_awake_setting.dart';
 import 'package:beading/domain/settings/screen_wake_lock.dart';
+import 'package:beading/domain/settings/settings_repository.dart';
 import 'package:beading/domain/settings/wakelock_controller.dart';
+import 'package:beading/presentation/theme/theme_mode_cubit.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get_it/get_it.dart';
 
@@ -24,6 +27,8 @@ void main() {
     expect(locator<ScreenWakeLock>(), isA<WakelockPlusScreenWakeLock>());
     expect(locator<KeepScreenAwakeSetting>(), isA<InMemoryKeepScreenAwakeSetting>());
     expect(locator<WakelockController>(), isNotNull);
+    expect(locator<SettingsRepository>(), isA<InMemorySettingsRepository>());
+    expect(locator<ThemeModeCubit>(), isA<ThemeModeCubit>());
   });
 
   test('повторная настройка не падает и пересоздаёт регистрации', () async {

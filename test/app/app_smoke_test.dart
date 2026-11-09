@@ -1,6 +1,9 @@
 import 'package:beading/app/bootstrap.dart';
 import 'package:beading/app/di.dart';
-import 'package:flutter/material.dart';
+import 'package:beading/domain/settings/app_theme_mode.dart';
+import 'package:beading/presentation/theme/theme_mode_cubit.dart';
+import 'package:flutter/cupertino.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get_it/get_it.dart';
 
@@ -33,8 +36,21 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('Мои работы'), findsOneWidget);
-    final ThemeData theme = Theme.of(tester.element(find.text('Мои работы')));
-    expect(theme.brightness, Brightness.dark);
+    expect(CupertinoTheme.brightnessOf(tester.element(find.text('Мои работы'))), Brightness.dark);
+  });
+
+  testWidgets('выбор режима темы переключает приложение', (tester) async {
+    await tester.pumpWidget(await bootstrapWithFakes());
+    await tester.pumpAndSettle();
+    final BuildContext context = tester.element(find.text('Мои работы'));
+
+    await context.read<ThemeModeCubit>().select(AppThemeMode.dark);
+    await tester.pumpAndSettle();
+    expect(CupertinoTheme.brightnessOf(tester.element(find.text('Мои работы'))), Brightness.dark);
+
+    await context.read<ThemeModeCubit>().select(AppThemeMode.light);
+    await tester.pumpAndSettle();
+    expect(CupertinoTheme.brightnessOf(tester.element(find.text('Мои работы'))), Brightness.light);
   });
 
   testWidgets('bootstrap фиксирует портрет, настраивает окно и включает wakelock', (tester) async {
