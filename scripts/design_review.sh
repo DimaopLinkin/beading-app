@@ -14,8 +14,14 @@ for f in "$q"/[0-9]*.md; do
 done
 
 inbox() {  # inbox <ссылка на дерево> — HTML в inbox
-  if [[ "$1" == "." ]]; then find docs/design/inbox -maxdepth 1 -name '*.html' -printf '%f\n' 2>/dev/null
-  else git ls-tree --name-only "$1" docs/design/inbox/ 2>/dev/null | sed 's|.*/||' | grep '\.html$' || true; fi
+  # Файлы inbox/<id>-v<N>.html и каталоги docs/design/<id>/ (так Claude Design кладёт артборды сам)
+  if [[ "$1" == "." ]]; then
+    find docs/design/inbox -maxdepth 1 -name '*.html' -printf '%f\n' 2>/dev/null
+    find docs/design -mindepth 1 -maxdepth 1 -type d -not -name queue -not -name inbox -not -name accepted -printf '%f.dir\n'
+  else
+    git ls-tree --name-only "$1" docs/design/inbox/ 2>/dev/null | sed 's|.*/||' | grep '\.html$' || true
+    git ls-tree --name-only "$1" docs/design/ 2>/dev/null | sed 's|.*/||' | grep -vE '\.|^(queue|inbox|accepted)$' | sed 's/$/.dir/' || true
+  fi
 }
 
 reviewed() { grep -oE '^## [0-9a-z-]+ v[0-9]+' docs/design/review-log.md | sed 's/^## //; s/ v/-v/'; }
@@ -31,7 +37,7 @@ pending=$(
   for s in "${sources[@]}"; do
     while IFS= read -r name; do
       [[ -z "$name" ]] && continue
-      base=${name%.html}
+      base=${name%.html}; base=${base%.dir}
       reviewed | grep -qx "$base" || echo "$base  ($s)"
     done < <(inbox "$s")
   done | sort -u
