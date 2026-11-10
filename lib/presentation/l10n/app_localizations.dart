@@ -715,6 +715,12 @@ abstract class AppLocalizations {
   /// **'Не получилось сохранить, где ты остановилась. Проверь, есть ли место на устройстве.'**
   String get bookWorkSaveFailed;
 
+  /// Маркер текущего ряда сеточной схемы у левого края (номер с единицы)
+  ///
+  /// In ru, this message translates to:
+  /// **'Ряд {row}'**
+  String gridRowMarker(int row);
+
   /// No description provided for @bookWorkImageFailed.
   ///
   /// In ru, this message translates to:

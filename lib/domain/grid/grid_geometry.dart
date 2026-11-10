@@ -1,5 +1,8 @@
+import 'dart:math' as math;
+
 import 'package:beading/domain/grid/cell_metrics.dart';
 import 'package:beading/domain/grid/cell_position.dart';
+import 'package:beading/domain/grid/cell_range.dart';
 import 'package:beading/domain/grid/mm.dart';
 
 /// Как ячейки схемы лежат на плоскости: центры, попадание точкой, соседи и габариты.
@@ -28,6 +31,21 @@ sealed class GridGeometry {
   /// Размер описывающего прямоугольника схемы, мм.
   MmSize extent(CellMetrics metrics, {required int columns, required int rows});
 
+  /// Размер одной ячейки с учётом положения бусины в технике, мм.
+  MmSize cellSize(CellMetrics metrics);
+
+  /// Ячейки, которые могут попасть в прямоугольник (мм, от левого верхнего угла схемы). Диапазон консервативный:
+  /// содержит все пересекающие прямоугольник ячейки, возможно с запасом в одну ячейку.
+  CellRange visibleCells(
+    CellMetrics metrics, {
+    required int columns,
+    required int rows,
+    required double left,
+    required double top,
+    required double right,
+    required double bottom,
+  });
+
   /// Ячейка под точкой или `null`, если точка вне ячеек (за схемой или в «зубце» сдвинутого края).
   CellPosition? cellAt(CellMetrics metrics, {required int columns, required int rows, required MmPoint point});
 
@@ -40,8 +58,37 @@ final class RectangularGeometry extends GridGeometry {
   const RectangularGeometry();
 
   @override
+  // ignore: avoid_equals_and_hash_code_on_mutable_classes, поля final, класс неизменяемый
+  bool operator ==(Object other) => other is RectangularGeometry;
+
+  @override
+  // ignore: avoid_equals_and_hash_code_on_mutable_classes, см. выше
+  int get hashCode => (RectangularGeometry).hashCode;
+
+  @override
   MmPoint cellCenter(CellMetrics metrics, CellPosition cell) =>
       MmPoint((cell.column + 0.5) * metrics.widthMm, (cell.row + 0.5) * metrics.heightMm);
+
+  @override
+  MmSize cellSize(CellMetrics metrics) => MmSize(metrics.widthMm, metrics.heightMm);
+
+  @override
+  CellRange visibleCells(
+    CellMetrics metrics, {
+    required int columns,
+    required int rows,
+    required double left,
+    required double top,
+    required double right,
+    required double bottom,
+  }) => _range(
+    columns: columns,
+    rows: rows,
+    firstColumn: left / metrics.widthMm,
+    lastColumn: right / metrics.widthMm,
+    firstRow: top / metrics.heightMm,
+    lastRow: bottom / metrics.heightMm,
+  );
 
   @override
   MmSize extent(CellMetrics metrics, {required int columns, required int rows}) =>
@@ -76,6 +123,14 @@ final class PeyoteGeometry extends GridGeometry {
   /// Сколько соседних столбцов сдвинуты вместе.
   final int drop;
 
+  @override
+  // ignore: avoid_equals_and_hash_code_on_mutable_classes, поля final, класс неизменяемый
+  bool operator ==(Object other) => other is PeyoteGeometry && other.drop == drop;
+
+  @override
+  // ignore: avoid_equals_and_hash_code_on_mutable_classes, см. выше
+  int get hashCode => Object.hash(PeyoteGeometry, drop);
+
   /// Сдвинут ли столбец вниз на половину ячейки.
   bool _isShifted(int column) => (column ~/ drop).isOdd;
 
@@ -83,6 +138,28 @@ final class PeyoteGeometry extends GridGeometry {
   MmPoint cellCenter(CellMetrics metrics, CellPosition cell) => MmPoint(
     (cell.column + 0.5) * metrics.widthMm,
     (cell.row + 0.5 + (_isShifted(cell.column) ? 0.5 : 0)) * metrics.heightMm,
+  );
+
+  @override
+  MmSize cellSize(CellMetrics metrics) => MmSize(metrics.widthMm, metrics.heightMm);
+
+  @override
+  CellRange visibleCells(
+    CellMetrics metrics, {
+    required int columns,
+    required int rows,
+    required double left,
+    required double top,
+    required double right,
+    required double bottom,
+  }) => _range(
+    columns: columns,
+    rows: rows,
+    firstColumn: left / metrics.widthMm,
+    lastColumn: right / metrics.widthMm,
+    // Сдвинутые столбцы начинаются на полячейки ниже: запас в одну ячейку сверху.
+    firstRow: top / metrics.heightMm - 1,
+    lastRow: bottom / metrics.heightMm,
   );
 
   @override
@@ -134,12 +211,47 @@ final class PeyoteGeometry extends GridGeometry {
 final class BrickGeometry extends GridGeometry {
   const BrickGeometry();
 
+  @override
+  // ignore: avoid_equals_and_hash_code_on_mutable_classes, поля final, класс неизменяемый
+  bool operator ==(Object other) => other is BrickGeometry;
+
+  @override
+  // ignore: avoid_equals_and_hash_code_on_mutable_classes, см. выше
+  int get hashCode => (BrickGeometry).hashCode;
+
   static const PeyoteGeometry _transposed = PeyoteGeometry();
 
   @override
   MmPoint cellCenter(CellMetrics metrics, CellPosition cell) {
     final MmPoint center = _transposed.cellCenter(metrics, _swap(cell));
     return MmPoint(center.y, center.x);
+  }
+
+  @override
+  MmSize cellSize(CellMetrics metrics) => MmSize(metrics.heightMm, metrics.widthMm);
+
+  @override
+  CellRange visibleCells(
+    CellMetrics metrics, {
+    required int columns,
+    required int rows,
+    required double left,
+    required double top,
+    required double right,
+    required double bottom,
+  }) {
+    final CellRange t = _transposed.visibleCells(
+      metrics,
+      columns: rows,
+      rows: columns,
+      left: top,
+      top: left,
+      right: bottom,
+      bottom: right,
+    );
+    return t.isEmpty
+        ? const CellRange.empty()
+        : CellRange(firstColumn: t.firstRow, lastColumn: t.lastRow, firstRow: t.firstColumn, lastRow: t.lastColumn);
   }
 
   @override
@@ -171,3 +283,22 @@ final class BrickGeometry extends GridGeometry {
 }
 
 int _byRowThenColumn(CellPosition a, CellPosition b) => a.row != b.row ? a.row - b.row : a.column - b.column;
+
+CellRange _range({
+  required int columns,
+  required int rows,
+  required double firstColumn,
+  required double lastColumn,
+  required double firstRow,
+  required double lastRow,
+}) {
+  if (!firstColumn.isFinite || !lastColumn.isFinite || !firstRow.isFinite || !lastRow.isFinite) {
+    return const CellRange.empty();
+  }
+  final int c0 = math.max(0, firstColumn.floor());
+  final int c1 = math.min(columns - 1, lastColumn.floor());
+  final int r0 = math.max(0, firstRow.floor());
+  final int r1 = math.min(rows - 1, lastRow.floor());
+  if (c0 > c1 || r0 > r1) return const CellRange.empty();
+  return CellRange(firstColumn: c0, lastColumn: c1, firstRow: r0, lastRow: r1);
+}
