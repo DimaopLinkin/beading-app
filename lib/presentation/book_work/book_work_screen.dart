@@ -78,6 +78,9 @@ const double _bottomPanelHeight = 150;
 /// Свёрнутая панель: капсула с номером ряда и одной кнопкой (04 v2).
 const double _collapsedPanelHeight = 76;
 
+/// Запас над и под областью страницы для уха и ручки линейки: на первом и последнем ряду им нужно место вне полосы.
+const double _markRoom = rulerMarkSize + 6;
+
 double _panelHeight(BookWorkState state) => state.panelCollapsed ? _collapsedPanelHeight : _bottomPanelHeight;
 
 class _Workspace extends StatefulWidget {
@@ -140,8 +143,8 @@ class _WorkspaceState extends State<_Workspace> {
       rulerBottom: ruler.bottom * k,
       viewHeight: view.height,
       contentHeight: state.page.height * k,
-      topInset: safe.top + _topBarHeight,
-      bottomInset: safe.bottom + _panelHeight(state),
+      topInset: safe.top + _topBarHeight + _markRoom,
+      bottomInset: safe.bottom + _panelHeight(state) + _markRoom,
     );
   }
 
@@ -174,7 +177,7 @@ class _WorkspaceState extends State<_Workspace> {
     }
     final PageViewport stored = state.work.viewport;
     final PageViewport start = stored == PageViewport.identity
-        ? PageViewport(scale: 1, dx: 0, dy: safe.top + _topBarHeight)
+        ? PageViewport(scale: 1, dx: 0, dy: safe.top + _topBarHeight + _markRoom)
         : stored;
     final PageViewport fitted = _revealed(state, start, view, safe);
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -190,7 +193,7 @@ class _WorkspaceState extends State<_Workspace> {
   void _fitWidth(BookWorkState state, Size view, EdgeInsets safe) {
     final PageViewport fitted = _revealed(
       state,
-      PageViewport(scale: 1, dx: 0, dy: safe.top + _topBarHeight),
+      PageViewport(scale: 1, dx: 0, dy: safe.top + _topBarHeight + _markRoom),
       view,
       safe,
     );
@@ -247,9 +250,9 @@ class _WorkspaceState extends State<_Workspace> {
                           maxScale: BookWorkScreen.maxZoom,
                           boundaryMargin: EdgeInsets.fromLTRB(
                             0,
-                            safe.top + _topBarHeight,
+                            safe.top + _topBarHeight + _markRoom,
                             0,
-                            safe.bottom + _panelHeight(state),
+                            safe.bottom + _panelHeight(state) + _markRoom,
                           ),
                           onInteractionEnd: (_) => cubit.setViewport(_viewportNow),
                           child: PageCanvas(
@@ -307,7 +310,7 @@ class _WorkspaceState extends State<_Workspace> {
                             heightFactor: 1,
                             child: state.undoRuler != null
                                 ? UndoToast(
-                                    key: ValueKey<int>(state.work.ruler.row),
+                                    key: ValueKey<RulerState?>(state.undoRuler),
                                     row: state.work.ruler.row,
                                     onUndo: cubit.undoRow,
                                     onDismiss: cubit.dismissUndo,

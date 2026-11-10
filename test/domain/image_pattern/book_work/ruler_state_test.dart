@@ -139,6 +139,14 @@ void main() {
       expect(last.next(page), last);
     });
 
+    test('снизу вверх высота растёт вверх, низ линейки неподвижен', () {
+      final RulerState up = RulerState.initial(page, direction: RowDirection.bottomUp);
+      final RulerState taller = up.withHeight(80, page);
+      expect(taller.bottom, up.bottom);
+      expect(taller.height, 80);
+      expect(ruler.withHeight(80, page).top, ruler.top);
+    });
+
     test('сверху вниз последний ряд — у низа страницы', () {
       final RulerState atBottom = ruler.withHeight(40, page).fit(page);
       const RulerState end = RulerState(top: 960, height: 40, step: 40, highlight: RulerHighlight.yellow, row: 25);

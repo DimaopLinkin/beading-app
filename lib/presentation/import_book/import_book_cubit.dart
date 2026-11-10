@@ -38,7 +38,13 @@ class ImportBookCubit extends Cubit<ImportBookState> {
       return;
     }
     emit(state.copyWith(busy: ImportBusy.opening, clearProblem: true));
-    final Result<List<PickedBookFile>> picked = await pick();
+    Result<List<PickedBookFile>> picked;
+    try {
+      picked = await pick();
+    } on Object {
+      // Файл недоступен (например, не скачан из iCloud): индикатор не должен остаться навсегда.
+      picked = const Err<List<PickedBookFile>>(StorageFailure('picker'));
+    }
     if (isClosed) {
       return;
     }
@@ -79,6 +85,7 @@ class ImportBookCubit extends Cubit<ImportBookState> {
     emit(
       state.copyWith(
         step: ImportStep.review,
+        clearPdf: true,
         pages: <PageDraft>[
           ...state.pages,
           for (final PickedBookFile file in files) PageDraft(id: _nextPageId++, bytes: file.bytes),

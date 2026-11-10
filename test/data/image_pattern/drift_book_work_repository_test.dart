@@ -73,6 +73,18 @@ void main() {
     expect(loaded.currentPageId, isNull);
   });
 
+  test('направление рядов записывается и читается обратно', () async {
+    final PageWork up = _workA.copyWith(
+      ruler: RulerState.initial(1000, direction: RowDirection.bottomUp),
+    );
+
+    await repository.savePage(up);
+    expect((await repository.load('pat-1')).valueOrNull!.pages['pg-a']!.ruler.direction, RowDirection.bottomUp);
+
+    await repository.savePage(_workA);
+    expect((await repository.load('pat-1')).valueOrNull!.pages['pg-a']!.ruler.direction, RowDirection.topDown);
+  });
+
   test('повторная запись заменяет состояние, время создания остаётся', () async {
     await repository.savePage(_workA);
     clock.advance(const Duration(minutes: 5));

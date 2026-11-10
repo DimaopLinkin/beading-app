@@ -171,7 +171,7 @@ void main() {
     expect(find.byKey(const ValueKey<String>('import-busy')), findsNothing);
   });
 
-  testWidgets('пустой PDF: понятный текст со значком и кнопка «Выбрать другой файл»', (tester) async {
+  testWidgets('пустой PDF: понятный текст со значком, лишней кнопки нет', (tester) async {
     source.next = Success<List<PickedBookFile>>(<PickedBookFile>[
       PickedBookFile(name: 'Пусто.pdf', bytes: Uint8List.fromList(<int>[0x25, 0x50, 0x44, 0x46])),
     ]);
