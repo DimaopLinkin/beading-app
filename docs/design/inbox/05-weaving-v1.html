@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Бисер — Плетение по своей схеме (05-weaving v1)</title>
+<style>
+:root{--font:-apple-system,BlinkMacSystemFont,"SF Pro Text","SF Pro",system-ui,sans-serif}
+*{box-sizing:border-box}
+body{margin:0;font-family:var(--font);background:#CFC8BC;color:#1C1A1F}
+body.dp{background:#0B0A0C;color:#F4F0EA}
+.top{position:sticky;top:0;z-index:50;display:flex;gap:12px;align-items:center;flex-wrap:wrap;padding:12px 24px;background:rgba(247,244,239,.92);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-bottom:1px solid rgba(0,0,0,.12)}
+body.dp .top{background:rgba(21,19,22,.92);border-color:rgba(255,255,255,.14)}
+.top h1{margin:0;font-size:18px;flex:1;min-width:220px}
+.seg{display:flex;padding:3px;border-radius:22px;background:rgba(120,110,100,.25)}
+.seg button{border:0;background:transparent;color:inherit;font:600 14px var(--font);padding:9px 16px;border-radius:19px;cursor:pointer;min-height:44px}
+.seg button[aria-pressed="true"]{background:#fff;color:#1C1A1F;box-shadow:0 1px 3px rgba(0,0,0,.2)}
+.stage{padding:28px 24px 40px;display:flex;flex-direction:column;gap:44px}
+.row{display:flex;flex-wrap:wrap;gap:28px;justify-content:center}
+.cell{display:flex;flex-direction:column;gap:10px;align-items:center}
+.cap{font-size:14px;font-weight:600;max-width:428px;text-align:center;opacity:.9}
+.note{max-width:920px;margin:0 auto;font-size:15px;line-height:1.55;padding:0 24px 60px}
+.note h2{font-size:20px;margin:0 0 8px}
+.note ul{margin:6px 0 12px;padding-left:20px}
+
+.phone{--bg:#F7F4EF;--surf:#FFF;--surf2:#EFEBE4;--ink:#1C1A1F;--ink2:#5F5954;--sep:#E0DAD1;--acc:#B5541C;--onacc:#fff;--acct:#9A4513;--accg:rgba(181,84,28,.16);--danger:#C0362C;
+ --glass:rgba(255,255,255,.55);--dense:rgba(255,255,255,.86);--gb:1px solid rgba(255,255,255,.85);--shadow:0 10px 28px rgba(0,0,0,.18);
+ position:relative;width:428px;height:926px;border-radius:52px;overflow:hidden;background:var(--bg);color:var(--ink);border:1px solid rgba(0,0,0,.25);box-shadow:0 18px 40px rgba(0,0,0,.28);flex:none;font-family:var(--font)}
+.phone[data-theme="dark"]{--bg:#151316;--surf:#201D22;--surf2:#2A262D;--ink:#F4F0EA;--ink2:#A9A29B;--sep:#3A353D;--acc:#F0955A;--onacc:#1C1A1F;--acct:#F0955A;--accg:rgba(240,149,90,.18);--danger:#FF7A6E;
+ --glass:rgba(40,38,44,.5);--dense:rgba(28,26,32,.86);--gb:1px solid rgba(255,255,255,.26);--shadow:0 10px 28px rgba(0,0,0,.45);border-color:rgba(255,255,255,.18)}
+.glass{background:var(--glass);border:var(--gb);box-shadow:var(--shadow);backdrop-filter:blur(24px) saturate(1.6);-webkit-backdrop-filter:blur(24px) saturate(1.6)}
+.dense{background:var(--dense);border:var(--gb);box-shadow:var(--shadow);backdrop-filter:blur(32px) saturate(1.4);-webkit-backdrop-filter:blur(32px) saturate(1.4)}
+.bar{position:absolute;left:12px;right:12px;top:54px;height:60px;border-radius:30px;display:flex;align-items:center;justify-content:space-between;padding:0 8px;z-index:6}
+.bar .t{text-align:center;line-height:1.2;display:flex;flex-direction:column;align-items:center;gap:2px}
+.bar .t b{font-size:17px;font-weight:700}
+.bar .t span{font-size:13px;font-weight:600;color:var(--ink2);font-variant-numeric:tabular-nums}
+.pb{width:150px;height:4px;border-radius:2px;background:var(--surf2)}.pb i{display:block;height:4px;border-radius:2px;background:var(--acc)}
+.tb{min-width:44px;height:44px;border-radius:22px;display:flex;align-items:center;justify-content:center;gap:2px;font-size:16px;font-weight:600;color:var(--acct);padding:0 10px}
+.home{position:absolute;left:50%;bottom:8px;margin-left:-67px;width:134px;height:5px;border-radius:3px;background:var(--ink);opacity:.5;z-index:9}
+.tog{position:absolute;left:12px;right:12px;top:122px;height:48px;display:flex;justify-content:space-between;gap:10px;z-index:6}
+.msg{display:flex;padding:3px;border-radius:24px}
+.msg div{min-height:42px;padding:0 16px;display:flex;align-items:center;border-radius:21px;font-size:15px;font-weight:600;color:var(--ink)}
+.msg .s{background:var(--bg);font-weight:700;box-shadow:0 0 0 1px var(--sep)}
+.sym{width:48px;height:48px;border-radius:24px;display:flex;align-items:center;justify-content:center;font-size:17px;font-weight:700;color:var(--ink)}
+.sym.on{background:var(--accg);color:var(--acct)}
+/* scheme */
+.sch{position:absolute;left:8px;right:8px;top:178px;bottom:210px;border-radius:24px;background:var(--surf);border:1px solid var(--sep);overflow:hidden}
+.gn{position:absolute;left:0;width:34px;text-align:right;padding-right:6px;font-size:13px;font-weight:600;color:var(--ink2);font-variant-numeric:tabular-nums}
+.gc{position:absolute;left:2px;width:34px;height:22px;border-radius:11px;background:var(--acc);color:var(--onacc);font-size:13px;font-weight:700;display:flex;align-items:center;justify-content:center;border:2px solid #fff;z-index:5;box-shadow:0 1px 4px rgba(0,0,0,.3)}
+.b{position:absolute;border-radius:50%;border:1px solid rgba(0,0,0,.25);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700}
+.b.past{opacity:.38}
+.b.hol{opacity:.32;border:2px dashed var(--ink2)}
+.b.nx{box-shadow:0 0 0 2px #151316,0 0 0 4px #fff,0 0 0 5px #151316;z-index:4}
+.b.cr{box-shadow:0 0 0 1.5px #151316,0 0 0 3px #fff}
+.band{position:absolute;z-index:3;background:rgba(181,84,28,.16);box-shadow:0 0 0 2px #151316,0 0 0 4.5px #fff,0 0 0 5.5px #151316;border-radius:2px;pointer-events:none}
+.phone[data-theme="dark"] .band{background:rgba(240,149,90,.18)}
+/* bottom */
+.bot{position:absolute;left:12px;right:12px;bottom:28px;border-radius:38px;padding:10px;display:flex;flex-direction:column;gap:8px;z-index:7}
+.wc{display:flex;align-items:center;gap:10px;height:52px;border-radius:26px;background:var(--surf2);padding:0 14px;font-size:17px;font-weight:700;overflow:hidden;white-space:nowrap}
+.wc .it{display:flex;align-items:center;gap:5px}
+.wc .dt{width:24px;height:24px;border-radius:50%;border:1px solid rgba(0,0,0,.25);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700}
+.wc .ar{color:var(--acct);display:flex}
+.r2{display:flex;gap:8px}
+.b1{width:60px;height:64px;border-radius:32px;background:var(--surf2);display:flex;align-items:center;justify-content:center;color:var(--ink);flex:none}
+.b2{flex:1;height:64px;border-radius:32px;background:var(--acc);color:var(--onacc);display:flex;align-items:center;justify-content:center;gap:6px;font-size:17px;font-weight:700}
+.b3{width:112px;height:64px;border-radius:32px;background:var(--surf2);display:flex;align-items:center;justify-content:center;gap:5px;font-size:15px;font-weight:700;color:var(--ink);flex:none}
+.toast{position:absolute;left:24px;right:24px;bottom:216px;height:52px;border-radius:26px;display:flex;align-items:center;justify-content:space-between;padding:0 8px 0 20px;font-size:16px;font-weight:600;z-index:7}
+.banner{position:absolute;left:24px;right:24px;top:120px;height:52px;border-radius:28px;display:flex;align-items:center;gap:12px;padding:0 20px 0 10px;font-size:16px;font-weight:600;z-index:6}
+.banner i{width:36px;height:36px;border-radius:18px;background:radial-gradient(circle at 35% 30%,#fff 0 12%,#F2B84B 14% 60%,#B5541C 100%);flex:none}
+</style>
+</head>
+<body>
+<div class="top"><h1>Бисер · Плетение по своей схеме · 05-weaving v1</h1>
+<div class="seg" role="group" aria-label="Тема"><button data-m="light" aria-pressed="true">Светлая</button><button data-m="dark" aria-pressed="false">Тёмная</button><button data-m="both" aria-pressed="false">Обе рядом</button></div></div>
+<div class="stage" id="stage"></div>
+<div class="note"><h2>Решения и отступления</h2>
+<ul>
+<li><b>Номер текущего ряда стоит в поле слева от схемы</b> (капсула в цвете подсветки), а не над бусинами; ничто не накладывается на бусины текущего ряда. Подсветка текущего ряда двойная (#151316 + #FFFFFF, решение 01b): у пейота вокруг каждой бусины ряда (ряд зигзагом), у станка рамка вокруг всего ряда. Заливка рамки 16% (18% в тёмной теме), пройденные ряды под вуалью цвета поверхности 62%, будущие обычные.</li>
+<li><b>«По бусине»:</b> уже выложенные бусины текущего ряда обычные, ещё не выложенные показаны пустыми (бледный цвет, пунктирный контур), следующая выделена двойным кольцом крупнее. Направление ряда меняется на каждом ряду, стрелка в word chart показывает, с какой стороны начинать; word chart строится из реальных данных ряда.</li>
+<li><b>Нижняя панель 160 pt</b> (счётчик вынесен в шапку, чтобы панель не росла): word chart + кнопки «назад» (отмена шага), «Следующая бусина», «Ряд готов». В режиме «по ряду» кнопка одна крупная («Ряд готов»). Кнопки внутри стекла плоские; текст ≥ 13 pt; зоны нажатия ≥ 44 pt (кнопки 60–64 pt).</li>
+<li><b>Счётчик ряда в шапке:</b> «Ряд 42 из 180» — 13 pt Semibold с моноширинными цифрами и тонкая полоса прогресса. Это отступление от единого 40 pt стиля из 01b: по промпту шапка компактная, а 40 pt в нижней панели сделал бы её выше 190 pt. Если ревью предпочтёт крупный счётчик, его место в панели вместо word chart в режиме «по ряду».</li>
+<li><b>Переключатели</b> «По ряду / По бусине» и «Aa» (символы) лежат в плавающей стеклянной полосе под шапкой, над схемой; режим символов подписывает бусины буквами A–D (цвет не единственный признак).</li>
+<li><b>Завершение:</b> баннер-комплимент вверху, все ряды без вуали, вместо word chart сообщение «Все 180 рядов выполнены», кнопки «Отменить последний ряд» и «Готово». Отмена после «Ряд готов» — тост «Отменить».</li>
+<li>Схема по умолчанию показана в масштабе «по ширине»: 16 бусин. Зум и панорама, как на экране с фото страницы, здесь не рисовались; нет Mac и клавиатуры.</li>
+</ul></div>
+<script>
+const I={chevL:'M15 5l-7 7 7 7',more:'M5 12h.01M12 12h.01M19 12h.01',undo:'M4 12h10a5 5 0 0 1 0 8h-3M8 8l-4 4 4 4',check:'M5 12l5 5 9-10',arrL:'M19 12H5M11 6l-6 6 6 6',arrR:'M5 12h14M13 6l6 6-6 6',dot:'M12 12h.01'};
+const ic=(n,s=24,w=2.4)=>`<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="${w}" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="${I[n]}"/></svg>`;
+const PAL=[{c:'#5B63B7',l:'A',f:'#fff'},{c:'#F2B84B',l:'B',f:'#1C1A1F'},{c:'#F4F0EA',l:'C',f:'#1C1A1F'},{c:'#D94F70',l:'D',f:'#fff'}];
+const COLS=16,CELL=23,FIRST=31,NROWS=22,GUT=34;
+const colorAt=(r,c)=>Math.floor((Math.abs(c-7.5)+Math.abs((r%12)-5.5))/3.4)%4;
+/* o: geom 'peyote'|'loom', cur, placed (-1 = режим по ряду), sym, done */
+function scheme(o){
+ const cur=o.cur,first=o.first??FIRST,dirL=cur%2===0; // чётные ряды читаем справа налево (←)
+ let h='',half=o.geom==='peyote';
+ for(let i=0;i<NROWS;i++){const r=first+i;const y=i*CELL+8;
+  h+=r===cur&&!o.done?`<div class="gc" style="top:${y+1}px">${r}</div>`:o.done&&r===cur?`<div class="gc" style="top:${y+1}px">${r}</div>`:`<div class="gn" style="top:${y}px;height:${CELL}px;line-height:${CELL}px;${r<cur||o.done?'opacity:.55':''}">${r}</div>`;
+  for(let c=0;c<COLS;c++){
+   const k=colorAt(r,c),p=PAL[k];
+   const x=GUT+c*CELL+2,yy=y+(half&&c%2?CELL/2:0)+1;
+   let cls='b',st=`left:${x}px;top:${yy}px;width:${CELL-4}px;height:${CELL-4}px;background:${p.c};color:${p.f}`;
+   if(!o.done&&r<cur)cls+=' past';
+   if(!o.done&&r===cur){
+    if(o.placed>=0){const idx=dirL?COLS-1-c:c;if(idx<o.placed){cls+=' cr'}else if(idx===o.placed){cls+=' nx'}else cls+=' hol'}
+    else if(half)cls+=' cr';
+   }
+   h+=`<div class="${cls}" style="${st}">${o.sym?p.l:''}</div>`}
+ }
+ if(o.geom==='loom'&&!o.done&&o.placed<0){const i=cur-first;h+=`<div class="band" style="left:${GUT-1}px;top:${i*CELL+8}px;width:${COLS*CELL+4}px;height:${CELL}px"></div>`}
+ return `<div class="sch">${h}</div>`;
+}
+function wchart(cur){const dirL=cur%2===0;const seq=[];for(let c=0;c<COLS;c++)seq.push(colorAt(cur,dirL?COLS-1-c:c));
+ const runs=[];seq.forEach(k=>{if(runs.length&&runs[runs.length-1].k===k)runs[runs.length-1].n++;else runs.push({k,n:1})});
+ return `<div class="wc"><span class="ar" role="img" aria-label="${dirL?'Справа налево':'Слева направо'}">${ic(dirL?'arrL':'arrR',26)}</span>${runs.map(r=>`<span class="it">${r.n}×<span class="dt" style="background:${PAL[r.k].c};color:${PAL[r.k].f}">${PAL[r.k].l}</span></span>`).join('')}</div>`}
+const header=(cur,total,extra='')=>`<div class="bar glass"><div class="tb">${ic('chevL',22,2.2)}</div><div class="t"><b>Браслет «Рябина»</b><span>Ряд ${cur} из ${total}</span><div class="pb"><i style="width:${Math.round(cur/total*100)}%"></i></div></div><div class="tb" aria-label="Ещё">${ic('more',24,3)}</div></div>`;
+const toggles=(byBead,sym)=>`<div class="tog"><div class="msg glass"><div class="${byBead?'':'s'}">По ряду</div><div class="${byBead?'s':''}">По бусине</div></div><div class="sym glass ${sym?'on':''}" aria-label="Режим символов">Aa</div></div>`;
+const btnBead=`<div class="r2"><div class="b1" aria-label="Отменить шаг">${ic('undo',26)}</div><div class="b2">Следующая бусина</div><div class="b3">${ic('check',20,3)}Ряд готов</div></div>`;
+const btnRow=`<div class="r2"><div class="b1" aria-label="Отменить шаг">${ic('undo',26)}</div><div class="b2">${ic('check',24,3)}Ряд готов</div></div>`;
+const panel=(cur,btn)=>`<div class="bot dense">${wchart(cur)}${btn}</div>`;
+const screens=[
+ ['1 · Начало ряда (пейот, по бусине)',()=>header(42,180)+toggles(true,false)+scheme({geom:'peyote',cur:42,placed:0})+panel(42,btnBead)+'<div class="home"></div>'],
+ ['2 · Середина ряда по бусине (выложено 7 из 16)',()=>header(42,180)+toggles(true,false)+scheme({geom:'peyote',cur:42,placed:7})+panel(42,btnBead)+'<div class="home"></div>'],
+ ['3 · Режим символов',()=>header(42,180)+toggles(true,true)+scheme({geom:'peyote',cur:42,placed:7,sym:true})+panel(42,btnBead)+'<div class="home"></div>'],
+ ['4 · Станок, по ряду, тост «Отменить»',()=>header(42,180)+toggles(false,false)+scheme({geom:'loom',cur:42,placed:-1})+`<div class="toast dense"><span>Ряд 41 готов</span><div class="tb">Отменить</div></div>`+panel(42,btnRow)+'<div class="home"></div>'],
+ ['5 · Завершение проекта (баннер-комплимент)',()=>header(180,180)+`<div class="banner glass"><i></i>Проект готов. Красиво получилось!</div>`+scheme({geom:'peyote',cur:180,first:159,placed:-1,done:true})+`<div class="bot dense"><div class="wc" style="font-size:16px"><span class="ar">${ic('check',24,3)}</span>Все 180 рядов выполнены</div><div class="r2"><div class="b1" aria-label="Отменить последний ряд">${ic('undo',26)}</div><div class="b2">Готово</div></div></div><div class="home"></div>`]
+];
+let mode='light';
+function render(){
+ const st=document.getElementById('stage');st.innerHTML='';
+ document.body.classList.toggle('dp',mode==='dark');
+ (mode==='both'?['light','dark']:[mode]).forEach(th=>{
+  const row=document.createElement('div');row.className='row';
+  screens.forEach(s=>{const c=document.createElement('div');c.className='cell';
+   c.innerHTML=`<div class="phone" data-theme="${th}">${s[1]()}</div><div class="cap">${s[0]} · ${th==='dark'?'тёмная':'светлая'}</div>`;row.appendChild(c)});
+  st.appendChild(row)});
+}
+document.querySelectorAll('.seg button').forEach(b=>b.onclick=()=>{mode=b.dataset.m;document.querySelectorAll('.seg button').forEach(x=>x.setAttribute('aria-pressed',x===b));render()});
+render();
+</script>
+</body>
+</html>
