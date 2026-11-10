@@ -3,21 +3,15 @@ import 'package:beading/presentation/l10n/app_localizations.dart';
 import 'package:beading/presentation/library/new_project_entry.dart';
 import 'package:beading/presentation/library/project_labels.dart';
 import 'package:beading/presentation/theme/tokens.dart';
-import 'package:beading/presentation/widgets/glass/glass_sheet.dart';
 import 'package:flutter/cupertino.dart';
 
-/// Показывает лист «Новый проект»: сначала ремесло, затем способы создания из [registry].
-/// Выбранный пункт запускается после закрытия листа с [context] экрана-владельца.
+/// Показывает системный iOS-лист «Новый проект»: сначала ремесло, затем способы создания из [registry].
+/// Лист тянется пальцем и закрывается свайпом вниз. Выбранный пункт запускается после закрытия листа
+/// с [context] экрана-владельца.
 Future<void> showNewProjectSheet(BuildContext context, NewProjectRegistry registry, {Craft? initialCraft}) async {
-  final NewProjectEntry? chosen = await showCupertinoModalPopup<NewProjectEntry>(
+  final NewProjectEntry? chosen = await showCupertinoSheet<NewProjectEntry>(
     context: context,
-    builder: (_) => Align(
-      alignment: Alignment.bottomCenter,
-      child: ConstrainedBox(
-        constraints: const BoxConstraints(maxWidth: 560),
-        child: NewProjectSheet(registry: registry, initialCraft: initialCraft),
-      ),
-    ),
+    builder: (_) => NewProjectSheet(registry: registry, initialCraft: initialCraft),
   );
   if (chosen != null && context.mounted) {
     await chosen.onSelected(context);
@@ -54,60 +48,58 @@ class _NewProjectSheetState extends State<NewProjectSheet> {
     final Craft? craft = _craft;
     final List<NewProjectEntry> entries = craft == null ? const <NewProjectEntry>[] : widget.registry.entriesFor(craft);
 
-    return GlassSheet(
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: <Widget>[
-          Text(
-            l10n.libraryNewProject,
-            textAlign: TextAlign.center,
-            style: base.copyWith(fontSize: 17, fontWeight: FontWeight.w600),
-          ),
-          SizedBox(height: tokens.spacing.m),
-          if (crafts.length > 1 && craft != null) ...<Widget>[
-            CupertinoSlidingSegmentedControl<Craft>(
-              groupValue: craft,
-              children: <Craft, Widget>{
-                for (final Craft c in crafts)
-                  c: ConstrainedBox(
-                    constraints: BoxConstraints(minHeight: tokens.minTapTarget - 4),
-                    child: Center(child: Text(c.label(l10n))),
-                  ),
-              },
-              onValueChanged: (value) => setState(() => _craft = value),
-            ),
-            SizedBox(height: tokens.spacing.m),
-          ],
-          if (entries.isEmpty)
-            Padding(
-              padding: EdgeInsets.symmetric(vertical: tokens.spacing.xl),
-              child: Text(
-                l10n.newProjectNoEntries,
-                textAlign: TextAlign.center,
-                style: base.copyWith(color: CupertinoColors.secondaryLabel.resolveFrom(context)),
-              ),
-            )
-          else
-            for (final NewProjectEntry entry in entries)
-              CupertinoButton(
-                padding: EdgeInsets.symmetric(vertical: tokens.spacing.m, horizontal: tokens.spacing.s),
-                minimumSize: Size.square(tokens.minTapTarget),
-                onPressed: () => Navigator.of(context).pop(entry),
-                child: Row(
-                  children: <Widget>[
-                    Icon(entry.icon),
-                    SizedBox(width: tokens.spacing.m),
-                    Expanded(
-                      child: Text(
-                        entry.title(l10n),
-                        style: base.copyWith(color: CupertinoColors.label.resolveFrom(context)),
+    return CupertinoPageScaffold(
+      navigationBar: CupertinoNavigationBar(
+        automaticallyImplyLeading: false,
+        middle: Text(l10n.libraryNewProject),
+        trailing: CupertinoButton(
+          padding: EdgeInsets.zero,
+          minimumSize: Size.square(tokens.minTapTarget),
+          onPressed: () => Navigator.of(context).pop(),
+          child: Text(l10n.cancel),
+        ),
+      ),
+      child: SafeArea(
+        child: ListView(
+          children: <Widget>[
+            if (crafts.length > 1 && craft != null)
+              Padding(
+                padding: EdgeInsets.fromLTRB(tokens.spacing.l, tokens.spacing.m, tokens.spacing.l, tokens.spacing.s),
+                child: CupertinoSlidingSegmentedControl<Craft>(
+                  groupValue: craft,
+                  children: <Craft, Widget>{
+                    for (final Craft c in crafts)
+                      c: ConstrainedBox(
+                        constraints: BoxConstraints(minHeight: tokens.minTapTarget - 4),
+                        child: Center(child: Text(c.label(l10n))),
                       ),
-                    ),
-                  ],
+                  },
+                  onValueChanged: (value) => setState(() => _craft = value),
                 ),
               ),
-        ],
+            if (entries.isEmpty)
+              Padding(
+                padding: EdgeInsets.all(tokens.spacing.xl),
+                child: Text(
+                  l10n.newProjectNoEntries,
+                  textAlign: TextAlign.center,
+                  style: base.copyWith(color: CupertinoColors.secondaryLabel.resolveFrom(context)),
+                ),
+              )
+            else
+              CupertinoListSection.insetGrouped(
+                children: <Widget>[
+                  for (final NewProjectEntry entry in entries)
+                    CupertinoListTile(
+                      leading: Icon(entry.icon),
+                      title: Text(entry.title(l10n)),
+                      trailing: const CupertinoListTileChevron(),
+                      onTap: () => Navigator.of(context).pop(entry),
+                    ),
+                ],
+              ),
+          ],
+        ),
       ),
     );
   }

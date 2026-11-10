@@ -14,6 +14,7 @@ import 'package:beading/presentation/l10n/app_localizations.dart';
 import 'package:beading/presentation/settings/settings_cubit.dart';
 import 'package:beading/presentation/theme/app_theme.dart';
 import 'package:beading/presentation/theme/theme_mode_cubit.dart';
+import 'package:beading/presentation/widgets/dismiss_focus_on_tap.dart';
 import 'package:beading/presentation/widgets/glass/reduce_transparency_scope.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -79,7 +80,7 @@ class _BeadingAppState extends State<BeadingApp> {
             context,
             ReduceTransparencyScope(
               source: getIt<ReduceTransparencySource>(),
-              child: ComplimentOverlay(child: child ?? const SizedBox.shrink()),
+              child: DismissFocusOnTap(child: ComplimentOverlay(child: child ?? const SizedBox.shrink())),
             ),
           ),
         ),

@@ -112,7 +112,11 @@ class RulerState extends Equatable {
     final double limit = math.max(minHeight, imageHeight);
     final double next = value.clamp(minHeight, limit);
     // Линейка растёт от начала ряда: при ходе снизу вверх неподвижен низ, а не верх.
-    return _copy(top: isBottomUp ? bottom - next : top, height: next).fit(imageHeight);
+    // Шаг идёт за высотой, пока его не задали отдельно: иначе при любой высоте ряд сдвигается на прежнее значение.
+    final bool stepFollowsHeight = (step - height).abs() < _eps;
+    final double newTop = isBottomUp ? bottom - next : top;
+    final double newStep = stepFollowsHeight ? next : step;
+    return _copy(top: newTop, height: next, step: newStep).fit(imageHeight);
   }
 
   RulerState withStep(double value, double imageHeight) =>
