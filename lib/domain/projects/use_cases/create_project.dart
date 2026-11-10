@@ -24,6 +24,7 @@ class CreateProject {
     Technique? technique,
     ContentKind contentKind = ContentKind.image,
     String notes = '',
+    String? coverPath,
   }) async {
     final Result<String> validName = validateProjectName(name);
     if (validName case Err<String>(:final Failure failure)) {
@@ -41,7 +42,7 @@ class CreateProject {
       technique: chosen,
       contentKind: contentKind,
       notes: notes,
-      coverPath: null,
+      coverPath: coverPath,
       lastWorkedAt: _clock.now().toUtc(),
     );
     final Result<void> saved = await _repository.save(project);

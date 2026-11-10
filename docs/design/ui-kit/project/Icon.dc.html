@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<title>Иконка и пустые состояния</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0}
+.t{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","SF Pro",system-ui,sans-serif}
+.h2{margin:0 0 4px;font-size:28px;font-weight:700;letter-spacing:-.3px}
+.cap{margin:0;font-size:15px;line-height:1.45;color:#5F5954}
+</style>
+</helmet>
+<div class="t" style="width:1280px;height:1100px;box-sizing:border-box;padding:64px 72px;background:#F7F4EF;color:#1C1A1F;display:flex;flex-direction:column;gap:44px">
+
+<div style="display:flex;flex-direction:column;gap:20px">
+<div><h2 class="h2">4. Иконка приложения</h2><p class="cap">Нить с тремя бусинами по диагонали: читается и в 60 × 60, и в 29 × 29. Фон — тёплый градиент, бусины — стеклянные с бликом.</p></div>
+<div style="display:flex;gap:36px;align-items:flex-end">
+<sc-for list="{{sizes}}" as="s" hint-placeholder-count="4">
+<div style="display:flex;flex-direction:column;gap:8px;align-items:center">
+<svg width="{{s.px}}" height="{{s.px}}" viewBox="0 0 120 120" role="img" aria-label="Иконка Бисер, {{s.px}} pt">
+<defs>
+<linearGradient id="bg{{s.px}}" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#F3A06A"/><stop offset="1" stop-color="#9C3F14"/></linearGradient>
+<radialGradient id="b1{{s.px}}" cx="35%" cy="30%" r="75%"><stop offset="0" stop-color="#FFFFFF"/><stop offset=".25" stop-color="#7FD9D3"/><stop offset="1" stop-color="#1F6F6F"/></radialGradient>
+<radialGradient id="b2{{s.px}}" cx="35%" cy="30%" r="75%"><stop offset="0" stop-color="#FFFFFF"/><stop offset=".25" stop-color="#FFE29A"/><stop offset="1" stop-color="#C98A12"/></radialGradient>
+<radialGradient id="b3{{s.px}}" cx="35%" cy="30%" r="75%"><stop offset="0" stop-color="#FFFFFF"/><stop offset=".25" stop-color="#F5A3B9"/><stop offset="1" stop-color="#A52B52"/></radialGradient>
+</defs>
+<rect width="120" height="120" rx="27" fill="url(#bg{{s.px}})"/>
+<path d="M-4 92 C30 82 50 40 124 28" fill="none" stroke="#FFF4E6" stroke-width="3" stroke-linecap="round" opacity=".9"/>
+<circle cx="32" cy="76" r="19" fill="url(#b1{{s.px}})"/>
+<circle cx="62" cy="55" r="19" fill="url(#b2{{s.px}})"/>
+<circle cx="92" cy="36" r="19" fill="url(#b3{{s.px}})"/>
+<circle cx="32" cy="76" r="5.5" fill="#9C3F14" opacity=".55"/>
+<circle cx="62" cy="55" r="5.5" fill="#9C3F14" opacity=".55"/>
+<circle cx="92" cy="36" r="5.5" fill="#9C3F14" opacity=".55"/>
+</svg>
+<div style="font-size:12px;color:#5F5954">{{s.px}} pt</div>
+</div>
+</sc-for>
+</div>
+</div>
+
+<div style="display:flex;flex-direction:column;gap:20px">
+<div><h2 class="h2">Пустые состояния</h2><p class="cap">Маленькая графика из бусин, одна фраза и одно действие. Контент непрозрачный, стекло только у кнопки действия.</p></div>
+<div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px">
+<sc-for list="{{empties}}" as="e" hint-placeholder-count="2">
+<div style="background:{{e.bg}};color:{{e.fg}};border-radius:24px;padding:28px;display:flex;flex-direction:column;align-items:center;gap:14px;text-align:center">
+<svg width="140" height="84" viewBox="0 0 140 84" role="img" aria-label="Нить с бусинами">
+<path d="M4 64 C40 70 60 20 136 18" fill="none" stroke="{{e.thread}}" stroke-width="2.5" stroke-linecap="round"/>
+<circle cx="24" cy="63" r="11" fill="#D94F70"/><circle cx="52" cy="50" r="11" fill="#F2B84B"/><circle cx="82" cy="36" r="11" fill="#5FC4BF"/><circle cx="112" cy="24" r="11" fill="#5B63B7"/>
+<circle cx="20" cy="59" r="3" fill="#fff" opacity=".7"/><circle cx="48" cy="46" r="3" fill="#fff" opacity=".7"/><circle cx="78" cy="32" r="3" fill="#fff" opacity=".7"/><circle cx="108" cy="20" r="3" fill="#fff" opacity=".7"/>
+</svg>
+<div style="font-size:20px;font-weight:700">{{e.title}}</div>
+<div style="font-size:15px;opacity:.75;max-width:300px">{{e.text}}</div>
+<div style="height:48px;padding:0 24px;border-radius:24px;background:{{e.btn}};color:{{e.btnFg}};display:flex;align-items:center;font-size:16px;font-weight:700">{{e.action}}</div>
+</div>
+</sc-for>
+</div>
+</div>
+
+<div style="display:flex;flex-direction:column;gap:14px">
+<div><h2 class="h2">Что критично, а что можно упростить для iOS ниже 26</h2></div>
+<div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:20px;font-size:14px;line-height:1.5">
+<div style="background:#fff;border:1px solid #E0DAD1;border-radius:20px;padding:20px"><b style="font-size:15px">Критично (iOS 26 и macOS 26)</b><br>Адаптация контраста к фону под стеклом; капсульные формы, концентричные углам экрана; плотный вариант стекла над яркой схемой; сворачивание нижней панели при прокрутке; тинт акцента только на основной кнопке.</div>
+<div style="background:#fff;border:1px solid #E0DAD1;border-radius:20px;padding:20px"><b style="font-size:15px">Можно упростить (iOS 17–25)</b><br>Преломление и «жидкая» морфинг-анимация → обычный blur материала (ultraThin / regular) + заливка 55–82%; блик → обводка 1 pt белая 22–70%; интерактивная подсветка при касании → лёгкое масштабирование 0.97. Формы и размеры остаются прежними.</div>
+</div>
+</div>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":1100}}'>
+class Component extends DCLogic {
+  renderVals() {
+    return {
+      sizes: [{px:180},{px:120},{px:60},{px:29}],
+      empties: [
+        { bg:'#FFFFFF', fg:'#1C1A1F', thread:'#B5541C', btn:'#B5541C', btnFg:'#FFFFFF', title:'Пока нет проектов', text:'Добавьте схему из книги или нарисуйте свою.', action:'Новый проект' },
+        { bg:'#201D22', fg:'#F4F0EA', thread:'#F0955A', btn:'#F0955A', btnFg:'#1C1A1F', title:'В палитре пока пусто', text:'Выберите цвета из каталога по артикулу.', action:'Добавить цвет' }
+      ]
+    };
+  }
+}
+</script>
+</body>
+</html>

@@ -8,6 +8,11 @@ import 'package:beading/data/db/app_database.dart';
 import 'package:beading/data/db/open_database.dart';
 import 'package:beading/data/easter_eggs/asset_compliment_source.dart';
 import 'package:beading/data/easter_eggs/drift_easter_egg_log.dart';
+import 'package:beading/data/image_pattern/drift_image_pattern_repository.dart';
+import 'package:beading/data/image_pattern/local_file_store.dart';
+import 'package:beading/data/image_pattern/pdfrx_pdf_rasterizer.dart';
+import 'package:beading/data/image_pattern/picker_book_image_source.dart';
+import 'package:beading/data/image_pattern/ui_image_processor.dart';
 import 'package:beading/data/platform/method_channel_reduce_transparency_source.dart';
 import 'package:beading/data/platform/wakelock_plus_screen_wake_lock.dart';
 import 'package:beading/data/projects/drift_project_repository.dart';
@@ -21,6 +26,15 @@ import 'package:beading/domain/easter_eggs/easter_egg_policy.dart';
 import 'package:beading/domain/easter_eggs/easter_egg_service.dart';
 import 'package:beading/domain/easter_eggs/long_session_watcher.dart';
 import 'package:beading/domain/events/app_events.dart';
+import 'package:beading/domain/image_pattern/file_store.dart';
+import 'package:beading/domain/image_pattern/image_pattern_content.dart';
+import 'package:beading/domain/image_pattern/image_pattern_repository.dart';
+import 'package:beading/domain/image_pattern/image_processor.dart';
+import 'package:beading/domain/image_pattern/pdf_rasterizer.dart';
+import 'package:beading/domain/image_pattern/picked_book_file.dart';
+import 'package:beading/domain/image_pattern/use_cases/import_book_pattern.dart';
+import 'package:beading/domain/projects/project_content_cleaner.dart';
+import 'package:beading/domain/projects/project_content_cloner.dart';
 import 'package:beading/domain/projects/project_repository.dart';
 import 'package:beading/domain/projects/use_cases/change_project_status.dart';
 import 'package:beading/domain/projects/use_cases/create_project.dart';
@@ -40,6 +54,7 @@ import 'package:beading/domain/settings/secret_tap_handler.dart';
 import 'package:beading/domain/settings/settings_repository.dart';
 import 'package:beading/domain/settings/wakelock_controller.dart';
 import 'package:beading/presentation/easter_eggs/compliment_banner_cubit.dart';
+import 'package:beading/presentation/import_book/import_book_cubit.dart';
 import 'package:beading/presentation/settings/settings_cubit.dart';
 import 'package:beading/presentation/theme/theme_mode_cubit.dart';
 import 'package:get_it/get_it.dart';
@@ -106,7 +121,54 @@ Future<void> configureDependencies({GetIt? locator, AppDatabase? database}) asyn
     )
     ..registerFactory<RenameProject>(() => RenameProject(container<ProjectRepository>()))
     ..registerFactory<UpdateNotes>(() => UpdateNotes(container<ProjectRepository>()))
-    ..registerFactory<DeleteProject>(() => DeleteProject(container<ProjectRepository>()))
+    ..registerLazySingleton<FileStore>(LocalFileStore.applicationSupport)
+    ..registerLazySingleton<ImageProcessor>(UiImageProcessor.new)
+    ..registerLazySingleton<PdfRasterizer>(PdfrxPdfRasterizer.new)
+    ..registerLazySingleton<BookImageSource>(PickerBookImageSource.new)
+    ..registerLazySingleton<ImagePatternRepository>(
+      () => DriftImagePatternRepository(
+        dao: db.imagePatternsDao,
+        deviceIds: container<DeviceIdProvider>(),
+        clock: container<Clock>(),
+      ),
+    )
+    ..registerLazySingleton<ImagePatternContentCleaner>(
+      () => ImagePatternContentCleaner(
+        patterns: container<ImagePatternRepository>(),
+        files: container<FileStore>(),
+      ),
+    )
+    ..registerLazySingleton<ImagePatternContentCloner>(
+      () => ImagePatternContentCloner(
+        patterns: container<ImagePatternRepository>(),
+        projects: container<ProjectRepository>(),
+        files: container<FileStore>(),
+        ids: container<IdGenerator>(),
+      ),
+    )
+    ..registerFactory<ImportBookPattern>(
+      () => ImportBookPattern(
+        createProject: container<CreateProject>(),
+        projects: container<ProjectRepository>(),
+        patterns: container<ImagePatternRepository>(),
+        processor: container<ImageProcessor>(),
+        files: container<FileStore>(),
+        ids: container<IdGenerator>(),
+      ),
+    )
+    ..registerFactory<ImportBookCubit>(
+      () => ImportBookCubit(
+        source: container<BookImageSource>(),
+        rasterizer: container<PdfRasterizer>(),
+        importBookPattern: container<ImportBookPattern>(),
+      ),
+    )
+    ..registerFactory<DeleteProject>(
+      () => DeleteProject(
+        container<ProjectRepository>(),
+        cleaners: <ProjectContentCleaner>[container<ImagePatternContentCleaner>()],
+      ),
+    )
     ..registerFactory<WatchProjects>(() => WatchProjects(container<ProjectRepository>()))
     ..registerFactory<TouchProject>(
       () => TouchProject(repository: container<ProjectRepository>(), clock: container<Clock>()),
@@ -114,12 +176,13 @@ Future<void> configureDependencies({GetIt? locator, AppDatabase? database}) asyn
     ..registerFactory<ChangeProjectStatus>(
       () => ChangeProjectStatus(repository: container<ProjectRepository>(), events: container<AppEvents>()),
     )
-    // Клонеры содержимого (`ProjectContentCloner`) подключат T06 и T14: они же перерегистрируют эту фабрику.
+    // Клонеры содержимого: схемы-картинки — T06; сетки подключит T14 в этом же списке.
     ..registerFactory<DuplicateProject>(
       () => DuplicateProject(
         repository: container<ProjectRepository>(),
         ids: container<IdGenerator>(),
         clock: container<Clock>(),
+        cloners: <ProjectContentCloner>[container<ImagePatternContentCloner>()],
       ),
     )
     ..registerLazySingleton<EasterEggLog>(() => DriftEasterEggLog(db.easterEggLogDao))

@@ -1,11 +1,17 @@
 {
   "@@locale": "ru",
   "appTitle": "Бисер",
-  "@appTitle": {"description": "Название приложения"},
+  "@appTitle": {
+    "description": "Название приложения"
+  },
   "libraryTitle": "Мои работы",
-  "@libraryTitle": {"description": "Заголовок главного экрана со списком проектов"},
+  "@libraryTitle": {
+    "description": "Заголовок главного экрана со списком проектов"
+  },
   "settingsTitle": "Настройки",
-  "@settingsTitle": {"description": "Заголовок экрана настроек и подпись кнопки открытия настроек"},
+  "@settingsTitle": {
+    "description": "Заголовок экрана настроек и подпись кнопки открытия настроек"
+  },
   "settingsSectionAppearance": "Оформление",
   "settingsThemeLabel": "Тема",
   "settingsThemeSystem": "Как в системе",
@@ -24,7 +30,13 @@
   "aboutTitle": "О приложении",
   "aboutTagline": "Каждая бусинка на своём месте. Плети с удовольствием!",
   "aboutVersion": "Версия {version}",
-  "@aboutVersion": {"placeholders": {"version": {"type": "String"}}},
+  "@aboutVersion": {
+    "placeholders": {
+      "version": {
+        "type": "String"
+      }
+    }
+  },
   "hiddenTitle": "Секретный раздел",
   "hiddenSectionName": "Как к тебе обращаться",
   "hiddenNameHint": "Имя",
@@ -60,5 +72,159 @@
   "glassCheckProfileHint": "Цифры верны только в профильной сборке: flutter run --profile.",
   "glassCheckPause": "Пауза",
   "glassCheckResume": "Продолжить",
-  "glassCheckReset": "Сбросить цифры"
+  "glassCheckReset": "Сбросить цифры",
+  "libraryImportBook": "Схема из книги",
+  "@libraryImportBook": {
+    "description": "Кнопка в библиотеке: импорт схемы из книги"
+  },
+  "importBookTitle": "Схема из книги",
+  "@importBookTitle": {
+    "description": "Заголовок экрана импорта"
+  },
+  "importBookCancel": "Отмена",
+  "@importBookCancel": {
+    "description": "Закрыть экран импорта"
+  },
+  "importPickHint": "Сфотографируйте страницу книги или выберите готовые фото и PDF.",
+  "@importPickHint": {
+    "description": "Подсказка при выборе источника"
+  },
+  "importSourceCamera": "Снять на камеру",
+  "@importSourceCamera": {
+    "description": "Источник: камера"
+  },
+  "importSourcePhotos": "Выбрать из Фото",
+  "@importSourcePhotos": {
+    "description": "Источник: фотопленка"
+  },
+  "importSourceFiles": "Выбрать из Файлов (фото или PDF)",
+  "@importSourceFiles": {
+    "description": "Источник: файлы"
+  },
+  "importPdfTitle": "Страницы PDF",
+  "@importPdfTitle": {
+    "description": "Заголовок выбора страниц PDF"
+  },
+  "importPdfSelected": "Выбрано: {count} из {total}",
+  "@importPdfSelected": {
+    "description": "Счётчик выбранных страниц PDF",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "importPdfSelectAll": "Все",
+  "@importPdfSelectAll": {
+    "description": "Выбрать все страницы PDF"
+  },
+  "importPdfClear": "Снять",
+  "@importPdfClear": {
+    "description": "Снять выбор страниц PDF"
+  },
+  "importPdfContinue": "Продолжить",
+  "@importPdfContinue": {
+    "description": "Перейти к проверке страниц"
+  },
+  "importPdfPageLabel": "Страница {page}",
+  "@importPdfPageLabel": {
+    "description": "Подпись страницы PDF в сетке",
+    "placeholders": {
+      "page": {
+        "type": "int"
+      }
+    }
+  },
+  "importReviewTitle": "Страницы схемы",
+  "@importReviewTitle": {
+    "description": "Заголовок проверки страниц"
+  },
+  "importNameLabel": "Название",
+  "@importNameLabel": {
+    "description": "Подпись поля названия проекта"
+  },
+  "importCraftBeading": "Бисер",
+  "@importCraftBeading": {
+    "description": "Ремесло: бисер"
+  },
+  "importCraftCrossStitch": "Вышивка",
+  "@importCraftCrossStitch": {
+    "description": "Ремесло: вышивка"
+  },
+  "importAddMore": "Добавить ещё",
+  "@importAddMore": {
+    "description": "Добавить страницы"
+  },
+  "importSubmit": "Импортировать",
+  "@importSubmit": {
+    "description": "Создать проект из страниц"
+  },
+  "importRotate": "Повернуть",
+  "@importRotate": {
+    "description": "Повернуть страницу"
+  },
+  "importCrop": "Обрезать",
+  "@importCrop": {
+    "description": "Обрезать страницу"
+  },
+  "importRemove": "Убрать",
+  "@importRemove": {
+    "description": "Убрать страницу"
+  },
+  "importCropped": "Обрезана",
+  "@importCropped": {
+    "description": "Пометка у обрезанной страницы"
+  },
+  "importPageNumber": "Страница {number}",
+  "@importPageNumber": {
+    "description": "Подпись страницы в списке",
+    "placeholders": {
+      "number": {
+        "type": "int"
+      }
+    }
+  },
+  "importCropTitle": "Обрезка",
+  "@importCropTitle": {
+    "description": "Заголовок обрезки"
+  },
+  "importCropReset": "Сбросить",
+  "@importCropReset": {
+    "description": "Сбросить рамку обрезки"
+  },
+  "importCropDone": "Готово",
+  "@importCropDone": {
+    "description": "Применить обрезку"
+  },
+  "importSaving": "Сохраняем страницы…",
+  "@importSaving": {
+    "description": "Идёт импорт"
+  },
+  "importProblemSourceUnavailable": "Нет доступа к камере или Фото. Разрешите его в настройках.",
+  "@importProblemSourceUnavailable": {
+    "description": "Ошибка источника"
+  },
+  "importProblemUnreadable": "Не удалось прочитать картинку. Попробуйте другой файл.",
+  "@importProblemUnreadable": {
+    "description": "Ошибка чтения картинки"
+  },
+  "importProblemPdfFailed": "Не удалось открыть PDF.",
+  "@importProblemPdfFailed": {
+    "description": "Ошибка PDF"
+  },
+  "importProblemSaveFailed": "Не удалось сохранить схему. Проверьте свободное место.",
+  "@importProblemSaveFailed": {
+    "description": "Ошибка сохранения"
+  },
+  "importProblemNoPages": "Выберите хотя бы одну страницу.",
+  "@importProblemNoPages": {
+    "description": "Нет страниц"
+  },
+  "importProblemEmptyName": "Введите название.",
+  "@importProblemEmptyName": {
+    "description": "Пустое название"
+  }
 }

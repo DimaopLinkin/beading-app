@@ -5,6 +5,7 @@ import 'package:beading/core/clock.dart';
 import 'package:beading/core/id_generator.dart';
 import 'package:beading/data/easter_eggs/asset_compliment_source.dart';
 import 'package:beading/data/easter_eggs/drift_easter_egg_log.dart';
+import 'package:beading/data/image_pattern/drift_image_pattern_repository.dart';
 import 'package:beading/data/platform/method_channel_reduce_transparency_source.dart';
 import 'package:beading/data/platform/wakelock_plus_screen_wake_lock.dart';
 import 'package:beading/data/settings/drift_device_id_provider.dart';
@@ -15,6 +16,10 @@ import 'package:beading/domain/easter_eggs/compliment_source.dart';
 import 'package:beading/domain/easter_eggs/easter_egg_log.dart';
 import 'package:beading/domain/easter_eggs/easter_egg_service.dart';
 import 'package:beading/domain/easter_eggs/long_session_watcher.dart';
+import 'package:beading/domain/image_pattern/image_pattern_repository.dart';
+import 'package:beading/domain/image_pattern/use_cases/import_book_pattern.dart';
+import 'package:beading/domain/projects/use_cases/delete_project.dart';
+import 'package:beading/domain/projects/use_cases/duplicate_project.dart';
 import 'package:beading/domain/settings/app_events_secret_tap_handler.dart';
 import 'package:beading/domain/settings/app_info.dart';
 import 'package:beading/domain/settings/device_id_provider.dart';
@@ -57,6 +62,10 @@ void main() {
     expect(locator<ComplimentSource>(), isA<AssetComplimentSource>());
     expect(locator<EasterEggService>(), same(locator<EasterEggService>()));
     expect(locator<LongSessionWatcher>(), isA<LongSessionWatcher>());
+    expect(locator<ImagePatternRepository>(), isA<DriftImagePatternRepository>());
+    expect(locator<ImportBookPattern>(), isA<ImportBookPattern>());
+    expect(locator<DeleteProject>(), isA<DeleteProject>());
+    expect(locator<DuplicateProject>(), isA<DuplicateProject>());
   });
 
   test('повторная настройка не падает и пересоздаёт регистрации', () async {

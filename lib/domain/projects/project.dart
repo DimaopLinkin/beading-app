@@ -51,6 +51,19 @@ class Project extends Equatable {
     lastWorkedAt: lastWorkedAt ?? this.lastWorkedAt,
   );
 
+  /// Копия с другой обложкой; `null` убирает обложку.
+  Project withCoverPath(String? path) => Project(
+    id: id,
+    name: name,
+    status: status,
+    craft: craft,
+    technique: technique,
+    contentKind: contentKind,
+    notes: notes,
+    coverPath: path,
+    lastWorkedAt: lastWorkedAt,
+  );
+
   @override
   List<Object?> get props => <Object?>[
     id,
