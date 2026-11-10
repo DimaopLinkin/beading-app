@@ -1,0 +1,196 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Бисер — Плетение по странице книги (04-book-ruler v2)</title>
+<style>
+:root{--font:-apple-system,BlinkMacSystemFont,"SF Pro Text","SF Pro",system-ui,sans-serif}
+*{box-sizing:border-box}
+body{margin:0;font-family:var(--font);background:#CFC8BC;color:#1C1A1F}
+body.dp{background:#0B0A0C;color:#F4F0EA}
+.top{position:sticky;top:0;z-index:50;display:flex;gap:12px;align-items:center;flex-wrap:wrap;padding:12px 24px;background:rgba(247,244,239,.92);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-bottom:1px solid rgba(0,0,0,.12)}
+body.dp .top{background:rgba(21,19,22,.92);border-color:rgba(255,255,255,.14)}
+.top h1{margin:0;font-size:18px;flex:1;min-width:220px}
+.seg{display:flex;padding:3px;border-radius:22px;background:rgba(120,110,100,.25)}
+.seg button{border:0;background:transparent;color:inherit;font:600 14px var(--font);padding:9px 16px;border-radius:19px;cursor:pointer;min-height:44px}
+.seg button[aria-pressed="true"]{background:#fff;color:#1C1A1F;box-shadow:0 1px 3px rgba(0,0,0,.2)}
+.stage{padding:28px 24px 40px;display:flex;flex-direction:column;gap:44px}
+.row{display:flex;flex-wrap:wrap;gap:28px;justify-content:center}
+.cell{display:flex;flex-direction:column;gap:10px;align-items:center}
+.cap{font-size:14px;font-weight:600;max-width:428px;text-align:center;opacity:.9}
+.note{max-width:920px;margin:0 auto;font-size:15px;line-height:1.55;padding:0 24px 60px}
+.note h2{font-size:20px;margin:0 0 8px}
+.note ul{margin:6px 0 12px;padding-left:20px}
+.fig{display:flex;gap:18px;align-items:center;flex-wrap:wrap;margin:14px 0}
+.mini{position:relative;width:130px;height:230px;border-radius:18px;background:#2A2420;overflow:hidden;border:1px solid rgba(0,0,0,.3)}
+.mini .pg{position:absolute;left:12px;right:12px;top:0;height:400px;background:repeating-linear-gradient(0deg,#5FC4BF 0 7px,#D94F70 7px 14px);opacity:.9}
+.mini .rl{position:absolute;left:0;right:0;height:14px;background:rgba(181,84,28,.3);box-shadow:0 0 0 2px #151316,0 0 0 4px #fff}
+.mini .pn{position:absolute;left:8px;right:8px;bottom:8px;height:44px;border-radius:22px;background:rgba(255,255,255,.85)}
+.mini .vl{position:absolute;left:0;right:0;top:0;background:rgba(247,244,239,.62)}
+.mini .lb{position:absolute;left:0;right:0;top:6px;text-align:center;font-size:13px;font-weight:700;color:#1C1A1F}
+
+.phone{--bg:#F7F4EF;--surf:#FFF;--surf2:#EFEBE4;--ink:#1C1A1F;--ink2:#5F5954;--sep:#E0DAD1;--acc:#B5541C;--onacc:#fff;--acct:#9A4513;--accg:rgba(181,84,28,.16);--danger:#C0362C;--veil:rgba(247,244,239,.62);
+ --glass:rgba(255,255,255,.55);--dense:rgba(255,255,255,.86);--gb:1px solid rgba(255,255,255,.85);--shadow:0 10px 28px rgba(0,0,0,.18);
+ position:relative;width:428px;height:926px;border-radius:52px;overflow:hidden;background:#2A2420;color:var(--ink);border:1px solid rgba(0,0,0,.25);box-shadow:0 18px 40px rgba(0,0,0,.28);flex:none;font-family:var(--font)}
+.phone[data-theme="dark"]{--bg:#151316;--surf:#201D22;--surf2:#2A262D;--ink:#F4F0EA;--ink2:#A9A29B;--sep:#3A353D;--acc:#F0955A;--onacc:#1C1A1F;--acct:#F0955A;--accg:rgba(240,149,90,.18);--danger:#FF7A6E;--veil:rgba(21,19,22,.62);
+ --glass:rgba(40,38,44,.5);--dense:rgba(28,26,32,.86);--gb:1px solid rgba(255,255,255,.26);--shadow:0 10px 28px rgba(0,0,0,.45);border-color:rgba(255,255,255,.18)}
+.glass{background:var(--glass);border:var(--gb);box-shadow:var(--shadow);backdrop-filter:blur(24px) saturate(1.6);-webkit-backdrop-filter:blur(24px) saturate(1.6)}
+.dense{background:var(--dense);border:var(--gb);box-shadow:var(--shadow);backdrop-filter:blur(32px) saturate(1.4);-webkit-backdrop-filter:blur(32px) saturate(1.4)}
+.bar{position:absolute;left:12px;right:12px;top:54px;height:60px;border-radius:30px;display:flex;align-items:center;justify-content:space-between;padding:0 8px;z-index:6}
+.bar .t{text-align:center;line-height:1.2}.bar .t b{display:block;font-size:17px;font-weight:700}
+.bar .t span{font-size:13px;color:var(--acct);font-weight:600;display:flex;align-items:center;justify-content:center;gap:2px}
+.tb{min-width:44px;height:44px;border-radius:22px;display:flex;align-items:center;justify-content:center;gap:2px;font-size:16px;font-weight:600;color:var(--acct);padding:0 10px}
+.home{position:absolute;left:50%;bottom:8px;margin-left:-67px;width:134px;height:5px;border-radius:3px;background:var(--ink);opacity:.5;z-index:9}
+
+/* page photo */
+.view{position:absolute;inset:0;overflow:hidden}
+.pgx{position:absolute;background:#F3ECDD;box-shadow:0 8px 24px rgba(0,0,0,.4)}
+.pgx .ln{position:absolute;height:5px;border-radius:2px;background:#8C8374;opacity:.55}
+.chart{position:absolute;display:grid}
+.chart i{display:block;border-radius:50%;border:1px solid rgba(0,0,0,.2);transform:scale(.86)}
+.rn{position:absolute;text-align:right;color:#6D6558;font-weight:600}
+.veil{position:absolute;left:0;right:0;background:var(--veil);z-index:2}
+.rul{position:absolute;left:0;right:0;z-index:3;background:rgba(181,84,28,.16);box-shadow:0 0 0 2px #151316,0 0 0 4.5px #fff,0 0 0 5.5px #151316}
+.phone[data-theme="dark"] .rul{background:rgba(240,149,90,.18)}
+/* метка и ручка вынесены за границы текущего ряда: «ухо» над/под линейкой и ручка у правого края */
+.ear{position:absolute;left:8px;z-index:4;height:30px;min-width:76px;padding:0 12px;border-radius:15px;background:var(--acc);color:var(--onacc);font-size:15px;font-weight:700;display:flex;align-items:center;justify-content:center;border:2px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,.35)}
+.grip{position:absolute;right:8px;z-index:4;width:64px;height:30px;border-radius:15px;background:var(--acc);color:var(--onacc);display:flex;align-items:center;justify-content:center;border:2px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,.35)}
+.zi{position:absolute;right:12px;top:124px;display:flex;gap:8px;z-index:6}
+.zi div{height:44px;border-radius:22px;display:flex;align-items:center;padding:0 16px;font-size:15px;font-weight:700}
+.zi .ind{color:var(--ink2);font-family:ui-monospace,"SF Mono",Menlo,monospace}
+.zi .btn{color:var(--acct)}
+.banner{position:absolute;left:24px;right:24px;top:124px;height:56px;border-radius:28px;display:flex;align-items:center;gap:12px;padding:0 20px 0 10px;font-size:16px;font-weight:600;z-index:6}
+.banner i{width:36px;height:36px;border-radius:18px;background:radial-gradient(circle at 35% 30%,#fff 0 12%,#F2B84B 14% 60%,#B5541C 100%);flex:none}
+.toast{position:absolute;left:24px;right:24px;bottom:124px;height:52px;border-radius:26px;display:flex;align-items:center;justify-content:space-between;padding:0 8px 0 20px;font-size:16px;font-weight:600;z-index:7}
+
+/* bottom panel (150 pt) */
+.bot{position:absolute;left:12px;right:12px;bottom:28px;border-radius:38px;padding:6px 12px 12px;display:flex;flex-direction:column;gap:6px;z-index:7}
+.gr{align-self:center;width:36px;height:5px;border-radius:3px;background:var(--ink2);opacity:.55;margin:2px 0 0}
+.r1{display:flex;align-items:center;gap:8px;padding:0 4px 0 10px}
+.cnt{font:600 40px/1.05 ui-monospace,"SF Mono",Menlo,monospace;font-variant-numeric:tabular-nums;flex:1}
+.cnt small{font:400 17px var(--font);color:var(--ink2)}
+.ib{width:48px;height:48px;border-radius:24px;background:var(--surf2);display:flex;align-items:center;justify-content:center;position:relative;color:var(--ink)}
+.ib .bd{position:absolute;right:-2px;top:-2px;min-width:22px;height:22px;border-radius:11px;background:var(--acc);color:var(--onacc);font-size:13px;font-weight:700;display:flex;align-items:center;justify-content:center;border:2px solid var(--dense)}
+.r2{display:flex;gap:10px}
+.b1{width:72px;height:64px;border-radius:32px;background:var(--surf2);display:flex;align-items:center;justify-content:center;color:var(--ink)}
+.b2{flex:1;height:64px;border-radius:32px;background:var(--acc);color:var(--onacc);display:flex;align-items:center;justify-content:center;gap:8px;font-size:19px;font-weight:700}
+.mini-bot{position:absolute;left:12px;right:12px;bottom:28px;height:72px;border-radius:36px;display:flex;align-items:center;gap:8px;padding:0 8px;z-index:7}
+.mini-bot .cnt{font-size:32px;text-align:center}
+.mini-bot .sb{width:56px;height:56px;border-radius:28px;background:var(--surf2);display:flex;align-items:center;justify-content:center;color:var(--ink)}
+.mini-bot .sb.a{background:var(--acc);color:var(--onacc)}
+/* sheet */
+.scrim{position:absolute;inset:0;background:rgba(0,0,0,.22);z-index:7}
+.sheet{position:absolute;left:8px;right:8px;bottom:8px;border-radius:44px;padding:10px 18px 28px;display:flex;flex-direction:column;gap:8px;z-index:8}
+.grab{width:40px;height:5px;border-radius:3px;background:var(--ink2);opacity:.55;align-self:center}
+.sh{display:flex;align-items:center;justify-content:space-between;padding:0 2px}
+.sh b{font-size:22px}.sh .tb{padding:0 6px}
+.fl{font-size:13px;font-weight:700;color:var(--ink2);text-transform:uppercase;letter-spacing:.6px;margin-top:2px}
+.cardf{background:var(--surf);border-radius:18px;padding:10px 12px;display:flex;flex-direction:column;gap:6px}
+.sg{display:flex;padding:3px;border-radius:22px;background:var(--surf2)}
+.sg div{flex:1;min-height:44px;display:flex;align-items:center;justify-content:center;gap:6px;border-radius:19px;font-size:16px;font-weight:600}
+.sg .s{background:var(--bg);font-weight:700;box-shadow:0 0 0 1px var(--sep)}
+.step{display:flex;align-items:center;gap:12px}
+.step .pm{width:44px;height:44px;border-radius:22px;background:var(--surf2);display:flex;align-items:center;justify-content:center}
+.step .v{flex:1;text-align:center;font-size:19px;font-weight:700}
+.help{font-size:13px;color:var(--ink2)}
+.sw{display:flex;gap:12px}
+.sw i{width:44px;height:44px;border-radius:22px;display:block;border:1px solid rgba(0,0,0,.2)}
+.sw i.sel{box-shadow:0 0 0 2px #151316,0 0 0 4.5px #fff,0 0 0 5.5px #151316}
+.sl{position:relative;height:40px;display:flex;align-items:center}
+.sl .tr{flex:1;height:8px;border-radius:4px;background:var(--surf2)}
+.sl .fi{position:absolute;left:0;height:8px;border-radius:4px;background:var(--acc)}
+.sl .th{position:absolute;width:32px;height:32px;border-radius:16px;background:#fff;border:2px solid var(--acc);margin-left:-16px}
+.vv{font-weight:700;font-size:16px;font-variant-numeric:tabular-nums}
+.note1{background:var(--surf);border-radius:20px;padding:12px 14px;display:flex;flex-direction:column;gap:4px;font-size:17px}
+.note1 .m{font-size:13px;color:var(--ink2);display:flex;gap:8px;align-items:center}
+.tag{padding:2px 8px;border-radius:10px;background:var(--accg);color:var(--acct);font-weight:700;font-size:13px}
+.addrow{display:flex;gap:10px;align-items:center}
+.inp{flex:1;height:52px;border-radius:26px;background:var(--surf);border:2px solid var(--acc);padding:0 18px;display:flex;align-items:center;font-size:17px;color:var(--ink2)}
+.send{width:52px;height:52px;border-radius:26px;background:var(--acc);color:var(--onacc);display:flex;align-items:center;justify-content:center}
+</style>
+</head>
+<body>
+<div class="top"><h1>Бисер · Схема из книги: линейка · 04-book-ruler v2</h1>
+<div class="seg" role="group" aria-label="Тема"><button data-m="light" aria-pressed="true">Светлая</button><button data-m="dark" aria-pressed="false">Тёмная</button><button data-m="both" aria-pressed="false">Обе рядом</button></div></div>
+<div class="stage" id="stage"></div>
+<div class="note"><h2>Что изменено в v2 (по ревью v1)</h2>
+<ul>
+<li><b>Метка и ручка не закрывают бусины текущего ряда.</b> Метка «Ряд 17» теперь «ухо» над линейкой (слева), ручка высоты «↕» — справа под линейкой, обе вне ряда: они лежат на притушенном пройденном ряду и на следующем. На ×1 и ×2,4 расположение то же. При направлении «снизу вверх» ухо и ручка меняются местами. Зона нажатия ручки и уха 44 pt (видимые 30 pt).</li>
+<li><b>Линейка держится над панелью.</b> Панель плетения теперь 150 pt (было 190+) и сворачивается в капсулу 72 pt (экран 7). Линейка стоит на ~40% высоты области над панелью, а при «Следующий ряд» двигается страница, а не линейка (схема ниже). У края страницы линейка начинает двигаться по странице.</li>
+<li><b>Направление рядов.</b> В листе «Линейка» новый переключатель «Сверху вниз / Снизу вверх»; экран 5 показывает «снизу вверх»: номера идут вверх, вуаль ложится под линейку, «Следующий ряд» получает стрелку ↑, а «назад» ↓. Различия пейота и кирпича по шагу сдвига задаются отдельно («полряда» в «Шаге сдвига»).</li>
+<li><b>Конец страницы и отмена.</b> Экран 6: последний ряд, баннер «Страница закончена», «Следующий ряд» заменён на «Следующая страница ›». Экран 7: тост «Ряд 18 · Отменить» после нажатия и свёрнутая панель. Переход к другой странице проекта: название в верхней панели «Страница 4 из 12 ▾».</li>
+<li><b>Масштаб и «По ширине» разделены:</b> индикатор «×2,4» (не кнопка) и отдельная кнопка «По ширине».</li>
+<li><b>Заливка линейки 16%</b> (в тёмной теме 18%, как в 01b).</li>
+</ul>
+<div class="fig" id="fig"></div>
+Прочее без изменений: двойной контур #151316 + #FFFFFF, вуаль 62%, счётчик 40 pt, стекло только на верхней и нижней панелях, чипах, тосте и листах; страница и заметки непрозрачные. Mac в этом промпте не рисовался.
+</div>
+<script>
+const I={
+ chevL:'M15 5l-7 7 7 7',chevR:'M9 5l7 7-7 7',chevUp:'M6 15l6-6 6 6',chevDn:'M6 9l6 6 6-6',chevUD:'M8 9l4-4 4 4M8 15l4 4 4-4',more:'M5 12h.01M12 12h.01M19 12h.01',
+ sliders:'M4 7h10M18 7h2M4 17h2M10 17h10M14 4v6M6 14v6',noteI:'M6 4h9l4 4v12H6zM14 4v5h5M9 13h6M9 16h4',
+ plus:'M12 6v12M6 12h12',minus:'M6 12h12',send:'M5 12l14-7-5 14-3-6z',zoom:'M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5',check:'M5 12l5 5 9-10',arrUp:'M12 19V5M6 11l6-6 6 6',arrDn:'M12 5v14M6 13l6 6 6-6'
+};
+const ic=(n,s=24,w=2.2)=>`<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="${w}" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="${I[n]}"/></svg>`;
+const PAL=['#D94F70','#F2B84B','#5FC4BF','#5B63B7','#F4F0EA'];
+const COLS=22,ROWS=38;
+/* o: s масштаб, left/y0 — центр линейки по Y, cx — x колонки в центре (для зума), row, rr рядов, dir 'down'|'up', fitTop — привязать последний ряд */
+function view(o){
+ const s=o.s,cell=16*s,g=28*s,ch=90*s,pw=(28+352+20)*s,ph=(90+ROWS*16+30)*s,dir=o.dir||'down';
+ const p=dir==='down'?o.row-1:ROWS-o.row;            // индекс ряда сверху
+ const top=o.top!=null?o.top:o.y0-(ch+(p+.5)*cell);
+ const left=o.left!=null?o.left:o.cx-(g+11*cell);
+ let cells='',nums='';
+ for(let r=0;r<ROWS;r++){nums+=`<div class="rn" style="left:0;width:${g-6*s}px;top:${ch+r*cell}px;height:${cell}px;line-height:${cell}px;font-size:${9*s}px">${dir==='down'?r+1:ROWS-r}</div>`;
+  for(let c=0;c<COLS;c++){const d=Math.abs(c-10.5)+Math.abs((r%14)-6.5);cells+=`<i style="background:${PAL[Math.floor(d)%5]}"></i>`}}
+ const lines=[14,26,38,50].map((t,i)=>`<i class="ln" style="left:${28*s}px;top:${t*s}px;width:${(200+i*40)*s}px;height:${5*s}px"></i>`).join('');
+ const pad=4;const rulTop=top+ch+(dir==='down'?p:p-(o.rr-1))*cell-pad,rulH=o.rr*cell+2*pad;
+ const rulBot=rulTop+rulH;
+ const veil=dir==='down'?`top:0;height:${rulTop}px`:`top:${rulBot}px;height:${926-rulBot}px`;
+ const earY=dir==='down'?rulTop-6-30:rulBot+6;
+ const gripY=dir==='down'?rulBot+6:rulTop-6-30;
+ return `<div class="view"><div class="pgx" style="left:${left}px;top:${top}px;width:${pw}px;height:${ph}px">${lines}${nums}
+  <div class="chart" style="left:${g}px;top:${ch}px;grid-template-columns:repeat(${COLS},${cell}px);grid-auto-rows:${cell}px">${cells}</div></div>
+  <div class="veil" style="${veil}"></div><div class="rul" style="top:${rulTop}px;height:${rulH}px"></div>
+  <div class="ear" style="top:${earY}px">Ряд ${o.row}</div><div class="grip" style="top:${gripY}px" aria-label="Высота линейки">${ic('chevUD',22,2.6)}</div></div>`;
+}
+const topbar=(page='Страница 4 из 12')=>`<div class="bar glass"><div class="tb">${ic('chevL',22)}Назад</div><div class="t"><b>Браслет «Рябина»</b><span>${page}${ic('chevDn',14,3)}</span></div><div class="tb" aria-label="Ещё">${ic('more',24,3)}</div></div>`;
+const panel=(o={})=>{const dir=o.dir||'down';const bk=dir==='down'?'chevUp':'chevDn',nx=dir==='down'?'chevDn':'chevUp';
+ return `<div class="bot dense"><div class="gr"></div><div class="r1"><div class="cnt">Ряд ${o.row||17} <small>из 38</small></div><div class="ib" aria-label="Настройки линейки">${ic('sliders',24)}</div><div class="ib" aria-label="Заметки">${ic('noteI',24)}<span class="bd">2</span></div></div><div class="r2"><div class="b1" aria-label="Назад на ряд">${ic(bk,30,2.6)}</div><div class="b2">${ic(nx,26,2.6)}Следующий ряд</div></div></div>`};
+const swatches=sel=>['#B5541C','#1F7A7A','#5B63B7','#D94F70','#2E7D4F'].map((c,i)=>`<i class="${i===sel?'sel':''}" style="background:${c}" aria-label="Цвет ${i+1}"></i>`).join('');
+const sheet3=dir=>`<div class="scrim"></div><div class="sheet dense"><div class="grab"></div><div class="sh"><b>Линейка</b><div class="tb">Готово</div></div>
+  <div class="fl">Направление рядов</div><div class="sg"><div class="${dir==='down'?'s':''}">${ic('arrDn',18)}Сверху вниз</div><div class="${dir==='up'?'s':''}">${ic('arrUp',18)}Снизу вверх</div></div>
+  <div class="fl">Высота</div><div class="sg"><div>1 ряд</div><div class="s">2 ряда</div><div>3 ряда</div></div>
+  <div class="fl">Шаг сдвига</div><div class="cardf"><div class="step"><div class="pm" aria-label="Меньше">${ic('minus')}</div><div class="v">1 ряд</div><div class="pm" aria-label="Больше">${ic('plus')}</div></div><div class="help">Для пейота можно выбрать «полряда».</div></div>
+  <div class="fl">Цвет подсветки</div><div class="cardf"><div class="sw">${swatches(0)}</div></div>
+  <div class="fl">Притушить пройденное</div><div class="cardf"><div class="sl"><div class="tr"></div><div class="fi" style="width:62%"></div><div class="th" style="left:62%"></div></div><div style="display:flex;justify-content:space-between"><span class="help">Слабее</span><span class="vv">62%</span><span class="help">Сильнее</span></div></div></div><div class="home"></div>`;
+const screens=[
+ ['1 · Обычный вид: линейка держится над панелью (150 pt)',()=>view({s:.86,left:52,y0:350,row:17,rr:1})+topbar()+panel()+'<div class="home"></div>'],
+ ['2 · Приближенный вид: индикатор ×2,4 и кнопка «По ширине»',()=>view({s:.86*2.4,cx:214,y0:360,row:17,rr:1})+topbar()+`<div class="zi"><div class="ind glass">×2,4</div><div class="btn glass">${ic('zoom',18)}&nbsp;По ширине</div></div>`+panel()+'<div class="home"></div>'],
+ ['3 · Линейка: направление, высота, шаг, цвет',()=>view({s:.86,left:52,y0:176,row:17,rr:2})+topbar()+sheet3('down')],
+ ['4 · Заметки (нижний лист)',()=>view({s:.86,left:52,y0:300,row:17,rr:1})+topbar()+`<div class="scrim"></div><div class="sheet dense"><div class="grab"></div><div class="sh"><b>Заметки</b><div class="tb">Готово</div></div>
+  <div class="sg"><div class="s">Ряд 17</div><div>Весь проект</div></div>
+  <div class="note1">Следить за натяжением нити, дальше пойдёт плотнее.<div class="m"><span class="tag">Ряд 17</span>Сегодня, 21:40</div></div>
+  <div class="note1">Бусины #10 взять из новой пачки, эти темнее.<div class="m"><span class="tag">Ряд 17</span>Вчера, 20:15</div></div>
+  <div class="addrow"><div class="inp">Заметка к ряду 17</div><div class="send" aria-label="Добавить">${ic('send',24)}</div></div></div><div class="home"></div>`],
+ ['5 · Направление «снизу вверх»: номера идут вверх, вуаль под линейкой',()=>view({s:.86,left:52,y0:380,row:17,rr:1,dir:'up'})+topbar()+panel({dir:'up'})+'<div class="home"></div>'],
+ ['6 · Конец страницы: последний ряд, «Следующая страница»',()=>{const s=.86,ph=(90+ROWS*16+30)*s;return view({s,left:52,top:690-ph+30*s,row:38,rr:1})+topbar('Страница 4 из 12')+`<div class="banner glass"><i></i>Страница закончена. Красиво получилось.</div><div class="bot dense"><div class="gr"></div><div class="r1"><div class="cnt">Ряд 38 <small>из 38 ${ic('check',16,3)}</small></div><div class="ib">${ic('sliders',24)}</div><div class="ib">${ic('noteI',24)}<span class="bd">2</span></div></div><div class="r2"><div class="b1" aria-label="Назад на ряд">${ic('chevUp',30,2.6)}</div><div class="b2">Следующая страница${ic('chevR',24,2.6)}</div></div></div><div class="home"></div>`}],
+ ['7 · Свёрнутая панель и тост «Отменить»',()=>view({s:.86,left:52,y0:420,row:18,rr:1})+topbar()+`<div class="toast dense"><span>Ряд 18</span><div class="tb">Отменить</div></div><div class="mini-bot dense"><div class="sb" aria-label="Назад на ряд">${ic('chevUp',26,2.6)}</div><div class="cnt" style="flex:1">Ряд 18</div><div class="sb a" aria-label="Следующий ряд">${ic('chevDn',26,2.6)}</div><div class="sb" aria-label="Развернуть панель">${ic('chevUp',22,2.6)}</div></div><div class="home"></div>`]
+];
+let mode='light';
+function render(){
+ const st=document.getElementById('stage');st.innerHTML='';
+ document.body.classList.toggle('dp',mode==='dark');
+ (mode==='both'?['light','dark']:[mode]).forEach(th=>{
+  const row=document.createElement('div');row.className='row';
+  screens.forEach(s=>{const c=document.createElement('div');c.className='cell';
+   c.innerHTML=`<div class="phone" data-theme="${th}">${s[1]()}</div><div class="cap">${s[0]} · ${th==='dark'?'тёмная':'светлая'}</div>`;row.appendChild(c)});
+  st.appendChild(row)});
+ document.getElementById('fig').innerHTML=[['Ряд 16',0],['Ряд 17 (после «Следующий ряд»)',-14]].map((x,i)=>`<div class="mini"><div class="pg" style="top:${x[1]}px"></div><div class="vl" style="height:86px"></div><div class="rl" style="top:86px"></div><div class="pn"></div><div class="lb">${x[0]}</div></div>`).join('<div style="max-width:300px;font-size:14px">Страница сдвигается на один ряд вверх, линейка остаётся на высоте около 40% области над панелью. У края страницы (первые и последние ряды) линейка начинает двигаться сама.</div>');
+}
+document.querySelectorAll('.seg button').forEach(b=>b.onclick=()=>{mode=b.dataset.m;document.querySelectorAll('.seg button').forEach(x=>x.setAttribute('aria-pressed',x===b));render()});
+render();
+</script>
+</body>
+</html>
