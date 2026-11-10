@@ -74,38 +74,41 @@ class _TemplateColorSheetState extends State<TemplateColorSheet> {
               ),
             ),
             Expanded(
-              child: shown.isEmpty
-                  ? Center(child: Text(l10n.templateColorEmpty))
-                  : ListView(
+              child: ListView(
+                children: <Widget>[
+                  if (widget.removable)
+                    CupertinoListSection.insetGrouped(
                       children: <Widget>[
-                        if (widget.removable)
-                          CupertinoListSection.insetGrouped(
-                            children: <Widget>[
-                              CupertinoListTile.notched(
-                                key: const ValueKey<String>('template-remove-color'),
-                                title: Text(
-                                  l10n.templateRemoveColor,
-                                  style: TextStyle(color: CupertinoColors.systemRed.resolveFrom(context)),
-                                ),
-                                onTap: () =>
-                                    Navigator.of(context).pop<TemplateColorChoice>(const TemplateColorRemoved()),
-                              ),
-                            ],
+                        CupertinoListTile.notched(
+                          key: const ValueKey<String>('template-remove-color'),
+                          title: Text(
+                            l10n.templateRemoveColor,
+                            style: TextStyle(color: CupertinoColors.systemRed.resolveFrom(context)),
                           ),
-                        CupertinoListSection.insetGrouped(
-                          children: <Widget>[
-                            for (final PatternColor color in shown)
-                              CupertinoListTile.notched(
-                                key: ValueKey<String>('template-pick-${color.components.first.code}'),
-                                leading: ColorSwatchView(rgb: color.rgb, size: 28),
-                                title: Text(color.name, maxLines: 1, overflow: TextOverflow.ellipsis),
-                                additionalInfo: Text(color.components.first.code),
-                                onTap: () => Navigator.of(context).pop<TemplateColorChoice>(TemplateColorPicked(color)),
-                              ),
-                          ],
+                          onTap: () => Navigator.of(context).pop<TemplateColorChoice>(const TemplateColorRemoved()),
                         ),
                       ],
                     ),
+                  if (shown.isEmpty)
+                    Padding(
+                      padding: const EdgeInsets.all(24),
+                      child: Center(child: Text(l10n.templateColorEmpty)),
+                    )
+                  else
+                    CupertinoListSection.insetGrouped(
+                      children: <Widget>[
+                        for (final PatternColor color in shown)
+                          CupertinoListTile.notched(
+                            key: ValueKey<String>('template-pick-${color.components.first.code}'),
+                            leading: ColorSwatchView(rgb: color.rgb, size: 28),
+                            title: Text(color.name, maxLines: 1, overflow: TextOverflow.ellipsis),
+                            additionalInfo: Text(color.components.first.code),
+                            onTap: () => Navigator.of(context).pop<TemplateColorChoice>(TemplateColorPicked(color)),
+                          ),
+                      ],
+                    ),
+                ],
+              ),
             ),
           ],
         ),

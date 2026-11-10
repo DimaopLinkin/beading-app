@@ -2118,6 +2118,12 @@ abstract class AppLocalizations {
   /// In ru, this message translates to:
   /// **'{shape} {size}'**
   String templateBeadSize(String shape, String size);
+
+  /// Закрыть колесо выбора значения
+  ///
+  /// In ru, this message translates to:
+  /// **'Готово'**
+  String get templateDone;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

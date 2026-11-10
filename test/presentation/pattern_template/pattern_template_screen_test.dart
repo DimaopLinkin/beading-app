@@ -334,6 +334,36 @@ void main() {
     expect(find.byKey(const ValueKey<String>('template-pick-3')), findsOneWidget);
   });
 
+  testWidgets('нажатие на строку с числом открывает системное колесо значений', (tester) async {
+    final ctx = await pumpScreen(tester);
+
+    await tester.tap(find.widgetWithText(CupertinoListTile, 'Бусин в ряду'));
+    await tester.pumpAndSettle();
+    expect(find.byType(CupertinoPicker), findsOneWidget);
+    await tester.drag(find.byType(CupertinoPicker), const Offset(0, -72));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey<String>('value-picker-done')));
+    await tester.pumpAndSettle();
+
+    expect(ctx.cubit.state.params.width, greaterThan(12));
+  });
+
+  testWidgets('«Убрать этот цвет» доступно и при пустом результате поиска', (tester) async {
+    await pumpScreen(tester);
+    await tester.tap(find.byKey(const ValueKey<String>('template-add-color')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey<String>('template-pick-3')));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.byKey(const ValueKey<String>('template-color-2')));
+    await tester.pumpAndSettle();
+    await tester.enterText(find.byKey(const ValueKey<String>('template-color-search')), 'нет такого');
+    await tester.pump();
+
+    expect(find.text('Ничего не найдено'), findsOneWidget);
+    expect(find.byKey(const ValueKey<String>('template-remove-color')), findsOneWidget);
+  });
+
   testWidgets('крупный шрифт не ломает вёрстку', (tester) async {
     tester.platformDispatcher.textScaleFactorTestValue = 2;
     addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);

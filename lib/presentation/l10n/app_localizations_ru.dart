@@ -1117,4 +1117,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String templateBeadSize(String shape, String size) {
     return '$shape $size';
   }
+
+  @override
+  String get templateDone => 'Готово';
 }

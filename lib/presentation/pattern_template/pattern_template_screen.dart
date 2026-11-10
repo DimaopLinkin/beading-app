@@ -72,7 +72,9 @@ class _PatternTemplateScreenState extends State<PatternTemplateScreen> {
               key: const ValueKey<String>('template-save'),
               padding: EdgeInsets.zero,
               onPressed: canSave ? () => cubit.save(fallbackName: _defaultName(l10n, state)) : null,
-              child: state.saving ? const CupertinoActivityIndicator() : Text(l10n.templateSave),
+              child: state.saving
+                  ? Semantics(label: l10n.templateSaving, child: const CupertinoActivityIndicator())
+                  : Text(l10n.templateSave),
             ),
           ),
           child: SafeArea(
@@ -160,6 +162,9 @@ class _Content extends StatelessWidget {
     final PatternTemplateCubit cubit = context.read<PatternTemplateCubit>();
     final AppTokensData tokens = context.tokens;
     final TemplateParams p = state.params;
+    // Высота предпросмотра зависит от свободного места: с клавиатурой или в узком окне он ужимается, а не выдавливает список.
+    final MediaQueryData media = MediaQuery.of(context);
+    final double previewHeight = ((media.size.height - media.viewInsets.bottom) * 0.28).clamp(96.0, 220.0);
     // Предпросмотр закреплён над прокруткой: параметры ниже, а результат всегда на виду. На широком окне — по центру.
     return Center(
       child: ConstrainedBox(
@@ -168,7 +173,7 @@ class _Content extends StatelessWidget {
           children: <Widget>[
             Padding(
               padding: EdgeInsets.fromLTRB(tokens.spacing.l, tokens.spacing.m, tokens.spacing.l, 0),
-              child: _Preview(state: state),
+              child: _Preview(state: state, height: previewHeight),
             ),
             if (state.problem case final TemplateProblem problem when state.status == TemplateStatus.ready)
               Padding(
@@ -337,6 +342,7 @@ class _Content extends StatelessWidget {
               catalog: state.catalog,
               removable: state.canRemoveColor,
             );
+            if (!context.mounted || cubit.isClosed) return;
             switch (choice) {
               case TemplateColorPicked(:final PatternColor color):
                 cubit.setColor(i, color);
@@ -358,6 +364,7 @@ class _Content extends StatelessWidget {
               catalog: state.catalog,
               removable: false,
             );
+            if (!context.mounted || cubit.isClosed) return;
             if (choice case TemplateColorPicked(:final PatternColor color)) cubit.addColor(color);
           },
         ),
@@ -367,9 +374,10 @@ class _Content extends StatelessWidget {
 
 /// Живой предпросмотр: схема на сером поле, можно приблизить и двигать.
 class _Preview extends StatelessWidget {
-  const _Preview({required this.state});
+  const _Preview({required this.state, required this.height});
 
   final PatternTemplateState state;
+  final double height;
 
   @override
   Widget build(BuildContext context) {
@@ -384,7 +392,7 @@ class _Preview extends StatelessWidget {
           color: CupertinoColors.secondarySystemFill.resolveFrom(context),
           child: SizedBox(
             key: const ValueKey<String>('template-preview'),
-            height: 200,
+            height: height,
             child: preview == null
                 ? const SizedBox.expand()
                 : GridPatternView(
@@ -571,39 +579,88 @@ class _StepperTile extends StatelessWidget {
   Widget build(BuildContext context) {
     final AppLocalizations l10n = AppLocalizations.of(context);
     final double target = context.tokens.minTapTarget;
-    return CupertinoListTile(
-      title: Text(label, maxLines: 2, overflow: TextOverflow.ellipsis),
-      trailing: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: <Widget>[
-          CupertinoButton(
-            key: ValueKey<String>('minus-$label'),
-            minimumSize: Size.square(target),
-            padding: EdgeInsets.zero,
-            onPressed: value > min ? () => onChanged((value - step).clamp(min, max)) : null,
-            child: Semantics(label: '${l10n.templateValueMinus}: $label', child: const Icon(AppIcons.minus)),
-          ),
-          ConstrainedBox(
-            constraints: const BoxConstraints(minWidth: 44),
-            child: Text(
-              '$value',
-              key: ValueKey<String>('value-$label'),
-              textAlign: TextAlign.center,
-              style: const TextStyle(
-                fontWeight: FontWeight.w600,
-                fontFeatures: <FontFeature>[FontFeature.tabularFigures()],
+    return Semantics(
+      // Для VoiceOver это один регулируемый элемент, как системный степпер: «увеличить» и «уменьшить».
+      label: label,
+      value: '$value',
+      increasedValue: '${(value + step).clamp(min, max)}',
+      decreasedValue: '${(value - step).clamp(min, max)}',
+      onIncrease: value < max ? () => onChanged((value + step).clamp(min, max)) : null,
+      onDecrease: value > min ? () => onChanged((value - step).clamp(min, max)) : null,
+      child: ExcludeSemantics(
+        child: CupertinoListTile(
+          title: Text(label, maxLines: 2, overflow: TextOverflow.ellipsis),
+          // Нажатие на строку открывает системное колесо значений: до нужного числа без десятков нажатий на «+».
+          onTap: () => _pickValue(context),
+          trailing: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              CupertinoButton(
+                key: ValueKey<String>('minus-$label'),
+                minimumSize: Size.square(target),
+                padding: EdgeInsets.zero,
+                onPressed: value > min ? () => onChanged((value - step).clamp(min, max)) : null,
+                child: Semantics(label: '${l10n.templateValueMinus}: $label', child: const Icon(AppIcons.minus)),
               ),
-            ),
+              ConstrainedBox(
+                constraints: const BoxConstraints(minWidth: 44),
+                child: Text(
+                  '$value',
+                  key: ValueKey<String>('value-$label'),
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                    fontWeight: FontWeight.w600,
+                    fontFeatures: <FontFeature>[FontFeature.tabularFigures()],
+                  ),
+                ),
+              ),
+              CupertinoButton(
+                key: ValueKey<String>('plus-$label'),
+                minimumSize: Size.square(target),
+                padding: EdgeInsets.zero,
+                onPressed: value < max ? () => onChanged((value + step).clamp(min, max)) : null,
+                child: Semantics(label: '${l10n.templateValuePlus}: $label', child: const Icon(AppIcons.plus)),
+              ),
+            ],
           ),
-          CupertinoButton(
-            key: ValueKey<String>('plus-$label'),
-            minimumSize: Size.square(target),
-            padding: EdgeInsets.zero,
-            onPressed: value < max ? () => onChanged((value + step).clamp(min, max)) : null,
-            child: Semantics(label: '${l10n.templateValuePlus}: $label', child: const Icon(AppIcons.plus)),
-          ),
-        ],
+        ),
       ),
     );
+  }
+
+  Future<void> _pickValue(BuildContext context) async {
+    final AppLocalizations l10n = AppLocalizations.of(context);
+    int chosen = value;
+    await showCupertinoModalPopup<void>(
+      context: context,
+      builder: (sheetContext) => Container(
+        height: 280,
+        color: CupertinoColors.systemBackground.resolveFrom(sheetContext),
+        child: SafeArea(
+          top: false,
+          child: Column(
+            children: <Widget>[
+              Align(
+                alignment: Alignment.centerRight,
+                child: CupertinoButton(
+                  key: const ValueKey<String>('value-picker-done'),
+                  onPressed: () => Navigator.of(sheetContext).pop(),
+                  child: Text(l10n.templateDone),
+                ),
+              ),
+              Expanded(
+                child: CupertinoPicker(
+                  itemExtent: 36,
+                  scrollController: FixedExtentScrollController(initialItem: value - min),
+                  onSelectedItemChanged: (index) => chosen = min + index,
+                  children: <Widget>[for (int v = min; v <= max; v++) Center(child: Text('$v'))],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+    if (chosen != value) onChanged(chosen);
   }
 }

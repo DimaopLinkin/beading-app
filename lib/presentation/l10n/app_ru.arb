@@ -818,5 +818,7 @@
   "templatePreviewLabel": "Предпросмотр узора: {width} бусин в ряду, {height} рядов",
   "@templatePreviewLabel": {"description": "Подпись предпросмотра для VoiceOver", "placeholders": {"width": {"type": "int"}, "height": {"type": "int"}}},
   "templateBeadSize": "{shape} {size}",
-  "@templateBeadSize": {"description": "Размер бисера в выборе", "placeholders": {"shape": {"type": "String"}, "size": {"type": "String"}}}
+  "@templateBeadSize": {"description": "Размер бисера в выборе", "placeholders": {"shape": {"type": "String"}, "size": {"type": "String"}}},
+  "templateDone": "Готово",
+  "@templateDone": {"description": "Закрыть колесо выбора значения"}
 }

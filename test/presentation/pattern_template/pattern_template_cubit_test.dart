@@ -7,6 +7,7 @@ import 'package:beading/domain/grid_pattern/use_cases/create_grid_pattern.dart';
 import 'package:beading/domain/palette/palette_snapshot.dart';
 import 'package:beading/domain/palette/pattern_color.dart';
 import 'package:beading/domain/palette/rgb.dart';
+import 'package:beading/domain/pattern_generation/pattern_generator.dart';
 import 'package:beading/domain/projects/craft.dart';
 import 'package:beading/domain/projects/project.dart';
 import 'package:beading/domain/projects/use_cases/create_project.dart';
@@ -221,6 +222,17 @@ void main() {
     });
   });
 
+  test('смена размера не пересчитывает образцы галереи, смена цвета пересчитывает', () async {
+    final PatternTemplateCubit cubit = await started();
+    final Map<TemplateKind, GeneratedPattern> before = cubit.state.gallery;
+
+    cubit.setParams(cubit.state.params.copyWith(width: 20));
+    expect(identical(cubit.state.gallery, before), isTrue);
+
+    cubit.setColor(0, cubit.state.catalog.firstWhere((c) => c.name == 'Red'));
+    expect(identical(cubit.state.gallery, before), isFalse);
+  });
+
   group('сохранение', () {
     test('создаёт сеточный проект с палитрой, техникой и размером бусины', () async {
       final PatternTemplateCubit cubit = await started();
@@ -283,6 +295,15 @@ void main() {
       await cubit.save(fallbackName: 'А');
       expect(cubit.state.problem, TemplateProblem.invalidParameters);
       expect(projects.projects, isEmpty);
+    });
+
+    test('сохранение после закрытия cubit не падает и ничего не создаёт', () async {
+      final PatternTemplateCubit cubit = build();
+      await cubit.start();
+      final Future<void> saving = cubit.save(fallbackName: 'А');
+      await cubit.close();
+      await saving;
+      expect(cubit.isClosed, isTrue);
     });
 
     test('цвета узора в палитре без пустых мест: сетка согласована с палитрой', () async {
