@@ -1,7 +1,9 @@
 import 'package:beading/app/bootstrap.dart';
 import 'package:beading/app/di.dart';
 import 'package:beading/domain/settings/app_theme_mode.dart';
+import 'package:beading/domain/settings/reduce_transparency_source.dart';
 import 'package:beading/presentation/theme/theme_mode_cubit.dart';
+import 'package:beading/presentation/widgets/glass/glass_policy.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -112,5 +114,32 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(CupertinoTheme.brightnessOf(tester.element(find.text('Не гасить экран'))), Brightness.dark);
+  });
+
+  testWidgets('«Уменьшить прозрачность» из системы доходит до стекла', (tester) async {
+    final Widget app = await bootstrapWithFakes(tester);
+    getIt
+      ..unregister<ReduceTransparencySource>()
+      ..registerSingleton<ReduceTransparencySource>(FakeReduceTransparencySource(initial: true));
+
+    await tester.pumpWidget(app);
+    await tester.pumpAndSettle();
+
+    final BuildContext context = tester.element(find.text('Мои работы'));
+    expect(GlassPolicy.isOpaque(context), isTrue);
+  });
+
+  testWidgets('в отладочной сборке из настроек открывается «Проверка стекла»', (tester) async {
+    await tester.pumpWidget(await bootstrapWithFakes(tester));
+    await tester.pumpAndSettle();
+    await tester.tap(find.bySemanticsLabel('Настройки'));
+    await tester.pumpAndSettle();
+
+    await tester.dragUntilVisible(find.text('Проверка стекла'), find.byType(ListView), const Offset(0, -200));
+    await tester.tap(find.text('Проверка стекла'));
+    await tester.pump();
+    await tester.pump(const Duration(seconds: 1));
+
+    expect(find.text('Кадров: 0'), findsOneWidget);
   });
 }

@@ -108,4 +108,67 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get cancel => 'Отмена';
+
+  @override
+  String get settingsSectionDev => 'Для разработки';
+
+  @override
+  String get settingsGlassCheck => 'Проверка стекла';
+
+  @override
+  String get glassCheckTitle => 'Проверка стекла';
+
+  @override
+  String glassCheckReduceTransparency(String state) {
+    return 'Уменьшить прозрачность: $state';
+  }
+
+  @override
+  String glassCheckHighContrast(String state) {
+    return 'Повышенная контрастность: $state';
+  }
+
+  @override
+  String get glassCheckOn => 'вкл';
+
+  @override
+  String get glassCheckOff => 'выкл';
+
+  @override
+  String glassCheckSurface(String mode) {
+    return 'Стекло: $mode';
+  }
+
+  @override
+  String get glassCheckSurfaceGlass => 'прозрачное';
+
+  @override
+  String get glassCheckSurfaceOpaque => 'сплошное';
+
+  @override
+  String glassCheckFrames(int count) {
+    return 'Кадров: $count';
+  }
+
+  @override
+  String glassCheckAverage(String ms, String p95, String worst) {
+    return 'Среднее $ms мс, 95% кадров до $p95 мс, худший $worst мс';
+  }
+
+  @override
+  String glassCheckOverBudget(int slow, int jank) {
+    return 'Дольше 8,3 мс: $slow, дольше 16,7 мс: $jank';
+  }
+
+  @override
+  String get glassCheckProfileHint => 'Цифры верны только в профильной сборке: flutter run --profile.';
+
+  @override
+  String get glassCheckPause => 'Пауза';
+
+  @override
+  String get glassCheckResume => 'Продолжить';
+
+  @override
+  String get glassCheckReset => 'Сбросить цифры';
 }

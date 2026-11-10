@@ -12,9 +12,12 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 ///
 /// Резервная копия и синхронизация — заглушки «Скоро»: T21 и T28 заменят их рабочими пунктами.
 class SettingsScreen extends StatelessWidget {
-  const SettingsScreen({required this.onOpenAbout, super.key});
+  const SettingsScreen({required this.onOpenAbout, this.onOpenGlassCheck, super.key});
 
   final VoidCallback onOpenAbout;
+
+  /// Раздел «Для разработки» (проверка стекла на устройстве); `null` в релизной сборке.
+  final VoidCallback? onOpenGlassCheck;
 
   @override
   Widget build(BuildContext context) {
@@ -85,6 +88,18 @@ class SettingsScreen extends StatelessWidget {
                     ),
                   ],
                 ),
+                if (onOpenGlassCheck != null)
+                  CupertinoListSection.insetGrouped(
+                    header: Text(l10n.settingsSectionDev),
+                    children: <Widget>[
+                      CupertinoListTile.notched(
+                        key: const ValueKey<String>('settings-glass-check'),
+                        title: Text(l10n.settingsGlassCheck),
+                        trailing: const CupertinoListTileChevron(),
+                        onTap: onOpenGlassCheck,
+                      ),
+                    ],
+                  ),
               ],
             );
           },

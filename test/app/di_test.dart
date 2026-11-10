@@ -5,6 +5,7 @@ import 'package:beading/core/clock.dart';
 import 'package:beading/core/id_generator.dart';
 import 'package:beading/data/easter_eggs/asset_compliment_source.dart';
 import 'package:beading/data/easter_eggs/drift_easter_egg_log.dart';
+import 'package:beading/data/platform/method_channel_reduce_transparency_source.dart';
 import 'package:beading/data/platform/wakelock_plus_screen_wake_lock.dart';
 import 'package:beading/data/settings/drift_device_id_provider.dart';
 import 'package:beading/data/settings/drift_settings_repository.dart';
@@ -18,6 +19,7 @@ import 'package:beading/domain/settings/app_events_secret_tap_handler.dart';
 import 'package:beading/domain/settings/app_info.dart';
 import 'package:beading/domain/settings/device_id_provider.dart';
 import 'package:beading/domain/settings/keep_screen_awake_setting.dart';
+import 'package:beading/domain/settings/reduce_transparency_source.dart';
 import 'package:beading/domain/settings/screen_wake_lock.dart';
 import 'package:beading/domain/settings/secret_tap_handler.dart';
 import 'package:beading/domain/settings/settings_repository.dart';
@@ -30,6 +32,8 @@ import 'package:get_it/get_it.dart';
 import '../support/in_memory_database.dart';
 
 void main() {
+  TestWidgetsFlutterBinding.ensureInitialized();
+
   test('configureDependencies регистрирует базовые сервисы', () async {
     final GetIt locator = GetIt.asNewInstance();
 
@@ -43,6 +47,7 @@ void main() {
     expect(locator<DesktopWindow>(), isA<WindowManagerDesktopWindow>());
     expect(locator<ScreenWakeLock>(), isA<WakelockPlusScreenWakeLock>());
     expect(locator<KeepScreenAwakeSetting>(), isA<RepositoryKeepScreenAwakeSetting>());
+    expect(locator<ReduceTransparencySource>(), isA<MethodChannelReduceTransparencySource>());
     expect(locator<WakelockController>(), isNotNull);
     expect(locator<ThemeModeCubit>(), isA<ThemeModeCubit>());
     expect(locator<SettingsCubit>(), isA<SettingsCubit>());

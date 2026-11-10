@@ -147,6 +147,24 @@ void main() {
 
       expect(opened, 1);
     });
+
+    testWidgets('без обработчика раздела для разработки его нет', (tester) async {
+      await tester.pumpWidget(wrap(SettingsScreen(onOpenAbout: () {})));
+      await tester.drag(find.byType(ListView), const Offset(0, -600));
+      await tester.pump();
+
+      expect(find.text('Проверка стекла'), findsNothing);
+    });
+
+    testWidgets('с обработчиком есть «Проверка стекла»', (tester) async {
+      var opened = 0;
+      await tester.pumpWidget(wrap(SettingsScreen(onOpenAbout: () {}, onOpenGlassCheck: () => opened++)));
+      await tester.dragUntilVisible(find.text('Проверка стекла'), find.byType(ListView), const Offset(0, -200));
+
+      await tester.tap(find.text('Проверка стекла'));
+
+      expect(opened, 1);
+    });
   });
 
   group('AboutScreen', () {

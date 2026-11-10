@@ -8,6 +8,7 @@ import 'package:beading/data/db/app_database.dart';
 import 'package:beading/data/db/open_database.dart';
 import 'package:beading/data/easter_eggs/asset_compliment_source.dart';
 import 'package:beading/data/easter_eggs/drift_easter_egg_log.dart';
+import 'package:beading/data/platform/method_channel_reduce_transparency_source.dart';
 import 'package:beading/data/platform/wakelock_plus_screen_wake_lock.dart';
 import 'package:beading/data/projects/drift_project_repository.dart';
 import 'package:beading/data/settings/drift_device_id_provider.dart';
@@ -33,6 +34,7 @@ import 'package:beading/domain/settings/app_events_secret_tap_handler.dart';
 import 'package:beading/domain/settings/app_info.dart';
 import 'package:beading/domain/settings/device_id_provider.dart';
 import 'package:beading/domain/settings/keep_screen_awake_setting.dart';
+import 'package:beading/domain/settings/reduce_transparency_source.dart';
 import 'package:beading/domain/settings/screen_wake_lock.dart';
 import 'package:beading/domain/settings/secret_tap_handler.dart';
 import 'package:beading/domain/settings/settings_repository.dart';
@@ -70,6 +72,10 @@ Future<void> configureDependencies({GetIt? locator, AppDatabase? database}) asyn
     ..registerLazySingleton<OrientationLock>(SystemChromeOrientationLock.new)
     ..registerLazySingleton<DesktopWindow>(WindowManagerDesktopWindow.new)
     ..registerLazySingleton<ScreenWakeLock>(WakelockPlusScreenWakeLock.new)
+    ..registerLazySingleton<ReduceTransparencySource>(
+      MethodChannelReduceTransparencySource.new,
+      dispose: (source) => (source as MethodChannelReduceTransparencySource).dispose(),
+    )
     ..registerLazySingleton<KeepScreenAwakeSetting>(
       () => RepositoryKeepScreenAwakeSetting(container<SettingsRepository>()),
     )
