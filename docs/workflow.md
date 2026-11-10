@@ -22,8 +22,8 @@
 - Ветка задачи от свежего `dev`: `task/<ID>-<slug>`, например `task/T03-drift-schema`. PR — **в `dev`**.
 - Перед открытием PR и перед каждым раундом ревью: `git fetch origin dev && git rebase origin/dev`.
 - Коммиты маленькие, сообщения на английском в повелительном наклонении (`Add grid codec`).
-- PR-описание: ID задачи, что сделано, как проверить, вывод `scripts/check.sh` (последние строки).
-- Мёрж в `dev` — squash, делает тред задачи сам, без отдельного согласования, когда ревью закрыто (`scripts/team/merge_gate.sh <ID>` зелёный) и CI зелёный. Сразу после мёржа менеджер запускает задачи, у которых теперь все зависимости в `dev`.
+- PR-описание: ID задачи, что сделано, как проверить, вывод `scripts/internal/check.sh` (последние строки).
+- Мёрж в `dev` — squash, делает тред задачи сам, без отдельного согласования, когда ревью закрыто (`scripts/internal/team/merge_gate.sh <ID>` зелёный) и CI зелёный. Сразу после мёржа менеджер запускает задачи, у которых теперь все зависимости в `dev`.
 - Служебные PR без ID задачи (правки процесса и документов) фрагмент changelog не добавляют, но проходят то же независимое ревью.
 - Задача стартует только когда **все её зависимости уже в `dev`**. Параллельные задачи не трогают одни и те же файлы; общие точки (`di.dart`, `router.dart`, `app_database.dart`, `pubspec.yaml`, ARB) правятся минимальными добавлениями, конфликты решает тот, кто ребейзится вторым.
 
@@ -33,7 +33,7 @@
 
 1. Написать тест на одно поведение, убедиться, что он падает по правильной причине.
 2. Минимальный код до зелёного.
-3. Рефакторинг при зелёных тестах, `scripts/analyze.sh` чистый.
+3. Рефакторинг при зелёных тестах, `scripts/internal/check.sh` чистый.
 
 Что и как тестируем:
 
@@ -44,105 +44,31 @@
 | presentation | Cubit — `bloc_test`; экраны — widget-тесты (состояния loading/empty/error/data, тёмная и светлая тема); отрисовка сетки — golden-тесты | `bloc_test`, `mocktail` для use cases |
 | app | Smoke-тест запуска, что DI собирается | |
 
-Пороги покрытия (без `*.g.dart`, `l10n`, `main.dart`): `lib/domain` ≥ 95%, всё приложение ≥ 85%. Проверяет `scripts/test.sh`.
+Пороги покрытия (без `*.g.dart`, `l10n`, `main.dart`): `lib/domain` ≥ 95%, всё приложение ≥ 85%. Проверяет `scripts/internal/check.sh`.
 
 Время, случайность, id, файловая система — только через инжектируемые абстракции. `DateTime.now()` и `Random()` в `lib/` вне `core/` — замечание ревью.
 
 ## Скрипты
 
-Все проверки — только скриптами, руками ничего не гоняем. Задача T00 создаёт их в `scripts/` в этом виде (`chmod +x`). `scripts/release_notes.sh` уже есть в репозитории (см. [changelog.md](changelog.md)).
+Все проверки — только скриптами, руками ничего не гоняем. Наверху `scripts/` только то, что нужно человеку; рабочие скрипты агентов лежат в `scripts/internal/`.
 
-`scripts/test.sh`:
+| Скрипт | Что делает |
+|---|---|
+| `scripts/setup.sh` | `flutter pub get` (заодно l10n) и `build_runner` (drift `*.g.dart`, в git их нет). Один раз после клона и после смены схемы БД или `.arb`; дальше `flutter run` |
+| `scripts/release_ios.sh`, `scripts/release_macos.sh` | сборка выпуска, см. [release.md](release.md) |
+| `scripts/internal/check.sh [аргументы flutter test]` | всё, что гоняет исполнитель перед пушем и CI: setup, `dart format`, `flutter analyze --fatal-infos`, `check_architecture.sh`, `release_notes.sh --check`, тесты с покрытием и пороги (`lib/domain` ≥ 95%, всё ≥ 85%) |
+| `scripts/internal/check_architecture.sh` | направление зависимостей между слоями, Material только через `material_bridge.dart`, `cupertino_icons` в pubspec |
+| `scripts/internal/release_notes.sh` | фрагменты changelog, см. [changelog.md](changelog.md) |
+| `scripts/internal/release_common.sh` | общие функции release_ios/macos |
+| `scripts/internal/team/` | процесс команды, см. [team.md](team.md) |
+| `tool/make_app_icons.js` | разовая генерация иконок |
 
-```bash
-#!/usr/bin/env bash
-# Генерирует код, гоняет все тесты с покрытием и проверяет пороги.
-set -euo pipefail
-cd "$(dirname "$0")/.."
-
-flutter pub get
-dart run build_runner build --delete-conflicting-outputs
-flutter test --coverage --test-randomize-ordering-seed random "$@"
-
-# Пороги покрытия, сгенерированный код не считаем.
-check_coverage() {
-  local prefix="$1" min="$2"
-  awk -v prefix="$prefix" -v min="$min" '
-    /^SF:/ { file = substr($0, 4); skip = (index(file, prefix) != 1 || file ~ /\.g\.dart$|\/l10n\/|main\.dart$/) }
-    /^LF:/ && !skip { total += substr($0, 4) }
-    /^LH:/ && !skip { hit += substr($0, 4) }
-    END {
-      pct = total ? hit * 100 / total : 100
-      printf "coverage %s: %.1f%% (min %d%%)\n", prefix, pct, min
-      exit (pct + 0.0001 < min)
-    }' coverage/lcov.info
-}
-check_coverage "lib/domain/" 95
-check_coverage "lib/" 85
-```
-
-`scripts/analyze.sh`:
-
-```bash
-#!/usr/bin/env bash
-# Формат, анализатор (инфо = ошибка) и правила слоёв.
-set -euo pipefail
-cd "$(dirname "$0")/.."
-
-flutter pub get
-dart run build_runner build --delete-conflicting-outputs
-# *.g.dart не форматируем: он в .gitignore и пересоздаётся при каждой сборке.
-find lib test -name '*.dart' ! -name '*.g.dart' -print0 | xargs -0 dart format --output=none --set-exit-if-changed
-flutter analyze --fatal-infos --fatal-warnings
-scripts/check_architecture.sh
-scripts/release_notes.sh --check
-```
-
-`scripts/check_architecture.sh`:
-
-```bash
-#!/usr/bin/env bash
-# Проверяет направление зависимостей между слоями по импортам и экспортам.
-# Использование: scripts/check_architecture.sh [корень проекта] — по умолчанию корень репозитория.
-set -euo pipefail
-cd "${1:-$(dirname "$0")/..}"
-pkg=$(awk '/^name:/ {print $2; exit}' pubspec.yaml)
-fail=0
-
-forbid() {  # forbid <каталог> <регулярка импорта> <сообщение>
-  local hits
-  [[ -d "$1" ]] || return 0
-  hits=$(grep -rnE "^(import|export) ['\"]($2)" "$1" --include='*.dart' || true)
-  if [[ -n "$hits" ]]; then echo "ARCH: $3"; echo "$hits"; fail=1; fi
-}
-
-forbid lib/domain "package:flutter/|package:drift|package:$pkg/(data|presentation|app)/|dart:io|dart:ui" \
-  "domain должен быть чистым Dart"
-forbid lib/core "package:flutter/|package:drift|package:$pkg/(domain|data|presentation|app)/" \
-  "core ни от чего не зависит"
-forbid lib/data "package:$pkg/(presentation|app)/" "data не знает о UI"
-forbid lib/presentation "package:drift|package:$pkg/(data|app)/" "presentation не импортирует data"
-# Cupertino-first (ADR-0001): Material только через lib/presentation/theme/material_bridge.dart (добавляет T01)
-
-exit $fail
-```
-
-`scripts/check.sh` — то, что гоняет исполнитель перед пушем и CI:
-
-```bash
-#!/usr/bin/env bash
-set -euo pipefail
-cd "$(dirname "$0")/.."
-scripts/analyze.sh
-scripts/test.sh "$@"
-```
-
-CI (задача T00): `.github/workflows/check.yml` — на каждый PR в `dev` и `main`, `ubuntu-latest`, Flutter 3.41.0, `scripts/check.sh`. Нативную сборку (`flutter build macos`, `flutter build ios --no-codesign`) в CI не гоняем: минуты macOS дороги, проблемы нативной сборки решаем при подготовке релиза (решение Дмитрия).
+CI: `.github/workflows/check.yml` — на каждый PR в `dev` и `main`, `ubuntu-latest`, Flutter 3.41.0, `scripts/internal/check.sh`. Нативную сборку (`flutter build macos`, `flutter build ios --no-codesign`) в CI не гоняем: минуты macOS дороги, проблемы нативной сборки решаем при подготовке релиза (решение Дмитрия).
 
 ## Определение готовности задачи (DoD)
 
 - [ ] Все критерии приёмки задачи покрыты тестами, тесты написаны до кода.
-- [ ] `scripts/check.sh` зелёный локально и в CI.
+- [ ] `scripts/internal/check.sh` зелёный локально и в CI.
 - [ ] Нет `// ignore:` без комментария-обоснования (`document_ignores`).
 - [ ] Новые строки UI — в ARB (ru).
 - [ ] Новые экраны проверены в светлой и тёмной теме (widget-тест или golden).
@@ -158,27 +84,27 @@ CI (задача T00): `.github/workflows/check.yml` — на каждый PR в
                                  └── исполнитель исправляет, отвечает по каждому ID
 ```
 
-1. **Раунд ревью.** Тред задачи запускает ревьюеров-сабагентов по типу задачи ([tasks.md](tasks.md#типы-задач-и-состав-команды)), параллельно, каждому — вывод `scripts/team/review_context.sh <ID> <раунд>`. Ревьюер читает diff, задачу и проверяет по чек-листу и по действующим правилам из [review/rules.md](review/rules.md). Каждое замечание получает ID `T05-R1-03` (задача, раунд, номер), «Кто» (`code`, `arch`, `design`, `research`, `fact`), серьёзность (`blocker`/`major`/`minor`/`nit`), категорию из списка в [review/checklist.md](review/checklist.md), файл и строку.
-2. **Запись.** Ревьюеры возвращают таблицы, тред дословно дописывает их в `docs/review/findings/<ID задачи>.md` в ветке задачи (`scripts/team/record_review.sh <ID> <раунд>`; у каждой задачи свой файл — параллельные ветки не конфликтуют). Ревьюер следующего раунда сверяет журнал со своими замечаниями.
+1. **Раунд ревью.** Тред задачи запускает ревьюеров-сабагентов по типу задачи ([tasks.md](tasks.md#типы-задач-и-состав-команды)), параллельно, каждому — вывод `scripts/internal/team/review_context.sh <ID> <раунд>`. Ревьюер читает diff, задачу и проверяет по чек-листу и по действующим правилам из [review/rules.md](review/rules.md). Каждое замечание получает ID `T05-R1-03` (задача, раунд, номер), «Кто» (`code`, `arch`, `design`, `research`, `fact`), серьёзность (`blocker`/`major`/`minor`/`nit`), категорию из списка в [review/checklist.md](review/checklist.md), файл и строку.
+2. **Запись.** Ревьюеры возвращают таблицы, тред дословно дописывает их в `docs/review/findings/<ID задачи>.md` в ветке задачи (`scripts/internal/team/record_review.sh <ID> <раунд>`; у каждой задачи свой файл — параллельные ветки не конфликтуют). Ревьюер следующего раунда сверяет журнал со своими замечаниями.
 3. **Исправление.** Исполнитель отвечает по каждому ID: `fixed <commit>` или `rejected?: <причина>` (предложение отклонить). Отклонение принимает только ревьюер: в следующем раунде он возвращает решение `rejected: <причина> (принято)` или `reopened`, а тред задачи вписывает его в статус существующей строки журнала (статусы правит только тред, дословно по ответу ревьюера).
 4. **Следующий раунд** начинается с проверки, что все прошлые замечания действительно исправлены и не вернулись. Ревью идёт, пока открытых замечаний не останется (включая `nit`). После 5 раундов без схождения менеджер зовёт Дмитрия.
-5. **Повторы (рецидивы).** Перед раундом ревьюер ищет похожие замечания в `docs/review/findings/*.md` в `dev` (`scripts/team/find_recurrence.sh <ID> <категория> <слова>`). Если категория/суть уже встречалась в другой задаче — замечание помечается `recurrence of T02-R1-04`, серьёзность поднимается на ступень.
+5. **Повторы (рецидивы).** Перед раундом ревьюер ищет похожие замечания в `docs/review/findings/*.md` в `dev` (`scripts/internal/team/find_recurrence.sh <ID> <категория> <слова>`). Если категория/суть уже встречалась в другой задаче — замечание помечается `recurrence of T02-R1-04`, серьёзность поднимается на ступень.
 6. **Правила.** Когда замечание повторилось во второй задаче, тред этой задачи в том же PR переносит его в [review/rules.md](review/rules.md) с номером `RULE-NN` (при конфликте номеров перенумеровывает тот, кто ребейзится вторым). Правила:
    - вкладываются в текст каждой новой задачи («не повторять: RULE-01…»);
    - по возможности автоматизируются (линт-правило, проверка в `check_architecture.sh`, тест) — тогда правило помечается `automated`.
 
 ## Скрипты процесса
 
-Повторяющиеся шаги процесса — скриптами в `scripts/team/`, чтобы треды не тратили токены на одни и те же команды и их вывод. Работа с GitHub (открыть PR, проверить CI, смёржить) идёт через инструменты GitHub, скрипты готовят для неё всё локально.
+Повторяющиеся шаги процесса — скриптами в `scripts/internal/team/`, чтобы треды не тратили токены на одни и те же команды и их вывод. Работа с GitHub (открыть PR, проверить CI, смёржить) идёт через инструменты GitHub, скрипты готовят для неё всё локально.
 
 | Скрипт | Когда | Что делает |
 |---|---|---|
 | `task_start.sh <ID> <slug>` | старт задачи | ветка `task/<ID>-<slug>` от свежего `dev`, `changelog.d/<ID>.md` из шаблона, заготовка журнала ревью |
 | `task_brief.sh <ID>` | бриф, вход ревьюера | раздел задачи из [tasks.md](tasks.md), её тип и действующие правила |
-| `pr_ready.sh <ID>` | перед PR и перед каждым раундом | rebase на `dev`, `scripts/check.sh`, черновик описания PR с хвостом вывода |
+| `pr_ready.sh <ID>` | перед PR и перед каждым раундом | rebase на `dev`, `scripts/internal/check.sh`, черновик описания PR с хвостом вывода |
 | `review_context.sh <ID> <раунд>` | раунд ревью | весь вход ревьюера одним выводом: задача, правила, незакрытые замечания, diff (со 2-го раунда — только с прошлого раунда) |
 | `find_recurrence.sh <ID> <категория> <слова>` | ревьюер | похожие замечания в журналах других задач |
 | `record_review.sh <ID> <раунд>` | после раунда | дописывает строки замечаний из stdin в журнал, коммит `Record review round N` |
 | `merge_gate.sh <ID>` | перед мёржем | нет открытых замечаний, есть фрагмент changelog, ревью проводилось |
 
-**Правило автоматизации.** Если тред второй раз выполняет одну и ту же последовательность из 3+ команд или ревьюер второй раз проверяет одно и то же руками, это кандидат в скрипт. Тред добавляет скрипт в `scripts/team/` (или проверку в `scripts/check_architecture.sh` / линт-правило, если это про код) в том же PR, если он небольшой, иначе просит менеджера завести задачу. Новый скрипт попадает в таблицу выше, а повторяющиеся замечания, которые удалось автоматизировать, помечаются `automated` в [review/rules.md](review/rules.md).
+**Правило автоматизации.** Если тред второй раз выполняет одну и ту же последовательность из 3+ команд или ревьюер второй раз проверяет одно и то же руками, это кандидат в скрипт. Тред добавляет скрипт в `scripts/internal/team/` (или проверку в `scripts/internal/check_architecture.sh` / линт-правило, если это про код) в том же PR, если он небольшой, иначе просит менеджера завести задачу. Новый скрипт попадает в таблицу выше, а повторяющиеся замечания, которые удалось автоматизировать, помечаются `automated` в [review/rules.md](review/rules.md).

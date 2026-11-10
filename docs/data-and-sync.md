@@ -39,7 +39,7 @@ drift (SQLite) — единственный источник правды на �
 
 ### Правила работы с drift
 
-- Схема описывается в `lib/data/db/tables/`, код генерируется `build_runner` (`*.g.dart` в git не коммитим, генерация — часть `scripts/test.sh` и `scripts/analyze.sh`).
+- Схема описывается в `lib/data/db/tables/`, код генерируется `build_runner` (`*.g.dart` в git не коммитим, генерация — `scripts/setup.sh`).
 - Каждое изменение схемы: `schemaVersion++`, шаг в `migrations/`, дамп схемы `dart run drift_dev make-migrations` и **сгенерированный тест миграции** со всех прошлых версий. Без теста миграции PR не проходит ревью.
 - В тестах — `NativeDatabase.memory()`; реализации репозиториев тестируются на настоящей in-memory базе, а не на моках.
 - Доменные сущности не знают о drift: мапперы `XRow ↔ X` в `data`, тестируются в обе стороны.

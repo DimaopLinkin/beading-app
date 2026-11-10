@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 # Показывает, что ждёт ревью в обмене с Claude Design.
-# Использование: scripts/design_review.sh [--remote]
+# Использование: scripts/internal/team/design_review.sh [--remote]
 #   --remote  сначала подтянуть ветку origin/design/* и учесть файлы из неё
 set -euo pipefail
-cd "$(dirname "$0")/.."
+cd "$(dirname "$0")/../../.."
 
 q=docs/design/queue
 field() { awk '/^---$/{n++; next} n==1 && $1==k":" {sub(/^[^ ]+ /,""); print; exit}' k="$2" "$1"; }

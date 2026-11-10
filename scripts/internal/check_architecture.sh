@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 # Проверяет направление зависимостей между слоями по импортам и экспортам.
-# Использование: scripts/check_architecture.sh [корень проекта] — по умолчанию корень репозитория.
+# Использование: scripts/internal/check_architecture.sh [корень проекта] — по умолчанию корень репозитория.
 set -euo pipefail
-cd "${1:-$(dirname "$0")/..}"
+cd "${1:-$(dirname "$0")/../..}"
 pkg=$(awk '/^name:/ {print $2; exit}' pubspec.yaml)
 fail=0
 

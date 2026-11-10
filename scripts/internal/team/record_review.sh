@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
 # Дописывает строки замечаний этого раунда (из stdin) в журнал и коммитит.
 # Пустой ввод или "approve" — коммит без строк, раунд всё равно отмечен.
-# Использование: scripts/team/record_review.sh T05 1 < findings.md
+# Использование: scripts/internal/team/record_review.sh T05 1 < findings.md
 set -euo pipefail
-cd "$(dirname "$0")/../.."
+cd "$(dirname "$0")/../../.."
 id="${1:?ID задачи}"; round="${2:?номер раунда}"
 log="docs/review/findings/${id}.md"
-[[ -f "$log" ]] || { echo "нет $log (scripts/team/task_start.sh создаёт его)"; exit 1; }
+[[ -f "$log" ]] || { echo "нет $log (scripts/internal/team/task_start.sh создаёт его)"; exit 1; }
 input=$(cat)
 rows=$(grep -E "^\| *${id}-R${round}-[0-9]+ *\|" <<<"$input" || true)
 stray=$(grep -E '^\| *[A-Z][0-9A-Za-z]*-R[0-9]+-[0-9]+ *\|' <<<"$input" \

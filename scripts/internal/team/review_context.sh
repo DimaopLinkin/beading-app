@@ -2,13 +2,13 @@
 # Собирает вход для ревьюера одним выводом: задача, правила, журнал, diff.
 # Раунд 1 — весь diff от dev; раунд N>1 — только diff с прошлого
 # коммита "Record review round N-1".
-# Использование: scripts/team/review_context.sh T05 2
+# Использование: scripts/internal/team/review_context.sh T05 2
 set -euo pipefail
-cd "$(dirname "$0")/../.."
+cd "$(dirname "$0")/../../.."
 id="${1:?ID задачи}"; round="${2:-1}"
 
 git fetch -q origin dev
-scripts/team/task_brief.sh "$id"
+scripts/internal/team/task_brief.sh "$id"
 
 log="docs/review/findings/${id}.md"
 echo

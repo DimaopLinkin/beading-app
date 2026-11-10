@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 # Собирает фрагменты changelog.d/*.md в версию CHANGELOG.md и release notes.
-# Использование: scripts/release_notes.sh <версия> [дата YYYY-MM-DD]
-#   --check   только проверить формат фрагментов (используется в analyze.sh)
+# Использование: scripts/internal/release_notes.sh <версия> [дата YYYY-MM-DD]
+#   --check   только проверить формат фрагментов (используется в scripts/internal/check.sh)
 set -euo pipefail
-cd "$(dirname "$0")/.."
+cd "$(dirname "$0")/../.."
 
 types=(added changed fixed removed internal)
 declare -A titles=([added]='Добавлено' [changed]='Изменено' [fixed]='Исправлено' [removed]='Удалено' [internal]='Внутреннее')

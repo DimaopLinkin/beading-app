@@ -12,7 +12,7 @@
 ### 2. Cupertino-first, а не Material 3
 - Корень приложения — `CupertinoApp.router`, тема — `CupertinoThemeData` с `CupertinoDynamicColor` (пары светлый/тёмный, системная яркость по умолчанию, ручной выбор перекрывает яркость).
 - Виджеты: `CupertinoNavigationBar`/`CupertinoSliverNavigationBar`, `CupertinoTabBar`, `CupertinoActionSheet`, `CupertinoAlertDialog`, `CupertinoSwitch`, `CupertinoSegmentedControl`/`CupertinoSlidingSegmentedControl`, `CupertinoContextMenu`, `CupertinoPageRoute` (свайп назад).
-- Material допускается только как «скрытая зависимость» там, где у Cupertino нет аналога и виджету нужен Material-предок (например, некоторые поля ввода, `SelectionArea`, `InkWell`-эффекты). Весь такой код — в одном файле `lib/presentation/theme/material_bridge.dart`; прямой импорт `package:flutter/material.dart` в `lib/presentation` и `lib/app` запрещён проверкой в `scripts/check_architecture.sh` (исключение — этот файл).
+- Material допускается только как «скрытая зависимость» там, где у Cupertino нет аналога и виджету нужен Material-предок (например, некоторые поля ввода, `SelectionArea`, `InkWell`-эффекты). Весь такой код — в одном файле `lib/presentation/theme/material_bridge.dart`; прямой импорт `package:flutter/material.dart` в `lib/presentation` и `lib/app` запрещён проверкой в `scripts/internal/check_architecture.sh` (исключение — этот файл).
 - Шрифт — системный (SF Pro/SF Compact), без своих шрифтов; размеры подчиняются Dynamic Type (`MediaQuery.textScaler`). Цифры счётчика — табличные (`FontFeature.tabularFigures()`).
 - Тактильный отклик — `HapticFeedback` в местах, где это делает нативное приложение (смена ряда, завершение).
 - Токены: так как `ThemeExtension` работает только с Material `ThemeData`, наши токены (подсветка ряда, притушение, параметры стекла, отступы, радиусы) отдаются через `InheritedWidget` `AppTokens` (`context.tokens`). Цвета бусин — данные, не токены.
@@ -40,7 +40,7 @@
 
 ## Последствия
 
-**Для T01 (тема и токены):** строить на `CupertinoThemeData` + `AppTokens`, а не на `ThemeData`/`ThemeExtension`; перевести `lib/app/app.dart` с `MaterialApp.router` на `CupertinoApp.router` и `library_screen.dart` на Cupertino-виджеты; добавить `AppIcons` и `material_bridge.dart`; добавить в `scripts/check_architecture.sh` запрет прямого `package:flutter/material.dart` (с исключением для `material_bridge.dart`) и тест этого правила.
+**Для T01 (тема и токены):** строить на `CupertinoThemeData` + `AppTokens`, а не на `ThemeData`/`ThemeExtension`; перевести `lib/app/app.dart` с `MaterialApp.router` на `CupertinoApp.router` и `library_screen.dart` на Cupertino-виджеты; добавить `AppIcons` и `material_bridge.dart`; добавить в `scripts/internal/check_architecture.sh` запрет прямого `package:flutter/material.dart` (с исключением для `material_bridge.dart`) и тест этого правила.
 **Для T01g:** спайк Liquid Glass, результат — ADR-0002 и виджеты `presentation/widgets/glass/`.
 **Для T01b:** UI kit из Claude Design переносится в токены `AppTokens`, а не в Material `ColorScheme`.
 **Для задач экранов (T05, T07, T09, T15, T17, T19, T20, T23, T25):** только Cupertino-виджеты и стеклянные виджеты из T01g; навигация — `CupertinoPage`; на macOS — sidebar и горячие клавиши в рамках задачи. Это пункт чек-листа ревью (`ui`).
