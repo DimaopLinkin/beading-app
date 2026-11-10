@@ -1,7 +1,7 @@
 ---
 id: 01-ui-kit
 title: UI kit
-status: todo
+status: accepted
 ---
 
 # UI kit
