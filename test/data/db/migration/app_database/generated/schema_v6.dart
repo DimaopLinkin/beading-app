@@ -2864,7 +2864,7 @@ class PageWorkStates extends Table
     false,
     type: DriftSqlType.string,
     requiredDuringInsert: true,
-    $customConstraints: 'NOT NULL',
+    $customConstraints: 'NOT NULL REFERENCES image_pattern_pages(id)',
   );
   late final GeneratedColumn<int> createdAt = GeneratedColumn<int>(
     'created_at',
@@ -3479,7 +3479,7 @@ class BookWorkStates extends Table
     false,
     type: DriftSqlType.string,
     requiredDuringInsert: true,
-    $customConstraints: 'NOT NULL',
+    $customConstraints: 'NOT NULL REFERENCES image_patterns(id)',
   );
   late final GeneratedColumn<int> createdAt = GeneratedColumn<int>(
     'created_at',

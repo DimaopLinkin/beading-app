@@ -286,7 +286,7 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
-  String get bookWorkPrevRow => 'Назад';
+  String get bookWorkPrevRow => 'Ряд назад';
 
   @override
   String get bookWorkNextRow => 'Следующий ряд';
@@ -341,11 +341,12 @@ class AppLocalizationsRu extends AppLocalizations {
   String get bookWorkDone => 'Готово';
 
   @override
-  String get bookWorkLoadFailed => 'Не получилось открыть схему.';
+  String get bookWorkLoadFailed => 'Схема не открылась. Закрой экран и попробуй ещё раз.';
 
   @override
-  String get bookWorkSaveFailed => 'Не удалось сохранить положение линейки. Проверьте свободное место.';
+  String get bookWorkSaveFailed =>
+      'Не получилось сохранить, где ты остановилась. Проверь, есть ли место на устройстве.';
 
   @override
-  String get bookWorkImageFailed => 'Не удалось открыть картинку страницы.';
+  String get bookWorkImageFailed => 'Не получилось показать эту страницу. Попробуй открыть её ещё раз.';
 }

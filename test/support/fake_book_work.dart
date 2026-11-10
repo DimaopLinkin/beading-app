@@ -10,6 +10,7 @@ class FakeBookWorkRepository implements BookWorkRepository {
   final Map<String, Set<String>> pageIdsByPattern = <String, Set<String>>{};
   Failure? failure;
   int saves = 0;
+  bool throwOnSave = false;
 
   @override
   Future<Result<BookWork>> load(String patternId) async {
@@ -29,6 +30,9 @@ class FakeBookWorkRepository implements BookWorkRepository {
 
   @override
   Future<Result<void>> savePage(PageWork work) async {
+    if (throwOnSave) {
+      throw StateError('boom');
+    }
     if (failure != null) {
       return Err<void>(failure!);
     }

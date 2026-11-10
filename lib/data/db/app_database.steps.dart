@@ -942,12 +942,11 @@ final class Schema6 extends i0.VersionedSchema {
       isStrict: false,
       tableConstraints: ['PRIMARY KEY(id)'],
       columns: [
-        _column_6,
+        _column_35,
         _column_0,
         _column_1,
         _column_2,
         _column_3,
-        _column_35,
         _column_36,
         _column_37,
         _column_38,
@@ -955,6 +954,7 @@ final class Schema6 extends i0.VersionedSchema {
         _column_40,
         _column_41,
         _column_42,
+        _column_43,
       ],
       attachedDatabase: database,
     ),
@@ -967,12 +967,12 @@ final class Schema6 extends i0.VersionedSchema {
       isStrict: false,
       tableConstraints: ['PRIMARY KEY(id)'],
       columns: [
-        _column_6,
+        _column_44,
         _column_0,
         _column_1,
         _column_2,
         _column_3,
-        _column_43,
+        _column_45,
       ],
       attachedDatabase: database,
     ),
@@ -1010,7 +1010,15 @@ class Shape7 extends i0.VersionedTable {
       columnsByName['view_dy']! as i1.GeneratedColumn<double>;
 }
 
-i1.GeneratedColumn<double> _column_35(String aliasedName) =>
+i1.GeneratedColumn<String> _column_35(String aliasedName) =>
+    i1.GeneratedColumn<String>(
+      'id',
+      aliasedName,
+      false,
+      type: i1.DriftSqlType.string,
+      $customConstraints: 'NOT NULL REFERENCES image_pattern_pages(id)',
+    );
+i1.GeneratedColumn<double> _column_36(String aliasedName) =>
     i1.GeneratedColumn<double>(
       'ruler_top',
       aliasedName,
@@ -1018,7 +1026,7 @@ i1.GeneratedColumn<double> _column_35(String aliasedName) =>
       type: i1.DriftSqlType.double,
       $customConstraints: 'NOT NULL',
     );
-i1.GeneratedColumn<double> _column_36(String aliasedName) =>
+i1.GeneratedColumn<double> _column_37(String aliasedName) =>
     i1.GeneratedColumn<double>(
       'ruler_height',
       aliasedName,
@@ -1026,7 +1034,7 @@ i1.GeneratedColumn<double> _column_36(String aliasedName) =>
       type: i1.DriftSqlType.double,
       $customConstraints: 'NOT NULL',
     );
-i1.GeneratedColumn<double> _column_37(String aliasedName) =>
+i1.GeneratedColumn<double> _column_38(String aliasedName) =>
     i1.GeneratedColumn<double>(
       'ruler_step',
       aliasedName,
@@ -1034,7 +1042,7 @@ i1.GeneratedColumn<double> _column_37(String aliasedName) =>
       type: i1.DriftSqlType.double,
       $customConstraints: 'NOT NULL',
     );
-i1.GeneratedColumn<int> _column_38(String aliasedName) =>
+i1.GeneratedColumn<int> _column_39(String aliasedName) =>
     i1.GeneratedColumn<int>(
       'ruler_row',
       aliasedName,
@@ -1042,7 +1050,7 @@ i1.GeneratedColumn<int> _column_38(String aliasedName) =>
       type: i1.DriftSqlType.int,
       $customConstraints: 'NOT NULL',
     );
-i1.GeneratedColumn<String> _column_39(String aliasedName) =>
+i1.GeneratedColumn<String> _column_40(String aliasedName) =>
     i1.GeneratedColumn<String>(
       'highlight',
       aliasedName,
@@ -1050,7 +1058,7 @@ i1.GeneratedColumn<String> _column_39(String aliasedName) =>
       type: i1.DriftSqlType.string,
       $customConstraints: 'NOT NULL',
     );
-i1.GeneratedColumn<double> _column_40(String aliasedName) =>
+i1.GeneratedColumn<double> _column_41(String aliasedName) =>
     i1.GeneratedColumn<double>(
       'view_scale',
       aliasedName,
@@ -1058,7 +1066,7 @@ i1.GeneratedColumn<double> _column_40(String aliasedName) =>
       type: i1.DriftSqlType.double,
       $customConstraints: 'NOT NULL',
     );
-i1.GeneratedColumn<double> _column_41(String aliasedName) =>
+i1.GeneratedColumn<double> _column_42(String aliasedName) =>
     i1.GeneratedColumn<double>(
       'view_dx',
       aliasedName,
@@ -1066,7 +1074,7 @@ i1.GeneratedColumn<double> _column_41(String aliasedName) =>
       type: i1.DriftSqlType.double,
       $customConstraints: 'NOT NULL',
     );
-i1.GeneratedColumn<double> _column_42(String aliasedName) =>
+i1.GeneratedColumn<double> _column_43(String aliasedName) =>
     i1.GeneratedColumn<double>(
       'view_dy',
       aliasedName,
@@ -1091,7 +1099,15 @@ class Shape8 extends i0.VersionedTable {
       columnsByName['current_page_id']! as i1.GeneratedColumn<String>;
 }
 
-i1.GeneratedColumn<String> _column_43(String aliasedName) =>
+i1.GeneratedColumn<String> _column_44(String aliasedName) =>
+    i1.GeneratedColumn<String>(
+      'id',
+      aliasedName,
+      false,
+      type: i1.DriftSqlType.string,
+      $customConstraints: 'NOT NULL REFERENCES image_patterns(id)',
+    );
+i1.GeneratedColumn<String> _column_45(String aliasedName) =>
     i1.GeneratedColumn<String>(
       'current_page_id',
       aliasedName,

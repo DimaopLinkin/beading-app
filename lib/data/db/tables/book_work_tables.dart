@@ -6,6 +6,9 @@ import 'package:drift/drift.dart';
 @DataClassName('PageWorkStateRow')
 class PageWorkStates extends Table with UuidIdColumn, SyncColumns {
   @override
+  TextColumn get id => text().references(ImagePatternPages, #id)();
+
+  @override
   String get tableName => 'page_work_states';
 
   /// Положение линейки, px картинки страницы.
@@ -32,6 +35,9 @@ class PageWorkStates extends Table with UuidIdColumn, SyncColumns {
 /// Какая страница схемы открыта. Одна запись на схему: `id` равен `id` схемы (`image_patterns`).
 @DataClassName('BookWorkStateRow')
 class BookWorkStates extends Table with UuidIdColumn, SyncColumns {
+  @override
+  TextColumn get id => text().references(ImagePatterns, #id)();
+
   @override
   String get tableName => 'book_work_states';
 

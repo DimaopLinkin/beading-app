@@ -604,7 +604,7 @@ abstract class AppLocalizations {
   /// Кнопка: линейка на ряд назад
   ///
   /// In ru, this message translates to:
-  /// **'Назад'**
+  /// **'Ряд назад'**
   String get bookWorkPrevRow;
 
   /// Кнопка: линейка на следующий ряд
@@ -706,19 +706,19 @@ abstract class AppLocalizations {
   /// No description provided for @bookWorkLoadFailed.
   ///
   /// In ru, this message translates to:
-  /// **'Не получилось открыть схему.'**
+  /// **'Схема не открылась. Закрой экран и попробуй ещё раз.'**
   String get bookWorkLoadFailed;
 
   /// No description provided for @bookWorkSaveFailed.
   ///
   /// In ru, this message translates to:
-  /// **'Не удалось сохранить положение линейки. Проверьте свободное место.'**
+  /// **'Не получилось сохранить, где ты остановилась. Проверь, есть ли место на устройстве.'**
   String get bookWorkSaveFailed;
 
   /// No description provided for @bookWorkImageFailed.
   ///
   /// In ru, this message translates to:
-  /// **'Не удалось открыть картинку страницы.'**
+  /// **'Не получилось показать эту страницу. Попробуй открыть её ещё раз.'**
   String get bookWorkImageFailed;
 }
 

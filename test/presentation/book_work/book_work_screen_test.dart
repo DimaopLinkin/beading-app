@@ -102,7 +102,7 @@ void main() {
 
     expect(find.text('Колье'), findsOneWidget);
     expect(find.text('Ряд 1'), findsOneWidget);
-    expect(find.text('Назад'), findsOneWidget);
+    expect(find.text('Ряд назад'), findsOneWidget);
     expect(find.text('Следующий ряд'), findsOneWidget);
     expect(find.text('Стр. 1 из 3'), findsOneWidget);
     expect(tester.widget<InteractiveViewer>(find.byType(InteractiveViewer)).maxScale, 8);
@@ -296,7 +296,7 @@ void main() {
     final BookWorkCubit cubit = await open(tester);
 
     expect(cubit.state.status, BookWorkStatus.failed);
-    expect(find.text('Не получилось открыть схему.'), findsOneWidget);
+    expect(find.text('Схема не открылась. Закрой экран и попробуй ещё раз.'), findsOneWidget);
     expect(find.text('Закрыть'), findsOneWidget);
     await closeScreen(tester, cubit);
   });
@@ -306,7 +306,7 @@ void main() {
 
     final BookWorkCubit cubit = await open(tester);
 
-    expect(find.text('Не удалось открыть картинку страницы.'), findsOneWidget);
+    expect(find.text('Не получилось показать эту страницу. Попробуй открыть её ещё раз.'), findsOneWidget);
     await closeScreen(tester, cubit);
   });
 }

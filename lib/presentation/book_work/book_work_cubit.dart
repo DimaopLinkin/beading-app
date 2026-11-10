@@ -51,6 +51,8 @@ class BookWorkCubit extends Cubit<BookWorkState> {
   bool _progressDirty = false;
   String? _dirtyNotes;
   Timer? _timer;
+  int _retries = 0;
+  static const int _maxRetries = 4;
   Future<void> _flushing = Future<void>.value();
 
   Future<void> load() async {
@@ -176,7 +178,14 @@ class BookWorkCubit extends Cubit<BookWorkState> {
   Future<void> flush() {
     _timer?.cancel();
     _timer = null;
-    return _flushing = _flushing.then((_) => _writePending());
+    return _flushing = _flushing.then((_) => _writePending()).catchError((Object _) => _markFailed());
+  }
+
+  /// Непредвиденное исключение не должно ломать очередь записей: показываем сбой, повторим позже.
+  void _markFailed() {
+    if (!isClosed && !state.saveFailed) {
+      emit(state.copyWith(saveFailed: true));
+    }
   }
 
   Future<void> _writePending() async {
@@ -215,11 +224,21 @@ class BookWorkCubit extends Cubit<BookWorkState> {
     if (!isClosed && failed != state.saveFailed) {
       emit(state.copyWith(saveFailed: failed));
     }
+    if (failed && !isClosed && _retries < _maxRetries) {
+      // Диск мог быть занят временно: пробуем ещё, пока она не закрыла экран.
+      _retries++;
+      _timer = Timer(saveDelay * (1 << _retries), () => unawaited(flush()));
+    } else if (!failed) {
+      _retries = 0;
+    }
   }
 
   @override
   Future<void> close() async {
-    await flush();
-    return super.close();
+    try {
+      await flush();
+    } finally {
+      await super.close();
+    }
   }
 }

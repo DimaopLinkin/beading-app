@@ -339,6 +339,34 @@ void main() {
     });
   });
 
+  group('надёжность записи', () {
+    test('сбой сам повторяется без нового ввода, пока запись не удастся', () {
+      inFakeTime((async, cubit) {
+        work.failure = const StorageFailure('занято');
+        cubit.nextRow();
+        async.elapse(const Duration(milliseconds: 300));
+        expect(cubit.state.saveFailed, isTrue);
+
+        work.failure = null;
+        async.elapse(const Duration(seconds: 5));
+
+        expect(cubit.state.saveFailed, isFalse);
+        expect(work.pages['pg-1']!.ruler.row, 2);
+      });
+    });
+
+    test('неожиданное исключение не ломает закрытие и очередь записей', () async {
+      final BookWorkCubit cubit = create();
+      await cubit.load();
+      cubit.nextRow();
+      work.throwOnSave = true;
+
+      await cubit.close();
+
+      expect(cubit.isClosed, isTrue);
+    });
+  });
+
   group('проект', () {
     test('первый сдвиг переводит «идею» в «в работе»; без сдвига статус не меняется', () {
       inFakeTime((async, cubit) {

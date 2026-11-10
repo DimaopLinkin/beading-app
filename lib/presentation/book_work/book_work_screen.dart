@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:beading/domain/image_pattern/book_work/page_viewport.dart';
 import 'package:beading/domain/image_pattern/book_work/ruler_state.dart';
 import 'package:beading/domain/image_pattern/file_store.dart';
@@ -33,6 +35,8 @@ class BookWorkScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return CupertinoPageScaffold(
       backgroundColor: CupertinoColors.systemGroupedBackground,
+      // Клавиатура листа заметок не должна менять размер страницы под ним.
+      resizeToAvoidBottomInset: false,
       child: BlocBuilder<BookWorkCubit, BookWorkState>(
         buildWhen: (previous, current) => previous.status != current.status,
         builder: (context, state) => switch (state.status) {
@@ -83,9 +87,27 @@ class _WorkspaceState extends State<_Workspace> {
   final TransformationController _controller = TransformationController();
   String? _shownPageId;
   Size? _shownSize;
+  Timer? _settle;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller.addListener(_viewChanged);
+  }
+
+  /// Инерция жеста идёт и после `onInteractionEnd`: запоминаем вид, когда он успокоился.
+  void _viewChanged() {
+    _settle?.cancel();
+    _settle = Timer(const Duration(milliseconds: 150), () {
+      if (mounted) {
+        context.read<BookWorkCubit>().setViewport(_viewportNow);
+      }
+    });
+  }
 
   @override
   void dispose() {
+    _settle?.cancel();
     _controller.dispose();
     super.dispose();
   }
@@ -122,8 +144,28 @@ class _WorkspaceState extends State<_Workspace> {
     if (_shownPageId == state.page.id && _shownSize == view) {
       return;
     }
+    final Size? previous = _shownSize;
+    final bool resizedOnly = _shownPageId == state.page.id && previous != null && previous.width > 0;
     _shownPageId = state.page.id;
     _shownSize = view;
+    if (resizedOnly) {
+      // Окно изменили: страница вписана по ширине, поэтому сдвиг масштабируется вместе с ней.
+      // Запись отложена до следующего жеста, а не на каждый кадр ресайза.
+      final double ratio = view.width / previous.width;
+      final PageViewport now = _viewportNow;
+      final PageViewport scaled = _revealed(
+        state,
+        PageViewport(scale: now.scale, dx: now.dx * ratio, dy: now.dy * ratio),
+        view,
+        safe,
+      );
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) {
+          _show(scaled);
+        }
+      });
+      return;
+    }
     final PageViewport stored = state.work.viewport;
     final PageViewport start = stored == PageViewport.identity
         ? PageViewport(scale: 1, dx: 0, dy: safe.top + _topBarHeight)
@@ -197,7 +239,12 @@ class _WorkspaceState extends State<_Workspace> {
                           ),
                         ),
                       ),
-                      Positioned(left: 0, right: 0, top: 0, child: _TopBar(state: state)),
+                      Positioned(
+                        left: 0,
+                        right: 0,
+                        top: 0,
+                        child: _PanelFrame(child: _TopBar(state: state)),
+                      ),
                       if (state.saveFailed)
                         Positioned(
                           left: 0,
@@ -205,7 +252,12 @@ class _WorkspaceState extends State<_Workspace> {
                           top: safe.top + _topBarHeight,
                           child: const _SaveFailedNotice(),
                         ),
-                      Positioned(left: 0, right: 0, bottom: 0, child: _BottomPanel(state: state)),
+                      Positioned(
+                        left: 0,
+                        right: 0,
+                        bottom: 0,
+                        child: _PanelFrame(child: _BottomPanel(state: state)),
+                      ),
                     ],
                   );
                 },
@@ -332,8 +384,8 @@ class _BottomPanel extends StatelessWidget {
                       },
                       child: Semantics(
                         liveRegion: true,
-                        child: SizedBox(
-                          height: tokens.minTapTarget,
+                        child: ConstrainedBox(
+                          constraints: BoxConstraints(minHeight: tokens.minTapTarget),
                           child: Center(
                             child: Text(
                               l10n.bookWorkRow(state.work.ruler.row),
@@ -418,5 +470,22 @@ class _IconAction extends StatelessWidget {
     minimumSize: Size.square(context.tokens.minTapTarget),
     onPressed: onPressed,
     child: Semantics(label: label, child: Icon(icon)),
+  );
+}
+
+/// Панели управления: крупный шрифт системы ограничен 1,4×, чтобы панель не вырастала выше отведённых под неё
+/// [_topBarHeight] и [_bottomPanelHeight], а на широком окне macOS панель не шире 520 pt.
+class _PanelFrame extends StatelessWidget {
+  const _PanelFrame({required this.child});
+
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) => Center(
+    heightFactor: 1,
+    child: ConstrainedBox(
+      constraints: const BoxConstraints(maxWidth: 520),
+      child: MediaQuery.withClampedTextScaling(maxScaleFactor: 1.4, child: child),
+    ),
   );
 }

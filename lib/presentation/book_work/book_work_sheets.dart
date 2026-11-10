@@ -55,7 +55,7 @@ class _SheetHeader extends StatelessWidget {
         Expanded(child: Text(title, style: CupertinoTheme.of(context).textTheme.navTitleTextStyle)),
         CupertinoButton(
           padding: EdgeInsets.zero,
-          minimumSize: const Size.square(44),
+          minimumSize: Size.square(context.tokens.minTapTarget),
           onPressed: () => Navigator.of(context).pop(),
           child: Text(l10n.bookWorkDone),
         ),
@@ -74,51 +74,53 @@ class _RulerSettingsSheet extends StatelessWidget {
     final double gap = context.tokens.spacing.m;
     return GlassSheet(
       density: GlassDensity.dense,
-      child: BlocBuilder<BookWorkCubit, BookWorkState>(
-        builder: (context, state) {
-          final RulerState ruler = state.work.ruler;
-          // Верхний предел: пятая часть страницы, чтобы линейка оставалась линейкой.
-          final double limit = math.max(RulerState.minHeight * 2, state.page.height * 0.2);
-          return Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: <Widget>[
-              _SheetHeader(title: l10n.bookWorkRulerSettings),
-              SizedBox(height: gap),
-              _LabeledSlider(
-                label: l10n.bookWorkRulerHeight,
-                sliderKey: const ValueKey<String>('ruler-height-slider'),
-                value: ruler.height,
-                min: RulerState.minHeight,
-                max: limit,
-                onChanged: cubit.setRulerHeight,
-              ),
-              _LabeledSlider(
-                label: l10n.bookWorkRulerStep,
-                sliderKey: const ValueKey<String>('ruler-step-slider'),
-                value: ruler.step,
-                min: RulerState.minStep,
-                max: limit,
-                onChanged: cubit.setRulerStep,
-              ),
-              SizedBox(height: gap),
-              Text(l10n.bookWorkRulerColor),
-              SizedBox(height: gap),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: <Widget>[
-                  for (final RulerHighlight highlight in RulerHighlight.values)
-                    _ColorSwatch(
-                      highlight: highlight,
-                      label: _colorName(l10n, highlight),
-                      selected: ruler.highlight == highlight,
-                      onTap: () => cubit.setHighlight(highlight),
-                    ),
-                ],
-              ),
-            ],
-          );
-        },
+      child: SingleChildScrollView(
+        child: BlocBuilder<BookWorkCubit, BookWorkState>(
+          builder: (context, state) {
+            final RulerState ruler = state.work.ruler;
+            // Верхний предел: пятая часть страницы, чтобы линейка оставалась линейкой.
+            final double limit = math.max(RulerState.minHeight * 2, state.page.height * 0.2);
+            return Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: <Widget>[
+                _SheetHeader(title: l10n.bookWorkRulerSettings),
+                SizedBox(height: gap),
+                _LabeledSlider(
+                  label: l10n.bookWorkRulerHeight,
+                  sliderKey: const ValueKey<String>('ruler-height-slider'),
+                  value: ruler.height,
+                  min: RulerState.minHeight,
+                  max: limit,
+                  onChanged: cubit.setRulerHeight,
+                ),
+                _LabeledSlider(
+                  label: l10n.bookWorkRulerStep,
+                  sliderKey: const ValueKey<String>('ruler-step-slider'),
+                  value: ruler.step,
+                  min: RulerState.minStep,
+                  max: limit,
+                  onChanged: cubit.setRulerStep,
+                ),
+                SizedBox(height: gap),
+                Text(l10n.bookWorkRulerColor),
+                SizedBox(height: gap),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: <Widget>[
+                    for (final RulerHighlight highlight in RulerHighlight.values)
+                      _ColorSwatch(
+                        highlight: highlight,
+                        label: _colorName(l10n, highlight),
+                        selected: ruler.highlight == highlight,
+                        onTap: () => cubit.setHighlight(highlight),
+                      ),
+                  ],
+                ),
+              ],
+            );
+          },
+        ),
       ),
     );
   }
