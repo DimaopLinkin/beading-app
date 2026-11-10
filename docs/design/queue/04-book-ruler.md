@@ -1,7 +1,7 @@
 ---
 id: 04-book-ruler
 title: Схема из книги: работа с линейкой (MUST-B2–B4)
-status: delivered
+status: rework
 depends: 01-ui-kit
 ---
 
