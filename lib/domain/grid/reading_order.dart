@@ -40,7 +40,7 @@ final class ReadingRow extends Equatable {
 /// - Пейот с `drop > 1`: каждый столбец — отдельный ряд, без объединения первых двух (уточнит T35).
 ///
 /// Ряды строятся по запросу ([row]), поэтому схема 4096×4096 не раздувает память.
-final class ReadingOrder {
+final class ReadingOrder extends Equatable {
   /// Порядок плетения для схемы из [columns] × [rows] ячеек.
   factory ReadingOrder.of(
     GridGeometry geometry, {
@@ -61,6 +61,9 @@ final class ReadingOrder {
   final int rows;
   final ReadingStart start;
 
+  @override
+  List<Object?> get props => <Object?>[geometry, columns, rows, start];
+
   static const CellMetrics _unit = _UnitMetrics();
 
   bool get _fromTop => start == ReadingStart.topLeft || start == ReadingStart.topRight;
@@ -70,6 +73,12 @@ final class ReadingOrder {
   int get rowCount => switch (geometry) {
     RectangularGeometry() || BrickGeometry() => rows,
     PeyoteGeometry(:final int drop) => drop == 1 && columns > 1 ? columns - 1 : columns,
+  };
+
+  /// Сколько ячеек в самом длинном ряду плетения (первый ряд пейота — два столбца разом).
+  int get maxRowLength => switch (geometry) {
+    RectangularGeometry() || BrickGeometry() => columns,
+    PeyoteGeometry(:final int drop) => drop == 1 && columns > 1 ? rows * 2 : rows,
   };
 
   /// Ряд плетения по номеру, от нуля.

@@ -141,7 +141,19 @@ void main() {
       await repository.save(sampleGridPattern());
 
       final GridPatternSummary summary = (await repository.summaryByProject('proj-1')).valueOrNull!;
-      expect(summary, const GridPatternSummary(id: 'pat-1', projectId: 'proj-1', width: 4, height: 3));
+      expect(
+        summary,
+        const GridPatternSummary(
+          id: 'pat-1',
+          projectId: 'proj-1',
+          width: 4,
+          height: 3,
+          geometry: PeyoteGeometry(drop: 2),
+        ),
+      );
+      // У пейота ряд плетения — столбец: рядов столько же, сколько столбцов, а длина ряда — высота схемы.
+      expect(summary.readingRowCount, 4);
+      expect(summary.maxRowLength, 3);
     });
 
     test('повторное сохранение заменяет сетку и палитру, палитра сокращается надгробиями', () async {
@@ -455,13 +467,38 @@ void main() {
       );
     });
 
+    test('у пейота отметки считаются по рядам плетения (столбцам): ниже схема их не трогает, уже — снимает', () async {
+      await progress.markRow('pat-1', 0);
+      await progress.markRow('pat-1', 3);
+      await progress.setCurrent('pat-1', row: 3, bead: 2);
+
+      // Ниже: столбцов столько же — ряды те же; бусина 2 в ряду из двух бусин уже не существует.
+      await repository.save(
+        sampleGridPattern().copyWith(
+          grid: Grid.fromCells(width: 4, height: 2, cells: const <int>[1, 2, 0, 1, 2, 2, 1, 0]),
+        ),
+      );
+      expect(
+        (await progress.load('pat-1')).valueOrNull,
+        GridProgress(completedRows: const <int>{0, 3}, currentRow: 3),
+      );
+
+      // Уже: рядов плетения стало три, отметка четвёртого ряда снимается.
+      await repository.save(
+        sampleGridPattern().copyWith(grid: Grid.fromCells(width: 3, height: 2, cells: const <int>[1, 2, 0, 1, 2, 2])),
+      );
+      expect((await progress.load('pat-1')).valueOrNull, GridProgress(completedRows: const <int>{0}));
+    });
+
     test('схема стала ниже и уже — отметки и позиция за её краем снимаются', () async {
+      await repository.save(sampleGridPattern().copyWith(geometry: const GridGeometry.rectangular()));
       await progress.markRow('pat-1', 0);
       await progress.markRow('pat-1', 2);
       await progress.setCurrent('pat-1', row: 2, bead: 3);
 
       await repository.save(
         sampleGridPattern().copyWith(
+          geometry: const GridGeometry.rectangular(),
           grid: Grid.fromCells(width: 4, height: 2, cells: const <int>[1, 2, 0, 1, 2, 2, 1, 0]),
         ),
       );
@@ -470,7 +507,10 @@ void main() {
 
       await progress.setCurrent('pat-1', row: 1, bead: 3);
       await repository.save(
-        sampleGridPattern().copyWith(grid: Grid.fromCells(width: 3, height: 2, cells: const <int>[1, 2, 0, 1, 2, 2])),
+        sampleGridPattern().copyWith(
+          geometry: const GridGeometry.rectangular(),
+          grid: Grid.fromCells(width: 3, height: 2, cells: const <int>[1, 2, 0, 1, 2, 2]),
+        ),
       );
 
       expect((await progress.load('pat-1')).valueOrNull, GridProgress(completedRows: const <int>{0}, currentRow: 1));

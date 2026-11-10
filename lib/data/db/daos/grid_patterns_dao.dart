@@ -20,9 +20,15 @@ class GridPatternsDao extends DatabaseAccessor<AppDatabase> with _$GridPatternsD
   Future<GridPatternRow?> find(String id) => (select(gridPatterns)..where((t) => t.id.equals(id))).getSingleOrNull();
 
   /// Размеры живой схемы проекта без чтения BLOB.
-  Future<({String id, int width, int height})?> summaryByProject(String projectId) async {
+  Future<({String id, int width, int height, String geometry, int drop})?> summaryByProject(String projectId) async {
     final JoinedSelectStatement<GridPatterns, GridPatternRow> query = selectOnly(gridPatterns)
-      ..addColumns(<Expression<Object>>[gridPatterns.id, gridPatterns.width, gridPatterns.height])
+      ..addColumns(<Expression<Object>>[
+        gridPatterns.id,
+        gridPatterns.width,
+        gridPatterns.height,
+        gridPatterns.geometry,
+        gridPatterns.geometryDrop,
+      ])
       ..where(gridPatterns.projectId.equals(projectId) & gridPatterns.deletedAt.isNull());
     final TypedResult? row = await query.getSingleOrNull();
     if (row == null) {
@@ -32,6 +38,8 @@ class GridPatternsDao extends DatabaseAccessor<AppDatabase> with _$GridPatternsD
       id: row.read(gridPatterns.id)!,
       width: row.read(gridPatterns.width)!,
       height: row.read(gridPatterns.height)!,
+      geometry: row.read(gridPatterns.geometry)!,
+      drop: row.read(gridPatterns.geometryDrop)!,
     );
   }
 

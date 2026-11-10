@@ -1056,6 +1056,132 @@ abstract class AppLocalizations {
   /// In ru, this message translates to:
   /// **'Добавить проект'**
   String get libraryAddSemantic;
+
+  /// Экран плетения: схема не открылась
+  ///
+  /// In ru, this message translates to:
+  /// **'Не получилось открыть схему. Попробуй ещё раз.'**
+  String get weaveLoadFailed;
+
+  /// Закрыть экран плетения
+  ///
+  /// In ru, this message translates to:
+  /// **'Закрыть'**
+  String get weaveClose;
+
+  /// Крупный счётчик: номер текущего ряда и всего рядов
+  ///
+  /// In ru, this message translates to:
+  /// **'Ряд {row} из {total}'**
+  String weaveRowCounter(int row, int total);
+
+  /// Переключатель: отмечать ряд целиком
+  ///
+  /// In ru, this message translates to:
+  /// **'По ряду'**
+  String get weaveModeByRow;
+
+  /// Переключатель: отмечать бусины по одной
+  ///
+  /// In ru, this message translates to:
+  /// **'По бусине'**
+  String get weaveModeByBead;
+
+  /// Подпись переключателя символов (VoiceOver)
+  ///
+  /// In ru, this message translates to:
+  /// **'Показать символы на бусинах'**
+  String get weaveSymbols;
+
+  /// Кнопка: шаг назад
+  ///
+  /// In ru, this message translates to:
+  /// **'Назад'**
+  String get weaveBack;
+
+  /// Кнопка: выложена следующая бусина
+  ///
+  /// In ru, this message translates to:
+  /// **'Следующая бусина'**
+  String get weaveNextBead;
+
+  /// Кнопка: ряд готов
+  ///
+  /// In ru, this message translates to:
+  /// **'Ряд готов'**
+  String get weaveRowDone;
+
+  /// Тост после отметки ряда
+  ///
+  /// In ru, this message translates to:
+  /// **'Ряд {row} готов'**
+  String weaveRowCompleted(int row);
+
+  /// Кнопка тоста: отменить отметку
+  ///
+  /// In ru, this message translates to:
+  /// **'Отменить'**
+  String get weaveUndo;
+
+  /// Вопрос после последнего ряда
+  ///
+  /// In ru, this message translates to:
+  /// **'Последний ряд готов. Отметить работу законченной?'**
+  String get weaveFinishTitle;
+
+  /// Кнопка: отметить проект готовым
+  ///
+  /// In ru, this message translates to:
+  /// **'Готово'**
+  String get weaveFinishYes;
+
+  /// Кнопка: не отмечать сейчас
+  ///
+  /// In ru, this message translates to:
+  /// **'Позже'**
+  String get weaveFinishLater;
+
+  /// Предупреждение: прогресс не записался
+  ///
+  /// In ru, this message translates to:
+  /// **'Не получилось сохранить прогресс. Попробую ещё раз.'**
+  String get weaveSaveFailed;
+
+  /// Подпись для VoiceOver: сколько бусин выложено
+  ///
+  /// In ru, this message translates to:
+  /// **'Бусина {laid} из {total}'**
+  String weaveBeadProgress(int laid, int total);
+
+  /// Направление ряда
+  ///
+  /// In ru, this message translates to:
+  /// **'Нить идёт вправо'**
+  String get weaveDirRight;
+
+  /// Направление ряда
+  ///
+  /// In ru, this message translates to:
+  /// **'Нить идёт влево'**
+  String get weaveDirLeft;
+
+  /// Направление ряда
+  ///
+  /// In ru, this message translates to:
+  /// **'Нить идёт вниз'**
+  String get weaveDirDown;
+
+  /// Направление ряда
+  ///
+  /// In ru, this message translates to:
+  /// **'Нить идёт вверх'**
+  String get weaveDirUp;
+
+  /// Подпись word chart (VoiceOver)
+  ///
+  /// In ru, this message translates to:
+  /// **'Бусины ряда'**
+  String get weaveWordChart;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

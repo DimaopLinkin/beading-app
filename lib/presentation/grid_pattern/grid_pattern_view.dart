@@ -4,6 +4,7 @@ import 'package:beading/domain/grid/cell_metrics.dart';
 import 'package:beading/domain/grid/cell_position.dart';
 import 'package:beading/domain/grid/grid.dart';
 import 'package:beading/domain/grid/grid_geometry.dart';
+import 'package:beading/domain/grid/reading_order.dart';
 import 'package:beading/domain/palette/palette_snapshot.dart';
 import 'package:beading/presentation/grid_pattern/grid_base_painter.dart';
 import 'package:beading/presentation/grid_pattern/grid_colors.dart';
@@ -64,7 +65,7 @@ class GridPatternView extends StatefulWidget {
 }
 
 /// Ширина полосы слева под маркер текущего ряда.
-const double _rowGutter = 72;
+const double gridRowGutter = 72;
 
 class _GridPatternViewState extends State<GridPatternView> {
   GridLayerCache? _ownCache;
@@ -140,7 +141,7 @@ class _GridPatternViewState extends State<GridPatternView> {
     return LayoutBuilder(
       builder: (context, constraints) {
         // Слева полоса под маркер ряда: он стоит вне схемы, на нейтральном фоне.
-        final double gutter = widget.interactive && widget.options.currentRow != null ? _rowGutter : 0;
+        final double gutter = widget.interactive && widget.options.currentRow != null ? gridRowGutter : 0;
         final Size viewport = Size(math.max(1, constraints.maxWidth - gutter), constraints.maxHeight);
         _fit(viewport);
         final double fitScale = viewport.width / _scene.size.width;
@@ -210,7 +211,13 @@ class _GridPatternViewState extends State<GridPatternView> {
                     : FittedBox(alignment: Alignment.topCenter, child: scene),
               ),
               if (widget.interactive && widget.options.currentRow != null)
-                _RowMarker(controller: _controller, scene: _scene, row: widget.options.currentRow!, viewport: viewport),
+                _RowMarker(
+                  controller: _controller,
+                  scene: _scene,
+                  row: widget.options.currentRow!,
+                  order: widget.options.order,
+                  viewport: viewport,
+                ),
             ],
           ),
         );
@@ -227,25 +234,34 @@ class _GridPatternViewState extends State<GridPatternView> {
 /// Маркер текущего ряда у левого края окна: капсула акцента с номером ряда. Стоит вне схемы, на нейтральном фоне, и
 /// не масштабируется вместе с ней, поэтому читается при любом зуме.
 class _RowMarker extends StatelessWidget {
-  const _RowMarker({required this.controller, required this.scene, required this.row, required this.viewport});
+  const _RowMarker({
+    required this.controller,
+    required this.scene,
+    required this.row,
+    required this.viewport,
+    this.order,
+  });
 
   final TransformationController controller;
   final GridScene scene;
   final int row;
+  final ReadingOrder? order;
   final Size viewport;
 
   static const double _height = 28;
 
   @override
   Widget build(BuildContext context) {
-    if (row < 0 || row >= scene.rows) return const SizedBox.shrink();
+    final ReadingOrder? reading = order;
+    if (row < 0 || row >= (reading?.rowCount ?? scene.rows)) return const SizedBox.shrink();
+    final Rect bounds = reading == null ? scene.rowBounds(row) : scene.cellsBounds(reading.row(row).cells);
     final Color accent = context.tokens.accent.resolveFrom(context);
     final Color onAccent = CupertinoDynamicColor.resolve(CupertinoColors.white, context);
     return AnimatedBuilder(
       animation: controller,
       builder: (context, _) {
         final Matrix4 m = controller.value;
-        final double centerY = m.transformRect(scene.rowBounds(row)).center.dy;
+        final double centerY = m.transformRect(bounds).center.dy;
         if (centerY < -_height || centerY > viewport.height + _height) return const SizedBox.shrink();
         return Positioned(
           key: const ValueKey<String>('grid-row-marker'),

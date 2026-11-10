@@ -18,6 +18,8 @@ import 'package:beading/presentation/library/project_thumbnail_provider.dart';
 import 'package:beading/presentation/settings/about_screen.dart';
 import 'package:beading/presentation/settings/hidden_settings_screen.dart';
 import 'package:beading/presentation/settings/settings_screen.dart';
+import 'package:beading/presentation/weaving/weave_cubit.dart';
+import 'package:beading/presentation/weaving/weave_screen.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -31,6 +33,9 @@ abstract final class AppRoutes {
 
   /// «Схема из книги». Закрывается с id созданного проекта.
   static const String importBook = ImportBookScreen.routePath;
+
+  /// Плетение по своей схеме (T19).
+  static String weave(String projectId) => WeaveScreen.locationFor(projectId);
 
   /// Работа по схеме из книги (T07): линейка, зум, страницы, заметки. T05 откроет её из карточки проекта.
   static String bookWork(String projectId) => BookWorkScreen.locationFor(projectId);
@@ -50,8 +55,13 @@ GoRouter createRouter({bool showDeveloperTools = !kReleaseMode}) => GoRouter(
           thumbnails: getIt<ProjectThumbnailRegistry>(),
           onOpenSettings: () => context.push(AppRoutes.settings),
           onOpenProject: (context, project) {
-            if (project.contentKind == ContentKind.image) {
-              unawaited(context.push<void>(AppRoutes.bookWork(project.id)));
+            switch (project.contentKind) {
+              case ContentKind.image:
+                unawaited(context.push<void>(AppRoutes.bookWork(project.id)));
+              case ContentKind.grid:
+                unawaited(context.push<void>(AppRoutes.weave(project.id)));
+              case ContentKind.steps:
+                break;
             }
           },
         ),
@@ -80,6 +90,13 @@ GoRouter createRouter({bool showDeveloperTools = !kReleaseMode}) => GoRouter(
       builder: (_, _) => BlocProvider<ImportBookCubit>(
         create: (_) => getIt<ImportBookCubit>(),
         child: const ImportBookScreen(),
+      ),
+    ),
+    GoRoute(
+      path: WeaveScreen.routePath,
+      builder: (_, state) => BlocProvider<WeaveCubit>(
+        create: (_) => getIt<WeaveCubit>(param1: state.pathParameters['projectId'])..load(),
+        child: const WeaveScreen(),
       ),
     ),
     GoRoute(

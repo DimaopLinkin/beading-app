@@ -1,3 +1,5 @@
+import 'package:beading/domain/grid/cell_position.dart';
+import 'package:beading/domain/grid/reading_order.dart';
 import 'package:equatable/equatable.dart';
 
 /// Настройки показа схемы. Всё, что не меняет данные схемы.
@@ -11,6 +13,8 @@ final class GridViewOptions extends Equatable {
     this.currentCell,
     this.doneRows = const <int>{},
     this.markCurrentRowBeads = true,
+    this.order,
+    this.pendingCells = const <CellPosition>[],
   }) : assert(boldEvery >= 0, 'boldEvery не может быть отрицательным');
 
   /// Знак палитры на каждой бусине.
@@ -37,6 +41,13 @@ final class GridViewOptions extends Equatable {
   /// Метка на каждой бусине текущего ряда.
   final bool markCurrentRowBeads;
 
+  /// Порядок плетения. Если задан, [currentRow] и [doneRows] — номера рядов плетения (у пейота это столбцы, а у станка
+  /// при начале снизу — ряды снизу вверх), иначе — ряды сетки сверху вниз.
+  final ReadingOrder? order;
+
+  /// Ещё не выложенные бусины текущего ряда («по бусине»): рисуются пустыми.
+  final List<CellPosition> pendingCells;
+
   /// Влияет ли разница на кеш слоя ячеек (остальное рисуется поверх, без пересборки).
   bool sameBaseLayer(GridViewOptions other) =>
       showSymbols == other.showSymbols &&
@@ -54,5 +65,7 @@ final class GridViewOptions extends Equatable {
     currentCell,
     doneRows,
     markCurrentRowBeads,
+    order,
+    pendingCells,
   ];
 }
