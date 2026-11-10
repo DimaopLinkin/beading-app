@@ -12,8 +12,8 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:get_it/get_it.dart';
 
 import '../support/fake_platform.dart';
-import '../support/unmount.dart';
 import '../support/in_memory_database.dart';
+import '../support/unmount.dart';
 
 Future<Widget> _bootstrap(WidgetTester tester, AppDatabase database) async => (await tester.runAsync(
   () => bootstrap(
