@@ -15,10 +15,10 @@ final class GenerationStats extends Equatable {
   /// Сколько цветов осталось в схеме.
   final int colorCount;
 
-  /// Средняя ΔE2000 между цветом клетки в схеме и средним цветом фото под ней (по непустым клеткам).
+  /// Средняя ΔE2000 между цветом клетки в схеме и средним цветом фото под ней (по непустым клеткам). Это цвет ячейки после выборки, а не отдельные пиксели фото.
   final double meanDeltaE;
 
-  /// Время стадий конвейера по названиям: `sample`, `palette`, `assign`, `steps`.
+  /// Время стадий конвейера по названиям: `sample`, `palette`, `assign` (вместе с упорядочиванием палитры), `steps`; сам подсчёт метрик не входит.
   final Map<String, Duration> stageTimes;
 
   Duration get totalTime => stageTimes.values.fold(Duration.zero, (sum, d) => sum + d);
