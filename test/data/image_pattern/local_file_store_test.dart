@@ -59,4 +59,15 @@ void main() {
     expect((await store.delete('a/../../x.png')).failureOrNull, isA<ValidationFailure>());
     expect(File('${root.parent.path}/x.png').existsSync(), isFalse);
   });
+
+  test('сбой переименования не оставляет временный файл', () async {
+    // Под именем будущего файла лежит непустой каталог: rename упадёт.
+    Directory('${root.path}/a/1.png').createSync(recursive: true);
+    File('${root.path}/a/1.png/x').writeAsStringSync('x');
+
+    final result = await store.write('a/1.png', Uint8List(1));
+
+    expect(result.failureOrNull, isA<StorageFailure>());
+    expect(File('${root.path}/a/1.png.tmp').existsSync(), isFalse);
+  });
 }

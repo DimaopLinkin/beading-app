@@ -24,8 +24,15 @@ class LocalFileStore implements FileStore {
     await target.parent.create(recursive: true);
     // Сначала во временный файл: оборванная запись не оставит битую страницу под настоящим именем.
     final File temp = File('${target.path}.tmp');
-    await temp.writeAsBytes(bytes, flush: true);
-    await temp.rename(target.path);
+    try {
+      await temp.writeAsBytes(bytes, flush: true);
+      await temp.rename(target.path);
+    } on FileSystemException {
+      if (temp.existsSync()) {
+        await temp.delete();
+      }
+      rethrow;
+    }
   });
 
   @override

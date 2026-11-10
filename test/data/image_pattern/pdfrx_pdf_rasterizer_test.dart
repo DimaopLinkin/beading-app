@@ -34,17 +34,21 @@ void main() {
   setUp(() {
     rasterizer = PdfrxPdfRasterizer(
       initialize: () async {
+        expect(
+          pdfium,
+          isNotNull,
+          reason: 'pdfium не найден: нужен `flutter pub get` и сборка хуков пакета pdfium_dart',
+        );
         Pdfrx.pdfiumModulePath = pdfium;
       },
     );
   });
 
   // В фикстуре 3 страницы: 200×100, 200×100 и 100×200 пунктов; в каждой красный прямоугольник в левом нижнем углу.
-  final Object skip = pdfium == null ? 'pdfium не найден: сначала нужен `flutter pub get` и сборка хуков' : false;
 
   test('считает страницы', () async {
     expect((await rasterizer.pageCount(fixture)).valueOrNull, 3);
-  }, skip: skip);
+  });
 
   test('рисует выбранные страницы в 2× и в заданном порядке', () async {
     final Result<List<ProcessedImage>> result = await rasterizer.render(fixture, <int>[2, 0]);
@@ -56,20 +60,33 @@ void main() {
     // Фон белый, а красный прямоугольник нарисован: страница не пустая.
     expect(decoded.pixels.first, 0xFFFFFFFF);
     expect(decoded.pixels, contains(0xFFFF0000));
-  }, skip: skip);
+  });
 
   test('масштаб меняет размер результата', () async {
     final List<ProcessedImage> pages = (await rasterizer.render(fixture, <int>[0], scale: 1)).valueOrNull!;
 
     expect((pages.single.width, pages.single.height), (200, 100));
-  }, skip: skip);
+  });
 
   test('номер страницы вне документа — ValidationFailure', () async {
     expect((await rasterizer.render(fixture, <int>[3])).failureOrNull, isA<ValidationFailure>());
     expect((await rasterizer.render(fixture, <int>[-1])).failureOrNull, isA<ValidationFailure>());
-  }, skip: skip);
+  });
 
   test('не PDF — Failure', () async {
     expect((await rasterizer.pageCount(Uint8List.fromList(<int>[1, 2, 3]))).failureOrNull, isA<Failure>());
-  }, skip: skip);
+  });
+
+  test('большая страница сжимается до maxSide, а не раздувается в 2×', () async {
+    final PdfrxPdfRasterizer capped = PdfrxPdfRasterizer(
+      initialize: () async {
+        Pdfrx.pdfiumModulePath = pdfium;
+      },
+      maxSide: 300,
+    );
+
+    final List<ProcessedImage> pages = (await capped.render(fixture, <int>[0])).valueOrNull!;
+
+    expect((pages.single.width, pages.single.height), (300, 150));
+  });
 }

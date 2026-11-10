@@ -10,7 +10,11 @@ import 'package:pdfrx/pdfrx.dart';
 /// Растеризация PDF через pdfium (пакет `pdfrx`).
 class PdfrxPdfRasterizer implements PdfRasterizer {
   /// [initialize] готовит pdfium к работе; в приложении это `pdfrxFlutterInitialize`, в тестах подменяется.
-  PdfrxPdfRasterizer({Future<void> Function()? initialize}) : _initialize = initialize ?? _defaultInitialize;
+  PdfrxPdfRasterizer({Future<void> Function()? initialize, this.maxSide = 4096})
+    : _initialize = initialize ?? _defaultInitialize;
+
+  /// Предел длинной стороны страницы в пикселях.
+  final double maxSide;
 
   final Future<void> Function() _initialize;
   Future<void>? _ready;
@@ -30,9 +34,12 @@ class PdfrxPdfRasterizer implements PdfRasterizer {
             throw RangeError.range(index, 0, document.pages.length - 1, 'pageIndex');
           }
           final PdfPage page = document.pages[index];
+          // Огромный лист (плакат) в 2× съел бы сотни МБ: длинная сторона не больше maxSide.
+          final double fit = maxSide / (page.width > page.height ? page.width : page.height);
+          final double effective = scale < fit ? scale : fit;
           final PdfImage? image = await page.render(
-            fullWidth: page.width * scale,
-            fullHeight: page.height * scale,
+            fullWidth: page.width * effective,
+            fullHeight: page.height * effective,
             backgroundColor: 0xFFFFFFFF,
           );
           if (image == null) {

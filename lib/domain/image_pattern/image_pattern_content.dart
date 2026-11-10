@@ -60,7 +60,12 @@ class ImagePatternContentCloner implements ProjectContentCloner {
     if (copied.isNotEmpty) {
       final Result<Project> target = await _projects.get(targetId);
       if (target case Success<Project>(:final Project value)) {
-        await _projects.save(value.withCoverPath(copied.first.path));
+        final Result<void> covered = await _projects.save(value.withCoverPath(copied.first.path));
+        if (covered case Err<void>()) {
+          await _patterns.deleteByProject(targetId);
+          await _removeFiles(copied);
+          return covered;
+        }
       }
     }
     return const Success<void>(null);

@@ -35,6 +35,9 @@ class ImportBookCubit extends Cubit<ImportBookState> {
 
   Future<void> _load(Future<Result<List<PickedBookFile>>> Function() pick) async {
     final Result<List<PickedBookFile>> picked = await pick();
+    if (isClosed) {
+      return;
+    }
     if (picked case Err<List<PickedBookFile>>()) {
       emit(state.copyWith(problem: ImportProblem.sourceUnavailable));
       return;
@@ -46,6 +49,9 @@ class ImportBookCubit extends Cubit<ImportBookState> {
     final PickedBookFile? pdf = files.where((f) => f.isPdf).firstOrNull;
     if (pdf != null) {
       final Result<int> count = await _rasterizer.pageCount(pdf.bytes);
+      if (isClosed) {
+        return;
+      }
       if (count case Success<int>(:final int value) when value > 0) {
         emit(
           state.copyWith(
@@ -97,6 +103,9 @@ class ImportBookCubit extends Cubit<ImportBookState> {
     }
     final List<int> indexes = state.selectedPdfPages.toList()..sort();
     final Result<List<ProcessedImage>> rendered = await _rasterizer.render(pdf.bytes, indexes);
+    if (isClosed) {
+      return;
+    }
     if (rendered case Err<List<ProcessedImage>>()) {
       emit(state.copyWith(problem: ImportProblem.pdfFailed));
       return;
@@ -163,6 +172,9 @@ class ImportBookCubit extends Cubit<ImportBookState> {
           BookPageSource(bytes: p.bytes, quarterTurns: p.quarterTurns, crop: p.crop),
       ],
     );
+    if (isClosed) {
+      return;
+    }
     switch (result) {
       case Success<Project>(:final Project value):
         emit(state.copyWith(step: ImportStep.done, projectId: value.id));
