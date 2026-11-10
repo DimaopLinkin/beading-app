@@ -14,9 +14,6 @@ import 'package:beading/presentation/l10n/app_localizations.dart';
 import 'package:beading/presentation/library/project_labels.dart';
 import 'package:beading/presentation/theme/app_icons.dart';
 import 'package:beading/presentation/theme/tokens.dart';
-import 'package:beading/presentation/widgets/glass/glass_panel.dart';
-import 'package:beading/presentation/widgets/glass/glass_surface.dart';
-import 'package:beading/presentation/widgets/pill_chip.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -229,32 +226,48 @@ class _EditState extends State<_Edit> {
                 ],
               ),
               SizedBox(height: gap),
-              _Section(
-                title: l10n.imageWizardTechnique,
-                child: Wrap(
-                  children: <Widget>[
-                    for (final Technique technique in ImageToGridSettings.techniques)
-                      PillChip(
-                        label: technique.label(l10n),
-                        selected: settings.technique == technique,
-                        onTap: () => cubit.setTechnique(technique),
-                      ),
-                  ],
-                ),
+              CupertinoListSection.insetGrouped(
+                margin: EdgeInsets.zero,
+                children: <Widget>[
+                  CupertinoListTile.notched(
+                    key: const ValueKey<String>('wizard-technique'),
+                    title: Text(l10n.imageWizardTechnique),
+                    additionalInfo: Text(settings.technique.label(l10n)),
+                    trailing: const CupertinoListTileChevron(),
+                    onTap: () async {
+                      final Technique? chosen = await _pick<Technique>(
+                        context,
+                        title: l10n.imageWizardTechnique,
+                        values: ImageToGridSettings.techniques,
+                        label: (t) => t.label(l10n),
+                        cancel: l10n.imageWizardCancel,
+                      );
+                      if (chosen != null) {
+                        cubit.setTechnique(chosen);
+                      }
+                    },
+                  ),
+                  CupertinoListTile.notched(
+                    key: const ValueKey<String>('wizard-bead-size'),
+                    title: Text(l10n.imageWizardBeadSize),
+                    additionalInfo: Text(_beadLabel(l10n, settings.beadSize)),
+                    trailing: const CupertinoListTileChevron(),
+                    onTap: () async {
+                      final BeadSize? chosen = await _pick<BeadSize>(
+                        context,
+                        title: l10n.imageWizardBeadSize,
+                        values: BeadSize.values,
+                        label: (size) => _beadLabel(l10n, size),
+                        cancel: l10n.imageWizardCancel,
+                      );
+                      if (chosen != null) {
+                        cubit.setBeadSize(chosen);
+                      }
+                    },
+                  ),
+                ],
               ),
-              _Section(
-                title: l10n.imageWizardBeadSize,
-                child: Wrap(
-                  children: <Widget>[
-                    for (final BeadSize size in BeadSize.values)
-                      PillChip(
-                        label: _beadLabel(l10n, size),
-                        selected: settings.beadSize == size,
-                        onTap: () => cubit.setBeadSize(size),
-                      ),
-                  ],
-                ),
-              ),
+              SizedBox(height: gap),
               _SliderRow(
                 title: l10n.imageWizardWidth,
                 value: settings.columns,
@@ -325,17 +338,13 @@ class _EditState extends State<_Edit> {
           ),
         ),
         Padding(
-          padding: EdgeInsets.fromLTRB(gap, 0, gap, gap),
-          child: GlassPanel(
-            density: GlassDensity.dense,
-            padding: EdgeInsets.all(gap / 2),
-            child: SizedBox(
-              width: double.infinity,
-              child: CupertinoButton.filled(
-                key: const ValueKey<String>('wizard-save'),
-                onPressed: state.canSave ? cubit.save : null,
-                child: Text(l10n.imageWizardSave),
-              ),
+          padding: EdgeInsets.fromLTRB(gap, gap / 2, gap, gap),
+          child: SizedBox(
+            width: double.infinity,
+            child: CupertinoButton.filled(
+              key: const ValueKey<String>('wizard-save'),
+              onPressed: state.canSave ? cubit.save : null,
+              child: Text(l10n.imageWizardSave),
             ),
           ),
         ),
@@ -343,6 +352,25 @@ class _EditState extends State<_Edit> {
     );
   }
 }
+
+/// Системный выбор значения: нижний лист действий iOS.
+Future<T?> _pick<T>(
+  BuildContext context, {
+  required String title,
+  required List<T> values,
+  required String Function(T value) label,
+  required String cancel,
+}) => showCupertinoModalPopup<T>(
+  context: context,
+  builder: (sheet) => CupertinoActionSheet(
+    title: Text(title),
+    actions: <Widget>[
+      for (final T value in values)
+        CupertinoActionSheetAction(onPressed: () => Navigator.of(sheet).pop(value), child: Text(label(value))),
+    ],
+    cancelButton: CupertinoActionSheetAction(onPressed: () => Navigator.of(sheet).pop(), child: Text(cancel)),
+  ),
+);
 
 String _beadLabel(AppLocalizations l10n, BeadSize size) {
   final String shape = switch (size.shape) {

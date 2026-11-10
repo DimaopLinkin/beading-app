@@ -109,10 +109,12 @@ void main() {
       await openPhoto(tester, theme);
       expect(find.byKey(const ValueKey<String>('wizard-grid')), findsOneWidget);
       expect(find.text('3 × 2 бусин'), findsOneWidget);
-      expect(find.text('Станок'), findsOneWidget);
+      expect(find.text('Станок', skipOffstage: false), findsOneWidget);
       expect(find.text('Delica 11/0', skipOffstage: false), findsOneWidget);
       expect(tester.widget<CupertinoButton>(find.byKey(const ValueKey<String>('wizard-save'))).onPressed, isNotNull);
 
+      await tester.tap(find.byKey(const ValueKey<String>('wizard-technique')));
+      await tester.pumpAndSettle();
       await tester.tap(find.text('Мозаика'));
       await tester.pumpAndSettle();
       expect(cubit.state.settings.technique.name, 'peyote');
