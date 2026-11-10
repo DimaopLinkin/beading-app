@@ -45,6 +45,8 @@ void main() {
     WidgetTester tester, {
     CupertinoThemeData theme = AppTheme.light,
     VoidCallback? onOpenSettings,
+    VoidCallback? onOpenCatalog,
+    void Function(BuildContext, Project)? onOpenMaterials,
   }) async {
     final FakeProjectRepository source = repository;
     final LibraryCubit cubit = LibraryCubit(
@@ -72,6 +74,8 @@ void main() {
             thumbnails: thumbnails,
             onOpenProject: (_, p) => opened.add(p.id),
             onOpenSettings: onOpenSettings,
+            onOpenCatalog: onOpenCatalog,
+            onOpenMaterials: onOpenMaterials,
           ),
         ),
       ),
@@ -161,6 +165,70 @@ void main() {
     await pumpScreen(tester);
 
     expect(find.bySemanticsLabel('Настройки'), findsNothing);
+  });
+
+  testWidgets('кнопка каталога вызывает onOpenCatalog; без него кнопки нет', (tester) async {
+    var catalogOpened = 0;
+    await pumpScreen(tester, onOpenCatalog: () => catalogOpened++);
+
+    await tester.tap(find.bySemanticsLabel('Каталог цветов'));
+
+    expect(catalogOpened, 1);
+  });
+
+  testWidgets('без onOpenCatalog кнопки каталога нет', (tester) async {
+    await pumpScreen(tester);
+
+    expect(find.bySemanticsLabel('Каталог цветов'), findsNothing);
+  });
+
+  Project gridProject(String id, {Craft craft = Craft.beading}) => Project(
+    id: id,
+    name: 'Схема $id',
+    status: ProjectStatus.idea,
+    craft: craft,
+    technique: Technique.defaultFor(craft),
+    contentKind: ContentKind.grid,
+    notes: '',
+    coverPath: null,
+    lastWorkedAt: DateTime.utc(2026),
+  );
+
+  testWidgets('в меню бисерной схемы есть «Материалы» и открывают материалы этого проекта', (tester) async {
+    repository.projects['g'] = gridProject('g');
+    final List<String> materials = <String>[];
+    await pumpScreen(tester, onOpenMaterials: (_, p) => materials.add(p.id));
+
+    await tester.longPress(find.text('Схема g'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.widgetWithText(CupertinoActionSheetAction, 'Материалы'));
+    await tester.pumpAndSettle();
+
+    expect(materials, <String>['g']);
+  });
+
+  testWidgets('«Материалы» не предлагаются для схем из книги, вышивки и без обработчика', (tester) async {
+    repository.projects['book'] = project('book', 'Страница книги');
+    repository.projects['cross'] = gridProject('cross', craft: Craft.crossStitch);
+    await pumpScreen(tester, onOpenMaterials: (_, _) {});
+
+    for (final String name in <String>['Страница книги', 'Схема cross']) {
+      await tester.longPress(find.text(name));
+      await tester.pumpAndSettle();
+      expect(find.widgetWithText(CupertinoActionSheetAction, 'Материалы'), findsNothing);
+      await tester.tap(find.text('Отмена'));
+      await tester.pumpAndSettle();
+    }
+  });
+
+  testWidgets('без onOpenMaterials пункта «Материалы» нет даже у бисерной схемы', (tester) async {
+    repository.projects['g'] = gridProject('g');
+    await pumpScreen(tester);
+
+    await tester.longPress(find.text('Схема g'));
+    await tester.pumpAndSettle();
+
+    expect(find.widgetWithText(CupertinoActionSheetAction, 'Материалы'), findsNothing);
   });
 
   testWidgets('нажатие на карточку открывает проект', (tester) async {

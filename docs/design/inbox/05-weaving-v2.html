@@ -1,0 +1,172 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Бисер — Плетение по своей схеме (05-weaving v2)</title>
+<style>
+:root{--font:-apple-system,BlinkMacSystemFont,"SF Pro Text","SF Pro",system-ui,sans-serif}
+*{box-sizing:border-box}
+body{margin:0;font-family:var(--font);background:#CFC8BC;color:#1C1A1F}
+body.dp{background:#0B0A0C;color:#F4F0EA}
+.top{position:sticky;top:0;z-index:50;display:flex;gap:12px;align-items:center;flex-wrap:wrap;padding:12px 24px;background:rgba(247,244,239,.92);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-bottom:1px solid rgba(0,0,0,.12)}
+body.dp .top{background:rgba(21,19,22,.92);border-color:rgba(255,255,255,.14)}
+.top h1{margin:0;font-size:18px;flex:1;min-width:220px}
+.seg{display:flex;padding:3px;border-radius:22px;background:rgba(120,110,100,.25)}
+.seg button{border:0;background:transparent;color:inherit;font:600 14px var(--font);padding:9px 16px;border-radius:19px;cursor:pointer;min-height:44px}
+.seg button[aria-pressed="true"]{background:#fff;color:#1C1A1F;box-shadow:0 1px 3px rgba(0,0,0,.2)}
+.stage{padding:28px 24px 40px;display:flex;flex-direction:column;gap:44px}
+.row{display:flex;flex-wrap:wrap;gap:28px;justify-content:center}
+.cell{display:flex;flex-direction:column;gap:10px;align-items:center}
+.cap{font-size:14px;font-weight:600;max-width:428px;text-align:center;opacity:.9}
+.note{max-width:920px;margin:0 auto;font-size:15px;line-height:1.55;padding:0 24px 60px}
+.note h2{font-size:20px;margin:0 0 8px}
+.note ul{margin:6px 0 12px;padding-left:20px}
+
+.phone{--bg:#F7F4EF;--surf:#FFF;--surf2:#EFEBE4;--ink:#1C1A1F;--ink2:#5F5954;--sep:#E0DAD1;--acc:#B5541C;--onacc:#fff;--acct:#9A4513;--accg:rgba(181,84,28,.16);--danger:#C0362C;
+ --glass:rgba(255,255,255,.55);--dense:rgba(255,255,255,.86);--gb:1px solid rgba(255,255,255,.85);--shadow:0 10px 28px rgba(0,0,0,.18);
+ position:relative;width:428px;height:926px;border-radius:52px;overflow:hidden;background:var(--bg);color:var(--ink);border:1px solid rgba(0,0,0,.25);box-shadow:0 18px 40px rgba(0,0,0,.28);flex:none;font-family:var(--font)}
+.phone[data-theme="dark"]{--bg:#151316;--surf:#201D22;--surf2:#2A262D;--ink:#F4F0EA;--ink2:#A9A29B;--sep:#3A353D;--acc:#F0955A;--onacc:#1C1A1F;--acct:#F0955A;--accg:rgba(240,149,90,.18);--danger:#FF7A6E;
+ --glass:rgba(40,38,44,.5);--dense:rgba(28,26,32,.86);--gb:1px solid rgba(255,255,255,.26);--shadow:0 10px 28px rgba(0,0,0,.45);border-color:rgba(255,255,255,.18)}
+.glass{background:var(--glass);border:var(--gb);box-shadow:var(--shadow);backdrop-filter:blur(24px) saturate(1.6);-webkit-backdrop-filter:blur(24px) saturate(1.6)}
+.dense{background:var(--dense);border:var(--gb);box-shadow:var(--shadow);backdrop-filter:blur(32px) saturate(1.4);-webkit-backdrop-filter:blur(32px) saturate(1.4)}
+/* шапка: две строки, крупный счётчик */
+.bar{position:absolute;left:12px;right:12px;top:54px;height:92px;border-radius:36px;display:flex;align-items:center;justify-content:space-between;padding:0 8px;z-index:6}
+.bar .t{flex:1;min-width:0;text-align:center;display:flex;flex-direction:column;align-items:center;gap:1px}
+.bar .t b{font-size:15px;font-weight:600;color:var(--ink2);max-width:230px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cnt{font:600 40px/1.05 ui-monospace,"SF Mono",Menlo,monospace;font-variant-numeric:tabular-nums;letter-spacing:-1px}
+.cnt small{font:400 17px var(--font);color:var(--ink2);letter-spacing:0}
+.pb{width:170px;height:4px;border-radius:2px;background:var(--surf2);margin-top:5px}.pb i{display:block;height:4px;border-radius:2px;background:var(--acc)}
+.tb{min-width:44px;height:44px;border-radius:22px;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:600;color:var(--acct);padding:0 10px;flex:none}
+.home{position:absolute;left:50%;bottom:8px;margin-left:-67px;width:134px;height:5px;border-radius:3px;background:var(--ink);opacity:.5;z-index:9}
+.tog{position:absolute;left:12px;right:12px;top:154px;height:48px;display:flex;justify-content:space-between;gap:10px;z-index:6}
+.msg{display:flex;padding:3px;border-radius:24px}
+.msg div{min-height:42px;padding:0 16px;display:flex;align-items:center;border-radius:21px;font-size:15px;font-weight:600;color:var(--ink)}
+.msg .s{background:var(--bg);font-weight:700;box-shadow:0 0 0 1px var(--sep)}
+.sym{width:48px;height:48px;border-radius:24px;display:flex;align-items:center;justify-content:center;font-size:17px;font-weight:700;color:var(--ink);flex:none}
+.sym.on{background:var(--accg);color:var(--acct)}
+/* схема */
+.sch{position:absolute;left:8px;right:8px;border-radius:24px;background:var(--surf);border:1px solid var(--sep);overflow:hidden}
+.gn{position:absolute;left:0;width:34px;text-align:right;padding-right:6px;font-size:13px;font-weight:600;color:var(--ink2);font-variant-numeric:tabular-nums}
+.gc{position:absolute;left:2px;width:34px;height:22px;border-radius:11px;background:var(--acc);color:var(--onacc);font-size:13px;font-weight:700;display:flex;align-items:center;justify-content:center;border:2px solid #fff;z-index:5;box-shadow:0 1px 4px rgba(0,0,0,.3)}
+.area{position:absolute;left:36px;right:4px;top:0;bottom:0;overflow:hidden}
+.b{position:absolute;border-radius:50%;border:1px solid rgba(0,0,0,.25);display:flex;align-items:center;justify-content:center;font-weight:700;line-height:1}
+.b.past{opacity:.38}
+.b.cr{box-shadow:0 0 0 1.5px #151316,0 0 0 3px #fff}
+.b.hol{border-width:2px;border-style:dashed;color:var(--ink)}
+.b.nx{box-shadow:0 0 0 2px #151316,0 0 0 4px #fff,0 0 0 5px #151316;z-index:4}
+.band{position:absolute;z-index:3;background:rgba(181,84,28,.16);box-shadow:0 0 0 2px #151316,0 0 0 4.5px #fff,0 0 0 5.5px #151316;border-radius:2px;pointer-events:none}
+.phone[data-theme="dark"] .band{background:rgba(240,149,90,.18)}
+.zi{position:absolute;right:20px;top:218px;display:flex;gap:8px;z-index:6}
+.zi div{height:44px;border-radius:22px;display:flex;align-items:center;gap:6px;padding:0 16px;font-size:15px;font-weight:700}
+.zi .ind{color:var(--ink2);font-family:ui-monospace,"SF Mono",Menlo,monospace}.zi .btn{color:var(--acct)}
+.hint{position:absolute;left:24px;right:24px;z-index:6;border-radius:28px;padding:10px 10px 10px 18px;display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:15px;font-weight:600}
+.hint .go{height:44px;border-radius:22px;padding:0 16px;display:flex;align-items:center;background:var(--acc);color:var(--onacc);font-weight:700;flex:none}
+/* низ */
+.bot{position:absolute;left:12px;right:12px;bottom:28px;border-radius:38px;padding:10px;display:flex;flex-direction:column;gap:8px;z-index:7}
+.wc{display:flex;align-items:center;gap:10px;min-height:52px;border-radius:26px;background:var(--surf2);padding:0 14px;font-size:17px;font-weight:700;overflow:hidden;white-space:nowrap}
+.wc .it{display:flex;align-items:center;gap:5px}
+.wc .dt{width:24px;height:24px;border-radius:50%;border:1px solid rgba(0,0,0,.25);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;flex:none}
+.wc .ar{color:var(--acct);display:flex}
+.r2{display:flex;gap:8px}
+.b1{width:60px;height:64px;border-radius:32px;background:var(--surf2);display:flex;align-items:center;justify-content:center;color:var(--ink);flex:none}
+.b2{flex:1;height:64px;border-radius:32px;background:var(--acc);color:var(--onacc);display:flex;align-items:center;justify-content:center;gap:6px;font-size:17px;font-weight:700;text-align:center}
+.b3{width:112px;height:64px;border-radius:32px;background:var(--surf2);display:flex;align-items:center;justify-content:center;gap:5px;font-size:15px;font-weight:700;color:var(--ink);flex:none}
+.toast{position:absolute;left:24px;right:24px;bottom:208px;height:44px;border-radius:22px;display:flex;align-items:center;justify-content:space-between;padding:0 6px 0 18px;font-size:15px;font-weight:600;z-index:7}
+.toast .tb{height:36px;min-width:36px}
+.banner{position:absolute;left:24px;right:24px;top:154px;height:52px;border-radius:26px;display:flex;align-items:center;gap:12px;padding:0 20px 0 8px;font-size:16px;font-weight:600;z-index:6}
+.banner i{width:34px;height:34px;border-radius:17px;background:radial-gradient(circle at 35% 30%,#fff 0 12%,#F2B84B 14% 60%,#B5541C 100%);flex:none}
+/* AX3 */
+.ax .bar{height:176px;border-radius:44px}
+.ax .bar .t b{font-size:30px;max-width:240px}
+.ax .cnt{font-size:54px;text-align:center}.ax .cnt small{font-size:34px;display:block;line-height:1.1}
+.ax .tb{min-width:56px;height:56px}
+.ax .tog{top:238px;height:64px}
+.ax .sym{width:64px;height:64px;font-size:26px}
+.ax .modeb{width:64px;height:64px;border-radius:32px;display:flex;align-items:center;justify-content:center;color:var(--acct);font-size:26px;font-weight:700}
+.ax .wc{font-size:30px;min-height:96px;flex-wrap:wrap;white-space:normal;padding:10px 16px;gap:8px 12px;border-radius:36px}
+.ax .wc .dt{width:38px;height:38px;font-size:22px}
+.ax .r2{gap:10px}
+.ax .b1{width:88px;height:88px;border-radius:44px}
+.ax .b2{height:88px;border-radius:44px;font-size:30px}
+.ax .b3{height:88px;width:auto;flex:1;border-radius:44px;font-size:28px}
+</style>
+</head>
+<body>
+<div class="top"><h1>Бисер · Плетение по своей схеме · 05-weaving v2</h1>
+<div class="seg" role="group" aria-label="Тема"><button data-m="light" aria-pressed="true">Светлая</button><button data-m="dark" aria-pressed="false">Тёмная</button><button data-m="both" aria-pressed="false">Обе рядом</button></div></div>
+<div class="stage" id="stage"></div>
+<div class="note"><h2>Что изменено в v2 (по ревью v1)</h2>
+<ul>
+<li><b>Крупный счётчик вернулся.</b> Шапка двухстрочная: название 15 pt (серое, одной строкой), под ним «Ряд 42 из 180», число 40 pt Semibold с моноширинными цифрами (стиль из 01b), под ним полоса прогресса. Экран 7 — Dynamic Type AX3: название 30 pt, число 54 pt (потолок из 01b), «из 180» 34 pt, режим «по ряду / по бусине» сворачивается в круглую кнопку, word chart переносится на две строки, кнопки 88 pt и укладываются в колонку. Схемы при этом остаётся мало, поэтому на AX3 работает зум.</li>
+<li><b>Режим символов.</b> Выложенная бусина = залитая с буквой, невыложенная = пустая (светлая заливка 18% и пунктирный контур цвета бусины) с буквой, следующая = крупное двойное кольцо. Правила не накладываются друг на друга.</li>
+<li><b>Правило для мелких букв.</b> Буква рисуется при диаметре бусины ≥ 18 pt (кегль 12–16 pt, не мельче 11). Экран 4: широкая схема (26 столбцов), бусины 10 pt, букв нет, а подсказка предлагает «Приблизить ×1,8». Экран 5: приближение ×1,8, буквы 12 pt, индикатор «×1,8» и отдельная кнопка «По ширине». Экран 3: схема на 16 столбцов, буквы видны без приближения.</li>
+<li><b>Тост «Отменить» не закрывает схему:</b> схема укорочена, тост стоит в освободившемся зазоре над нижней панелью, 44 pt высотой (экран 6).</li>
+<li><b>Зум и панорама</b> показаны на экране 5 (жесты щипок и перетаскивание; индикатор масштаба отделён от кнопки). Клавиатуры и Mac в этом промпте не рисовались: клавиатура на экране плетения не появляется (ввода текста нет).</li>
+</ul>
+Прочее без изменений: номер текущего ряда в поле слева (ничего не лежит поверх бусин ряда), двойной контур из 01b (у пейота вокруг каждой бусины ряда, у станка рамка ряда), вуаль 62% на пройденном, заливка подсветки 16% (18% в тёмной), word chart со стрелкой направления, завершение проекта с баннером. Стекло только на шапке, переключателях, нижней панели, тосте, баннере и чипах масштаба; схема непрозрачная.
+</div>
+<script>
+const I={chevL:'M15 5l-7 7 7 7',more:'M5 12h.01M12 12h.01M19 12h.01',undo:'M4 12h10a5 5 0 0 1 0 8h-3M8 8l-4 4 4 4',check:'M5 12l5 5 9-10',arrL:'M19 12H5M11 6l-6 6 6 6',arrR:'M5 12h14M13 6l6 6-6 6',zoom:'M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5',rows:'M4 7h16M4 12h16M4 17h16'};
+const ic=(n,s=24,w=2.4)=>`<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="${w}" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="${I[n]}"/></svg>`;
+const PAL=[{c:'#5B63B7',l:'A',f:'#fff',bd:'#5B63B7'},{c:'#F2B84B',l:'B',f:'#1C1A1F',bd:'#C98A12'},{c:'#F4F0EA',l:'C',f:'#1C1A1F',bd:'#8C8374'},{c:'#D94F70',l:'D',f:'#fff',bd:'#D94F70'}];
+const colorAt=(r,c,cols)=>Math.floor((Math.abs(c-(cols-1)/2)+Math.abs((r%12)-5.5))/(cols>20?5.5:3.4))%4;
+/* o: geom, cur, first?, placed (-1 по ряду), sym, done, cols, cell, top, bottom, xoff */
+function scheme(o){
+ const cols=o.cols||16,cell=o.cell||23,top=o.top??210,bottom=o.bottom??210,cur=o.cur;
+ const H=926-top-bottom,nrows=Math.floor((H-16)/cell),first=o.first??(cur-Math.floor(nrows*.5)),half=o.geom==='peyote',dirL=cur%2===0;
+ const dia=cell-4,showL=o.sym&&dia>=18,fs=Math.max(11,Math.round(dia*.6));
+ let nums='',beads='';
+ for(let i=0;i<nrows;i++){const r=first+i;if(r<1)continue;const y=i*cell+8;
+  nums+=r===cur?`<div class="gc" style="top:${y+(cell-22)/2}px">${r}</div>`:`<div class="gn" style="top:${y}px;height:${cell}px;line-height:${cell}px;${r<cur||o.done?'opacity:.55':''}">${r}</div>`;
+  for(let c=0;c<cols;c++){const p=PAL[colorAt(r,c,cols)];
+   const x=c*cell+2-(o.xoff||0),yy=y+(half&&c%2?cell/2:0)+(cell-dia)/2;
+   let cls='b',st=`left:${x}px;top:${yy}px;width:${dia}px;height:${dia}px;background:${p.c};color:${p.f};font-size:${fs}px`;
+   if(!o.done&&r<cur)cls+=' past';
+   if(!o.done&&r===cur){
+    if(o.placed>=0){const idx=dirL?cols-1-c:c;
+     if(idx<o.placed)cls+=' cr';
+     else{cls+=idx===o.placed?' nx hol':' hol';st=`left:${x}px;top:${yy}px;width:${dia}px;height:${dia}px;background:${p.bd}2e;border-color:${p.bd};color:var(--ink);font-size:${fs}px`;if(idx===o.placed)st+=';background:var(--surf)'}}
+    else if(half)cls+=' cr';
+   }
+   beads+=`<div class="${cls}" style="${st}">${showL?p.l:''}</div>`}
+ }
+ let band='';if(o.geom==='loom'&&!o.done&&o.placed<0){const i=cur-first;band=`<div class="band" style="left:${1-(o.xoff||0)}px;top:${i*cell+8}px;width:${cols*cell+2}px;height:${cell}px"></div>`}
+ return `<div class="sch" style="top:${top}px;bottom:${bottom}px">${nums}<div class="area">${beads}${band}</div></div>`;
+}
+function wchart(cur,cols=16){const dirL=cur%2===0;const seq=[];for(let c=0;c<cols;c++)seq.push(colorAt(cur,dirL?cols-1-c:c,cols));
+ const runs=[];seq.forEach(k=>{if(runs.length&&runs[runs.length-1].k===k)runs[runs.length-1].n++;else runs.push({k,n:1})});
+ const shown=runs.slice(0,6),more=runs.length-shown.length;
+ return `<div class="wc"><span class="ar" role="img" aria-label="${dirL?'Справа налево':'Слева направо'}">${ic(dirL?'arrL':'arrR',26)}</span>${shown.map(r=>`<span class="it">${r.n}×<span class="dt" style="background:${PAL[r.k].c};color:${PAL[r.k].f}">${PAL[r.k].l}</span></span>`).join('')}${more>0?`<span style="color:var(--ink2)">+${more}</span>`:''}</div>`}
+const header=(cur,total)=>`<div class="bar glass"><div class="tb" aria-label="Назад">${ic('chevL',22,2.2)}</div><div class="t"><b>Браслет «Рябина»</b><div class="cnt">Ряд ${cur} <small>из ${total}</small></div><div class="pb"><i style="width:${Math.max(2,Math.round(cur/total*100))}%"></i></div></div><div class="tb" aria-label="Ещё">${ic('more',24,3)}</div></div>`;
+const toggles=(byBead,sym)=>`<div class="tog"><div class="msg glass"><div class="${byBead?'':'s'}">По ряду</div><div class="${byBead?'s':''}">По бусине</div></div><div class="sym glass ${sym?'on':''}" aria-label="Режим символов">Aa</div></div>`;
+const togglesAx=sym=>`<div class="tog"><div class="modeb glass" aria-label="Режим: по бусине">${ic('rows',28)}</div><div class="sym glass ${sym?'on':''}" aria-label="Режим символов">Aa</div></div>`;
+const btnBead=`<div class="r2"><div class="b1" aria-label="Отменить шаг">${ic('undo',26)}</div><div class="b2">Следующая бусина</div><div class="b3">${ic('check',20,3)}Ряд готов</div></div>`;
+const btnRow=`<div class="r2"><div class="b1" aria-label="Отменить шаг">${ic('undo',26)}</div><div class="b2">${ic('check',24,3)}Ряд готов</div></div>`;
+const btnAx=`<div class="r2"><div class="b2" style="flex:1">Следующая бусина</div></div><div class="r2"><div class="b1" aria-label="Отменить шаг">${ic('undo',34)}</div><div class="b3">${ic('check',28,3)}Ряд готов</div></div>`;
+const panel=(cur,btn,cols)=>`<div class="bot dense">${wchart(cur,cols)}${btn}</div>`;
+const screens=[
+ ['1 · Начало ряда (пейот, по бусине)',()=>header(42,180)+toggles(true,false)+scheme({geom:'peyote',cur:42,placed:0})+panel(42,btnBead)+'<div class="home"></div>'],
+ ['2 · Середина ряда по бусине (7 из 16)',()=>header(42,180)+toggles(true,false)+scheme({geom:'peyote',cur:42,placed:7})+panel(42,btnBead)+'<div class="home"></div>'],
+ ['3 · Режим символов (16 столбцов: буквы видны)',()=>header(42,180)+toggles(true,true)+scheme({geom:'peyote',cur:42,placed:7,sym:true})+panel(42,btnBead)+'<div class="home"></div>'],
+ ['4 · Символы на широкой схеме: подсказка «Приблизить»',()=>header(42,180)+toggles(true,true)+scheme({geom:'peyote',cur:42,placed:9,sym:true,cols:26,cell:14})+`<div class="hint dense" style="bottom:216px"><span>Буквы мелкие</span><div class="go">Приблизить ×1,8</div></div>`+panel(42,btnBead,26)+'<div class="home"></div>'],
+ ['5 · Приближение ×1,8: буквы видны, зум и панорама',()=>header(42,180)+toggles(true,true)+scheme({geom:'peyote',cur:42,placed:9,sym:true,cols:26,cell:25,xoff:(26-1-9+.5)*25-170})+`<div class="zi"><div class="ind glass">×1,8</div><div class="btn glass">${ic('zoom',18)}По ширине</div></div>`+panel(42,btnBead,26)+'<div class="home"></div>'],
+ ['6 · Станок, по ряду, тост «Отменить» над панелью',()=>header(42,180)+toggles(false,false)+scheme({geom:'loom',cur:42,placed:-1,bottom:262})+`<div class="toast dense"><span>Ряд 41 готов</span><div class="tb">Отменить</div></div>`+panel(42,btnRow)+'<div class="home"></div>'],
+ ['7 · Dynamic Type AX3',()=>`<div class="ax">`+header(42,180)+togglesAx(false)+scheme({geom:'peyote',cur:42,placed:7,top:312,bottom:372})+`<div class="bot dense">${wchart(42)}${btnAx}</div></div><div class="home"></div>`],
+ ['8 · Завершение проекта (баннер-комплимент)',()=>header(180,180)+`<div class="banner glass"><i></i>Проект готов. Красиво получилось!</div>`+scheme({geom:'peyote',cur:180,first:158,placed:-1,done:true,top:214})+`<div class="bot dense"><div class="wc" style="font-size:16px"><span class="ar">${ic('check',24,3)}</span>Все 180 рядов выполнены</div><div class="r2"><div class="b1" aria-label="Отменить последний ряд">${ic('undo',26)}</div><div class="b2">Готово</div></div></div><div class="home"></div>`]
+];
+let mode='light';
+function render(){
+ const st=document.getElementById('stage');st.innerHTML='';
+ document.body.classList.toggle('dp',mode==='dark');
+ (mode==='both'?['light','dark']:[mode]).forEach(th=>{
+  const row=document.createElement('div');row.className='row';
+  screens.forEach(s=>{const c=document.createElement('div');c.className='cell';
+   c.innerHTML=`<div class="phone" data-theme="${th}">${s[1]()}</div><div class="cap">${s[0]} · ${th==='dark'?'тёмная':'светлая'}</div>`;row.appendChild(c)});
+  st.appendChild(row)});
+}
+document.querySelectorAll('.seg button').forEach(b=>b.onclick=()=>{mode=b.dataset.m;document.querySelectorAll('.seg button').forEach(x=>x.setAttribute('aria-pressed',x===b));render()});
+render();
+</script>
+</body>
+</html>

@@ -219,6 +219,34 @@
   "@importProblemSaveFailed": {
     "description": "Ошибка сохранения"
   },
+  "importStep": "Шаг {number} из {total}",
+  "@importStep": {
+    "description": "Подпись шага потока импорта",
+    "placeholders": {
+      "number": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "importOpening": "Открываем файл…",
+  "@importOpening": {
+    "description": "Ожидание: открывается выбранный файл или фото"
+  },
+  "importRendering": "Готовим страницы…",
+  "@importRendering": {
+    "description": "Ожидание: отрисовываются страницы PDF"
+  },
+  "importProblemPdfEmpty": "В этом PDF нет страниц. Выберите другой файл.",
+  "@importProblemPdfEmpty": {
+    "description": "Ошибка: PDF открылся, но пустой"
+  },
+  "importPickAnother": "Выбрать другой файл",
+  "@importPickAnother": {
+    "description": "Кнопка в сообщении об ошибке файла"
+  },
   "importProblemNoPages": "Выберите хотя бы одну страницу.",
   "@importProblemNoPages": {
     "description": "Нет страниц"
@@ -244,7 +272,7 @@
   "@bookWorkNextRow": {
     "description": "Кнопка: линейка на следующий ряд"
   },
-  "bookWorkPageLabel": "Стр. {current} из {total}",
+  "bookWorkPageLabel": "Страница {current} из {total}",
   "@bookWorkPageLabel": {
     "description": "Кнопка выбора страницы многостраничной схемы",
     "placeholders": {
@@ -268,6 +296,55 @@
         "type": "int"
       }
     }
+  },
+  "bookWorkDirection": "Направление рядов",
+  "@bookWorkDirection": {
+    "description": "Заголовок переключателя направления рядов"
+  },
+  "bookWorkDirectionDown": "Сверху вниз",
+  "@bookWorkDirectionDown": {
+    "description": "Ряды идут сверху вниз"
+  },
+  "bookWorkDirectionUp": "Снизу вверх",
+  "@bookWorkDirectionUp": {
+    "description": "Ряды идут снизу вверх"
+  },
+  "bookWorkResizeHandle": "Высота линейки: потяни вверх или вниз",
+  "@bookWorkResizeHandle": {
+    "description": "Подпись ручки высоты линейки для VoiceOver"
+  },
+  "bookWorkPageEnd": "Страница закончена",
+  "@bookWorkPageEnd": {
+    "description": "Баннер на последнем ряду страницы"
+  },
+  "bookWorkNextPage": "Следующая страница",
+  "@bookWorkNextPage": {
+    "description": "Кнопка на последнем ряду страницы"
+  },
+  "bookWorkUndo": "Отменить",
+  "@bookWorkUndo": {
+    "description": "Кнопка тоста: вернуть линейку на прошлый ряд"
+  },
+  "bookWorkFitWidth": "По ширине",
+  "@bookWorkFitWidth": {
+    "description": "Кнопка: вписать страницу по ширине"
+  },
+  "bookWorkZoomLevel": "Масштаб ×{scale}",
+  "@bookWorkZoomLevel": {
+    "description": "Индикатор масштаба страницы",
+    "placeholders": {
+      "scale": {
+        "type": "String"
+      }
+    }
+  },
+  "bookWorkCollapsePanel": "Свернуть панель",
+  "@bookWorkCollapsePanel": {
+    "description": "Кнопка: свернуть панель плетения"
+  },
+  "bookWorkExpandPanel": "Развернуть панель",
+  "@bookWorkExpandPanel": {
+    "description": "Кнопка: развернуть панель плетения"
   },
   "bookWorkClose": "Закрыть",
   "@bookWorkClose": {
@@ -503,5 +580,97 @@
   "newGridBeadDelica": "Delica",
   "@newGridBeadDelica": {"description": "Название типа бисера: цилиндрический Miyuki Delica"},
   "newGridBeadRocaille": "Рокайль",
-  "@newGridBeadRocaille": {"description": "Название типа бисера: круглый рокайль"}
+  "@newGridBeadRocaille": {"description": "Название типа бисера: круглый рокайль"},
+  "libraryCatalogSemantic": "Каталог цветов",
+  "@libraryCatalogSemantic": {"description": "Подпись для VoiceOver у кнопки открытия каталога в шапке библиотеки"},
+  "projectMaterials": "Материалы",
+  "@projectMaterials": {"description": "Действие над проектом: список бисера для схемы"},
+  "catalogTitleBead": "Каталог бисера",
+  "@catalogTitleBead": {"description": "Заголовок экрана каталога бисера"},
+  "catalogTitleFloss": "Каталог ниток",
+  "@catalogTitleFloss": {"description": "Заголовок экрана каталога ниток"},
+  "catalogSearchPlaceholder": "Артикул или название",
+  "@catalogSearchPlaceholder": {"description": "Подсказка в поле поиска по каталогу"},
+  "catalogAllBrands": "Все",
+  "@catalogAllBrands": {"description": "Вкладка каталога без фильтра по бренду"},
+  "catalogEmptyTitle": "Ничего не найдено",
+  "@catalogEmptyTitle": {"description": "Заголовок пустого результата поиска по каталогу"},
+  "catalogEmptyMessage": "Попробуйте другой артикул или название.",
+  "@catalogEmptyMessage": {"description": "Подсказка при пустом результате поиска по каталогу"},
+  "catalogLoadFailedTitle": "Не удалось открыть каталог",
+  "@catalogLoadFailedTitle": {"description": "Заголовок ошибки загрузки каталога"},
+  "catalogItemSemantic": "{code}, {name}",
+  "@catalogItemSemantic": {"description": "Подпись образца цвета в каталоге для VoiceOver", "placeholders": {"code": {"type": "String"}, "name": {"type": "String"}}},
+  "catalogSeriesAndSize": "{brand} {series} {size}",
+  "@catalogSeriesAndSize": {"description": "Строка «бренд, серия, размер» под названием цвета", "placeholders": {"brand": {"type": "String"}, "series": {"type": "String"}, "size": {"type": "String"}}},
+  "catalogSimilarTitle": "Похожие цвета",
+  "@catalogSimilarTitle": {"description": "Заголовок списка похожих цветов в листе цвета"},
+  "catalogSimilarNone": "Похожих цветов не нашлось",
+  "@catalogSimilarNone": {"description": "Список похожих цветов пуст"},
+  "catalogSimilarFailed": "Не удалось подобрать похожие цвета",
+  "@catalogSimilarFailed": {"description": "Ошибка подбора похожих цветов"},
+  "catalogSimilarityPercent": "{percent}%",
+  "@catalogSimilarityPercent": {"description": "Мера похожести цвета в процентах", "placeholders": {"percent": {"type": "int"}}},
+  "catalogSimilaritySemantic": "{code}, {name}, похожесть {percent} процентов, {level}",
+  "@catalogSimilaritySemantic": {"description": "Подпись похожего цвета для VoiceOver", "placeholders": {"code": {"type": "String"}, "name": {"type": "String"}, "percent": {"type": "int"}, "level": {"type": "String"}}},
+  "similarityNearlyIdentical": "почти не отличить",
+  "@similarityNearlyIdentical": {"description": "Уровень похожести цветов: ΔE меньше 1"},
+  "similarityVeryClose": "очень похож",
+  "@similarityVeryClose": {"description": "Уровень похожести цветов: ΔE меньше 3"},
+  "similarityClose": "похож",
+  "@similarityClose": {"description": "Уровень похожести цветов: ΔE меньше 6"},
+  "similarityNoticeable": "заметно отличается",
+  "@similarityNoticeable": {"description": "Уровень похожести цветов: ΔE от 6"},
+  "catalogColorApproximate": "Цвет на экране может чуть отличаться от настоящего бисера.",
+  "@catalogColorApproximate": {"description": "Пометка в листе цвета каталога"},
+  "catalogClose": "Закрыть",
+  "@catalogClose": {"description": "Закрыть лист цвета"},
+  "materialsTitle": "Материалы",
+  "@materialsTitle": {"description": "Заголовок экрана материалов проекта"},
+  "materialsReserveNone": "По схеме",
+  "@materialsReserveNone": {"description": "Переключатель расчёта без запаса"},
+  "materialsReserveWith": "С запасом {percent}%",
+  "@materialsReserveWith": {"description": "Переключатель расчёта с запасом", "placeholders": {"percent": {"type": "int"}}},
+  "materialsPieces": "{count} шт",
+  "@materialsPieces": {"description": "Количество бусин в таблице материалов", "placeholders": {"count": {"type": "String"}}},
+  "materialsGramsLess": "<\u00A0{grams} г",
+  "@materialsGramsLess": {"description": "Вес меньше точности показа в таблице материалов", "placeholders": {"grams": {"type": "String"}}},
+  "materialsGrams": "{grams} г",
+  "@materialsGrams": {"description": "Вес бусин в таблице материалов", "placeholders": {"grams": {"type": "String"}}},
+  "materialsTotal": "Итого",
+  "@materialsTotal": {"description": "Подпись строки итогов в таблице материалов"},
+  "materialsBeadSize": "Размер бисера: {size}",
+  "@materialsBeadSize": {"description": "Строка под заголовком материалов", "placeholders": {"size": {"type": "String"}}},
+  "materialsWeightHint": "Вес примерный: у разных отделок бисер весит по-разному.",
+  "@materialsWeightHint": {"description": "Пояснение под итогом материалов"},
+  "materialsShare": "Поделиться списком",
+  "@materialsShare": {"description": "Кнопка «Поделиться» на экране материалов"},
+  "materialsEmptyTitle": "В схеме пока нет бусин",
+  "@materialsEmptyTitle": {"description": "Заголовок пустого экрана материалов"},
+  "materialsEmptyMessage": "Когда в схеме появятся цвета, здесь будет список.",
+  "@materialsEmptyMessage": {"description": "Подсказка пустого экрана материалов"},
+  "materialsUnsupported": "Для этой схемы размер бусины не задан, поэтому материалы посчитать нельзя.",
+  "@materialsUnsupported": {"description": "Ошибка экрана материалов: нет размера бусины"},
+  "materialsLoadFailedTitle": "Не удалось посчитать материалы",
+  "@materialsLoadFailedTitle": {"description": "Заголовок ошибки экрана материалов"},
+  "materialsShareSubject": "Материалы: {name}",
+  "@materialsShareSubject": {"description": "Тема сообщения при «Поделиться» списком материалов", "placeholders": {"name": {"type": "String"}}},
+  "materialsShareHeader": "Материалы: {name}",
+  "@materialsShareHeader": {"description": "Первая строка текста списка материалов", "placeholders": {"name": {"type": "String"}}},
+  "materialsShareBeads": "Бисер {size}",
+  "@materialsShareBeads": {"description": "Строка о размере бисера в тексте списка", "placeholders": {"size": {"type": "String"}}},
+  "materialsShareLine": "{number}. {color} — {pieces}, {grams}",
+  "@materialsShareLine": {"description": "Строка цвета в тексте списка", "placeholders": {"number": {"type": "int"}, "color": {"type": "String"}, "pieces": {"type": "String"}, "grams": {"type": "String"}}},
+  "materialsShareTotal": "Итого: {pieces}, {grams}",
+  "@materialsShareTotal": {"description": "Строка итога в тексте списка", "placeholders": {"pieces": {"type": "String"}, "grams": {"type": "String"}}},
+  "materialsShareReserve": "Количество указано с запасом {percent}%.",
+  "@materialsShareReserve": {"description": "Пояснение в тексте списка, если выбран запас", "placeholders": {"percent": {"type": "int"}}},
+  "materialsShareApprox": "Вес приблизительный.",
+  "@materialsShareApprox": {"description": "Пояснение в тексте списка"},
+  "shareFailed": "Не удалось поделиться. Попробуйте ещё раз.",
+  "@shareFailed": {"description": "Ошибка системного листа «Поделиться»"},
+  "beadShapeDelica": "Delica",
+  "@beadShapeDelica": {"description": "Форма бусины: цилиндрическая, в названии размера бисера"},
+  "beadShapeRocaille": "рокайль",
+  "@beadShapeRocaille": {"description": "Форма бусины: круглая, в названии размера бисера"}
 }

@@ -19,6 +19,35 @@ final class Lab extends Equatable {
     return Lab(116 * fy - 16, 500 * (fx - fy), 200 * (fy - fz));
   }
 
+  /// Lab → XYZ (D65) → линейный RGB → sRGB; значения вне гаммы обрезаются.
+  Rgb toRgb() {
+    final double fy = (l + 16) / 116;
+    final double fx = fy + a / 500;
+    final double fz = fy - b / 200;
+    final double x = _xn * _fInverse(fx);
+    final double y = _yn * _fInverse(fy);
+    final double z = _zn * _fInverse(fz);
+    final double r = 3.2404542 * x - 1.5371385 * y - 0.4985314 * z;
+    final double g = -0.9692660 * x + 1.8760108 * y + 0.0415560 * z;
+    final double bl = 0.0556434 * x - 0.2040259 * y + 1.0572252 * z;
+    return Rgb(_toSrgb(r), _toSrgb(g), _toSrgb(bl));
+  }
+
+  /// Точка между [from] и [to]: [t] от 0 до 1, по прямой в Lab.
+  factory Lab.lerp(Lab from, Lab to, double t) =>
+      Lab(from.l + (to.l - from.l) * t, from.a + (to.a - from.a) * t, from.b + (to.b - from.b) * t);
+
+  static double _fInverse(double t) {
+    const double delta = 6 / 29;
+    return t > delta ? t * t * t : 3 * delta * delta * (t - 4 / 29);
+  }
+
+  static int _toSrgb(double linear) {
+    final double c = linear.clamp(0, 1).toDouble();
+    final double s = c <= 0.0031308 ? c * 12.92 : 1.055 * math.pow(c, 1 / 2.4).toDouble() - 0.055;
+    return (s * 255).round().clamp(0, 255);
+  }
+
   static const double _xn = 0.95047;
   static const double _yn = 1;
   static const double _zn = 1.08883;

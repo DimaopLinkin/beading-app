@@ -275,6 +275,23 @@ class AppLocalizationsRu extends AppLocalizations {
   String get importProblemSaveFailed => 'Не удалось сохранить схему. Проверьте свободное место.';
 
   @override
+  String importStep(int number, int total) {
+    return 'Шаг $number из $total';
+  }
+
+  @override
+  String get importOpening => 'Открываем файл…';
+
+  @override
+  String get importRendering => 'Готовим страницы…';
+
+  @override
+  String get importProblemPdfEmpty => 'В этом PDF нет страниц. Выберите другой файл.';
+
+  @override
+  String get importPickAnother => 'Выбрать другой файл';
+
+  @override
   String get importProblemNoPages => 'Выберите хотя бы одну страницу.';
 
   @override
@@ -293,7 +310,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String bookWorkPageLabel(int current, int total) {
-    return 'Стр. $current из $total';
+    return 'Страница $current из $total';
   }
 
   @override
@@ -303,6 +320,41 @@ class AppLocalizationsRu extends AppLocalizations {
   String bookWorkPageItem(int number) {
     return 'Страница $number';
   }
+
+  @override
+  String get bookWorkDirection => 'Направление рядов';
+
+  @override
+  String get bookWorkDirectionDown => 'Сверху вниз';
+
+  @override
+  String get bookWorkDirectionUp => 'Снизу вверх';
+
+  @override
+  String get bookWorkResizeHandle => 'Высота линейки: потяни вверх или вниз';
+
+  @override
+  String get bookWorkPageEnd => 'Страница закончена';
+
+  @override
+  String get bookWorkNextPage => 'Следующая страница';
+
+  @override
+  String get bookWorkUndo => 'Отменить';
+
+  @override
+  String get bookWorkFitWidth => 'По ширине';
+
+  @override
+  String bookWorkZoomLevel(String scale) {
+    return 'Масштаб ×$scale';
+  }
+
+  @override
+  String get bookWorkCollapsePanel => 'Свернуть панель';
+
+  @override
+  String get bookWorkExpandPanel => 'Развернуть панель';
 
   @override
   String get bookWorkClose => 'Закрыть';
@@ -663,4 +715,172 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get newGridBeadRocaille => 'Рокайль';
+
+  @override
+  String get libraryCatalogSemantic => 'Каталог цветов';
+
+  @override
+  String get projectMaterials => 'Материалы';
+
+  @override
+  String get catalogTitleBead => 'Каталог бисера';
+
+  @override
+  String get catalogTitleFloss => 'Каталог ниток';
+
+  @override
+  String get catalogSearchPlaceholder => 'Артикул или название';
+
+  @override
+  String get catalogAllBrands => 'Все';
+
+  @override
+  String get catalogEmptyTitle => 'Ничего не найдено';
+
+  @override
+  String get catalogEmptyMessage => 'Попробуйте другой артикул или название.';
+
+  @override
+  String get catalogLoadFailedTitle => 'Не удалось открыть каталог';
+
+  @override
+  String catalogItemSemantic(String code, String name) {
+    return '$code, $name';
+  }
+
+  @override
+  String catalogSeriesAndSize(String brand, String series, String size) {
+    return '$brand $series $size';
+  }
+
+  @override
+  String get catalogSimilarTitle => 'Похожие цвета';
+
+  @override
+  String get catalogSimilarNone => 'Похожих цветов не нашлось';
+
+  @override
+  String get catalogSimilarFailed => 'Не удалось подобрать похожие цвета';
+
+  @override
+  String catalogSimilarityPercent(int percent) {
+    return '$percent%';
+  }
+
+  @override
+  String catalogSimilaritySemantic(String code, String name, int percent, String level) {
+    return '$code, $name, похожесть $percent процентов, $level';
+  }
+
+  @override
+  String get similarityNearlyIdentical => 'почти не отличить';
+
+  @override
+  String get similarityVeryClose => 'очень похож';
+
+  @override
+  String get similarityClose => 'похож';
+
+  @override
+  String get similarityNoticeable => 'заметно отличается';
+
+  @override
+  String get catalogColorApproximate => 'Цвет на экране может чуть отличаться от настоящего бисера.';
+
+  @override
+  String get catalogClose => 'Закрыть';
+
+  @override
+  String get materialsTitle => 'Материалы';
+
+  @override
+  String get materialsReserveNone => 'По схеме';
+
+  @override
+  String materialsReserveWith(int percent) {
+    return 'С запасом $percent%';
+  }
+
+  @override
+  String materialsPieces(String count) {
+    return '$count шт';
+  }
+
+  @override
+  String materialsGramsLess(String grams) {
+    return '< $grams г';
+  }
+
+  @override
+  String materialsGrams(String grams) {
+    return '$grams г';
+  }
+
+  @override
+  String get materialsTotal => 'Итого';
+
+  @override
+  String materialsBeadSize(String size) {
+    return 'Размер бисера: $size';
+  }
+
+  @override
+  String get materialsWeightHint => 'Вес примерный: у разных отделок бисер весит по-разному.';
+
+  @override
+  String get materialsShare => 'Поделиться списком';
+
+  @override
+  String get materialsEmptyTitle => 'В схеме пока нет бусин';
+
+  @override
+  String get materialsEmptyMessage => 'Когда в схеме появятся цвета, здесь будет список.';
+
+  @override
+  String get materialsUnsupported => 'Для этой схемы размер бусины не задан, поэтому материалы посчитать нельзя.';
+
+  @override
+  String get materialsLoadFailedTitle => 'Не удалось посчитать материалы';
+
+  @override
+  String materialsShareSubject(String name) {
+    return 'Материалы: $name';
+  }
+
+  @override
+  String materialsShareHeader(String name) {
+    return 'Материалы: $name';
+  }
+
+  @override
+  String materialsShareBeads(String size) {
+    return 'Бисер $size';
+  }
+
+  @override
+  String materialsShareLine(int number, String color, String pieces, String grams) {
+    return '$number. $color — $pieces, $grams';
+  }
+
+  @override
+  String materialsShareTotal(String pieces, String grams) {
+    return 'Итого: $pieces, $grams';
+  }
+
+  @override
+  String materialsShareReserve(int percent) {
+    return 'Количество указано с запасом $percent%.';
+  }
+
+  @override
+  String get materialsShareApprox => 'Вес приблизительный.';
+
+  @override
+  String get shareFailed => 'Не удалось поделиться. Попробуйте ещё раз.';
+
+  @override
+  String get beadShapeDelica => 'Delica';
+
+  @override
+  String get beadShapeRocaille => 'рокайль';
 }

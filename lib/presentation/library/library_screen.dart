@@ -1,5 +1,6 @@
 import 'dart:math' as math;
 
+import 'package:beading/domain/projects/craft.dart';
 import 'package:beading/domain/projects/project.dart';
 import 'package:beading/presentation/l10n/app_localizations.dart';
 import 'package:beading/presentation/library/filter_chip_bar.dart';
@@ -25,6 +26,8 @@ class LibraryScreen extends StatefulWidget {
     required this.thumbnails,
     this.onOpenProject,
     this.onOpenSettings,
+    this.onOpenCatalog,
+    this.onOpenMaterials,
     super.key,
   });
 
@@ -36,6 +39,12 @@ class LibraryScreen extends StatefulWidget {
 
   /// Открывает настройки; `null` — кнопки нет.
   final VoidCallback? onOpenSettings;
+
+  /// Открывает каталог цветов; `null` — кнопки нет.
+  final VoidCallback? onOpenCatalog;
+
+  /// Открывает материалы проекта; `null` — пункта нет. Предлагается только бисерным схемам из приложения.
+  final void Function(BuildContext context, Project project)? onOpenMaterials;
 
   @override
   State<LibraryScreen> createState() => _LibraryScreenState();
@@ -96,6 +105,13 @@ class _LibraryScreenState extends State<LibraryScreen> {
       builder: (sheetContext) => CupertinoActionSheet(
         title: Text(project.name),
         actions: <Widget>[
+          if (widget.onOpenMaterials != null &&
+              project.contentKind == ContentKind.grid &&
+              project.craft == Craft.beading)
+            CupertinoActionSheetAction(
+              onPressed: () => Navigator.of(sheetContext).pop('materials'),
+              child: Text(l10n.projectMaterials),
+            ),
           CupertinoActionSheetAction(
             onPressed: () => Navigator.of(sheetContext).pop('rename'),
             child: Text(l10n.projectRename),
@@ -120,6 +136,8 @@ class _LibraryScreenState extends State<LibraryScreen> {
       return;
     }
     switch (action) {
+      case 'materials':
+        widget.onOpenMaterials!(context, project);
       case 'rename':
         await _rename(project);
       case 'duplicate':
@@ -183,6 +201,14 @@ class _LibraryScreenState extends State<LibraryScreen> {
                   slivers: <Widget>[
                     CupertinoSliverNavigationBar(
                       largeTitle: Text(l10n.libraryTitle),
+                      leading: widget.onOpenCatalog == null
+                          ? null
+                          : CupertinoButton(
+                              padding: EdgeInsets.zero,
+                              minimumSize: Size.square(tokens.minTapTarget),
+                              onPressed: widget.onOpenCatalog,
+                              child: Semantics(label: l10n.libraryCatalogSemantic, child: const Icon(AppIcons.catalog)),
+                            ),
                       trailing: widget.onOpenSettings == null
                           ? null
                           : CupertinoButton(

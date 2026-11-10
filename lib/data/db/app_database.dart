@@ -39,7 +39,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase(super.e);
 
   @override
-  int get schemaVersion => 7;
+  int get schemaVersion => 8;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -69,6 +69,10 @@ class AppDatabase extends _$AppDatabase {
         await m.createTable(schema.gridPatterns);
         await m.createTable(schema.patternColors);
         await m.createTable(schema.gridProgressRows);
+      },
+      // v8 (M1-design-align): направление рядов линейки.
+      from7To8: (m, schema) async {
+        await m.addColumn(schema.pageWorkStates, schema.pageWorkStates.rowDirection);
       },
     ),
     beforeOpen: (details) => customStatement('PRAGMA foreign_keys = ON'),

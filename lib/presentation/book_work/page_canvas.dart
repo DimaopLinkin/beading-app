@@ -40,13 +40,13 @@ class PageCanvas extends StatelessWidget {
           Positioned.fill(
             child: _PageImage(files: files, path: page.path),
           ),
-          // Всё, что выше линейки, уже сплетено: притушено.
+          // Всё, что уже сплетено, притушено: выше линейки при ходе сверху вниз, ниже неё при ходе снизу вверх.
           Positioned(
             key: const ValueKey<String>('ruler-dim'),
             left: 0,
             right: 0,
-            top: 0,
-            height: ruler.top * scale,
+            top: ruler.isBottomUp ? ruler.bottom * scale : 0,
+            bottom: ruler.isBottomUp ? 0 : height - ruler.top * scale,
             child: IgnorePointer(child: ColoredBox(color: dim)),
           ),
           Positioned(

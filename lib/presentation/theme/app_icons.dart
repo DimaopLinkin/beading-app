@@ -8,9 +8,14 @@ abstract final class AppIcons {
   static const IconData back = CupertinoIcons.chevron_back; // шеврон, не треугольник (замечание ревью 01b)
   static const IconData rowUp = CupertinoIcons.chevron_up;
   static const IconData rowDown = CupertinoIcons.chevron_down;
+  static const IconData resize = CupertinoIcons.arrow_up_down;
+  static const IconData warning = CupertinoIcons.exclamationmark_triangle;
+  static const IconData forward = CupertinoIcons.chevron_forward;
   static const IconData rulerSettings = CupertinoIcons.slider_horizontal_3;
   static const IconData notes = CupertinoIcons.doc_text;
   static const IconData pages = CupertinoIcons.square_on_square;
+  static const IconData share = CupertinoIcons.share;
+  static const IconData catalog = CupertinoIcons.color_filter;
   static const IconData selected = CupertinoIcons.checkmark;
   static const IconData craftBeading = CupertinoIcons.circle_grid_3x3_fill;
   static const IconData craftCrossStitch = CupertinoIcons.square_grid_2x2_fill;
@@ -39,6 +44,9 @@ abstract final class AppIcons {
     'redo': 'arrow.uturn.forward',
     'rowUp': 'chevron.up',
     'rowDown': 'chevron.down',
+    'forward': 'chevron.forward',
+    'resize': 'arrow.up.arrow.down',
+    'warning': 'exclamationmark.triangle',
     'search': 'magnifyingglass',
     'add': 'plus',
   };

@@ -181,13 +181,13 @@ void main() {
       final BookWorkCubit cubit = await loaded();
       cubit.previousRow();
       expect(cubit.state.work.ruler, RulerState.initial(1000));
-      expect(cubit.state.canMoveUp, isFalse);
+      expect(cubit.state.canRetreat, isFalse);
 
       cubit.setRulerStep(5000);
       cubit.nextRow();
       cubit.nextRow();
       expect(cubit.state.work.ruler.bottom, 1000);
-      expect(cubit.state.canMoveDown, isFalse);
+      expect(cubit.state.canAdvance, isFalse);
       final int row = cubit.state.work.ruler.row;
       cubit.nextRow();
       expect(cubit.state.work.ruler.row, row);
@@ -392,6 +392,80 @@ void main() {
 
         expect(projects.projects[projectId]!.notes, 'зелёный ряд 4');
       });
+    });
+  });
+
+  group('направление, отмена, конец страницы', () {
+    test('снизу вверх: линейка уходит к низу, следующий ряд сдвигает вверх', () async {
+      final BookWorkCubit cubit = await loaded();
+      cubit.setDirection(RowDirection.bottomUp);
+      final RulerState start = cubit.state.work.ruler;
+      expect(start.bottom, 1000);
+      expect(cubit.state.canAdvance, isTrue);
+      expect(cubit.state.canRetreat, isFalse);
+
+      cubit.nextRow();
+      expect(cubit.state.work.ruler.top, lessThan(start.top));
+      expect(cubit.state.work.ruler.row, 2);
+    });
+
+    test('направление берут и страницы, где ещё не начали, а начатые остаются как были', () async {
+      final BookWorkCubit cubit = await loaded();
+      cubit.nextRow();
+      cubit.selectPage(1);
+      cubit.setDirection(RowDirection.bottomUp);
+
+      expect(cubit.state.work.ruler.direction, RowDirection.bottomUp);
+      expect(cubit.state.works['pg-3']!.ruler.direction, RowDirection.bottomUp);
+      expect(cubit.state.works['pg-1']!.ruler.direction, RowDirection.topDown);
+      await cubit.close();
+    });
+
+    test('«Отменить» возвращает линейку и ряд, подсказка исчезает', () async {
+      final BookWorkCubit cubit = await loaded();
+      final RulerState before = cubit.state.work.ruler;
+      cubit.nextRow();
+      expect(cubit.state.undoRuler, before);
+
+      cubit.undoRow();
+      expect(cubit.state.work.ruler, before);
+      expect(cubit.state.undoRuler, isNull);
+    });
+
+    test('настройка линейки и смена страницы убирают подсказку «Отменить»', () async {
+      final BookWorkCubit cubit = await loaded();
+      cubit.nextRow();
+      cubit.setRulerHeight(50);
+      expect(cubit.state.undoRuler, isNull);
+
+      cubit.nextRow();
+      cubit.selectPage(1);
+      expect(cubit.state.undoRuler, isNull);
+      cubit.dismissUndo();
+    });
+
+    test('последний ряд и переход на следующую страницу', () async {
+      final BookWorkCubit cubit = await loaded();
+      cubit.setRulerStep(5000);
+      cubit.nextRow();
+      cubit.nextRow();
+      expect(cubit.state.isLastRow, isTrue);
+      expect(cubit.state.hasNextPage, isTrue);
+
+      cubit.nextPage();
+      expect(cubit.state.pageIndex, 1);
+      cubit.selectPage(2);
+      expect(cubit.state.hasNextPage, isFalse);
+      cubit.nextPage();
+      expect(cubit.state.pageIndex, 2);
+    });
+
+    test('панель сворачивается и разворачивается', () async {
+      final BookWorkCubit cubit = await loaded();
+      cubit.setPanelCollapsed(collapsed: true);
+      expect(cubit.state.panelCollapsed, isTrue);
+      cubit.setPanelCollapsed(collapsed: false);
+      expect(cubit.state.panelCollapsed, isFalse);
     });
   });
 }

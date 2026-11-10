@@ -2,7 +2,8 @@
 id: 06-editor
 title: Редактор сеточной схемы (MUST-C1–C6)
 status: todo
-depends: 01-ui-kit
+depends: 07-catalog-materials
+# порядок: сначала 07 (нужен T20), затем 06
 ---
 
 # Редактор сеточной схемы (MUST-C1–C6)
