@@ -23,6 +23,7 @@ abstract final class AppIcons {
   static const IconData craftBeading = CupertinoIcons.circle_grid_3x3_fill;
   static const IconData craftCrossStitch = CupertinoIcons.square_grid_2x2_fill;
 
+  static const IconData photo = CupertinoIcons.photo;
   static const IconData search = CupertinoIcons.search;
 
   // Инструменты редактора (01b, п. 6). Eraser, selection, mirror и режим «по бусине» нарисованы виджетом `AppGlyph`.

@@ -1120,4 +1120,107 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get templateDone => 'Готово';
+
+  @override
+  String get libraryImageToGrid => 'Схема из картинки';
+
+  @override
+  String get imageWizardTitle => 'Схема из картинки';
+
+  @override
+  String get imageWizardCancel => 'Отмена';
+
+  @override
+  String get imageWizardPickHint => 'Выберите картинку: по ней получится схема для плетения.';
+
+  @override
+  String get imageWizardSourceCamera => 'Сделать снимок';
+
+  @override
+  String get imageWizardSourcePhotos => 'Выбрать из Фото';
+
+  @override
+  String get imageWizardSourceFiles => 'Выбрать из Файлов';
+
+  @override
+  String get imageWizardOpening => 'Открываю картинку…';
+
+  @override
+  String get imageWizardRotate => 'Повернуть';
+
+  @override
+  String get imageWizardCrop => 'Обрезать';
+
+  @override
+  String get imageWizardPreviewLabel => 'Предпросмотр схемы';
+
+  @override
+  String get imageWizardOriginalLabel => 'Исходная картинка';
+
+  @override
+  String get imageWizardCompareHint => 'Удерживайте схему, чтобы увидеть исходную картинку';
+
+  @override
+  String get imageWizardCalculating => 'Считаю схему…';
+
+  @override
+  String imageWizardSize(int columns, int rows) {
+    return '$columns × $rows бусин';
+  }
+
+  @override
+  String get imageWizardTechnique => 'Техника';
+
+  @override
+  String get imageWizardBeadSize => 'Бисер';
+
+  @override
+  String get imageWizardWidth => 'Ширина схемы';
+
+  @override
+  String get imageWizardColorCount => 'Цветов в схеме';
+
+  @override
+  String get imageWizardPalette => 'Цвета бисера';
+
+  @override
+  String get imageWizardPaletteCatalog => 'Из каталога';
+
+  @override
+  String get imageWizardPaletteFree => 'Любые';
+
+  @override
+  String get imageWizardCatalogMissing => 'В каталоге нет бисера такого размера, поэтому цвета подобраны свободно.';
+
+  @override
+  String get imageWizardDither => 'Плавные переходы';
+
+  @override
+  String get imageWizardDitherHint => 'Лучше передаёт оттенки, но схема становится пестрее.';
+
+  @override
+  String get imageWizardName => 'Название';
+
+  @override
+  String get imageWizardSave => 'Сохранить схему';
+
+  @override
+  String get imageWizardSaving => 'Сохраняю…';
+
+  @override
+  String get imageWizardProblemSourceUnavailable =>
+      'Не удалось открыть выбранный источник. Проверьте доступ к Фото или камере.';
+
+  @override
+  String get imageWizardProblemUnreadable => 'Не получилось прочитать картинку. Выберите другую.';
+
+  @override
+  String get imageWizardProblemCalculation =>
+      'Не удалось посчитать схему. Измените параметры или выберите другую картинку.';
+
+  @override
+  String get imageWizardProblemSave => 'Не удалось сохранить схему. Попробуйте ещё раз.';
+
+  @override
+  String get imageWizardProblemName => 'Дайте схеме название (до 120 символов).';
 }

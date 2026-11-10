@@ -82,6 +82,17 @@ void main() {
       expect(ruler.withStep(5000, page).step, page);
     });
 
+    test('шаг идёт за высотой, пока его не задали отдельно', () {
+      final RulerState taller = ruler.withHeight(ruler.height + 20, page);
+      expect(taller.step, taller.height);
+      expect(taller.next(page).top, taller.top + taller.height);
+    });
+
+    test('заданный отдельно шаг не меняется вместе с высотой', () {
+      final RulerState custom = ruler.withStep(ruler.height + 7, page);
+      expect(custom.withHeight(ruler.height + 20, page).step, ruler.height + 7);
+    });
+
     test('высота ограничена минимумом и страницей', () {
       expect(ruler.withHeight(1, page).height, RulerState.minHeight);
       expect(ruler.withHeight(5000, page).height, page);

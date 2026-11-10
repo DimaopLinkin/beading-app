@@ -2124,6 +2124,204 @@ abstract class AppLocalizations {
   /// In ru, this message translates to:
   /// **'Готово'**
   String get templateDone;
+
+  /// Пункт листа «Новый проект»: схема по фотографии
+  ///
+  /// In ru, this message translates to:
+  /// **'Схема из картинки'**
+  String get libraryImageToGrid;
+
+  /// Заголовок мастера схемы по картинке
+  ///
+  /// In ru, this message translates to:
+  /// **'Схема из картинки'**
+  String get imageWizardTitle;
+
+  /// Кнопка выхода из мастера
+  ///
+  /// In ru, this message translates to:
+  /// **'Отмена'**
+  String get imageWizardCancel;
+
+  /// Подсказка на первом экране мастера
+  ///
+  /// In ru, this message translates to:
+  /// **'Выберите картинку: по ней получится схема для плетения.'**
+  String get imageWizardPickHint;
+
+  /// Источник картинки: камера
+  ///
+  /// In ru, this message translates to:
+  /// **'Сделать снимок'**
+  String get imageWizardSourceCamera;
+
+  /// Источник картинки: библиотека Фото
+  ///
+  /// In ru, this message translates to:
+  /// **'Выбрать из Фото'**
+  String get imageWizardSourcePhotos;
+
+  /// Источник картинки: Файлы
+  ///
+  /// In ru, this message translates to:
+  /// **'Выбрать из Файлов'**
+  String get imageWizardSourceFiles;
+
+  /// Индикатор открытия файла
+  ///
+  /// In ru, this message translates to:
+  /// **'Открываю картинку…'**
+  String get imageWizardOpening;
+
+  /// Кнопка поворота картинки
+  ///
+  /// In ru, this message translates to:
+  /// **'Повернуть'**
+  String get imageWizardRotate;
+
+  /// Кнопка обрезки картинки
+  ///
+  /// In ru, this message translates to:
+  /// **'Обрезать'**
+  String get imageWizardCrop;
+
+  /// Подпись предпросмотра для VoiceOver
+  ///
+  /// In ru, this message translates to:
+  /// **'Предпросмотр схемы'**
+  String get imageWizardPreviewLabel;
+
+  /// Подпись исходной картинки для VoiceOver
+  ///
+  /// In ru, this message translates to:
+  /// **'Исходная картинка'**
+  String get imageWizardOriginalLabel;
+
+  /// Подсказка про сравнение до/после
+  ///
+  /// In ru, this message translates to:
+  /// **'Удерживайте схему, чтобы увидеть исходную картинку'**
+  String get imageWizardCompareHint;
+
+  /// Индикатор расчёта предпросмотра
+  ///
+  /// In ru, this message translates to:
+  /// **'Считаю схему…'**
+  String get imageWizardCalculating;
+
+  /// Размер получившейся схемы: ширина × высота
+  ///
+  /// In ru, this message translates to:
+  /// **'{columns} × {rows} бусин'**
+  String imageWizardSize(int columns, int rows);
+
+  /// Заголовок выбора техники
+  ///
+  /// In ru, this message translates to:
+  /// **'Техника'**
+  String get imageWizardTechnique;
+
+  /// Заголовок выбора размера бисера
+  ///
+  /// In ru, this message translates to:
+  /// **'Бисер'**
+  String get imageWizardBeadSize;
+
+  /// Заголовок ползунка ширины
+  ///
+  /// In ru, this message translates to:
+  /// **'Ширина схемы'**
+  String get imageWizardWidth;
+
+  /// Заголовок ползунка числа цветов
+  ///
+  /// In ru, this message translates to:
+  /// **'Цветов в схеме'**
+  String get imageWizardColorCount;
+
+  /// Заголовок выбора источника цветов
+  ///
+  /// In ru, this message translates to:
+  /// **'Цвета бисера'**
+  String get imageWizardPalette;
+
+  /// Цвета берутся из каталога бисера
+  ///
+  /// In ru, this message translates to:
+  /// **'Из каталога'**
+  String get imageWizardPaletteCatalog;
+
+  /// Цвета подбираются по картинке свободно
+  ///
+  /// In ru, this message translates to:
+  /// **'Любые'**
+  String get imageWizardPaletteFree;
+
+  /// Пояснение, когда каталог пуст под выбранный размер
+  ///
+  /// In ru, this message translates to:
+  /// **'В каталоге нет бисера такого размера, поэтому цвета подобраны свободно.'**
+  String get imageWizardCatalogMissing;
+
+  /// Переключатель дизеринга
+  ///
+  /// In ru, this message translates to:
+  /// **'Плавные переходы'**
+  String get imageWizardDither;
+
+  /// Пояснение к плавным переходам
+  ///
+  /// In ru, this message translates to:
+  /// **'Лучше передаёт оттенки, но схема становится пестрее.'**
+  String get imageWizardDitherHint;
+
+  /// Подсказка в поле названия схемы
+  ///
+  /// In ru, this message translates to:
+  /// **'Название'**
+  String get imageWizardName;
+
+  /// Главная кнопка мастера
+  ///
+  /// In ru, this message translates to:
+  /// **'Сохранить схему'**
+  String get imageWizardSave;
+
+  /// Индикатор сохранения
+  ///
+  /// In ru, this message translates to:
+  /// **'Сохраняю…'**
+  String get imageWizardSaving;
+
+  /// Ошибка источника картинки
+  ///
+  /// In ru, this message translates to:
+  /// **'Не удалось открыть выбранный источник. Проверьте доступ к Фото или камере.'**
+  String get imageWizardProblemSourceUnavailable;
+
+  /// Ошибка чтения картинки
+  ///
+  /// In ru, this message translates to:
+  /// **'Не получилось прочитать картинку. Выберите другую.'**
+  String get imageWizardProblemUnreadable;
+
+  /// Ошибка расчёта схемы
+  ///
+  /// In ru, this message translates to:
+  /// **'Не удалось посчитать схему. Измените параметры или выберите другую картинку.'**
+  String get imageWizardProblemCalculation;
+
+  /// Ошибка сохранения
+  ///
+  /// In ru, this message translates to:
+  /// **'Не удалось сохранить схему. Попробуйте ещё раз.'**
+  String get imageWizardProblemSave;
+
+  /// Ошибка названия
+  ///
+  /// In ru, this message translates to:
+  /// **'Дайте схеме название (до 120 символов).'**
+  String get imageWizardProblemName;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

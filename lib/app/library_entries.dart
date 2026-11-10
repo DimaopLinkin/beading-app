@@ -27,36 +27,54 @@ void registerLibraryEntries(NewProjectRegistry registry) {
   }
 
   // Редактор бисерных схем (T17); вышивку редактирует T40.
-  registry
-    ..register(
-      NewProjectEntry(
-        id: 'draw-grid-beading',
-        craft: Craft.beading,
-        order: 20,
-        title: (l10n) => l10n.libraryDrawPattern,
-        icon: AppIcons.brush,
-        onSelected: (context) async {
-          final String? projectId = await context.push<String>(AppRoutes.newGrid);
-          if (projectId != null && context.mounted) {
-            await context.push<void>(AppRoutes.editor(projectId));
-          }
-        },
-      ),
-    )
-    ..register(
-      NewProjectEntry(
-        id: 'pattern-template',
-        craft: Craft.beading,
-        order: 30,
-        title: (l10n) => l10n.templateEntryTitle,
-        icon: AppIcons.template,
-        onSelected: (context) async {
-          // Готовый узор лежит в новом проекте: сразу открываем его в редакторе, чтобы можно было доработать.
-          final String? projectId = await context.push<String>(AppRoutes.patternTemplate);
-          if (projectId != null && context.mounted) {
-            await context.push<void>(AppRoutes.editor(projectId));
-          }
-        },
-      ),
-    );
+  registry.register(
+    NewProjectEntry(
+      id: 'draw-grid-beading',
+      craft: Craft.beading,
+      order: 20,
+      title: (l10n) => l10n.libraryDrawPattern,
+      icon: AppIcons.brush,
+      onSelected: (context) async {
+        final String? projectId = await context.push<String>(AppRoutes.newGrid);
+        if (projectId != null && context.mounted) {
+          await context.push<void>(AppRoutes.editor(projectId));
+        }
+      },
+    ),
+  );
+
+  // Схема из фото: бисер. Для вышивки свой мастер сделает T46.
+  registry.register(
+    NewProjectEntry(
+      id: 'image-to-grid-${Craft.beading.name}',
+      craft: Craft.beading,
+      order: 30,
+      title: (l10n) => l10n.libraryImageToGrid,
+      icon: AppIcons.photo,
+      onSelected: (context) async {
+        // Готовую схему сразу открываем в редакторе: подправить лишнее и начать работу.
+        final String? projectId = await context.push<String>(AppRoutes.imageToGrid);
+        if (projectId != null && context.mounted) {
+          await context.push<void>(AppRoutes.editor(projectId));
+        }
+      },
+    ),
+  );
+
+  // Узор по готовому шаблону: бисер; после сохранения проект открывается в редакторе.
+  registry.register(
+    NewProjectEntry(
+      id: 'pattern-template',
+      craft: Craft.beading,
+      order: 40,
+      title: (l10n) => l10n.templateEntryTitle,
+      icon: AppIcons.template,
+      onSelected: (context) async {
+        final String? projectId = await context.push<String>(AppRoutes.patternTemplate);
+        if (projectId != null && context.mounted) {
+          await context.push<void>(AppRoutes.editor(projectId));
+        }
+      },
+    ),
+  );
 }

@@ -4,7 +4,7 @@ import 'package:beading/presentation/library/new_project_entry.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  test('«Схема из книги» и «Нарисовать схему» есть в листе «Новый проект» для обоих ремёсел', () {
+  test('«Схема из книги», «Нарисовать» и «Схема из картинки» есть в листе «Новый проект»', () {
     final NewProjectRegistry registry = NewProjectRegistry();
 
     registerLibraryEntries(registry);
@@ -16,6 +16,7 @@ void main() {
     // «Нарисовать схему» — только бисер: редактор вышивки делает T40.
     expect(registry.entriesFor(Craft.beading).any((e) => e.id == 'draw-grid-beading'), isTrue);
     expect(registry.entriesFor(Craft.crossStitch), hasLength(1));
+    expect(registry.entriesFor(Craft.beading).any((e) => e.id == 'image-to-grid-beading'), isTrue);
   });
 
   test('«Узор по шаблону» есть только у бисера: цвета и геометрия пока бисерные', () {

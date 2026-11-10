@@ -39,6 +39,7 @@ import 'package:beading/domain/settings/settings_repository.dart';
 import 'package:beading/domain/settings/wakelock_controller.dart';
 import 'package:beading/domain/sharing/text_sharer.dart';
 import 'package:beading/presentation/catalog/catalog_cubit.dart';
+import 'package:beading/presentation/image_to_grid/image_wizard_cubit.dart';
 import 'package:beading/presentation/materials/materials_cubit.dart';
 import 'package:beading/presentation/pattern_template/pattern_template_cubit.dart';
 import 'package:beading/presentation/settings/settings_cubit.dart';
@@ -86,6 +87,7 @@ void main() {
     expect(locator<LoadProjectMaterials>(), isA<LoadProjectMaterials>());
     expect(locator<CatalogCubit>(), isA<CatalogCubit>());
     expect(locator<PatternTemplateCubit>(), isA<PatternTemplateCubit>());
+    expect(locator<ImageWizardCubit>(), isA<ImageWizardCubit>());
     expect(locator<MaterialsCubit>(param1: 'proj-1'), isA<MaterialsCubit>());
   });
 

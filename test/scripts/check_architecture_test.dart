@@ -66,4 +66,22 @@ void main() {
       expect(result.stdout, contains(path));
     });
   });
+
+  group('cupertino_icons', () {
+    test('CupertinoIcons без зависимости в pubspec — ошибка', () {
+      write('lib/presentation/i.dart', 'const x = CupertinoIcons.add;\n');
+
+      final ProcessResult result = run();
+
+      expect(result.exitCode, 1);
+      expect(result.stdout, contains('cupertino_icons'));
+    });
+
+    test('CupertinoIcons с зависимостью проходит', () {
+      File('${fixture.path}/pubspec.yaml').writeAsStringSync('name: demo\ndependencies:\n  cupertino_icons: ^1.0.8\n');
+      write('lib/presentation/i.dart', 'const x = CupertinoIcons.add;\n');
+
+      expect(run().exitCode, 0);
+    });
+  });
 }
