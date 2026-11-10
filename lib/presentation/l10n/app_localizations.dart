@@ -757,6 +757,72 @@ abstract class AppLocalizations {
   /// **'Цвет подсветки'**
   String get bookWorkRulerColor;
 
+  /// Заголовок раздела настройки границ схемы на фото страницы
+  ///
+  /// In ru, this message translates to:
+  /// **'Схема на странице'**
+  String get bookWorkZoneTitle;
+
+  /// Кнопка: начать выбор границ схемы на странице
+  ///
+  /// In ru, this message translates to:
+  /// **'Обвести схему на фото'**
+  String get bookWorkZoneEdit;
+
+  /// Кнопка: схема занимает всю страницу, границы снимаются
+  ///
+  /// In ru, this message translates to:
+  /// **'Вся страница'**
+  String get bookWorkZoneReset;
+
+  /// No description provided for @bookWorkZoneHint.
+  ///
+  /// In ru, this message translates to:
+  /// **'Потяни за края рамки, чтобы она обвела только схему. Ряды не выйдут за рамку.'**
+  String get bookWorkZoneHint;
+
+  /// Подпись счётчика числа рядов в зоне схемы
+  ///
+  /// In ru, this message translates to:
+  /// **'Рядов в схеме'**
+  String get bookWorkZoneRowCount;
+
+  /// Кнопка: не считать высоту ряда по числу рядов
+  ///
+  /// In ru, this message translates to:
+  /// **'Задавать вручную'**
+  String get bookWorkZoneRowCountManual;
+
+  /// No description provided for @bookWorkZoneRowCountAuto.
+  ///
+  /// In ru, this message translates to:
+  /// **'Высота ряда считается сама'**
+  String get bookWorkZoneRowCountAuto;
+
+  /// No description provided for @bookWorkZoneRowCountUnset.
+  ///
+  /// In ru, this message translates to:
+  /// **'не задано'**
+  String get bookWorkZoneRowCountUnset;
+
+  /// No description provided for @bookWorkZoneMore.
+  ///
+  /// In ru, this message translates to:
+  /// **'Больше рядов'**
+  String get bookWorkZoneMore;
+
+  /// No description provided for @bookWorkZoneLess.
+  ///
+  /// In ru, this message translates to:
+  /// **'Меньше рядов'**
+  String get bookWorkZoneLess;
+
+  /// Подпись ручки, которой двигают границу схемы
+  ///
+  /// In ru, this message translates to:
+  /// **'Край схемы'**
+  String get bookWorkZoneHandle;
+
   /// No description provided for @bookWorkColorYellow.
   ///
   /// In ru, this message translates to:

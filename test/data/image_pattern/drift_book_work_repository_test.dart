@@ -4,6 +4,7 @@ import 'package:beading/data/image_pattern/drift_image_pattern_repository.dart';
 import 'package:beading/data/settings/drift_device_id_provider.dart';
 import 'package:beading/domain/image_pattern/book_work/page_viewport.dart';
 import 'package:beading/domain/image_pattern/book_work/page_work.dart';
+import 'package:beading/domain/image_pattern/book_work/pattern_zone.dart';
 import 'package:beading/domain/image_pattern/book_work/ruler_state.dart';
 import 'package:beading/domain/image_pattern/image_pattern.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -83,6 +84,28 @@ void main() {
 
     await repository.savePage(_workA);
     expect((await repository.load('pat-1')).valueOrNull!.pages['pg-a']!.ruler.direction, RowDirection.topDown);
+  });
+
+  test('зона схемы и число рядов записываются и читаются обратно, без зоны — пусто', () async {
+    final PageWork zoned = _workA.copyWith(
+      ruler: RulerState.initial(200)
+          .withZone(
+            const PatternZone(top: 20, bottom: 180, left: 5, right: 95),
+            200,
+          )
+          .withRowCount(8, 200),
+    );
+
+    await repository.savePage(zoned);
+    final RulerState back = (await repository.load('pat-1')).valueOrNull!.pages['pg-a']!.ruler;
+    expect(back, zoned.ruler);
+    expect(back.zone, const PatternZone(top: 20, bottom: 180, left: 5, right: 95));
+    expect(back.rowCount, 8);
+
+    await repository.savePage(_workA);
+    final RulerState cleared = (await repository.load('pat-1')).valueOrNull!.pages['pg-a']!.ruler;
+    expect(cleared.zone, isNull);
+    expect(cleared.rowCount, isNull);
   });
 
   test('повторная запись заменяет состояние, время создания остаётся', () async {

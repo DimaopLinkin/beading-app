@@ -357,6 +357,35 @@
   "bookWorkRulerHeight": "Высота линейки",
   "bookWorkRulerStep": "Шаг сдвига",
   "bookWorkRulerColor": "Цвет подсветки",
+  "bookWorkZoneTitle": "Схема на странице",
+  "@bookWorkZoneTitle": {
+    "description": "Заголовок раздела настройки границ схемы на фото страницы"
+  },
+  "bookWorkZoneEdit": "Обвести схему на фото",
+  "@bookWorkZoneEdit": {
+    "description": "Кнопка: начать выбор границ схемы на странице"
+  },
+  "bookWorkZoneReset": "Вся страница",
+  "@bookWorkZoneReset": {
+    "description": "Кнопка: схема занимает всю страницу, границы снимаются"
+  },
+  "bookWorkZoneHint": "Потяни за края рамки, чтобы она обвела только схему. Ряды не выйдут за рамку.",
+  "bookWorkZoneRowCount": "Рядов в схеме",
+  "@bookWorkZoneRowCount": {
+    "description": "Подпись счётчика числа рядов в зоне схемы"
+  },
+  "bookWorkZoneRowCountManual": "Задавать вручную",
+  "@bookWorkZoneRowCountManual": {
+    "description": "Кнопка: не считать высоту ряда по числу рядов"
+  },
+  "bookWorkZoneRowCountAuto": "Высота ряда считается сама",
+  "bookWorkZoneRowCountUnset": "не задано",
+  "bookWorkZoneMore": "Больше рядов",
+  "bookWorkZoneLess": "Меньше рядов",
+  "bookWorkZoneHandle": "Край схемы",
+  "@bookWorkZoneHandle": {
+    "description": "Подпись ручки, которой двигают границу схемы"
+  },
   "bookWorkColorYellow": "Жёлтый",
   "bookWorkColorGreen": "Зелёный",
   "bookWorkColorBlue": "Синий",

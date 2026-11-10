@@ -1,5 +1,7 @@
 import 'dart:async';
+import 'dart:math' as math;
 
+import 'package:beading/domain/image_pattern/book_work/pattern_zone.dart';
 import 'package:beading/domain/image_pattern/book_work/ruler_state.dart';
 import 'package:beading/presentation/book_work/book_work_cubit.dart';
 import 'package:beading/presentation/l10n/app_localizations.dart';
@@ -69,6 +71,134 @@ class RulerMarks extends StatelessWidget {
           ),
         ),
       ],
+    );
+  }
+}
+
+/// Четыре ручки по краям рамки схемы. Каждая двигает один край; рамка не вырождается (см. [PatternZone.fitted]).
+///
+/// [left], [top], [right], [bottom] — экранные координаты краёв рамки; ручка прижимается к видимой области
+/// [minY]…[maxY] и [0, width], когда край ушёл за экран из-за зума.
+class ZoneHandles extends StatelessWidget {
+  const ZoneHandles({
+    required this.zone,
+    required this.left,
+    required this.top,
+    required this.right,
+    required this.bottom,
+    required this.pagePerScreen,
+    required this.width,
+    required this.minY,
+    required this.maxY,
+    required this.cubit,
+    super.key,
+  });
+
+  final PatternZone zone;
+  final double left;
+  final double top;
+  final double right;
+  final double bottom;
+  final double pagePerScreen;
+  final double width;
+  final double minY;
+  final double maxY;
+  final BookWorkCubit cubit;
+
+  @override
+  Widget build(BuildContext context) {
+    final double hit = context.tokens.minTapTarget;
+    final double centerX = ((left + right) / 2).clamp(hit / 2, math.max(hit / 2, width - hit / 2));
+    final double centerY = ((top + bottom) / 2).clamp(minY + hit / 2, math.max(minY + hit / 2, maxY - hit / 2));
+    double x(double v) => v.clamp(hit / 2, math.max(hit / 2, width - hit / 2));
+    double y(double v) => v.clamp(minY + hit / 2, math.max(minY + hit / 2, maxY - hit / 2));
+    final String label = AppLocalizations.of(context).bookWorkZoneHandle;
+    return Stack(
+      children: <Widget>[
+        _EdgeHandle(
+          handleKey: 'zone-handle-top',
+          label: label,
+          icon: AppIcons.resize,
+          center: Offset(centerX, y(top)),
+          vertical: true,
+          onDrag: (d) => cubit.setZone(zone.copyWith(top: zone.top + d * pagePerScreen)),
+        ),
+        _EdgeHandle(
+          handleKey: 'zone-handle-bottom',
+          label: label,
+          icon: AppIcons.resize,
+          center: Offset(centerX, y(bottom)),
+          vertical: true,
+          onDrag: (d) => cubit.setZone(zone.copyWith(bottom: zone.bottom + d * pagePerScreen)),
+        ),
+        _EdgeHandle(
+          handleKey: 'zone-handle-left',
+          label: label,
+          icon: AppIcons.resizeWide,
+          center: Offset(x(left), centerY),
+          vertical: false,
+          onDrag: (d) => cubit.setZone(zone.copyWith(left: zone.left + d * pagePerScreen)),
+        ),
+        _EdgeHandle(
+          handleKey: 'zone-handle-right',
+          label: label,
+          icon: AppIcons.resizeWide,
+          center: Offset(x(right), centerY),
+          vertical: false,
+          onDrag: (d) => cubit.setZone(zone.copyWith(right: zone.right + d * pagePerScreen)),
+        ),
+      ],
+    );
+  }
+}
+
+class _EdgeHandle extends StatelessWidget {
+  const _EdgeHandle({
+    required this.handleKey,
+    required this.label,
+    required this.icon,
+    required this.center,
+    required this.vertical,
+    required this.onDrag,
+  });
+
+  final String handleKey;
+  final String label;
+  final IconData icon;
+  final Offset center;
+  final bool vertical;
+
+  /// Смещение пальца вдоль оси ручки, экранные px.
+  final ValueChanged<double> onDrag;
+
+  @override
+  Widget build(BuildContext context) {
+    final AppTokensData tokens = context.tokens;
+    final double hit = tokens.minTapTarget;
+    return Positioned(
+      left: center.dx - hit / 2,
+      top: center.dy - hit / 2,
+      child: Semantics(
+        label: label,
+        child: GestureDetector(
+          key: ValueKey<String>(handleKey),
+          behavior: HitTestBehavior.opaque,
+          onVerticalDragUpdate: vertical ? (details) => onDrag(details.delta.dy) : null,
+          onHorizontalDragUpdate: vertical ? null : (details) => onDrag(details.delta.dx),
+          child: SizedBox.square(
+            dimension: hit,
+            child: Center(
+              child: DecoratedBox(
+                decoration: BoxDecoration(color: tokens.accent.resolveFrom(context), shape: BoxShape.circle),
+                child: SizedBox.square(
+                  dimension: rulerMarkSize,
+                  child: Icon(icon, size: 16, color: CupertinoColors.white),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
     );
   }
 }

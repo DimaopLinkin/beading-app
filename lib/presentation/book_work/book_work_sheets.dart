@@ -125,6 +125,8 @@ class _RulerSettingsSheet extends StatelessWidget {
                   onChanged: cubit.setRulerStep,
                 ),
                 SizedBox(height: gap),
+                _ZoneSection(ruler: ruler, pageHeight: state.page.height.toDouble()),
+                SizedBox(height: gap),
                 Text(l10n.bookWorkRulerColor),
                 SizedBox(height: gap),
                 Row(
@@ -153,6 +155,96 @@ class _RulerSettingsSheet extends StatelessWidget {
     RulerHighlight.blue => l10n.bookWorkColorBlue,
     RulerHighlight.pink => l10n.bookWorkColorPink,
   };
+}
+
+/// Границы схемы на странице и число рядов в них: по числу рядов высота и шаг считаются сами.
+class _ZoneSection extends StatelessWidget {
+  const _ZoneSection({required this.ruler, required this.pageHeight});
+
+  final RulerState ruler;
+  final double pageHeight;
+
+  @override
+  Widget build(BuildContext context) {
+    final AppLocalizations l10n = AppLocalizations.of(context);
+    final BookWorkCubit cubit = context.read<BookWorkCubit>();
+    final double gap = context.tokens.spacing.m;
+    final int? count = ruler.rowCount;
+    final double span = ruler.zone?.height ?? pageHeight;
+    // С чего начать счёт: сколько рядов сейчас помещается по высоте полосы.
+    final int guess = math.max(1, (span / math.max(ruler.height, RulerState.minHeight)).round());
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: <Widget>[
+        Text(l10n.bookWorkZoneTitle, style: CupertinoTheme.of(context).textTheme.navTitleTextStyle),
+        SizedBox(height: gap),
+        Row(
+          children: <Widget>[
+            Expanded(
+              child: CupertinoButton.tinted(
+                key: const ValueKey<String>('zone-edit'),
+                minimumSize: Size.fromHeight(context.tokens.minTapTarget),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                  cubit.startZoneEditing();
+                },
+                child: Text(l10n.bookWorkZoneEdit),
+              ),
+            ),
+            if (ruler.zone != null) ...<Widget>[
+              SizedBox(width: gap),
+              CupertinoButton(
+                key: const ValueKey<String>('zone-clear'),
+                minimumSize: Size.square(context.tokens.minTapTarget),
+                onPressed: cubit.resetZone,
+                child: Text(l10n.bookWorkZoneReset),
+              ),
+            ],
+          ],
+        ),
+        SizedBox(height: gap),
+        Row(
+          children: <Widget>[
+            Expanded(child: Text(l10n.bookWorkZoneRowCount)),
+            CupertinoButton(
+              key: const ValueKey<String>('row-count-less'),
+              minimumSize: Size.square(context.tokens.minTapTarget),
+              padding: EdgeInsets.zero,
+              onPressed: count == null || count <= 1 ? null : () => cubit.setRowCount(count - 1),
+              child: Semantics(label: l10n.bookWorkZoneLess, child: const Icon(AppIcons.minus)),
+            ),
+            SizedBox(
+              width: 64,
+              child: Text(
+                count == null ? l10n.bookWorkZoneRowCountUnset : '$count',
+                key: const ValueKey<String>('row-count-value'),
+                textAlign: TextAlign.center,
+              ),
+            ),
+            CupertinoButton(
+              key: const ValueKey<String>('row-count-more'),
+              minimumSize: Size.square(context.tokens.minTapTarget),
+              padding: EdgeInsets.zero,
+              onPressed: () => cubit.setRowCount(count == null ? guess : count + 1),
+              child: Semantics(label: l10n.bookWorkZoneMore, child: const Icon(AppIcons.add)),
+            ),
+          ],
+        ),
+        if (count != null)
+          Row(
+            children: <Widget>[
+              Expanded(child: Text(l10n.bookWorkZoneRowCountAuto)),
+              CupertinoButton(
+                key: const ValueKey<String>('row-count-manual'),
+                minimumSize: Size.square(context.tokens.minTapTarget),
+                onPressed: () => cubit.setRowCount(null),
+                child: Text(l10n.bookWorkZoneRowCountManual),
+              ),
+            ],
+          ),
+      ],
+    );
+  }
 }
 
 class _LabeledSlider extends StatelessWidget {

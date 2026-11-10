@@ -74,4 +74,39 @@ void main() {
     expect(row.rulerRow, 4);
     expect(row.rowDirection, 'topDown');
   });
+
+  test('миграция v9→v10 сохраняет линейку, зона и число рядов пусты', () async {
+    final SchemaVerifier verifier = SchemaVerifier(GeneratedHelper());
+    final InitializedSchema old = await verifier.schemaAt(9);
+    old.rawDatabase
+      ..execute(
+        'INSERT INTO projects (id, name, technique, content_kind, last_worked_at, created_at, updated_at, device_id) '
+        "VALUES ('proj', 'П', 'loom', 'image', 0, 1, 1, 'd')",
+      )
+      ..execute(
+        "INSERT INTO image_patterns (id, project_id, created_at, updated_at, device_id) VALUES ('pat', 'proj', 1, 1, 'd')",
+      )
+      ..execute(
+        'INSERT INTO image_pattern_pages (id, pattern_id, position, path, width, height, created_at, updated_at, device_id) '
+        "VALUES ('pg', 'pat', 0, 'a.png', 10, 20, 1, 1, 'd')",
+      )
+      ..execute(
+        'INSERT INTO page_work_states (id, ruler_top, ruler_height, ruler_step, ruler_row, highlight, row_direction, '
+        "view_scale, view_dx, view_dy, created_at, updated_at, device_id) VALUES ('pg', 1, 2, 2, 4, 'green', 'bottomUp', "
+        "1, 0, 0, 1, 1, 'd')",
+      );
+
+    final AppDatabase db = AppDatabase(old.newConnection());
+    addTearDown(db.close);
+    await verifier.migrateAndValidate(db, 10);
+
+    final PageWorkStateRow row = (await db.select(db.pageWorkStates).get()).single;
+    expect(row.rulerRow, 4);
+    expect(row.rowDirection, 'bottomUp');
+    expect(row.zoneTop, isNull);
+    expect(row.zoneBottom, isNull);
+    expect(row.zoneLeft, isNull);
+    expect(row.zoneRight, isNull);
+    expect(row.rowCount, isNull);
+  });
 }

@@ -17,6 +17,7 @@ class BookWorkState extends Equatable {
     this.saveFailed = false,
     this.panelCollapsed = false,
     this.undoRuler,
+    this.zoneEditing = false,
   });
 
   final BookWorkStatus status;
@@ -36,6 +37,9 @@ class BookWorkState extends Equatable {
 
   /// Линейка до последнего сдвига: по ней работает «Отменить». `null`, когда отменять нечего.
   final RulerState? undoRuler;
+
+  /// Идёт выбор границ схемы на фото: поверх страницы ручки зоны. Не сохраняется.
+  final bool zoneEditing;
 
   bool get isReady => status == BookWorkStatus.ready;
 
@@ -65,6 +69,7 @@ class BookWorkState extends Equatable {
     bool? panelCollapsed,
     RulerState? undoRuler,
     bool clearUndo = false,
+    bool? zoneEditing,
   }) => BookWorkState(
     status: status ?? this.status,
     projectName: projectName ?? this.projectName,
@@ -75,6 +80,7 @@ class BookWorkState extends Equatable {
     saveFailed: saveFailed ?? this.saveFailed,
     panelCollapsed: panelCollapsed ?? this.panelCollapsed,
     undoRuler: clearUndo ? null : undoRuler ?? this.undoRuler,
+    zoneEditing: zoneEditing ?? this.zoneEditing,
   );
 
   @override
@@ -88,5 +94,6 @@ class BookWorkState extends Equatable {
     saveFailed,
     panelCollapsed,
     undoRuler,
+    zoneEditing,
   ];
 }
