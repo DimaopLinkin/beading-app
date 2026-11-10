@@ -1,6 +1,10 @@
 /// Ключ для поиска по артикулу: «DB-0010», «db10» и «DB 10» дают `db10`; «10» остаётся `10`.
+/// Дефис между цифрами сохраняется: у Miyuki `DB0106-1` и `DB1061` — разные бусины.
 String codeSearchKey(String value) {
-  final String lower = value.toLowerCase().replaceAll(RegExp('[^a-z0-9а-яё]'), '');
+  final String lower = value
+      .toLowerCase()
+      .replaceAll(RegExp('[^a-z0-9а-яё-]'), '')
+      .replaceAll(RegExp(r'(?<!\d)-|-(?!\d)'), '');
   // Ведущие нули внутри числовых групп не значимы: 0010 == 10.
   return lower.replaceAllMapped(RegExp(r'\d+'), (m) {
     final String stripped = m[0]!.replaceFirst(RegExp(r'^0+(?=\d)'), '');
