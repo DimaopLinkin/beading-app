@@ -117,7 +117,7 @@ void main() {
       expect(find.byKey(const ValueKey<String>('template-color-0')), findsOneWidget);
       expect(find.byKey(const ValueKey<String>('template-color-1')), findsOneWidget);
       expect(find.byKey(const ValueKey<String>('template-add-color')), findsOneWidget);
-      expect(find.text('Ширина, бусин'), findsOneWidget);
+      expect(find.text('Бусин в ряду'), findsOneWidget);
       expect(find.text('Ширина полосы'), findsOneWidget);
       expect(tester.takeException(), isNull);
     });
@@ -159,16 +159,16 @@ void main() {
   testWidgets('кнопки «+» и «−» меняют размер и предпросмотр, на границе выключаются', (tester) async {
     final ctx = await pumpScreen(tester);
 
-    await tester.tap(find.byKey(const ValueKey<String>('plus-Ширина, бусин')));
+    await tester.tap(find.byKey(const ValueKey<String>('plus-Бусин в ряду')));
     await tester.pump();
     expect(ctx.cubit.state.params.width, 13);
     expect(ctx.cubit.state.preview!.grid.width, 13);
-    expect(tester.widget<Text>(find.byKey(const ValueKey<String>('value-Ширина, бусин'))).data, '13');
+    expect(tester.widget<Text>(find.byKey(const ValueKey<String>('value-Бусин в ряду'))).data, '13');
 
     ctx.cubit.setParams(ctx.cubit.state.params.copyWith(width: TemplateParams.minSide));
     await tester.pump();
     final CupertinoButton minus = tester.widget<CupertinoButton>(
-      find.byKey(const ValueKey<String>('minus-Ширина, бусин')),
+      find.byKey(const ValueKey<String>('minus-Бусин в ряду')),
     );
     expect(minus.onPressed, isNull);
   });
@@ -279,6 +279,34 @@ void main() {
     expect(find.text('Не удалось сохранить узор. Попробуйте ещё раз.'), findsOneWidget);
     expect(ctx.result.value, isNull);
     expect(find.text('Узор по шаблону'), findsOneWidget);
+  });
+
+  testWidgets('предпросмотр закреплён: при прокрутке параметров остаётся на экране', (tester) async {
+    tester.view
+      ..physicalSize = const Size(430, 700)
+      ..devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    final PatternTemplateCubit cubit = buildCubit();
+    addTearDown(cubit.close);
+    await tester.pumpWidget(
+      CupertinoApp(
+        theme: AppTheme.light,
+        builder: AppTheme.builder,
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
+        locale: const Locale('ru'),
+        home: BlocProvider<PatternTemplateCubit>.value(value: cubit, child: const PatternTemplateScreen()),
+      ),
+    );
+    await cubit.start();
+    await tester.pump();
+    await tester.pump();
+
+    final Rect before = tester.getRect(find.byKey(const ValueKey<String>('template-preview')));
+    await tester.drag(find.byType(Scrollable).last, const Offset(0, -400));
+    await tester.pump();
+
+    expect(tester.getRect(find.byKey(const ValueKey<String>('template-preview'))), before);
   });
 
   testWidgets('крупный шрифт не ломает вёрстку', (tester) async {

@@ -55,6 +55,8 @@ class _PatternTemplateScreenState extends State<PatternTemplateScreen> {
   Widget build(BuildContext context) {
     final AppLocalizations l10n = AppLocalizations.of(context);
     return BlocConsumer<PatternTemplateCubit, PatternTemplateState>(
+      // Название живёт в поле ввода и на экране не рисуется: перестраивать всё на каждый символ незачем.
+      buildWhen: (previous, current) => previous.name == current.name,
       listenWhen: (previous, current) => current.projectId != null && previous.projectId == null,
       listener: (context, state) => Navigator.of(context).maybePop(state.projectId),
       builder: (context, state) {
@@ -161,116 +163,134 @@ class _Content extends StatelessWidget {
     final AppTokensData tokens = context.tokens;
     final TemplateParams p = state.params;
     final double gap = tokens.spacing.m;
-    return ListView(
-      padding: EdgeInsets.all(tokens.spacing.l),
-      children: <Widget>[
-        _Preview(state: state),
-        if (state.problem case final TemplateProblem problem when state.status == TemplateStatus.ready)
-          Padding(
-            padding: EdgeInsets.only(top: gap),
-            child: _ProblemLine(text: templateProblemText(l10n, problem)),
-          ),
-        _Section(
-          title: l10n.templateSectionKind,
-          child: _Gallery(state: state),
-        ),
-        _Section(
-          title: l10n.templateSectionParams,
-          child: Column(children: _paramRows(context, state, cubit)),
-        ),
-        _Section(
-          title: l10n.templateSectionColors,
-          child: _Colors(state: state),
-        ),
-        _Section(
-          title: l10n.templateSectionSize,
-          child: Column(
-            children: <Widget>[
-              _Stepper(
-                label: l10n.templateWidth,
-                value: p.width,
-                min: TemplateParams.minSide,
-                max: TemplateParams.maxWidth,
-                onChanged: (v) => cubit.setParams(p.copyWith(width: v)),
+    // Предпросмотр закреплён над прокруткой: параметры ниже, а результат всегда на виду. На широком окне — по центру.
+    return Center(
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: 640),
+        child: Column(
+          children: <Widget>[
+            Padding(
+              padding: EdgeInsets.fromLTRB(tokens.spacing.l, tokens.spacing.m, tokens.spacing.l, 0),
+              child: _Preview(state: state),
+            ),
+            if (state.problem case final TemplateProblem problem when state.status == TemplateStatus.ready)
+              Padding(
+                padding: EdgeInsets.only(top: gap, left: tokens.spacing.l, right: tokens.spacing.l),
+                child: _ProblemLine(text: templateProblemText(l10n, problem)),
               ),
-              _Stepper(
-                label: l10n.templateHeight,
-                value: p.height,
-                min: TemplateParams.minSide,
-                max: TemplateParams.maxHeight,
-                step: 5,
-                onChanged: (v) => cubit.setParams(p.copyWith(height: v)),
-              ),
-            ],
-          ),
-        ),
-        _Section(
-          title: l10n.templateSectionTechnique,
-          child: Wrap(
-            runSpacing: tokens.spacing.xs,
-            children: <Widget>[
-              for (final Technique t in PatternTemplateScreen.techniques)
-                PillChip(
-                  label: t.label(l10n),
-                  selected: p.technique == t,
-                  onTap: () => cubit.setParams(p.copyWith(technique: t)),
-                ),
-            ],
-          ),
-        ),
-        _Section(
-          title: l10n.templateSectionBead,
-          child: Wrap(
-            runSpacing: tokens.spacing.xs,
-            children: <Widget>[
-              for (final BeadSize b in BeadSize.values)
-                PillChip(
-                  label: b.label(l10n),
-                  selected: p.bead == b,
-                  onTap: () => cubit.setParams(p.copyWith(bead: b)),
-                ),
-            ],
-          ),
-        ),
-        _Section(
-          title: l10n.templateSectionSymmetry,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: <Widget>[
-              Wrap(
-                runSpacing: tokens.spacing.xs,
+            Expanded(
+              child: ListView(
+                padding: EdgeInsets.all(tokens.spacing.l),
                 children: <Widget>[
-                  for (final PatternSymmetry sym in PatternSymmetry.values)
-                    PillChip(
-                      label: sym.label(l10n),
-                      selected: p.symmetry == sym,
-                      onTap: () => cubit.setParams(p.copyWith(symmetry: sym)),
+                  _Section(
+                    title: l10n.templateSectionKind,
+                    child: _Gallery(state: state),
+                  ),
+                  _Section(
+                    title: l10n.templateSectionSize,
+                    child: Column(
+                      children: <Widget>[
+                        _Stepper(
+                          label: l10n.templateWidth,
+                          value: p.width,
+                          min: TemplateParams.minSide,
+                          max: TemplateParams.maxWidth,
+                          onChanged: (v) => cubit.setParams(p.copyWith(width: v)),
+                        ),
+                        _Stepper(
+                          label: l10n.templateHeight,
+                          value: p.height,
+                          min: TemplateParams.minSide,
+                          max: TemplateParams.maxHeight,
+                          step: 5,
+                          onChanged: (v) => cubit.setParams(p.copyWith(height: v)),
+                        ),
+                      ],
                     ),
+                  ),
+                  _Section(
+                    title: l10n.templateSectionTechnique,
+                    child: Wrap(
+                      runSpacing: tokens.spacing.xs,
+                      children: <Widget>[
+                        for (final Technique t in PatternTemplateScreen.techniques)
+                          PillChip(
+                            label: t.label(l10n),
+                            selected: p.technique == t,
+                            onTap: () => cubit.setParams(p.copyWith(technique: t)),
+                          ),
+                      ],
+                    ),
+                  ),
+                  _Section(
+                    title: l10n.templateSectionBead,
+                    child: Wrap(
+                      runSpacing: tokens.spacing.xs,
+                      children: <Widget>[
+                        for (final BeadSize b in BeadSize.values)
+                          PillChip(
+                            label: b.label(l10n),
+                            selected: p.bead == b,
+                            onTap: () => cubit.setParams(p.copyWith(bead: b)),
+                          ),
+                      ],
+                    ),
+                  ),
+                  _Section(
+                    title: l10n.templateSectionParams,
+                    child: Column(children: _paramRows(context, state, cubit)),
+                  ),
+                  _Section(
+                    title: l10n.templateSectionColors,
+                    child: _Colors(state: state),
+                  ),
+                  _Section(
+                    title: l10n.templateSectionSymmetry,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: <Widget>[
+                        Wrap(
+                          runSpacing: tokens.spacing.xs,
+                          children: <Widget>[
+                            for (final PatternSymmetry sym in PatternSymmetry.values)
+                              PillChip(
+                                label: sym.label(l10n),
+                                selected: p.symmetry == sym,
+                                onTap: () => cubit.setParams(p.copyWith(symmetry: sym)),
+                              ),
+                          ],
+                        ),
+                        if (p.isShifted && p.symmetry != PatternSymmetry.none)
+                          Padding(
+                            padding: EdgeInsets.only(top: tokens.spacing.s),
+                            child: Text(
+                              l10n.templateSymmetryApproximate,
+                              key: const ValueKey<String>('template-symmetry-note'),
+                              style: TextStyle(
+                                fontSize: 13,
+                                color: CupertinoColors.secondaryLabel.resolveFrom(context),
+                              ),
+                            ),
+                          ),
+                      ],
+                    ),
+                  ),
+                  _Section(
+                    title: l10n.templateSectionName,
+                    child: CupertinoTextField(
+                      key: const ValueKey<String>('template-name'),
+                      controller: nameController,
+                      placeholder: defaultName,
+                      maxLength: 80,
+                      onChanged: cubit.setName,
+                    ),
+                  ),
                 ],
               ),
-              if (p.isShifted && p.symmetry != PatternSymmetry.none)
-                Padding(
-                  padding: EdgeInsets.only(top: tokens.spacing.s),
-                  child: Text(
-                    l10n.templateSymmetryApproximate,
-                    key: const ValueKey<String>('template-symmetry-note'),
-                    style: TextStyle(fontSize: 13, color: CupertinoColors.secondaryLabel.resolveFrom(context)),
-                  ),
-                ),
-            ],
-          ),
+            ),
+          ],
         ),
-        _Section(
-          title: l10n.templateSectionName,
-          child: CupertinoTextField(
-            key: const ValueKey<String>('template-name'),
-            controller: nameController,
-            placeholder: defaultName,
-            maxLength: 80,
-            onChanged: cubit.setName,
-          ),
-        ),
-      ],
+      ),
     );
   }
 
@@ -408,7 +428,7 @@ class _Preview extends StatelessWidget {
           color: CupertinoColors.secondarySystemFill.resolveFrom(context),
           child: SizedBox(
             key: const ValueKey<String>('template-preview'),
-            height: 260,
+            height: 200,
             child: preview == null
                 ? const SizedBox.expand()
                 : GridPatternView(
@@ -437,8 +457,10 @@ class _Gallery extends StatelessWidget {
     final AppLocalizations l10n = AppLocalizations.of(context);
     final PatternTemplateCubit cubit = context.read<PatternTemplateCubit>();
     final AppTokensData tokens = context.tokens;
+    // Подпись карточки растёт с размером шрифта, поэтому высота ленты считается от него.
+    final double labelHeight = MediaQuery.textScalerOf(context).scale(14) * 1.4;
     return SizedBox(
-      height: 132,
+      height: 92 + tokens.spacing.xs + labelHeight + 8,
       child: ListView(
         scrollDirection: Axis.horizontal,
         children: <Widget>[
@@ -568,7 +590,16 @@ class _Colors extends StatelessWidget {
                     break;
                 }
               },
-              child: MinTapTarget(child: ColorSwatchView(rgb: state.colors[i].rgb, size: 36)),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: <Widget>[
+                  MinTapTarget(child: ColorSwatchView(rgb: state.colors[i].rgb, size: 36)),
+                  Text(
+                    state.colors[i].components.first.code,
+                    style: TextStyle(fontSize: 12, color: CupertinoColors.secondaryLabel.resolveFrom(context)),
+                  ),
+                ],
+              ),
             ),
           ),
         if (state.canAddColor)
@@ -667,10 +698,10 @@ class _Stepper extends StatelessWidget {
           minimumSize: Size.square(target),
           padding: EdgeInsets.zero,
           onPressed: value > min ? () => onChanged((value - step).clamp(min, max)) : null,
-          child: Semantics(label: '${l10n.templateValueMinus}: $label', child: const Icon(CupertinoIcons.minus_circle)),
+          child: Semantics(label: '${l10n.templateValueMinus}: $label', child: const Icon(AppIcons.minus)),
         ),
-        SizedBox(
-          width: 44,
+        ConstrainedBox(
+          constraints: const BoxConstraints(minWidth: 44),
           child: Text(
             '$value',
             key: ValueKey<String>('value-$label'),
@@ -686,7 +717,7 @@ class _Stepper extends StatelessWidget {
           minimumSize: Size.square(target),
           padding: EdgeInsets.zero,
           onPressed: value < max ? () => onChanged((value + step).clamp(min, max)) : null,
-          child: Semantics(label: '${l10n.templateValuePlus}: $label', child: const Icon(CupertinoIcons.plus_circle)),
+          child: Semantics(label: '${l10n.templateValuePlus}: $label', child: const Icon(AppIcons.plus)),
         ),
       ],
     );

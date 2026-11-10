@@ -942,10 +942,10 @@ class AppLocalizationsRu extends AppLocalizations {
   String get templateKindBorder => 'Бордюр';
 
   @override
-  String get templateWidth => 'Ширина, бусин';
+  String get templateWidth => 'Бусин в ряду';
 
   @override
-  String get templateHeight => 'Высота, рядов';
+  String get templateHeight => 'Рядов';
 
   @override
   String get templateStripeWidth => 'Ширина полосы';
@@ -994,7 +994,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get templateSymmetryApproximate =>
-      'В мозаике и кирпичном стежке отражение приблизительное: ряды сдвинуты на полбусины.';
+      'В этой технике ряды сдвинуты на полбусины, поэтому отражение получится с небольшим сдвигом.';
 
   @override
   String get templateAddColor => 'Добавить цвет';
@@ -1018,7 +1018,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get templateProblemCatalog => 'Каталог цветов недоступен. Попробуйте ещё раз.';
 
   @override
-  String get templateProblemParameters => 'Из этих параметров узор не получается. Измените размер или цвета.';
+  String get templateProblemParameters => 'Узор с такими параметрами не собрать. Попробуйте изменить размер или цвета.';
 
   @override
   String get templateProblemSave => 'Не удалось сохранить узор. Попробуйте ещё раз.';

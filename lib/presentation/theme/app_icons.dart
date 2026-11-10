@@ -17,6 +17,8 @@ abstract final class AppIcons {
   static const IconData share = CupertinoIcons.share;
   static const IconData catalog = CupertinoIcons.color_filter;
   static const IconData selected = CupertinoIcons.checkmark;
+  static const IconData minus = CupertinoIcons.minus_circle;
+  static const IconData plus = CupertinoIcons.plus_circle;
   static const IconData template = CupertinoIcons.square_grid_3x2;
   static const IconData craftBeading = CupertinoIcons.circle_grid_3x3_fill;
   static const IconData craftCrossStitch = CupertinoIcons.square_grid_2x2_fill;

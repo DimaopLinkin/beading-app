@@ -1798,13 +1798,13 @@ abstract class AppLocalizations {
   /// Параметр: число бусин в ряду
   ///
   /// In ru, this message translates to:
-  /// **'Ширина, бусин'**
+  /// **'Бусин в ряду'**
   String get templateWidth;
 
   /// Параметр: число рядов
   ///
   /// In ru, this message translates to:
-  /// **'Высота, рядов'**
+  /// **'Рядов'**
   String get templateHeight;
 
   /// Параметр полос
@@ -1900,7 +1900,7 @@ abstract class AppLocalizations {
   /// Пояснение под выбором симметрии
   ///
   /// In ru, this message translates to:
-  /// **'В мозаике и кирпичном стежке отражение приблизительное: ряды сдвинуты на полбусины.'**
+  /// **'В этой технике ряды сдвинуты на полбусины, поэтому отражение получится с небольшим сдвигом.'**
   String get templateSymmetryApproximate;
 
   /// Кнопка добавления цвета в полосы
@@ -1948,7 +1948,7 @@ abstract class AppLocalizations {
   /// Ошибка параметров
   ///
   /// In ru, this message translates to:
-  /// **'Из этих параметров узор не получается. Измените размер или цвета.'**
+  /// **'Узор с такими параметрами не собрать. Попробуйте изменить размер или цвета.'**
   String get templateProblemParameters;
 
   /// Ошибка сохранения

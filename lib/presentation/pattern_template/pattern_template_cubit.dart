@@ -111,8 +111,8 @@ class PatternTemplateCubit extends Cubit<PatternTemplateState> {
 
   /// Сохраняет текущий предпросмотр новым проектом. [fallbackName] — название, если поле пустое.
   Future<void> save({required String fallbackName}) async {
-    final GeneratedPatternView? view = _viewForSave();
     if (state.saving || state.projectId != null) return;
+    final GeneratedPatternView? view = _viewForSave();
     if (view == null) {
       emit(state.copyWith(problem: TemplateProblem.invalidParameters));
       return;
