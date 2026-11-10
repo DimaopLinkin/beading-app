@@ -1,0 +1,98 @@
+# Данные и синхронизация
+
+## Локальная база: drift
+
+drift (SQLite) — единственный источник правды на устройстве. Все таблицы, участвующие в синхронизации, имеют одинаковые служебные поля:
+
+| Поле | Тип | Зачем |
+|---|---|---|
+| `id` | TEXT, UUID v7, PK | Генерируется на клиенте, уникален между устройствами |
+| `created_at` | INTEGER (UTC ms) | |
+| `updated_at` | INTEGER (UTC ms) | Сравнение «кто новее» при слиянии |
+| `deleted_at` | INTEGER NULL | Мягкое удаление (tombstone), чтобы удаление доехало до второго устройства |
+| `device_id` | TEXT | Какое устройство последним меняло запись |
+
+### Таблицы (первая версия схемы)
+
+| Таблица | Поля сверх служебных | Комментарий |
+|---|---|---|
+| `projects` | name, craft (`beading`/`crossStitch`), status (`idea`/`inProgress`/`done`), technique, content_kind (`image`/`grid`/`steps`), notes, cover_path NULL, last_worked_at | Корень библиотеки |
+| `image_patterns` | project_id FK | Схема из книги. |
+| `image_pattern_pages` | image_pattern_id FK, position, file_path, pdf_page NULL, width_px, height_px, ruler_top, ruler_height, ruler_step, current_row, view_scale, view_dx, view_dy | Страница схемы из книги или PDF и её прогресс (линейка). Файл копируется в Application Support, путь относительный. |
+| `grid_patterns` | project_id FK, geometry, geometry_drop (`drop` — зарезервированное слово SQL), width, height, cell_metrics, current_row, current_bead, cells BLOB, cells_codec_version, layers BLOB NULL, layers_codec_version NULL (слои пишет T38) | Сетка одним BLOB (индексы палитры), а не строкой на бусину: 30×400 = 12 000 строк на схему — слишком дорого. Кодек версионирован и покрыт тестами. |
+| `pattern_colors` | grid_pattern_id FK, position, rgb, name, components (JSON: 1–2 пары бренд+код, сложения), finish NULL, symbol | Палитра-снимок схемы: значения скопированы, а не ссылка на каталог |
+| `catalog_colors` | material (`bead`/`floss`), brand, series, code, name, rgb, finish, size | Каталог бисера (Miyuki Delica, Toho, Preciosa) и мулине (DMC, Anchor, Madeira, «Гамма»; T36). Наполняется из `assets/catalog/*.json` при первом запуске/миграции, не синхронизируется. |
+| `grid_progress_rows` | grid_pattern_id FK, row_index, completed_at | Отмеченные ряды. Отдельная таблица, потому что при слиянии это множество (объединяем), а не одно значение. Текущая бусина — в `grid_patterns.current_row/current_bead`. |
+| `grid_progress_cells` | grid_pattern_id FK, block_index, bits BLOB | Прогресс вышивки по клеткам блоками 16×16 (T38). Служебные поля как у всех; слияние — LWW по блоку |
+| `work_sessions` | project_id FK, started_at, ended_at NULL | Учёт времени плетения |
+| `inventory` | catalog_color_id, amount (граммы бисера / мотки мулине) | Бонус: запасы бисера и мулине |
+| `settings` | key PK, value | Тема, wakelock, имя для пасхалок. Естественный PK `key` вместо UUID. Ключи с префиксом `local.` (например `local.deviceId`) относятся к устройству: в синхронизацию и экспорт `.biser` не входят; резервная копия всей базы их содержит, но при восстановлении они заменяются значениями текущего устройства |
+| `easter_egg_log` | egg_id, shown_at | Чтобы пасхалки не повторялись и были редкими. Локальная, не синхронизируется. |
+
+### Заметки для синхронизации (T14, архитектурное ревью)
+
+- Схема и палитра — **одна единица слияния**: `pattern_colors` берутся у устройства, чья запись `grid_patterns` новее (иначе индексы сетки не сойдутся с цветами). Репозиторий при чтении проверяет подряд идущие `position` и что в сетке нет цвета вне палитры.
+- У `pattern_colors` и `grid_progress_rows` случайный `id`, но натуральный уникальный ключ (`grid_pattern_id` + `position` / `row_index`). Слияние T26 сводит записи по натуральному ключу, а не по `id`; то же для `grid_progress_cells` (T38, ключ `block_index`).
+- `current_row`/`current_bead` лежат в записи `grid_patterns`: «остановилась здесь» меняет её `updated_at`. T26 решает, нужен ли LWW по полям или вынос в запись прогресса.
+- Уникальность `grid_patterns.project_id` учитывает надгробия: «сброс схемы» без удаления проекта должен оживлять строку.
+- Подрезка прогресса при смене размера схемы сейчас в `DriftGridPatternRepository.save`; T38 добавляет туда же подрезку `grid_progress_cells` (индекс блока зависит от ширины).
+
+### Правила работы с drift
+
+- Схема описывается в `lib/data/db/tables/`, код генерируется `build_runner` (`*.g.dart` в git не коммитим, генерация — часть `scripts/test.sh` и `scripts/analyze.sh`).
+- Каждое изменение схемы: `schemaVersion++`, шаг в `migrations/`, дамп схемы `dart run drift_dev make-migrations` и **сгенерированный тест миграции** со всех прошлых версий. Без теста миграции PR не проходит ревью.
+- В тестах — `NativeDatabase.memory()`; реализации репозиториев тестируются на настоящей in-memory базе, а не на моках.
+- Доменные сущности не знают о drift: мапперы `XRow ↔ X` в `data`, тестируются в обе стороны.
+- Все записи — через репозитории; репозиторий сам ставит `updated_at`/`device_id` (через `Clock` и `DeviceId`).
+
+## Синхронизация iPhone ↔ MacBook
+
+### Варианты
+
+| Вариант | Плюсы | Минусы | Вывод |
+|---|---|---|---|
+| **Экспорт/импорт файла** (`.biser` = zip с JSON, через AirDrop/«Поделиться») | Просто, без аккаунтов, заодно даёт обмен схемами | Ручной, прогресс не переносится сам | **MVP**, делаем в любом случае |
+| **iCloud / CloudKit, приватная база** (`CKSyncEngine`, iOS 17+/macOS 14+) | Бесплатно, работает под её Apple ID, без своего сервера, фоновые уведомления | Нужен платный Apple Developer Program (есть), Swift-плагин для iOS и macOS, настройка контейнера в портале разработчика | **Рекомендую** как основной автосинк |
+| iCloud Drive: файл-журнал изменений в ubiquity-контейнере | Проще CloudKit, Swift почти не нужен | Задержки iCloud Drive, конфликты файлов, свой формат журнала | Запасной вариант, если CloudKit не пойдёт |
+| Свой бэкенд (Supabase/Firebase) | Кроссплатформенно | Аккаунт, сервер, приватность, поддержка | Не нужно для двух устройств одного человека |
+| Локальная сеть (Bonjour) | Без облака | Оба устройства должны быть рядом и открыты | Нет |
+
+### Рекомендуемая схема
+
+1. **Этап 1 (MVP):** экспорт/импорт `.biser` + резервная копия всей базы в файл.
+2. **Этап 2:** автосинк через CloudKit:
+   - Swift-плагин `beading_cloudkit` (общий код для iOS и macOS) — только транспорт: отправить/получить записи, токены изменений.
+   - Вся логика слияния — в Dart, в `domain/sync`, чистыми функциями со 100% покрытием:
+     - запись целиком — *last-writer-wins* по `updated_at`, при равенстве — по `device_id`;
+     - `grid_progress_rows` — объединение множеств (отметку ряда нельзя «потерять»), снятие отметки — tombstone;
+     - `grid_progress_cells` — last-writer-wins по блоку 16×16 целиком; при правке одного блока на двух устройствах без связи теряются отметки одного из них только в этом блоке ([ADR-0003](decisions/0003-crafts-in-domain.md));
+     - удаление — tombstone, физическая очистка через 30 дней;
+     - строки `settings` с ключом `local.*` в обмен не включаются и входящие игнорируются (`device_id` должен оставаться уникальным у каждого устройства).
+   - Интерфейс `SyncRemote` в домене позволяет подменить транспорт на iCloud Drive без переписывания логики.
+
+### Предпосылки этапа 2 (выполнены)
+
+- Apple Developer Program оплачен — есть CloudKit и подписанные сборки. Приложение **не публикуется** и записи в App Store Connect не будет: для CloudKit она не нужна.
+- macOS 26.x и iOS 18+ — `CKSyncEngine` (iOS 17+/macOS 14+) доступен без обходных путей.
+
+### CloudKit без App Store Connect
+
+Запись приложения в App Store Connect для CloudKit **не нужна**. Нужно только в [портале разработчика](https://developer.apple.com/account) (Certificates, Identifiers & Profiles) и в [CloudKit Console](https://icloud.developer.apple.com):
+
+1. **App ID** с bundle id приложения и включёнными iCloud (CloudKit) для iOS и macOS. Один и тот же bundle id на обеих платформах.
+2. **iCloud-контейнер** `iCloud.<bundle id>`, привязанный к этому App ID.
+3. **Схема CloudKit** (типы записей) создаётся в среде Development и перед выпуском **деплоится в Production** кнопкой *Deploy Schema Changes to Production* в CloudKit Console. Без этого релизные сборки не увидят типы записей.
+4. После каждого изменения набора синхронизируемых полей — повторный деплой схемы в Production. Это шаг чек-листа задач про синхронизацию (T26–T28) и релиза.
+
+**Среды CloudKit и способы установки.** У CloudKit две раздельные среды, данные между ними не пересекаются:
+
+| Сборка | Среда CloudKit | Можно ли синхронизировать с Mac-релизом |
+|---|---|---|
+| iPhone, Xcode development build | Development | Нет |
+| iPhone, **Ad Hoc** (устройство зарегистрировано в портале) | Production | **Да** |
+| Mac, Developer ID `.app` (релиз) | Production | Да |
+| Mac, запуск из Xcode (разработка) | Development | Нет |
+
+Поэтому для **её** iPhone ставим только Ad Hoc сборку из релиза, иначе синхронизации с Mac не будет. Development-сборки — для разработки Дмитрия, у них своя тестовая база.
+
+**Профили и сроки.** Профили Development и Ad Hoc действуют 1 год, после чего сборку нужно пересобрать и поставить заново (напоминание в `docs/release.md`). Для Developer ID сборки Mac с iCloud нужен provisioning profile типа Developer ID с включёнными iCloud-возможностями. UDID её iPhone регистрируется в портале один раз (лимит 100 устройств в год на аккаунт).

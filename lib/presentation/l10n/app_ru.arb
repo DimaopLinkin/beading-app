@@ -1,0 +1,560 @@
+{
+  "@@locale": "ru",
+  "appTitle": "Бисер",
+  "@appTitle": {
+    "description": "Название приложения"
+  },
+  "libraryTitle": "Мои работы",
+  "@libraryTitle": {
+    "description": "Заголовок главного экрана со списком проектов"
+  },
+  "settingsTitle": "Настройки",
+  "@settingsTitle": {
+    "description": "Заголовок экрана настроек и подпись кнопки открытия настроек"
+  },
+  "settingsSectionAppearance": "Оформление",
+  "settingsThemeLabel": "Тема",
+  "settingsThemeSystem": "Как в системе",
+  "settingsThemeLight": "Светлая",
+  "settingsThemeDark": "Тёмная",
+  "settingsSectionWork": "Работа",
+  "settingsKeepScreenAwake": "Не гасить экран",
+  "settingsSymbolMode": "Символы на схеме",
+  "settingsDefaultBrand": "Производитель бисера",
+  "settingsSectionData": "Данные",
+  "settingsBackup": "Резервная копия",
+  "settingsSync": "Синхронизация с iCloud",
+  "settingsSoon": "Скоро",
+  "settingsAbout": "О приложении",
+  "settingsSaveFailed": "Не удалось сохранить настройку. Попробуй ещё раз.",
+  "aboutTitle": "О приложении",
+  "aboutTagline": "Каждая бусинка на своём месте. Плети с удовольствием!",
+  "aboutVersion": "Версия {version}",
+  "@aboutVersion": {
+    "placeholders": {
+      "version": {
+        "type": "String"
+      }
+    }
+  },
+  "hiddenTitle": "Секретный раздел",
+  "hiddenSectionName": "Как к тебе обращаться",
+  "hiddenNameHint": "Имя",
+  "hiddenSectionDates": "Особые даты",
+  "hiddenDatesFooter": "В эти дни приложение скажет что-нибудь особенное.",
+  "hiddenAddDate": "Добавить дату",
+  "hiddenDateLabelHint": "Название, например «День рождения»",
+  "hiddenDateDefaultLabel": "Особый день",
+  "hiddenDateSave": "Добавить",
+  "hiddenDateCancel": "Отмена",
+  "hiddenDateRemove": "Удалить дату",
+  "cancel": "Отмена",
+  "settingsSectionDev": "Для разработки",
+  "@settingsSectionDev": {"description": "Раздел только в отладочных и профильных сборках"},
+  "settingsGlassCheck": "Проверка стекла",
+  "glassCheckTitle": "Проверка стекла",
+  "glassCheckReduceTransparency": "Уменьшить прозрачность: {state}",
+  "@glassCheckReduceTransparency": {"placeholders": {"state": {"type": "String"}}},
+  "glassCheckHighContrast": "Повышенная контрастность: {state}",
+  "@glassCheckHighContrast": {"placeholders": {"state": {"type": "String"}}},
+  "glassCheckOn": "вкл",
+  "glassCheckOff": "выкл",
+  "glassCheckSurface": "Стекло: {mode}",
+  "@glassCheckSurface": {"placeholders": {"mode": {"type": "String"}}},
+  "glassCheckSurfaceGlass": "прозрачное",
+  "glassCheckSurfaceOpaque": "сплошное",
+  "glassCheckFrames": "Кадров: {count}",
+  "@glassCheckFrames": {"placeholders": {"count": {"type": "int"}}},
+  "glassCheckAverage": "Среднее {ms} мс, 95% кадров до {p95} мс, худший {worst} мс",
+  "@glassCheckAverage": {"placeholders": {"ms": {"type": "String"}, "p95": {"type": "String"}, "worst": {"type": "String"}}},
+  "glassCheckOverBudget": "Дольше 8,3 мс: {slow}, дольше 16,7 мс: {jank}",
+  "@glassCheckOverBudget": {"placeholders": {"slow": {"type": "int"}, "jank": {"type": "int"}}},
+  "glassCheckProfileHint": "Цифры верны только в профильной сборке: flutter run --profile.",
+  "glassCheckPause": "Пауза",
+  "glassCheckResume": "Продолжить",
+  "glassCheckReset": "Сбросить цифры",
+  "libraryImportBook": "Схема из книги",
+  "@libraryImportBook": {
+    "description": "Кнопка в библиотеке: импорт схемы из книги"
+  },
+  "importBookTitle": "Схема из книги",
+  "@importBookTitle": {
+    "description": "Заголовок экрана импорта"
+  },
+  "importBookCancel": "Отмена",
+  "@importBookCancel": {
+    "description": "Закрыть экран импорта"
+  },
+  "importPickHint": "Сфотографируйте страницу книги или выберите готовые фото и PDF.",
+  "@importPickHint": {
+    "description": "Подсказка при выборе источника"
+  },
+  "importSourceCamera": "Снять на камеру",
+  "@importSourceCamera": {
+    "description": "Источник: камера"
+  },
+  "importSourcePhotos": "Выбрать из Фото",
+  "@importSourcePhotos": {
+    "description": "Источник: фотопленка"
+  },
+  "importSourceFiles": "Выбрать из Файлов (фото или PDF)",
+  "@importSourceFiles": {
+    "description": "Источник: файлы"
+  },
+  "importPdfTitle": "Страницы PDF",
+  "@importPdfTitle": {
+    "description": "Заголовок выбора страниц PDF"
+  },
+  "importPdfSelected": "Выбрано: {count} из {total}",
+  "@importPdfSelected": {
+    "description": "Счётчик выбранных страниц PDF",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "importPdfSelectAll": "Все",
+  "@importPdfSelectAll": {
+    "description": "Выбрать все страницы PDF"
+  },
+  "importPdfClear": "Снять",
+  "@importPdfClear": {
+    "description": "Снять выбор страниц PDF"
+  },
+  "importPdfContinue": "Продолжить",
+  "@importPdfContinue": {
+    "description": "Перейти к проверке страниц"
+  },
+  "importPdfPageLabel": "Страница {page}",
+  "@importPdfPageLabel": {
+    "description": "Подпись страницы PDF в сетке",
+    "placeholders": {
+      "page": {
+        "type": "int"
+      }
+    }
+  },
+  "importReviewTitle": "Страницы схемы",
+  "@importReviewTitle": {
+    "description": "Заголовок проверки страниц"
+  },
+  "importNameLabel": "Название",
+  "@importNameLabel": {
+    "description": "Подпись поля названия проекта"
+  },
+  "importCraftBeading": "Бисер",
+  "@importCraftBeading": {
+    "description": "Ремесло: бисер"
+  },
+  "importCraftCrossStitch": "Вышивка",
+  "@importCraftCrossStitch": {
+    "description": "Ремесло: вышивка"
+  },
+  "importAddMore": "Добавить ещё",
+  "@importAddMore": {
+    "description": "Добавить страницы"
+  },
+  "importSubmit": "Импортировать",
+  "@importSubmit": {
+    "description": "Создать проект из страниц"
+  },
+  "importRotate": "Повернуть",
+  "@importRotate": {
+    "description": "Повернуть страницу"
+  },
+  "importCrop": "Обрезать",
+  "@importCrop": {
+    "description": "Обрезать страницу"
+  },
+  "importRemove": "Убрать",
+  "@importRemove": {
+    "description": "Убрать страницу"
+  },
+  "importCropped": "Обрезана",
+  "@importCropped": {
+    "description": "Пометка у обрезанной страницы"
+  },
+  "importPageNumber": "Страница {number}",
+  "@importPageNumber": {
+    "description": "Подпись страницы в списке",
+    "placeholders": {
+      "number": {
+        "type": "int"
+      }
+    }
+  },
+  "importCropTitle": "Обрезка",
+  "@importCropTitle": {
+    "description": "Заголовок обрезки"
+  },
+  "importCropReset": "Сбросить",
+  "@importCropReset": {
+    "description": "Сбросить рамку обрезки"
+  },
+  "importCropDone": "Готово",
+  "@importCropDone": {
+    "description": "Применить обрезку"
+  },
+  "importSaving": "Сохраняем страницы…",
+  "@importSaving": {
+    "description": "Идёт импорт"
+  },
+  "importProblemSourceUnavailable": "Нет доступа к камере или Фото. Разрешите его в настройках.",
+  "@importProblemSourceUnavailable": {
+    "description": "Ошибка источника"
+  },
+  "importProblemUnreadable": "Не удалось прочитать картинку. Попробуйте другой файл.",
+  "@importProblemUnreadable": {
+    "description": "Ошибка чтения картинки"
+  },
+  "importProblemPdfFailed": "Не удалось открыть PDF.",
+  "@importProblemPdfFailed": {
+    "description": "Ошибка PDF"
+  },
+  "importProblemSaveFailed": "Не удалось сохранить схему. Проверьте свободное место.",
+  "@importProblemSaveFailed": {
+    "description": "Ошибка сохранения"
+  },
+  "importStep": "Шаг {number} из {total}",
+  "@importStep": {
+    "description": "Подпись шага потока импорта",
+    "placeholders": {
+      "number": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "importOpening": "Открываем файл…",
+  "@importOpening": {
+    "description": "Ожидание: открывается выбранный файл или фото"
+  },
+  "importRendering": "Готовим страницы…",
+  "@importRendering": {
+    "description": "Ожидание: отрисовываются страницы PDF"
+  },
+  "importProblemPdfEmpty": "В этом PDF нет страниц. Выберите другой файл.",
+  "@importProblemPdfEmpty": {
+    "description": "Ошибка: PDF открылся, но пустой"
+  },
+  "importPickAnother": "Выбрать другой файл",
+  "@importPickAnother": {
+    "description": "Кнопка в сообщении об ошибке файла"
+  },
+  "importProblemNoPages": "Выберите хотя бы одну страницу.",
+  "@importProblemNoPages": {
+    "description": "Нет страниц"
+  },
+  "importProblemEmptyName": "Введите название.",
+  "@importProblemEmptyName": {
+    "description": "Пустое название"
+  },
+  "bookWorkRow": "Ряд {row}",
+  "@bookWorkRow": {
+    "description": "Номер текущего ряда на экране работы по схеме",
+    "placeholders": {
+      "row": {
+        "type": "int"
+      }
+    }
+  },
+  "bookWorkPrevRow": "Ряд назад",
+  "@bookWorkPrevRow": {
+    "description": "Кнопка: линейка на ряд назад"
+  },
+  "bookWorkNextRow": "Следующий ряд",
+  "@bookWorkNextRow": {
+    "description": "Кнопка: линейка на следующий ряд"
+  },
+  "bookWorkPageLabel": "Страница {current} из {total}",
+  "@bookWorkPageLabel": {
+    "description": "Кнопка выбора страницы многостраничной схемы",
+    "placeholders": {
+      "current": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "bookWorkPagesTitle": "Страницы",
+  "@bookWorkPagesTitle": {
+    "description": "Заголовок списка страниц схемы"
+  },
+  "bookWorkPageItem": "Страница {number}",
+  "@bookWorkPageItem": {
+    "description": "Пункт списка страниц схемы",
+    "placeholders": {
+      "number": {
+        "type": "int"
+      }
+    }
+  },
+  "bookWorkDirection": "Направление рядов",
+  "@bookWorkDirection": {
+    "description": "Заголовок переключателя направления рядов"
+  },
+  "bookWorkDirectionDown": "Сверху вниз",
+  "@bookWorkDirectionDown": {
+    "description": "Ряды идут сверху вниз"
+  },
+  "bookWorkDirectionUp": "Снизу вверх",
+  "@bookWorkDirectionUp": {
+    "description": "Ряды идут снизу вверх"
+  },
+  "bookWorkResizeHandle": "Высота линейки: потяни вверх или вниз",
+  "@bookWorkResizeHandle": {
+    "description": "Подпись ручки высоты линейки для VoiceOver"
+  },
+  "bookWorkPageEnd": "Страница закончена",
+  "@bookWorkPageEnd": {
+    "description": "Баннер на последнем ряду страницы"
+  },
+  "bookWorkNextPage": "Следующая страница",
+  "@bookWorkNextPage": {
+    "description": "Кнопка на последнем ряду страницы"
+  },
+  "bookWorkUndo": "Отменить",
+  "@bookWorkUndo": {
+    "description": "Кнопка тоста: вернуть линейку на прошлый ряд"
+  },
+  "bookWorkFitWidth": "По ширине",
+  "@bookWorkFitWidth": {
+    "description": "Кнопка: вписать страницу по ширине"
+  },
+  "bookWorkZoomLevel": "Масштаб ×{scale}",
+  "@bookWorkZoomLevel": {
+    "description": "Индикатор масштаба страницы",
+    "placeholders": {
+      "scale": {
+        "type": "String"
+      }
+    }
+  },
+  "bookWorkCollapsePanel": "Свернуть панель",
+  "@bookWorkCollapsePanel": {
+    "description": "Кнопка: свернуть панель плетения"
+  },
+  "bookWorkExpandPanel": "Развернуть панель",
+  "@bookWorkExpandPanel": {
+    "description": "Кнопка: развернуть панель плетения"
+  },
+  "bookWorkClose": "Закрыть",
+  "@bookWorkClose": {
+    "description": "Кнопка выхода с экрана работы по схеме"
+  },
+  "bookWorkRulerSettings": "Настройка линейки",
+  "@bookWorkRulerSettings": {
+    "description": "Кнопка и заголовок листа настройки линейки"
+  },
+  "bookWorkRulerHeight": "Высота линейки",
+  "bookWorkRulerStep": "Шаг сдвига",
+  "bookWorkRulerColor": "Цвет подсветки",
+  "bookWorkColorYellow": "Жёлтый",
+  "bookWorkColorGreen": "Зелёный",
+  "bookWorkColorBlue": "Синий",
+  "bookWorkColorPink": "Розовый",
+  "bookWorkNotes": "Заметки",
+  "@bookWorkNotes": {
+    "description": "Кнопка и заголовок листа заметок проекта"
+  },
+  "bookWorkNotesHint": "Что важно не забыть: цвета, где остановилась, что поменять",
+  "bookWorkDone": "Готово",
+  "@bookWorkDone": {
+    "description": "Кнопка закрытия листа"
+  },
+  "bookWorkLoadFailed": "Схема не открылась. Закрой экран и попробуй ещё раз.",
+  "bookWorkSaveFailed": "Не получилось сохранить, где ты остановилась. Проверь, есть ли место на устройстве.",
+  "gridRowMarker": "Ряд {row}",
+  "@gridRowMarker": {
+    "description": "Маркер текущего ряда сеточной схемы у левого края (номер с единицы)",
+    "placeholders": {"row": {"type": "int"}}
+  },
+  "bookWorkImageFailed": "Не получилось показать эту страницу. Попробуй открыть её ещё раз.",
+  "librarySearchPlaceholder": "Поиск",
+  "@librarySearchPlaceholder": {"description": "Подсказка в поле поиска по проектам"},
+  "libraryNewProject": "Новый проект",
+  "@libraryNewProject": {"description": "Кнопка и заголовок листа создания проекта"},
+  "libraryEmptyTitle": "Пока нет работ",
+  "@libraryEmptyTitle": {"description": "Заголовок пустой библиотеки"},
+  "libraryEmptyMessage": "Нажмите «+», чтобы добавить первую схему.",
+  "@libraryEmptyMessage": {"description": "Подсказка в пустой библиотеке"},
+  "libraryNoMatchesTitle": "Ничего не найдено",
+  "@libraryNoMatchesTitle": {"description": "Заголовок, когда поиск и фильтры ничего не оставили"},
+  "libraryNoMatchesMessage": "Попробуйте изменить запрос или сбросить фильтры.",
+  "@libraryNoMatchesMessage": {"description": "Подсказка, когда ничего не найдено"},
+  "libraryResetFilters": "Сбросить фильтры",
+  "@libraryResetFilters": {"description": "Кнопка сброса поиска и фильтров"},
+  "libraryLoadFailedTitle": "Не удалось загрузить работы",
+  "@libraryLoadFailedTitle": {"description": "Заголовок ошибки загрузки списка"},
+  "libraryRetry": "Повторить",
+  "@libraryRetry": {"description": "Кнопка повторной попытки"},
+  "craftBeading": "Бисер",
+  "@craftBeading": {"description": "Ремесло: бисероплетение"},
+  "craftCrossStitch": "Вышивка",
+  "@craftCrossStitch": {"description": "Ремесло: вышивка крестом"},
+  "statusIdea": "Идея",
+  "@statusIdea": {"description": "Статус проекта: ещё не начат"},
+  "statusInProgress": "В работе",
+  "@statusInProgress": {"description": "Статус проекта: в процессе"},
+  "statusDone": "Готово",
+  "@statusDone": {"description": "Статус проекта: закончен"},
+  "techniqueLoom": "Станок",
+  "@techniqueLoom": {"description": "Техника бисероплетения: на станке"},
+  "techniquePeyote": "Мозаика",
+  "@techniquePeyote": {"description": "Техника бисероплетения: мозаичное плетение"},
+  "techniqueBrick": "Кирпичик",
+  "@techniqueBrick": {"description": "Техника бисероплетения: кирпичный стежок"},
+  "techniqueSquare": "Квадратное",
+  "@techniqueSquare": {"description": "Техника бисероплетения: квадратное плетение"},
+  "techniqueOffLoom": "Без станка",
+  "@techniqueOffLoom": {"description": "Техника бисероплетения: свободное плетение"},
+  "techniqueCrossStitch": "Крестик",
+  "@techniqueCrossStitch": {"description": "Техника вышивки: счётный крест"},
+  "techniqueTent": "Полукрест",
+  "@techniqueTent": {"description": "Техника вышивки: полукрест (гобеленовый стежок)"},
+  "libraryCardSubtitle": "{craft} · {technique}",
+  "@libraryCardSubtitle": {
+    "description": "Подпись карточки проекта: ремесло и техника",
+    "placeholders": {"craft": {"type": "String"}, "technique": {"type": "String"}}
+  },
+  "libraryCardLastWorked": "{status} · {date}",
+  "@libraryCardLastWorked": {
+    "description": "Статус проекта и дата последней работы",
+    "placeholders": {"status": {"type": "String"}, "date": {"type": "DateTime", "format": "yMMMd"}}
+  },
+  "projectRename": "Переименовать",
+  "@projectRename": {"description": "Действие над проектом"},
+  "projectDuplicate": "Дублировать",
+  "@projectDuplicate": {"description": "Действие над проектом"},
+  "projectDelete": "Удалить",
+  "@projectDelete": {"description": "Действие над проектом"},
+  "projectDeleteTitle": "Удалить «{name}»?",
+  "@projectDeleteTitle": {
+    "description": "Заголовок подтверждения удаления",
+    "placeholders": {"name": {"type": "String"}}
+  },
+  "projectDeleteMessage": "Работа исчезнет из списка.",
+  "@projectDeleteMessage": {"description": "Пояснение в подтверждении удаления"},
+  "projectRenameTitle": "Новое название",
+  "@projectRenameTitle": {"description": "Заголовок диалога переименования"},
+  "projectNamePlaceholder": "Название",
+  "@projectNamePlaceholder": {"description": "Подсказка в поле названия проекта"},
+  "commonSave": "Сохранить",
+  "@commonSave": {"description": "Подтверждение в диалоге"},
+  "commonOk": "Понятно",
+  "@commonOk": {"description": "Закрыть сообщение"},
+  "actionFailedTitle": "Не получилось",
+  "@actionFailedTitle": {"description": "Заголовок сообщения об ошибке действия"},
+  "actionFailedValidation": "Проверьте название: оно не должно быть пустым или слишком длинным.",
+  "@actionFailedValidation": {"description": "Ошибка проверки названия"},
+  "actionFailedNotFound": "Этой работы уже нет.",
+  "@actionFailedNotFound": {"description": "Проект не найден"},
+  "actionFailedGeneric": "Что-то пошло не так. Попробуйте ещё раз.",
+  "@actionFailedGeneric": {"description": "Прочая ошибка действия"},
+  "newProjectCraftQuestion": "Что будем делать?",
+  "@newProjectCraftQuestion": {"description": "Подсказка над выбором ремесла в листе создания"},
+  "newProjectNoEntries": "Способы создания появятся в следующих версиях.",
+  "@newProjectNoEntries": {"description": "Лист создания пуст: ни одна фича не добавила пункты"},
+  "libraryAddSemantic": "Добавить проект",
+  "@libraryAddSemantic": {"description": "Подпись для VoiceOver у кнопки «+»"},
+  "libraryCatalogSemantic": "Каталог цветов",
+  "@libraryCatalogSemantic": {"description": "Подпись для VoiceOver у кнопки открытия каталога в шапке библиотеки"},
+  "projectMaterials": "Материалы",
+  "@projectMaterials": {"description": "Действие над проектом: список бисера для схемы"},
+  "catalogTitleBead": "Каталог бисера",
+  "@catalogTitleBead": {"description": "Заголовок экрана каталога бисера"},
+  "catalogTitleFloss": "Каталог ниток",
+  "@catalogTitleFloss": {"description": "Заголовок экрана каталога ниток"},
+  "catalogSearchPlaceholder": "Артикул или название",
+  "@catalogSearchPlaceholder": {"description": "Подсказка в поле поиска по каталогу"},
+  "catalogAllBrands": "Все",
+  "@catalogAllBrands": {"description": "Вкладка каталога без фильтра по бренду"},
+  "catalogEmptyTitle": "Ничего не найдено",
+  "@catalogEmptyTitle": {"description": "Заголовок пустого результата поиска по каталогу"},
+  "catalogEmptyMessage": "Попробуйте другой артикул или название.",
+  "@catalogEmptyMessage": {"description": "Подсказка при пустом результате поиска по каталогу"},
+  "catalogLoadFailedTitle": "Не удалось открыть каталог",
+  "@catalogLoadFailedTitle": {"description": "Заголовок ошибки загрузки каталога"},
+  "catalogItemSemantic": "{code}, {name}",
+  "@catalogItemSemantic": {"description": "Подпись образца цвета в каталоге для VoiceOver", "placeholders": {"code": {"type": "String"}, "name": {"type": "String"}}},
+  "catalogSeriesAndSize": "{brand} {series} {size}",
+  "@catalogSeriesAndSize": {"description": "Строка «бренд, серия, размер» под названием цвета", "placeholders": {"brand": {"type": "String"}, "series": {"type": "String"}, "size": {"type": "String"}}},
+  "catalogSimilarTitle": "Похожие цвета",
+  "@catalogSimilarTitle": {"description": "Заголовок списка похожих цветов в листе цвета"},
+  "catalogSimilarNone": "Похожих цветов не нашлось",
+  "@catalogSimilarNone": {"description": "Список похожих цветов пуст"},
+  "catalogSimilarFailed": "Не удалось подобрать похожие цвета",
+  "@catalogSimilarFailed": {"description": "Ошибка подбора похожих цветов"},
+  "catalogSimilarityPercent": "{percent}%",
+  "@catalogSimilarityPercent": {"description": "Мера похожести цвета в процентах", "placeholders": {"percent": {"type": "int"}}},
+  "catalogSimilaritySemantic": "{code}, {name}, похожесть {percent} процентов, {level}",
+  "@catalogSimilaritySemantic": {"description": "Подпись похожего цвета для VoiceOver", "placeholders": {"code": {"type": "String"}, "name": {"type": "String"}, "percent": {"type": "int"}, "level": {"type": "String"}}},
+  "similarityNearlyIdentical": "почти не отличить",
+  "@similarityNearlyIdentical": {"description": "Уровень похожести цветов: ΔE меньше 1"},
+  "similarityVeryClose": "очень похож",
+  "@similarityVeryClose": {"description": "Уровень похожести цветов: ΔE меньше 3"},
+  "similarityClose": "похож",
+  "@similarityClose": {"description": "Уровень похожести цветов: ΔE меньше 6"},
+  "similarityNoticeable": "заметно отличается",
+  "@similarityNoticeable": {"description": "Уровень похожести цветов: ΔE от 6"},
+  "catalogColorApproximate": "Цвет на экране может чуть отличаться от настоящего бисера.",
+  "@catalogColorApproximate": {"description": "Пометка в листе цвета каталога"},
+  "catalogClose": "Закрыть",
+  "@catalogClose": {"description": "Закрыть лист цвета"},
+  "materialsTitle": "Материалы",
+  "@materialsTitle": {"description": "Заголовок экрана материалов проекта"},
+  "materialsReserveNone": "По схеме",
+  "@materialsReserveNone": {"description": "Переключатель расчёта без запаса"},
+  "materialsReserveWith": "С запасом {percent}%",
+  "@materialsReserveWith": {"description": "Переключатель расчёта с запасом", "placeholders": {"percent": {"type": "int"}}},
+  "materialsPieces": "{count} шт",
+  "@materialsPieces": {"description": "Количество бусин в таблице материалов", "placeholders": {"count": {"type": "String"}}},
+  "materialsGramsLess": "<\u00A0{grams} г",
+  "@materialsGramsLess": {"description": "Вес меньше точности показа в таблице материалов", "placeholders": {"grams": {"type": "String"}}},
+  "materialsGrams": "{grams} г",
+  "@materialsGrams": {"description": "Вес бусин в таблице материалов", "placeholders": {"grams": {"type": "String"}}},
+  "materialsTotal": "Итого",
+  "@materialsTotal": {"description": "Подпись строки итогов в таблице материалов"},
+  "materialsBeadSize": "Размер бисера: {size}",
+  "@materialsBeadSize": {"description": "Строка под заголовком материалов", "placeholders": {"size": {"type": "String"}}},
+  "materialsWeightHint": "Вес примерный: у разных отделок бисер весит по-разному.",
+  "@materialsWeightHint": {"description": "Пояснение под итогом материалов"},
+  "materialsShare": "Поделиться списком",
+  "@materialsShare": {"description": "Кнопка «Поделиться» на экране материалов"},
+  "materialsEmptyTitle": "В схеме пока нет бусин",
+  "@materialsEmptyTitle": {"description": "Заголовок пустого экрана материалов"},
+  "materialsEmptyMessage": "Когда в схеме появятся цвета, здесь будет список.",
+  "@materialsEmptyMessage": {"description": "Подсказка пустого экрана материалов"},
+  "materialsUnsupported": "Для этой схемы размер бусины не задан, поэтому материалы посчитать нельзя.",
+  "@materialsUnsupported": {"description": "Ошибка экрана материалов: нет размера бусины"},
+  "materialsLoadFailedTitle": "Не удалось посчитать материалы",
+  "@materialsLoadFailedTitle": {"description": "Заголовок ошибки экрана материалов"},
+  "materialsShareSubject": "Материалы: {name}",
+  "@materialsShareSubject": {"description": "Тема сообщения при «Поделиться» списком материалов", "placeholders": {"name": {"type": "String"}}},
+  "materialsShareHeader": "Материалы: {name}",
+  "@materialsShareHeader": {"description": "Первая строка текста списка материалов", "placeholders": {"name": {"type": "String"}}},
+  "materialsShareBeads": "Бисер {size}",
+  "@materialsShareBeads": {"description": "Строка о размере бисера в тексте списка", "placeholders": {"size": {"type": "String"}}},
+  "materialsShareLine": "{number}. {color} — {pieces}, {grams}",
+  "@materialsShareLine": {"description": "Строка цвета в тексте списка", "placeholders": {"number": {"type": "int"}, "color": {"type": "String"}, "pieces": {"type": "String"}, "grams": {"type": "String"}}},
+  "materialsShareTotal": "Итого: {pieces}, {grams}",
+  "@materialsShareTotal": {"description": "Строка итога в тексте списка", "placeholders": {"pieces": {"type": "String"}, "grams": {"type": "String"}}},
+  "materialsShareReserve": "Количество указано с запасом {percent}%.",
+  "@materialsShareReserve": {"description": "Пояснение в тексте списка, если выбран запас", "placeholders": {"percent": {"type": "int"}}},
+  "materialsShareApprox": "Вес приблизительный.",
+  "@materialsShareApprox": {"description": "Пояснение в тексте списка"},
+  "shareFailed": "Не удалось поделиться. Попробуйте ещё раз.",
+  "@shareFailed": {"description": "Ошибка системного листа «Поделиться»"},
+  "beadShapeDelica": "Delica",
+  "@beadShapeDelica": {"description": "Форма бусины: цилиндрическая, в названии размера бисера"},
+  "beadShapeRocaille": "рокайль",
+  "@beadShapeRocaille": {"description": "Форма бусины: круглая, в названии размера бисера"}
+}

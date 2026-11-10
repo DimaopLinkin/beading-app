@@ -1,0 +1,294 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Бисер — дополнение к UI kit (01b v1)</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","SF Pro",system-ui,sans-serif;background:#CFC8BC;color:#1C1A1F;line-height:1.45}
+body.dp{background:#0B0A0C;color:#F4F0EA}
+.top{position:sticky;top:0;z-index:50;display:flex;gap:12px;align-items:center;flex-wrap:wrap;padding:12px 24px;background:rgba(247,244,239,.92);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-bottom:1px solid rgba(0,0,0,.12)}
+body.dp .top{background:rgba(21,19,22,.92);border-color:rgba(255,255,255,.14)}
+.top h1{margin:0;font-size:18px;flex:1;min-width:240px}
+.seg{display:flex;padding:3px;border-radius:20px;background:rgba(120,110,100,.25)}
+.seg button{border:0;background:transparent;color:inherit;font:600 14px inherit;font-family:inherit;padding:9px 16px;border-radius:17px;cursor:pointer;min-height:40px}
+.seg button[aria-pressed="true"]{background:#fff;color:#1C1A1F;box-shadow:0 1px 3px rgba(0,0,0,.2)}
+main{max-width:1100px;margin:0 auto;padding:28px 24px 80px;display:flex;flex-direction:column;gap:56px}
+section>h2{font-size:26px;margin:0 0 6px;letter-spacing:-.3px}
+section>p.lead{margin:0 0 18px;font-size:16px;max-width:820px;opacity:.88}
+.rowf{display:flex;flex-wrap:wrap;gap:20px;align-items:flex-start}
+.cap{font-size:13px;font-weight:600;margin:0 0 6px;opacity:.8}
+table{border-collapse:collapse;font-size:14px;width:100%;background:rgba(255,255,255,.6);border-radius:14px;overflow:hidden}
+body.dp table{background:rgba(255,255,255,.06)}
+th,td{padding:8px 12px;text-align:left;border-bottom:1px solid rgba(120,110,100,.3);vertical-align:top}
+th{font-size:13px;opacity:.8}
+.mono{font-family:ui-monospace,"SF Mono",Menlo,monospace}
+.ok{color:#1c6b3f;font-weight:700}.bad{color:#b3261e;font-weight:700}
+body.dp .ok{color:#6FCF97}body.dp .bad{color:#FF7A6E}
+.sw{display:inline-block;width:14px;height:14px;border-radius:7px;border:1px solid rgba(0,0,0,.35);vertical-align:-2px;margin-right:6px}
+
+/* theme scope */
+.th{--bg:#F7F4EF;--surf:#fff;--surf2:#EFEBE4;--ink:#1C1A1F;--ink2:#5F5954;--sep:#E0DAD1;--acc:#B5541C;--onacc:#fff;--acct:#9A4513;--accg:rgba(181,84,28,.16);--danger:#C0362C;--ondanger:#fff;
+ --glass:rgba(255,255,255,.55);--dense:rgba(255,255,255,.84);--gb:1px solid rgba(255,255,255,.85);--shadow:0 10px 28px rgba(0,0,0,.18);
+ --opq:#FBF9F5;--opqb:#8F8880;--opqd:#FFFFFF;--opqdb:#6E6760;
+ --idea:#4A52A6;--ideab:rgba(91,99,183,.14);--prog:#8A5300;--progb:rgba(168,106,0,.16);--done:#27704A;--doneb:rgba(46,125,79,.15);--veil:rgba(247,244,239,.62);
+ background:var(--bg);color:var(--ink);border-radius:26px;padding:20px;border:1px solid rgba(0,0,0,.15);flex:none}
+.th[data-theme="dark"]{--bg:#151316;--surf:#201D22;--surf2:#2A262D;--ink:#F4F0EA;--ink2:#A9A29B;--sep:#3A353D;--acc:#F0955A;--onacc:#1C1A1F;--acct:#F0955A;--accg:rgba(240,149,90,.24);--danger:#FF7A6E;--ondanger:#1C1A1F;
+ --glass:rgba(40,38,44,.5);--dense:rgba(28,26,32,.82);--gb:1px solid rgba(255,255,255,.26);--shadow:0 10px 28px rgba(0,0,0,.45);
+ --opq:#2A262D;--opqb:#8D8791;--opqd:#34303A;--opqdb:#A8A2AD;
+ --idea:#9BA3EE;--ideab:rgba(155,163,238,.18);--prog:#F2B84B;--progb:rgba(242,184,75,.18);--done:#6FCF97;--doneb:rgba(111,207,151,.18);--veil:rgba(21,19,22,.62);border-color:rgba(255,255,255,.16)}
+.bk{background:linear-gradient(120deg,#D94F70,#F2B84B 38%,#5FC4BF 68%,#5B63B7);border-radius:20px;padding:16px;display:flex;flex-direction:column;gap:12px}
+.gl{background:var(--glass);border:var(--gb);box-shadow:var(--shadow);backdrop-filter:blur(24px) saturate(1.6);-webkit-backdrop-filter:blur(24px) saturate(1.6)}
+.dn{background:var(--dense);border:var(--gb);box-shadow:var(--shadow);backdrop-filter:blur(32px) saturate(1.4);-webkit-backdrop-filter:blur(32px) saturate(1.4)}
+.og{background:var(--opq);border:1.5px solid var(--opqb);box-shadow:none}
+.od{background:var(--opqd);border:1.5px solid var(--opqdb);box-shadow:none}
+.bar{display:flex;gap:10px;padding:10px;border-radius:40px}
+.btn{height:60px;border-radius:30px;display:flex;align-items:center;justify-content:center;font-size:19px;font-weight:700}
+.b1{width:64px;background:var(--surf2)}.b2{flex:1;background:var(--acc);color:var(--onacc)}
+.cnt{font:600 40px/1.1 ui-monospace,"SF Mono",Menlo,monospace;font-variant-numeric:tabular-nums}
+.cnt small{font:400 17px -apple-system,system-ui,sans-serif;opacity:.75}
+.topb{display:flex;align-items:center;justify-content:space-between;padding:8px 10px 8px 20px;border-radius:30px;font-size:20px;font-weight:700}
+.segc{display:flex;padding:3px;border-radius:20px;background:var(--surf2);font-size:14px;font-weight:600}
+.segc div{padding:8px 16px;border-radius:17px}.segc .s{background:var(--surf);font-weight:700}
+.sheet{border-radius:32px;padding:10px 20px 18px;display:flex;flex-direction:column;gap:10px}
+.grab{width:40px;height:5px;border-radius:3px;background:var(--ink2);opacity:.6;align-self:center}
+.opt{padding:12px 14px;border-radius:16px;background:var(--surf);font-size:16px}
+
+/* dynamic type */
+.dt{width:428px;background:var(--bg);color:var(--ink);padding:14px;border-radius:26px;display:flex;flex-direction:column;gap:12px;border:1px solid var(--sep)}
+.dt .chip{display:inline-flex;align-items:center;min-height:calc(40px * var(--s));padding:calc(6px * var(--s)) calc(16px * var(--s));border-radius:999px;background:var(--surf);border:1px solid var(--sep);font-size:calc(15px * var(--s));font-weight:600}
+.dt .chips{display:flex;flex-wrap:wrap;gap:8px}
+.dt .card{display:flex;gap:12px;padding:10px;border-radius:22px;background:var(--surf);border:1px solid var(--sep)}
+.dt.ax .card{flex-direction:column}
+.dt .pv{width:84px;height:84px;border-radius:14px;flex:none;background:repeating-linear-gradient(45deg,#5FC4BF 0 8px,#17324A 8px 16px)}
+.dt.ax .pv{width:100%;height:110px}
+.dt .ct{font-size:calc(17px * var(--s));font-weight:600}
+.dt .cs{font-size:calc(14px * var(--s));color:var(--ink2)}
+.dt .st{display:inline-block;align-self:flex-start;padding:3px 10px;border-radius:14px;font-size:max(13px, calc(13px * var(--s)));font-weight:600;color:var(--prog);background:var(--progb)}
+.dt .wc{display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center;padding:12px 14px;border-radius:24px;font-size:calc(20px * var(--s));font-weight:600}
+.dt .dot{display:inline-block;width:calc(26px * var(--s));height:calc(26px * var(--s));border-radius:50%;vertical-align:middle;border:1px solid rgba(0,0,0,.25)}
+.dt .wbar{display:flex;flex-direction:column;gap:10px;padding:14px;border-radius:32px}
+.dt .wbtns{display:flex;gap:10px}
+.dt.ax .wbtns{flex-direction:column}
+.dt .wb{border-radius:999px;min-height:60px;display:flex;align-items:center;justify-content:center;text-align:center;font-weight:700;font-size:calc(19px * var(--s));padding:6px 14px}
+.dt .wb.n{background:var(--acc);color:var(--onacc);flex:1}.dt .wb.p{background:var(--surf2);padding:6px 18px}
+.dt .cnt{font-size:calc(40px * var(--cs))}
+.dt .cnt small{font-size:calc(17px * var(--s))}
+
+/* highlight demo */
+.sch{display:flex;gap:12px;align-items:stretch}
+.sg{display:grid;grid-template-columns:repeat(12,26px);gap:3px;padding:12px;background:var(--surf);border-radius:18px;border:1px solid var(--sep)}
+.sr{display:contents}
+.bd{width:26px;height:26px;border-radius:50%;border:1px solid rgba(0,0,0,.2)}
+.rowwrap{position:relative;grid-column:1/-1;display:grid;grid-template-columns:repeat(12,26px);gap:3px;padding:3px;margin:-3px;border-radius:15px}
+.rowwrap.cur{box-shadow:0 0 0 2px #151316, 0 0 0 4.5px #FFFFFF, 0 0 0 5.5px #151316;z-index:1;background:transparent}
+.rowwrap.past::after{content:"";position:absolute;inset:0;border-radius:15px;background:var(--veil)}
+.marker{align-self:flex-start;display:flex;flex-direction:column;gap:3px;padding-top:12px}
+.mk{height:26px;width:62px;display:flex;align-items:center;justify-content:center;border-radius:13px;font-size:13px;font-weight:700;color:var(--ink2)}
+.mk.cur{background:var(--acc);color:var(--onacc)}
+.mkgap{height:3px}
+
+/* states */
+.sgrid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.stc{display:flex;flex-direction:column;gap:6px;font-size:13px}
+.stc .l{opacity:.75;font-weight:600}
+.mcard{display:flex;gap:10px;padding:8px;border-radius:18px;background:var(--surf);border:1px solid var(--sep);align-items:center;font-size:15px;font-weight:600}
+.mcard i{width:44px;height:44px;border-radius:10px;background:repeating-linear-gradient(45deg,#D94F70 0 6px,#5C1A2B 6px 12px);flex:none}
+.mcard.pr{background:var(--surf2);transform:scale(.97)}.mcard.dis{opacity:.4}
+.mchip{height:40px;padding:0 16px;border-radius:20px;display:inline-flex;align-items:center;font-size:15px;font-weight:600;background:var(--surf);border:1px solid var(--sep)}
+.mchip.pr{background:var(--surf2);transform:scale(.96)}.mchip.dis{opacity:.4}.mchip.sel{background:var(--acc);border-color:var(--acc);color:var(--onacc)}
+.msw{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:16px;background:var(--surf);border:1px solid var(--sep);font-size:14px}
+.msw.pr{background:var(--surf2);transform:scale(.97)}.msw.sel{border:2px solid var(--acc)}
+.msw b{width:30px;height:30px;border-radius:50%;background:#D94F70;flex:none;border:1px solid rgba(0,0,0,.2)}
+.rl{position:relative;height:86px;border-radius:14px;background:#EDE6D6;background-image:repeating-linear-gradient(0deg,rgba(40,30,20,.22) 0 2px,transparent 2px 22px);overflow:hidden}
+.rl .band{position:absolute;left:0;right:0;top:26px;height:34px;background:rgba(181,84,28,.16);border-top:3px solid var(--acc);border-bottom:3px solid var(--acc)}
+.rl .hd{position:absolute;left:50%;margin-left:-24px;width:48px;height:18px;border-radius:9px;background:var(--acc);border:2px solid var(--onacc);top:18px}
+.rl .hd.pr{background:var(--acct);width:52px;margin-left:-26px;box-shadow:0 0 0 6px rgba(181,84,28,.28)}
+.rl .tip{position:absolute;left:50%;margin-left:-44px;top:-2px;width:88px;padding:3px 0;text-align:center;border-radius:12px;background:var(--opqd);border:1.5px solid var(--opqdb);color:var(--ink);font-size:13px;font-weight:700}
+.tool{width:44px;height:44px;border-radius:22px;display:inline-flex;align-items:center;justify-content:center;color:var(--ink)}
+.tool.pr{background:var(--surf2);transform:scale(.92)}.tool.sel{background:var(--accg);color:var(--acct)}.tool.dis{opacity:.35}
+.cells{display:flex;gap:8px}
+.cell{width:34px;height:34px;border-radius:50%;background:#F2B84B;border:1px solid rgba(0,0,0,.2)}
+.cell.sel{box-shadow:0 0 0 2px #151316,0 0 0 4.5px #fff,0 0 0 5.5px #151316}
+.cell.hov{box-shadow:0 0 0 2px var(--ink2)}
+
+/* mac */
+.mac{width:900px;height:540px;border-radius:14px;overflow:hidden;position:relative;background:var(--bg);color:var(--ink);border:1px solid rgba(0,0,0,.3);box-shadow:0 18px 40px rgba(0,0,0,.28);flex:none}
+.mac .cv{position:absolute;left:230px;right:0;top:0;bottom:0;padding:84px 24px 24px;display:flex;gap:16px;background:var(--bg)}
+.mac .gridc{display:grid;grid-template-columns:repeat(18,24px);gap:3px;padding:14px;background:var(--surf);border:1px solid var(--sep);border-radius:12px;align-content:start;flex:none}
+.mac .gridc i{width:24px;height:24px;border-radius:50%;display:block;border:1px solid rgba(0,0,0,.18)}
+.mac .side{position:absolute;left:8px;top:8px;bottom:8px;width:214px;border-radius:22px;padding:16px 12px;display:flex;flex-direction:column;gap:6px;z-index:2}
+.mac .tb{position:absolute;left:238px;right:12px;top:12px;height:52px;border-radius:26px;display:flex;align-items:center;gap:4px;padding:0 12px;z-index:2}
+.mac .sw2{display:flex;align-items:center;gap:8px;padding:6px 8px;border-radius:12px;font-size:13px}
+.mac .sw2.sel{background:var(--accg);color:var(--acct);font-weight:700}
+.mac .sw2 b{width:20px;height:20px;border-radius:50%;flex:none;border:1px solid rgba(0,0,0,.25)}
+.mac .insp{flex:1;background:var(--surf);border:1px solid var(--sep);border-radius:12px;padding:14px;font-size:13px;display:flex;flex-direction:column;gap:6px;align-self:flex-start}
+
+/* empty */
+.em{width:340px;height:300px;border-radius:24px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;text-align:center;padding:20px;background:var(--surf);border:1px solid var(--sep)}
+.em h3{margin:0;font-size:20px}.em p{margin:0;font-size:15px;color:var(--ink2)}
+.em .cta{height:48px;padding:0 24px;border-radius:24px;background:var(--acc);color:var(--onacc);display:flex;align-items:center;font-weight:700;font-size:16px}
+</style>
+</head>
+<body>
+<div class="top"><h1>Бисер · дополнение к UI kit · 01b v1</h1>
+<div class="seg" role="group" aria-label="Тема"><button data-m="light" aria-pressed="true">Светлая</button><button data-m="dark" aria-pressed="false">Тёмная</button><button data-m="both" aria-pressed="false">Обе рядом</button></div></div>
+<main>
+<section id="s1"><h2>1. Непрозрачный вариант стекла</h2><p class="lead">Для «Уменьшить прозрачность» и «Повышенная контрастность». Размытие, тень и блик отключаются, заливка плотная, обводка 1,5 pt, контраст обводки к фону экрана ≥ 3:1. Эти значения идут в <span class="mono">GlassTokens.opaqueFill / opaqueBorder</span>.</p>
+<table id="opq-table"></table><div id="s1d" style="margin-top:20px" class="rowf"></div></section>
+
+<section id="s2"><h2>2. Dynamic Type</h2><p class="lead">Слева «Крупный» (по умолчанию, ×1), справа AX3 (×2,2). Минимум для любого текста 13 pt, при масштабе не уменьшается. На AX3 карточка и нижняя панель перестраиваются в колонку, чипы и word chart переносятся.</p>
+<table style="margin-bottom:18px"><tr><th>Единый стиль</th><th>Значение</th><th>Масштабирование</th></tr>
+<tr><td><b>Счётчик ряда</b> (число)</td><td class="mono">40 pt Semibold, моноширинные цифры</td><td>Растёт вместе с Dynamic Type до ×1,35 (xxxLarge, 54 pt) и дальше фиксирован на 54 pt: число — данные, а не текст, крупнее оно ломает панель. Единый стиль заменяет 34 pt из компонентов и 56 pt из типографики.</td></tr>
+<tr><td>«из 180» и подписи</td><td class="mono">Body 17 / Footnote 13</td><td>Полностью, на AX3 Body = 37 pt. Footnote не меньше 13 pt.</td></tr></table>
+<div id="s2d" class="rowf"></div></section>
+
+<section id="s3"><h2>3. Подсветка текущего ряда на жёлтых и оранжевых бусинах</h2><p class="lead">Кольцо акцента сливалось с золотыми и коралловыми бусинами. Решение из двух частей: (1) <b>двойное кольцо</b>: внутреннее почти чёрное #151316 и внешнее белое #FFFFFF, оно отличимо от любого цвета бусин и от любого фона; (2) <b>маркер слева</b> с номером ряда в капсуле акцента (вне схемы, на нейтральном фоне). Пройденные ряды под вуалью цвета фона 62%.</p>
+<div id="s3d" class="rowf"></div><div style="margin-top:16px" id="ring-table"></div></section>
+
+<section id="s4"><h2>4. Контраст «текст / фон»</h2><p class="lead">Коэффициенты считаются на странице по значениям токенов (WCAG, относительная яркость). Порог: текст 4,5:1, не текст 3:1. Исправлено: статус «в работе», светлая тема #A86A00 → #8A5300; «идея» светлая #5B63B7 → #4A52A6, «готово» светлая #2E7D4F → #27704A, «идея» тёмная осталась #9BA3EE.</p>
+<table id="ctable"></table></section>
+
+<section id="s5"><h2>5. Состояния</h2><p class="lead">Нажатое: заливка surface-2 + масштаб 0,96–0,97 (плавающие кнопки 0,92–0,95). Выключенное: прозрачность 40%. Выбранное у бусины: двойное кольцо как в п. 3.</p>
+<div id="s5d" class="rowf"></div></section>
+
+<section id="s6"><h2>6. Иконки: соответствие SF Symbols</h2><p class="lead">Имена даны по SF Symbols 6. Точное наличие символа в нужной версии нужно проверить в приложении SF Symbols до реализации; отмеченные «проверить» я не смог подтвердить здесь без самого приложения.</p>
+<table><tr><th>Действие</th><th>SF Symbol</th><th>Примечание</th></tr>
+<tr><td>Кисть</td><td class="mono">paintbrush.pointed</td><td>есть</td></tr>
+<tr><td>Ластик</td><td class="mono">eraser</td><td>есть</td></tr>
+<tr><td>Заливка</td><td class="mono">paintbucket.classic</td><td>проверить: появился в новых версиях; запасной вариант <span class="mono">drop.fill</span></td></tr>
+<tr><td>Пипетка</td><td class="mono">eyedropper</td><td>есть</td></tr>
+<tr><td>Замена цвета</td><td class="mono">arrow.left.arrow.right</td><td>близкий по смыслу; точного «replace color» нет, возможна своя иконка</td></tr>
+<tr><td>Выделение</td><td class="mono">rectangle.dashed</td><td>есть</td></tr>
+<tr><td>Зеркало</td><td class="mono">arrow.left.and.right.righttriangle.left.righttriangle.right</td><td>есть (flip); для вертикального варианта поворот на 90°</td></tr>
+<tr><td>Отменить / Повторить</td><td class="mono">arrow.uturn.backward / arrow.uturn.forward</td><td>есть</td></tr>
+<tr><td>Назад на ряд</td><td class="mono">chevron.up</td><td>есть</td></tr>
+<tr><td>Следующий ряд</td><td class="mono">chevron.down</td><td>есть</td></tr>
+<tr><td>Поиск</td><td class="mono">magnifyingglass</td><td>есть</td></tr>
+<tr><td>Плюс</td><td class="mono">plus</td><td>есть</td></tr>
+<tr><td>Режим «по бусине»</td><td>—</td><td><b>нужна своя иконка</b> (в SF Symbols нет); контур бусины с точкой</td></tr></table></section>
+
+<section id="s7"><h2>7. Mac: окно 900 pt</h2><p class="lead">Стекло только на панели инструментов и боковой панели (они плавают над контентом, отступ 8–12 pt от краёв). Холст со схемой и инспектор непрозрачные. Кнопки внутри стеклянных панелей плоские.</p>
+<div id="s7d" style="display:flex;flex-direction:column;gap:24px;overflow-x:auto"></div></section>
+
+<section id="s8"><h2>8. Пустые состояния</h2><p class="lead">Один и тот же рисунок в обеих темах. У кнопок действия стекла нет: заливка акцента, без размытия (стекло только у плавающего слоя, а кнопка лежит на непрозрачной карточке).</p>
+<div id="s8d" class="rowf"></div></section>
+</main>
+<script>
+/* ---------- helpers ---------- */
+const hx=x=>[1,3,5].map(i=>parseInt(x.slice(i,i+2),16));
+const lum=c=>{const [r,g,b]=c.map(v=>{v/=255;return v<=.03928?v/12.92:Math.pow((v+.055)/1.055,2.4)});return .2126*r+.7152*g+.0722*b};
+const cr=(a,b)=>{const x=lum(hx(a)),y=lum(hx(b));return (Math.max(x,y)+.05)/(Math.min(x,y)+.05)};
+const mixh=(f,a,b)=>'#'+hx(f).map((v,i)=>Math.round(v*a+hx(b)[i]*(1-a)).toString(16).padStart(2,'0')).join('');
+const Tk={
+ light:{bg:'#F7F4EF',surf:'#FFFFFF',surf2:'#EFEBE4',ink:'#1C1A1F',ink2:'#5F5954',acc:'#B5541C',onacc:'#FFFFFF',acct:'#9A4513',wave:'#1F7A7A',danger:'#C0362C',ondanger:'#FFFFFF',idea:'#4A52A6',prog:'#8A5300',done:'#27704A',fa:.15,opq:'#FBF9F5',opqb:'#8F8880',opqd:'#FFFFFF',opqdb:'#6E6760'},
+ dark:{bg:'#151316',surf:'#201D22',surf2:'#2A262D',ink:'#F4F0EA',ink2:'#A9A29B',acc:'#F0955A',onacc:'#1C1A1F',acct:'#F0955A',wave:'#5FC4BF',danger:'#FF7A6E',ondanger:'#1C1A1F',idea:'#9BA3EE',prog:'#F2B84B',done:'#6FCF97',fa:.18,opq:'#2A262D',opqb:'#8D8791',opqd:'#34303A',opqdb:'#A8A2AD'}
+};
+const P={
+ brush:'M4 20c2 0 3-1 3-3a2 2 0 0 1 2-2l9-9a2 2 0 0 0-3-3l-9 9a2 2 0 0 0-2 2c0 3-1 4-2 6z',
+ eraser:'M8 20h12M5 15l9-9 5 5-6 6H8z',
+ fill:'M5 11l6-6 7 7-6 6zM19 15c1 1.5 1 3 0 3s-1-1.5 0-3z',
+ pip:'M14 4l6 6M13 5l6 6-9 9H4v-6zM4 20l2-2',
+ rep:'M4 8h13l-3-3M20 16H7l3 3',
+ sel:'M5 5h4M15 5h4M5 19h4M15 19h4M5 5v4M19 5v4M5 15v4M19 15v4',
+ mir:'M12 4v16M8 7L3 12l5 5zM16 7l5 5-5 5z',
+ undo:'M4 12h10a5 5 0 0 1 0 8h-3M8 8l-4 4 4 4',
+ redo:'M20 12H10a5 5 0 0 0 0 8h3M16 8l4 4-4 4'
+};
+const ico=(d,c='currentColor',s=22)=>`<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="${c}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="${d}"/></svg>`;
+const TH=(th,inner,st='')=>`<div class="th" data-theme="${th}" style="${st}">${inner}</div>`;
+let mode='light';
+const themes=()=>mode==='both'?['light','dark']:[mode];
+const tag=th=>th==='dark'?'тёмная':'светлая';
+
+/* ---------- 1 opaque ---------- */
+function s1(){
+ const rows=[];
+ for(const th of ['light','dark']){const t=Tk[th];
+  rows.push([th,'Regular (opaque)',t.opq,t.opqb,t.ink,t.bg]);rows.push([th,'Dense (opaque)',t.opqd,t.opqdb,t.ink,t.bg]);}
+ document.getElementById('opq-table').innerHTML='<tr><th>Тема</th><th>Материал</th><th>Заливка</th><th>Обводка (1,5 pt)</th><th>Обводка к фону</th><th>Текст на заливке</th></tr>'+rows.map(r=>{const c=cr(r[3],r[5]),c2=cr(r[4],r[2]);return `<tr><td>${tag(r[0])}</td><td>${r[1]}</td><td><span class="sw" style="background:${r[2]}"></span><span class="mono">${r[2]}</span></td><td><span class="sw" style="background:${r[3]}"></span><span class="mono">${r[3]}</span></td><td class="${c>=3?'ok':'bad'}">${c.toFixed(2)}:1 ${c>=3?'✓':'✗'}</td><td class="${c2>=4.5?'ok':'bad'}">${c2.toFixed(2)}:1 ${c2>=4.5?'✓':'✗'}</td></tr>`}).join('');
+ document.getElementById('s1d').innerHTML=themes().map(th=>TH(th,`<p class="cap">Opaque · ${tag(th)}</p><div class="bk" style="width:430px">
+  <div class="bar od"><div class="btn b1"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 15l6-6 6 6"/></svg></div><div class="btn b2">Следующий ряд</div></div>
+  <div class="topb og"><span>Мои работы</span><div class="segc"><div class="s">Схема</div><div>Список</div></div></div>
+  <div class="sheet od"><div class="grab"></div><b style="font-size:20px">Новый проект</b><div class="opt">Схема из книги (фото или PDF)</div><div class="opt">Нарисовать схему</div></div></div>`)).join('');
+}
+
+/* ---------- 2 dynamic type ---------- */
+function s2(){
+ const mk=(th,s,cs,ax,name)=>TH(th,`<p class="cap">${name} · ${tag(th)}</p><div class="dt ${ax?'ax':''}" style="--s:${s};--cs:${cs}">
+  <div class="chips"><span class="chip">Мозаика</span><span class="chip" style="background:var(--acc);color:var(--onacc);border-color:var(--acc)">В работе</span></div>
+  <div class="card"><div class="pv"></div><div><div class="ct">Морской бриз</div><div class="cs">Мозаика · Сегодня</div><span class="st">В работе</span></div></div>
+  <div class="wc dn">→ 3 × <span class="dot" style="background:#D94F70"></span> 2 × <span class="dot" style="background:#F2B84B"></span> 1 × <span class="dot" style="background:#5FC4BF"></span></div>
+  <div class="wbar dn"><div class="cnt">Ряд 42 <small>из 180</small></div><div class="wbtns"><div class="wb p">▲ Назад</div><div class="wb n">Следующий ряд</div></div></div></div>`,'padding:12px');
+ document.getElementById('s2d').innerHTML=themes().map(th=>mk(th,1,1,false,'Крупный ×1')+mk(th,2.2,1.35,true,'AX3 ×2,2')).join('');
+}
+
+/* ---------- 3 highlight ---------- */
+function s3(){
+ const pal={gold:'#F2B84B',orange:'#E8833A',white:'#F4F0EA',coral:'#F06A5A'};
+ const seq=['gold','orange','white','coral'];
+ const rowsN=7,cur=3;
+ const mk=th=>{let rows='',marks='';
+  for(let r=0;r<rowsN;r++){let b='';for(let c=0;c<12;c++){const k=seq[(r+c*(r%2?1:2))%4];b+=`<div class="bd" style="background:${pal[k]}"></div>`}
+   rows+=`<div class="rowwrap ${r<cur?'past':r===cur?'cur':''}">${b}</div>`;
+   marks+=`<div class="mk ${r===cur?'cur':''}">${r===cur?'Ряд '+(r+1):''}</div>`}
+  return TH(th,`<p class="cap">${tag(th)}: золотые, оранжевые, белые, коралловые бусины</p><div class="sch"><div class="marker" style="gap:9px">${marks}</div><div class="sg" style="gap:9px">${rows}</div></div>`);};
+ document.getElementById('s3d').innerHTML=themes().map(mk).join('');
+ const bead=[['золотой','#F2B84B'],['оранжевый','#E8833A'],['белый','#F4F0EA'],['коралловый','#F06A5A']];
+ document.getElementById('ring-table').innerHTML='<table><tr><th>Бусина</th><th>Внутреннее кольцо #151316</th><th>Внешнее кольцо #FFFFFF: контраст к внутреннему</th><th>Было: акцент #B5541C / #F0955A</th></tr>'+bead.map(b=>`<tr><td><span class="sw" style="background:${b[1]}"></span>${b[0]}</td><td class="ok">${cr('#151316',b[1]).toFixed(2)}:1</td><td class="ok">${cr('#FFFFFF','#151316').toFixed(2)}:1 (на тёмном фоне отделяет ряд от соседних, на светлом отделяет внутреннее кольцо от бусин)</td><td class="${cr('#B5541C',b[1])>=3?'ok':'bad'}">${cr('#B5541C',b[1]).toFixed(2)}:1 / ${cr('#F0955A',b[1]).toFixed(2)}:1</td></tr>`).join('')+'</table>';
+}
+
+/* ---------- 4 contrast ---------- */
+function s4(){
+ const out=[];
+ for(const th of ['light','dark']){const t=Tk[th];
+  const stf=k=>mixh(t[k],t.fa,t.surf);
+  const L=[['Контент / фон',t.ink,t.bg,4.5],['Контент / поверхность',t.ink,t.surf,4.5],['Вторичный текст / фон',t.ink2,t.bg,4.5],['Вторичный текст / поверхность',t.ink2,t.surf,4.5],['Вторичный текст / поверхность 2',t.ink2,t.surf2,4.5],
+   ['Текст на акценте',t.onacc,t.acc,4.5],['Акцент-текст / фон',t.acct,t.bg,4.5],['Акцент-текст / поверхность',t.acct,t.surf,4.5],['«Волна» / поверхность',t.wave,t.surf,4.5],['Удаление / поверхность',t.danger,t.surf,4.5],['Текст на кнопке удаления',t.ondanger,t.danger,4.5],
+   ['Статус «идея» / заливка '+Math.round(t.fa*100)+'%',t.idea,stf('idea'),4.5],['Статус «в работе» / заливка',t.prog,stf('prog'),4.5],['Статус «готово» / заливка',t.done,stf('done'),4.5],
+   ['Текст на dense-стекле (худший фон)',t.ink,mixh(t.ink===('#1C1A1F')?'#FFFFFF':'#1C1A1F',.82,th==='light'?'#F2B84B':'#5FC4BF'),4.5],
+   ['Акцент (не текст: кнопка, кольцо) / поверхность',t.acc,t.surf,3],['Обводка opaque / фон',t.opqb,t.bg,3]];
+  L.forEach(r=>out.push([th,...r]));}
+ out.push(['light','БЫЛО: статус «в работе» (v1)','#A86A00',mixh('#A86A00',.14,'#FFFFFF'),4.5]);
+ document.getElementById('ctable').innerHTML='<tr><th>Тема</th><th>Пара</th><th>Цвета</th><th>Контраст</th><th>Порог</th></tr>'+out.map(r=>{const c=cr(r[2],r[3]);const ok=c>=r[4];return `<tr><td>${tag(r[0])}</td><td>${r[1]}</td><td><span class="sw" style="background:${r[2]}"></span><span class="mono">${r[2]}</span> на <span class="sw" style="background:${r[3]}"></span><span class="mono">${r[3]}</span></td><td class="${ok?'ok':'bad'}">${c.toFixed(2)}:1 ${ok?'✓':'✗'}</td><td>${r[4]}:1</td></tr>`}).join('');
+}
+
+/* ---------- 5 states ---------- */
+function s5(){
+ const mk=th=>TH(th,`<p class="cap">${tag(th)}</p><div style="display:flex;flex-direction:column;gap:14px;width:520px">
+ <div class="stc"><span class="l">Карточка проекта: обычная · нажатая · выключена</span><div class="sgrid"><div class="mcard"><i></i>Бриз</div><div class="mcard pr"><i></i>Бриз</div><div class="mcard dis"><i></i>Бриз</div></div></div>
+ <div class="stc"><span class="l">Чип: обычный · нажатый · выбранный · выключен</span><div style="display:flex;gap:8px;flex-wrap:wrap"><span class="mchip">Станок</span><span class="mchip pr">Станок</span><span class="mchip sel">Станок</span><span class="mchip dis">Станок</span></div></div>
+ <div class="stc"><span class="l">Образец цвета: обычный · нажатый · выбранный</span><div class="sgrid"><div class="msw"><b></b>DB-0010</div><div class="msw pr"><b></b>DB-0010</div><div class="msw sel"><b></b>DB-0010</div></div></div>
+ <div class="stc"><span class="l">Ручка линейки: обычная · нажата · перетаскивается (подсказка «3 ряда»)</span><div class="sgrid"><div class="rl"><div class="band"></div><div class="hd"></div></div><div class="rl"><div class="band"></div><div class="hd pr"></div></div><div class="rl" style="overflow:visible"><div class="band"></div><div class="hd pr"></div><div class="tip" style="top:-14px">3 ряда</div></div></div></div>
+ <div class="stc"><span class="l">Кнопки панели инструментов: обычная · нажата · выбрана · выключена</span><div class="gl" style="display:inline-flex;gap:4px;padding:6px;border-radius:28px;align-self:flex-start;background:var(--glass)"><span class="tool">${ico(P.brush)}</span><span class="tool pr">${ico(P.eraser)}</span><span class="tool sel">${ico(P.fill)}</span><span class="tool dis">${ico(P.undo)}</span></div></div>
+ <div class="stc"><span class="l">Ячейка-бусина: обычная · выбрана · под курсором (Mac)</span><div class="cells"><div class="cell"></div><div class="cell sel"></div><div class="cell hov"></div></div></div>
+ </div>`);
+ document.getElementById('s5d').innerHTML=themes().map(mk).join('');
+}
+
+/* ---------- 7 mac ---------- */
+function s7(){
+ const cols=['#D94F70','#F2B84B','#5FC4BF','#5B63B7','#F4F0EA','#2B2830'];
+ const mk=th=>{let cells='';for(let r=0;r<9;r++)for(let c=0;c<18;c++){const i=(r*2+c*3+(c%2?1:0))%6;cells+=`<i style="background:${cols[i]}"></i>`}
+  const tools=['brush','eraser','fill','pip','rep','sel','mir','undo','redo'].map((k,i)=>`<span class="tool ${i===0?'sel':''}">${ico(P[k])}</span>`).join('');
+  const sw=cols.slice(0,5).map((c,i)=>`<div class="sw2 ${i===0?'sel':''}"><b style="background:${c}"></b>DB-00${10+i*7} · ${['Малина','Золото','Бирюза','Индиго','Белый'][i]}</div>`).join('');
+  return TH(th,`<p class="cap">${tag(th)}: окно 900 pt</p><div class="mac">
+  <div class="side gl"><div style="font-size:13px;font-weight:700;opacity:.8;padding:4px 8px">ПАЛИТРА СХЕМЫ</div>${sw}</div>
+  <div class="tb gl">${tools}<span style="flex:1"></span><span style="font-size:14px;font-weight:600;padding:0 12px">Браслет «Рябина» · 18 × 9</span></div>
+  <div class="cv"><div class="gridc">${cells}</div><div class="insp"><b>Текущий цвет</b><div class="mono">DB-0010</div><div>Малиновый глянцевый</div><div style="color:var(--ink2)">Используется: 38 бусин</div></div></div></div>`,'padding:14px')};
+ document.getElementById('s7d').innerHTML=themes().map(mk).join('');
+}
+
+/* ---------- 8 empty ---------- */
+function s8(){
+ const thread=`<svg width="150" height="90" viewBox="0 0 140 84" role="img" aria-label="Нить с бусинами"><path d="M4 64 C40 70 60 20 136 18" fill="none" stroke="var(--acc)" stroke-width="2.5" stroke-linecap="round"/><circle cx="24" cy="63" r="11" fill="#D94F70"/><circle cx="52" cy="50" r="11" fill="#F2B84B"/><circle cx="82" cy="36" r="11" fill="#5FC4BF"/><circle cx="112" cy="24" r="11" fill="#5B63B7"/><circle cx="20" cy="59" r="3" fill="#fff" opacity=".7"/><circle cx="48" cy="46" r="3" fill="#fff" opacity=".7"/><circle cx="78" cy="32" r="3" fill="#fff" opacity=".7"/><circle cx="108" cy="20" r="3" fill="#fff" opacity=".7"/></svg>`;
+ document.getElementById('s8d').innerHTML=['light','dark'].filter(th=>mode==='both'||th===mode).map(th=>TH(th,`<p class="cap">${tag(th)}</p><div class="rowf"><div class="em">${thread}<h3>Пока нет проектов</h3><p>Добавьте схему из книги или нарисуйте свою.</p><div class="cta">Новый проект</div></div><div class="em">${thread}<h3>В палитре пока пусто</h3><p>Выберите цвета из каталога по артикулу.</p><div class="cta">Добавить цвет</div></div></div>`,'padding:16px')).join('');
+}
+
+function render(){document.body.classList.toggle('dp',mode==='dark');s1();s2();s3();s4();s5();s7();s8();}
+document.querySelectorAll('.seg button').forEach(b=>b.onclick=()=>{mode=b.dataset.m;document.querySelectorAll('.seg button').forEach(x=>x.setAttribute('aria-pressed',x===b));render();});
+render();
+</script>
+</body>
+</html>

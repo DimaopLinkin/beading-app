@@ -1,0 +1,21 @@
+name: check
+
+on:
+  pull_request:
+    branches: [dev, main]
+
+concurrency:
+  group: check-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: 3.41.0
+          channel: stable
+          cache: true
+      - run: scripts/check.sh

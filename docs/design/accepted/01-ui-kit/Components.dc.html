@@ -1,0 +1,287 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<title>Компоненты</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0}
+.t{font-family:-apple-system,BlinkMacSystemFont,"SF Pro Text","SF Pro",system-ui,sans-serif}
+.mono{font-family:ui-monospace,"SF Mono",Menlo,monospace}
+.lbl{font-size:12px;font-weight:600;letter-spacing:1.2px;text-transform:uppercase;opacity:.65;margin:0 0 10px}
+</style>
+</helmet>
+<div class="t" style="width:1280px;height:2500px;box-sizing:border-box;padding:48px;background:#E9E4DB;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:32px;align-items:start">
+
+<sc-for list="{{themes}}" as="t" hint-placeholder-count="2">
+<div style="background:{{t.bg}};color:{{t.ink}};border-radius:32px;padding:28px;display:flex;flex-direction:column;gap:30px;box-sizing:border-box">
+
+<div style="font-size:22px;font-weight:700">{{t.name}}</div>
+
+<div>
+<p class="lbl">Кнопки: обычная · нажатая · выключена</p>
+<div style="background:{{t.bk}};border-radius:24px;padding:18px;display:flex;flex-direction:column;gap:12px">
+<sc-for list="{{t.buttons}}" as="row" hint-placeholder-count="3">
+<div style="display:flex;gap:10px">
+<sc-for list="{{row.states}}" as="s" hint-placeholder-count="3">
+<div style="flex:1;height:48px;border-radius:24px;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:600;background:{{s.bg}};color:{{s.fg}};border:{{s.bd}};opacity:{{s.op}};transform:scale({{s.sc}});backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px)">{{row.label}}</div>
+</sc-for>
+</div>
+</sc-for>
+</div>
+</div>
+
+<div>
+<p class="lbl">Нижняя панель плетения (≥ 56 pt, стекло плотное + тинт акцента)</p>
+<div style="background:{{t.bk}};border-radius:24px;padding:18px;display:flex;flex-direction:column;gap:14px">
+<div style="display:flex;gap:10px;padding:10px;border-radius:40px;background:{{t.dense}};border:{{t.glassBorder}};box-shadow:{{t.shadow}};backdrop-filter:blur(32px);-webkit-backdrop-filter:blur(32px)">
+<div style="width:64px;height:60px;border-radius:30px;background:{{t.surf2}};display:flex;align-items:center;justify-content:center"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="{{t.ink}}" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-label="Назад" role="img"><path d="M6 15l6-6 6 6"/></svg></div>
+<div style="flex:1;height:60px;border-radius:30px;background:{{t.acc}};color:{{t.onAcc}};display:flex;align-items:center;justify-content:center;gap:10px;font-size:19px;font-weight:700"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="{{t.onAcc}}" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>Следующий ряд</div>
+</div>
+<div style="display:flex;flex-direction:column;gap:10px;padding:14px 16px;border-radius:24px;background:{{t.dense}};border:{{t.glassBorder}};backdrop-filter:blur(32px);-webkit-backdrop-filter:blur(32px)">
+<div style="display:flex;align-items:baseline;justify-content:space-between"><div class="mono" style="font-size:34px;font-weight:600;font-variant-numeric:tabular-nums">Ряд 42<span style="font-size:17px;font-weight:400;opacity:.7"> из 180</span></div><div style="font-size:15px;font-weight:600;color:{{t.accText}}">23%</div></div>
+<div style="height:8px;border-radius:4px;background:{{t.surf2}}"><div style="width:23%;height:8px;border-radius:4px;background:{{t.acc}}"></div></div>
+</div>
+</div>
+</div>
+
+<div>
+<p class="lbl">Карточка проекта (непрозрачная) · чипы статуса</p>
+<div style="display:flex;gap:14px;align-items:stretch">
+<sc-for list="{{t.cards}}" as="c" hint-placeholder-count="2">
+<div style="flex:1;background:{{t.surf}};border-radius:22px;overflow:hidden;border:1px solid {{t.sep}}">
+<div style="height:110px;background:{{c.preview}};background-size:20px 20px"></div>
+<div style="padding:12px 14px 14px;display:flex;flex-direction:column;gap:6px">
+<div style="font-size:16px;font-weight:600">{{c.title}}</div>
+<div style="font-size:13px;color:{{t.ink2}}">{{c.tech}} · {{c.date}}</div>
+<div style="display:flex;align-items:center;gap:8px"><span style="display:inline-flex;align-items:center;gap:5px;padding:3px 9px;border-radius:12px;font-size:12px;font-weight:600;color:{{c.stColor}};background:{{c.stBg}}"><span style="width:7px;height:7px;border-radius:4px;background:{{c.stColor}}"></span>{{c.status}}</span></div>
+<div style="height:5px;border-radius:3px;background:{{t.surf2}};margin-top:2px"><div style="width:{{c.prog}}%;height:5px;border-radius:3px;background:{{c.stColor}}"></div></div>
+</div>
+</div>
+</sc-for>
+</div>
+</div>
+
+<div>
+<p class="lbl">Поиск и чипы фильтров (обычный · выбранный)</p>
+<div style="display:flex;flex-direction:column;gap:12px">
+<div style="height:44px;border-radius:22px;background:{{t.surf2}};display:flex;align-items:center;gap:10px;padding:0 16px;color:{{t.ink2}};font-size:16px"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="{{t.ink2}}" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="6"/><path d="M20 20l-4-4"/></svg>Поиск по названию</div>
+<div style="display:flex;flex-wrap:wrap;gap:8px">
+<sc-for list="{{t.chips}}" as="c" hint-placeholder-count="6">
+<div style="height:36px;padding:0 16px;border-radius:18px;display:flex;align-items:center;font-size:15px;font-weight:600;background:{{c.bg}};color:{{c.fg}};border:1px solid {{c.bd}}">{{c.label}}</div>
+</sc-for>
+</div>
+</div>
+</div>
+
+<div>
+<p class="lbl">Ячейка-бусина: станок · пейот · кирпич (цвет и символы)</p>
+<div style="background:{{t.surf}};border:1px solid {{t.sep}};border-radius:22px;padding:16px;display:flex;flex-direction:column;gap:14px">
+<sc-for list="{{t.geoms}}" as="g" hint-placeholder-count="3">
+<div style="display:flex;align-items:center;gap:16px">
+<div style="width:96px;font-size:13px;font-weight:600;flex:none">{{g.name}}</div>
+<sc-for list="{{g.variants}}" as="v" hint-placeholder-count="2">
+<div style="position:relative;width:{{g.w}}px;height:{{g.h}}px;flex:none">
+<sc-for list="{{v.cells}}" as="c" hint-placeholder-count="12">
+<div style="position:absolute;left:{{c.x}}px;top:{{c.y}}px;width:24px;height:24px;border-radius:12px;background:{{c.bg}};color:{{c.fg}};display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;box-sizing:border-box;border:1px solid rgba(0,0,0,.18)">{{c.sym}}</div>
+</sc-for>
+</div>
+</sc-for>
+</div>
+</sc-for>
+</div>
+</div>
+
+<div>
+<p class="lbl">Образец цвета: выбранный · невыбранный</p>
+<div style="display:flex;flex-direction:column;gap:8px">
+<sc-for list="{{t.swatches}}" as="s" hint-placeholder-count="3">
+<div style="display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:18px;background:{{t.surf}};border:{{s.bd}}">
+<div style="width:36px;height:36px;border-radius:18px;background:{{s.hex}};border:1px solid rgba(0,0,0,.2);display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700;color:{{s.fg}};flex:none">{{s.sym}}</div>
+<div style="flex:1;min-width:0"><div class="mono" style="font-size:13px;color:{{t.ink2}}">{{s.code}}</div><div style="font-size:16px;font-weight:600">{{s.name}}</div></div>
+<div style="font-size:14px;color:{{t.accText}};font-weight:600">{{s.mark}}</div>
+</div>
+</sc-for>
+</div>
+</div>
+
+<div>
+<p class="lbl">Word chart текущего ряда</p>
+<div style="background:{{t.dense}};border:{{t.glassBorder}};border-radius:24px;padding:14px 16px;display:flex;align-items:center;gap:14px;font-size:20px;font-weight:600;flex-wrap:wrap;box-shadow:{{t.shadow}}">
+<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="{{t.accText}}" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" role="img" aria-label="Направление: вправо"><path d="M4 12h15M13 6l6 6-6 6"/></svg>
+<sc-for list="{{t.word}}" as="w" hint-placeholder-count="3"><div style="display:flex;align-items:center;gap:7px"><span>{{w.n}} ×</span><span style="width:26px;height:26px;border-radius:13px;background:{{w.hex}};border:1px solid rgba(0,0,0,.2);display:inline-flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:{{w.fg}}">{{w.sym}}</span></div></sc-for>
+</div>
+</div>
+
+<div>
+<p class="lbl">«Линейка» для схемы из книги</p>
+<div style="position:relative;height:200px;border-radius:22px;overflow:hidden;background:#EDE6D6;background-image:repeating-linear-gradient(0deg,rgba(40,30,20,.22) 0 2px,transparent 2px 22px),repeating-linear-gradient(90deg,rgba(40,30,20,.18) 0 2px,transparent 2px 22px)">
+<div style="position:absolute;left:0;right:0;top:0;height:78px;background:{{t.veil}}"></div>
+<div style="position:absolute;left:0;right:0;top:78px;height:46px;background:{{t.rowFill}};border-top:3px solid {{t.acc}};border-bottom:3px solid {{t.acc}}"></div>
+<div style="position:absolute;left:50%;top:70px;margin-left:-22px;width:44px;height:16px;border-radius:8px;background:{{t.acc}};border:2px solid {{t.onAcc}}"></div>
+<div style="position:absolute;left:50%;top:116px;margin-left:-22px;width:44px;height:16px;border-radius:8px;background:{{t.acc}};border:2px solid {{t.onAcc}}"></div>
+</div>
+<div style="font-size:12px;color:{{t.ink2}};margin-top:6px">Полоса — заливка акцента 16% + контур 3 pt; всё выше притушено вуалью. Ручки ≥ 44 × 16 pt, зона нажатия 44 pt.</div>
+</div>
+
+<div>
+<p class="lbl">Нижний лист · диалог удаления · тост</p>
+<div style="background:{{t.bk}};border-radius:24px;padding:18px;display:flex;flex-direction:column;gap:14px">
+<div style="background:{{t.dense}};border:{{t.glassBorder}};border-radius:32px 32px 18px 18px;padding:10px 20px 18px;backdrop-filter:blur(32px);-webkit-backdrop-filter:blur(32px);display:flex;flex-direction:column;gap:10px;box-shadow:{{t.shadow}}">
+<div style="width:40px;height:5px;border-radius:3px;background:{{t.ink2}};opacity:.5;align-self:center"></div>
+<div style="font-size:20px;font-weight:700">Новый проект</div>
+<div style="padding:12px 14px;border-radius:16px;background:{{t.surf}};font-size:16px">Схема из книги (фото или PDF)</div>
+<div style="padding:12px 14px;border-radius:16px;background:{{t.surf}};font-size:16px">Нарисовать схему</div>
+</div>
+<div style="background:{{t.dense}};border:{{t.glassBorder}};border-radius:28px;padding:20px;backdrop-filter:blur(32px);-webkit-backdrop-filter:blur(32px);display:flex;flex-direction:column;gap:14px;box-shadow:{{t.shadow}}">
+<div><div style="font-size:18px;font-weight:700">Удалить «Морской бриз»?</div><div style="font-size:14px;margin-top:4px;opacity:.8">Схему и заметки восстановить нельзя.</div></div>
+<div style="display:flex;gap:10px"><div style="flex:1;height:46px;border-radius:23px;background:{{t.surf2}};display:flex;align-items:center;justify-content:center;font-weight:600">Отмена</div><div style="flex:1;height:46px;border-radius:23px;background:{{t.danger}};color:{{t.onDanger}};display:flex;align-items:center;justify-content:center;font-weight:700">Удалить</div></div>
+</div>
+<div style="align-self:center;padding:12px 18px;border-radius:24px;background:{{t.dense}};border:{{t.glassBorder}};font-size:15px;font-weight:600;backdrop-filter:blur(32px);-webkit-backdrop-filter:blur(32px)">Проект продублирован · <span style="color:{{t.accText}}">Отменить</span></div>
+</div>
+</div>
+
+<div>
+<p class="lbl">Верхняя панель, сегменты, плавающая панель табов, баннер</p>
+<div style="background:{{t.bk}};border-radius:24px;padding:18px;display:flex;flex-direction:column;gap:14px">
+<div style="display:flex;align-items:center;justify-content:space-between;padding:8px 10px 8px 20px;border-radius:30px;background:{{t.glass}};border:{{t.glassBorder}};backdrop-filter:blur(24px) saturate(1.6);-webkit-backdrop-filter:blur(24px) saturate(1.6);box-shadow:{{t.shadow}}">
+<div style="font-size:20px;font-weight:700">Мои работы</div>
+<div style="display:flex;padding:3px;border-radius:20px;background:{{t.surf2}}"><div style="padding:7px 16px;border-radius:17px;background:{{t.surf}};font-size:14px;font-weight:700">Схема</div><div style="padding:7px 16px;font-size:14px;font-weight:600;opacity:.7">Список</div></div>
+</div>
+<div style="align-self:center;display:flex;gap:4px;padding:6px;border-radius:34px;background:{{t.glass}};border:{{t.glassBorder}};backdrop-filter:blur(24px) saturate(1.6);-webkit-backdrop-filter:blur(24px) saturate(1.6);box-shadow:{{t.shadow}}">
+<div style="padding:11px 22px;border-radius:28px;background:{{t.accGlass}};font-size:14px;font-weight:700;color:{{t.accText}}">Работы</div>
+<div style="padding:11px 22px;font-size:14px;font-weight:600">Каталог</div>
+<div style="padding:11px 22px;font-size:14px;font-weight:600">Ещё</div>
+</div>
+<div style="display:flex;align-items:center;gap:12px;padding:12px 18px 12px 12px;border-radius:30px;background:{{t.dense}};border:{{t.glassBorder}};backdrop-filter:blur(32px);-webkit-backdrop-filter:blur(32px);box-shadow:{{t.shadow}}">
+<div style="width:36px;height:36px;border-radius:18px;background:radial-gradient(circle at 35% 30%,#fff 0 12%,#F2B84B 14% 60%,#B5541C 100%);flex:none"></div>
+<div style="font-size:15px;font-weight:600">Ряд готов. Красиво получается.</div>
+</div>
+</div>
+</div>
+
+<div>
+<p class="lbl">Панель инструментов редактора (стекло, плавающая)</p>
+<div style="background:{{t.bk}};border-radius:24px;padding:18px">
+<div style="display:flex;flex-wrap:wrap;gap:4px;padding:8px;border-radius:30px;background:{{t.glass}};border:{{t.glassBorder}};backdrop-filter:blur(24px) saturate(1.6);-webkit-backdrop-filter:blur(24px) saturate(1.6);box-shadow:{{t.shadow}}">
+<sc-for list="{{t.tools}}" as="k" hint-placeholder-count="9">
+<button style="width:44px;height:44px;border-radius:22px;border:none;display:flex;align-items:center;justify-content:center;background:{{k.bg}};cursor:pointer;padding:0" aria-label="{{k.label}}"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="{{k.fg}}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="{{k.d}}"/></svg></button>
+</sc-for>
+</div>
+</div>
+<div style="font-size:12px;color:{{t.ink2}};margin-top:6px">Выбран инструмент «Кисть» (тинт акцента). Подписи: кисть, ластик, заливка, пипетка, замена цвета, выделение, зеркало, отменить, повторить.</div>
+</div>
+
+</div>
+</sc-for>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":2500}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const bead = ['#D94F70','#F2B84B','#5FC4BF','#5B63B7','#F4F0EA','#2B2830'];
+    const syms = ['A','B','C','D','E','F'];
+    const fgFor = (h) => (['#F4F0EA','#F2B84B','#5FC4BF'].includes(h) ? '#1C1A1F' : '#FFFFFF');
+    const mkCells = (kind, rows, cols, sym) => {
+      const cells = [];
+      for (let r = 0; r < rows; r++) for (let c = 0; c < cols; c++) {
+        let x = c * 27, y = r * 27;
+        if (kind === 'peyote' && c % 2) y += 13.5;
+        if (kind === 'brick' && r % 2) x += 13.5;
+        const i = (r * 3 + c * 2 + (kind === 'peyote' ? 1 : 0)) % bead.length;
+        const hex = bead[i];
+        cells.push({ x, y, bg: hex, fg: fgFor(hex), sym: sym ? syms[i] : '' });
+      }
+      return cells;
+    };
+    const geoms = (() => {
+      const mk = (name, kind, rows, cols) => ({
+        name,
+        w: cols * 27 + (kind === 'brick' ? 14 : 0),
+        h: rows * 27 + (kind === 'peyote' ? 14 : 0),
+        variants: [{ cells: mkCells(kind, rows, cols, false) }, { cells: mkCells(kind, rows, cols, true) }]
+      });
+      return [mk('Станок', 'rect', 3, 5), mk('Пейот', 'peyote', 3, 5), mk('Кирпич', 'brick', 3, 5)];
+    })();
+    const word = bead.slice(0, 3).map((h, i) => ({ n: 3 - i, hex: h, fg: fgFor(h), sym: syms[i] }));
+    const swatches = (themeAcc) => [
+      { hex: '#D94F70', fg: '#fff', sym: 'A', code: 'DB-0010', name: 'Малиновый', bd: '2px solid ' + themeAcc, mark: 'Выбран' },
+      { hex: '#F2B84B', fg: '#1C1A1F', sym: 'B', code: 'DB-0053', name: 'Золотой глянцевый', bd: '1px solid transparent', mark: '' },
+      { hex: '#5FC4BF', fg: '#1C1A1F', sym: 'C', code: 'DB-0378', name: 'Бирюзовый матовый', bd: '1px solid transparent', mark: '' }
+    ];
+    const mkTheme = (o) => {
+      const pv = (a, b) => 'repeating-linear-gradient(45deg,' + a + ' 0 10px,' + b + ' 10px 20px)';
+      const btn = (label, a, b, c) => ({ label, states: [a, b, c] });
+      const prim = (bg, fg, p) => [
+        { bg, fg, bd: '1px solid transparent', op: 1, sc: 1 },
+        { bg: p, fg, bd: '1px solid transparent', op: 1, sc: .97 },
+        { bg: o.surf2, fg: o.ink2, bd: '1px solid transparent', op: .6, sc: 1 }
+      ];
+      const sec = [
+        { bg: o.dense, fg: o.ink, bd: o.glassBorder, op: 1, sc: 1 },
+        { bg: o.glassPressed, fg: o.ink, bd: o.glassBorder, op: 1, sc: .97 },
+        { bg: o.dense, fg: o.ink, bd: o.glassBorder, op: .45, sc: 1 }
+      ];
+      const txt = [
+        { bg: 'transparent', fg: o.accText, bd: '1px solid transparent', op: 1, sc: 1 },
+        { bg: o.accGlass, fg: o.accText, bd: '1px solid transparent', op: 1, sc: .97 },
+        { bg: 'transparent', fg: o.accText, bd: '1px solid transparent', op: .4, sc: 1 }
+      ];
+      const chip = (label, sel) => sel
+        ? { label, bg: o.acc, fg: o.onAcc, bd: 'transparent' }
+        : { label, bg: o.surf, fg: o.ink, bd: o.sep };
+      const mkTool = (label, d, sel) => ({ label, d, bg: sel ? o.accGlass : 'transparent', fg: sel ? o.accText : o.ink });
+      return {
+        name: o.name, bg: o.bg, surf: o.surf, surf2: o.surf2, ink: o.ink, ink2: o.ink2, sep: o.sep,
+        acc: o.acc, onAcc: o.onAcc, accText: o.accText, accGlass: o.accGlass, glass: o.glass, dense: o.dense,
+        glassBorder: o.glassBorder, shadow: o.shadow, danger: o.danger, onDanger: o.onDanger, veil: o.veil, rowFill: o.rowFill,
+        bk: 'linear-gradient(120deg,#D94F70,#F2B84B 38%,#5FC4BF 68%,#5B63B7)',
+        buttons: [btn('Основная', ...prim(o.acc, o.onAcc, o.accP)), btn('Вторичная', ...sec), btn('Текстовая', ...txt)],
+        cards: [
+          { title: 'Морской бриз', tech: 'Мозаика', date: '12 окт', status: 'В работе', stColor: o.prog, stBg: o.progBg, prog: 62, preview: pv(o.pvA, o.pvB) },
+          { title: 'Зимний узор', tech: 'Станок', date: '3 окт', status: 'Готово', stColor: o.done, stBg: o.doneBg, prog: 100, preview: pv(o.pvB, o.pvA) }
+        ],
+        chips: [chip('Станок', false), chip('Мозаика', true), chip('Кирпич', false), chip('Идея', false), chip('В работе', true), chip('Готово', false)],
+        geoms, word, swatches: swatches(o.acc).map((s) => s),
+        tools: [
+          mkTool('Кисть', 'M4 20c2 0 3-1 3-3a2 2 0 0 1 2-2l9-9a2 2 0 0 0-3-3l-9 9a2 2 0 0 0-2 2c0 3-1 4-2 6z', true),
+          mkTool('Ластик', 'M8 20h12M5 15l9-9 5 5-6 6H8z'),
+          mkTool('Заливка', 'M5 11l6-6 7 7-6 6zM19 15c1 1.5 1 3 0 3s-1-1.5 0-3z'),
+          mkTool('Пипетка', 'M14 4l6 6M13 5l6 6-9 9H4v-6zM4 20l2-2'),
+          mkTool('Заменить цвет', 'M4 8h13l-3-3M20 16H7l3 3'),
+          mkTool('Выделение', 'M5 5h4M15 5h4M5 19h4M15 19h4M5 5v4M19 5v4M5 15v4M19 15v4'),
+          mkTool('Зеркало', 'M12 4v16M8 7L3 12l5 5zM16 7l5 5-5 5z'),
+          mkTool('Отменить', 'M4 12h10a5 5 0 0 1 0 8h-3M8 8l-4 4 4 4'),
+          mkTool('Повторить', 'M20 12H10a5 5 0 0 0 0 8h3M16 8l4 4-4 4')
+        ]
+      };
+    };
+    const light = mkTheme({
+      name: 'Светлая тема', bg: '#F7F4EF', surf: '#FFFFFF', surf2: '#EFEBE4', ink: '#1C1A1F', ink2: '#5F5954', sep: '#E0DAD1',
+      acc: '#B5541C', accP: '#97440F', onAcc: '#FFFFFF', accText: '#9A4513', accGlass: 'rgba(181,84,28,.16)',
+      glass: 'rgba(255,255,255,.55)', dense: 'rgba(255,255,255,.82)', glassPressed: 'rgba(255,255,255,.95)',
+      glassBorder: '1px solid rgba(255,255,255,.8)', shadow: '0 10px 28px rgba(0,0,0,.18)',
+      danger: '#C0362C', onDanger: '#FFFFFF', veil: 'rgba(247,244,239,.62)', rowFill: 'rgba(181,84,28,.16)',
+      prog: '#A86A00', progBg: 'rgba(168,106,0,.14)', done: '#2E7D4F', doneBg: 'rgba(46,125,79,.14)',
+      pvA: '#E9D5C0', pvB: '#B8D3D1'
+    });
+    const dark = mkTheme({
+      name: 'Тёмная тема', bg: '#151316', surf: '#201D22', surf2: '#2A262D', ink: '#F4F0EA', ink2: '#A9A29B', sep: '#3A353D',
+      acc: '#F0955A', accP: '#D77F47', onAcc: '#1C1A1F', accText: '#F0955A', accGlass: 'rgba(240,149,90,.22)',
+      glass: 'rgba(40,38,44,.5)', dense: 'rgba(28,26,32,.8)', glassPressed: 'rgba(60,56,66,.9)',
+      glassBorder: '1px solid rgba(255,255,255,.26)', shadow: '0 10px 28px rgba(0,0,0,.4)',
+      danger: '#FF7A6E', onDanger: '#1C1A1F', veil: 'rgba(32,29,34,.62)', rowFill: 'rgba(240,149,90,.18)',
+      prog: '#F2B84B', progBg: 'rgba(242,184,75,.16)', done: '#6FCF97', doneBg: 'rgba(111,207,151,.16)',
+      pvA: '#4A3F52', pvB: '#2F5557'
+    });
+    return { themes: [light, dark] };
+  }
+}
+</script>
+</body>
+</html>
