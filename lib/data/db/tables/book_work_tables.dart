@@ -24,6 +24,9 @@ class PageWorkStates extends Table with UuidIdColumn, SyncColumns {
   /// Имя значения `RulerHighlight`.
   TextColumn get highlight => text()();
 
+  /// Имя значения `RowDirection`; у записей до v8 — `topDown`.
+  TextColumn get rowDirection => text().withDefault(const Constant('topDown'))();
+
   /// Зум и сдвиг вида.
   RealColumn get viewScale => real()();
 

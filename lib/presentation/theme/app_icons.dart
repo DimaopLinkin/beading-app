@@ -8,6 +8,7 @@ abstract final class AppIcons {
   static const IconData back = CupertinoIcons.chevron_back; // шеврон, не треугольник (замечание ревью 01b)
   static const IconData rowUp = CupertinoIcons.chevron_up;
   static const IconData rowDown = CupertinoIcons.chevron_down;
+  static const IconData forward = CupertinoIcons.chevron_forward;
   static const IconData rulerSettings = CupertinoIcons.slider_horizontal_3;
   static const IconData notes = CupertinoIcons.doc_text;
   static const IconData pages = CupertinoIcons.square_on_square;
@@ -39,6 +40,7 @@ abstract final class AppIcons {
     'redo': 'arrow.uturn.forward',
     'rowUp': 'chevron.up',
     'rowDown': 'chevron.down',
+    'forward': 'chevron.forward',
     'search': 'magnifyingglass',
     'add': 'plus',
   };

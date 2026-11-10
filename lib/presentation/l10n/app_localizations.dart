@@ -616,7 +616,7 @@ abstract class AppLocalizations {
   /// Кнопка выбора страницы многостраничной схемы
   ///
   /// In ru, this message translates to:
-  /// **'Стр. {current} из {total}'**
+  /// **'Страница {current} из {total}'**
   String bookWorkPageLabel(int current, int total);
 
   /// Заголовок списка страниц схемы
@@ -630,6 +630,72 @@ abstract class AppLocalizations {
   /// In ru, this message translates to:
   /// **'Страница {number}'**
   String bookWorkPageItem(int number);
+
+  /// Заголовок переключателя направления рядов
+  ///
+  /// In ru, this message translates to:
+  /// **'Направление рядов'**
+  String get bookWorkDirection;
+
+  /// Ряды идут сверху вниз
+  ///
+  /// In ru, this message translates to:
+  /// **'Сверху вниз'**
+  String get bookWorkDirectionDown;
+
+  /// Ряды идут снизу вверх
+  ///
+  /// In ru, this message translates to:
+  /// **'Снизу вверх'**
+  String get bookWorkDirectionUp;
+
+  /// Подпись ручки высоты линейки для VoiceOver
+  ///
+  /// In ru, this message translates to:
+  /// **'Высота линейки: потяни вверх или вниз'**
+  String get bookWorkResizeHandle;
+
+  /// Баннер на последнем ряду страницы
+  ///
+  /// In ru, this message translates to:
+  /// **'Страница закончена'**
+  String get bookWorkPageEnd;
+
+  /// Кнопка на последнем ряду страницы
+  ///
+  /// In ru, this message translates to:
+  /// **'Следующая страница'**
+  String get bookWorkNextPage;
+
+  /// Кнопка тоста: вернуть линейку на прошлый ряд
+  ///
+  /// In ru, this message translates to:
+  /// **'Отменить'**
+  String get bookWorkUndo;
+
+  /// Кнопка: вписать страницу по ширине
+  ///
+  /// In ru, this message translates to:
+  /// **'По ширине'**
+  String get bookWorkFitWidth;
+
+  /// Индикатор масштаба страницы
+  ///
+  /// In ru, this message translates to:
+  /// **'Масштаб ×{scale}'**
+  String bookWorkZoomLevel(String scale);
+
+  /// Кнопка: свернуть панель плетения
+  ///
+  /// In ru, this message translates to:
+  /// **'Свернуть панель'**
+  String get bookWorkCollapsePanel;
+
+  /// Кнопка: развернуть панель плетения
+  ///
+  /// In ru, this message translates to:
+  /// **'Развернуть панель'**
+  String get bookWorkExpandPanel;
 
   /// Кнопка выхода с экрана работы по схеме
   ///

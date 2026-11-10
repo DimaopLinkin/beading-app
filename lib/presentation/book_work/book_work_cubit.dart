@@ -103,21 +103,66 @@ class BookWorkCubit extends Cubit<BookWorkState> {
     return saved.copyWith(ruler: saved.ruler.fit(height));
   }
 
-  /// Линейка на шаг вниз. Если сдвинуться некуда, ничего не происходит.
+  /// Следующий ряд: линейка на шаг по направлению рядов. Если сдвинуться некуда, ничего не происходит.
   void nextRow() {
     if (!state.isReady) {
       return;
     }
-    final RulerState moved = state.work.ruler.moveDown(state.page.height.toDouble());
-    _applyRuler(moved, progress: true);
+    final RulerState before = state.work.ruler;
+    _applyRuler(before.next(state.page.height.toDouble()), progress: true, undoTo: before);
   }
 
-  /// Линейка на шаг вверх.
+  /// Предыдущий ряд.
   void previousRow() {
     if (!state.isReady) {
       return;
     }
-    _applyRuler(state.work.ruler.moveUp(), progress: true);
+    final RulerState before = state.work.ruler;
+    _applyRuler(before.previous(state.page.height.toDouble()), progress: true, undoTo: before);
+  }
+
+  /// Возвращает линейку на место до последнего сдвига.
+  void undoRow() {
+    final RulerState? back = state.undoRuler;
+    if (!state.isReady || back == null) {
+      return;
+    }
+    _applyRuler(back, progress: false);
+    emit(state.copyWith(clearUndo: true));
+  }
+
+  /// Убирает подсказку «Отменить» (например, по таймеру).
+  void dismissUndo() {
+    if (state.undoRuler != null) {
+      emit(state.copyWith(clearUndo: true));
+    }
+  }
+
+  /// Страница закончена: открыть следующую страницу схемы, если она есть.
+  void nextPage() => selectPage(state.pageIndex + 1);
+
+  void setPanelCollapsed({required bool collapsed}) {
+    if (collapsed != state.panelCollapsed) {
+      emit(state.copyWith(panelCollapsed: collapsed));
+    }
+  }
+
+  /// Направление рядов: у текущей страницы и у тех, где ещё не начали работу.
+  void setDirection(RowDirection value) {
+    if (!state.isReady) {
+      return;
+    }
+    final Map<String, PageWork> next = <String, PageWork>{};
+    for (final ImagePatternPage page in state.pages) {
+      final PageWork work = state.works[page.id]!;
+      final bool apply = page.id == state.page.id || work.ruler.row == 1;
+      next[page.id] = apply ? work.copyWith(ruler: work.ruler.withDirection(value, page.height.toDouble())) : work;
+      if (next[page.id] != work) {
+        _dirtyPages.add(page.id);
+      }
+    }
+    emit(state.copyWith(works: next, clearUndo: true));
+    _schedule();
   }
 
   void setRulerHeight(double value) =>
@@ -142,7 +187,7 @@ class BookWorkCubit extends Cubit<BookWorkState> {
       return;
     }
     _currentPageDirty = true;
-    emit(state.copyWith(pageIndex: index));
+    emit(state.copyWith(pageIndex: index, clearUndo: true));
     _schedule();
   }
 
@@ -155,17 +200,23 @@ class BookWorkCubit extends Cubit<BookWorkState> {
     _schedule();
   }
 
-  void _applyRuler(RulerState ruler, {required bool progress}) {
+  void _applyRuler(RulerState ruler, {required bool progress, RulerState? undoTo}) {
     if (!state.isReady || ruler == state.work.ruler) {
       return;
     }
     _progressDirty = _progressDirty || progress;
-    _replaceWork(state.work.copyWith(ruler: ruler));
+    _replaceWork(state.work.copyWith(ruler: ruler), undoTo: undoTo);
   }
 
-  void _replaceWork(PageWork work) {
+  void _replaceWork(PageWork work, {RulerState? undoTo}) {
     _dirtyPages.add(work.pageId);
-    emit(state.copyWith(works: <String, PageWork>{...state.works, work.pageId: work}));
+    emit(
+      state.copyWith(
+        works: <String, PageWork>{...state.works, work.pageId: work},
+        undoRuler: undoTo,
+        clearUndo: undoTo == null && state.undoRuler != null && work.ruler != state.work.ruler,
+      ),
+    );
     _schedule();
   }
 

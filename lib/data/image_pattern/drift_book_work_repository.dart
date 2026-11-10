@@ -48,6 +48,7 @@ class DriftBookWorkRepository implements BookWorkRepository {
           rulerStep: ruler.step,
           rulerRow: ruler.row,
           highlight: ruler.highlight.name,
+          rowDirection: Value<String>(ruler.direction.name),
           viewScale: view.scale,
           viewDx: view.dx,
           viewDy: view.dy,
@@ -61,6 +62,7 @@ class DriftBookWorkRepository implements BookWorkRepository {
           rulerStep: Value<double>(ruler.step),
           rulerRow: Value<int>(ruler.row),
           highlight: Value<String>(ruler.highlight.name),
+          rowDirection: Value<String>(ruler.direction.name),
           viewScale: Value<double>(view.scale),
           viewDx: Value<double>(view.dx),
           viewDy: Value<double>(view.dy),
@@ -100,6 +102,7 @@ class DriftBookWorkRepository implements BookWorkRepository {
       step: row.rulerStep,
       highlight: RulerHighlight.values.asNameMap()[row.highlight] ?? RulerHighlight.yellow,
       row: row.rulerRow,
+      direction: RowDirection.values.asNameMap()[row.rowDirection] ?? RowDirection.topDown,
     ),
     viewport: PageViewport(scale: row.viewScale, dx: row.viewDx, dy: row.viewDy),
   );

@@ -68,7 +68,8 @@ class RulerState extends Equatable {
   RulerState next(double imageHeight) => isBottomUp ? _up(row + 1) : _down(imageHeight, row + 1);
 
   /// Предыдущий ряд: сдвиг к началу страницы. Ряд убывает, только если линейка сдвинулась.
-  RulerState previous(double imageHeight) => isBottomUp ? _down(imageHeight, math.max(1, row - 1)) : _up(math.max(1, row - 1));
+  RulerState previous(double imageHeight) =>
+      isBottomUp ? _down(imageHeight, math.max(1, row - 1)) : _up(math.max(1, row - 1));
 
   /// Направление рядов. Пока не начали (ряд 1), линейка встаёт к новому началу страницы; иначе остаётся на месте.
   RulerState withDirection(RowDirection value, double imageHeight) {
@@ -106,10 +107,12 @@ class RulerState extends Equatable {
     return _copy(top: next, row: newRow);
   }
 
-  /// Новая высота в пределах страницы; низ линейки не выходит за страницу.
+  /// Новая высота в пределах страницы; линейка не выходит за страницу.
   RulerState withHeight(double value, double imageHeight) {
     final double limit = math.max(minHeight, imageHeight);
-    return _copy(height: value.clamp(minHeight, limit)).fit(imageHeight);
+    final double next = value.clamp(minHeight, limit);
+    // Линейка растёт от начала ряда: при ходе снизу вверх неподвижен низ, а не верх.
+    return _copy(top: isBottomUp ? bottom - next : top, height: next).fit(imageHeight);
   }
 
   RulerState withStep(double value, double imageHeight) =>

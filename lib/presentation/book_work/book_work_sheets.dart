@@ -86,6 +86,28 @@ class _RulerSettingsSheet extends StatelessWidget {
               children: <Widget>[
                 _SheetHeader(title: l10n.bookWorkRulerSettings),
                 SizedBox(height: gap),
+                Text(l10n.bookWorkDirection),
+                SizedBox(height: gap),
+                CupertinoSlidingSegmentedControl<RowDirection>(
+                  key: const ValueKey<String>('direction-control'),
+                  groupValue: ruler.direction,
+                  onValueChanged: (value) {
+                    if (value != null) {
+                      cubit.setDirection(value);
+                    }
+                  },
+                  children: <RowDirection, Widget>{
+                    RowDirection.topDown: Padding(
+                      padding: EdgeInsets.symmetric(vertical: gap / 2),
+                      child: Text(l10n.bookWorkDirectionDown),
+                    ),
+                    RowDirection.bottomUp: Padding(
+                      padding: EdgeInsets.symmetric(vertical: gap / 2),
+                      child: Text(l10n.bookWorkDirectionUp),
+                    ),
+                  },
+                ),
+                SizedBox(height: gap),
                 _LabeledSlider(
                   label: l10n.bookWorkRulerHeight,
                   sliderKey: const ValueKey<String>('ruler-height-slider'),
