@@ -12,7 +12,7 @@ flutter analyze --fatal-infos --fatal-warnings
 scripts/internal/check_architecture.sh
 scripts/internal/release_notes.sh --check
 
-flutter test --coverage --test-randomize-ordering-seed random "$@"
+flutter test --coverage --exclude-tags gallery --test-randomize-ordering-seed random "$@"
 
 # Пороги покрытия, сгенерированный код не считаем.
 check_coverage() {

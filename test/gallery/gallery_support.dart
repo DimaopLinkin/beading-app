@@ -1,0 +1,383 @@
+import 'dart:async';
+import 'dart:convert';
+import 'dart:io';
+import 'dart:typed_data';
+import 'dart:ui' as ui;
+
+import 'package:beading/data/image_to_grid/ui_image_decoder.dart';
+import 'package:beading/domain/catalog/catalog_color.dart';
+import 'package:beading/domain/catalog/catalog_file.dart';
+import 'package:beading/domain/grid/bead_size.dart';
+import 'package:beading/domain/grid/cell_metrics.dart';
+import 'package:beading/domain/grid/cell_position.dart';
+import 'package:beading/domain/grid/grid_geometry.dart';
+import 'package:beading/domain/grid/mm.dart';
+import 'package:beading/domain/image_to_grid/cell_sampler.dart';
+import 'package:beading/domain/image_to_grid/generated_pattern.dart';
+import 'package:beading/domain/image_to_grid/generation_stats.dart';
+import 'package:beading/domain/image_to_grid/image_to_grid_pipeline.dart';
+import 'package:beading/domain/image_to_grid/image_to_grid_request.dart';
+import 'package:beading/domain/image_to_grid/image_to_grid_settings.dart';
+import 'package:beading/domain/image_to_grid/source_image.dart';
+import 'package:beading/domain/palette/rgb.dart';
+import 'package:beading/domain/projects/craft.dart';
+import 'package:beading/data/catalog/catalog_file_parser.dart';
+
+/// Галерея качества генератора (T51): фото-фикстуры × виды схем × варианты конвейера.
+///
+/// Листы «до / после» и таблица метрик строятся командой `flutter test --tags gallery test/gallery/`
+/// (см. `test/gallery/README.md`), а регрессионный тест `quality_gallery_test.dart` сверяет метрики
+/// с `test/fixtures/photos/baseline.json`.
+
+/// Папка с фикстурами и базой метрик.
+const String photosDir = 'test/fixtures/photos';
+
+/// Файл базы метрик.
+const String baselinePath = '$photosDir/baseline.json';
+
+/// Расширения картинок в папке личных фото.
+const Set<String> _imageExtensions = <String>{'.png', '.jpg', '.jpeg', '.heic', '.webp'};
+
+/// Фото галереи.
+final class GalleryPhoto {
+  const GalleryPhoto(this.name, this.image);
+
+  final String name;
+  final SourceImage image;
+}
+
+/// Вид схемы: что и в какой технике строим.
+final class GalleryTarget {
+  const GalleryTarget({
+    required this.id,
+    required this.technique,
+    required this.metrics,
+    required this.columns,
+    required this.maxColors,
+  });
+
+  final String id;
+  final Technique technique;
+  final CellMetrics metrics;
+  final int columns;
+  final int maxColors;
+
+  bool get isBeads => technique.craft == Craft.beading;
+  GridGeometry get geometry => ImageToGridSettings(technique: technique).geometry;
+}
+
+/// Квадратная клетка канвы 1 × 1 мм: у вышивки пока нет своей модели ткани (T36).
+final class _StitchCell implements CellMetrics {
+  const _StitchCell();
+
+  @override
+  double get widthMm => 1;
+
+  @override
+  double get heightMm => 1;
+}
+
+/// Виды схем галереи: бисер на станке и в пейоте, вышивка крестиком.
+const List<GalleryTarget> galleryTargets = <GalleryTarget>[
+  GalleryTarget(id: 'loom', technique: Technique.loom, metrics: BeadSize.delica11, columns: 40, maxColors: 10),
+  GalleryTarget(id: 'peyote', technique: Technique.peyote, metrics: BeadSize.delica11, columns: 40, maxColors: 10),
+  GalleryTarget(id: 'stitch', technique: Technique.crossStitch, metrics: _StitchCell(), columns: 60, maxColors: 16),
+];
+
+/// Вариант конвейера. Новая стадия генератора добавляет сюда свой вариант: листы и метрики «до / после» получаются сами.
+final class GalleryVariant {
+  const GalleryVariant({required this.id, required this.title, required this.build, this.beadsOnly = false});
+
+  final String id;
+  final String title;
+
+  /// Только для бисера: нужен каталог бисера.
+  final bool beadsOnly;
+
+  final ImageToGridRequest Function(SourceImage image, GalleryTarget target, List<CatalogColor> catalog) build;
+
+  bool appliesTo(GalleryTarget target) => !beadsOnly || target.isBeads;
+}
+
+ImageToGridRequest _request(
+  SourceImage image,
+  GalleryTarget target,
+  List<CatalogColor> catalog, {
+  bool dither = false,
+  bool useCatalog = false,
+}) {
+  final ImageToGridSettings settings = ImageToGridSettings(
+    technique: target.technique,
+    beadSize: target.metrics is BeadSize ? target.metrics as BeadSize : BeadSize.delica11,
+    columns: target.columns,
+    maxColors: target.maxColors,
+    paletteSource: useCatalog ? PaletteSource.catalog : PaletteSource.free,
+    dither: dither,
+  );
+  final ImageToGridRequest request = settings.toRequest(
+    image: image,
+    catalog: useCatalog ? catalog : const <CatalogColor>[],
+  );
+  if (target.metrics is BeadSize) return request;
+  // Для вышивки размер ячейки свой: пересобираем запрос с квадратной клеткой.
+  return ImageToGridRequest(
+    image: image,
+    geometry: request.geometry,
+    metrics: target.metrics,
+    columns: target.columns,
+    rows: GridSizing.rowsForColumns(
+      imageWidth: image.width,
+      imageHeight: image.height,
+      geometry: request.geometry,
+      metrics: target.metrics,
+      columns: target.columns,
+    ),
+    maxColors: target.maxColors,
+    dither: dither,
+  );
+}
+
+/// Варианты галереи.
+final List<GalleryVariant> galleryVariants = <GalleryVariant>[
+  GalleryVariant(
+    id: 't24',
+    title: 'T24 (как сейчас)',
+    build: (SourceImage image, GalleryTarget target, List<CatalogColor> catalog) => _request(image, target, catalog),
+  ),
+  GalleryVariant(
+    id: 't24-dither',
+    title: 'T24 + дизеринг',
+    build: (SourceImage image, GalleryTarget target, List<CatalogColor> catalog) =>
+        _request(image, target, catalog, dither: true),
+  ),
+  GalleryVariant(
+    id: 't24-catalog',
+    title: 'T24 + каталог Toho/Delica',
+    beadsOnly: true,
+    build: (SourceImage image, GalleryTarget target, List<CatalogColor> catalog) =>
+        _request(image, target, catalog, useCatalog: true),
+  ),
+];
+
+/// Бисерный каталог приложения (Toho Round и Miyuki Delica 11/0), как его видит мастер.
+List<CatalogColor> loadBeadCatalog() {
+  final List<CatalogColor> colors = <CatalogColor>[];
+  for (final FileSystemEntity entity in Directory('assets/catalog').listSync()) {
+    if (entity is! File || !entity.path.endsWith('.json')) continue;
+    final String id = entity.uri.pathSegments.last.replaceAll('.json', '');
+    final CatalogFile? file = parseCatalogFile(id, entity.readAsStringSync()).valueOrNull;
+    if (file != null) colors.addAll(file.colors);
+  }
+  return colors;
+}
+
+/// Читает и декодирует фикстуры; личные фото из [privateDir] (в git не попадают) добавляются с приставкой `private-`.
+///
+/// Вызывать внутри `tester.runAsync`: декодирование идёт через движок.
+Future<List<GalleryPhoto>> loadPhotos({String? privateDir}) async {
+  const UiImageDecoder decoder = UiImageDecoder();
+  final List<GalleryPhoto> photos = <GalleryPhoto>[];
+  Future<void> add(String prefix, Directory dir, int maxSide) async {
+    if (!dir.existsSync()) return;
+    final List<File> files = <File>[
+      for (final FileSystemEntity e in dir.listSync())
+        if (e is File && _imageExtensions.contains(_extension(e.path))) e,
+    ]..sort((File a, File b) => a.path.compareTo(b.path));
+    for (final File file in files) {
+      final SourceImage? image = (await decoder.decode(file.readAsBytesSync(), maxSide: maxSide)).valueOrNull;
+      if (image == null) continue;
+      final String base = file.uri.pathSegments.last;
+      photos.add(GalleryPhoto('$prefix${base.substring(0, base.lastIndexOf('.'))}', image));
+    }
+  }
+
+  await add('', Directory(photosDir), 1024);
+  if (privateDir != null && privateDir.isNotEmpty) await add('private-', Directory(privateDir), 512);
+  return photos;
+}
+
+String _extension(String path) {
+  final int dot = path.lastIndexOf('.');
+  return dot < 0 ? '' : path.substring(dot).toLowerCase();
+}
+
+/// Результат одного прогона: фото × вид × вариант.
+final class GalleryRun {
+  const GalleryRun({required this.photo, required this.target, required this.variant, required this.pattern});
+
+  final GalleryPhoto photo;
+  final GalleryTarget target;
+  final GalleryVariant variant;
+  final GeneratedPattern pattern;
+
+  String get key => '${photo.name}/${target.id}/${variant.id}';
+  GenerationStats get stats => pattern.stats!;
+}
+
+/// Прогоняет все фото через все виды и варианты.
+List<GalleryRun> runGallery(List<GalleryPhoto> photos, List<CatalogColor> catalog) {
+  const ImageToGridPipeline pipeline = ImageToGridPipeline();
+  return <GalleryRun>[
+    for (final GalleryPhoto photo in photos)
+      for (final GalleryTarget target in galleryTargets)
+        for (final GalleryVariant variant in galleryVariants)
+          if (variant.appliesTo(target))
+            GalleryRun(
+              photo: photo,
+              target: target,
+              variant: variant,
+              pattern: pipeline.run(variant.build(photo.image, target, catalog)),
+            ),
+  ];
+}
+
+/// Метрики прогонов в виде, в котором они лежат в `baseline.json`.
+Map<String, Map<String, num>> baselineOf(List<GalleryRun> runs) => <String, Map<String, num>>{
+  for (final GalleryRun run in runs)
+    run.key: <String, num>{
+      'singles': run.stats.singleCells,
+      'colors': run.stats.colorCount,
+      'deltaE': double.parse(run.stats.meanDeltaE.toStringAsFixed(2)),
+    },
+};
+
+/// Пишет базу метрик (ключи по порядку, для читаемого diff).
+void writeBaseline(Map<String, Map<String, num>> baseline) {
+  final List<String> keys = baseline.keys.toList()..sort();
+  const JsonEncoder encoder = JsonEncoder.withIndent('  ');
+  File(
+    baselinePath,
+  ).writeAsStringSync('${encoder.convert(<String, Object>{for (final String k in keys) k: baseline[k]!})}\n');
+}
+
+/// Читает базу метрик.
+Map<String, Map<String, num>> readBaseline() {
+  final Map<String, Object?> raw = jsonDecode(File(baselinePath).readAsStringSync()) as Map<String, Object?>;
+  return <String, Map<String, num>>{
+    for (final MapEntry<String, Object?> e in raw.entries)
+      e.key: <String, num>{
+        for (final MapEntry<String, Object?> m in (e.value! as Map<String, Object?>).entries) m.key: m.value! as num,
+      },
+  };
+}
+
+/// Таблица метрик в Markdown.
+String metricsTable(List<GalleryRun> runs) {
+  final StringBuffer out = StringBuffer()
+    ..writeln(
+      '| Фото | Вид | Вариант | Цветов | Одиночных клеток | Средняя ΔE2000 | Время, мс (выборка / палитра / привязка / шаги) |',
+    )
+    ..writeln('|---|---|---|---|---|---|---|');
+  for (final GalleryRun run in runs) {
+    final GenerationStats s = run.stats;
+    String ms(String stage) => (s.stageTimes[stage]!.inMicroseconds / 1000).toStringAsFixed(1);
+    out.writeln(
+      '| ${run.photo.name} | ${run.target.id} | ${run.variant.title} | ${s.colorCount} | ${s.singleCells} | '
+      '${s.meanDeltaE.toStringAsFixed(1)} | ${ms('sample')} / ${ms('palette')} / ${ms('assign')} / ${ms('steps')} |',
+    );
+  }
+  return out.toString();
+}
+
+const int _panelHeight = 360;
+const int _gap = 12;
+
+/// Лист «до / после» одного фото и одного вида: слева фото, правее — варианты по порядку (плоский вид).
+Future<Uint8List> renderSheet(GalleryPhoto photo, GalleryTarget target, List<GalleryRun> runs) async {
+  final List<_Panel> panels = <_Panel>[
+    _photoPanel(photo.image, runs.first),
+    for (final GalleryRun run in runs) _patternPanel(run),
+  ];
+  final int width = panels.fold<int>(_gap, (int sum, _Panel p) => sum + p.width + _gap);
+  final int height = _panelHeight + 2 * _gap;
+  final Uint8List rgba = Uint8List(width * height * 4);
+  for (int i = 0; i < rgba.length; i += 4) {
+    rgba[i] = 245;
+    rgba[i + 1] = 245;
+    rgba[i + 2] = 245;
+    rgba[i + 3] = 255;
+  }
+  int left = _gap;
+  for (final _Panel panel in panels) {
+    for (int y = 0; y < _panelHeight; y++) {
+      final int from = y * panel.width * 4;
+      rgba.setRange(((y + _gap) * width + left) * 4, ((y + _gap) * width + left + panel.width) * 4, panel.rgba, from);
+    }
+    left += panel.width + _gap;
+  }
+  final Completer<ui.Image> completer = Completer<ui.Image>();
+  ui.decodeImageFromPixels(rgba, width, height, ui.PixelFormat.rgba8888, completer.complete);
+  final ui.Image image = await completer.future;
+  final ByteData? png = await image.toByteData(format: ui.ImageByteFormat.png);
+  image.dispose();
+  return png!.buffer.asUint8List();
+}
+
+final class _Panel {
+  const _Panel(this.width, this.rgba);
+
+  final int width;
+  final Uint8List rgba;
+}
+
+_Panel _photoPanel(SourceImage image, GalleryRun run) {
+  final MmSize extent = run.target.geometry.extent(
+    run.target.metrics,
+    columns: run.pattern.grid.width,
+    rows: run.pattern.grid.height,
+  );
+  final int width = (_panelHeight * extent.width / extent.height).round();
+  final Uint8List out = Uint8List(width * _panelHeight * 4);
+  for (int y = 0; y < _panelHeight; y++) {
+    for (int x = 0; x < width; x++) {
+      final int sx = (x * image.width / width).floor().clamp(0, image.width - 1);
+      final int sy = (y * image.height / _panelHeight).floor().clamp(0, image.height - 1);
+      final int from = (sy * image.width + sx) * 4;
+      final int to = (y * width + x) * 4;
+      out.setRange(to, to + 3, image.rgba, from);
+      out[to + 3] = 255;
+    }
+  }
+  return _Panel(width, out);
+}
+
+/// Округление до пикселя без щелей между клетками: границы вида 292,4999 и 292,5001 считаются одной.
+int _px(double value) => ((value * 1000).round() / 1000).round();
+
+_Panel _patternPanel(GalleryRun run) {
+  final GalleryTarget target = run.target;
+  final int columns = run.pattern.grid.width;
+  final int rows = run.pattern.grid.height;
+  final MmSize extent = target.geometry.extent(target.metrics, columns: columns, rows: rows);
+  final MmSize cell = target.geometry.cellSize(target.metrics);
+  final double scale = _panelHeight / extent.height;
+  final int width = (extent.width * scale).round();
+  final Uint8List out = Uint8List(width * _panelHeight * 4);
+  for (int i = 0; i < out.length; i += 4) {
+    out[i] = 255;
+    out[i + 1] = 255;
+    out[i + 2] = 255;
+    out[i + 3] = 255;
+  }
+  for (int row = 0; row < rows; row++) {
+    for (int column = 0; column < columns; column++) {
+      final int value = run.pattern.grid.at(column, row);
+      if (value == 0) continue;
+      final Rgb color = run.pattern.palette[value - 1].rgb;
+      final MmPoint center = target.geometry.cellCenter(target.metrics, CellPosition(column, row));
+      final int x0 = _px((center.x - cell.width / 2) * scale).clamp(0, width);
+      final int x1 = _px((center.x + cell.width / 2) * scale).clamp(0, width);
+      final int y0 = _px((center.y - cell.height / 2) * scale).clamp(0, _panelHeight);
+      final int y1 = _px((center.y + cell.height / 2) * scale).clamp(0, _panelHeight);
+      for (int y = y0; y < y1; y++) {
+        for (int x = x0; x < x1; x++) {
+          final int to = (y * width + x) * 4;
+          out[to] = color.r;
+          out[to + 1] = color.g;
+          out[to + 2] = color.b;
+        }
+      }
+    }
+  }
+  return _Panel(width, out);
+}
