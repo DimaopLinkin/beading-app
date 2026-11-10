@@ -94,7 +94,7 @@ final class ImageToGridPipeline {
         ),
     ];
 
-    if (candidates == null) return <PaletteEntry>[for (final Rgb mean in means) PaletteEntry(rgb: mean)];
+    if (candidates == null) return <PaletteEntry>{for (final Rgb mean in means) PaletteEntry(rgb: mean)}.toList();
 
     // Ограничение: каждому центру — ближайшая допустимая позиция, повторы схлопываются.
     final NearestColorMatcher<PaletteEntry> matcher = NearestColorMatcher<PaletteEntry>(

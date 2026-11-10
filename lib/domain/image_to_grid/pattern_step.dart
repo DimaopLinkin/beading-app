@@ -15,6 +15,8 @@ final class PatternStepContext {
 
 /// Шаг конвейера после привязки к палитре: очистка «конфетти» (T47), слои и им подобное.
 ///
+/// Шаг должен быть передаваемым между изолятами (без замыканий и ресурсов): конвейер запускается в изоляте.
+///
 /// Чистая функция: получает схему, возвращает новую. Шаги вызываются по порядку и тестируются по отдельности.
 abstract interface class PatternStep {
   GeneratedPattern apply(GeneratedPattern pattern, PatternStepContext context);
