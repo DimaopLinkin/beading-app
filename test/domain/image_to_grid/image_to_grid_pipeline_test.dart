@@ -1,3 +1,4 @@
+import 'dart:math' as math;
 import 'dart:typed_data';
 
 import 'package:beading/domain/catalog/catalog_color.dart';
@@ -5,12 +6,14 @@ import 'package:beading/domain/catalog/catalog_material.dart';
 import 'package:beading/domain/grid/grid.dart';
 import 'package:beading/domain/grid/grid_geometry.dart';
 import 'package:beading/domain/image_to_grid/generated_pattern.dart';
+import 'package:beading/domain/image_to_grid/image_prefilter.dart';
 import 'package:beading/domain/image_to_grid/image_to_grid_pipeline.dart';
 import 'package:beading/domain/image_to_grid/image_to_grid_request.dart';
 import 'package:beading/domain/image_to_grid/palette_constraint.dart';
 import 'package:beading/domain/image_to_grid/palette_entry.dart';
 import 'package:beading/domain/image_to_grid/pattern_step.dart';
 import 'package:beading/domain/image_to_grid/source_image.dart';
+import 'package:beading/domain/image_to_grid/work_image.dart';
 import 'package:beading/domain/palette/rgb.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -29,6 +32,7 @@ ImageToGridRequest request(
   Float32List? importance,
   List<PatternStep> steps = const <PatternStep>[],
   GridGeometry geometry = const GridGeometry.rectangular(),
+  ImagePrefilter? prefilter,
 }) => ImageToGridRequest(
   image: image,
   geometry: geometry,
@@ -41,7 +45,20 @@ ImageToGridRequest request(
   seed: seed,
   importance: importance,
   steps: steps,
+  prefilter: prefilter,
 );
+
+class _CaptureImportance implements PatternStep {
+  _CaptureImportance(this.onImportance);
+
+  final void Function(Float32List weights) onImportance;
+
+  @override
+  GeneratedPattern apply(GeneratedPattern pattern, PatternStepContext context) {
+    onImportance(context.cellImportance);
+    return pattern;
+  }
+}
 
 class _ReplaceWithOnes implements PatternStep {
   _ReplaceWithOnes(this.log);
@@ -360,6 +377,82 @@ void main() {
 
       expect(result.palette.length, lessThanOrEqualTo(12));
       expect(watch.elapsedMilliseconds, lessThan(2000));
+    });
+  });
+
+  group('подготовка фото в конвейере', () {
+    // Белый фон с чёрным квадратом, поверх — шум ±12 по каждому пикселю.
+    SourceImage noisySquare() {
+      final math.Random random = math.Random(3);
+      final Uint8List bytes = Uint8List(40 * 40 * 4);
+      for (int y = 0; y < 40; y++) {
+        for (int x = 0; x < 40; x++) {
+          final int base = (x >= 10 && x < 30 && y >= 10 && y < 30) ? 20 : 235;
+          final int v = base + random.nextInt(25) - 12;
+          final int o = (y * 40 + x) * 4;
+          bytes[o] = v;
+          bytes[o + 1] = v;
+          bytes[o + 2] = v;
+          bytes[o + 3] = 255;
+        }
+      }
+      return SourceImage(width: 40, height: 40, rgba: bytes);
+    }
+
+    test('без префильтра результат тот же, что у конвейера до T52', () {
+      final SourceImage image = noisySquare();
+      final GeneratedPattern plain = const ImageToGridPipeline().run(request(image, columns: 20, rows: 20));
+      final GeneratedPattern again = const ImageToGridPipeline().run(request(image, columns: 20, rows: 20));
+      expect(plain.grid.cells, again.grid.cells);
+    });
+
+    test('с префильтром цвета ячеек чище, схема той же формы и детерминирована', () {
+      final SourceImage image = noisySquare();
+      final GeneratedPattern a = const ImageToGridPipeline().run(
+        request(image, columns: 20, rows: 20, maxColors: 2, prefilter: const EdgePreservingPrefilter()),
+      );
+      final GeneratedPattern b = const ImageToGridPipeline().run(
+        request(image, columns: 20, rows: 20, maxColors: 2, prefilter: const EdgePreservingPrefilter()),
+      );
+      expect(a.grid.cells, b.grid.cells);
+      expect(a.grid.width, 20);
+      expect(a.grid.height, 20);
+      expect(a.palette, hasLength(2));
+      // Центр квадрата и фон — разные цвета, края квадрата на месте.
+      expect(a.grid.at(10, 10), isNot(a.grid.at(1, 1)));
+    });
+
+    test('маска важности доходит до шагов в рабочем разрешении', () {
+      final SourceImage image = noisySquare();
+      final Float32List mask = Float32List(40 * 40)..fillRange(0, 40 * 40, 2);
+      Float32List? seen;
+      const ImageToGridPipeline().run(
+        request(
+          image,
+          columns: 4,
+          rows: 4,
+          importance: mask,
+          prefilter: const EdgePreservingPrefilter(),
+          steps: <PatternStep>[_CaptureImportance((w) => seen = w)],
+        ),
+      );
+      expect(seen, isNotNull);
+      expect(seen!.every((w) => (w - 2).abs() < 1e-4), isTrue);
+    });
+
+    test('12 Мпикс: рабочая картинка для 150×200 строится быстрее секунды', () {
+      final SourceImage big = SourceImage.solid(width: 3000, height: 4000, r: 120, g: 90, b: 60);
+      final Stopwatch watch = Stopwatch()..start();
+      final WorkImage work = WorkImage.fromSource(
+        image: big,
+        geometry: const GridGeometry.rectangular(),
+        metrics: const FakeCellMetrics(1, 1),
+        columns: 150,
+        rows: 200,
+      );
+      watch.stop();
+      expect(work.width, 600);
+      expect(watch.elapsedMilliseconds, lessThan(1000));
     });
   });
 

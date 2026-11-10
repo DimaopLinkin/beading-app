@@ -4,15 +4,18 @@ import 'package:beading/domain/grid/grid.dart';
 import 'package:beading/domain/image_to_grid/cell_sampler.dart';
 import 'package:beading/domain/image_to_grid/color_assigner.dart';
 import 'package:beading/domain/image_to_grid/generated_pattern.dart';
+import 'package:beading/domain/image_to_grid/image_prefilter.dart';
 import 'package:beading/domain/image_to_grid/image_to_grid_request.dart';
 import 'package:beading/domain/image_to_grid/palette_entry.dart';
 import 'package:beading/domain/image_to_grid/pattern_step.dart';
 import 'package:beading/domain/image_to_grid/quantizer.dart';
+import 'package:beading/domain/image_to_grid/source_image.dart';
+import 'package:beading/domain/image_to_grid/work_image.dart';
 import 'package:beading/domain/palette/lab.dart';
 import 'package:beading/domain/palette/nearest_color_matcher.dart';
 import 'package:beading/domain/palette/rgb.dart';
 
-/// Конвейер «картинка → схема»: ресэмплинг → квантование → привязка к допустимым цветам → шаги (очистка, слои).
+/// Конвейер «картинка → схема»: подготовка фото (по желанию) → ресэмплинг → квантование → привязка к допустимым цветам → шаги (очистка, слои).
 ///
 /// Каждый шаг — отдельная чистая функция со своими тестами; конвейер только соединяет их.
 final class ImageToGridPipeline {
@@ -27,9 +30,26 @@ final class ImageToGridPipeline {
   final ColorAssigner assigner;
 
   GeneratedPattern run(ImageToGridRequest request) {
+    SourceImage image = request.image;
+    Float32List? importance = request.importance;
+    final ImagePrefilter? prefilter = request.prefilter;
+    if (prefilter != null) {
+      final WorkImage work = prefilter.apply(
+        WorkImage.fromSource(
+          image: image,
+          importance: importance,
+          geometry: request.geometry,
+          metrics: request.metrics,
+          columns: request.columns,
+          rows: request.rows,
+        ),
+      );
+      image = work.toSourceImage();
+      importance = work.importance;
+    }
     final SampledCells cells = sampler.sample(
-      image: request.image,
-      importance: request.importance,
+      image: image,
+      importance: importance,
       geometry: request.geometry,
       metrics: request.metrics,
       columns: request.columns,
