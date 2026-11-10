@@ -1,7 +1,7 @@
 ---
 id: 03-book-import
 title: Схема из книги: импорт (MUST-B1)
-status: todo
+status: delivered
 depends: 01-ui-kit
 ---
 
