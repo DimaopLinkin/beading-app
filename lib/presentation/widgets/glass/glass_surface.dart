@@ -37,17 +37,24 @@ class GlassSurface extends StatelessWidget {
     final GlassTokens glass = material == GlassMaterial.surface ? tokens.glassSurface : tokens.glassBar;
     final bool opaque = GlassPolicy.isOpaque(context);
 
+    final bool dense = density == GlassDensity.dense;
     final Color fill = _plain(
       CupertinoDynamicColor.resolve(
         opaque
-            ? glass.opaqueFill
-            : density == GlassDensity.dense
+            ? (dense ? glass.opaqueDenseFill : glass.opaqueFill)
+            : dense
             ? glass.denseTint
             : glass.tint,
         context,
       ),
     );
-    final Color border = _plain(CupertinoDynamicColor.resolve(opaque ? glass.opaqueBorder : glass.border, context));
+    final Color border = _plain(
+      CupertinoDynamicColor.resolve(
+        opaque ? (dense ? glass.opaqueDenseBorder : glass.opaqueBorder) : glass.border,
+        context,
+      ),
+    );
+    final double sigma = dense ? glass.denseBlurSigma : glass.blurSigma;
     final Color highlight = _plain(CupertinoDynamicColor.resolve(glass.highlight, context));
 
     Widget content = DecoratedBox(
@@ -74,7 +81,7 @@ class GlassSurface extends StatelessWidget {
 
     if (!opaque) {
       content = BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: glass.blurSigma, sigmaY: glass.blurSigma, tileMode: TileMode.clamp),
+        filter: ImageFilter.blur(sigmaX: sigma, sigmaY: sigma, tileMode: TileMode.clamp),
         child: content,
       );
     }

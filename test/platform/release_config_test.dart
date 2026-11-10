@@ -97,12 +97,20 @@ void main() {
       }
     });
 
-    test('значок отличается от стандартного флаттеровского (заглушка заменена)', () {
+    test('значок настоящий (из UI kit), а не заглушка', () {
       final List<int> bytes = File(
         'ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-1024x1024@1x.png',
       ).readAsBytesSync();
-      // Заглушка рисуется скриптом scripts/make_placeholder_icons.py и помечена tEXt-блоком.
-      expect(String.fromCharCodes(bytes), contains('beading-placeholder'));
+      // Заглушку рисовал удалённый скрипт и помечал tEXt-блоком; настоящие иконки делает scripts/make_app_icons.js.
+      expect(String.fromCharCodes(bytes), isNot(contains('beading-placeholder')));
+    });
+
+    test('значок iOS 1024 без альфа-канала (требование App Store и Ad Hoc)', () {
+      final List<int> bytes = File(
+        'ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-1024x1024@1x.png',
+      ).readAsBytesSync();
+      // PNG: 8 байт подписи, 8 байт заголовка IHDR, затем ширина, высота, глубина (1) и тип цвета (1): 2 = RGB без альфы.
+      expect(bytes[25], 2);
     });
   });
 }

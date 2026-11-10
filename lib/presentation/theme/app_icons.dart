@@ -5,7 +5,7 @@ import 'package:flutter/cupertino.dart';
 abstract final class AppIcons {
   static const IconData settings = CupertinoIcons.settings;
   static const IconData add = CupertinoIcons.add;
-  static const IconData back = CupertinoIcons.back;
+  static const IconData back = CupertinoIcons.chevron_back; // шеврон, не треугольник (замечание ревью 01b)
   static const IconData rowUp = CupertinoIcons.chevron_up;
   static const IconData rowDown = CupertinoIcons.chevron_down;
   static const IconData rulerSettings = CupertinoIcons.slider_horizontal_3;
@@ -14,4 +14,32 @@ abstract final class AppIcons {
   static const IconData selected = CupertinoIcons.checkmark;
   static const IconData craftBeading = CupertinoIcons.circle_grid_3x3_fill;
   static const IconData craftCrossStitch = CupertinoIcons.square_grid_2x2_fill;
+
+  static const IconData search = CupertinoIcons.search;
+
+  // Инструменты редактора (01b, п. 6). Eraser, selection, mirror и режим «по бусине» нарисованы виджетом `AppGlyph`.
+  static const IconData brush = CupertinoIcons.paintbrush;
+  static const IconData fill = CupertinoIcons.drop;
+  static const IconData pipette = CupertinoIcons.eyedropper;
+  static const IconData replaceColor = CupertinoIcons.arrow_left_right;
+  static const IconData undo = CupertinoIcons.arrow_uturn_left;
+  static const IconData redo = CupertinoIcons.arrow_uturn_right;
+
+  /// Имена SF Symbols для будущей нативной подмены (по таблице 01b). Проверены по названию, но не в приложении
+  /// SF Symbols: `paintbucket.classic` может отсутствовать в старых версиях, запасной `drop.fill`.
+  static const Map<String, String> sfSymbols = <String, String>{
+    'brush': 'paintbrush.pointed',
+    'eraser': 'eraser',
+    'fill': 'paintbucket.classic',
+    'pipette': 'eyedropper',
+    'replaceColor': 'arrow.left.arrow.right',
+    'selection': 'rectangle.dashed',
+    'mirror': 'arrow.left.and.right.righttriangle.left.righttriangle.right',
+    'undo': 'arrow.uturn.backward',
+    'redo': 'arrow.uturn.forward',
+    'rowUp': 'chevron.up',
+    'rowDown': 'chevron.down',
+    'search': 'magnifyingglass',
+    'add': 'plus',
+  };
 }
