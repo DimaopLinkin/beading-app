@@ -1,4 +1,3 @@
-import 'package:beading/domain/events/app_events.dart';
 import 'package:beading/domain/weaving/work_session.dart';
 import 'package:beading/domain/weaving/work_session_tracker.dart';
 import 'package:fake_async/fake_async.dart';
@@ -10,26 +9,14 @@ import '../../support/fake_work_sessions.dart';
 void main() {
   late FakeWorkSessionRepository sessions;
   late FakeClock clock;
-  late BroadcastAppEvents events;
-  late List<AppEvent> published;
 
   setUp(() {
     sessions = FakeWorkSessionRepository();
     clock = FakeClock(DateTime.utc(2026, 11, 10, 9));
-    events = BroadcastAppEvents();
-    published = <AppEvent>[];
-    events.stream.listen(published.add);
   });
 
-  tearDown(() => events.dispose());
-
-  WorkSessionTracker tracker({Duration longSession = const Duration(minutes: 90)}) => WorkSessionTracker(
-    sessions: sessions,
-    clock: clock,
-    events: events,
-    heartbeat: const Duration(minutes: 1),
-    longSession: longSession,
-  );
+  WorkSessionTracker tracker() =>
+      WorkSessionTracker(sessions: sessions, clock: clock, heartbeat: const Duration(minutes: 1));
 
   /// Двигает и часы, и таймеры: тик таймера читает время из [clock].
   void elapse(FakeAsync async, Duration d) {
@@ -123,39 +110,6 @@ void main() {
       async.flushMicrotasks();
       expect(sessions.sessions['ws-1']!.duration, const Duration(minutes: 1));
       expect(sessions.sessions['ws-2']!.projectId, 'p2');
-      t.stop();
-      async.flushMicrotasks();
-    });
-  });
-
-  test('долгая непрерывная сессия один раз шлёт LongSession', () {
-    fakeAsync((async) {
-      final WorkSessionTracker t = tracker(longSession: const Duration(minutes: 5));
-      t.start('p1');
-      async.flushMicrotasks();
-      elapse(async, const Duration(minutes: 4));
-      expect(published, isEmpty);
-      elapse(async, const Duration(minutes: 3));
-      expect(published, <Matcher>[isA<LongSession>()]);
-      elapse(async, const Duration(minutes: 10));
-      expect(published, hasLength(1));
-      t.stop();
-      async.flushMicrotasks();
-    });
-  });
-
-  test('пауза сбрасывает отсчёт долгой сессии', () {
-    fakeAsync((async) {
-      final WorkSessionTracker t = tracker(longSession: const Duration(minutes: 5));
-      t.start('p1');
-      async.flushMicrotasks();
-      elapse(async, const Duration(minutes: 4));
-      t.pause();
-      async.flushMicrotasks();
-      t.resume();
-      async.flushMicrotasks();
-      elapse(async, const Duration(minutes: 4));
-      expect(published, isEmpty);
       t.stop();
       async.flushMicrotasks();
     });

@@ -2,8 +2,6 @@ import 'dart:async';
 
 import 'package:beading/core/clock.dart';
 import 'package:beading/core/result.dart';
-import 'package:beading/domain/easter_eggs/easter_egg_policy.dart';
-import 'package:beading/domain/events/app_events.dart';
 import 'package:beading/domain/weaving/work_session.dart';
 import 'package:beading/domain/weaving/work_session_repository.dart';
 
@@ -11,30 +9,23 @@ import 'package:beading/domain/weaving/work_session_repository.dart';
 ///
 /// - [start] начинает сессию, [pause] (уход в фон) закрывает её, [resume] начинает новую, [stop] закрывает и выходит.
 /// - Раз в [heartbeat] конец сессии подтягивается к «сейчас»: вылет приложения теряет не больше этого промежутка.
-/// - Непрерывная сессия дольше [EasterEggPolicy.longSession] один раз шлёт [LongSession].
+/// - `LongSession` для пасхалок шлёт один источник — общий `LongSessionWatcher`, трекер его не дублирует.
 class WorkSessionTracker {
   WorkSessionTracker({
     required WorkSessionRepository sessions,
     required Clock clock,
-    required AppEvents events,
     this.heartbeat = const Duration(seconds: 30),
-    this.longSession = EasterEggPolicy.longSession,
   }) : _sessions = sessions,
-       _clock = clock,
-       _events = events;
+       _clock = clock;
 
   final WorkSessionRepository _sessions;
   final Clock _clock;
-  final AppEvents _events;
   final Duration heartbeat;
-  final Duration longSession;
 
   String? _projectId;
   WorkSession? _current;
   Timer? _timer;
   bool _paused = false;
-  bool _longSent = false;
-  DateTime? _runStart;
 
   /// Идёт ли сессия сейчас.
   bool get isRunning => _current != null;
@@ -81,8 +72,6 @@ class WorkSessionTracker {
       return;
     }
     final DateTime now = _clock.now();
-    _runStart = now;
-    _longSent = false;
     final Result<WorkSession> started = await _sessions.start(projectId, now);
     // За время записи экран могли закрыть.
     if (_projectId != projectId || _paused) {
@@ -102,13 +91,7 @@ class WorkSessionTracker {
     if (session == null) {
       return;
     }
-    final DateTime now = _clock.now();
-    await _sessions.touch(session.id, now);
-    final DateTime? began = _runStart;
-    if (!_longSent && began != null && now.difference(began) >= longSession) {
-      _longSent = true;
-      _events.publish(const LongSession());
-    }
+    await _sessions.touch(session.id, _clock.now());
   }
 
   Future<void> _end() async {

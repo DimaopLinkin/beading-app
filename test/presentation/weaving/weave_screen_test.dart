@@ -77,7 +77,7 @@ void main() {
       ),
       changeStatus: change,
       rowsCounter: RowsCounter(settings: settings, events: events),
-      tracker: WorkSessionTracker(sessions: sessions, clock: clock, events: events),
+      tracker: WorkSessionTracker(sessions: sessions, clock: clock),
       toastDuration: const Duration(seconds: 3),
     );
   }

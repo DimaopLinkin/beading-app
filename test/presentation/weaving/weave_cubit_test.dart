@@ -80,7 +80,7 @@ void main() {
       ),
       changeStatus: changeStatus,
       rowsCounter: RowsCounter(settings: settings, events: events),
-      tracker: WorkSessionTracker(sessions: sessions, clock: clock, events: events),
+      tracker: WorkSessionTracker(sessions: sessions, clock: clock),
       toastDuration: toast,
     );
   }
@@ -134,7 +134,7 @@ void main() {
       ),
       changeStatus: ChangeProjectStatus(repository: projects, events: events),
       rowsCounter: RowsCounter(settings: settings, events: events),
-      tracker: WorkSessionTracker(sessions: sessions, clock: clock, events: events),
+      tracker: WorkSessionTracker(sessions: sessions, clock: clock),
     );
     await cubit.load();
     expect(cubit.state.status, WeaveStatus.failed);
@@ -512,7 +512,7 @@ void main() {
         ),
         changeStatus: ChangeProjectStatus(repository: projects, events: events),
         rowsCounter: RowsCounter(settings: settings, events: events),
-        tracker: WorkSessionTracker(sessions: sessions, clock: clock, events: events),
+        tracker: WorkSessionTracker(sessions: sessions, clock: clock),
       );
       await broken.load();
       broken.completeRow();

@@ -290,7 +290,6 @@ Future<void> configureDependencies({GetIt? locator, AppDatabase? database, Catal
       () => WorkSessionTracker(
         sessions: container<WorkSessionRepository>(),
         clock: container<Clock>(),
-        events: container<AppEvents>(),
       ),
     )
     ..registerFactoryParam<WeaveCubit, String, void>(
