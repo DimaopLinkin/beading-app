@@ -103,6 +103,45 @@ void main() {
     });
   });
 
+  group('EdgePreservingPrefilter: прозрачность и порог', () {
+    WorkImage cutout() {
+      // Правая половина прозрачна и «чёрная», левая — светлая.
+      final WorkImage image = build(20, 12, (x, y) => x < 10 ? const Lab(70, 0, 0) : const Lab(0, 0, 0));
+      for (int y = 0; y < 12; y++) {
+        for (int x = 10; x < 20; x++) {
+          image.alpha[y * 20 + x] = 0;
+        }
+      }
+      return image;
+    }
+
+    for (final int cells in <int>[100000, 0]) {
+      test('цвет прозрачных пикселей не подмешивается к краю (порог $cells ячеек)', () {
+        final WorkImage out = EdgePreservingPrefilter(saturation: 1, guidedAboveCells: cells).apply(cutout());
+        for (int y = 0; y < 12; y++) {
+          expect(at(out, 9, y).l, closeTo(70, 0.5));
+          expect(at(out, 10, y).l, closeTo(0, 1e-3));
+        }
+      });
+    }
+
+    test('фильтр выбирается по числу ячеек, а не пикселей', () {
+      // 101×100 ячеек при 4 пикселях на ячейку — это больше порога 100×100.
+      expect(WorkImage.scaleFor(columns: 101, rows: 100), 4);
+      final WorkImage flat = WorkImage(
+        width: 404,
+        height: 400,
+        lightness: Float32List(404 * 400)..fillRange(0, 404 * 400, 50),
+        a: Float32List(404 * 400),
+        b: Float32List(404 * 400),
+        alpha: Float32List(404 * 400)..fillRange(0, 404 * 400, 1),
+        importance: Float32List(404 * 400)..fillRange(0, 404 * 400, 1),
+        scale: 4,
+      );
+      expect(const EdgePreservingPrefilter().apply(flat).scale, 4);
+    });
+  });
+
   group('EdgePreservingPrefilter: насыщенность', () {
     test('множитель растягивает цветность, светлоту не трогает', () {
       final WorkImage image = build(6, 6, (x, y) => const Lab(60, 20, -10));
@@ -118,7 +157,7 @@ void main() {
   });
 
   group('EdgePreservingPrefilter: управляемый фильтр для больших схем', () {
-    const EdgePreservingPrefilter guided = EdgePreservingPrefilter(saturation: 1, guidedAbovePixels: 0);
+    const EdgePreservingPrefilter guided = EdgePreservingPrefilter(saturation: 1, guidedAboveCells: 0);
 
     test('шум на однотонной картинке: разброс ΔE меньше 1', () {
       expect(spread(guided.apply(noisyGray(40))), lessThan(1));
@@ -135,7 +174,7 @@ void main() {
     });
 
     test('порог по размеру выбирает фильтр: большая картинка проходит управляемым', () {
-      const EdgePreservingPrefilter auto = EdgePreservingPrefilter(saturation: 1, guidedAbovePixels: 100);
+      const EdgePreservingPrefilter auto = EdgePreservingPrefilter(saturation: 1, guidedAboveCells: 100);
       expect(spread(auto.apply(noisyGray(20))), lessThan(1));
     });
 

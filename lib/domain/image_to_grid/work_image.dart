@@ -21,6 +21,7 @@ final class WorkImage {
     required this.b,
     required this.alpha,
     required this.importance,
+    this.scale = 1,
   }) {
     if (width < 1) throw ArgumentError.value(width, 'width', 'не меньше 1');
     if (height < 1) throw ArgumentError.value(height, 'height', 'не меньше 1');
@@ -57,7 +58,7 @@ final class WorkImage {
     final MmSize extent = geometry.extent(metrics, columns: columns, rows: rows);
     final int width = columns * s;
     final int height = math.max(1, (width * extent.height / extent.width).round());
-    return WorkImage._downscale(image, importance, width, height);
+    return WorkImage._downscale(image, importance, width, height, s);
   }
 
   /// Сколько рабочих пикселей на сторону ячейки: 6 для мелких схем, 3 для крупных.
@@ -71,6 +72,9 @@ final class WorkImage {
 
   final int width;
   final int height;
+
+  /// Рабочих пикселей на сторону ячейки схемы (1, если картинка собрана не из схемы).
+  final int scale;
 
   /// Каналы Lab и непрозрачность 0..1 по рядам сверху вниз. У прозрачных пикселей цвет — Lab чёрного.
   final Float32List lightness;
@@ -90,6 +94,7 @@ final class WorkImage {
     b: b,
     alpha: alpha,
     importance: importance,
+    scale: scale,
   );
 
   /// Пиксели sRGB для [CellSampler]: ячейка берёт средний цвет из рабочей картинки.
@@ -115,7 +120,7 @@ final class WorkImage {
     return table;
   }
 
-  factory WorkImage._downscale(SourceImage image, Float32List? mask, int width, int height) {
+  factory WorkImage._downscale(SourceImage image, Float32List? mask, int width, int height, int scale) {
     final _Spans xs = _Spans(image.width, width);
     final _Spans ys = _Spans(image.height, height);
     // Проход по строкам: суммы по горизонтали для каждой строки исходника. Каналы: R·α, G·α, B·α, α, важность.
@@ -185,6 +190,7 @@ final class WorkImage {
       b: b,
       alpha: alpha,
       importance: importance,
+      scale: scale,
     );
   }
 

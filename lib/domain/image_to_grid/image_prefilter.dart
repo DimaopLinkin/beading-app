@@ -15,7 +15,7 @@ abstract interface class ImagePrefilter {
 /// Двусторонний фильтр в Lab (два прохода, радиус 2) для схем до 100×100 ячеек и управляемый фильтр (O(N)) для
 /// больших. Светлота не растягивается: первая версия прототипа растягивала её и «выбеливала» кожу и шерсть.
 final class EdgePreservingPrefilter implements ImagePrefilter {
-  const EdgePreservingPrefilter({this.sigmaRange = 9, this.saturation = 1.05, this.guidedAbovePixels = 250000})
+  const EdgePreservingPrefilter({this.sigmaRange = 9, this.saturation = 1.05, this.guidedAboveCells = 100 * 100})
     : assert(sigmaRange > 0, 'sigmaRange > 0'),
       assert(saturation >= 1 && saturation <= 1.1, 'saturation от 1 до 1,1');
 
@@ -25,21 +25,21 @@ final class EdgePreservingPrefilter implements ImagePrefilter {
   /// Множитель цветности (a, b): от 1,0 (без изменений) до 1,1.
   final double saturation;
 
-  /// Размер рабочей картинки в пикселях, с которого вместо двустороннего берётся управляемый фильтр
-  /// (схема больше 100×100 ячеек при пяти рабочих пикселях на ячейку).
-  final int guidedAbovePixels;
+  /// Размер схемы в ячейках, больше которого вместо двустороннего берётся управляемый фильтр.
+  final int guidedAboveCells;
 
   /// Радиус окна обоих фильтров в рабочих пикселях.
   static const int radius = 2;
 
   @override
   WorkImage apply(WorkImage image) {
-    final int cells = image.width * image.height;
-    final ({Float32List l, Float32List a, Float32List b}) filtered = cells > guidedAbovePixels
+    final int pixels = image.width * image.height;
+    final int cells = pixels ~/ (image.scale * image.scale);
+    final ({Float32List l, Float32List a, Float32List b}) filtered = cells > guidedAboveCells
         ? _guided(image)
         : _bilateral(image);
     if (saturation != 1) {
-      for (int i = 0; i < cells; i++) {
+      for (int i = 0; i < pixels; i++) {
         filtered.a[i] *= saturation;
         filtered.b[i] *= saturation;
       }
@@ -50,6 +50,7 @@ final class EdgePreservingPrefilter implements ImagePrefilter {
   ({Float32List l, Float32List a, Float32List b}) _bilateral(WorkImage image) {
     final int w = image.width;
     final int h = image.height;
+    final Float32List alpha = image.alpha;
     const int window = 2 * radius + 1;
     // Вес по расстоянию: гауссиана σ = 2 на окне 5×5.
     final Float64List spatial = Float64List(window * window);
@@ -78,6 +79,13 @@ final class EdgePreservingPrefilter implements ImagePrefilter {
       for (int y = 0; y < h; y++) {
         for (int x = 0; x < w; x++) {
           final int i = y * w + x;
+          if (alpha[i] <= 0) {
+            // Прозрачный пиксель цвета не имеет: оставляем как есть.
+            nl[i] = l[i];
+            na[i] = a[i];
+            nb[i] = b[i];
+            continue;
+          }
           final double cl = l[i];
           final double ca = a[i];
           final double cb = b[i];
@@ -94,14 +102,14 @@ final class EdgePreservingPrefilter implements ImagePrefilter {
               final double db = b[j] - cb;
               final int index = ((dl * dl + da * da + db * db) * toIndex).toInt();
               if (index > tableSize) continue;
-              final double weight = spatial[(dy + radius) * window + dx + radius] * range[index];
+              final double weight = spatial[(dy + radius) * window + dx + radius] * range[index] * alpha[j];
               sl += l[j] * weight;
               sa += a[j] * weight;
               sb += b[j] * weight;
               total += weight;
             }
           }
-          // Сама точка входит в окно с весом 1: total не меньше 1.
+          // Сама точка входит в окно с весом её непрозрачности: total больше нуля.
           nl[i] = sl / total;
           na[i] = sa / total;
           nb[i] = sb / total;
@@ -115,32 +123,46 @@ final class EdgePreservingPrefilter implements ImagePrefilter {
   }
 
   /// Управляемый фильтр (He, Sun, Tang): светлота — ведущая картинка, окно усредняется ящичным фильтром за O(N).
+  ///
+  /// Средние считаются с весом непрозрачности, поэтому цвет прозрачных пикселей в соседей не подмешивается.
+  /// Ведущая картинка — светлота, так что край, где различается только цветность при равной светлоте, размывается.
   ({Float32List l, Float32List a, Float32List b}) _guided(WorkImage image) {
     final int w = image.width;
     final int h = image.height;
+    final int n = w * h;
     final Float32List guide = image.lightness;
+    final Float32List alpha = image.alpha;
     final double eps = sigmaRange * sigmaRange;
-    final Float32List meanI = _box(guide, w, h);
-    final Float32List meanII = _box(_product(guide, guide), w, h);
-    final Float32List variance = Float32List(w * h);
-    for (int i = 0; i < w * h; i++) {
+    final Float32List weight = _box(alpha, w, h);
+    Float32List weighted(Float32List x) {
+      final Float32List mean = _box(_product(alpha, x), w, h);
+      for (int i = 0; i < n; i++) {
+        mean[i] = weight[i] > 1e-6 ? mean[i] / weight[i] : 0;
+      }
+      return mean;
+    }
+
+    final Float32List meanI = weighted(guide);
+    final Float32List meanII = weighted(_product(guide, guide));
+    final Float32List variance = Float32List(n);
+    for (int i = 0; i < n; i++) {
       variance[i] = meanII[i] - meanI[i] * meanI[i];
     }
     Float32List filter(Float32List p) {
-      final Float32List meanP = _box(p, w, h);
-      final Float32List meanIP = _box(_product(guide, p), w, h);
-      final Float32List slope = Float32List(w * h);
-      final Float32List offset = Float32List(w * h);
-      for (int i = 0; i < w * h; i++) {
+      final Float32List meanP = weighted(p);
+      final Float32List meanIP = weighted(_product(guide, p));
+      final Float32List slope = Float32List(n);
+      final Float32List offset = Float32List(n);
+      for (int i = 0; i < n; i++) {
         final double covariance = meanIP[i] - meanI[i] * meanP[i];
         slope[i] = covariance / (variance[i] + eps);
         offset[i] = meanP[i] - slope[i] * meanI[i];
       }
       final Float32List meanSlope = _box(slope, w, h);
       final Float32List meanOffset = _box(offset, w, h);
-      final Float32List out = Float32List(w * h);
-      for (int i = 0; i < w * h; i++) {
-        out[i] = meanSlope[i] * guide[i] + meanOffset[i];
+      final Float32List out = Float32List(n);
+      for (int i = 0; i < n; i++) {
+        out[i] = alpha[i] > 0 ? meanSlope[i] * guide[i] + meanOffset[i] : p[i];
       }
       return out;
     }
