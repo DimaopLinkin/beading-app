@@ -288,6 +288,210 @@ abstract class AppLocalizations {
   /// In ru, this message translates to:
   /// **'Отмена'**
   String get cancel;
+
+  /// Кнопка в библиотеке: импорт схемы из книги
+  ///
+  /// In ru, this message translates to:
+  /// **'Схема из книги'**
+  String get libraryImportBook;
+
+  /// Заголовок экрана импорта
+  ///
+  /// In ru, this message translates to:
+  /// **'Схема из книги'**
+  String get importBookTitle;
+
+  /// Закрыть экран импорта
+  ///
+  /// In ru, this message translates to:
+  /// **'Отмена'**
+  String get importBookCancel;
+
+  /// Подсказка при выборе источника
+  ///
+  /// In ru, this message translates to:
+  /// **'Сфотографируйте страницу книги или выберите готовые фото и PDF.'**
+  String get importPickHint;
+
+  /// Источник: камера
+  ///
+  /// In ru, this message translates to:
+  /// **'Снять на камеру'**
+  String get importSourceCamera;
+
+  /// Источник: фотопленка
+  ///
+  /// In ru, this message translates to:
+  /// **'Выбрать из Фото'**
+  String get importSourcePhotos;
+
+  /// Источник: файлы
+  ///
+  /// In ru, this message translates to:
+  /// **'Выбрать из Файлов (фото или PDF)'**
+  String get importSourceFiles;
+
+  /// Заголовок выбора страниц PDF
+  ///
+  /// In ru, this message translates to:
+  /// **'Страницы PDF'**
+  String get importPdfTitle;
+
+  /// Счётчик выбранных страниц PDF
+  ///
+  /// In ru, this message translates to:
+  /// **'Выбрано: {count} из {total}'**
+  String importPdfSelected(int count, int total);
+
+  /// Выбрать все страницы PDF
+  ///
+  /// In ru, this message translates to:
+  /// **'Все'**
+  String get importPdfSelectAll;
+
+  /// Снять выбор страниц PDF
+  ///
+  /// In ru, this message translates to:
+  /// **'Снять'**
+  String get importPdfClear;
+
+  /// Перейти к проверке страниц
+  ///
+  /// In ru, this message translates to:
+  /// **'Продолжить'**
+  String get importPdfContinue;
+
+  /// Подпись страницы PDF в сетке
+  ///
+  /// In ru, this message translates to:
+  /// **'Страница {page}'**
+  String importPdfPageLabel(int page);
+
+  /// Заголовок проверки страниц
+  ///
+  /// In ru, this message translates to:
+  /// **'Страницы схемы'**
+  String get importReviewTitle;
+
+  /// Подпись поля названия проекта
+  ///
+  /// In ru, this message translates to:
+  /// **'Название'**
+  String get importNameLabel;
+
+  /// Ремесло: бисер
+  ///
+  /// In ru, this message translates to:
+  /// **'Бисер'**
+  String get importCraftBeading;
+
+  /// Ремесло: вышивка
+  ///
+  /// In ru, this message translates to:
+  /// **'Вышивка'**
+  String get importCraftCrossStitch;
+
+  /// Добавить страницы
+  ///
+  /// In ru, this message translates to:
+  /// **'Добавить ещё'**
+  String get importAddMore;
+
+  /// Создать проект из страниц
+  ///
+  /// In ru, this message translates to:
+  /// **'Импортировать'**
+  String get importSubmit;
+
+  /// Повернуть страницу
+  ///
+  /// In ru, this message translates to:
+  /// **'Повернуть'**
+  String get importRotate;
+
+  /// Обрезать страницу
+  ///
+  /// In ru, this message translates to:
+  /// **'Обрезать'**
+  String get importCrop;
+
+  /// Убрать страницу
+  ///
+  /// In ru, this message translates to:
+  /// **'Убрать'**
+  String get importRemove;
+
+  /// Пометка у обрезанной страницы
+  ///
+  /// In ru, this message translates to:
+  /// **'Обрезана'**
+  String get importCropped;
+
+  /// Подпись страницы в списке
+  ///
+  /// In ru, this message translates to:
+  /// **'Страница {number}'**
+  String importPageNumber(int number);
+
+  /// Заголовок обрезки
+  ///
+  /// In ru, this message translates to:
+  /// **'Обрезка'**
+  String get importCropTitle;
+
+  /// Сбросить рамку обрезки
+  ///
+  /// In ru, this message translates to:
+  /// **'Сбросить'**
+  String get importCropReset;
+
+  /// Применить обрезку
+  ///
+  /// In ru, this message translates to:
+  /// **'Готово'**
+  String get importCropDone;
+
+  /// Идёт импорт
+  ///
+  /// In ru, this message translates to:
+  /// **'Сохраняем страницы…'**
+  String get importSaving;
+
+  /// Ошибка источника
+  ///
+  /// In ru, this message translates to:
+  /// **'Нет доступа к камере или Фото. Разрешите его в настройках.'**
+  String get importProblemSourceUnavailable;
+
+  /// Ошибка чтения картинки
+  ///
+  /// In ru, this message translates to:
+  /// **'Не удалось прочитать картинку. Попробуйте другой файл.'**
+  String get importProblemUnreadable;
+
+  /// Ошибка PDF
+  ///
+  /// In ru, this message translates to:
+  /// **'Не удалось открыть PDF.'**
+  String get importProblemPdfFailed;
+
+  /// Ошибка сохранения
+  ///
+  /// In ru, this message translates to:
+  /// **'Не удалось сохранить схему. Проверьте свободное место.'**
+  String get importProblemSaveFailed;
+
+  /// Нет страниц
+  ///
+  /// In ru, this message translates to:
+  /// **'Выберите хотя бы одну страницу.'**
+  String get importProblemNoPages;
+
+  /// Пустое название
+  ///
+  /// In ru, this message translates to:
+  /// **'Введите название.'**
+  String get importProblemEmptyName;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

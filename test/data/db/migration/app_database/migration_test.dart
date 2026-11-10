@@ -6,6 +6,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'generated/schema.dart';
 import 'generated/schema_v2.dart' as v2;
 import 'generated/schema_v3.dart' as v3;
+import 'generated/schema_v4.dart' as v4;
 
 void main() {
   driftRuntimeOptions.dontWarnAboutMultipleDatabases = true;
@@ -69,6 +70,55 @@ void main() {
           await newDb.select(newDb.settings).get(),
         );
         expect(await newDb.select(newDb.easterEggLog).get(), isEmpty);
+      },
+    );
+  });
+
+  test('миграция v3 → v4 сохраняет проекты и создаёт пустые таблицы схем-картинок', () async {
+    const oldProjects = <v3.ProjectsData>[
+      v3.ProjectsData(
+        id: 'p1',
+        name: 'Браслет',
+        craft: 'beading',
+        status: 'idea',
+        technique: 'loom',
+        contentKind: 'image',
+        notes: '',
+        lastWorkedAt: 5,
+        createdAt: 1,
+        updatedAt: 2,
+        deviceId: 'device-a',
+      ),
+    ];
+    const expectedProjects = <v4.ProjectsData>[
+      v4.ProjectsData(
+        id: 'p1',
+        name: 'Браслет',
+        craft: 'beading',
+        status: 'idea',
+        technique: 'loom',
+        contentKind: 'image',
+        notes: '',
+        lastWorkedAt: 5,
+        createdAt: 1,
+        updatedAt: 2,
+        deviceId: 'device-a',
+      ),
+    ];
+
+    await verifier.testWithDataIntegrity(
+      oldVersion: 3,
+      newVersion: 4,
+      createOld: v3.DatabaseAtV3.new,
+      createNew: v4.DatabaseAtV4.new,
+      openTestedDatabase: AppDatabase.new,
+      createItems: (batch, oldDb) {
+        batch.insertAll(oldDb.projects, oldProjects);
+      },
+      validateItems: (newDb) async {
+        expect(await newDb.select(newDb.projects).get(), expectedProjects);
+        expect(await newDb.select(newDb.imagePatterns).get(), isEmpty);
+        expect(await newDb.select(newDb.imagePatternPages).get(), isEmpty);
       },
     );
   });
