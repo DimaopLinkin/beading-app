@@ -183,6 +183,21 @@ void main() {
     handle.dispose();
   });
 
+  for (final double scale in <double>[2, 3]) {
+    testWidgets('крупный шрифт x$scale на 428 pt: плитки, вкладки и лист без переполнения', (tester) async {
+      tester.platformDispatcher.textScaleFactorTestValue = scale;
+      addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
+      await pumpScreen(tester);
+      expect(tester.takeException(), isNull);
+
+      await tester.tap(find.text('DB0010'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Похожие цвета'), findsOneWidget);
+      expect(tester.takeException(), isNull);
+    });
+  }
+
   testWidgets('широкое окно Mac: сетка не шире колонки контента и не переполняется', (tester) async {
     await pumpScreen(tester, size: const Size(1400, 900));
 

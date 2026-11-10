@@ -45,8 +45,8 @@ class MaterialsFormat {
   String piecesText(int value) => l10n.materialsPieces(_integers.format(value));
 
   String gramsText(double value) {
-    final String number = value > 0 && value < _minShownGrams ? '< 0,1' : _grams.format(value);
-    return l10n.materialsGrams(number);
+    if (value > 0 && value < _minShownGrams) return l10n.materialsGramsLess(_grams.format(0.1));
+    return l10n.materialsGrams(_grams.format(value));
   }
 
   /// Бренд и артикул из каталога («Miyuki DB0010»); у смешанной нити — обе позиции через « + ».

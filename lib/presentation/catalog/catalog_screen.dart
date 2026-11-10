@@ -8,6 +8,7 @@ import 'package:beading/presentation/l10n/app_localizations.dart';
 import 'package:beading/presentation/theme/tokens.dart';
 import 'package:beading/presentation/widgets/color_swatch.dart';
 import 'package:beading/presentation/widgets/glass/glass_sheet.dart';
+import 'package:beading/presentation/widgets/glass/glass_surface.dart';
 import 'package:beading/presentation/widgets/min_tap_target.dart';
 import 'package:beading/presentation/widgets/pill_chip.dart';
 import 'package:flutter/cupertino.dart';
@@ -58,8 +59,8 @@ class _CatalogScreenState extends State<CatalogScreen> {
       child: BlocBuilder<CatalogCubit, CatalogState>(
         buildWhen: (previous, current) =>
             previous.status != current.status ||
-            previous.brands != current.brands ||
-            previous.brand != current.brand ||
+            previous.tabs != current.tabs ||
+            previous.tab != current.tab ||
             previous.colors != current.colors,
         builder: (context, state) {
           final double width = MediaQuery.sizeOf(context).width;
@@ -78,7 +79,7 @@ class _CatalogScreenState extends State<CatalogScreen> {
                   ),
                 ),
               ),
-              if (state.brands.length > 1)
+              if (state.tabs.length > 1)
                 SliverToBoxAdapter(
                   child: SingleChildScrollView(
                     scrollDirection: Axis.horizontal,
@@ -87,15 +88,11 @@ class _CatalogScreenState extends State<CatalogScreen> {
                       children: <Widget>[
                         PillChip(
                           label: l10n.catalogAllBrands,
-                          selected: state.brand == null,
-                          onTap: () => cubit.selectBrand(null),
+                          selected: state.tab == null,
+                          onTap: () => cubit.selectTab(null),
                         ),
-                        for (final String brand in state.brands)
-                          PillChip(
-                            label: brand,
-                            selected: state.brand == brand,
-                            onTap: () => cubit.selectBrand(brand),
-                          ),
+                        for (final CatalogTab tab in state.tabs)
+                          PillChip(label: tab.label, selected: state.tab == tab, onTap: () => cubit.selectTab(tab)),
                       ],
                     ),
                   ),
@@ -166,7 +163,7 @@ class _CatalogScreenState extends State<CatalogScreen> {
                 maxCrossAxisExtent: 150,
                 mainAxisSpacing: tokens.spacing.m,
                 crossAxisSpacing: tokens.spacing.m,
-                mainAxisExtent: 148,
+                mainAxisExtent: 148 + (MediaQuery.textScalerOf(context).scale(41) - 41),
               ),
               itemCount: state.colors.length,
               itemBuilder: (context, index) {
@@ -248,6 +245,7 @@ class _ColorSheet extends StatelessWidget {
       child: ConstrainedBox(
         constraints: BoxConstraints(maxHeight: maxHeight, maxWidth: 560),
         child: GlassSheet(
+          density: GlassDensity.dense,
           child: BlocBuilder<CatalogCubit, CatalogState>(
             buildWhen: (previous, current) => previous.selection != current.selection && current.selection != null,
             builder: (context, state) {
@@ -297,22 +295,27 @@ class _SheetHeader extends StatelessWidget {
     final AppTokensData tokens = context.tokens;
     final TextStyle base = CupertinoTheme.of(context).textTheme.textStyle;
     final Color secondary = CupertinoColors.secondaryLabel.resolveFrom(context);
-    return Row(
-      children: <Widget>[
-        ColorSwatchView(rgb: color.rgb, size: 72),
-        SizedBox(width: tokens.spacing.l),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: <Widget>[
-              Text(color.code, style: base.copyWith(fontSize: 22, fontWeight: FontWeight.w700)),
-              Text(color.name, style: base.copyWith(fontSize: 17)),
-              Text(color.origin(l10n), style: base.copyWith(fontSize: 15, color: secondary)),
-              Text(color.rgb.hex, style: base.copyWith(fontSize: 15, color: secondary)),
-            ],
+    return Semantics(
+      header: true,
+      container: true,
+      label: l10n.catalogItemSemantic(color.code, color.name),
+      child: Row(
+        children: <Widget>[
+          ColorSwatchView(rgb: color.rgb, size: 72),
+          SizedBox(width: tokens.spacing.l),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                Text(color.code, style: base.copyWith(fontSize: 22, fontWeight: FontWeight.w700)),
+                Text(color.name, style: base.copyWith(fontSize: 17)),
+                Text(color.origin(l10n), style: base.copyWith(fontSize: 15, color: secondary)),
+                Text(color.rgb.hex, style: base.copyWith(fontSize: 15, color: secondary)),
+              ],
+            ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }
@@ -377,6 +380,17 @@ class _SimilarRow extends StatelessWidget {
     final Color secondary = CupertinoColors.secondaryLabel.resolveFrom(context);
     final CatalogColor color = match.color;
     final String level = match.similarity.level.label(l10n);
+    final bool large = MediaQuery.textScalerOf(context).scale(1) > 1.3;
+    Widget measure(CrossAxisAlignment alignment) => Column(
+      crossAxisAlignment: alignment,
+      children: <Widget>[
+        Text(
+          l10n.catalogSimilarityPercent(match.similarity.percent),
+          style: base.merge(tokens.counterTextStyle).copyWith(fontSize: 17, fontWeight: FontWeight.w600),
+        ),
+        Text(level, style: base.copyWith(fontSize: 13, color: secondary)),
+      ],
+    );
     return Semantics(
       button: true,
       label: l10n.catalogSimilaritySemantic(color.code, color.name, match.similarity.percent, level),
@@ -388,37 +402,40 @@ class _SimilarRow extends StatelessWidget {
         child: MinTapTarget(
           child: Padding(
             padding: EdgeInsets.symmetric(vertical: tokens.spacing.xs),
-            child: Row(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
               children: <Widget>[
-                ColorSwatchView(rgb: color.rgb, size: 36),
-                SizedBox(width: tokens.spacing.m),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: <Widget>[
-                      Text(
-                        '${color.brand} ${color.code}',
-                        style: base.copyWith(fontSize: 15, fontWeight: FontWeight.w600),
-                      ),
-                      Text(
-                        color.name,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: base.copyWith(fontSize: 13, color: secondary),
-                      ),
-                    ],
-                  ),
-                ),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.end,
+                Row(
                   children: <Widget>[
-                    Text(
-                      l10n.catalogSimilarityPercent(match.similarity.percent),
-                      style: base.merge(tokens.counterTextStyle).copyWith(fontSize: 17, fontWeight: FontWeight.w600),
+                    ColorSwatchView(rgb: color.rgb, size: 36),
+                    SizedBox(width: tokens.spacing.m),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: <Widget>[
+                          Text(
+                            '${color.brand} ${color.code}',
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: base.copyWith(fontSize: 15, fontWeight: FontWeight.w600),
+                          ),
+                          Text(
+                            color.name,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: base.copyWith(fontSize: 13, color: secondary),
+                          ),
+                        ],
+                      ),
                     ),
-                    Text(level, style: base.copyWith(fontSize: 13, color: secondary)),
+                    if (!large) ...<Widget>[SizedBox(width: tokens.spacing.m), measure(CrossAxisAlignment.end)],
                   ],
                 ),
+                if (large)
+                  Padding(
+                    padding: EdgeInsets.only(left: 36 + tokens.spacing.m),
+                    child: measure(CrossAxisAlignment.start),
+                  ),
               ],
             ),
           ),

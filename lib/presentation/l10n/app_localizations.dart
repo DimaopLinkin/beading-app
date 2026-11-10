@@ -1084,7 +1084,7 @@ abstract class AppLocalizations {
   /// Пометка в листе цвета каталога
   ///
   /// In ru, this message translates to:
-  /// **'Цвет на экране приблизительный: у настоящего бисера оттенок может отличаться.'**
+  /// **'Цвет на экране может чуть отличаться от настоящего бисера.'**
   String get catalogColorApproximate;
 
   /// Закрыть лист цвета
@@ -1117,6 +1117,12 @@ abstract class AppLocalizations {
   /// **'{count} шт'**
   String materialsPieces(String count);
 
+  /// Вес меньше точности показа в таблице материалов
+  ///
+  /// In ru, this message translates to:
+  /// **'< {grams} г'**
+  String materialsGramsLess(String grams);
+
   /// Вес бусин в таблице материалов
   ///
   /// In ru, this message translates to:
@@ -1138,7 +1144,7 @@ abstract class AppLocalizations {
   /// Пояснение под итогом материалов
   ///
   /// In ru, this message translates to:
-  /// **'Вес приблизительный: у бисера разных отделок он отличается.'**
+  /// **'Вес примерный: у разных отделок бисер весит по-разному.'**
   String get materialsWeightHint;
 
   /// Кнопка «Поделиться» на экране материалов

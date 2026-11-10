@@ -41,8 +41,8 @@ void main() {
     await cubit.start();
 
     expect(cubit.state.status, CatalogStatus.ready);
-    expect(cubit.state.brands, <String>['Miyuki', 'Toho']);
-    expect(cubit.state.brand, 'Toho');
+    expect(cubit.state.tabs.map((t) => t.label), <String>['Miyuki', 'Toho']);
+    expect(cubit.state.tab?.brand, 'Toho');
     expect(cubit.state.colors, <CatalogColor>[tohoRed, tohoBlue]);
   });
 
@@ -52,7 +52,7 @@ void main() {
 
     await cubit.start();
 
-    expect(cubit.state.brand, isNull);
+    expect(cubit.state.tab, isNull);
     expect(cubit.state.colors, hasLength(4));
   });
 
@@ -61,7 +61,7 @@ void main() {
 
     await cubit.start();
 
-    expect(cubit.state.brand, isNull);
+    expect(cubit.state.tab, isNull);
     expect(cubit.state.colors, hasLength(4));
   });
 
@@ -82,18 +82,18 @@ void main() {
     final CatalogCubit cubit = make(useBrandSetting: false);
     await cubit.start();
 
-    await cubit.selectBrand('Miyuki');
+    await cubit.selectTab(cubit.state.tabs.first);
     expect(cubit.state.colors, <CatalogColor>[red, darkRed]);
     expect(catalog.searches.last.brand, 'Miyuki');
 
-    await cubit.selectBrand(null);
+    await cubit.selectTab(null);
     expect(cubit.state.colors, hasLength(4));
   });
 
   test('поиск идёт внутри выбранной вкладки; пробелы по краям отбрасываются', () async {
     final CatalogCubit cubit = make(useBrandSetting: false);
     await cubit.start();
-    await cubit.selectBrand('Toho');
+    await cubit.selectTab(cubit.state.tabs.last);
 
     await cubit.setQuery('  red ');
 
@@ -169,6 +169,36 @@ void main() {
     await selecting;
 
     expect(cubit.state.selection, isNull);
+  });
+
+  test('вкладки по сериям: у бренда с несколькими сериями в названии есть серия, фильтр по серии', () async {
+    final CatalogColor rocaille = catalogColor('R1', 'Rocaille Red', '#cc0001', series: 'Rocailles');
+    catalog = FakeCatalogRepository(<CatalogColor>[red, rocaille, tohoRed]);
+    final CatalogCubit cubit = make(useBrandSetting: false);
+    await cubit.start();
+
+    expect(cubit.state.tabs.map((t) => t.label), <String>['Miyuki Delica', 'Miyuki Rocailles', 'Toho']);
+
+    await cubit.selectTab(cubit.state.tabs[1]);
+    expect(cubit.state.colors, <CatalogColor>[rocaille]);
+  });
+
+  test('настройка бренда не перебивает вкладку, выбранную до ответа настройки и при «Повторить»', () async {
+    settings.values[SettingKeys.defaultBeadBrand.name] = 'Toho';
+    final CatalogCubit cubit = make();
+    await cubit.start();
+    await cubit.selectTab(cubit.state.tabs.first);
+
+    await cubit.retry();
+
+    expect(cubit.state.tab?.brand, 'Miyuki');
+  });
+
+  test('clearSelection на закрытом кубите не падает', () async {
+    final CatalogCubit cubit = make(useBrandSetting: false);
+    await cubit.close();
+
+    cubit.clearSelection();
   });
 
   test('выбор другого цвета из списка похожих заменяет выбор', () async {

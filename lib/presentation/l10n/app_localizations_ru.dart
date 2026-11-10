@@ -550,7 +550,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get similarityNoticeable => 'заметно отличается';
 
   @override
-  String get catalogColorApproximate => 'Цвет на экране приблизительный: у настоящего бисера оттенок может отличаться.';
+  String get catalogColorApproximate => 'Цвет на экране может чуть отличаться от настоящего бисера.';
 
   @override
   String get catalogClose => 'Закрыть';
@@ -572,6 +572,11 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
+  String materialsGramsLess(String grams) {
+    return '< $grams г';
+  }
+
+  @override
   String materialsGrams(String grams) {
     return '$grams г';
   }
@@ -585,7 +590,7 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
-  String get materialsWeightHint => 'Вес приблизительный: у бисера разных отделок он отличается.';
+  String get materialsWeightHint => 'Вес примерный: у разных отделок бисер весит по-разному.';
 
   @override
   String get materialsShare => 'Поделиться списком';

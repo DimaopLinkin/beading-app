@@ -78,7 +78,7 @@ void main() {
       expect(find.text('<\u00A00,1 г'), findsNWidgets(3));
       expect(find.text('Итого'), findsOneWidget);
       expect(find.text('9 шт'), findsOneWidget);
-      expect(find.text('Вес приблизительный: у бисера разных отделок он отличается.'), findsOneWidget);
+      expect(find.text('Вес примерный: у разных отделок бисер весит по-разному.'), findsOneWidget);
       expect(find.text('Поделиться списком'), findsOneWidget);
       expect(tester.takeException(), isNull);
     });
@@ -172,6 +172,20 @@ void main() {
     expect(find.bySemanticsLabel(RegExp('Miyuki Delica DB0010, Красный, 5 шт')), findsOneWidget);
     handle.dispose();
   });
+
+  for (final double scale in <double>[2, 3]) {
+    testWidgets('крупный шрифт x$scale на 428 pt: без переполнения, числа под названием', (tester) async {
+      tester.platformDispatcher.textScaleFactorTestValue = scale;
+      addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
+      patterns.byProject['proj-1'] = sampleGridPattern();
+      await pumpScreen(tester);
+
+      expect(find.text('Miyuki Delica DB0010'), findsOneWidget);
+      await tester.scrollUntilVisible(find.text('Итого'), 200);
+      expect(find.text('Итого'), findsOneWidget);
+      expect(tester.takeException(), isNull);
+    });
+  }
 
   testWidgets('широкое окно Mac: таблица в колонке 720 pt', (tester) async {
     await pumpScreen(tester, size: const Size(1400, 900));

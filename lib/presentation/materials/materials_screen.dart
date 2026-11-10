@@ -85,7 +85,7 @@ class _MaterialsScreenState extends State<MaterialsScreen> {
                   CupertinoSliverNavigationBar(largeTitle: Text(l10n.materialsTitle)),
                   ..._body(context, state, inset),
                   // Место под плавающую кнопку.
-                  const SliverToBoxAdapter(child: SizedBox(height: 112)),
+                  SliverToBoxAdapter(child: SizedBox(height: 112 + MediaQuery.textScalerOf(context).scale(17) - 17)),
                 ],
               ),
               if (canShare)
@@ -106,7 +106,7 @@ class _MaterialsScreenState extends State<MaterialsScreen> {
                             children: <Widget>[
                               const Icon(AppIcons.share),
                               SizedBox(width: tokens.spacing.s),
-                              Text(l10n.materialsShare),
+                              Flexible(child: Text(l10n.materialsShare, maxLines: 1, overflow: TextOverflow.ellipsis)),
                             ],
                           ),
                         ),
@@ -221,20 +221,32 @@ class _ReserveSwitch extends StatelessWidget {
           style: base.copyWith(fontSize: 15, color: CupertinoColors.secondaryLabel.resolveFrom(context)),
         ),
         SizedBox(height: tokens.spacing.m),
-        CupertinoSlidingSegmentedControl<bool>(
-          groupValue: state.withReserve,
-          onValueChanged: (value) => context.read<MaterialsCubit>().setWithReserve(value: value ?? false),
-          children: <bool, Widget>{
-            false: Padding(
-              padding: EdgeInsets.symmetric(vertical: tokens.spacing.s),
-              child: Text(l10n.materialsReserveNone),
-            ),
-            true: Padding(
-              padding: EdgeInsets.symmetric(vertical: tokens.spacing.s),
-              child: Text(l10n.materialsReserveWith(format.reservePercent)),
-            ),
-          },
-        ),
+        if (MediaQuery.textScalerOf(context).scale(1) > 1.3)
+          // Крупный шрифт: подписи сегментов не помещаются, вместо них выключатель.
+          Row(
+            children: <Widget>[
+              Expanded(child: Text(l10n.materialsReserveWith(format.reservePercent), style: base)),
+              CupertinoSwitch(
+                value: state.withReserve,
+                onChanged: (value) => context.read<MaterialsCubit>().setWithReserve(value: value),
+              ),
+            ],
+          )
+        else
+          CupertinoSlidingSegmentedControl<bool>(
+            groupValue: state.withReserve,
+            onValueChanged: (value) => context.read<MaterialsCubit>().setWithReserve(value: value ?? false),
+            children: <bool, Widget>{
+              false: Padding(
+                padding: EdgeInsets.symmetric(vertical: tokens.spacing.s),
+                child: Text(l10n.materialsReserveNone),
+              ),
+              true: Padding(
+                padding: EdgeInsets.symmetric(vertical: tokens.spacing.s),
+                child: Text(l10n.materialsReserveWith(format.reservePercent)),
+              ),
+            },
+          ),
       ],
     );
   }
@@ -255,6 +267,39 @@ class _MaterialRow extends StatelessWidget {
     final String article = format.articleLabel(line.color);
     final String pieces = format.piecesText(format.pieces(line));
     final String grams = format.gramsText(format.grams(line));
+    final bool large = MediaQuery.textScalerOf(context).scale(1) > 1.3;
+    final TextStyle piecesStyle = base
+        .merge(tokens.counterTextStyle)
+        .copyWith(fontSize: 17, fontWeight: FontWeight.w600);
+    final TextStyle gramsStyle = base.merge(tokens.counterTextStyle).copyWith(fontSize: 13, color: secondary);
+    final List<Widget> identity = <Widget>[
+      ColorSwatchView(rgb: line.color.rgb, size: 36),
+      if (line.color.symbol != null)
+        ConstrainedBox(
+          constraints: const BoxConstraints(minWidth: 28),
+          child: Text(line.color.symbol!, textAlign: TextAlign.center, style: base.copyWith(fontSize: 17)),
+        ),
+      SizedBox(width: tokens.spacing.m),
+      Expanded(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: <Widget>[
+            Text(
+              article,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: base.copyWith(fontSize: 15, fontWeight: FontWeight.w600),
+            ),
+            Text(
+              line.color.name,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              style: base.copyWith(fontSize: 13, color: secondary),
+            ),
+          ],
+        ),
+      ),
+    ];
     return Semantics(
       container: true,
       label: '$article, ${line.color.name}, $pieces, $grams',
@@ -266,47 +311,35 @@ class _MaterialRow extends StatelessWidget {
         ),
         child: Padding(
           padding: EdgeInsets.all(tokens.spacing.m),
-          child: Row(
-            children: <Widget>[
-              ColorSwatchView(rgb: line.color.rgb, size: 36),
-              if (line.color.symbol != null)
-                SizedBox(
-                  width: 28,
-                  child: Text(line.color.symbol!, textAlign: TextAlign.center, style: base.copyWith(fontSize: 17)),
-                ),
-              SizedBox(width: tokens.spacing.m),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+          child: large
+              ? Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: <Widget>[
-                    Text(
-                      article,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: base.copyWith(fontSize: 15, fontWeight: FontWeight.w600),
+                    Row(children: identity),
+                    SizedBox(height: tokens.spacing.s),
+                    Wrap(
+                      alignment: WrapAlignment.spaceBetween,
+                      spacing: tokens.spacing.m,
+                      children: <Widget>[
+                        Text(pieces, style: piecesStyle),
+                        Text(grams, style: gramsStyle),
+                      ],
                     ),
-                    Text(
-                      line.color.name,
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                      style: base.copyWith(fontSize: 13, color: secondary),
+                  ],
+                )
+              : Row(
+                  children: <Widget>[
+                    ...identity,
+                    SizedBox(width: tokens.spacing.m),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      children: <Widget>[
+                        Text(pieces, style: piecesStyle),
+                        Text(grams, style: gramsStyle),
+                      ],
                     ),
                   ],
                 ),
-              ),
-              SizedBox(width: tokens.spacing.m),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: <Widget>[
-                  Text(
-                    pieces,
-                    style: base.merge(tokens.counterTextStyle).copyWith(fontSize: 17, fontWeight: FontWeight.w600),
-                  ),
-                  Text(grams, style: base.merge(tokens.counterTextStyle).copyWith(fontSize: 13, color: secondary)),
-                ],
-              ),
-            ],
-          ),
         ),
       ),
     );
@@ -334,16 +367,16 @@ class _TotalRow extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: <Widget>[
-            Row(
+            Wrap(
+              alignment: WrapAlignment.spaceBetween,
+              crossAxisAlignment: WrapCrossAlignment.center,
+              spacing: tokens.spacing.m,
               children: <Widget>[
-                Expanded(
-                  child: Text(l10n.materialsTotal, style: base.copyWith(fontSize: 17, fontWeight: FontWeight.w700)),
-                ),
+                Text(l10n.materialsTotal, style: base.copyWith(fontSize: 17, fontWeight: FontWeight.w700)),
                 Text(
                   pieces,
                   style: base.merge(tokens.counterTextStyle).copyWith(fontSize: 20, fontWeight: FontWeight.w700),
                 ),
-                SizedBox(width: tokens.spacing.m),
                 Text(grams, style: base.merge(tokens.counterTextStyle).copyWith(fontSize: 17)),
               ],
             ),
