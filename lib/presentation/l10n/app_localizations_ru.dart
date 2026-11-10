@@ -534,6 +534,78 @@ class AppLocalizationsRu extends AppLocalizations {
   String get libraryAddSemantic => 'Добавить проект';
 
   @override
+  String get weaveLoadFailed => 'Не получилось открыть схему. Попробуй ещё раз.';
+
+  @override
+  String get weaveClose => 'Закрыть';
+
+  @override
+  String weaveRowCounter(int row, int total) {
+    return 'Ряд $row из $total';
+  }
+
+  @override
+  String get weaveModeByRow => 'По ряду';
+
+  @override
+  String get weaveModeByBead => 'По бусине';
+
+  @override
+  String get weaveSymbols => 'Показать символы на бусинах';
+
+  @override
+  String get weaveBack => 'Назад';
+
+  @override
+  String get weaveNextBead => 'Следующая бусина';
+
+  @override
+  String get weaveRowDone => 'Ряд готов';
+
+  @override
+  String weaveRowCompleted(int row) {
+    return 'Ряд $row готов';
+  }
+
+  @override
+  String get weaveUndo => 'Отменить';
+
+  @override
+  String get weaveFinishTitle => 'Последний ряд готов. Отметить работу законченной?';
+
+  @override
+  String get weaveFinishYes => 'Готово';
+
+  @override
+  String get weaveFinishLater => 'Позже';
+
+  @override
+  String get weaveSaveFailed => 'Не получилось сохранить прогресс. Попробую ещё раз.';
+
+  @override
+  String weaveBeadProgress(int laid, int total) {
+    return 'Бусина $laid из $total';
+  }
+
+  @override
+  String get weaveDirRight => 'Нить идёт вправо';
+
+  @override
+  String get weaveDirLeft => 'Нить идёт влево';
+
+  @override
+  String get weaveDirDown => 'Нить идёт вниз';
+
+  @override
+  String get weaveDirUp => 'Нить идёт вверх';
+
+  @override
+  String get weaveWordChart => 'Бусины ряда';
+
+  @override
+  String get weaveEdit => 'Править схему';
+
+  @override
   String get libraryDrawPattern => 'Нарисовать схему';
 
   @override

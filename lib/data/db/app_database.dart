@@ -6,6 +6,7 @@ import 'package:beading/data/db/daos/grid_patterns_dao.dart';
 import 'package:beading/data/db/daos/image_patterns_dao.dart';
 import 'package:beading/data/db/daos/projects_dao.dart';
 import 'package:beading/data/db/daos/settings_dao.dart';
+import 'package:beading/data/db/daos/work_sessions_dao.dart';
 import 'package:beading/data/db/tables/book_work_tables.dart';
 import 'package:beading/data/db/tables/catalog_tables.dart';
 import 'package:beading/data/db/tables/easter_egg_log_table.dart';
@@ -13,6 +14,7 @@ import 'package:beading/data/db/tables/grid_pattern_tables.dart';
 import 'package:beading/data/db/tables/image_pattern_tables.dart';
 import 'package:beading/data/db/tables/projects_table.dart';
 import 'package:beading/data/db/tables/settings_table.dart';
+import 'package:beading/data/db/tables/work_sessions_table.dart';
 import 'package:drift/drift.dart';
 
 part 'app_database.g.dart';
@@ -32,14 +34,24 @@ part 'app_database.g.dart';
     CatalogSources,
     PageWorkStates,
     BookWorkStates,
+    WorkSessions,
   ],
-  daos: <Type>[SettingsDao, ProjectsDao, EasterEggLogDao, ImagePatternsDao, GridPatternsDao, CatalogDao, BookWorkDao],
+  daos: <Type>[
+    SettingsDao,
+    ProjectsDao,
+    EasterEggLogDao,
+    ImagePatternsDao,
+    GridPatternsDao,
+    CatalogDao,
+    BookWorkDao,
+    WorkSessionsDao,
+  ],
 )
 class AppDatabase extends _$AppDatabase {
   AppDatabase(super.e);
 
   @override
-  int get schemaVersion => 8;
+  int get schemaVersion => 9;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -74,6 +86,8 @@ class AppDatabase extends _$AppDatabase {
       from7To8: (m, schema) async {
         await m.addColumn(schema.pageWorkStates, schema.pageWorkStates.rowDirection);
       },
+      // v9 (T19): сессии работы над проектом.
+      from8To9: (m, schema) => m.createTable(schema.workSessions),
     ),
     beforeOpen: (details) => customStatement('PRAGMA foreign_keys = ON'),
   );

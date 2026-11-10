@@ -3,6 +3,7 @@ import 'dart:typed_data';
 import 'package:beading/domain/grid/cell_metrics.dart';
 import 'package:beading/domain/grid/grid.dart';
 import 'package:beading/domain/grid/grid_geometry.dart';
+import 'package:beading/domain/grid/reading_order.dart';
 import 'package:beading/domain/grid_pattern/grid_geometry_codec.dart';
 import 'package:beading/domain/palette/palette_snapshot.dart';
 import 'package:equatable/equatable.dart';
@@ -86,14 +87,32 @@ final class GridPattern extends Equatable {
 }
 
 /// Лёгкая сводка схемы без самой сетки: чтобы проверять номера рядов и не читать весь BLOB.
+///
+/// Номера рядов прогресса — это номера рядов плетения ([ReadingOrder]), а не рядов сетки: у пейота ряд плетения — столбец.
 final class GridPatternSummary extends Equatable {
-  const GridPatternSummary({required this.id, required this.projectId, required this.width, required this.height});
+  const GridPatternSummary({
+    required this.id,
+    required this.projectId,
+    required this.width,
+    required this.height,
+    this.geometry = const RectangularGeometry(),
+  });
 
   final String id;
   final String projectId;
   final int width;
   final int height;
+  final GridGeometry geometry;
+
+  /// Порядок плетения схемы (с началом по умолчанию — число рядов и их длина от него не зависят).
+  ReadingOrder get readingOrder => ReadingOrder.of(geometry, columns: width, rows: height);
+
+  /// Сколько рядов плетения.
+  int get readingRowCount => readingOrder.rowCount;
+
+  /// Длина самого длинного ряда плетения.
+  int get maxRowLength => readingOrder.maxRowLength;
 
   @override
-  List<Object?> get props => <Object?>[id, projectId, width, height];
+  List<Object?> get props => <Object?>[id, projectId, width, height, GridGeometryCodec.encode(geometry)];
 }

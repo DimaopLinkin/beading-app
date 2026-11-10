@@ -29,6 +29,7 @@ import 'package:beading/data/settings/drift_device_id_provider.dart';
 import 'package:beading/data/settings/drift_settings_repository.dart';
 import 'package:beading/data/settings/package_info_app_info_provider.dart';
 import 'package:beading/data/settings/repository_keep_screen_awake_setting.dart';
+import 'package:beading/data/weaving/drift_work_session_repository.dart';
 import 'package:beading/domain/catalog/catalog_repository.dart';
 import 'package:beading/domain/catalog/use_cases/find_similar_colors.dart';
 import 'package:beading/domain/easter_eggs/compliment_source.dart';
@@ -76,6 +77,10 @@ import 'package:beading/domain/settings/setting_keys.dart';
 import 'package:beading/domain/settings/settings_repository.dart';
 import 'package:beading/domain/settings/wakelock_controller.dart';
 import 'package:beading/domain/sharing/text_sharer.dart';
+import 'package:beading/domain/weaving/rows_counter.dart';
+import 'package:beading/domain/weaving/work_session_content_cleaner.dart';
+import 'package:beading/domain/weaving/work_session_repository.dart';
+import 'package:beading/domain/weaving/work_session_tracker.dart';
 import 'package:beading/presentation/book_work/book_work_cubit.dart';
 import 'package:beading/presentation/catalog/catalog_cubit.dart';
 import 'package:beading/presentation/easter_eggs/compliment_banner_cubit.dart';
@@ -89,6 +94,7 @@ import 'package:beading/presentation/materials/materials_cubit.dart';
 import 'package:beading/presentation/pattern_template/pattern_template_cubit.dart';
 import 'package:beading/presentation/settings/settings_cubit.dart';
 import 'package:beading/presentation/theme/theme_mode_cubit.dart';
+import 'package:beading/presentation/weaving/weave_cubit.dart';
 import 'package:get_it/get_it.dart';
 
 /// Глобальный контейнер зависимостей. Регистрируем только здесь.
@@ -250,6 +256,7 @@ Future<void> configureDependencies({GetIt? locator, AppDatabase? database, Catal
         cleaners: <ProjectContentCleaner>[
           container<ImagePatternContentCleaner>(),
           container<GridPatternContentCleaner>(),
+          container<WorkSessionContentCleaner>(),
         ],
       ),
     )
@@ -288,6 +295,40 @@ Future<void> configureDependencies({GetIt? locator, AppDatabase? database, Catal
         work: container<BookWorkRepository>(),
         recordProgress: container<RecordBookProgress>(),
         updateNotes: container<UpdateNotes>(),
+      ),
+    )
+    ..registerLazySingleton<WorkSessionRepository>(
+      () => DriftWorkSessionRepository(
+        dao: db.workSessionsDao,
+        deviceIds: container<DeviceIdProvider>(),
+        clock: container<Clock>(),
+        ids: container<IdGenerator>(),
+      ),
+    )
+    ..registerLazySingleton<WorkSessionContentCleaner>(
+      () => WorkSessionContentCleaner(container<WorkSessionRepository>()),
+    )
+    ..registerFactory<RowsCounter>(
+      () => RowsCounter(settings: container<SettingsRepository>(), events: container<AppEvents>()),
+    )
+    // Отдельный счётчик времени на каждый экран плетения.
+    ..registerFactory<WorkSessionTracker>(
+      () => WorkSessionTracker(
+        sessions: container<WorkSessionRepository>(),
+        clock: container<Clock>(),
+      ),
+    )
+    ..registerFactoryParam<WeaveCubit, String, void>(
+      (projectId, _) => WeaveCubit(
+        projectId: projectId,
+        projects: container<ProjectRepository>(),
+        patterns: container<GridPatternRepository>(),
+        progress: container<GridProgressStore>(),
+        settings: container<SettingsRepository>(),
+        recordProgress: container<RecordBookProgress>(),
+        changeStatus: container<ChangeProjectStatus>(),
+        rowsCounter: container<RowsCounter>(),
+        tracker: container<WorkSessionTracker>(),
       ),
     )
     ..registerFactory<DuplicateProject>(

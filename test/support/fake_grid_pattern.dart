@@ -68,6 +68,7 @@ class FakeGridPatternRepository implements GridPatternRepository {
               projectId: projectId,
               width: pattern.grid.width,
               height: pattern.grid.height,
+              geometry: pattern.geometry,
             ),
           );
   }
