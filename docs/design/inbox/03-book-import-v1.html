@@ -1,0 +1,158 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Бисер — Импорт схемы из книги (03-book-import v1)</title>
+<style>
+:root{--font:-apple-system,BlinkMacSystemFont,"SF Pro Text","SF Pro",system-ui,sans-serif}
+*{box-sizing:border-box}
+body{margin:0;font-family:var(--font);background:#CFC8BC;color:#1C1A1F}
+body.dp{background:#0B0A0C;color:#F4F0EA}
+.top{position:sticky;top:0;z-index:50;display:flex;gap:12px;align-items:center;flex-wrap:wrap;padding:12px 24px;background:rgba(247,244,239,.92);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-bottom:1px solid rgba(0,0,0,.12)}
+body.dp .top{background:rgba(21,19,22,.92);border-color:rgba(255,255,255,.14)}
+.top h1{margin:0;font-size:18px;flex:1;min-width:220px}
+.seg{display:flex;padding:3px;border-radius:20px;background:rgba(120,110,100,.25)}
+.seg button{border:0;background:transparent;color:inherit;font:600 14px var(--font);padding:9px 16px;border-radius:17px;cursor:pointer;min-height:44px}
+.seg button[aria-pressed="true"]{background:#fff;color:#1C1A1F;box-shadow:0 1px 3px rgba(0,0,0,.2)}
+.stage{padding:28px 24px 40px;display:flex;flex-direction:column;gap:44px}
+.row{display:flex;flex-wrap:wrap;gap:28px;justify-content:center}
+.cell{display:flex;flex-direction:column;gap:10px;align-items:center}
+.cap{font-size:14px;font-weight:600;max-width:428px;text-align:center;opacity:.9}
+.note{max-width:920px;margin:0 auto;font-size:15px;line-height:1.55;padding:0 24px 60px}
+.note h2{font-size:20px;margin:0 0 8px}
+
+.phone{--bg:#F7F4EF;--surf:#FFF;--surf2:#EFEBE4;--ink:#1C1A1F;--ink2:#5F5954;--sep:#E0DAD1;--acc:#B5541C;--onacc:#fff;--acct:#9A4513;--accg:rgba(181,84,28,.16);--danger:#C0362C;
+ --glass:rgba(255,255,255,.55);--dense:rgba(255,255,255,.86);--gb:1px solid rgba(255,255,255,.85);--shadow:0 10px 28px rgba(0,0,0,.18);
+ position:relative;width:428px;height:926px;border-radius:52px;overflow:hidden;background:var(--bg);color:var(--ink);border:1px solid rgba(0,0,0,.25);box-shadow:0 18px 40px rgba(0,0,0,.28);flex:none;font-family:var(--font)}
+.phone[data-theme="dark"]{--bg:#151316;--surf:#201D22;--surf2:#2A262D;--ink:#F4F0EA;--ink2:#A9A29B;--sep:#3A353D;--acc:#F0955A;--onacc:#1C1A1F;--acct:#F0955A;--accg:rgba(240,149,90,.24);--danger:#FF7A6E;
+ --glass:rgba(40,38,44,.5);--dense:rgba(28,26,32,.84);--gb:1px solid rgba(255,255,255,.26);--shadow:0 10px 28px rgba(0,0,0,.45);border-color:rgba(255,255,255,.18)}
+.glass{background:var(--glass);border:var(--gb);box-shadow:var(--shadow);backdrop-filter:blur(24px) saturate(1.6);-webkit-backdrop-filter:blur(24px) saturate(1.6)}
+.dense{background:var(--dense);border:var(--gb);box-shadow:var(--shadow);backdrop-filter:blur(32px) saturate(1.4);-webkit-backdrop-filter:blur(32px) saturate(1.4)}
+.cam{--dense:rgba(24,22,26,.78);--glass:rgba(24,22,26,.55);--gb:1px solid rgba(255,255,255,.3);--ink:#F4F0EA;color:#F4F0EA}
+.bar{position:absolute;left:12px;right:12px;top:54px;height:60px;border-radius:30px;display:flex;align-items:center;justify-content:space-between;padding:0 8px;z-index:5}
+.bar .t{text-align:center;line-height:1.2;min-width:0}
+.bar .t b{display:block;font-size:17px;font-weight:700}
+.bar .t span{font-size:13px;color:var(--ink2);display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:230px}
+.cam .bar .t span{color:#CFCAC3}
+.tb{min-width:44px;height:44px;border-radius:22px;display:flex;align-items:center;justify-content:center;gap:2px;font-size:16px;font-weight:600;color:var(--acct);padding:0 10px}
+.cam .tb{color:#F4F0EA}
+.body{position:absolute;inset:0;padding:134px 16px 140px;display:flex;flex-direction:column;gap:14px;overflow:hidden}
+h2.h{margin:0;font-size:28px;letter-spacing:-.3px;line-height:1.15}
+.sub{margin:0;font-size:16px;color:var(--ink2)}
+.tile{display:flex;align-items:center;gap:14px;padding:14px 16px;border-radius:24px;background:var(--surf);border:1px solid var(--sep);min-height:96px}
+.tile .ic{width:56px;height:56px;border-radius:28px;background:var(--accg);color:var(--acct);display:flex;align-items:center;justify-content:center;flex:none}
+.tile b{display:block;font-size:19px;font-weight:600}
+.tile span.s{font-size:14px;color:var(--ink2)}
+.tile .ch{margin-left:auto;color:var(--ink2)}
+.tip{display:flex;gap:10px;align-items:flex-start;padding:12px 4px;font-size:14px;color:var(--ink2)}
+.bot{position:absolute;left:12px;right:12px;bottom:28px;border-radius:40px;padding:10px;display:flex;flex-direction:column;gap:8px;z-index:5}
+.pbtn{height:60px;border-radius:30px;background:var(--acc);color:var(--onacc);display:flex;align-items:center;justify-content:center;font-size:19px;font-weight:700}
+.pbtn.dis{background:var(--surf2);color:var(--ink2);opacity:.7}
+.tools{display:flex;gap:6px}
+.tool{flex:1;min-height:56px;border-radius:20px;background:var(--surf2);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font-size:13px;font-weight:600}
+.home{position:absolute;left:50%;bottom:8px;margin-left:-67px;width:134px;height:5px;border-radius:3px;background:var(--ink);opacity:.5;z-index:6}
+.cam .home{background:#fff}
+/* page mock */
+.pg{position:relative;background:#F3ECDD;border-radius:3px;box-shadow:0 6px 16px rgba(0,0,0,.35);overflow:hidden}
+.pg i{position:absolute;display:block}
+.dots{background:radial-gradient(circle,#C0392B 0 32%,transparent 34%) 0 0/9px 9px,radial-gradient(circle,#2F5D8A 0 32%,transparent 34%) 4.5px 4.5px/9px 9px,#EADFC6}
+.ln{height:5px;border-radius:2px;background:#8C8374;opacity:.55;left:8%}
+/* PDF grid */
+.pgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px 12px}
+.th{display:flex;flex-direction:column;gap:6px;align-items:center;font-size:13px;color:var(--ink2);font-weight:600}
+.thb{position:relative;width:100%;aspect-ratio:3/4;border-radius:8px;background:#EFE6D2;border:1px solid rgba(0,0,0,.18);overflow:hidden}
+.th.sel .thb{box-shadow:0 0 0 2px #151316,0 0 0 4.5px #fff,0 0 0 5.5px #151316}
+.th.sel{color:var(--ink)}
+.badge{position:absolute;right:6px;top:6px;width:24px;height:24px;border-radius:12px;background:var(--acc);color:var(--onacc);display:flex;align-items:center;justify-content:center;border:2px solid #fff}
+/* form */
+.fl{font-size:13px;font-weight:700;color:var(--ink2);text-transform:uppercase;letter-spacing:.6px;margin:4px 4px -6px}
+.inp{height:56px;border-radius:18px;background:var(--surf);border:2px solid var(--acc);display:flex;align-items:center;padding:0 16px;font-size:19px;gap:8px}
+.inp .cl{margin-left:auto;width:24px;height:24px;border-radius:12px;background:var(--ink2);color:var(--bg);display:flex;align-items:center;justify-content:center}
+.tg{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.to{min-height:76px;border-radius:20px;background:var(--surf);border:1px solid var(--sep);padding:12px 14px;display:flex;flex-direction:column;gap:2px;position:relative}
+.to b{font-size:17px}.to span{font-size:13px;color:var(--ink2)}
+.to.sel{border:2px solid var(--acc);background:var(--accg)}
+.to.sel::after{content:"";position:absolute;right:10px;top:10px;width:20px;height:20px;border-radius:10px;background:var(--acc)}
+.prev{display:flex;gap:14px;align-items:center;padding:12px;border-radius:22px;background:var(--surf);border:1px solid var(--sep)}
+.prev .pg{width:78px;height:104px;flex:none}
+.prev b{font-size:17px;display:block}.prev span{font-size:14px;color:var(--ink2)}
+.empty{position:absolute;left:0;right:0;top:300px;display:flex;flex-direction:column;align-items:center;gap:12px;text-align:center;padding:0 36px}
+.empty h3{margin:0;font-size:22px}.empty p{margin:0;font-size:16px;color:var(--ink2)}
+.cta{height:56px;padding:0 28px;border-radius:28px;background:var(--acc);color:var(--onacc);display:flex;align-items:center;font-size:18px;font-weight:700}
+.txt{height:48px;padding:0 18px;display:flex;align-items:center;font-size:17px;font-weight:600;color:var(--acct)}
+</style>
+</head>
+<body>
+<div class="top"><h1>Бисер · Схема из книги: импорт · 03-book-import v1</h1>
+<div class="seg" role="group" aria-label="Тема"><button data-m="light" aria-pressed="true">Светлая</button><button data-m="dark" aria-pressed="false">Тёмная</button><button data-m="both" aria-pressed="false">Обе рядом</button></div></div>
+<div class="stage" id="stage"></div>
+<div class="note"><h2>Решения и отступления</h2>
+Порядок шагов для PDF (так показано): 1 источник, 2 выбор страницы, 3 обрезка, 4 название и техника. Для камеры и «Фото» шага выбора страницы нет, нумерация сжимается до «из 3», а подсказка про бликах («без бликов на глянцевой бумаге») остаётся на экране источника. Стекло только на плавающем слое: верхняя панель, нижняя панель с кнопкой. Миниатюры страниц, фото страницы, поля и плитки выбора непрозрачные; кнопки и инструменты внутри стеклянных панелей плоские. Видоискатель камеры всегда тёмный в обеих темах (это контент), стеклянные панели над ним используют тёмный вариант стекла для читаемости. Выбранная страница и выбранная ячейка в сетке помечены двойным кольцом из 01b и галочкой (не только цветом). Ручки обрезки визуально 28 pt, зона нажатия 44 pt. «Нет доступа к камере» показан отдельным состоянием: из него есть выход через «Фото» и «Файлы». В макете нет клавиатуры iOS: при вводе названия панель с кнопкой поднимается над ней. Макет Mac для импорта в этом промпте не делался.
+</div>
+<script>
+const I={
+ camera:'M4 8h3l2-3h6l2 3h3v11H4zM12 17a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7z',
+ camoff:'M4 8h3l2-3h6l2 3h3v11H4zM4 4l16 16',
+ photo:'<rect x="4" y="5" width="16" height="14" rx="3"/><circle cx="9" cy="10" r="1.6"/><path d="M5 17l5-4 4 3 3-2 3 3"/>',
+ folder:'M3 7a2 2 0 0 1 2-2h4l2 2h8a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z',
+ chevL:'M15 5l-7 7 7 7',chevR:'M9 5l7 7-7 7',close:'M7 7l10 10M17 7L7 17',flash:'M13 3L5 13h6l-1 8 8-10h-6z',
+ rotL:'M4 12a8 8 0 1 1 3 6.2M4 6v6h6',rotR:'M20 12a8 8 0 1 0-3 6.2M20 6v6h-6',
+ align:'M5 7l14-2v14L5 17z',check:'M5 12l5 5 9-10',bulb:'M9 18h6M10 21h4M12 3a6 6 0 0 0-4 10c1 1 1 2 1 3h6c0-1 0-2 1-3a6 6 0 0 0-4-10z'
+};
+const ic=(n,s=24,c='currentColor',w=2)=>{const d=I[n];return `<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="${c}" stroke-width="${w}" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${d.startsWith('<')?d:`<path d="${d}"/>`}</svg>`};
+const page=(w,h,v=0,st='')=>{let inner='';
+ const lines=[18,24,30,36,42].map((t,i)=>`<i class="ln" style="top:${t+ (v%2?58:0)}%;width:${60+(i*7+v*5)%30}%"></i>`).join('');
+ inner=`<i class="dots" style="left:8%;right:8%;top:${v%2?8:44}%;height:${v%2?46:42}%"></i>${lines}`;
+ return `<div class="pg" style="width:${w}px;height:${h}px;${st}">${inner}</div>`};
+const bar=(l,t,s,r,cls='')=>`<div class="bar glass ${cls}"><div class="tb">${l}</div><div class="t"><b>${t}</b>${s?`<span>${s}</span>`:''}</div><div class="tb">${r||''}</div></div>`;
+const back=`${ic('chevL',22)}Назад`;
+const screens=[
+ ['1 · Выбор источника',()=>`${bar('Отмена','Схема из книги','Шаг 1 из 4','')}
+  <div class="body"><h2 class="h">Откуда взять страницу?</h2><p class="sub">Снимите разворот или выберите готовый файл.</p>
+  <div class="tile"><div class="ic">${ic('camera',28)}</div><div><b>Камера</b><span class="s">Сфотографировать страницу</span></div><div class="ch">${ic('chevR',22)}</div></div>
+  <div class="tile"><div class="ic">${ic('photo',28)}</div><div><b>Фото</b><span class="s">Выбрать снимок из галереи</span></div><div class="ch">${ic('chevR',22)}</div></div>
+  <div class="tile"><div class="ic">${ic('folder',28)}</div><div><b>Файлы</b><span class="s">PDF или изображение</span></div><div class="ch">${ic('chevR',22)}</div></div>
+  <div class="tip">${ic('bulb',22,'var(--acct)')}<span>Снимайте страницу ровно при хорошем свете, без бликов на глянцевой бумаге.</span></div></div><div class="home"></div>`],
+ ['2 · Камера',()=>`<div class="cam" style="position:absolute;inset:0;background:radial-gradient(ellipse at 50% 40%,#4A3F34,#171412)">
+  <div style="position:absolute;left:50%;top:210px;margin-left:-160px;transform:rotate(-3deg)">${page(320,430,0)}</div>
+  <svg style="position:absolute;left:36px;top:180px" width="356" height="500" viewBox="0 0 356 500" fill="none" stroke="#fff" stroke-width="4" stroke-linecap="round" aria-hidden="true"><path d="M2 40V12a10 10 0 0 1 10-10h28M316 2h28a10 10 0 0 1 10 10v28M354 460v28a10 10 0 0 1-10 10h-28M40 498H12a10 10 0 0 1-10-10v-28"/></svg>
+  ${bar(ic('close',22),'Камера','Страница целиком',ic('flash',22),'')}
+  <div class="bot dense" style="flex-direction:row;align-items:center;justify-content:space-between;padding:12px 18px"><div class="tb" style="min-width:64px;font-size:15px">Фото</div><div style="width:76px;height:76px;border-radius:38px;border:4px solid #fff;display:flex;align-items:center;justify-content:center" aria-label="Снять"><div style="width:58px;height:58px;border-radius:29px;background:#fff"></div></div><div class="tb" style="min-width:64px;font-size:15px">Файлы</div></div><div class="home"></div></div>`],
+ ['2б · Нет доступа к камере',()=>`${bar('Отмена','Камера','Нет доступа','')}
+  <div class="empty"><svg width="96" height="96" viewBox="0 0 24 24" fill="none" stroke="var(--ink2)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" role="img" aria-label="Камера недоступна"><path d="${I.camoff}"/></svg><h3>Нет доступа к камере</h3><p>Разрешите доступ в Настройках или выберите страницу из Фото или Файлов.</p><div class="cta">Открыть Настройки</div><div class="txt">Выбрать из Фото</div></div><div class="home"></div>`],
+ ['3 · PDF: выбор страницы',()=>`${bar(back,'Выберите страницу','Браслеты.pdf · 12 стр.','')}
+  <div class="body" style="padding-top:134px"><div class="pgrid">${Array.from({length:12},(_,i)=>`<div class="th ${i===3?'sel':''}"><div class="thb">${page(130,175,i,'width:100%;height:100%;border-radius:0;box-shadow:none')}${i===3?`<div class="badge">${ic('check',14,'currentColor',3)}</div>`:''}</div>${i+1}</div>`).join('')}</div></div>
+  <div class="bot dense"><div class="pbtn">Далее · страница 4</div></div><div class="home"></div>`],
+ ['4 · Обрезка и поворот',()=>{const pts=[[62,64],[372,46],[386,468],[46,492]];const lerp=(a,b,t)=>[a[0]+(b[0]-a[0])*t,a[1]+(b[1]-a[1])*t];
+  const g=[1/3,2/3].map(t=>{const a=lerp(pts[0],pts[1],t),b=lerp(pts[3],pts[2],t),c=lerp(pts[0],pts[3],t),d=lerp(pts[1],pts[2],t);return `<path d="M${a} L${b} M${c} L${d}" stroke="#fff" stroke-opacity=".5" stroke-width="1"/>`}).join('');
+  const mids=[0,1,2,3].map(i=>lerp(pts[i],pts[(i+1)%4],.5));
+  return `${bar(back,'Обрезка','Шаг 3 из 4','<span style="color:var(--acct)">Сбросить</span>')}
+  <div style="position:absolute;left:0;right:0;top:128px;height:560px;background:#2A2420"><div style="position:absolute;left:50%;top:46px;margin-left:-175px;transform:rotate(-3deg)">${page(350,470,3)}</div>
+   <svg width="428" height="560" viewBox="0 0 428 560" style="position:absolute;left:0;top:0" aria-label="Рамка обрезки">
+    <path fill-rule="evenodd" fill="rgba(0,0,0,.55)" d="M0 0H428V560H0Z M${pts.map(p=>p.join(' ')).join(' L')}Z"/>
+    ${g}<polygon points="${pts.map(p=>p.join(',')).join(' ')}" fill="none" stroke="#000" stroke-opacity=".5" stroke-width="4"/><polygon points="${pts.map(p=>p.join(',')).join(' ')}" fill="none" stroke="#fff" stroke-width="2"/>
+    ${mids.map(m=>`<rect x="${m[0]-14}" y="${m[1]-5}" width="28" height="10" rx="5" fill="#fff" stroke="#000" stroke-opacity=".5"/>`).join('')}
+    ${pts.map(p=>`<circle cx="${p[0]}" cy="${p[1]}" r="14" fill="#fff" stroke="#000" stroke-opacity=".5" stroke-width="2"/>`).join('')}</svg></div>
+  <div class="bot dense"><div class="tools"><div class="tool">${ic('rotL',24)}Влево</div><div class="tool">${ic('rotR',24)}Вправо</div><div class="tool">${ic('align',24)}Выровнять</div></div><div class="pbtn">Далее</div></div><div class="home"></div>`}],
+ ['5 · Название и техника',()=>`${bar(back,'О проекте','Шаг 4 из 4','')}
+  <div class="body"><div class="prev">${page(78,104,3)}<div><b>Страница 4</b><span>Браслеты.pdf<br>Обрезана и выровнена</span></div></div>
+  <div class="fl">Название</div><div class="inp">Браслет «Рябина»<span class="cl">${ic('close',14,'currentColor',3)}</span></div>
+  <div class="fl">Техника</div><div class="tg"><div class="to"><b>Станок</b><span>Прямоугольная сетка</span></div><div class="to"><b>Мозаика</b><span>Пейот</span></div><div class="to sel"><b>Кирпич</b><span>Кирпичный стежок</span></div><div class="to"><b>Другое</b><span>Ндебеле и прочее</span></div></div></div>
+  <div class="bot dense"><div class="pbtn">Создать проект</div></div><div class="home"></div>`]
+];
+let mode='light';
+function render(){
+ const st=document.getElementById('stage');st.innerHTML='';
+ document.body.classList.toggle('dp',mode==='dark');
+ (mode==='both'?['light','dark']:[mode]).forEach(th=>{
+  const row=document.createElement('div');row.className='row';
+  screens.forEach(s=>{const c=document.createElement('div');c.className='cell';
+   c.innerHTML=`<div class="phone" data-theme="${th}">${s[1]()}</div><div class="cap">${s[0]} · ${th==='dark'?'тёмная':'светлая'}</div>`;row.appendChild(c)});
+  st.appendChild(row)});
+}
+document.querySelectorAll('.seg button').forEach(b=>b.onclick=()=>{mode=b.dataset.m;document.querySelectorAll('.seg button').forEach(x=>x.setAttribute('aria-pressed',x===b));render()});
+render();
+</script>
+</body>
+</html>

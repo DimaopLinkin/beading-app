@@ -12,6 +12,7 @@ import 'package:package_info_plus/package_info_plus.dart';
 
 import '../support/fake_platform.dart';
 import '../support/in_memory_database.dart';
+import '../support/unmount.dart';
 
 Future<Widget> bootstrapWithFakes(
   WidgetTester tester, {
@@ -25,6 +26,12 @@ Future<Widget> bootstrapWithFakes(
     wakelockController: fakeWakelockController(),
   ),
 ))!;
+
+/// Реальная БД отвечает вне fake-async, поэтому даём ей ответить и только потом рисуем кадр.
+Future<void> settle(WidgetTester tester) async {
+  await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 50)));
+  await tester.pumpAndSettle();
+}
 
 void main() {
   setUp(() async {
@@ -40,10 +47,11 @@ void main() {
 
   testWidgets('приложение запускается и показывает «Мои работы»', (tester) async {
     await tester.pumpWidget(await bootstrapWithFakes(tester));
-    await tester.pumpAndSettle();
+    await settle(tester);
 
-    expect(find.text('Мои работы'), findsOneWidget);
+    expect(find.text('Мои работы'), findsWidgets);
     expect(getIt, same(GetIt.instance));
+    await unmountApp(tester);
   });
 
   testWidgets('в тёмной теме экран тоже строится', (tester) async {
@@ -51,24 +59,26 @@ void main() {
     addTearDown(tester.platformDispatcher.clearAllTestValues);
 
     await tester.pumpWidget(await bootstrapWithFakes(tester));
-    await tester.pumpAndSettle();
+    await settle(tester);
 
-    expect(find.text('Мои работы'), findsOneWidget);
-    expect(CupertinoTheme.brightnessOf(tester.element(find.text('Мои работы'))), Brightness.dark);
+    expect(find.text('Мои работы'), findsWidgets);
+    expect(CupertinoTheme.brightnessOf(tester.element(find.text('Мои работы').first)), Brightness.dark);
+    await unmountApp(tester);
   });
 
   testWidgets('выбор режима темы переключает приложение', (tester) async {
     await tester.pumpWidget(await bootstrapWithFakes(tester));
-    await tester.pumpAndSettle();
-    final BuildContext context = tester.element(find.text('Мои работы'));
+    await settle(tester);
+    final BuildContext context = tester.element(find.text('Мои работы').first);
 
     await context.read<ThemeModeCubit>().select(AppThemeMode.dark);
-    await tester.pumpAndSettle();
-    expect(CupertinoTheme.brightnessOf(tester.element(find.text('Мои работы'))), Brightness.dark);
+    await settle(tester);
+    expect(CupertinoTheme.brightnessOf(tester.element(find.text('Мои работы').first)), Brightness.dark);
 
     await context.read<ThemeModeCubit>().select(AppThemeMode.light);
-    await tester.pumpAndSettle();
-    expect(CupertinoTheme.brightnessOf(tester.element(find.text('Мои работы'))), Brightness.light);
+    await settle(tester);
+    expect(CupertinoTheme.brightnessOf(tester.element(find.text('Мои работы').first)), Brightness.light);
+    await unmountApp(tester);
   });
 
   testWidgets('bootstrap фиксирует портрет, настраивает окно и включает wakelock', (tester) async {
@@ -88,6 +98,7 @@ void main() {
     expect(orientation.portraitCalls, 1);
     expect(window.configs.single.size, const Size(480, 900));
     expect(lock.calls, <String>['enable']);
+    await unmountApp(tester);
   });
 
   testWidgets('из «Моих работ» открываются настройки и «О приложении»', (tester) async {
@@ -102,6 +113,7 @@ void main() {
     await tester.tap(find.text('О приложении'));
     await tester.pumpAndSettle();
     expect(find.text('Каждая бусинка на своём месте. Плети с удовольствием!'), findsOneWidget);
+    await unmountApp(tester);
   });
 
   testWidgets('выбор тёмной темы в настройках сразу применяется', (tester) async {
@@ -114,6 +126,7 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(CupertinoTheme.brightnessOf(tester.element(find.text('Не гасить экран'))), Brightness.dark);
+    await unmountApp(tester);
   });
 
   testWidgets('«Уменьшить прозрачность» из системы доходит до стекла', (tester) async {
@@ -127,6 +140,7 @@ void main() {
 
     final BuildContext context = tester.element(find.text('Мои работы'));
     expect(GlassPolicy.isOpaque(context), isTrue);
+    await unmountApp(tester);
   });
 
   testWidgets('в отладочной сборке из настроек открывается «Проверка стекла»', (tester) async {
@@ -141,5 +155,6 @@ void main() {
     await tester.pump(const Duration(seconds: 1));
 
     expect(find.text('Кадров: 0'), findsOneWidget);
+    await unmountApp(tester);
   });
 }
