@@ -204,7 +204,7 @@ class RowRingTokens {
     this.innerWidth = 2,
     this.outerWidth = 2.5,
     this.edgeWidth = 1,
-  });
+  }) : assert(innerWidth > 0, 'innerWidth должен быть положительным');
 
   final Color inner;
   final Color outer;

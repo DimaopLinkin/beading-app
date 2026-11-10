@@ -59,10 +59,16 @@ class GridOverlayPainter extends CustomPainter {
         ..strokeWidth = w
         ..color = color,
     );
-    // Линия идёт по краю бусин: слои рисуются от самого широкого к самому узкому.
-    stroke(ring.inner, width + (outer + edge) * 2);
-    stroke(ring.outer, width + outer * 2);
-    stroke(ring.inner, width);
+    // Кольцо целиком снаружи ряда, как у прямоугольника: внутренность контура вырезаем из области рисования.
+    canvas.save();
+    canvas.clipPath(
+      Path.combine(PathOperation.difference, Path()..addRect(canvas.getLocalClipBounds().inflate(1)), path),
+    );
+    // Слои от самого широкого к самому узкому; обводка центрирована по контуру, снаружи остаётся её половина.
+    stroke(ring.inner, (width + outer + edge) * 2);
+    stroke(ring.outer, (width + outer) * 2);
+    stroke(ring.inner, width * 2);
+    canvas.restore();
   }
 
   @override

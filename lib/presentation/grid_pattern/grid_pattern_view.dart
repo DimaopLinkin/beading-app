@@ -148,6 +148,7 @@ class _GridPatternViewState extends State<GridPatternView> {
           width: _scene.size.width,
           height: _scene.size.height,
           child: Stack(
+            clipBehavior: Clip.none,
             children: <Widget>[
               Positioned.fill(
                 child: RepaintBoundary(
