@@ -219,6 +219,34 @@
   "@importProblemSaveFailed": {
     "description": "Ошибка сохранения"
   },
+  "importStep": "Шаг {number} из {total}",
+  "@importStep": {
+    "description": "Подпись шага потока импорта",
+    "placeholders": {
+      "number": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "importOpening": "Открываем файл…",
+  "@importOpening": {
+    "description": "Ожидание: открывается выбранный файл или фото"
+  },
+  "importRendering": "Готовим страницы…",
+  "@importRendering": {
+    "description": "Ожидание: отрисовываются страницы PDF"
+  },
+  "importProblemPdfEmpty": "В этом PDF нет страниц. Выберите другой файл.",
+  "@importProblemPdfEmpty": {
+    "description": "Ошибка: PDF открылся, но пустой"
+  },
+  "importPickAnother": "Выбрать другой файл",
+  "@importPickAnother": {
+    "description": "Кнопка в сообщении об ошибке файла"
+  },
   "importProblemNoPages": "Выберите хотя бы одну страницу.",
   "@importProblemNoPages": {
     "description": "Нет страниц"

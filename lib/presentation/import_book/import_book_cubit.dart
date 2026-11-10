@@ -34,16 +34,21 @@ class ImportBookCubit extends Cubit<ImportBookState> {
   Future<void> pickFiles() => _load(_source.pickFiles);
 
   Future<void> _load(Future<Result<List<PickedBookFile>>> Function() pick) async {
+    if (state.busy != null) {
+      return;
+    }
+    emit(state.copyWith(busy: ImportBusy.opening, clearProblem: true));
     final Result<List<PickedBookFile>> picked = await pick();
     if (isClosed) {
       return;
     }
     if (picked case Err<List<PickedBookFile>>()) {
-      emit(state.copyWith(problem: ImportProblem.sourceUnavailable));
+      emit(state.copyWith(problem: ImportProblem.sourceUnavailable, clearBusy: true));
       return;
     }
     final List<PickedBookFile> files = picked.valueOrNull!;
     if (files.isEmpty) {
+      emit(state.copyWith(clearBusy: true));
       return;
     }
     final PickedBookFile? pdf = files.where((f) => f.isPdf).firstOrNull;
@@ -61,10 +66,13 @@ class ImportBookCubit extends Cubit<ImportBookState> {
             selectedPdfPages: <int>{},
             name: _nameFor(pdf.name),
             clearProblem: true,
+            clearBusy: true,
           ),
         );
       } else {
-        emit(state.copyWith(problem: ImportProblem.pdfFailed));
+        // Страниц ноль — файл открылся, но пустой; иначе его не удалось открыть.
+        final bool empty = count is Success<int> && count.value == 0;
+        emit(state.copyWith(problem: empty ? ImportProblem.pdfEmpty : ImportProblem.pdfFailed, clearBusy: true));
       }
       return;
     }
@@ -77,6 +85,7 @@ class ImportBookCubit extends Cubit<ImportBookState> {
         ],
         name: state.name.isEmpty ? _nameFor(files.first.name) : state.name,
         clearProblem: true,
+        clearBusy: true,
       ),
     );
   }
@@ -101,13 +110,17 @@ class ImportBookCubit extends Cubit<ImportBookState> {
       emit(state.copyWith(problem: ImportProblem.noPages));
       return;
     }
+    if (state.busy != null) {
+      return;
+    }
+    emit(state.copyWith(busy: ImportBusy.rendering, clearProblem: true));
     final List<int> indexes = state.selectedPdfPages.toList()..sort();
     final Result<List<ProcessedImage>> rendered = await _rasterizer.render(pdf.bytes, indexes);
     if (isClosed) {
       return;
     }
     if (rendered case Err<List<ProcessedImage>>()) {
-      emit(state.copyWith(problem: ImportProblem.pdfFailed));
+      emit(state.copyWith(problem: ImportProblem.pdfFailed, clearBusy: true));
       return;
     }
     emit(
@@ -118,6 +131,7 @@ class ImportBookCubit extends Cubit<ImportBookState> {
           for (final ProcessedImage image in rendered.valueOrNull!) PageDraft(id: _nextPageId++, bytes: image.png),
         ],
         clearProblem: true,
+        clearBusy: true,
       ),
     );
   }

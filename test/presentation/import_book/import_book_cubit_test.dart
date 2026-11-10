@@ -118,6 +118,39 @@ void main() {
       expect(cubit.state.problem, ImportProblem.pdfFailed);
     });
 
+    test('пустой PDF — отдельная проблема, а не «не открылся»', () async {
+      picked(<PickedBookFile>[_pdf]);
+      rasterizer.pages = 0;
+
+      await cubit.pickFiles();
+
+      expect(cubit.state.problem, ImportProblem.pdfEmpty);
+      expect(cubit.state.busy, isNull);
+    });
+
+    test('пока файл открывается, состояние занято; после — свободно', () async {
+      picked(<PickedBookFile>[_pdf]);
+      final List<ImportBusy?> seen = <ImportBusy?>[];
+      final StreamSubscription<ImportBookState> sub = cubit.stream.listen((s) => seen.add(s.busy));
+
+      await cubit.pickFiles();
+      await Future<void>.delayed(Duration.zero);
+      await sub.cancel();
+
+      expect(seen.first, ImportBusy.opening);
+      expect(cubit.state.busy, isNull);
+    });
+
+    test('нумерация шагов: для PDF три, без него два', () async {
+      expect(cubit.state.stepCount, 2);
+      expect(cubit.state.stepNumber, 1);
+      picked(<PickedBookFile>[_pdf]);
+      await cubit.pickFiles();
+
+      expect(cubit.state.stepCount, 3);
+      expect(cubit.state.stepNumber, 2);
+    });
+
     test('отмечает и снимает страницы, «все» и «снять»', () async {
       picked(<PickedBookFile>[_pdf]);
       await cubit.pickFiles();

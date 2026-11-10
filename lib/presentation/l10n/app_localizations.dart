@@ -583,6 +583,36 @@ abstract class AppLocalizations {
   /// **'Не удалось сохранить схему. Проверьте свободное место.'**
   String get importProblemSaveFailed;
 
+  /// Подпись шага потока импорта
+  ///
+  /// In ru, this message translates to:
+  /// **'Шаг {number} из {total}'**
+  String importStep(int number, int total);
+
+  /// Ожидание: открывается выбранный файл или фото
+  ///
+  /// In ru, this message translates to:
+  /// **'Открываем файл…'**
+  String get importOpening;
+
+  /// Ожидание: отрисовываются страницы PDF
+  ///
+  /// In ru, this message translates to:
+  /// **'Готовим страницы…'**
+  String get importRendering;
+
+  /// Ошибка: PDF открылся, но пустой
+  ///
+  /// In ru, this message translates to:
+  /// **'В этом PDF нет страниц. Выберите другой файл.'**
+  String get importProblemPdfEmpty;
+
+  /// Кнопка в сообщении об ошибке файла
+  ///
+  /// In ru, this message translates to:
+  /// **'Выбрать другой файл'**
+  String get importPickAnother;
+
   /// Нет страниц
   ///
   /// In ru, this message translates to:

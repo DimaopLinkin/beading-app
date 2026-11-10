@@ -8,7 +8,10 @@ import 'package:equatable/equatable.dart';
 enum ImportStep { pickSource, choosePdfPages, review, importing, done }
 
 /// Что пошло не так, в терминах для текста на экране.
-enum ImportProblem { sourceUnavailable, unreadable, pdfFailed, saveFailed, noPages, emptyName }
+enum ImportProblem { sourceUnavailable, unreadable, pdfFailed, pdfEmpty, saveFailed, noPages, emptyName }
+
+/// Чем занят поток, пока пользовательница ждёт.
+enum ImportBusy { opening, rendering }
 
 /// Страница в списке перед импортом: исходные байты и правки.
 class PageDraft extends Equatable {
@@ -37,6 +40,7 @@ class ImportBookState extends Equatable {
     this.selectedPdfPages = const <int>{},
     this.problem,
     this.projectId,
+    this.busy,
   });
 
   final ImportStep step;
@@ -53,6 +57,20 @@ class ImportBookState extends Equatable {
   /// Созданный проект, когда [step] — [ImportStep.done].
   final String? projectId;
 
+  /// Идёт открытие файла или отрисовка страниц PDF: на экране индикатор, кнопки не нажимаются.
+  final ImportBusy? busy;
+
+  /// Сколько экранов в этом потоке: для PDF добавляется выбор страниц. Считается здесь, а не в строке экрана.
+  int get stepCount => pdf != null ? 3 : 2;
+
+  /// Номер текущего экрана потока, с 1; `null`, когда шаг не нумеруется (сохранение, конец).
+  int? get stepNumber => switch (step) {
+    ImportStep.pickSource => 1,
+    ImportStep.choosePdfPages => 2,
+    ImportStep.review => stepCount,
+    ImportStep.importing || ImportStep.done => null,
+  };
+
   ImportBookState copyWith({
     ImportStep? step,
     Craft? craft,
@@ -63,7 +81,9 @@ class ImportBookState extends Equatable {
     Set<int>? selectedPdfPages,
     ImportProblem? problem,
     String? projectId,
+    ImportBusy? busy,
     bool clearProblem = false,
+    bool clearBusy = false,
   }) => ImportBookState(
     step: step ?? this.step,
     craft: craft ?? this.craft,
@@ -74,6 +94,7 @@ class ImportBookState extends Equatable {
     selectedPdfPages: selectedPdfPages ?? this.selectedPdfPages,
     problem: clearProblem ? null : (problem ?? this.problem),
     projectId: projectId ?? this.projectId,
+    busy: clearBusy ? null : (busy ?? this.busy),
   );
 
   @override
@@ -87,5 +108,6 @@ class ImportBookState extends Equatable {
     selectedPdfPages,
     problem,
     projectId,
+    busy,
   ];
 }

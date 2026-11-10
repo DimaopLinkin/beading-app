@@ -275,6 +275,23 @@ class AppLocalizationsRu extends AppLocalizations {
   String get importProblemSaveFailed => 'Не удалось сохранить схему. Проверьте свободное место.';
 
   @override
+  String importStep(int number, int total) {
+    return 'Шаг $number из $total';
+  }
+
+  @override
+  String get importOpening => 'Открываем файл…';
+
+  @override
+  String get importRendering => 'Готовим страницы…';
+
+  @override
+  String get importProblemPdfEmpty => 'В этом PDF нет страниц. Выберите другой файл.';
+
+  @override
+  String get importPickAnother => 'Выбрать другой файл';
+
+  @override
   String get importProblemNoPages => 'Выберите хотя бы одну страницу.';
 
   @override
