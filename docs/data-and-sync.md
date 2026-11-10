@@ -19,7 +19,7 @@ drift (SQLite) — единственный источник правды на �
 | `projects` | name, craft (`beading`/`crossStitch`), status (`idea`/`inProgress`/`done`), technique, content_kind (`image`/`grid`/`steps`), notes, cover_path NULL, last_worked_at | Корень библиотеки |
 | `image_patterns` | project_id FK | Схема из книги. |
 | `image_pattern_pages` | image_pattern_id FK, position, file_path, pdf_page NULL, width_px, height_px, ruler_top, ruler_height, ruler_step, current_row, view_scale, view_dx, view_dy | Страница схемы из книги или PDF и её прогресс (линейка). Файл копируется в Application Support, путь относительный. |
-| `grid_patterns` | project_id FK, geometry, drop, width, height, cell_metrics, current_row, current_bead, cells BLOB, cells_codec_version, layers BLOB NULL, layers_codec_version NULL (слои пишет T38) | Сетка одним BLOB (индексы палитры), а не строкой на бусину: 30×400 = 12 000 строк на схему — слишком дорого. Кодек версионирован и покрыт тестами. |
+| `grid_patterns` | project_id FK, geometry, geometry_drop (`drop` — зарезервированное слово SQL), width, height, cell_metrics, current_row, current_bead, cells BLOB, cells_codec_version, layers BLOB NULL, layers_codec_version NULL (слои пишет T38) | Сетка одним BLOB (индексы палитры), а не строкой на бусину: 30×400 = 12 000 строк на схему — слишком дорого. Кодек версионирован и покрыт тестами. |
 | `pattern_colors` | grid_pattern_id FK, position, rgb, name, components (JSON: 1–2 пары бренд+код, сложения), finish NULL, symbol | Палитра-снимок схемы: значения скопированы, а не ссылка на каталог |
 | `catalog_colors` | material (`bead`/`floss`), brand, series, code, name, rgb, finish, size | Каталог бисера (Miyuki Delica, Toho, Preciosa) и мулине (DMC, Anchor, Madeira, «Гамма»; T36). Наполняется из `assets/catalog/*.json` при первом запуске/миграции, не синхронизируется. |
 | `grid_progress_rows` | grid_pattern_id FK, row_index, completed_at | Отмеченные ряды. Отдельная таблица, потому что при слиянии это множество (объединяем), а не одно значение. Текущая бусина — в `grid_patterns.current_row/current_bead`. |
@@ -28,6 +28,14 @@ drift (SQLite) — единственный источник правды на �
 | `inventory` | catalog_color_id, amount (граммы бисера / мотки мулине) | Бонус: запасы бисера и мулине |
 | `settings` | key PK, value | Тема, wakelock, имя для пасхалок. Естественный PK `key` вместо UUID. Ключи с префиксом `local.` (например `local.deviceId`) относятся к устройству: в синхронизацию и экспорт `.biser` не входят; резервная копия всей базы их содержит, но при восстановлении они заменяются значениями текущего устройства |
 | `easter_egg_log` | egg_id, shown_at | Чтобы пасхалки не повторялись и были редкими. Локальная, не синхронизируется. |
+
+### Заметки для синхронизации (T14, архитектурное ревью)
+
+- Схема и палитра — **одна единица слияния**: `pattern_colors` берутся у устройства, чья запись `grid_patterns` новее (иначе индексы сетки не сойдутся с цветами). Репозиторий при чтении проверяет подряд идущие `position` и что в сетке нет цвета вне палитры.
+- У `pattern_colors` и `grid_progress_rows` случайный `id`, но натуральный уникальный ключ (`grid_pattern_id` + `position` / `row_index`). Слияние T26 сводит записи по натуральному ключу, а не по `id`; то же для `grid_progress_cells` (T38, ключ `block_index`).
+- `current_row`/`current_bead` лежат в записи `grid_patterns`: «остановилась здесь» меняет её `updated_at`. T26 решает, нужен ли LWW по полям или вынос в запись прогресса.
+- Уникальность `grid_patterns.project_id` учитывает надгробия: «сброс схемы» без удаления проекта должен оживлять строку.
+- Подрезка прогресса при смене размера схемы сейчас в `DriftGridPatternRepository.save`; T38 добавляет туда же подрезку `grid_progress_cells` (индекс блока зависит от ширины).
 
 ### Правила работы с drift
 
