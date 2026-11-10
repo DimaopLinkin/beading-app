@@ -21,6 +21,7 @@ import 'package:beading/data/image_pattern/pdfrx_pdf_rasterizer.dart';
 import 'package:beading/data/image_pattern/picker_book_image_source.dart';
 import 'package:beading/data/image_pattern/ui_image_processor.dart';
 import 'package:beading/data/image_to_grid/isolate_image_to_grid_runner.dart';
+import 'package:beading/data/image_to_grid/ui_image_decoder.dart';
 import 'package:beading/data/platform/method_channel_reduce_transparency_source.dart';
 import 'package:beading/data/platform/share_plus_text_sharer.dart';
 import 'package:beading/data/platform/wakelock_plus_screen_wake_lock.dart';
@@ -53,7 +54,9 @@ import 'package:beading/domain/image_pattern/image_processor.dart';
 import 'package:beading/domain/image_pattern/pdf_rasterizer.dart';
 import 'package:beading/domain/image_pattern/picked_book_file.dart';
 import 'package:beading/domain/image_pattern/use_cases/import_book_pattern.dart';
+import 'package:beading/domain/image_to_grid/image_decoder.dart';
 import 'package:beading/domain/image_to_grid/image_to_grid_runner.dart';
+import 'package:beading/domain/image_to_grid/use_cases/create_pattern_from_image.dart';
 import 'package:beading/domain/materials/use_cases/load_project_materials.dart';
 import 'package:beading/domain/projects/project_content_cleaner.dart';
 import 'package:beading/domain/projects/project_content_cloner.dart';
@@ -86,6 +89,7 @@ import 'package:beading/presentation/catalog/catalog_cubit.dart';
 import 'package:beading/presentation/easter_eggs/compliment_banner_cubit.dart';
 import 'package:beading/presentation/editor/editor_cubit.dart';
 import 'package:beading/presentation/editor/new_grid_cubit.dart';
+import 'package:beading/presentation/image_to_grid/image_wizard_cubit.dart';
 import 'package:beading/presentation/import_book/import_book_cubit.dart';
 import 'package:beading/presentation/library/library_cubit.dart';
 import 'package:beading/presentation/library/new_project_entry.dart';
@@ -200,6 +204,18 @@ Future<void> configureDependencies({GetIt? locator, AppDatabase? database, Catal
         source: container<BookImageSource>(),
         rasterizer: container<PdfRasterizer>(),
         importBookPattern: container<ImportBookPattern>(),
+      ),
+    )
+    ..registerLazySingleton<ImageDecoder>(UiImageDecoder.new)
+    ..registerFactory<ImageWizardCubit>(
+      () => ImageWizardCubit(
+        source: container<BookImageSource>(),
+        processor: container<ImageProcessor>(),
+        decoder: container<ImageDecoder>(),
+        runner: container<ImageToGridRunner>(),
+        catalog: container<CatalogRepository>(),
+        settings: container<SettingsRepository>(),
+        createPattern: CreatePatternFromImage(container<CreateGridPattern>()),
       ),
     )
     ..registerLazySingleton<GridPatternRepository>(

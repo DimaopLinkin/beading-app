@@ -17,6 +17,8 @@ import 'package:beading/presentation/editor/editor_cubit.dart';
 import 'package:beading/presentation/editor/editor_screen.dart';
 import 'package:beading/presentation/editor/new_grid_cubit.dart';
 import 'package:beading/presentation/editor/new_grid_screen.dart';
+import 'package:beading/presentation/image_to_grid/image_wizard_cubit.dart';
+import 'package:beading/presentation/image_to_grid/image_wizard_screen.dart';
 import 'package:beading/presentation/import_book/import_book_cubit.dart';
 import 'package:beading/presentation/import_book/import_book_screen.dart';
 import 'package:beading/presentation/l10n/app_localizations.dart';
@@ -47,6 +49,9 @@ abstract final class AppRoutes {
 
   /// Плетение по своей схеме (T19).
   static String weave(String projectId) => WeaveScreen.locationFor(projectId);
+
+  /// «Схема из картинки» (T25). Закрывается с id созданного проекта.
+  static const String imageToGrid = ImageWizardScreen.routePath;
 
   /// Каталог цветов бисера (T20).
   static const String catalog = CatalogScreen.routePath;
@@ -136,6 +141,13 @@ GoRouter createRouter({bool showDeveloperTools = !kReleaseMode}) => GoRouter(
       builder: (_, state) => BlocProvider<EditorCubit>(
         create: (_) => getIt<EditorCubit>(param1: state.pathParameters['projectId'])..load(),
         child: EditorScreen(catalog: getIt<CatalogRepository>()),
+      ),
+    ),
+    GoRoute(
+      path: AppRoutes.imageToGrid,
+      builder: (_, _) => BlocProvider<ImageWizardCubit>(
+        create: (_) => getIt<ImageWizardCubit>()..start(),
+        child: const ImageWizardScreen(),
       ),
     ),
     GoRoute(

@@ -27,4 +27,10 @@ if [[ -d lib/presentation ]]; then
   if [[ -n "$hits" ]]; then echo "ARCH: Material импортируем только в presentation/theme/material_bridge.dart"; echo "$hits"; fail=1; fi
 fi
 
+# CupertinoIcons рисуются шрифтом из пакета cupertino_icons: без зависимости в pubspec сборка проходит,
+# а на устройстве все иконки превращаются в «?» (баг 0.1.0).
+if grep -rqE "CupertinoIcons\." lib --include='*.dart' && ! grep -qE '^  cupertino_icons:' pubspec.yaml; then
+  echo "ARCH: lib использует CupertinoIcons, но cupertino_icons не объявлен в dependencies (pubspec.yaml)"; fail=1
+fi
+
 exit $fail
