@@ -275,6 +275,23 @@ class AppLocalizationsRu extends AppLocalizations {
   String get importProblemSaveFailed => 'Не удалось сохранить схему. Проверьте свободное место.';
 
   @override
+  String importStep(int number, int total) {
+    return 'Шаг $number из $total';
+  }
+
+  @override
+  String get importOpening => 'Открываем файл…';
+
+  @override
+  String get importRendering => 'Готовим страницы…';
+
+  @override
+  String get importProblemPdfEmpty => 'В этом PDF нет страниц. Выберите другой файл.';
+
+  @override
+  String get importPickAnother => 'Выбрать другой файл';
+
+  @override
   String get importProblemNoPages => 'Выберите хотя бы одну страницу.';
 
   @override
@@ -293,7 +310,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String bookWorkPageLabel(int current, int total) {
-    return 'Стр. $current из $total';
+    return 'Страница $current из $total';
   }
 
   @override
@@ -303,6 +320,41 @@ class AppLocalizationsRu extends AppLocalizations {
   String bookWorkPageItem(int number) {
     return 'Страница $number';
   }
+
+  @override
+  String get bookWorkDirection => 'Направление рядов';
+
+  @override
+  String get bookWorkDirectionDown => 'Сверху вниз';
+
+  @override
+  String get bookWorkDirectionUp => 'Снизу вверх';
+
+  @override
+  String get bookWorkResizeHandle => 'Высота линейки: потяни вверх или вниз';
+
+  @override
+  String get bookWorkPageEnd => 'Страница закончена';
+
+  @override
+  String get bookWorkNextPage => 'Следующая страница';
+
+  @override
+  String get bookWorkUndo => 'Отменить';
+
+  @override
+  String get bookWorkFitWidth => 'По ширине';
+
+  @override
+  String bookWorkZoomLevel(String scale) {
+    return 'Масштаб ×$scale';
+  }
+
+  @override
+  String get bookWorkCollapsePanel => 'Свернуть панель';
+
+  @override
+  String get bookWorkExpandPanel => 'Развернуть панель';
 
   @override
   String get bookWorkClose => 'Закрыть';

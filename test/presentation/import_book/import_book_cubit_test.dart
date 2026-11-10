@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:beading/core/failure.dart';
@@ -29,6 +30,7 @@ void main() {
   late FakeFileStore files;
   late FakeImageProcessor processor;
   late ImportBookCubit cubit;
+  late ImportBookPattern importUseCase;
 
   setUp(() {
     source = FakeBookImageSource();
@@ -38,18 +40,15 @@ void main() {
     files = FakeFileStore();
     processor = FakeImageProcessor();
     final FakeIdGenerator ids = FakeIdGenerator();
-    cubit = ImportBookCubit(
-      source: source,
-      rasterizer: rasterizer,
-      importBookPattern: ImportBookPattern(
-        createProject: CreateProject(repository: projects, ids: ids, clock: FakeClock(DateTime.utc(2026))),
-        projects: projects,
-        patterns: patterns,
-        processor: processor,
-        files: files,
-        ids: ids,
-      ),
+    importUseCase = ImportBookPattern(
+      createProject: CreateProject(repository: projects, ids: ids, clock: FakeClock(DateTime.utc(2026))),
+      projects: projects,
+      patterns: patterns,
+      processor: processor,
+      files: files,
+      ids: ids,
     );
+    cubit = ImportBookCubit(source: source, rasterizer: rasterizer, importBookPattern: importUseCase);
     addTearDown(cubit.close);
   });
 
@@ -116,6 +115,68 @@ void main() {
 
       expect(cubit.state.step, ImportStep.pickSource);
       expect(cubit.state.problem, ImportProblem.pdfFailed);
+    });
+
+    test('пустой PDF — отдельная проблема, а не «не открылся»', () async {
+      picked(<PickedBookFile>[_pdf]);
+      rasterizer.pages = 0;
+
+      await cubit.pickFiles();
+
+      expect(cubit.state.problem, ImportProblem.pdfEmpty);
+      expect(cubit.state.busy, isNull);
+    });
+
+    test('пока файл открывается, состояние занято; после — свободно', () async {
+      picked(<PickedBookFile>[_pdf]);
+      final List<ImportBusy?> seen = <ImportBusy?>[];
+      final StreamSubscription<ImportBookState> sub = cubit.stream.listen((s) => seen.add(s.busy));
+
+      await cubit.pickFiles();
+      await Future<void>.delayed(Duration.zero);
+      await sub.cancel();
+
+      expect(seen.first, ImportBusy.opening);
+      expect(cubit.state.busy, isNull);
+    });
+
+    test('исключение выбора файла не оставляет экран занятым', () async {
+      final ImportBookCubit throwing = ImportBookCubit(
+        source: _ThrowingSource(),
+        rasterizer: rasterizer,
+        importBookPattern: importUseCase,
+      );
+      addTearDown(throwing.close);
+
+      await throwing.pickFiles();
+
+      expect(throwing.state.busy, isNull);
+      expect(throwing.state.problem, ImportProblem.sourceUnavailable);
+    });
+
+    test('после PDF выбор обычных фото возвращает счёт шагов к двум', () async {
+      picked(<PickedBookFile>[_pdf]);
+      await cubit.pickFiles();
+      expect(cubit.state.stepCount, 3);
+      cubit.addMore();
+      picked(<PickedBookFile>[
+        PickedBookFile(name: 'a.png', bytes: Uint8List.fromList(<int>[1])),
+      ]);
+
+      await cubit.pickPhotos();
+
+      expect(cubit.state.stepCount, 2);
+      expect(cubit.state.stepNumber, 2);
+    });
+
+    test('нумерация шагов: для PDF три, без него два', () async {
+      expect(cubit.state.stepCount, 2);
+      expect(cubit.state.stepNumber, 1);
+      picked(<PickedBookFile>[_pdf]);
+      await cubit.pickFiles();
+
+      expect(cubit.state.stepCount, 3);
+      expect(cubit.state.stepNumber, 2);
     });
 
     test('отмечает и снимает страницы, «все» и «снять»', () async {
@@ -310,4 +371,15 @@ class _SlowSource extends FakeBookImageSource {
 
   @override
   Future<Result<List<PickedBookFile>>> pickPhotos() => reply.future;
+}
+
+class _ThrowingSource implements BookImageSource {
+  @override
+  Future<Result<List<PickedBookFile>>> takePhoto() => throw const FileSystemException('x');
+
+  @override
+  Future<Result<List<PickedBookFile>>> pickPhotos() => throw const FileSystemException('x');
+
+  @override
+  Future<Result<List<PickedBookFile>>> pickFiles() => throw const FileSystemException('x');
 }

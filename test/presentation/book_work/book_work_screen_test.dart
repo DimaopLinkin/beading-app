@@ -92,6 +92,10 @@ void main() {
     return cubit;
   }
 
+  /// Номер ряда в панели плетения (метка у линейки показывает тот же номер).
+  Finder counter(String text) =>
+      find.descendant(of: find.byKey(const ValueKey<String>('row-swipe-area')), matching: find.text(text));
+
   /// Выгружает экран и дожидается записи, как при закрытии экрана.
   Future<void> closeScreen(WidgetTester tester, BookWorkCubit cubit) async {
     await tester.pumpWidget(const SizedBox.shrink());
@@ -101,11 +105,10 @@ void main() {
   testWidgets('главный вид: имя работы, ряд 1, кнопки, зум до 8×', (tester) async {
     final BookWorkCubit cubit = await open(tester);
 
-    expect(find.text('Колье'), findsOneWidget);
-    expect(find.text('Ряд 1'), findsOneWidget);
+    expect(counter('Ряд 1'), findsOneWidget);
     expect(find.text('Ряд назад'), findsOneWidget);
     expect(find.text('Следующий ряд'), findsOneWidget);
-    expect(find.text('Стр. 1 из 3'), findsOneWidget);
+    expect(find.text('Страница 1 из 3'), findsOneWidget);
     expect(tester.widget<InteractiveViewer>(find.byType(InteractiveViewer)).maxScale, 8);
     expect(find.byKey(const ValueKey<String>('ruler-band')), findsOneWidget);
     expect(
@@ -136,11 +139,11 @@ void main() {
     await tester.pump();
     await tester.tap(find.byKey(const ValueKey<String>('next-row')));
     await tester.pump();
-    expect(find.text('Ряд 3'), findsOneWidget);
+    expect(counter('Ряд 3'), findsOneWidget);
 
     await tester.tap(find.byKey(const ValueKey<String>('previous-row')));
     await tester.pump();
-    expect(find.text('Ряд 2'), findsOneWidget);
+    expect(counter('Ряд 2'), findsOneWidget);
     await closeScreen(tester, cubit);
   });
 
@@ -155,7 +158,7 @@ void main() {
 
     final BookWorkCubit second = await open(tester);
 
-    expect(find.text('Ряд 3'), findsOneWidget);
+    expect(counter('Ряд 3'), findsOneWidget);
     expect(second.state.work.ruler.top, top);
     await closeScreen(tester, second);
   });
@@ -165,11 +168,11 @@ void main() {
 
     await tester.fling(find.byKey(const ValueKey<String>('row-swipe-area')), const Offset(0, -80), 1000);
     await tester.pump();
-    expect(find.text('Ряд 2'), findsOneWidget);
+    expect(counter('Ряд 2'), findsOneWidget);
 
     await tester.fling(find.byKey(const ValueKey<String>('row-swipe-area')), const Offset(0, 80), 1000);
     await tester.pump();
-    expect(find.text('Ряд 1'), findsOneWidget);
+    expect(counter('Ряд 1'), findsOneWidget);
     await closeScreen(tester, cubit);
   });
 
@@ -178,10 +181,10 @@ void main() {
 
     await tester.sendKeyEvent(LogicalKeyboardKey.arrowDown);
     await tester.pump();
-    expect(find.text('Ряд 2'), findsOneWidget);
+    expect(counter('Ряд 2'), findsOneWidget);
     await tester.sendKeyEvent(LogicalKeyboardKey.arrowUp);
     await tester.pump();
-    expect(find.text('Ряд 1'), findsOneWidget);
+    expect(counter('Ряд 1'), findsOneWidget);
     await closeScreen(tester, cubit);
   });
 
@@ -190,28 +193,28 @@ void main() {
     await tester.tap(find.byKey(const ValueKey<String>('next-row')));
     await tester.pump();
 
-    await tester.tap(find.text('Стр. 1 из 3'));
+    await tester.tap(find.text('Страница 1 из 3'));
     await tester.pumpAndSettle();
     expect(find.text('Страница 1'), findsOneWidget);
     expect(find.text('Страница 3'), findsOneWidget);
     await tester.tap(find.byKey(const ValueKey<String>('page-item-1')));
     await tester.pumpAndSettle();
 
-    expect(find.text('Стр. 2 из 3'), findsOneWidget);
-    expect(find.text('Ряд 1'), findsOneWidget);
+    expect(find.text('Страница 2 из 3'), findsOneWidget);
+    expect(counter('Ряд 1'), findsOneWidget);
     expect(cubit.state.pageIndex, 1);
 
-    await tester.tap(find.text('Стр. 2 из 3'));
+    await tester.tap(find.text('Страница 2 из 3'));
     await tester.pumpAndSettle();
     await tester.tap(find.byKey(const ValueKey<String>('page-item-0')));
     await tester.pumpAndSettle();
-    expect(find.text('Ряд 2'), findsOneWidget);
+    expect(counter('Ряд 2'), findsOneWidget);
     await closeScreen(tester, cubit);
   });
 
   testWidgets('открытая страница запоминается и открывается снова', (tester) async {
     final BookWorkCubit first = await open(tester);
-    await tester.tap(find.text('Стр. 1 из 3'));
+    await tester.tap(find.text('Страница 1 из 3'));
     await tester.pumpAndSettle();
     await tester.tap(find.byKey(const ValueKey<String>('page-item-2')));
     await tester.pumpAndSettle();
@@ -219,7 +222,7 @@ void main() {
 
     final BookWorkCubit second = await open(tester);
 
-    expect(find.text('Стр. 3 из 3'), findsOneWidget);
+    expect(find.text('Страница 3 из 3'), findsOneWidget);
     await closeScreen(tester, second);
   });
 
@@ -232,7 +235,7 @@ void main() {
 
     final BookWorkCubit cubit = await open(tester);
 
-    expect(find.textContaining('Стр.'), findsNothing);
+    expect(find.textContaining('Страница '), findsNothing);
     await closeScreen(tester, cubit);
   });
 
@@ -312,6 +315,176 @@ void main() {
     final BookWorkCubit cubit = await open(tester);
 
     expect(find.text('Не получилось показать эту страницу. Попробуй открыть её ещё раз.'), findsOneWidget);
+    await closeScreen(tester, cubit);
+  });
+
+  testWidgets('метка «Ряд» и ручка высоты лежат вне полосы линейки', (tester) async {
+    final BookWorkCubit cubit = await open(tester);
+    await tester.tap(find.byKey(const ValueKey<String>('next-row')));
+    await tester.pump();
+    await tester.tap(find.byKey(const ValueKey<String>('next-row')));
+    await tester.pump();
+
+    final Rect band = tester.getRect(find.byKey(const ValueKey<String>('ruler-band')));
+    final Rect ear = tester.getRect(find.byKey(const ValueKey<String>('ruler-ear')));
+    final Rect handle = tester.getRect(find.byKey(const ValueKey<String>('ruler-handle')));
+    expect(ear.bottom, lessThanOrEqualTo(band.top + 0.5));
+    expect(handle.top + (handle.height - 30) / 2, greaterThanOrEqualTo(band.bottom - 0.5));
+    expect(handle.height, greaterThanOrEqualTo(44));
+    await closeScreen(tester, cubit);
+  });
+
+  testWidgets('ручка растит линейку', (tester) async {
+    final BookWorkCubit cubit = await open(tester);
+    final double before = cubit.state.work.ruler.height;
+
+    await tester.drag(find.byKey(const ValueKey<String>('ruler-handle')), const Offset(0, 40));
+    await tester.pump();
+
+    expect(cubit.state.work.ruler.height, greaterThan(before));
+    await closeScreen(tester, cubit);
+  });
+
+  testWidgets('снизу вверх: притушено под линейкой, ухо и ручка меняются местами', (tester) async {
+    final BookWorkCubit cubit = await open(tester);
+    cubit.setDirection(RowDirection.bottomUp);
+    await tester.pump();
+    await tester.pump();
+
+    final Rect band = tester.getRect(find.byKey(const ValueKey<String>('ruler-band')));
+    final Rect dim = tester.getRect(find.byKey(const ValueKey<String>('ruler-dim')));
+    expect(dim.top, closeTo(band.bottom, 0.5));
+    final Rect ear = tester.getRect(find.byKey(const ValueKey<String>('ruler-ear')));
+    final Rect handle = tester.getRect(find.byKey(const ValueKey<String>('ruler-handle')));
+    expect(ear.top, greaterThan(handle.top));
+    expect(
+      tester.widget<CupertinoButton>(find.byKey(const ValueKey<String>('next-row'))).onPressed,
+      isNotNull,
+    );
+    await closeScreen(tester, cubit);
+  });
+
+  testWidgets('после сдвига появляется «Отменить», по нажатию линейка возвращается', (tester) async {
+    final BookWorkCubit cubit = await open(tester);
+    await tester.tap(find.byKey(const ValueKey<String>('next-row')));
+    await tester.pump();
+
+    expect(find.byKey(const ValueKey<String>('undo-row')), findsOneWidget);
+    await tester.tap(find.byKey(const ValueKey<String>('undo-row')));
+    await tester.pump();
+
+    expect(cubit.state.work.ruler.row, 1);
+    expect(find.byKey(const ValueKey<String>('undo-row')), findsNothing);
+    await closeScreen(tester, cubit);
+  });
+
+  testWidgets('тост «Отменить» сам исчезает через несколько секунд', (tester) async {
+    final BookWorkCubit cubit = await open(tester);
+    await tester.tap(find.byKey(const ValueKey<String>('next-row')));
+    await tester.pump();
+    await tester.pump(const Duration(seconds: 6));
+
+    expect(find.byKey(const ValueKey<String>('undo-row')), findsNothing);
+    await closeScreen(tester, cubit);
+  });
+
+  testWidgets('последний ряд: баннер и кнопка «Следующая страница» открывает следующую', (tester) async {
+    final BookWorkCubit cubit = await open(tester);
+    cubit.setRulerStep(5000);
+    cubit.nextRow();
+    cubit.nextRow();
+    await tester.pump();
+    await tester.pump(const Duration(seconds: 6));
+
+    expect(find.byKey(const ValueKey<String>('page-end-banner')), findsOneWidget);
+    expect(find.byKey(const ValueKey<String>('next-row')), findsNothing);
+    await tester.tap(find.byKey(const ValueKey<String>('next-page')));
+    await tester.pump();
+
+    expect(cubit.state.pageIndex, 1);
+    await closeScreen(tester, cubit);
+  });
+
+  testWidgets('панель сворачивается в капсулу и разворачивается', (tester) async {
+    final BookWorkCubit cubit = await open(tester);
+    final double full = tester.getSize(find.byKey(const ValueKey<String>('toggle-panel'))).height;
+    expect(find.byKey(const ValueKey<String>('previous-row')), findsOneWidget);
+
+    await tester.tap(find.byKey(const ValueKey<String>('toggle-panel')));
+    await tester.pump();
+    expect(find.byKey(const ValueKey<String>('previous-row')), findsNothing);
+    expect(find.byKey(const ValueKey<String>('next-row')), findsOneWidget);
+    expect(counter('Ряд 1'), findsOneWidget);
+
+    await tester.tap(find.byKey(const ValueKey<String>('toggle-panel')));
+    await tester.pump();
+    expect(find.byKey(const ValueKey<String>('previous-row')), findsOneWidget);
+    expect(full, greaterThanOrEqualTo(44));
+    await closeScreen(tester, cubit);
+  });
+
+  testWidgets('индикатор масштаба и отдельная «По ширине» возвращает масштаб 1', (tester) async {
+    final BookWorkCubit cubit = await open(tester);
+    expect(find.byKey(const ValueKey<String>('zoom-level')), findsOneWidget);
+    final InteractiveViewer viewer = tester.widget<InteractiveViewer>(find.byType(InteractiveViewer));
+    viewer.transformationController!.value = Matrix4.identity()..scaleByDouble(3, 3, 1, 1);
+    await tester.pump(const Duration(milliseconds: 400));
+    expect(find.text('Масштаб ×3,0'), findsOneWidget);
+
+    await tester.tap(find.byKey(const ValueKey<String>('fit-width')));
+    await tester.pump(const Duration(milliseconds: 400));
+
+    expect(find.text('Масштаб ×1,0'), findsOneWidget);
+    expect(cubit.state.work.viewport.scale, 1);
+    await closeScreen(tester, cubit);
+  });
+
+  testWidgets('на только что открытой странице ухо над полосой, а не на ней', (tester) async {
+    final BookWorkCubit cubit = await open(tester);
+
+    final Rect band = tester.getRect(find.byKey(const ValueKey<String>('ruler-band')));
+    final Rect ear = tester.getRect(find.byKey(const ValueKey<String>('ruler-ear')));
+    expect(ear.bottom, lessThanOrEqualTo(band.top + 0.5));
+
+    cubit.setDirection(RowDirection.bottomUp);
+    await tester.pump();
+    await tester.pump();
+    final Rect bandUp = tester.getRect(find.byKey(const ValueKey<String>('ruler-band')));
+    final Rect earUp = tester.getRect(find.byKey(const ValueKey<String>('ruler-ear')));
+    expect(earUp.top, greaterThanOrEqualTo(bandUp.bottom - 0.5));
+    await closeScreen(tester, cubit);
+  });
+
+  testWidgets('снизу вверх: ручка над полосой тянет вверх, стрелка вверх — следующий ряд', (tester) async {
+    final BookWorkCubit cubit = await open(tester);
+    cubit.setDirection(RowDirection.bottomUp);
+    await tester.pump();
+    await tester.pump();
+    final double before = cubit.state.work.ruler.height;
+    final double bottom = cubit.state.work.ruler.bottom;
+
+    await tester.drag(find.byKey(const ValueKey<String>('ruler-handle')), const Offset(0, -20));
+    await tester.pump();
+    expect(cubit.state.work.ruler.height, greaterThan(before));
+    expect(cubit.state.work.ruler.bottom, closeTo(bottom, 1e-6));
+
+    await tester.sendKeyEvent(LogicalKeyboardKey.arrowUp);
+    await tester.pump();
+    expect(cubit.state.work.ruler.row, 2);
+    await closeScreen(tester, cubit);
+  });
+
+  testWidgets('в листе линейки есть переключатель направления', (tester) async {
+    final BookWorkCubit cubit = await open(tester);
+    await tester.tap(find.bySemanticsLabel('Настройка линейки'));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Снизу вверх'));
+    await tester.pumpAndSettle();
+
+    expect(cubit.state.work.ruler.direction, RowDirection.bottomUp);
+    await tester.tap(find.text('Готово'));
+    await tester.pumpAndSettle();
     await closeScreen(tester, cubit);
   });
 }

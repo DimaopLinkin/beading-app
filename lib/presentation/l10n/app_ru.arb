@@ -219,6 +219,34 @@
   "@importProblemSaveFailed": {
     "description": "Ошибка сохранения"
   },
+  "importStep": "Шаг {number} из {total}",
+  "@importStep": {
+    "description": "Подпись шага потока импорта",
+    "placeholders": {
+      "number": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "importOpening": "Открываем файл…",
+  "@importOpening": {
+    "description": "Ожидание: открывается выбранный файл или фото"
+  },
+  "importRendering": "Готовим страницы…",
+  "@importRendering": {
+    "description": "Ожидание: отрисовываются страницы PDF"
+  },
+  "importProblemPdfEmpty": "В этом PDF нет страниц. Выберите другой файл.",
+  "@importProblemPdfEmpty": {
+    "description": "Ошибка: PDF открылся, но пустой"
+  },
+  "importPickAnother": "Выбрать другой файл",
+  "@importPickAnother": {
+    "description": "Кнопка в сообщении об ошибке файла"
+  },
   "importProblemNoPages": "Выберите хотя бы одну страницу.",
   "@importProblemNoPages": {
     "description": "Нет страниц"
@@ -244,7 +272,7 @@
   "@bookWorkNextRow": {
     "description": "Кнопка: линейка на следующий ряд"
   },
-  "bookWorkPageLabel": "Стр. {current} из {total}",
+  "bookWorkPageLabel": "Страница {current} из {total}",
   "@bookWorkPageLabel": {
     "description": "Кнопка выбора страницы многостраничной схемы",
     "placeholders": {
@@ -268,6 +296,55 @@
         "type": "int"
       }
     }
+  },
+  "bookWorkDirection": "Направление рядов",
+  "@bookWorkDirection": {
+    "description": "Заголовок переключателя направления рядов"
+  },
+  "bookWorkDirectionDown": "Сверху вниз",
+  "@bookWorkDirectionDown": {
+    "description": "Ряды идут сверху вниз"
+  },
+  "bookWorkDirectionUp": "Снизу вверх",
+  "@bookWorkDirectionUp": {
+    "description": "Ряды идут снизу вверх"
+  },
+  "bookWorkResizeHandle": "Высота линейки: потяни вверх или вниз",
+  "@bookWorkResizeHandle": {
+    "description": "Подпись ручки высоты линейки для VoiceOver"
+  },
+  "bookWorkPageEnd": "Страница закончена",
+  "@bookWorkPageEnd": {
+    "description": "Баннер на последнем ряду страницы"
+  },
+  "bookWorkNextPage": "Следующая страница",
+  "@bookWorkNextPage": {
+    "description": "Кнопка на последнем ряду страницы"
+  },
+  "bookWorkUndo": "Отменить",
+  "@bookWorkUndo": {
+    "description": "Кнопка тоста: вернуть линейку на прошлый ряд"
+  },
+  "bookWorkFitWidth": "По ширине",
+  "@bookWorkFitWidth": {
+    "description": "Кнопка: вписать страницу по ширине"
+  },
+  "bookWorkZoomLevel": "Масштаб ×{scale}",
+  "@bookWorkZoomLevel": {
+    "description": "Индикатор масштаба страницы",
+    "placeholders": {
+      "scale": {
+        "type": "String"
+      }
+    }
+  },
+  "bookWorkCollapsePanel": "Свернуть панель",
+  "@bookWorkCollapsePanel": {
+    "description": "Кнопка: свернуть панель плетения"
+  },
+  "bookWorkExpandPanel": "Развернуть панель",
+  "@bookWorkExpandPanel": {
+    "description": "Кнопка: развернуть панель плетения"
   },
   "bookWorkClose": "Закрыть",
   "@bookWorkClose": {
