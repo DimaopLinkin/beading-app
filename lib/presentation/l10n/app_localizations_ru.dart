@@ -883,4 +883,166 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get beadShapeRocaille => 'рокайль';
+
+  @override
+  String get templateEntryTitle => 'Узор по шаблону';
+
+  @override
+  String get templateTitle => 'Узор по шаблону';
+
+  @override
+  String get templateCancel => 'Отмена';
+
+  @override
+  String get templateSave => 'Сохранить';
+
+  @override
+  String get templateSaving => 'Сохраняем…';
+
+  @override
+  String get templateSectionKind => 'Шаблон';
+
+  @override
+  String get templateSectionTechnique => 'Техника';
+
+  @override
+  String get templateSectionBead => 'Бисер';
+
+  @override
+  String get templateSectionSize => 'Размер';
+
+  @override
+  String get templateSectionColors => 'Цвета';
+
+  @override
+  String get templateSectionParams => 'Параметры';
+
+  @override
+  String get templateSectionSymmetry => 'Симметрия';
+
+  @override
+  String get templateSectionName => 'Название';
+
+  @override
+  String get templateKindStripes => 'Полосы';
+
+  @override
+  String get templateKindZigzag => 'Зигзаг';
+
+  @override
+  String get templateKindDiamonds => 'Ромбы';
+
+  @override
+  String get templateKindChecker => 'Шахматка';
+
+  @override
+  String get templateKindGradient => 'Градиент';
+
+  @override
+  String get templateKindBorder => 'Бордюр';
+
+  @override
+  String get templateWidth => 'Ширина, бусин';
+
+  @override
+  String get templateHeight => 'Высота, рядов';
+
+  @override
+  String get templateStripeWidth => 'Ширина полосы';
+
+  @override
+  String get templateAmplitude => 'Размах зигзага';
+
+  @override
+  String get templateZigzagThickness => 'Толщина линии';
+
+  @override
+  String get templateGap => 'Просвет между линиями';
+
+  @override
+  String get templateDiamondSize => 'Размер ромба';
+
+  @override
+  String get templateCellSize => 'Сторона клетки';
+
+  @override
+  String get templateSteps => 'Ступеней градиента';
+
+  @override
+  String get templateBorderThickness => 'Толщина бордюра';
+
+  @override
+  String get templateAxis => 'Направление';
+
+  @override
+  String get templateAxisX => 'Слева направо';
+
+  @override
+  String get templateAxisY => 'Сверху вниз';
+
+  @override
+  String get templateSymmetryNone => 'Нет';
+
+  @override
+  String get templateSymmetryHorizontal => 'Лево и право';
+
+  @override
+  String get templateSymmetryVertical => 'Верх и низ';
+
+  @override
+  String get templateSymmetryBoth => 'Обе оси';
+
+  @override
+  String get templateSymmetryApproximate =>
+      'В мозаике и кирпичном стежке отражение приблизительное: ряды сдвинуты на полбусины.';
+
+  @override
+  String get templateAddColor => 'Добавить цвет';
+
+  @override
+  String get templateRemoveColor => 'Убрать этот цвет';
+
+  @override
+  String get templatePickColorTitle => 'Выберите цвет';
+
+  @override
+  String get templateColorEmpty => 'Ничего не найдено';
+
+  @override
+  String get templateValueMinus => 'Меньше';
+
+  @override
+  String get templateValuePlus => 'Больше';
+
+  @override
+  String get templateProblemCatalog => 'Каталог цветов недоступен. Попробуйте ещё раз.';
+
+  @override
+  String get templateProblemParameters => 'Из этих параметров узор не получается. Измените размер или цвета.';
+
+  @override
+  String get templateProblemSave => 'Не удалось сохранить узор. Попробуйте ещё раз.';
+
+  @override
+  String get templateRetry => 'Повторить';
+
+  @override
+  String templateColorSlot(int number) {
+    return 'Цвет $number';
+  }
+
+  @override
+  String templateDefaultName(String kind, int width, int height) {
+    return '$kind $width×$height';
+  }
+
+  @override
+  String templatePreviewLabel(int width, int height) {
+    return 'Предпросмотр узора: $width бусин в ряду, $height рядов';
+  }
+
+  @override
+  String templateBeadSize(String shape, String size) {
+    return '$shape $size';
+  }
 }

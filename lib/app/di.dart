@@ -86,6 +86,7 @@ import 'package:beading/presentation/library/library_cubit.dart';
 import 'package:beading/presentation/library/new_project_entry.dart';
 import 'package:beading/presentation/library/project_thumbnail_provider.dart';
 import 'package:beading/presentation/materials/materials_cubit.dart';
+import 'package:beading/presentation/pattern_template/pattern_template_cubit.dart';
 import 'package:beading/presentation/settings/settings_cubit.dart';
 import 'package:beading/presentation/theme/theme_mode_cubit.dart';
 import 'package:get_it/get_it.dart';
@@ -330,6 +331,14 @@ Future<void> configureDependencies({GetIt? locator, AppDatabase? database, Catal
         catalog: container<CatalogRepository>(),
         findSimilar: container<FindSimilarColors>(),
         settings: container<SettingsRepository>(),
+        brandSetting: SettingKeys.defaultBeadBrand,
+      ),
+    )
+    ..registerFactory<PatternTemplateCubit>(
+      () => PatternTemplateCubit(
+        catalog: container<CatalogRepository>(),
+        settings: container<SettingsRepository>(),
+        createPattern: container<CreateGridPattern>(),
         brandSetting: SettingKeys.defaultBeadBrand,
       ),
     )

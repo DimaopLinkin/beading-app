@@ -1680,6 +1680,312 @@ abstract class AppLocalizations {
   /// In ru, this message translates to:
   /// **'рокайль'**
   String get beadShapeRocaille;
+
+  /// Пункт листа «Новый проект»: генерация узора по шаблону
+  ///
+  /// In ru, this message translates to:
+  /// **'Узор по шаблону'**
+  String get templateEntryTitle;
+
+  /// Заголовок экрана генерации по шаблону
+  ///
+  /// In ru, this message translates to:
+  /// **'Узор по шаблону'**
+  String get templateTitle;
+
+  /// Закрыть экран генерации без сохранения
+  ///
+  /// In ru, this message translates to:
+  /// **'Отмена'**
+  String get templateCancel;
+
+  /// Сохранить узор новым проектом
+  ///
+  /// In ru, this message translates to:
+  /// **'Сохранить'**
+  String get templateSave;
+
+  /// Подпись во время сохранения узора
+  ///
+  /// In ru, this message translates to:
+  /// **'Сохраняем…'**
+  String get templateSaving;
+
+  /// Раздел экрана: галерея шаблонов
+  ///
+  /// In ru, this message translates to:
+  /// **'Шаблон'**
+  String get templateSectionKind;
+
+  /// Раздел экрана: техника плетения
+  ///
+  /// In ru, this message translates to:
+  /// **'Техника'**
+  String get templateSectionTechnique;
+
+  /// Раздел экрана: размер бисера
+  ///
+  /// In ru, this message translates to:
+  /// **'Бисер'**
+  String get templateSectionBead;
+
+  /// Раздел экрана: размер узора
+  ///
+  /// In ru, this message translates to:
+  /// **'Размер'**
+  String get templateSectionSize;
+
+  /// Раздел экрана: цвета узора
+  ///
+  /// In ru, this message translates to:
+  /// **'Цвета'**
+  String get templateSectionColors;
+
+  /// Раздел экрана: числа выбранного шаблона
+  ///
+  /// In ru, this message translates to:
+  /// **'Параметры'**
+  String get templateSectionParams;
+
+  /// Раздел экрана: зеркальное отражение
+  ///
+  /// In ru, this message translates to:
+  /// **'Симметрия'**
+  String get templateSectionSymmetry;
+
+  /// Раздел экрана: название проекта
+  ///
+  /// In ru, this message translates to:
+  /// **'Название'**
+  String get templateSectionName;
+
+  /// Шаблон узора
+  ///
+  /// In ru, this message translates to:
+  /// **'Полосы'**
+  String get templateKindStripes;
+
+  /// Шаблон узора
+  ///
+  /// In ru, this message translates to:
+  /// **'Зигзаг'**
+  String get templateKindZigzag;
+
+  /// Шаблон узора
+  ///
+  /// In ru, this message translates to:
+  /// **'Ромбы'**
+  String get templateKindDiamonds;
+
+  /// Шаблон узора
+  ///
+  /// In ru, this message translates to:
+  /// **'Шахматка'**
+  String get templateKindChecker;
+
+  /// Шаблон узора
+  ///
+  /// In ru, this message translates to:
+  /// **'Градиент'**
+  String get templateKindGradient;
+
+  /// Шаблон узора
+  ///
+  /// In ru, this message translates to:
+  /// **'Бордюр'**
+  String get templateKindBorder;
+
+  /// Параметр: число бусин в ряду
+  ///
+  /// In ru, this message translates to:
+  /// **'Ширина, бусин'**
+  String get templateWidth;
+
+  /// Параметр: число рядов
+  ///
+  /// In ru, this message translates to:
+  /// **'Высота, рядов'**
+  String get templateHeight;
+
+  /// Параметр полос
+  ///
+  /// In ru, this message translates to:
+  /// **'Ширина полосы'**
+  String get templateStripeWidth;
+
+  /// Параметр зигзага
+  ///
+  /// In ru, this message translates to:
+  /// **'Размах зигзага'**
+  String get templateAmplitude;
+
+  /// Параметр зигзага
+  ///
+  /// In ru, this message translates to:
+  /// **'Толщина линии'**
+  String get templateZigzagThickness;
+
+  /// Параметр зигзага
+  ///
+  /// In ru, this message translates to:
+  /// **'Просвет между линиями'**
+  String get templateGap;
+
+  /// Параметр ромбов
+  ///
+  /// In ru, this message translates to:
+  /// **'Размер ромба'**
+  String get templateDiamondSize;
+
+  /// Параметр шахматки
+  ///
+  /// In ru, this message translates to:
+  /// **'Сторона клетки'**
+  String get templateCellSize;
+
+  /// Параметр градиента
+  ///
+  /// In ru, this message translates to:
+  /// **'Ступеней градиента'**
+  String get templateSteps;
+
+  /// Параметр бордюра
+  ///
+  /// In ru, this message translates to:
+  /// **'Толщина бордюра'**
+  String get templateBorderThickness;
+
+  /// Параметр: ось полос и градиента
+  ///
+  /// In ru, this message translates to:
+  /// **'Направление'**
+  String get templateAxis;
+
+  /// Направление изменения цвета
+  ///
+  /// In ru, this message translates to:
+  /// **'Слева направо'**
+  String get templateAxisX;
+
+  /// Направление изменения цвета
+  ///
+  /// In ru, this message translates to:
+  /// **'Сверху вниз'**
+  String get templateAxisY;
+
+  /// Без симметрии
+  ///
+  /// In ru, this message translates to:
+  /// **'Нет'**
+  String get templateSymmetryNone;
+
+  /// Зеркало по горизонтали
+  ///
+  /// In ru, this message translates to:
+  /// **'Лево и право'**
+  String get templateSymmetryHorizontal;
+
+  /// Зеркало по вертикали
+  ///
+  /// In ru, this message translates to:
+  /// **'Верх и низ'**
+  String get templateSymmetryVertical;
+
+  /// Зеркало по обеим осям
+  ///
+  /// In ru, this message translates to:
+  /// **'Обе оси'**
+  String get templateSymmetryBoth;
+
+  /// Пояснение под выбором симметрии
+  ///
+  /// In ru, this message translates to:
+  /// **'В мозаике и кирпичном стежке отражение приблизительное: ряды сдвинуты на полбусины.'**
+  String get templateSymmetryApproximate;
+
+  /// Кнопка добавления цвета в полосы
+  ///
+  /// In ru, this message translates to:
+  /// **'Добавить цвет'**
+  String get templateAddColor;
+
+  /// Кнопка в листе выбора цвета
+  ///
+  /// In ru, this message translates to:
+  /// **'Убрать этот цвет'**
+  String get templateRemoveColor;
+
+  /// Заголовок листа выбора цвета
+  ///
+  /// In ru, this message translates to:
+  /// **'Выберите цвет'**
+  String get templatePickColorTitle;
+
+  /// Пустой результат поиска цвета
+  ///
+  /// In ru, this message translates to:
+  /// **'Ничего не найдено'**
+  String get templateColorEmpty;
+
+  /// Подпись кнопки «−» у числового поля
+  ///
+  /// In ru, this message translates to:
+  /// **'Меньше'**
+  String get templateValueMinus;
+
+  /// Подпись кнопки «+» у числового поля
+  ///
+  /// In ru, this message translates to:
+  /// **'Больше'**
+  String get templateValuePlus;
+
+  /// Ошибка загрузки каталога
+  ///
+  /// In ru, this message translates to:
+  /// **'Каталог цветов недоступен. Попробуйте ещё раз.'**
+  String get templateProblemCatalog;
+
+  /// Ошибка параметров
+  ///
+  /// In ru, this message translates to:
+  /// **'Из этих параметров узор не получается. Измените размер или цвета.'**
+  String get templateProblemParameters;
+
+  /// Ошибка сохранения
+  ///
+  /// In ru, this message translates to:
+  /// **'Не удалось сохранить узор. Попробуйте ещё раз.'**
+  String get templateProblemSave;
+
+  /// Кнопка повторной загрузки каталога
+  ///
+  /// In ru, this message translates to:
+  /// **'Повторить'**
+  String get templateRetry;
+
+  /// Подпись образца цвета в узоре
+  ///
+  /// In ru, this message translates to:
+  /// **'Цвет {number}'**
+  String templateColorSlot(int number);
+
+  /// Название проекта по умолчанию
+  ///
+  /// In ru, this message translates to:
+  /// **'{kind} {width}×{height}'**
+  String templateDefaultName(String kind, int width, int height);
+
+  /// Подпись предпросмотра для VoiceOver
+  ///
+  /// In ru, this message translates to:
+  /// **'Предпросмотр узора: {width} бусин в ряду, {height} рядов'**
+  String templatePreviewLabel(int width, int height);
+
+  /// Размер бисера в выборе
+  ///
+  /// In ru, this message translates to:
+  /// **'{shape} {size}'**
+  String templateBeadSize(String shape, String size);
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

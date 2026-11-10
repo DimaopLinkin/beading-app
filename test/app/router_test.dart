@@ -20,6 +20,12 @@ void main() {
     expect(AppRoutes.materials('p-1'), '/projects/p-1/materials');
   });
 
+  test('есть маршрут «Узор по шаблону»', () {
+    for (final bool devTools in <bool>[true, false]) {
+      expect(paths(devTools: devTools), contains(AppRoutes.patternTemplate));
+    }
+  });
+
   test('в релизной сборке маршрута проверки стекла нет', () {
     expect(paths(devTools: false), isNot(contains(AppRoutes.glassCheck)));
     expect(paths(devTools: false), contains(AppRoutes.settings));

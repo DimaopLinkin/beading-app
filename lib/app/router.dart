@@ -26,6 +26,8 @@ import 'package:beading/presentation/library/new_project_entry.dart';
 import 'package:beading/presentation/library/project_thumbnail_provider.dart';
 import 'package:beading/presentation/materials/materials_cubit.dart';
 import 'package:beading/presentation/materials/materials_screen.dart';
+import 'package:beading/presentation/pattern_template/pattern_template_cubit.dart';
+import 'package:beading/presentation/pattern_template/pattern_template_screen.dart';
 import 'package:beading/presentation/settings/about_screen.dart';
 import 'package:beading/presentation/settings/hidden_settings_screen.dart';
 import 'package:beading/presentation/settings/settings_screen.dart';
@@ -42,6 +44,9 @@ abstract final class AppRoutes {
 
   /// «Схема из книги». Закрывается с id созданного проекта.
   static const String importBook = ImportBookScreen.routePath;
+
+  /// «Узор по шаблону». Закрывается с id созданного проекта.
+  static const String patternTemplate = PatternTemplateScreen.routePath;
 
   /// Каталог цветов бисера (T20).
   static const String catalog = CatalogScreen.routePath;
@@ -121,6 +126,13 @@ GoRouter createRouter({bool showDeveloperTools = !kReleaseMode}) => GoRouter(
       builder: (_, state) => BlocProvider<EditorCubit>(
         create: (_) => getIt<EditorCubit>(param1: state.pathParameters['projectId'])..load(),
         child: EditorScreen(catalog: getIt<CatalogRepository>()),
+      ),
+    ),
+    GoRoute(
+      path: AppRoutes.patternTemplate,
+      builder: (_, _) => BlocProvider<PatternTemplateCubit>(
+        create: (_) => getIt<PatternTemplateCubit>()..start(),
+        child: const PatternTemplateScreen(),
       ),
     ),
     GoRoute(
