@@ -1183,6 +1183,360 @@ abstract class AppLocalizations {
   /// **'Бусины ряда'**
   String get weaveWordChart;
 
+  /// Подпись кнопки перехода из плетения в редактор схемы (VoiceOver)
+  ///
+  /// In ru, this message translates to:
+  /// **'Править схему'**
+  String get weaveEdit;
+
+  /// Пункт листа «Новый проект»: создать схему в редакторе
+  ///
+  /// In ru, this message translates to:
+  /// **'Нарисовать схему'**
+  String get libraryDrawPattern;
+
+  /// Заголовок листа создания схемы
+  ///
+  /// In ru, this message translates to:
+  /// **'Новая схема'**
+  String get newGridTitle;
+
+  /// Кнопка закрытия листа создания схемы
+  ///
+  /// In ru, this message translates to:
+  /// **'Отмена'**
+  String get newGridCancel;
+
+  /// Кнопка создания схемы
+  ///
+  /// In ru, this message translates to:
+  /// **'Создать'**
+  String get newGridCreate;
+
+  /// Подпись поля названия схемы
+  ///
+  /// In ru, this message translates to:
+  /// **'Название'**
+  String get newGridName;
+
+  /// Название схемы, если ничего не введено
+  ///
+  /// In ru, this message translates to:
+  /// **'Новая схема'**
+  String get newGridDefaultName;
+
+  /// Подпись выбора техники
+  ///
+  /// In ru, this message translates to:
+  /// **'Техника'**
+  String get newGridTechnique;
+
+  /// Подпись ширины схемы
+  ///
+  /// In ru, this message translates to:
+  /// **'Ширина, бусин'**
+  String get newGridWidth;
+
+  /// Подпись высоты схемы
+  ///
+  /// In ru, this message translates to:
+  /// **'Высота, бусин'**
+  String get newGridHeight;
+
+  /// Подпись выбора размера бисера
+  ///
+  /// In ru, this message translates to:
+  /// **'Бисер'**
+  String get newGridBead;
+
+  /// Предпросмотр размера изделия в сантиметрах
+  ///
+  /// In ru, this message translates to:
+  /// **'Получится примерно {width} × {height} см'**
+  String newGridSizeCm(String width, String height);
+
+  /// Подсказка о допустимом размере схемы
+  ///
+  /// In ru, this message translates to:
+  /// **'Размер: от 1 до 500 бусин по каждой стороне'**
+  String get newGridSizeInvalid;
+
+  /// Ошибка создания схемы
+  ///
+  /// In ru, this message translates to:
+  /// **'Не удалось создать схему. Попробуй ещё раз.'**
+  String get newGridFailed;
+
+  /// Инструмент редактора
+  ///
+  /// In ru, this message translates to:
+  /// **'Кисть'**
+  String get editorToolBrush;
+
+  /// Инструмент редактора
+  ///
+  /// In ru, this message translates to:
+  /// **'Ластик'**
+  String get editorToolEraser;
+
+  /// Инструмент редактора
+  ///
+  /// In ru, this message translates to:
+  /// **'Заливка'**
+  String get editorToolFill;
+
+  /// Инструмент редактора
+  ///
+  /// In ru, this message translates to:
+  /// **'Пипетка'**
+  String get editorToolPipette;
+
+  /// Инструмент редактора: заменить цвет бусины во всей схеме
+  ///
+  /// In ru, this message translates to:
+  /// **'Заменить цвет'**
+  String get editorToolReplace;
+
+  /// Инструмент редактора
+  ///
+  /// In ru, this message translates to:
+  /// **'Выделение'**
+  String get editorToolSelection;
+
+  /// Действие редактора
+  ///
+  /// In ru, this message translates to:
+  /// **'Зеркало по горизонтали'**
+  String get editorMirrorHorizontal;
+
+  /// Действие редактора
+  ///
+  /// In ru, this message translates to:
+  /// **'Зеркало по вертикали'**
+  String get editorMirrorVertical;
+
+  /// Пояснение к зеркалу в схемах со сдвигом
+  ///
+  /// In ru, this message translates to:
+  /// **'Для мозаики и кирпичика зеркало меняет местами ячейки, а не физическое расположение бусин.'**
+  String get editorMirrorNote;
+
+  /// Кнопка меню вставки и удаления рядов и столбцов
+  ///
+  /// In ru, this message translates to:
+  /// **'Ряды и столбцы'**
+  String get editorRowsColumns;
+
+  /// Действие редактора
+  ///
+  /// In ru, this message translates to:
+  /// **'Вставить ряд выше'**
+  String get editorInsertRowAbove;
+
+  /// Действие редактора
+  ///
+  /// In ru, this message translates to:
+  /// **'Вставить ряд ниже'**
+  String get editorInsertRowBelow;
+
+  /// Действие редактора
+  ///
+  /// In ru, this message translates to:
+  /// **'Удалить ряд {row}'**
+  String editorDeleteRow(int row);
+
+  /// Действие редактора
+  ///
+  /// In ru, this message translates to:
+  /// **'Вставить столбец слева'**
+  String get editorInsertColumnLeft;
+
+  /// Действие редактора
+  ///
+  /// In ru, this message translates to:
+  /// **'Вставить столбец справа'**
+  String get editorInsertColumnRight;
+
+  /// Действие редактора
+  ///
+  /// In ru, this message translates to:
+  /// **'Удалить столбец {column}'**
+  String editorDeleteColumn(int column);
+
+  /// Подсказка, когда не выбрана ячейка для вставки или удаления
+  ///
+  /// In ru, this message translates to:
+  /// **'Сначала коснись схемы, чтобы выбрать место.'**
+  String get editorTouchFirst;
+
+  /// Кнопка редактора
+  ///
+  /// In ru, this message translates to:
+  /// **'Отменить'**
+  String get editorUndo;
+
+  /// Кнопка редактора
+  ///
+  /// In ru, this message translates to:
+  /// **'Повторить'**
+  String get editorRedo;
+
+  /// Переключатель показа символов на схеме
+  ///
+  /// In ru, this message translates to:
+  /// **'Символы'**
+  String get editorSymbols;
+
+  /// Подпись палитры схемы
+  ///
+  /// In ru, this message translates to:
+  /// **'Палитра'**
+  String get editorPalette;
+
+  /// Кнопка добавления цвета в палитру
+  ///
+  /// In ru, this message translates to:
+  /// **'Добавить цвет'**
+  String get editorAddColor;
+
+  /// Подпись цвета в палитре для VoiceOver
+  ///
+  /// In ru, this message translates to:
+  /// **'Цвет {name}'**
+  String editorColorSwatch(String name);
+
+  /// Статус автосохранения
+  ///
+  /// In ru, this message translates to:
+  /// **'Сохраняется…'**
+  String get editorSaving;
+
+  /// Статус автосохранения
+  ///
+  /// In ru, this message translates to:
+  /// **'Сохранено'**
+  String get editorSaved;
+
+  /// Статус автосохранения: ошибка
+  ///
+  /// In ru, this message translates to:
+  /// **'Не удалось сохранить. Нажми, чтобы повторить.'**
+  String get editorSaveFailed;
+
+  /// Ошибка загрузки схемы в редакторе
+  ///
+  /// In ru, this message translates to:
+  /// **'Не удалось открыть схему.'**
+  String get editorLoadFailed;
+
+  /// Подсказка редактора
+  ///
+  /// In ru, this message translates to:
+  /// **'Сначала добавь цвет в палитру.'**
+  String get editorProblemNoColor;
+
+  /// Подсказка редактора
+  ///
+  /// In ru, this message translates to:
+  /// **'В палитре больше нет места.'**
+  String get editorProblemPaletteFull;
+
+  /// Подсказка редактора
+  ///
+  /// In ru, this message translates to:
+  /// **'Схема уже самая большая.'**
+  String get editorProblemLimit;
+
+  /// Подсказка редактора
+  ///
+  /// In ru, this message translates to:
+  /// **'Последний ряд или столбец удалить нельзя.'**
+  String get editorProblemLast;
+
+  /// Заголовок листа цвета
+  ///
+  /// In ru, this message translates to:
+  /// **'Цвет'**
+  String get colorSheetTitle;
+
+  /// Кнопка листа цвета
+  ///
+  /// In ru, this message translates to:
+  /// **'Готово'**
+  String get colorSheetDone;
+
+  /// Поле названия цвета
+  ///
+  /// In ru, this message translates to:
+  /// **'Название'**
+  String get colorSheetName;
+
+  /// Ползунок цвета
+  ///
+  /// In ru, this message translates to:
+  /// **'Красный'**
+  String get colorSheetRed;
+
+  /// Ползунок цвета
+  ///
+  /// In ru, this message translates to:
+  /// **'Зелёный'**
+  String get colorSheetGreen;
+
+  /// Ползунок цвета
+  ///
+  /// In ru, this message translates to:
+  /// **'Синий'**
+  String get colorSheetBlue;
+
+  /// Заголовок поиска по каталогу
+  ///
+  /// In ru, this message translates to:
+  /// **'Из каталога'**
+  String get colorSheetCatalog;
+
+  /// Подсказка поля поиска по каталогу
+  ///
+  /// In ru, this message translates to:
+  /// **'Артикул или название'**
+  String get colorSheetSearch;
+
+  /// Заголовок списка ближайших цветов каталога
+  ///
+  /// In ru, this message translates to:
+  /// **'Ближайшие'**
+  String get colorSheetNearest;
+
+  /// Пустой результат поиска по каталогу
+  ///
+  /// In ru, this message translates to:
+  /// **'Ничего не нашлось'**
+  String get colorSheetNothing;
+
+  /// Кнопка удаления цвета
+  ///
+  /// In ru, this message translates to:
+  /// **'Удалить цвет из палитры'**
+  String get colorSheetDelete;
+
+  /// Пояснение к удалению цвета
+  ///
+  /// In ru, this message translates to:
+  /// **'Бусины этого цвета на схеме станут пустыми.'**
+  String get colorSheetDeleteHint;
+
+  /// Название типа бисера: цилиндрический Miyuki Delica
+  ///
+  /// In ru, this message translates to:
+  /// **'Delica'**
+  String get newGridBeadDelica;
+
+  /// Название типа бисера: круглый рокайль
+  ///
+  /// In ru, this message translates to:
+  /// **'Рокайль'**
+  String get newGridBeadRocaille;
+
   /// Подпись для VoiceOver у кнопки открытия каталога в шапке библиотеки
   ///
   /// In ru, this message translates to:

@@ -23,7 +23,10 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 /// Плетение по своей схеме: схема на весь экран, подсвеченный ряд, word chart под ней и крупные кнопки под большой
 /// палец. [WeaveCubit] берётся из контекста.
 class WeaveScreen extends StatelessWidget {
-  const WeaveScreen({super.key});
+  const WeaveScreen({this.onOpenEditor, super.key});
+
+  /// Переход в редактор этой схемы; без него кнопки правки нет.
+  final VoidCallback? onOpenEditor;
 
   static const String routePath = '/weave/:projectId';
 
@@ -37,7 +40,7 @@ class WeaveScreen extends StatelessWidget {
       builder: (context, state) => switch (state.status) {
         WeaveStatus.loading => const Center(child: CupertinoActivityIndicator()),
         WeaveStatus.failed => const _LoadFailed(),
-        WeaveStatus.ready => const _Workspace(),
+        WeaveStatus.ready => _Workspace(onOpenEditor: onOpenEditor),
       },
     ),
   );
@@ -70,7 +73,9 @@ const double _togglesHeight = 56;
 const double _bottomPanelHeight = 160;
 
 class _Workspace extends StatefulWidget {
-  const _Workspace();
+  const _Workspace({this.onOpenEditor});
+
+  final VoidCallback? onOpenEditor;
 
   @override
   State<_Workspace> createState() => _WorkspaceState();
@@ -234,7 +239,9 @@ class _WorkspaceState extends State<_Workspace> with WidgetsBindingObserver {
                     left: 0,
                     right: 0,
                     top: 0,
-                    child: _PanelFrame(child: _TopBar(state: state)),
+                    child: _PanelFrame(
+                      child: _TopBar(state: state, onOpenEditor: widget.onOpenEditor),
+                    ),
                   ),
                   Positioned(
                     left: 0,
@@ -276,9 +283,10 @@ class _WorkspaceState extends State<_Workspace> with WidgetsBindingObserver {
 
 /// Верхняя панель: название, крупный счётчик «Ряд 42 из 180» (читается с расстояния) и переключатели.
 class _TopBar extends StatelessWidget {
-  const _TopBar({required this.state});
+  const _TopBar({required this.state, this.onOpenEditor});
 
   final WeaveState state;
+  final VoidCallback? onOpenEditor;
 
   /// Быстрее этого движения пальца по счётчику — свайп, px/с.
   static const double _swipeVelocity = 200;
@@ -350,7 +358,16 @@ class _TopBar extends StatelessWidget {
                       ),
                     ),
                   ),
-                  SizedBox.square(dimension: tokens.minTapTarget),
+                  if (onOpenEditor == null)
+                    SizedBox.square(dimension: tokens.minTapTarget)
+                  else
+                    CupertinoButton(
+                      key: const ValueKey<String>('weave-edit'),
+                      padding: EdgeInsets.zero,
+                      minimumSize: Size.square(tokens.minTapTarget),
+                      onPressed: onOpenEditor,
+                      child: Semantics(label: l10n.weaveEdit, child: const Icon(AppIcons.brush)),
+                    ),
                 ],
               ),
             ),

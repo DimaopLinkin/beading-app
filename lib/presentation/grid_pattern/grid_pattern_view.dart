@@ -32,6 +32,7 @@ class GridPatternView extends StatefulWidget {
     this.onCellTap,
     this.onCellLongPress,
     this.interactive = true,
+    this.gesturesEnabled = true,
     this.maxScale = 8,
     @visibleForTesting this.layerCache,
     super.key,
@@ -53,6 +54,10 @@ class GridPatternView extends StatefulWidget {
 
   /// `false` — без зума и сдвига (редактору, которому нужны мазки пальцем).
   final bool interactive;
+
+  /// `false` — зум и сдвиг жестами выключены (их ведёт владелец через [controller], например редактор, где один
+  /// палец рисует). Касания ячеек по-прежнему отдаются.
+  final bool gesturesEnabled;
 
   /// Наибольший зум относительно размера сцены.
   final double maxScale;
@@ -202,6 +207,8 @@ class _GridPatternViewState extends State<GridPatternView> {
                 child: widget.interactive
                     ? InteractiveViewer(
                         transformationController: _controller,
+                        panEnabled: widget.gesturesEnabled,
+                        scaleEnabled: widget.gesturesEnabled,
                         constrained: false,
                         minScale: math.min(0.1, fitScale / 2),
                         maxScale: math.max(widget.maxScale, fitScale),

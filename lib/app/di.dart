@@ -1,4 +1,5 @@
 import 'dart:math';
+
 import 'package:beading/app/library_entries.dart';
 import 'package:beading/app/platform/desktop_window.dart';
 import 'package:beading/app/platform/orientation_lock.dart';
@@ -19,6 +20,7 @@ import 'package:beading/data/image_pattern/local_file_store.dart';
 import 'package:beading/data/image_pattern/pdfrx_pdf_rasterizer.dart';
 import 'package:beading/data/image_pattern/picker_book_image_source.dart';
 import 'package:beading/data/image_pattern/ui_image_processor.dart';
+import 'package:beading/data/image_to_grid/isolate_image_to_grid_runner.dart';
 import 'package:beading/data/platform/method_channel_reduce_transparency_source.dart';
 import 'package:beading/data/platform/share_plus_text_sharer.dart';
 import 'package:beading/data/platform/wakelock_plus_screen_wake_lock.dart';
@@ -51,6 +53,7 @@ import 'package:beading/domain/image_pattern/image_processor.dart';
 import 'package:beading/domain/image_pattern/pdf_rasterizer.dart';
 import 'package:beading/domain/image_pattern/picked_book_file.dart';
 import 'package:beading/domain/image_pattern/use_cases/import_book_pattern.dart';
+import 'package:beading/domain/image_to_grid/image_to_grid_runner.dart';
 import 'package:beading/domain/materials/use_cases/load_project_materials.dart';
 import 'package:beading/domain/projects/project_content_cleaner.dart';
 import 'package:beading/domain/projects/project_content_cloner.dart';
@@ -81,6 +84,8 @@ import 'package:beading/domain/weaving/work_session_tracker.dart';
 import 'package:beading/presentation/book_work/book_work_cubit.dart';
 import 'package:beading/presentation/catalog/catalog_cubit.dart';
 import 'package:beading/presentation/easter_eggs/compliment_banner_cubit.dart';
+import 'package:beading/presentation/editor/editor_cubit.dart';
+import 'package:beading/presentation/editor/new_grid_cubit.dart';
 import 'package:beading/presentation/import_book/import_book_cubit.dart';
 import 'package:beading/presentation/library/library_cubit.dart';
 import 'package:beading/presentation/library/new_project_entry.dart';
@@ -156,6 +161,7 @@ Future<void> configureDependencies({GetIt? locator, AppDatabase? database, Catal
     ..registerFactory<UpdateNotes>(() => UpdateNotes(container<ProjectRepository>()))
     ..registerLazySingleton<FileStore>(LocalFileStore.applicationSupport)
     ..registerLazySingleton<ImageProcessor>(UiImageProcessor.new)
+    ..registerLazySingleton<ImageToGridRunner>(IsolateImageToGridRunner.new)
     ..registerLazySingleton<PdfRasterizer>(PdfrxPdfRasterizer.new)
     ..registerLazySingleton<BookImageSource>(PickerBookImageSource.new)
     ..registerLazySingleton<ImagePatternRepository>(
@@ -267,6 +273,18 @@ Future<void> configureDependencies({GetIt? locator, AppDatabase? database, Catal
         changeStatus: container<ChangeProjectStatus>(),
         touch: container<TouchProject>(),
       ),
+    )
+    ..registerFactoryParam<EditorCubit, String, void>(
+      (projectId, _) => EditorCubit(
+        projectId: projectId,
+        projects: container<ProjectRepository>(),
+        patterns: container<GridPatternRepository>(),
+        savePattern: container<SaveGridPattern>(),
+        touchProject: container<TouchProject>(),
+      ),
+    )
+    ..registerFactoryParam<NewGridCubit, String, void>(
+      (defaultName, _) => NewGridCubit(createPattern: container<CreateGridPattern>(), defaultName: defaultName),
     )
     ..registerFactoryParam<BookWorkCubit, String, void>(
       (projectId, _) => BookWorkCubit(
