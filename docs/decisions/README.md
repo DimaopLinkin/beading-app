@@ -7,3 +7,4 @@
 | [0001](0001-native-look.md) | Нативный вид на iOS и macOS: Cupertino-first, только Apple-платформы | принято |
 | [0002](0002-liquid-glass-implementation.md) | Реализация Liquid Glass: собственное приближение на размытии фона (T01g) | принято |
 | [0003](0003-crafts-in-domain.md) | Бисер и вышивка крестиком в одной доменной модели (A04, [cross-stitch.md](../cross-stitch.md)) | принято |
+| [0004](0004-generator-stages.md) | Стадии генератора «фото → схема» до и после привязки к палитре (A08, [research/photo-to-pattern.md](../research/photo-to-pattern.md)) | принято |
