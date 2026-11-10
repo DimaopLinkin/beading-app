@@ -52,8 +52,8 @@ import 'package:beading/domain/settings/secret_tap_handler.dart';
 import 'package:beading/domain/settings/settings_repository.dart';
 import 'package:beading/domain/settings/wakelock_controller.dart';
 import 'package:beading/presentation/easter_eggs/compliment_banner_cubit.dart';
-import 'package:beading/presentation/settings/settings_cubit.dart';
 import 'package:beading/presentation/import_book/import_book_cubit.dart';
+import 'package:beading/presentation/settings/settings_cubit.dart';
 import 'package:beading/presentation/theme/theme_mode_cubit.dart';
 import 'package:get_it/get_it.dart';
 
