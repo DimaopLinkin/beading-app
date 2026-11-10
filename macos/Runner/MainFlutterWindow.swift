@@ -46,6 +46,7 @@ class MainFlutterWindow: NSWindow {
 
     RegisterGeneratedPlugins(registry: flutterViewController)
     accessibilityChannel = AccessibilityChannel(messenger: flutterViewController.engine.binaryMessenger)
+    AppDelegate.incomingFiles.attach(messenger: flutterViewController.engine.binaryMessenger)
 
     super.awakeFromNib()
   }

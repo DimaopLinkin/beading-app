@@ -28,6 +28,7 @@ class LibraryScreen extends StatefulWidget {
     this.onOpenSettings,
     this.onOpenCatalog,
     this.onOpenMaterials,
+    this.onShareFile,
     super.key,
   });
 
@@ -45,6 +46,9 @@ class LibraryScreen extends StatefulWidget {
 
   /// Открывает материалы проекта; `null` — пункта нет. Предлагается только бисерным схемам из приложения.
   final void Function(BuildContext context, Project project)? onOpenMaterials;
+
+  /// «Поделиться файлом проекта» (T21); `null` — пункта нет.
+  final void Function(BuildContext context, Project project)? onShareFile;
 
   @override
   State<LibraryScreen> createState() => _LibraryScreenState();
@@ -120,6 +124,11 @@ class _LibraryScreenState extends State<LibraryScreen> {
             onPressed: () => Navigator.of(sheetContext).pop('duplicate'),
             child: Text(l10n.projectDuplicate),
           ),
+          if (widget.onShareFile != null)
+            CupertinoActionSheetAction(
+              onPressed: () => Navigator.of(sheetContext).pop('share'),
+              child: Text(l10n.projectShareFile),
+            ),
           CupertinoActionSheetAction(
             isDestructiveAction: true,
             onPressed: () => Navigator.of(sheetContext).pop('delete'),
@@ -142,6 +151,8 @@ class _LibraryScreenState extends State<LibraryScreen> {
         await _rename(project);
       case 'duplicate':
         await cubit.duplicate(project.id);
+      case 'share':
+        widget.onShareFile!(context, project);
       case 'delete':
         await _confirmDelete(project);
     }
