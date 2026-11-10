@@ -76,7 +76,7 @@ const double _topBarHeight = 60;
 const double _bottomPanelHeight = 150;
 
 /// Свёрнутая панель: капсула с номером ряда и одной кнопкой (04 v2).
-const double _collapsedPanelHeight = 76;
+const double _collapsedPanelHeight = 72;
 
 /// Запас над и под областью страницы для уха и ручки линейки: на первом и последнем ряду им нужно место вне полосы.
 const double _markRoom = rulerMarkSize + 6;
@@ -490,7 +490,9 @@ class _BottomPanel extends StatelessWidget {
         padding: EdgeInsets.all(tokens.spacing.s),
         child: GlassPanel(
           density: GlassDensity.dense,
-          padding: EdgeInsets.all(tokens.spacing.s),
+          padding: collapsed
+              ? EdgeInsets.symmetric(horizontal: tokens.spacing.s, vertical: 6)
+              : EdgeInsets.all(tokens.spacing.s),
           child: collapsed
               ? Row(
                   children: <Widget>[

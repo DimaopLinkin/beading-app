@@ -8,6 +8,7 @@ import 'package:beading/presentation/theme/tokens.dart';
 import 'package:beading/presentation/widgets/glass/glass_panel.dart';
 import 'package:beading/presentation/widgets/glass/glass_surface.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:intl/intl.dart';
 
 /// Видимый размер «уха» и ручки у линейки (04 v2); зона нажатия — не меньше `minTapTarget`.
 const double rulerMarkSize = 30;
@@ -100,7 +101,7 @@ class _Ear extends StatelessWidget {
                   heightFactor: 1,
                   child: Text(
                     AppLocalizations.of(context).bookWorkRow(row),
-                    style: const TextStyle(color: CupertinoColors.white, fontSize: 13, fontWeight: FontWeight.w600),
+                    style: const TextStyle(color: CupertinoColors.white, fontSize: 15, fontWeight: FontWeight.w600),
                   ),
                 ),
               ),
@@ -137,7 +138,7 @@ class _Handle extends StatelessWidget {
               ),
               child: const SizedBox.square(
                 dimension: rulerMarkSize,
-                child: Icon(CupertinoIcons.arrow_up_down, size: 16, color: CupertinoColors.white),
+                child: Icon(AppIcons.resize, size: 16, color: CupertinoColors.white),
               ),
             ),
           ),
@@ -158,7 +159,7 @@ class ZoomChip extends StatelessWidget {
   Widget build(BuildContext context) {
     final AppLocalizations l10n = AppLocalizations.of(context);
     final AppTokensData tokens = context.tokens;
-    final String shown = scale.toStringAsFixed(1).replaceAll('.', ',');
+    final String shown = NumberFormat.decimalPatternDigits(locale: 'ru', decimalDigits: 1).format(scale);
     return GlassPanel(
       density: GlassDensity.dense,
       padding: EdgeInsets.symmetric(horizontal: tokens.spacing.s),

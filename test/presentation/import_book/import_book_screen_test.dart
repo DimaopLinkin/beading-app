@@ -260,6 +260,27 @@ void main() {
     final Rect bar = tester.getRect(find.widgetWithText(CupertinoButton, 'Продолжить'));
     expect(last.bottom, lessThanOrEqualTo(bar.top));
   });
+
+  testWidgets('при крупном шрифте последняя миниатюра PDF тоже выше нижней панели', (tester) async {
+    await tester.binding.setSurfaceSize(const Size(400, 700));
+    addTearDown(() => tester.binding.setSurfaceSize(null));
+    tester.platformDispatcher.textScaleFactorTestValue = 1.6;
+    addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
+    source.next = Success<List<PickedBookFile>>(<PickedBookFile>[
+      PickedBookFile(name: 'Схема.pdf', bytes: Uint8List.fromList(<int>[0x25, 0x50, 0x44, 0x46])),
+    ]);
+    rasterizer.pages = 60;
+    await tester.pumpWidget(wrap(AppTheme.light));
+    await tester.tap(find.text('Выбрать из Файлов (фото или PDF)'));
+    await tester.pumpAndSettle();
+
+    await tester.drag(find.byType(GridView), const Offset(0, -10000));
+    await tester.pumpAndSettle();
+
+    final Rect last = tester.getRect(find.text('60'));
+    final Rect bar = tester.getRect(find.widgetWithText(CupertinoButton, 'Продолжить'));
+    expect(last.bottom, lessThanOrEqualTo(bar.top));
+  });
 }
 
 class _GatedSource implements BookImageSource {

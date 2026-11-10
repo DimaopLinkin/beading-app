@@ -158,7 +158,7 @@ class _Problem extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
-                Icon(CupertinoIcons.exclamationmark_triangle, color: color, size: 20),
+                Icon(AppIcons.warning, color: color, size: 20),
                 SizedBox(width: tokens.spacing.s),
                 Flexible(
                   child: Text(_problemText(l10n, value), style: TextStyle(color: color)),
@@ -210,30 +210,81 @@ class _PickSource extends StatelessWidget {
   }
 }
 
-/// Нижняя стеклянная панель с главной кнопкой над содержимым. Список под ней получает нижний отступ
-/// [_bottomBarClearance], чтобы последний ряд миниатюр не прятался под панелью.
-class _BottomBar extends StatelessWidget {
+/// Высота нижней панели, измеренная на экране: нижний отступ прокрутки берётся из неё, а не из константы,
+/// поэтому с крупным шрифтом и safe area последний ряд миниатюр не прячется под панелью.
+class _BarScope extends StatefulWidget {
+  const _BarScope({required this.child});
+
+  final Widget child;
+
+  @override
+  State<_BarScope> createState() => _BarScopeState();
+}
+
+class _BarScopeState extends State<_BarScope> {
+  /// До первого замера берём типичную высоту панели с запасом.
+  final ValueNotifier<double> _height = ValueNotifier<double>(120);
+
+  @override
+  void dispose() {
+    _height.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) => _BarHeight(notifier: _height, child: widget.child);
+}
+
+class _BarHeight extends InheritedNotifier<ValueNotifier<double>> {
+  const _BarHeight({required ValueNotifier<double> notifier, required super.child}) : super(notifier: notifier);
+
+  /// Нижний отступ списка под панелью; слушает изменения высоты.
+  static double of(BuildContext context) => context.dependOnInheritedWidgetOfExactType<_BarHeight>()!.notifier!.value;
+
+  static ValueNotifier<double> notifierOf(BuildContext context) =>
+      context.getInheritedWidgetOfExactType<_BarHeight>()!.notifier!;
+}
+
+/// Нижняя стеклянная панель с главной кнопкой над содержимым; сообщает свою высоту через [_BarHeight].
+class _BottomBar extends StatefulWidget {
   const _BottomBar({required this.child});
 
   final Widget child;
 
   @override
+  State<_BottomBar> createState() => _BottomBarState();
+}
+
+class _BottomBarState extends State<_BottomBar> {
+  final GlobalKey _key = GlobalKey();
+
+  void _measure() {
+    final double? height = _key.currentContext?.size?.height;
+    if (!mounted || height == null) {
+      return;
+    }
+    final ValueNotifier<double> notifier = _BarHeight.notifierOf(context);
+    if ((notifier.value - height).abs() > 0.5) {
+      notifier.value = height;
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
     final double gap = context.tokens.spacing.m;
+    WidgetsBinding.instance.addPostFrameCallback((_) => _measure());
     return Positioned(
       left: 0,
       right: 0,
       bottom: 0,
       child: Padding(
+        key: _key,
         padding: EdgeInsets.all(gap),
-        child: GlassPanel(density: GlassDensity.dense, padding: EdgeInsets.all(gap / 2), child: child),
+        child: GlassPanel(density: GlassDensity.dense, padding: EdgeInsets.all(gap / 2), child: widget.child),
       ),
     );
   }
 }
-
-/// Высота нижней панели с запасом под крупный шрифт: нижний отступ прокрутки.
-const double _bottomBarClearance = 150;
 
 class _ChoosePdfPages extends StatelessWidget {
   const _ChoosePdfPages({required this.state});
@@ -245,86 +296,90 @@ class _ChoosePdfPages extends StatelessWidget {
     final AppLocalizations l10n = AppLocalizations.of(context);
     final ImportBookCubit cubit = context.read<ImportBookCubit>();
     final double gap = context.tokens.spacing.m;
-    return Stack(
-      children: <Widget>[
-        Column(
-          children: <Widget>[
-            Padding(
-              padding: EdgeInsets.all(gap),
-              child: Row(
-                children: <Widget>[
-                  Expanded(
-                    child: Text(
-                      l10n.importPdfSelected(state.selectedPdfPages.length, state.pdfPageCount),
-                      style: CupertinoTheme.of(context).textTheme.textStyle,
-                    ),
+    return _BarScope(
+      child: Stack(
+        children: <Widget>[
+          Builder(
+            builder: (context) => Column(
+              children: <Widget>[
+                Padding(
+                  padding: EdgeInsets.all(gap),
+                  child: Row(
+                    children: <Widget>[
+                      Expanded(
+                        child: Text(
+                          l10n.importPdfSelected(state.selectedPdfPages.length, state.pdfPageCount),
+                          style: CupertinoTheme.of(context).textTheme.textStyle,
+                        ),
+                      ),
+                      CupertinoButton(
+                        padding: EdgeInsets.zero,
+                        minimumSize: Size.square(context.tokens.minTapTarget),
+                        onPressed: cubit.selectAllPdfPages,
+                        child: Text(l10n.importPdfSelectAll),
+                      ),
+                      SizedBox(width: gap),
+                      CupertinoButton(
+                        padding: EdgeInsets.zero,
+                        minimumSize: Size.square(context.tokens.minTapTarget),
+                        onPressed: cubit.clearPdfPages,
+                        child: Text(l10n.importPdfClear),
+                      ),
+                    ],
                   ),
-                  CupertinoButton(
-                    padding: EdgeInsets.zero,
-                    minimumSize: Size.square(context.tokens.minTapTarget),
-                    onPressed: cubit.selectAllPdfPages,
-                    child: Text(l10n.importPdfSelectAll),
-                  ),
-                  SizedBox(width: gap),
-                  CupertinoButton(
-                    padding: EdgeInsets.zero,
-                    minimumSize: Size.square(context.tokens.minTapTarget),
-                    onPressed: cubit.clearPdfPages,
-                    child: Text(l10n.importPdfClear),
-                  ),
-                ],
-              ),
-            ),
-            _Problem(state.problem),
-            Expanded(
-              child: GridView.builder(
-                padding: EdgeInsets.fromLTRB(gap, gap, gap, _bottomBarClearance),
-                gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-                  maxCrossAxisExtent: 88,
-                  mainAxisSpacing: 8,
-                  crossAxisSpacing: 8,
                 ),
-                itemCount: state.pdfPageCount,
-                itemBuilder: (context, index) {
-                  final bool selected = state.selectedPdfPages.contains(index);
-                  return Semantics(
-                    button: true,
-                    selected: selected,
-                    label: l10n.importPdfPageLabel(index + 1),
-                    excludeSemantics: true,
-                    onTap: () => cubit.togglePdfPage(index),
-                    child: GestureDetector(
-                      behavior: HitTestBehavior.opaque,
-                      onTap: () => cubit.togglePdfPage(index),
-                      child: _SelectableTile(
+                _Problem(state.problem),
+                Expanded(
+                  child: GridView.builder(
+                    padding: EdgeInsets.fromLTRB(gap, gap, gap, _BarHeight.of(context)),
+                    gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
+                      maxCrossAxisExtent: 88,
+                      mainAxisSpacing: 8,
+                      crossAxisSpacing: 8,
+                    ),
+                    itemCount: state.pdfPageCount,
+                    itemBuilder: (context, index) {
+                      final bool selected = state.selectedPdfPages.contains(index);
+                      return Semantics(
+                        button: true,
                         selected: selected,
-                        child: Center(
-                          child: Text(
-                            '${index + 1}',
-                            style: TextStyle(
-                              fontWeight: FontWeight.w600,
-                              color: CupertinoColors.label.resolveFrom(context),
+                        label: l10n.importPdfPageLabel(index + 1),
+                        excludeSemantics: true,
+                        onTap: () => cubit.togglePdfPage(index),
+                        child: GestureDetector(
+                          behavior: HitTestBehavior.opaque,
+                          onTap: () => cubit.togglePdfPage(index),
+                          child: _SelectableTile(
+                            selected: selected,
+                            child: Center(
+                              child: Text(
+                                '${index + 1}',
+                                style: TextStyle(
+                                  fontWeight: FontWeight.w600,
+                                  color: CupertinoColors.label.resolveFrom(context),
+                                ),
+                              ),
                             ),
                           ),
                         ),
-                      ),
-                    ),
-                  );
-                },
-              ),
-            ),
-          ],
-        ),
-        _BottomBar(
-          child: SizedBox(
-            width: double.infinity,
-            child: CupertinoButton.filled(
-              onPressed: state.selectedPdfPages.isEmpty ? null : cubit.confirmPdfPages,
-              child: Text(l10n.importPdfContinue),
+                      );
+                    },
+                  ),
+                ),
+              ],
             ),
           ),
-        ),
-      ],
+          _BottomBar(
+            child: SizedBox(
+              width: double.infinity,
+              child: CupertinoButton.filled(
+                onPressed: state.selectedPdfPages.isEmpty ? null : cubit.confirmPdfPages,
+                child: Text(l10n.importPdfContinue),
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
@@ -389,75 +444,80 @@ class _ReviewState extends State<_Review> {
     final ImportBookCubit cubit = context.read<ImportBookCubit>();
     final ImportBookState state = widget.state;
     final double gap = context.tokens.spacing.m;
-    return Stack(
-      children: <Widget>[
-        Column(
-          children: <Widget>[
-            Padding(
-              padding: EdgeInsets.all(gap),
-              child: Column(
-                children: <Widget>[
-                  CupertinoTextField(
-                    controller: _name,
-                    placeholder: l10n.importNameLabel,
-                    onChanged: cubit.setName,
-                    textInputAction: TextInputAction.done,
-                  ),
-                  SizedBox(height: gap),
-                  Row(
+    return _BarScope(
+      child: Stack(
+        children: <Widget>[
+          Builder(
+            builder: (context) => Column(
+              children: <Widget>[
+                Padding(
+                  padding: EdgeInsets.all(gap),
+                  child: Column(
                     children: <Widget>[
-                      Expanded(
-                        child: _CraftTile(
-                          label: l10n.importCraftBeading,
-                          selected: state.craft == Craft.beading,
-                          onTap: () => cubit.setCraft(Craft.beading),
-                        ),
+                      CupertinoTextField(
+                        controller: _name,
+                        placeholder: l10n.importNameLabel,
+                        onChanged: cubit.setName,
+                        textInputAction: TextInputAction.done,
                       ),
-                      SizedBox(width: gap),
-                      Expanded(
-                        child: _CraftTile(
-                          label: l10n.importCraftCrossStitch,
-                          selected: state.craft == Craft.crossStitch,
-                          onTap: () => cubit.setCraft(Craft.crossStitch),
-                        ),
+                      SizedBox(height: gap),
+                      Row(
+                        children: <Widget>[
+                          Expanded(
+                            child: _CraftTile(
+                              label: l10n.importCraftBeading,
+                              selected: state.craft == Craft.beading,
+                              onTap: () => cubit.setCraft(Craft.beading),
+                            ),
+                          ),
+                          SizedBox(width: gap),
+                          Expanded(
+                            child: _CraftTile(
+                              label: l10n.importCraftCrossStitch,
+                              selected: state.craft == Craft.crossStitch,
+                              onTap: () => cubit.setCraft(Craft.crossStitch),
+                            ),
+                          ),
+                        ],
                       ),
+                      SizedBox(height: gap),
+                      _Problem(state.problem),
                     ],
                   ),
-                  SizedBox(height: gap),
-                  _Problem(state.problem),
-                ],
-              ),
+                ),
+                Expanded(
+                  child: ReorderableList(
+                    padding: EdgeInsets.only(bottom: _BarHeight.of(context)),
+                    itemCount: state.pages.length,
+                    onReorder: (oldIndex, newIndex) =>
+                        cubit.move(oldIndex, newIndex > oldIndex ? newIndex - 1 : newIndex),
+                    itemBuilder: (context, index) {
+                      final PageDraft page = state.pages[index];
+                      return _PageRow(key: ValueKey<int>(page.id), index: index, page: page);
+                    },
+                  ),
+                ),
+              ],
             ),
-            Expanded(
-              child: ReorderableList(
-                padding: const EdgeInsets.only(bottom: _bottomBarClearance),
-                itemCount: state.pages.length,
-                onReorder: (oldIndex, newIndex) => cubit.move(oldIndex, newIndex > oldIndex ? newIndex - 1 : newIndex),
-                itemBuilder: (context, index) {
-                  final PageDraft page = state.pages[index];
-                  return _PageRow(key: ValueKey<int>(page.id), index: index, page: page);
-                },
-              ),
-            ),
-          ],
-        ),
-        _BottomBar(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: <Widget>[
-              SizedBox(
-                width: double.infinity,
-                child: CupertinoButton.filled(onPressed: cubit.submit, child: Text(l10n.importSubmit)),
-              ),
-              CupertinoButton(
-                minimumSize: Size.square(context.tokens.minTapTarget),
-                onPressed: cubit.addMore,
-                child: Text(l10n.importAddMore),
-              ),
-            ],
           ),
-        ),
-      ],
+          _BottomBar(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: <Widget>[
+                SizedBox(
+                  width: double.infinity,
+                  child: CupertinoButton.filled(onPressed: cubit.submit, child: Text(l10n.importSubmit)),
+                ),
+                CupertinoButton(
+                  minimumSize: Size.square(context.tokens.minTapTarget),
+                  onPressed: cubit.addMore,
+                  child: Text(l10n.importAddMore),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
