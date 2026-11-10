@@ -12,6 +12,7 @@ import 'package:beading/presentation/book_work/book_work_screen.dart';
 import 'package:beading/presentation/book_work/book_work_state.dart';
 import 'package:beading/presentation/l10n/app_localizations.dart';
 import 'package:beading/presentation/theme/app_theme.dart';
+import 'package:beading/presentation/widgets/row_ring.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -107,6 +108,10 @@ void main() {
     expect(find.text('Стр. 1 из 3'), findsOneWidget);
     expect(tester.widget<InteractiveViewer>(find.byType(InteractiveViewer)).maxScale, 8);
     expect(find.byKey(const ValueKey<String>('ruler-band')), findsOneWidget);
+    expect(
+      find.descendant(of: find.byKey(const ValueKey<String>('ruler-band')), matching: find.byType(RowRing)),
+      findsOneWidget,
+    );
     await closeScreen(tester, cubit);
   });
 

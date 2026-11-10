@@ -1,4 +1,5 @@
 import 'package:beading/presentation/theme/app_theme.dart';
+import 'package:beading/presentation/theme/tokens.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -11,6 +12,13 @@ void main() {
 
   test('акцентный цвет одинаков во всех режимах', () {
     expect(AppTheme.light.primaryColor, AppTheme.dark.primaryColor);
+  });
+
+  test('фон и текст темы совпадают с токенами', () {
+    final ColorTokens c = AppTokensData.standard.colors;
+    expect(AppTheme.light.scaffoldBackgroundColor, c.background);
+    expect(AppTheme.light.textTheme.textStyle.color, c.content);
+    expect(AppTheme.light.primaryColor, c.accent);
   });
 
   for (final Brightness brightness in Brightness.values) {

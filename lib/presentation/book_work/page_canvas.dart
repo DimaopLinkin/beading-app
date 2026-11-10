@@ -34,6 +34,8 @@ class PageCanvas extends StatelessWidget {
       width: width,
       height: height,
       child: Stack(
+        // Кольцо рисуется снаружи полосы: на верхнем и нижнем ряду страницы оно выходит за её край.
+        clipBehavior: Clip.none,
         children: <Widget>[
           Positioned.fill(
             child: _PageImage(files: files, path: page.path),
