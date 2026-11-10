@@ -123,7 +123,8 @@ class ImageWizardCubit extends Cubit<ImageWizardState> {
     }
     _timer?.cancel();
     final int preparation = ++_preparation;
-    final Uint8List? prepared = await _prepareImage(file.bytes, 0, CropRect.full);
+    ++_calculation;
+    final ({Uint8List png, SourceImage image})? prepared = await _prepareImage(file.bytes, 0, CropRect.full);
     if (isClosed || preparation != _preparation) {
       return;
     }
@@ -136,7 +137,7 @@ class ImageWizardCubit extends Cubit<ImageWizardState> {
         step: ImageWizardStep.edit,
         opening: false,
         source: file.bytes,
-        prepared: prepared,
+        prepared: prepared.png,
         quarterTurns: 0,
         crop: CropRect.full,
         name: state.name.isEmpty ? _nameFor(file.name) : state.name,
@@ -144,6 +145,7 @@ class ImageWizardCubit extends Cubit<ImageWizardState> {
         clearProblem: true,
       ),
     );
+    _image = prepared.image;
     _schedule(immediate: true);
   }
 
@@ -161,7 +163,7 @@ class ImageWizardCubit extends Cubit<ImageWizardState> {
     final int preparation = ++_preparation;
     ++_calculation;
     emit(state.copyWith(quarterTurns: quarterTurns, crop: crop, calculating: true, clearProblem: true));
-    final Uint8List? prepared = await _prepareImage(source, quarterTurns, crop);
+    final ({Uint8List png, SourceImage image})? prepared = await _prepareImage(source, quarterTurns, crop);
     if (isClosed || preparation != _preparation) {
       return;
     }
@@ -169,24 +171,25 @@ class ImageWizardCubit extends Cubit<ImageWizardState> {
       emit(state.copyWith(calculating: false, problem: ImageWizardProblem.unreadable));
       return;
     }
-    emit(state.copyWith(prepared: prepared));
+    _image = prepared.image;
+    emit(state.copyWith(prepared: prepared.png));
     _schedule(immediate: true);
   }
 
-  /// Поворачивает и обрезает картинку, декодирует её для конвейера. Возвращает PNG результата или `null`.
-  Future<Uint8List?> _prepareImage(Uint8List bytes, int quarterTurns, CropRect crop) async {
-    final Result<ProcessedImage> processed = await _processor.process(bytes, quarterTurns: quarterTurns, crop: crop);
-    final ProcessedImage? png = processed.valueOrNull;
-    if (png == null) {
+  /// Поворачивает и обрезает картинку, декодирует её для конвейера. Результат применяет вызывающий, если подготовка
+  /// не устарела. `null` — картинку не удалось прочитать.
+  Future<({Uint8List png, SourceImage image})?> _prepareImage(Uint8List bytes, int quarterTurns, CropRect crop) async {
+    try {
+      final Result<ProcessedImage> processed = await _processor.process(bytes, quarterTurns: quarterTurns, crop: crop);
+      final ProcessedImage? png = processed.valueOrNull;
+      if (png == null) {
+        return null;
+      }
+      final SourceImage? image = (await _decoder.decode(png.png)).valueOrNull;
+      return image == null ? null : (png: png.png, image: image);
+    } on Object {
       return null;
     }
-    final Result<SourceImage> decoded = await _decoder.decode(png.png);
-    final SourceImage? image = decoded.valueOrNull;
-    if (image == null) {
-      return null;
-    }
-    _image = image;
-    return png.png;
   }
 
   void setTechnique(Technique technique) => _change(state.settings.copyWith(technique: technique));

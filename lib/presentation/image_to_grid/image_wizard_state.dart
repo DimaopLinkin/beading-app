@@ -67,7 +67,7 @@ class ImageWizardState extends Equatable {
   final String? projectId;
 
   /// Сохранять можно только то, что видно: схема посчитана для текущих параметров.
-  bool get canSave => step == ImageWizardStep.edit && preview != null && !calculating;
+  bool get canSave => step == ImageWizardStep.edit && preview != null && !calculating && previewSettings == settings;
 
   /// В режиме каталога нечего подбирать: под размер или бренд нет цветов, схема подбирается свободно.
   bool get catalogMissing => settings.paletteSource == PaletteSource.catalog && catalogColors == 0;

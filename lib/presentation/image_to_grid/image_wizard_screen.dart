@@ -150,11 +150,23 @@ class _PickSource extends StatelessWidget {
         SizedBox(height: gap),
         _Problem(state.problem),
         if (cameraAvailable)
-          CupertinoButton.filled(onPressed: cubit.takePhoto, child: Text(l10n.imageWizardSourceCamera)),
+          CupertinoButton.filled(
+            minimumSize: Size.square(context.tokens.minTapTarget),
+            onPressed: cubit.takePhoto,
+            child: Text(l10n.imageWizardSourceCamera),
+          ),
         SizedBox(height: gap),
-        CupertinoButton.tinted(onPressed: cubit.pickPhotos, child: Text(l10n.imageWizardSourcePhotos)),
+        CupertinoButton.tinted(
+          minimumSize: Size.square(context.tokens.minTapTarget),
+          onPressed: cubit.pickPhotos,
+          child: Text(l10n.imageWizardSourcePhotos),
+        ),
         SizedBox(height: gap),
-        CupertinoButton.tinted(onPressed: cubit.pickFiles, child: Text(l10n.imageWizardSourceFiles)),
+        CupertinoButton.tinted(
+          minimumSize: Size.square(context.tokens.minTapTarget),
+          onPressed: cubit.pickFiles,
+          child: Text(l10n.imageWizardSourceFiles),
+        ),
       ],
     );
   }
@@ -307,22 +319,24 @@ class _EditState extends State<_Edit> {
                   ],
                 ),
               ),
-              Row(
-                children: <Widget>[
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: <Widget>[
-                        Text(l10n.imageWizardDither),
-                        Text(l10n.imageWizardDitherHint, style: caption),
-                      ],
+              MergeSemantics(
+                child: Row(
+                  children: <Widget>[
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: <Widget>[
+                          Text(l10n.imageWizardDither),
+                          Text(l10n.imageWizardDitherHint, style: caption),
+                        ],
+                      ),
                     ),
-                  ),
-                  CupertinoSwitch(
-                    value: settings.dither,
-                    onChanged: (value) => cubit.setDither(value: value),
-                  ),
-                ],
+                    CupertinoSwitch(
+                      value: settings.dither,
+                      onChanged: (value) => cubit.setDither(value: value),
+                    ),
+                  ],
+                ),
               ),
               SizedBox(height: gap),
               CupertinoTextField(
@@ -441,16 +455,12 @@ class _SliderRow extends StatelessWidget {
             Text('$value', key: ValueKey<String>('slider-value-$title')),
           ],
         ),
-        Semantics(
-          label: title,
-          value: '$value',
-          child: CupertinoSlider(
-            value: value.toDouble(),
-            min: min.toDouble(),
-            max: max.toDouble(),
-            divisions: max - min,
-            onChanged: (v) => onChanged(v.round()),
-          ),
+        CupertinoSlider(
+          value: value.toDouble(),
+          min: min.toDouble(),
+          max: max.toDouble(),
+          divisions: max - min,
+          onChanged: (v) => onChanged(v.round()),
         ),
       ],
     ),

@@ -242,6 +242,7 @@ void main() {
       await Future<void>.delayed(Duration.zero);
       expect(cubit.state.problem, ImageWizardProblem.calculationFailed);
       expect(cubit.state.calculating, isFalse);
+      expect(cubit.state.canSave, isFalse); // старая схема не соответствует новым параметрам
       cubit.setDither(value: false);
       expect(cubit.state.problem, isNull);
     });
