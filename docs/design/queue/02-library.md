@@ -1,7 +1,7 @@
 ---
 id: 02-library
 title: Библиотека проектов
-status: todo
+status: delivered
 depends: 01-ui-kit
 ---
 
