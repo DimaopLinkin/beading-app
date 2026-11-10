@@ -25,4 +25,21 @@ void registerLibraryEntries(NewProjectRegistry registry) {
       ),
     );
   }
+
+  // Редактор бисерных схем (T17); вышивку редактирует T40.
+  registry.register(
+    NewProjectEntry(
+      id: 'draw-grid-beading',
+      craft: Craft.beading,
+      order: 20,
+      title: (l10n) => l10n.libraryDrawPattern,
+      icon: AppIcons.brush,
+      onSelected: (context) async {
+        final String? projectId = await context.push<String>(AppRoutes.newGrid);
+        if (projectId != null && context.mounted) {
+          await context.push<void>(AppRoutes.editor(projectId));
+        }
+      },
+    ),
+  );
 }

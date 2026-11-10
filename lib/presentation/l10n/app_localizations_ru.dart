@@ -534,6 +534,189 @@ class AppLocalizationsRu extends AppLocalizations {
   String get libraryAddSemantic => 'Добавить проект';
 
   @override
+  String get libraryDrawPattern => 'Нарисовать схему';
+
+  @override
+  String get newGridTitle => 'Новая схема';
+
+  @override
+  String get newGridCancel => 'Отмена';
+
+  @override
+  String get newGridCreate => 'Создать';
+
+  @override
+  String get newGridName => 'Название';
+
+  @override
+  String get newGridDefaultName => 'Новая схема';
+
+  @override
+  String get newGridTechnique => 'Техника';
+
+  @override
+  String get newGridWidth => 'Ширина, бусин';
+
+  @override
+  String get newGridHeight => 'Высота, бусин';
+
+  @override
+  String get newGridBead => 'Бисер';
+
+  @override
+  String newGridSizeCm(String width, String height) {
+    return 'Получится примерно $width × $height см';
+  }
+
+  @override
+  String get newGridSizeInvalid => 'Размер: от 1 до 500 бусин по каждой стороне';
+
+  @override
+  String get newGridFailed => 'Не удалось создать схему. Попробуй ещё раз.';
+
+  @override
+  String get editorToolBrush => 'Кисть';
+
+  @override
+  String get editorToolEraser => 'Ластик';
+
+  @override
+  String get editorToolFill => 'Заливка';
+
+  @override
+  String get editorToolPipette => 'Пипетка';
+
+  @override
+  String get editorToolReplace => 'Заменить цвет';
+
+  @override
+  String get editorToolSelection => 'Выделение';
+
+  @override
+  String get editorMirrorHorizontal => 'Зеркало по горизонтали';
+
+  @override
+  String get editorMirrorVertical => 'Зеркало по вертикали';
+
+  @override
+  String get editorMirrorNote =>
+      'Для мозаики и кирпичика зеркало меняет местами ячейки, а не физическое расположение бусин.';
+
+  @override
+  String get editorRowsColumns => 'Ряды и столбцы';
+
+  @override
+  String get editorInsertRowAbove => 'Вставить ряд выше';
+
+  @override
+  String get editorInsertRowBelow => 'Вставить ряд ниже';
+
+  @override
+  String editorDeleteRow(int row) {
+    return 'Удалить ряд $row';
+  }
+
+  @override
+  String get editorInsertColumnLeft => 'Вставить столбец слева';
+
+  @override
+  String get editorInsertColumnRight => 'Вставить столбец справа';
+
+  @override
+  String editorDeleteColumn(int column) {
+    return 'Удалить столбец $column';
+  }
+
+  @override
+  String get editorTouchFirst => 'Сначала коснись схемы, чтобы выбрать место.';
+
+  @override
+  String get editorUndo => 'Отменить';
+
+  @override
+  String get editorRedo => 'Повторить';
+
+  @override
+  String get editorSymbols => 'Символы';
+
+  @override
+  String get editorPalette => 'Палитра';
+
+  @override
+  String get editorAddColor => 'Добавить цвет';
+
+  @override
+  String editorColorSwatch(String name) {
+    return 'Цвет $name';
+  }
+
+  @override
+  String get editorSaving => 'Сохраняется…';
+
+  @override
+  String get editorSaved => 'Сохранено';
+
+  @override
+  String get editorSaveFailed => 'Не удалось сохранить. Нажми, чтобы повторить.';
+
+  @override
+  String get editorLoadFailed => 'Не удалось открыть схему.';
+
+  @override
+  String get editorProblemNoColor => 'Сначала добавь цвет в палитру.';
+
+  @override
+  String get editorProblemPaletteFull => 'В палитре больше нет места.';
+
+  @override
+  String get editorProblemLimit => 'Схема уже самая большая.';
+
+  @override
+  String get editorProblemLast => 'Последний ряд или столбец удалить нельзя.';
+
+  @override
+  String get colorSheetTitle => 'Цвет';
+
+  @override
+  String get colorSheetDone => 'Готово';
+
+  @override
+  String get colorSheetName => 'Название';
+
+  @override
+  String get colorSheetRed => 'Красный';
+
+  @override
+  String get colorSheetGreen => 'Зелёный';
+
+  @override
+  String get colorSheetBlue => 'Синий';
+
+  @override
+  String get colorSheetCatalog => 'Из каталога';
+
+  @override
+  String get colorSheetSearch => 'Артикул или название';
+
+  @override
+  String get colorSheetNearest => 'Ближайшие';
+
+  @override
+  String get colorSheetNothing => 'Ничего не нашлось';
+
+  @override
+  String get colorSheetDelete => 'Удалить цвет из палитры';
+
+  @override
+  String get colorSheetDeleteHint => 'Бусины этого цвета на схеме станут пустыми.';
+
+  @override
+  String get newGridBeadDelica => 'Delica';
+
+  @override
+  String get newGridBeadRocaille => 'Рокайль';
+
+  @override
   String get libraryCatalogSemantic => 'Каталог цветов';
 
   @override
