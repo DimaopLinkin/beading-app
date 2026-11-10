@@ -182,6 +182,7 @@ class WeaveCubit extends Cubit<WeaveState> {
       return;
     }
     final int finished = state.row;
+    final bool fresh = !state.completedRows.contains(finished);
     final Set<int> done = <int>{...state.completedRows, finished};
     final bool last = finished >= state.rowCount - 1;
     final WeaveState next = last
@@ -199,7 +200,9 @@ class WeaveCubit extends Cubit<WeaveState> {
     _enqueue(() async {
       final bool a = (await _progress.markRow(_patternId!, finished)).isFailure;
       final bool b = await _saveCurrent();
-      await _rowsCounter.completed();
+      if (!a && fresh) {
+        await _rowsCounter.completed();
+      }
       return _moved(a || b);
     });
   }

@@ -26,6 +26,7 @@ class WorkSessionTracker {
   WorkSession? _current;
   Timer? _timer;
   bool _paused = false;
+  int _generation = 0;
 
   /// Идёт ли сессия сейчас.
   bool get isRunning => _current != null;
@@ -71,10 +72,11 @@ class WorkSessionTracker {
     if (projectId == null) {
       return;
     }
+    final int generation = ++_generation;
     final DateTime now = _clock.now();
     final Result<WorkSession> started = await _sessions.start(projectId, now);
     // За время записи экран могли закрыть.
-    if (_projectId != projectId || _paused) {
+    if (_projectId != projectId || _paused || _generation != generation) {
       if (started case Success<WorkSession>(:final WorkSession value)) {
         await _sessions.touch(value.id, _clock.now());
       }
@@ -82,6 +84,7 @@ class WorkSessionTracker {
     }
     if (started case Success<WorkSession>(:final WorkSession value)) {
       _current = value;
+      _timer?.cancel();
       _timer = Timer.periodic(heartbeat, (_) => unawaited(_beat()));
     }
   }
