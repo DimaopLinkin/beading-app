@@ -1,0 +1,362 @@
+{
+  "cat/loom/t24": {
+    "singles": 112,
+    "colors": 10,
+    "deltaE": 3.68
+  },
+  "cat/loom/t24-catalog": {
+    "singles": 24,
+    "colors": 5,
+    "deltaE": 9.64
+  },
+  "cat/loom/t24-dither": {
+    "singles": 170,
+    "colors": 10,
+    "deltaE": 4.31
+  },
+  "cat/peyote/t24": {
+    "singles": 56,
+    "colors": 10,
+    "deltaE": 3.61
+  },
+  "cat/peyote/t24-catalog": {
+    "singles": 9,
+    "colors": 5,
+    "deltaE": 9.57
+  },
+  "cat/peyote/t24-dither": {
+    "singles": 106,
+    "colors": 10,
+    "deltaE": 4.22
+  },
+  "cat/stitch/t24": {
+    "singles": 312,
+    "colors": 16,
+    "deltaE": 3.23
+  },
+  "cat/stitch/t24-dither": {
+    "singles": 534,
+    "colors": 16,
+    "deltaE": 4.18
+  },
+  "coffee/loom/t24": {
+    "singles": 92,
+    "colors": 10,
+    "deltaE": 3.8
+  },
+  "coffee/loom/t24-catalog": {
+    "singles": 69,
+    "colors": 8,
+    "deltaE": 7.95
+  },
+  "coffee/loom/t24-dither": {
+    "singles": 142,
+    "colors": 10,
+    "deltaE": 4.59
+  },
+  "coffee/peyote/t24": {
+    "singles": 65,
+    "colors": 10,
+    "deltaE": 3.78
+  },
+  "coffee/peyote/t24-catalog": {
+    "singles": 43,
+    "colors": 8,
+    "deltaE": 7.95
+  },
+  "coffee/peyote/t24-dither": {
+    "singles": 101,
+    "colors": 10,
+    "deltaE": 4.56
+  },
+  "coffee/stitch/t24": {
+    "singles": 342,
+    "colors": 16,
+    "deltaE": 2.87
+  },
+  "coffee/stitch/t24-dither": {
+    "singles": 446,
+    "colors": 16,
+    "deltaE": 3.53
+  },
+  "drawing/loom/t24": {
+    "singles": 19,
+    "colors": 10,
+    "deltaE": 1.54
+  },
+  "drawing/loom/t24-catalog": {
+    "singles": 14,
+    "colors": 10,
+    "deltaE": 8.7
+  },
+  "drawing/loom/t24-dither": {
+    "singles": 45,
+    "colors": 10,
+    "deltaE": 1.89
+  },
+  "drawing/peyote/t24": {
+    "singles": 44,
+    "colors": 10,
+    "deltaE": 1.88
+  },
+  "drawing/peyote/t24-catalog": {
+    "singles": 22,
+    "colors": 9,
+    "deltaE": 8.96
+  },
+  "drawing/peyote/t24-dither": {
+    "singles": 52,
+    "colors": 10,
+    "deltaE": 2.19
+  },
+  "drawing/stitch/t24": {
+    "singles": 71,
+    "colors": 16,
+    "deltaE": 0.86
+  },
+  "drawing/stitch/t24-dither": {
+    "singles": 129,
+    "colors": 16,
+    "deltaE": 1.14
+  },
+  "galaxy/loom/t24": {
+    "singles": 256,
+    "colors": 10,
+    "deltaE": 1.16
+  },
+  "galaxy/loom/t24-catalog": {
+    "singles": 31,
+    "colors": 4,
+    "deltaE": 2.39
+  },
+  "galaxy/loom/t24-dither": {
+    "singles": 255,
+    "colors": 10,
+    "deltaE": 1.44
+  },
+  "galaxy/peyote/t24": {
+    "singles": 198,
+    "colors": 10,
+    "deltaE": 1.1
+  },
+  "galaxy/peyote/t24-catalog": {
+    "singles": 29,
+    "colors": 4,
+    "deltaE": 2.43
+  },
+  "galaxy/peyote/t24-dither": {
+    "singles": 175,
+    "colors": 10,
+    "deltaE": 1.24
+  },
+  "galaxy/stitch/t24": {
+    "singles": 616,
+    "colors": 16,
+    "deltaE": 1.18
+  },
+  "galaxy/stitch/t24-dither": {
+    "singles": 491,
+    "colors": 16,
+    "deltaE": 1.38
+  },
+  "handwriting/loom/t24": {
+    "singles": 141,
+    "colors": 10,
+    "deltaE": 0.67
+  },
+  "handwriting/loom/t24-catalog": {
+    "singles": 16,
+    "colors": 3,
+    "deltaE": 5.22
+  },
+  "handwriting/loom/t24-dither": {
+    "singles": 151,
+    "colors": 10,
+    "deltaE": 0.76
+  },
+  "handwriting/peyote/t24": {
+    "singles": 109,
+    "colors": 10,
+    "deltaE": 0.68
+  },
+  "handwriting/peyote/t24-catalog": {
+    "singles": 18,
+    "colors": 3,
+    "deltaE": 5.23
+  },
+  "handwriting/peyote/t24-dither": {
+    "singles": 109,
+    "colors": 10,
+    "deltaE": 0.73
+  },
+  "handwriting/stitch/t24": {
+    "singles": 417,
+    "colors": 16,
+    "deltaE": 0.51
+  },
+  "handwriting/stitch/t24-dither": {
+    "singles": 472,
+    "colors": 16,
+    "deltaE": 0.58
+  },
+  "landscape/loom/t24": {
+    "singles": 19,
+    "colors": 10,
+    "deltaE": 3.23
+  },
+  "landscape/loom/t24-catalog": {
+    "singles": 13,
+    "colors": 8,
+    "deltaE": 6.42
+  },
+  "landscape/loom/t24-dither": {
+    "singles": 113,
+    "colors": 10,
+    "deltaE": 4.02
+  },
+  "landscape/peyote/t24": {
+    "singles": 16,
+    "colors": 10,
+    "deltaE": 3.04
+  },
+  "landscape/peyote/t24-catalog": {
+    "singles": 35,
+    "colors": 9,
+    "deltaE": 6.53
+  },
+  "landscape/peyote/t24-dither": {
+    "singles": 75,
+    "colors": 10,
+    "deltaE": 3.76
+  },
+  "landscape/stitch/t24": {
+    "singles": 45,
+    "colors": 16,
+    "deltaE": 1.69
+  },
+  "landscape/stitch/t24-dither": {
+    "singles": 181,
+    "colors": 16,
+    "deltaE": 1.98
+  },
+  "logo/loom/t24": {
+    "singles": 139,
+    "colors": 10,
+    "deltaE": 1.45
+  },
+  "logo/loom/t24-catalog": {
+    "singles": 85,
+    "colors": 7,
+    "deltaE": 5.91
+  },
+  "logo/loom/t24-dither": {
+    "singles": 154,
+    "colors": 10,
+    "deltaE": 1.69
+  },
+  "logo/peyote/t24": {
+    "singles": 98,
+    "colors": 10,
+    "deltaE": 1.39
+  },
+  "logo/peyote/t24-catalog": {
+    "singles": 51,
+    "colors": 7,
+    "deltaE": 5.92
+  },
+  "logo/peyote/t24-dither": {
+    "singles": 98,
+    "colors": 10,
+    "deltaE": 1.59
+  },
+  "logo/stitch/t24": {
+    "singles": 422,
+    "colors": 16,
+    "deltaE": 0.88
+  },
+  "logo/stitch/t24-dither": {
+    "singles": 476,
+    "colors": 16,
+    "deltaE": 1.07
+  },
+  "portrait/loom/t24": {
+    "singles": 110,
+    "colors": 10,
+    "deltaE": 5.73
+  },
+  "portrait/loom/t24-catalog": {
+    "singles": 93,
+    "colors": 9,
+    "deltaE": 7.97
+  },
+  "portrait/loom/t24-dither": {
+    "singles": 182,
+    "colors": 10,
+    "deltaE": 6.92
+  },
+  "portrait/peyote/t24": {
+    "singles": 96,
+    "colors": 10,
+    "deltaE": 5.84
+  },
+  "portrait/peyote/t24-catalog": {
+    "singles": 74,
+    "colors": 9,
+    "deltaE": 8.18
+  },
+  "portrait/peyote/t24-dither": {
+    "singles": 134,
+    "colors": 10,
+    "deltaE": 7.23
+  },
+  "portrait/stitch/t24": {
+    "singles": 321,
+    "colors": 16,
+    "deltaE": 4.32
+  },
+  "portrait/stitch/t24-dither": {
+    "singles": 518,
+    "colors": 16,
+    "deltaE": 5.36
+  },
+  "rocket/loom/t24": {
+    "singles": 21,
+    "colors": 10,
+    "deltaE": 3.2
+  },
+  "rocket/loom/t24-catalog": {
+    "singles": 22,
+    "colors": 8,
+    "deltaE": 6.57
+  },
+  "rocket/loom/t24-dither": {
+    "singles": 110,
+    "colors": 10,
+    "deltaE": 3.75
+  },
+  "rocket/peyote/t24": {
+    "singles": 23,
+    "colors": 10,
+    "deltaE": 3.2
+  },
+  "rocket/peyote/t24-catalog": {
+    "singles": 20,
+    "colors": 8,
+    "deltaE": 6.43
+  },
+  "rocket/peyote/t24-dither": {
+    "singles": 64,
+    "colors": 10,
+    "deltaE": 3.69
+  },
+  "rocket/stitch/t24": {
+    "singles": 76,
+    "colors": 16,
+    "deltaE": 2.59
+  },
+  "rocket/stitch/t24-dither": {
+    "singles": 328,
+    "colors": 16,
+    "deltaE": 3.13
+  }
+}
