@@ -15,7 +15,7 @@ import 'gallery_support.dart';
 /// Папка результата — `GALLERY_OUT` (по умолчанию `build/gallery`). `GALLERY_UPDATE_BASELINE=1` ещё и пересобирает
 /// `test/fixtures/photos/baseline.json`, но только по фикстурам из репозитория (личные фото в базу не попадают).
 void main() {
-  testWidgets('строит листы и таблицу метрик', (WidgetTester tester) async {
+  testWidgets('строит листы и таблицу метрик', (tester) async {
     final String out = Platform.environment['GALLERY_OUT'] ?? 'build/gallery';
     final String? privateDir = Platform.environment['GALLERY_PHOTOS'];
     final bool updateBaseline = Platform.environment['GALLERY_UPDATE_BASELINE'] == '1';

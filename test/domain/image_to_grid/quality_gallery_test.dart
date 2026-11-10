@@ -9,11 +9,11 @@ void main() {
   late List<GalleryRun> runs;
   late Map<String, Map<String, num>> baseline;
 
-  setUpAll(() async {
+  setUpAll(() {
     baseline = readBaseline();
   });
 
-  testWidgets('метрики не хуже базы: одиночных клеток не больше +20 %, ΔE не выше +1,0', (WidgetTester tester) async {
+  testWidgets('метрики не хуже базы: одиночных клеток не больше +20 %, ΔE не выше +1,0', (tester) async {
     runs = (await tester.runAsync(() async => runGallery(await loadPhotos(), loadBeadCatalog())))!;
     final List<String> problems = <String>[];
     for (final GalleryRun run in runs) {
@@ -35,7 +35,7 @@ void main() {
     }
     expect(problems, isEmpty);
     expect(
-      baseline.keys.toSet().difference(runs.map((GalleryRun r) => r.key).toSet()),
+      baseline.keys.toSet().difference(runs.map((r) => r.key).toSet()),
       isEmpty,
       reason: 'лишние ключи в базе',
     );

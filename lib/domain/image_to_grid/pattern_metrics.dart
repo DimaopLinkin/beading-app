@@ -13,7 +13,7 @@ int countSingleCells(Grid grid, GridGeometry geometry) {
       if (value == 0) continue;
       final bool alone = geometry
           .neighbors(columns: grid.width, rows: grid.height, cell: CellPosition(column, row))
-          .every((CellPosition n) => grid.at(n.column, n.row) != value);
+          .every((n) => grid.at(n.column, n.row) != value);
       if (alone) singles++;
     }
   }

@@ -21,7 +21,7 @@ final class GenerationStats extends Equatable {
   /// Время стадий конвейера по названиям: `sample`, `palette`, `assign`, `steps`.
   final Map<String, Duration> stageTimes;
 
-  Duration get totalTime => stageTimes.values.fold(Duration.zero, (Duration sum, Duration d) => sum + d);
+  Duration get totalTime => stageTimes.values.fold(Duration.zero, (sum, d) => sum + d);
 
   @override
   List<Object?> get props => <Object?>[singleCells, colorCount, meanDeltaE, stageTimes];

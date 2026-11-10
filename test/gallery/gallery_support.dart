@@ -4,6 +4,7 @@ import 'dart:io';
 import 'dart:typed_data';
 import 'dart:ui' as ui;
 
+import 'package:beading/data/catalog/catalog_file_parser.dart';
 import 'package:beading/data/image_to_grid/ui_image_decoder.dart';
 import 'package:beading/domain/catalog/catalog_color.dart';
 import 'package:beading/domain/catalog/catalog_file.dart';
@@ -21,7 +22,6 @@ import 'package:beading/domain/image_to_grid/image_to_grid_settings.dart';
 import 'package:beading/domain/image_to_grid/source_image.dart';
 import 'package:beading/domain/palette/rgb.dart';
 import 'package:beading/domain/projects/craft.dart';
-import 'package:beading/data/catalog/catalog_file_parser.dart';
 
 /// Галерея качества генератора (T51): фото-фикстуры × виды схем × варианты конвейера.
 ///
@@ -139,23 +139,21 @@ ImageToGridRequest _request(
 
 /// Варианты галереи.
 final List<GalleryVariant> galleryVariants = <GalleryVariant>[
-  GalleryVariant(
+  const GalleryVariant(
     id: 't24',
     title: 'T24 (как сейчас)',
-    build: (SourceImage image, GalleryTarget target, List<CatalogColor> catalog) => _request(image, target, catalog),
+    build: _request,
   ),
   GalleryVariant(
     id: 't24-dither',
     title: 'T24 + дизеринг',
-    build: (SourceImage image, GalleryTarget target, List<CatalogColor> catalog) =>
-        _request(image, target, catalog, dither: true),
+    build: (image, target, catalog) => _request(image, target, catalog, dither: true),
   ),
   GalleryVariant(
     id: 't24-catalog',
     title: 'T24 + каталог Toho/Delica',
     beadsOnly: true,
-    build: (SourceImage image, GalleryTarget target, List<CatalogColor> catalog) =>
-        _request(image, target, catalog, useCatalog: true),
+    build: (image, target, catalog) => _request(image, target, catalog, useCatalog: true),
   ),
 ];
 
@@ -182,7 +180,7 @@ Future<List<GalleryPhoto>> loadPhotos({String? privateDir}) async {
     final List<File> files = <File>[
       for (final FileSystemEntity e in dir.listSync())
         if (e is File && _imageExtensions.contains(_extension(e.path))) e,
-    ]..sort((File a, File b) => a.path.compareTo(b.path));
+    ]..sort((a, b) => a.path.compareTo(b.path));
     for (final File file in files) {
       final SourceImage? image = (await decoder.decode(file.readAsBytesSync(), maxSide: maxSide)).valueOrNull;
       if (image == null) continue;
@@ -288,8 +286,8 @@ Future<Uint8List> renderSheet(GalleryPhoto photo, GalleryTarget target, List<Gal
     _photoPanel(photo.image, runs.first),
     for (final GalleryRun run in runs) _patternPanel(run),
   ];
-  final int width = panels.fold<int>(_gap, (int sum, _Panel p) => sum + p.width + _gap);
-  final int height = _panelHeight + 2 * _gap;
+  final int width = panels.fold<int>(_gap, (sum, p) => sum + p.width + _gap);
+  const int height = _panelHeight + 2 * _gap;
   final Uint8List rgba = Uint8List(width * height * 4);
   for (int i = 0; i < rgba.length; i += 4) {
     rgba[i] = 245;
