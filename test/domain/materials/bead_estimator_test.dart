@@ -25,6 +25,7 @@ PaletteSnapshot _palette(int count) => PaletteSnapshot(
 );
 
 void main() {
+  largeCounts();
   group('BeadEstimator', () {
     test('штуки по цветам совпадают с ручным подсчётом по рисунку станка', () {
       // Ручной подсчёт: A 3+1+6+4 = 14, B 3+4+1 = 8, C 1+1 = 2; всего 24 = 6 × 4.
@@ -123,5 +124,14 @@ void main() {
       expect(estimate.lines.length, 3);
       expect(estimate.lines.first.color.name, 'A');
     });
+  });
+}
+
+void largeCounts() {
+  test('запас на миллионах бусин не даёт лишней', () {
+    final BeadEstimator estimator = BeadEstimator(beadSize: BeadSize.delica11);
+    final Grid big = Grid.fromCells(width: 4096, height: 4096, cells: List<int>.filled(4096 * 4096, 1));
+
+    expect(estimator.estimate(big, _palette(1)).lines.single.piecesWithReserve, 18454938);
   });
 }

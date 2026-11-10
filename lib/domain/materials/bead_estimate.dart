@@ -102,8 +102,10 @@ final class BeadEstimator implements MaterialEstimator {
   }
 
   BeadMaterialLine _line(int colorIndex, PatternColor color, int pieces) {
-    // 1e-9: 10 × 1,1 в double — 11,000000000000002, и «потолок» дал бы лишнюю бусину.
-    final int withReserve = (pieces * (1 + reserve) - 1e-9).ceil();
+    // Относительная поправка: 10 × 1,1 в double — 11,000000000000002, и «потолок» дал бы лишнюю бусину; ошибка растёт
+    // вместе с числом бусин (до 16,7 млн), поэтому поправка пропорциональна.
+    final double exact = pieces * (1 + reserve);
+    final int withReserve = (exact - exact * 1e-12).ceil();
     return BeadMaterialLine(
       colorIndex: colorIndex,
       color: color,

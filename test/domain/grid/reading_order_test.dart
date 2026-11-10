@@ -9,6 +9,7 @@ ReadingOrder _order(GridGeometry geometry, int columns, int rows, [ReadingStart 
 List<RowDirection> _directions(ReadingOrder order) => order.allRows.map((r) => r.direction).toList();
 
 void main() {
+  largeSchemes();
   group('станок', () {
     const GridGeometry geometry = GridGeometry.rectangular();
 
@@ -149,5 +150,47 @@ void main() {
       expect(() => _order(const GridGeometry.rectangular(), 0, 3), throwsArgumentError);
       expect(() => _order(const GridGeometry.rectangular(), 3, 3).row(3), throwsRangeError);
     });
+  });
+}
+
+void largeSchemes() {
+  test('схема 4096×4096 не обходится целиком', () {
+    final ReadingOrder order = ReadingOrder.of(const GridGeometry.peyote(), columns: 4096, rows: 4096);
+
+    expect(order.rowCount, 4095);
+    expect(order.row(0).cells.length, 8192);
+    expect(order.row(4094).cells.length, 4096);
+  });
+
+  test('мозаика, начало справа снизу: первый проход вверх, ряды с последнего столбца', () {
+    final ReadingOrder order = ReadingOrder.of(
+      const GridGeometry.peyote(),
+      columns: 5,
+      rows: 2,
+      start: ReadingStart.bottomRight,
+    );
+
+    expect(order.row(0).direction, RowDirection.up);
+    expect(order.row(0).cells.first, const CellPosition(3, 1));
+    expect(order.row(1).cells.first, const CellPosition(2, 0));
+  });
+
+  test('станок и кирпич: оставшиеся углы', () {
+    final ReadingOrder loom = ReadingOrder.of(
+      const GridGeometry.rectangular(),
+      columns: 2,
+      rows: 2,
+      start: ReadingStart.topRight,
+    );
+    final ReadingOrder brick = ReadingOrder.of(
+      const GridGeometry.brick(),
+      columns: 2,
+      rows: 2,
+      start: ReadingStart.bottomLeft,
+    );
+
+    expect(loom.row(0).cells.first, const CellPosition(1, 0));
+    expect(brick.row(0).cells.first, const CellPosition(0, 1));
+    expect(brick.row(1).cells.first, const CellPosition(1, 0));
   });
 }

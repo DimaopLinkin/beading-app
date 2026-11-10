@@ -66,16 +66,18 @@ abstract final class WordChart {
     return runs;
   }
 
-  /// Word chart всей схемы. Размер [grid] должен совпадать с размером, для которого построен [order].
-  static List<WordChartRow> build(Grid grid, ReadingOrder order) {
+  /// Word chart всей схемы списком. Для больших схем берите [rows]: он считает ряды по запросу.
+  static List<WordChartRow> build(Grid grid, ReadingOrder order) => rows(grid, order).toList();
+
+  /// Word chart по рядам, лениво. Размер [grid] должен совпадать с размером, для которого построен [order].
+  static Iterable<WordChartRow> rows(Grid grid, ReadingOrder order) {
     if (grid.width != order.columns || grid.height != order.rows) {
       throw ArgumentError(
         'Порядок плетения для ${order.columns} × ${order.rows}, а сетка ${grid.width} × ${grid.height}',
       );
     }
-    return <WordChartRow>[
-      for (final ReadingRow row in order.allRows)
-        WordChartRow(index: row.index, direction: row.direction, runs: forRow(grid, row)),
-    ];
+    return order.allRows.map(
+      (row) => WordChartRow(index: row.index, direction: row.direction, runs: forRow(grid, row)),
+    );
   }
 }
