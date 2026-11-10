@@ -11,7 +11,7 @@ import 'package:flutter/cupertino.dart';
 Future<void> showNewProjectSheet(BuildContext context, NewProjectRegistry registry, {Craft? initialCraft}) async {
   final NewProjectEntry? chosen = await showCupertinoSheet<NewProjectEntry>(
     context: context,
-    pageBuilder: (_) => NewProjectSheet(registry: registry, initialCraft: initialCraft),
+    builder: (_) => NewProjectSheet(registry: registry, initialCraft: initialCraft),
   );
   if (chosen != null && context.mounted) {
     await chosen.onSelected(context);
