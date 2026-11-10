@@ -211,7 +211,7 @@ class _ZoneSection extends StatelessWidget {
               minimumSize: Size.square(context.tokens.minTapTarget),
               padding: EdgeInsets.zero,
               onPressed: count == null || count <= 1 ? null : () => cubit.setRowCount(count - 1),
-              child: Semantics(label: l10n.bookWorkZoneLess, child: const Icon(AppIcons.minus)),
+              child: Semantics(label: l10n.bookWorkZoneLess, child: const Icon(AppIcons.zoneMinus)),
             ),
             SizedBox(
               width: 64,
