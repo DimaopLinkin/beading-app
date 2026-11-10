@@ -70,6 +70,8 @@ import 'package:beading/domain/settings/settings_repository.dart';
 import 'package:beading/domain/settings/wakelock_controller.dart';
 import 'package:beading/presentation/book_work/book_work_cubit.dart';
 import 'package:beading/presentation/easter_eggs/compliment_banner_cubit.dart';
+import 'package:beading/presentation/editor/editor_cubit.dart';
+import 'package:beading/presentation/editor/new_grid_cubit.dart';
 import 'package:beading/presentation/import_book/import_book_cubit.dart';
 import 'package:beading/presentation/library/library_cubit.dart';
 import 'package:beading/presentation/library/new_project_entry.dart';
@@ -253,6 +255,18 @@ Future<void> configureDependencies({GetIt? locator, AppDatabase? database, Catal
         changeStatus: container<ChangeProjectStatus>(),
         touch: container<TouchProject>(),
       ),
+    )
+    ..registerFactoryParam<EditorCubit, String, void>(
+      (projectId, _) => EditorCubit(
+        projectId: projectId,
+        projects: container<ProjectRepository>(),
+        patterns: container<GridPatternRepository>(),
+        savePattern: container<SaveGridPattern>(),
+        touchProject: container<TouchProject>(),
+      ),
+    )
+    ..registerFactoryParam<NewGridCubit, String, void>(
+      (defaultName, _) => NewGridCubit(createPattern: container<CreateGridPattern>(), defaultName: defaultName),
     )
     ..registerFactoryParam<BookWorkCubit, String, void>(
       (projectId, _) => BookWorkCubit(

@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:beading/app/di.dart';
 import 'package:beading/core/clock.dart';
+import 'package:beading/domain/catalog/catalog_repository.dart';
 import 'package:beading/domain/image_pattern/file_store.dart';
 import 'package:beading/domain/projects/project.dart';
 import 'package:beading/domain/settings/app_info.dart';
@@ -9,8 +10,13 @@ import 'package:beading/domain/settings/secret_tap_handler.dart';
 import 'package:beading/presentation/book_work/book_work_cubit.dart';
 import 'package:beading/presentation/book_work/book_work_screen.dart';
 import 'package:beading/presentation/dev/glass_check_screen.dart';
+import 'package:beading/presentation/editor/editor_cubit.dart';
+import 'package:beading/presentation/editor/editor_screen.dart';
+import 'package:beading/presentation/editor/new_grid_cubit.dart';
+import 'package:beading/presentation/editor/new_grid_screen.dart';
 import 'package:beading/presentation/import_book/import_book_cubit.dart';
 import 'package:beading/presentation/import_book/import_book_screen.dart';
+import 'package:beading/presentation/l10n/app_localizations.dart';
 import 'package:beading/presentation/library/library_cubit.dart';
 import 'package:beading/presentation/library/library_screen.dart';
 import 'package:beading/presentation/library/new_project_entry.dart';
@@ -33,6 +39,12 @@ abstract final class AppRoutes {
   static const String importBook = ImportBookScreen.routePath;
 
   /// Работа по схеме из книги (T07): линейка, зум, страницы, заметки. T05 откроет её из карточки проекта.
+  /// Лист создания схемы (T17). Закрывается с id созданного проекта.
+  static const String newGrid = NewGridScreen.routePath;
+
+  /// Редактор сеточной схемы (T17).
+  static String editor(String projectId) => EditorScreen.locationFor(projectId);
+
   static String bookWork(String projectId) => BookWorkScreen.locationFor(projectId);
 }
 
@@ -52,6 +64,8 @@ GoRouter createRouter({bool showDeveloperTools = !kReleaseMode}) => GoRouter(
           onOpenProject: (context, project) {
             if (project.contentKind == ContentKind.image) {
               unawaited(context.push<void>(AppRoutes.bookWork(project.id)));
+            } else if (project.contentKind == ContentKind.grid) {
+              unawaited(context.push<void>(AppRoutes.editor(project.id)));
             }
           },
         ),
@@ -80,6 +94,20 @@ GoRouter createRouter({bool showDeveloperTools = !kReleaseMode}) => GoRouter(
       builder: (_, _) => BlocProvider<ImportBookCubit>(
         create: (_) => getIt<ImportBookCubit>(),
         child: const ImportBookScreen(),
+      ),
+    ),
+    GoRoute(
+      path: AppRoutes.newGrid,
+      builder: (context, _) => BlocProvider<NewGridCubit>(
+        create: (_) => getIt<NewGridCubit>(param1: AppLocalizations.of(context).newGridDefaultName),
+        child: const NewGridScreen(),
+      ),
+    ),
+    GoRoute(
+      path: EditorScreen.routePath,
+      builder: (_, state) => BlocProvider<EditorCubit>(
+        create: (_) => getIt<EditorCubit>(param1: state.pathParameters['projectId'])..load(),
+        child: EditorScreen(catalog: getIt<CatalogRepository>()),
       ),
     ),
     GoRoute(

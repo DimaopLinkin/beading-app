@@ -71,7 +71,7 @@ void main() {
     patterns = FakeGridPatternRepository();
   });
 
-  tearDown(() async => cubit.close());
+  tearDown(() => cubit.close());
 
   Grid grid() => cubit.state.pattern!.grid;
 
@@ -105,7 +105,7 @@ void main() {
   });
 
   test('мазок без пропусков и один шаг отмены', () async {
-    await start(initial: pattern(width: 100, height: 4));
+    await start(initial: pattern(width: 100));
     cubit.beginStroke();
     cubit.strokeTo(const CellPosition(0, 0));
     cubit.strokeTo(const CellPosition(40, 0)); // быстрый скачок через 40 ячеек

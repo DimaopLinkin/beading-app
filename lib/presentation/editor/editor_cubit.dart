@@ -350,6 +350,7 @@ class EditorCubit extends Cubit<EditorState> {
 
   @override
   Future<void> close() async {
+    if (isClosed) return;
     _timer?.cancel();
     // Закрытие экрана не теряет правки: дописываем, что не успело сохраниться.
     if (_dirty) {
