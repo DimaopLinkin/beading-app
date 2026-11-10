@@ -1,12 +1,15 @@
 import 'dart:typed_data';
 
 import 'package:beading/domain/grid/grid.dart';
+import 'package:beading/domain/grid/grid_geometry.dart';
 import 'package:beading/domain/image_to_grid/cell_sampler.dart';
 import 'package:beading/domain/image_to_grid/color_assigner.dart';
 import 'package:beading/domain/image_to_grid/generated_pattern.dart';
+import 'package:beading/domain/image_to_grid/generation_stats.dart';
 import 'package:beading/domain/image_to_grid/image_prefilter.dart';
 import 'package:beading/domain/image_to_grid/image_to_grid_request.dart';
 import 'package:beading/domain/image_to_grid/palette_entry.dart';
+import 'package:beading/domain/image_to_grid/pattern_metrics.dart';
 import 'package:beading/domain/image_to_grid/pattern_step.dart';
 import 'package:beading/domain/image_to_grid/quantizer.dart';
 import 'package:beading/domain/image_to_grid/source_image.dart';
@@ -30,6 +33,14 @@ final class ImageToGridPipeline {
   final ColorAssigner assigner;
 
   GeneratedPattern run(ImageToGridRequest request) {
+    final Stopwatch clock = Stopwatch()..start();
+    final Map<String, Duration> times = <String, Duration>{};
+    Duration lap() {
+      final Duration elapsed = clock.elapsed;
+      clock.reset();
+      return elapsed;
+    }
+
     SourceImage image = request.image;
     Float32List? importance = request.importance;
     final ImagePrefilter? prefilter = request.prefilter;
@@ -47,6 +58,7 @@ final class ImageToGridPipeline {
       image = work.toSourceImage();
       importance = work.importance;
     }
+    times['prefilter'] = lap();
     final SampledCells cells = sampler.sample(
       image: image,
       importance: importance,
@@ -55,7 +67,9 @@ final class ImageToGridPipeline {
       columns: request.columns,
       rows: request.rows,
     );
+    times['sample'] = lap();
     final List<PaletteEntry> palette = _choosePalette(request, cells);
+    times['palette'] = lap();
     final Uint16List values = assigner.assign(
       cells: cells.colors,
       columns: cells.columns,
@@ -64,6 +78,7 @@ final class ImageToGridPipeline {
       dither: request.dither,
     );
     GeneratedPattern pattern = _compact(values, palette, cells);
+    times['assign'] = lap();
     final PatternStepContext context = PatternStepContext(
       geometry: request.geometry,
       cellImportance: cells.importance,
@@ -71,7 +86,38 @@ final class ImageToGridPipeline {
     for (final PatternStep step in request.steps) {
       pattern = step.apply(pattern, context);
     }
-    return pattern;
+    times['steps'] = lap();
+    return GeneratedPattern(
+      grid: pattern.grid,
+      palette: pattern.palette,
+      stats: _stats(pattern, cells, request.geometry, times),
+    );
+  }
+
+  GenerationStats _stats(
+    GeneratedPattern pattern,
+    SampledCells cells,
+    GridGeometry geometry,
+    Map<String, Duration> times,
+  ) {
+    final List<Lab> paletteLab = <Lab>[for (final PaletteEntry e in pattern.palette) Lab.fromRgb(e.rgb)];
+    final Set<int> used = <int>{};
+    double sum = 0;
+    int counted = 0;
+    for (int i = 0; i < cells.colors.length; i++) {
+      final Rgb? source = cells.colors[i];
+      final int value = pattern.grid.at(i % cells.columns, i ~/ cells.columns);
+      if (source == null || value == 0) continue;
+      used.add(value);
+      sum += deltaE2000(Lab.fromRgb(source), paletteLab[value - 1]);
+      counted++;
+    }
+    return GenerationStats(
+      singleCells: countSingleCells(pattern.grid, geometry),
+      colorCount: used.length,
+      meanDeltaE: counted == 0 ? 0 : sum / counted,
+      stageTimes: times,
+    );
   }
 
   List<PaletteEntry> _choosePalette(ImageToGridRequest request, SampledCells cells) {

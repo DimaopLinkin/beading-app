@@ -187,6 +187,78 @@ abstract class AppLocalizations {
   /// **'Скоро'**
   String get settingsSoon;
 
+  /// Пункт настроек: отдать все проекты одним файлом
+  ///
+  /// In ru, this message translates to:
+  /// **'Создать резервную копию'**
+  String get settingsBackupCreate;
+
+  /// Пункт настроек: импорт файла .biser
+  ///
+  /// In ru, this message translates to:
+  /// **'Восстановить из файла'**
+  String get settingsRestore;
+
+  /// Действие над проектом: отправить файл .biser
+  ///
+  /// In ru, this message translates to:
+  /// **'Поделиться файлом'**
+  String get projectShareFile;
+
+  /// No description provided for @ok.
+  ///
+  /// In ru, this message translates to:
+  /// **'Понятно'**
+  String get ok;
+
+  /// No description provided for @importConfirmTitle.
+  ///
+  /// In ru, this message translates to:
+  /// **'В файле проектов: {count}'**
+  String importConfirmTitle(int count);
+
+  /// No description provided for @importConflictsNote.
+  ///
+  /// In ru, this message translates to:
+  /// **'Уже есть в библиотеке: {count}'**
+  String importConflictsNote(int count);
+
+  /// No description provided for @importAction.
+  ///
+  /// In ru, this message translates to:
+  /// **'Добавить в библиотеку'**
+  String get importAction;
+
+  /// No description provided for @importAsNew.
+  ///
+  /// In ru, this message translates to:
+  /// **'Добавить как новые'**
+  String get importAsNew;
+
+  /// No description provided for @importSkipExisting.
+  ///
+  /// In ru, this message translates to:
+  /// **'Пропустить уже существующие'**
+  String get importSkipExisting;
+
+  /// No description provided for @importDoneTitle.
+  ///
+  /// In ru, this message translates to:
+  /// **'Готово'**
+  String get importDoneTitle;
+
+  /// No description provided for @importDoneBody.
+  ///
+  /// In ru, this message translates to:
+  /// **'Добавлено проектов: {added}. Пропущено: {skipped}.'**
+  String importDoneBody(int added, int skipped);
+
+  /// No description provided for @transferFailedGeneric.
+  ///
+  /// In ru, this message translates to:
+  /// **'Не получилось. Попробуйте ещё раз.'**
+  String get transferFailedGeneric;
+
   /// No description provided for @settingsAbout.
   ///
   /// In ru, this message translates to:

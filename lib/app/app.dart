@@ -8,10 +8,13 @@ import 'package:beading/domain/easter_eggs/long_session_watcher.dart';
 import 'package:beading/domain/events/app_events.dart';
 import 'package:beading/domain/settings/app_theme_mode.dart';
 import 'package:beading/domain/settings/reduce_transparency_source.dart';
+import 'package:beading/domain/sharing/biser/biser_file_source.dart';
 import 'package:beading/presentation/easter_eggs/compliment_banner_cubit.dart';
 import 'package:beading/presentation/easter_eggs/compliment_overlay.dart';
 import 'package:beading/presentation/l10n/app_localizations.dart';
 import 'package:beading/presentation/settings/settings_cubit.dart';
+import 'package:beading/presentation/sharing/data_transfer_cubit.dart';
+import 'package:beading/presentation/sharing/data_transfer_host.dart';
 import 'package:beading/presentation/theme/app_theme.dart';
 import 'package:beading/presentation/theme/theme_mode_cubit.dart';
 import 'package:beading/presentation/widgets/dismiss_focus_on_tap.dart';
@@ -80,7 +83,14 @@ class _BeadingAppState extends State<BeadingApp> {
             context,
             ReduceTransparencyScope(
               source: getIt<ReduceTransparencySource>(),
-              child: DismissFocusOnTap(child: ComplimentOverlay(child: child ?? const SizedBox.shrink())),
+              child: DismissFocusOnTap(
+                child: DataTransferHost(
+                  cubit: getIt<DataTransferCubit>(),
+                  incoming: getIt<IncomingBiserFiles>(),
+                  navigatorKey: _router.routerDelegate.navigatorKey,
+                  child: ComplimentOverlay(child: child ?? const SizedBox.shrink()),
+                ),
+              ),
             ),
           ),
         ),

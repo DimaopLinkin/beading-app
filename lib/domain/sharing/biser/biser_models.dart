@@ -1,0 +1,79 @@
+import 'dart:typed_data';
+
+import 'package:beading/domain/grid_pattern/grid_pattern.dart';
+import 'package:beading/domain/grid_pattern/grid_progress.dart';
+import 'package:beading/domain/image_pattern/book_work/page_work.dart';
+import 'package:beading/domain/projects/project.dart';
+import 'package:equatable/equatable.dart';
+
+/// Версия формата `.biser`, которую пишет это приложение. Файл новее — понятная ошибка, а не порча данных.
+const int biserFormatVersion = 1;
+
+/// Что лежит в файле: один проект или резервная копия всей библиотеки.
+enum BiserKind { project, backup }
+
+/// Страница схемы из книги. [file] — путь картинки внутри архива.
+final class BiserPage extends Equatable {
+  const BiserPage({required this.id, required this.file, required this.width, required this.height, this.work});
+
+  final String id;
+  final String file;
+  final int width;
+  final int height;
+
+  /// Линейка и вид страницы; `null`, если на странице ещё не работали.
+  final PageWork? work;
+
+  @override
+  List<Object?> get props => <Object?>[id, file, width, height, work];
+}
+
+/// Схема из книги: страницы и открытая страница.
+final class BiserBook extends Equatable {
+  BiserBook({required this.patternId, required List<BiserPage> pages, this.currentPageId})
+    : pages = List<BiserPage>.unmodifiable(pages);
+
+  final String patternId;
+  final List<BiserPage> pages;
+  final String? currentPageId;
+
+  @override
+  List<Object?> get props => <Object?>[patternId, pages, currentPageId];
+}
+
+/// Проект со всем содержимым. `coverPath` проекта в файле не хранится: обложкой служит страница [coverPageId].
+final class BiserProject extends Equatable {
+  const BiserProject({required this.project, this.grid, this.progress, this.book, this.coverPageId});
+
+  final Project project;
+  final GridPattern? grid;
+  final GridProgress? progress;
+  final BiserBook? book;
+  final String? coverPageId;
+
+  @override
+  List<Object?> get props => <Object?>[project, grid, progress, book, coverPageId];
+}
+
+/// Всё содержимое файла `.biser`: манифест и файлы (картинки страниц) по путям внутри архива.
+final class BiserBundle extends Equatable {
+  BiserBundle({
+    required this.kind,
+    required this.exportedAt,
+    required this.appVersion,
+    required List<BiserProject> projects,
+    Map<String, Uint8List> files = const <String, Uint8List>{},
+    this.formatVersion = biserFormatVersion,
+  }) : projects = List<BiserProject>.unmodifiable(projects),
+       files = Map<String, Uint8List>.unmodifiable(files);
+
+  final int formatVersion;
+  final BiserKind kind;
+  final DateTime exportedAt;
+  final String appVersion;
+  final List<BiserProject> projects;
+  final Map<String, Uint8List> files;
+
+  @override
+  List<Object?> get props => <Object?>[formatVersion, kind, exportedAt, appVersion, projects, files];
+}

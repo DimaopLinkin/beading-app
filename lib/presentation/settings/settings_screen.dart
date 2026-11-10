@@ -1,8 +1,12 @@
+import 'dart:async';
+
 import 'package:beading/domain/settings/app_theme_mode.dart';
 import 'package:beading/domain/settings/bead_brands.dart';
 import 'package:beading/presentation/l10n/app_localizations.dart';
 import 'package:beading/presentation/settings/settings_cubit.dart';
 import 'package:beading/presentation/settings/settings_state.dart';
+import 'package:beading/presentation/sharing/data_transfer_cubit.dart';
+import 'package:beading/presentation/sharing/share_origin.dart';
 import 'package:beading/presentation/theme/theme_mode_cubit.dart';
 import 'package:beading/presentation/theme/tokens.dart';
 import 'package:flutter/cupertino.dart';
@@ -10,9 +14,12 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 /// Экран «Настройки». Нужны [SettingsCubit] и [ThemeModeCubit] выше по дереву.
 ///
-/// Резервная копия и синхронизация — заглушки «Скоро»: T21 и T28 заменят их рабочими пунктами.
+/// Резервная копия работает, если передан [dataTransfer] (T21); синхронизация — заглушка «Скоро» до T28.
 class SettingsScreen extends StatelessWidget {
-  const SettingsScreen({required this.onOpenAbout, this.onOpenGlassCheck, super.key});
+  const SettingsScreen({required this.onOpenAbout, this.onOpenGlassCheck, this.dataTransfer, super.key});
+
+  /// Резервная копия и восстановление; `null` — пункты «Скоро».
+  final DataTransferCubit? dataTransfer;
 
   final VoidCallback onOpenAbout;
 
@@ -66,11 +73,28 @@ class SettingsScreen extends StatelessWidget {
                 CupertinoListSection.insetGrouped(
                   header: Text(l10n.settingsSectionData),
                   children: <Widget>[
-                    CupertinoListTile.notched(
-                      key: const ValueKey<String>('settings-backup'),
-                      title: Text(l10n.settingsBackup),
-                      additionalInfo: Text(l10n.settingsSoon),
-                    ),
+                    if (dataTransfer == null)
+                      CupertinoListTile.notched(
+                        key: const ValueKey<String>('settings-backup'),
+                        title: Text(l10n.settingsBackup),
+                        additionalInfo: Text(l10n.settingsSoon),
+                      )
+                    else ...<Widget>[
+                      Builder(
+                        builder: (tileContext) => CupertinoListTile.notched(
+                          key: const ValueKey<String>('settings-backup'),
+                          title: Text(l10n.settingsBackupCreate),
+                          trailing: const CupertinoListTileChevron(),
+                          onTap: () => unawaited(dataTransfer!.backup(origin: shareOriginOf(tileContext))),
+                        ),
+                      ),
+                      CupertinoListTile.notched(
+                        key: const ValueKey<String>('settings-restore'),
+                        title: Text(l10n.settingsRestore),
+                        trailing: const CupertinoListTileChevron(),
+                        onTap: () => unawaited(dataTransfer!.pickAndPreview()),
+                      ),
+                    ],
                     CupertinoListTile.notched(
                       key: const ValueKey<String>('settings-sync'),
                       title: Text(l10n.settingsSync),

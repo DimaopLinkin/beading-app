@@ -8,6 +8,8 @@ environment:
   flutter: ">=3.41.0"
 
 dependencies:
+  app_links: ^7.0.0
+  archive: ^4.6.0
   async: ^2.13.1
   cupertino_icons: ^1.0.8
   drift: ">=2.30.0 <2.33.0"

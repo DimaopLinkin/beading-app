@@ -485,4 +485,32 @@ void main() {
       expect(() => SourceImage(width: 2, height: 2, rgba: Uint8List(15)), throwsArgumentError);
     });
   });
+
+  group('stats', () {
+    test('считает одиночные клетки, цвета и среднюю ΔE; время стадий записано', () {
+      final SourceImage image = blockImage(<List<int>>[
+        <int>[0xFF0000, 0xFF0000, 0xFF0000],
+        <int>[0xFF0000, 0x0000FF, 0xFF0000],
+        <int>[0xFF0000, 0xFF0000, 0xFF0000],
+      ]);
+      final GeneratedPattern pattern = const ImageToGridPipeline().run(
+        request(image, columns: 3, rows: 3, maxColors: 2),
+      );
+      final stats = pattern.stats!;
+      expect(stats.singleCells, 1);
+      expect(stats.colorCount, 2);
+      expect(stats.meanDeltaE, lessThan(0.5));
+      expect(stats.stageTimes.keys, <String>['sample', 'palette', 'assign', 'steps']);
+      expect(stats.totalTime, greaterThanOrEqualTo(Duration.zero));
+    });
+
+    test('у пустой картинки метрики нулевые', () {
+      final SourceImage image = blockImage(<List<int>>[
+        <int>[0xFF0000],
+      ], alpha: 0);
+      final GeneratedPattern pattern = const ImageToGridPipeline().run(request(image, columns: 1, rows: 1));
+      expect(pattern.stats!.meanDeltaE, 0);
+      expect(pattern.stats!.colorCount, 0);
+    });
+  });
 }
