@@ -42,4 +42,22 @@ void registerLibraryEntries(NewProjectRegistry registry) {
       },
     ),
   );
+
+  // Схема из фото: бисер. Для вышивки свой мастер сделает T46.
+  registry.register(
+    NewProjectEntry(
+      id: 'image-to-grid-${Craft.beading.name}',
+      craft: Craft.beading,
+      order: 30,
+      title: (l10n) => l10n.libraryImageToGrid,
+      icon: AppIcons.photo,
+      onSelected: (context) async {
+        // Готовую схему сразу открываем в редакторе: подправить лишнее и начать работу.
+        final String? projectId = await context.push<String>(AppRoutes.imageToGrid);
+        if (projectId != null && context.mounted) {
+          await context.push<void>(AppRoutes.editor(projectId));
+        }
+      },
+    ),
+  );
 }
