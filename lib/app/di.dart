@@ -11,6 +11,8 @@ import 'package:beading/data/db/app_database.dart';
 import 'package:beading/data/db/open_database.dart';
 import 'package:beading/data/easter_eggs/asset_compliment_source.dart';
 import 'package:beading/data/easter_eggs/drift_easter_egg_log.dart';
+import 'package:beading/data/grid_pattern/drift_grid_pattern_repository.dart';
+import 'package:beading/data/grid_pattern/drift_grid_progress_store.dart';
 import 'package:beading/data/image_pattern/drift_image_pattern_repository.dart';
 import 'package:beading/data/image_pattern/local_file_store.dart';
 import 'package:beading/data/image_pattern/pdfrx_pdf_rasterizer.dart';
@@ -30,6 +32,12 @@ import 'package:beading/domain/easter_eggs/easter_egg_policy.dart';
 import 'package:beading/domain/easter_eggs/easter_egg_service.dart';
 import 'package:beading/domain/easter_eggs/long_session_watcher.dart';
 import 'package:beading/domain/events/app_events.dart';
+import 'package:beading/domain/grid_pattern/grid_pattern_content.dart';
+import 'package:beading/domain/grid_pattern/grid_pattern_repository.dart';
+import 'package:beading/domain/grid_pattern/grid_progress_store.dart';
+import 'package:beading/domain/grid_pattern/use_cases/create_grid_pattern.dart';
+import 'package:beading/domain/grid_pattern/use_cases/grid_progress_commands.dart';
+import 'package:beading/domain/grid_pattern/use_cases/save_grid_pattern.dart';
 import 'package:beading/domain/image_pattern/file_store.dart';
 import 'package:beading/domain/image_pattern/image_pattern_content.dart';
 import 'package:beading/domain/image_pattern/image_pattern_repository.dart';
@@ -168,10 +176,53 @@ Future<void> configureDependencies({GetIt? locator, AppDatabase? database, Catal
         importBookPattern: container<ImportBookPattern>(),
       ),
     )
+    ..registerLazySingleton<GridPatternRepository>(
+      () => DriftGridPatternRepository(
+        dao: db.gridPatternsDao,
+        deviceIds: container<DeviceIdProvider>(),
+        clock: container<Clock>(),
+        ids: container<IdGenerator>(),
+      ),
+    )
+    ..registerLazySingleton<GridProgressStore>(
+      () => DriftGridProgressStore(
+        dao: db.gridPatternsDao,
+        deviceIds: container<DeviceIdProvider>(),
+        clock: container<Clock>(),
+        ids: container<IdGenerator>(),
+      ),
+    )
+    ..registerLazySingleton<GridPatternContentCleaner>(
+      () => GridPatternContentCleaner(container<GridPatternRepository>()),
+    )
+    ..registerLazySingleton<GridPatternContentCloner>(
+      () => GridPatternContentCloner(patterns: container<GridPatternRepository>(), ids: container<IdGenerator>()),
+    )
+    ..registerFactory<CreateGridPattern>(
+      () => CreateGridPattern(
+        createProject: container<CreateProject>(),
+        projects: container<ProjectRepository>(),
+        patterns: container<GridPatternRepository>(),
+        ids: container<IdGenerator>(),
+      ),
+    )
+    ..registerFactory<SaveGridPattern>(() => SaveGridPattern(container<GridPatternRepository>()))
+    ..registerFactory<MarkRow>(
+      () => MarkRow(patterns: container<GridPatternRepository>(), progress: container<GridProgressStore>()),
+    )
+    ..registerFactory<UnmarkRow>(
+      () => UnmarkRow(patterns: container<GridPatternRepository>(), progress: container<GridProgressStore>()),
+    )
+    ..registerFactory<SetCurrentBead>(
+      () => SetCurrentBead(patterns: container<GridPatternRepository>(), progress: container<GridProgressStore>()),
+    )
     ..registerFactory<DeleteProject>(
       () => DeleteProject(
         container<ProjectRepository>(),
-        cleaners: <ProjectContentCleaner>[container<ImagePatternContentCleaner>()],
+        cleaners: <ProjectContentCleaner>[
+          container<ImagePatternContentCleaner>(),
+          container<GridPatternContentCleaner>(),
+        ],
       ),
     )
     ..registerFactory<WatchProjects>(() => WatchProjects(container<ProjectRepository>()))
@@ -181,13 +232,16 @@ Future<void> configureDependencies({GetIt? locator, AppDatabase? database, Catal
     ..registerFactory<ChangeProjectStatus>(
       () => ChangeProjectStatus(repository: container<ProjectRepository>(), events: container<AppEvents>()),
     )
-    // Клонеры содержимого: схемы-картинки — T06; сетки подключит T14 в этом же списке.
+    // Клонеры содержимого: схемы-картинки (T06) и сетки (T14).
     ..registerFactory<DuplicateProject>(
       () => DuplicateProject(
         repository: container<ProjectRepository>(),
         ids: container<IdGenerator>(),
         clock: container<Clock>(),
-        cloners: <ProjectContentCloner>[container<ImagePatternContentCloner>()],
+        cloners: <ProjectContentCloner>[
+          container<ImagePatternContentCloner>(),
+          container<GridPatternContentCloner>(),
+        ],
       ),
     )
     ..registerLazySingleton<EasterEggLog>(() => DriftEasterEggLog(db.easterEggLogDao))

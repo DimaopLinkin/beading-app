@@ -7,6 +7,8 @@ import 'generated/schema.dart';
 import 'generated/schema_v2.dart' as v2;
 import 'generated/schema_v3.dart' as v3;
 import 'generated/schema_v4.dart' as v4;
+import 'generated/schema_v5.dart' as v5;
+import 'generated/schema_v6.dart' as v6;
 
 void main() {
   driftRuntimeOptions.dontWarnAboutMultipleDatabases = true;
@@ -119,6 +121,56 @@ void main() {
         expect(await newDb.select(newDb.projects).get(), expectedProjects);
         expect(await newDb.select(newDb.imagePatterns).get(), isEmpty);
         expect(await newDb.select(newDb.imagePatternPages).get(), isEmpty);
+      },
+    );
+  });
+
+  test('миграция v5 → v6 сохраняет проекты и каталог, создаёт пустые таблицы сеточных схем', () async {
+    const oldProjects = <v5.ProjectsData>[
+      v5.ProjectsData(
+        id: 'p1',
+        name: 'Браслет',
+        craft: 'beading',
+        status: 'idea',
+        technique: 'loom',
+        contentKind: 'grid',
+        notes: '',
+        lastWorkedAt: 5,
+        createdAt: 1,
+        updatedAt: 2,
+        deviceId: 'device-a',
+      ),
+    ];
+    const expectedProjects = <v6.ProjectsData>[
+      v6.ProjectsData(
+        id: 'p1',
+        name: 'Браслет',
+        craft: 'beading',
+        status: 'idea',
+        technique: 'loom',
+        contentKind: 'grid',
+        notes: '',
+        lastWorkedAt: 5,
+        createdAt: 1,
+        updatedAt: 2,
+        deviceId: 'device-a',
+      ),
+    ];
+
+    await verifier.testWithDataIntegrity(
+      oldVersion: 5,
+      newVersion: 6,
+      createOld: v5.DatabaseAtV5.new,
+      createNew: v6.DatabaseAtV6.new,
+      openTestedDatabase: AppDatabase.new,
+      createItems: (batch, oldDb) {
+        batch.insertAll(oldDb.projects, oldProjects);
+      },
+      validateItems: (newDb) async {
+        expect(await newDb.select(newDb.projects).get(), expectedProjects);
+        expect(await newDb.select(newDb.gridPatterns).get(), isEmpty);
+        expect(await newDb.select(newDb.patternColors).get(), isEmpty);
+        expect(await newDb.select(newDb.gridProgressRows).get(), isEmpty);
       },
     );
   });
