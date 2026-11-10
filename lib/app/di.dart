@@ -1,5 +1,5 @@
 import 'dart:math';
-
+import 'package:beading/app/library_entries.dart';
 import 'package:beading/app/platform/desktop_window.dart';
 import 'package:beading/app/platform/orientation_lock.dart';
 import 'package:beading/core/clock.dart';
@@ -63,6 +63,9 @@ import 'package:beading/domain/settings/wakelock_controller.dart';
 import 'package:beading/presentation/book_work/book_work_cubit.dart';
 import 'package:beading/presentation/easter_eggs/compliment_banner_cubit.dart';
 import 'package:beading/presentation/import_book/import_book_cubit.dart';
+import 'package:beading/presentation/library/library_cubit.dart';
+import 'package:beading/presentation/library/new_project_entry.dart';
+import 'package:beading/presentation/library/project_thumbnail_provider.dart';
 import 'package:beading/presentation/settings/settings_cubit.dart';
 import 'package:beading/presentation/theme/theme_mode_cubit.dart';
 import 'package:get_it/get_it.dart';
@@ -245,5 +248,20 @@ Future<void> configureDependencies({GetIt? locator, AppDatabase? database, Catal
     ..registerFactory<ThemeModeCubit>(() => ThemeModeCubit(container<SettingsRepository>()))
     ..registerFactory<SettingsCubit>(() => SettingsCubit(container<SettingsRepository>()))
     ..registerLazySingleton<AppInfoProvider>(PackageInfoAppInfoProvider.new)
-    ..registerLazySingleton<SecretTapHandler>(() => AppEventsSecretTapHandler(container<AppEvents>()));
+    ..registerLazySingleton<SecretTapHandler>(() => AppEventsSecretTapHandler(container<AppEvents>()))
+    // Реестры библиотеки: фичи (T06, T17, T23, T25) добавляют сюда пункты «Нового проекта» и превью карточек.
+    ..registerLazySingleton<NewProjectRegistry>(() {
+      final NewProjectRegistry registry = NewProjectRegistry();
+      registerLibraryEntries(registry);
+      return registry;
+    })
+    ..registerLazySingleton<ProjectThumbnailRegistry>(ProjectThumbnailRegistry.new)
+    ..registerFactory<LibraryCubit>(
+      () => LibraryCubit(
+        watchProjects: container<WatchProjects>(),
+        deleteProject: container<DeleteProject>(),
+        renameProject: container<RenameProject>(),
+        duplicateProject: container<DuplicateProject>(),
+      ),
+    );
 }

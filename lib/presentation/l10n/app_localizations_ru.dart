@@ -349,4 +349,130 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get bookWorkImageFailed => 'Не получилось показать эту страницу. Попробуй открыть её ещё раз.';
+
+  @override
+  String get librarySearchPlaceholder => 'Поиск';
+
+  @override
+  String get libraryNewProject => 'Новый проект';
+
+  @override
+  String get libraryEmptyTitle => 'Пока нет работ';
+
+  @override
+  String get libraryEmptyMessage => 'Нажмите «+», чтобы добавить первую схему.';
+
+  @override
+  String get libraryNoMatchesTitle => 'Ничего не найдено';
+
+  @override
+  String get libraryNoMatchesMessage => 'Попробуйте изменить запрос или сбросить фильтры.';
+
+  @override
+  String get libraryResetFilters => 'Сбросить фильтры';
+
+  @override
+  String get libraryLoadFailedTitle => 'Не удалось загрузить работы';
+
+  @override
+  String get libraryRetry => 'Повторить';
+
+  @override
+  String get craftBeading => 'Бисер';
+
+  @override
+  String get craftCrossStitch => 'Вышивка';
+
+  @override
+  String get statusIdea => 'Идея';
+
+  @override
+  String get statusInProgress => 'В работе';
+
+  @override
+  String get statusDone => 'Готово';
+
+  @override
+  String get techniqueLoom => 'Станок';
+
+  @override
+  String get techniquePeyote => 'Мозаика';
+
+  @override
+  String get techniqueBrick => 'Кирпичик';
+
+  @override
+  String get techniqueSquare => 'Квадратное';
+
+  @override
+  String get techniqueOffLoom => 'Без станка';
+
+  @override
+  String get techniqueCrossStitch => 'Крестик';
+
+  @override
+  String get techniqueTent => 'Полукрест';
+
+  @override
+  String libraryCardSubtitle(String craft, String technique) {
+    return '$craft · $technique';
+  }
+
+  @override
+  String libraryCardLastWorked(String status, DateTime date) {
+    final intl.DateFormat dateDateFormat = intl.DateFormat.yMMMd(localeName);
+    final String dateString = dateDateFormat.format(date);
+
+    return '$status · $dateString';
+  }
+
+  @override
+  String get projectRename => 'Переименовать';
+
+  @override
+  String get projectDuplicate => 'Дублировать';
+
+  @override
+  String get projectDelete => 'Удалить';
+
+  @override
+  String projectDeleteTitle(String name) {
+    return 'Удалить «$name»?';
+  }
+
+  @override
+  String get projectDeleteMessage => 'Работа исчезнет из списка.';
+
+  @override
+  String get projectRenameTitle => 'Новое название';
+
+  @override
+  String get projectNamePlaceholder => 'Название';
+
+  @override
+  String get commonSave => 'Сохранить';
+
+  @override
+  String get commonOk => 'Понятно';
+
+  @override
+  String get actionFailedTitle => 'Не получилось';
+
+  @override
+  String get actionFailedValidation => 'Проверьте название: оно не должно быть пустым или слишком длинным.';
+
+  @override
+  String get actionFailedNotFound => 'Этой работы уже нет.';
+
+  @override
+  String get actionFailedGeneric => 'Что-то пошло не так. Попробуйте ещё раз.';
+
+  @override
+  String get newProjectCraftQuestion => 'Что будем делать?';
+
+  @override
+  String get newProjectNoEntries => 'Способы создания появятся в следующих версиях.';
+
+  @override
+  String get libraryAddSemantic => 'Добавить проект';
 }

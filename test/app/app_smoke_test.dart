@@ -26,6 +26,18 @@ Future<Widget> bootstrapWithFakes(
   ),
 ))!;
 
+/// Реальная БД отвечает вне fake-async, поэтому даём ей ответить и только потом рисуем кадр.
+Future<void> settle(WidgetTester tester) async {
+  await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 50)));
+  await tester.pumpAndSettle();
+}
+
+/// Снимает экран, чтобы поток drift закрылся до конца теста.
+Future<void> unmount(WidgetTester tester) async {
+  await tester.pumpWidget(const SizedBox.shrink());
+  await tester.pump(Duration.zero);
+}
+
 void main() {
   setUp(() async {
     PackageInfo.setMockInitialValues(
@@ -40,10 +52,11 @@ void main() {
 
   testWidgets('приложение запускается и показывает «Мои работы»', (tester) async {
     await tester.pumpWidget(await bootstrapWithFakes(tester));
-    await tester.pumpAndSettle();
+    await settle(tester);
 
-    expect(find.text('Мои работы'), findsOneWidget);
+    expect(find.text('Мои работы'), findsWidgets);
     expect(getIt, same(GetIt.instance));
+    await unmount(tester);
   });
 
   testWidgets('в тёмной теме экран тоже строится', (tester) async {
@@ -51,24 +64,26 @@ void main() {
     addTearDown(tester.platformDispatcher.clearAllTestValues);
 
     await tester.pumpWidget(await bootstrapWithFakes(tester));
-    await tester.pumpAndSettle();
+    await settle(tester);
 
-    expect(find.text('Мои работы'), findsOneWidget);
-    expect(CupertinoTheme.brightnessOf(tester.element(find.text('Мои работы'))), Brightness.dark);
+    expect(find.text('Мои работы'), findsWidgets);
+    expect(CupertinoTheme.brightnessOf(tester.element(find.text('Мои работы').first)), Brightness.dark);
+    await unmount(tester);
   });
 
   testWidgets('выбор режима темы переключает приложение', (tester) async {
     await tester.pumpWidget(await bootstrapWithFakes(tester));
-    await tester.pumpAndSettle();
-    final BuildContext context = tester.element(find.text('Мои работы'));
+    await settle(tester);
+    final BuildContext context = tester.element(find.text('Мои работы').first);
 
     await context.read<ThemeModeCubit>().select(AppThemeMode.dark);
-    await tester.pumpAndSettle();
-    expect(CupertinoTheme.brightnessOf(tester.element(find.text('Мои работы'))), Brightness.dark);
+    await settle(tester);
+    expect(CupertinoTheme.brightnessOf(tester.element(find.text('Мои работы').first)), Brightness.dark);
 
     await context.read<ThemeModeCubit>().select(AppThemeMode.light);
-    await tester.pumpAndSettle();
-    expect(CupertinoTheme.brightnessOf(tester.element(find.text('Мои работы'))), Brightness.light);
+    await settle(tester);
+    expect(CupertinoTheme.brightnessOf(tester.element(find.text('Мои работы').first)), Brightness.light);
+    await unmount(tester);
   });
 
   testWidgets('bootstrap фиксирует портрет, настраивает окно и включает wakelock', (tester) async {
@@ -88,6 +103,7 @@ void main() {
     expect(orientation.portraitCalls, 1);
     expect(window.configs.single.size, const Size(480, 900));
     expect(lock.calls, <String>['enable']);
+    await unmount(tester);
   });
 
   testWidgets('из «Моих работ» открываются настройки и «О приложении»', (tester) async {

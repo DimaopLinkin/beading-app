@@ -1,6 +1,9 @@
+import 'dart:async';
+
 import 'package:beading/app/di.dart';
 import 'package:beading/core/clock.dart';
 import 'package:beading/domain/image_pattern/file_store.dart';
+import 'package:beading/domain/projects/project.dart';
 import 'package:beading/domain/settings/app_info.dart';
 import 'package:beading/domain/settings/secret_tap_handler.dart';
 import 'package:beading/presentation/book_work/book_work_cubit.dart';
@@ -8,7 +11,10 @@ import 'package:beading/presentation/book_work/book_work_screen.dart';
 import 'package:beading/presentation/dev/glass_check_screen.dart';
 import 'package:beading/presentation/import_book/import_book_cubit.dart';
 import 'package:beading/presentation/import_book/import_book_screen.dart';
+import 'package:beading/presentation/library/library_cubit.dart';
 import 'package:beading/presentation/library/library_screen.dart';
+import 'package:beading/presentation/library/new_project_entry.dart';
+import 'package:beading/presentation/library/project_thumbnail_provider.dart';
 import 'package:beading/presentation/settings/about_screen.dart';
 import 'package:beading/presentation/settings/hidden_settings_screen.dart';
 import 'package:beading/presentation/settings/settings_screen.dart';
@@ -37,15 +43,18 @@ GoRouter createRouter({bool showDeveloperTools = !kReleaseMode}) => GoRouter(
   routes: <RouteBase>[
     GoRoute(
       path: AppRoutes.library,
-      builder: (context, _) => LibraryScreen(
-        onOpenSettings: () => context.push(AppRoutes.settings),
-        onImportBook: () async {
-          // Новая схема сразу открывается для работы.
-          final String? projectId = await context.push<String>(AppRoutes.importBook);
-          if (projectId != null && context.mounted) {
-            await context.push<void>(AppRoutes.bookWork(projectId));
-          }
-        },
+      builder: (context, _) => BlocProvider<LibraryCubit>(
+        create: (_) => getIt<LibraryCubit>()..start(),
+        child: LibraryScreen(
+          newProjects: getIt<NewProjectRegistry>(),
+          thumbnails: getIt<ProjectThumbnailRegistry>(),
+          onOpenSettings: () => context.push(AppRoutes.settings),
+          onOpenProject: (context, project) {
+            if (project.contentKind == ContentKind.image) {
+              unawaited(context.push<void>(AppRoutes.bookWork(project.id)));
+            }
+          },
+        ),
       ),
     ),
     GoRoute(
