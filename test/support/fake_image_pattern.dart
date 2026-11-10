@@ -18,6 +18,12 @@ class FakeFileStore implements FileStore {
   int _writes = 0;
 
   @override
+  Future<Result<Uint8List>> read(String relativePath) async {
+    final Uint8List? bytes = files[relativePath];
+    return bytes == null ? Err<Uint8List>(StorageFailure('нет файла $relativePath')) : Success<Uint8List>(bytes);
+  }
+
+  @override
   Future<Result<void>> write(String relativePath, Uint8List bytes) async {
     if (failWritesAfter != null && _writes >= failWritesAfter!) {
       return const Err<void>(StorageFailure('диск полон'));

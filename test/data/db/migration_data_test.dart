@@ -20,4 +20,29 @@ void main() {
     expect(settings.single.value, 'dark');
     expect(await db.select(db.projects).get(), isEmpty);
   });
+
+  test('миграция v5→v6 не трогает схемы и страницы и создаёт пустые таблицы работы по схеме', () async {
+    final SchemaVerifier verifier = SchemaVerifier(GeneratedHelper());
+    final InitializedSchema old = await verifier.schemaAt(5);
+    old.rawDatabase
+      ..execute(
+        'INSERT INTO projects (id, name, technique, content_kind, last_worked_at, created_at, updated_at, device_id) '
+        "VALUES ('proj', 'П', 'loom', 'image', 0, 1, 1, 'd')",
+      )
+      ..execute(
+        "INSERT INTO image_patterns (id, project_id, created_at, updated_at, device_id) VALUES ('pat', 'proj', 1, 1, 'd')",
+      )
+      ..execute(
+        'INSERT INTO image_pattern_pages (id, pattern_id, position, path, width, height, created_at, updated_at, device_id) '
+        "VALUES ('pg', 'pat', 0, 'a.png', 10, 20, 1, 1, 'd')",
+      );
+
+    final AppDatabase db = AppDatabase(old.newConnection());
+    addTearDown(db.close);
+    await verifier.migrateAndValidate(db, 6);
+
+    expect((await db.select(db.imagePatternPages).get()).single.id, 'pg');
+    expect(await db.select(db.pageWorkStates).get(), isEmpty);
+    expect(await db.select(db.bookWorkStates).get(), isEmpty);
+  });
 }
