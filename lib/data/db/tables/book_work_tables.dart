@@ -27,6 +27,18 @@ class PageWorkStates extends Table with UuidIdColumn, SyncColumns {
   /// Имя значения `RowDirection`; у записей до v8 — `topDown`.
   TextColumn get rowDirection => text().withDefault(const Constant('topDown'))();
 
+  /// Зона схемы на странице, px картинки (v10). Все четыре заданы вместе или не заданы вовсе: тогда схема на всю страницу.
+  RealColumn get zoneTop => real().nullable()();
+
+  RealColumn get zoneBottom => real().nullable()();
+
+  RealColumn get zoneLeft => real().nullable()();
+
+  RealColumn get zoneRight => real().nullable()();
+
+  /// Сколько рядов в зоне (v10); `null` — высоту и шаг задали вручную.
+  IntColumn get rowCount => integer().nullable()();
+
   /// Зум и сдвиг вида.
   RealColumn get viewScale => real()();
 

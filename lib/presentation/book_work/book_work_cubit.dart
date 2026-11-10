@@ -4,6 +4,7 @@ import 'package:beading/core/result.dart';
 import 'package:beading/domain/image_pattern/book_work/book_work_repository.dart';
 import 'package:beading/domain/image_pattern/book_work/page_viewport.dart';
 import 'package:beading/domain/image_pattern/book_work/page_work.dart';
+import 'package:beading/domain/image_pattern/book_work/pattern_zone.dart';
 import 'package:beading/domain/image_pattern/book_work/record_book_progress.dart';
 import 'package:beading/domain/image_pattern/book_work/ruler_state.dart';
 import 'package:beading/domain/image_pattern/image_pattern.dart';
@@ -100,7 +101,7 @@ class BookWorkCubit extends Cubit<BookWorkState> {
     if (saved == null) {
       return PageWork(pageId: page.id, ruler: RulerState.initial(height));
     }
-    return saved.copyWith(ruler: saved.ruler.fit(height));
+    return saved.copyWith(ruler: saved.ruler.fit(height, imageWidth: page.width.toDouble()));
   }
 
   /// Следующий ряд: линейка на шаг по направлению рядов. Если сдвинуться некуда, ничего не происходит.
@@ -164,6 +165,39 @@ class BookWorkCubit extends Cubit<BookWorkState> {
     emit(state.copyWith(works: next, clearUndo: true));
     _schedule();
   }
+
+  /// Начинает выбор границ схемы: зона по умолчанию — вся страница, ручки двигают её края.
+  void startZoneEditing() {
+    if (!state.isReady || state.zoneEditing) {
+      return;
+    }
+    if (state.work.ruler.zone == null) {
+      setZone(PatternZone.full(state.page.width.toDouble(), state.page.height.toDouble()));
+    }
+    emit(state.copyWith(zoneEditing: true, clearUndo: true));
+  }
+
+  void finishZoneEditing() {
+    if (state.zoneEditing) {
+      emit(state.copyWith(zoneEditing: false));
+    }
+  }
+
+  /// Границы схемы на текущей странице. На первом ряду линейка встаёт к началу зоны.
+  void setZone(PatternZone zone) => _applyRuler(
+    state.work.ruler.withZone(zone, state.page.height.toDouble(), imageWidth: state.page.width.toDouble()),
+    progress: false,
+  );
+
+  /// Схема на всю страницу: зона и число рядов снимаются.
+  void resetZone() {
+    _applyRuler(state.work.ruler.withoutZone(state.page.height.toDouble()), progress: false);
+    finishZoneEditing();
+  }
+
+  /// Сколько рядов в зоне: высота и шаг считаются сами. `null` — задавать вручную.
+  void setRowCount(int? count) =>
+      _applyRuler(state.work.ruler.withRowCount(count, state.page.height.toDouble()), progress: false);
 
   void setRulerHeight(double value) =>
       _applyRuler(state.work.ruler.withHeight(value, state.page.height.toDouble()), progress: false);

@@ -372,6 +372,39 @@ class AppLocalizationsRu extends AppLocalizations {
   String get bookWorkRulerColor => 'Цвет подсветки';
 
   @override
+  String get bookWorkZoneTitle => 'Схема на странице';
+
+  @override
+  String get bookWorkZoneEdit => 'Обвести схему на фото';
+
+  @override
+  String get bookWorkZoneReset => 'Вся страница';
+
+  @override
+  String get bookWorkZoneHint => 'Потяни за края рамки, чтобы она обвела только схему. Ряды не выйдут за рамку.';
+
+  @override
+  String get bookWorkZoneRowCount => 'Рядов в схеме';
+
+  @override
+  String get bookWorkZoneRowCountManual => 'Задавать вручную';
+
+  @override
+  String get bookWorkZoneRowCountAuto => 'Высота ряда считается сама';
+
+  @override
+  String get bookWorkZoneRowCountUnset => 'не задано';
+
+  @override
+  String get bookWorkZoneMore => 'Больше рядов';
+
+  @override
+  String get bookWorkZoneLess => 'Меньше рядов';
+
+  @override
+  String get bookWorkZoneHandle => 'Край схемы';
+
+  @override
   String get bookWorkColorYellow => 'Жёлтый';
 
   @override

@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:beading/domain/image_pattern/book_work/page_viewport.dart';
+import 'package:beading/domain/image_pattern/book_work/pattern_zone.dart';
 import 'package:beading/domain/image_pattern/book_work/ruler_state.dart';
 import 'package:beading/domain/image_pattern/file_store.dart';
 import 'package:beading/presentation/book_work/book_work_cubit.dart';
@@ -261,6 +262,7 @@ class _WorkspaceState extends State<_Workspace> {
                             page: state.page,
                             ruler: state.work.ruler,
                             width: view.width,
+                            showZoneFrame: state.zoneEditing,
                           ),
                         ),
                       ),
@@ -270,13 +272,31 @@ class _WorkspaceState extends State<_Workspace> {
                           final PageViewport now = _viewportNow;
                           final double k = view.width / state.page.width;
                           final RulerState ruler = state.work.ruler;
+                          final double minY = safe.top + _topBarHeight;
+                          final double maxY = view.height - safe.bottom - _panelHeight(state);
+                          final double pagePerScreen = 1 / (k * now.scale);
+                          final PatternZone? zone = ruler.zone;
+                          if (state.zoneEditing && zone != null) {
+                            return ZoneHandles(
+                              zone: zone,
+                              left: zone.left * k * now.scale + now.dx,
+                              right: zone.right * k * now.scale + now.dx,
+                              top: zone.top * k * now.scale + now.dy,
+                              bottom: zone.bottom * k * now.scale + now.dy,
+                              pagePerScreen: pagePerScreen,
+                              width: view.width,
+                              minY: minY,
+                              maxY: maxY,
+                              cubit: cubit,
+                            );
+                          }
                           return RulerMarks(
                             ruler: ruler,
                             rulerTop: ruler.top * k * now.scale + now.dy,
                             rulerBottom: ruler.bottom * k * now.scale + now.dy,
-                            pagePerScreen: 1 / (k * now.scale),
-                            minY: safe.top + _topBarHeight,
-                            maxY: view.height - safe.bottom - _panelHeight(state),
+                            pagePerScreen: pagePerScreen,
+                            minY: minY,
+                            maxY: maxY,
                             cubit: cubit,
                           );
                         },
@@ -332,7 +352,9 @@ class _WorkspaceState extends State<_Workspace> {
                         left: 0,
                         right: 0,
                         bottom: 0,
-                        child: _PanelFrame(child: _BottomPanel(state: state)),
+                        child: _PanelFrame(
+                          child: state.zoneEditing ? const _ZoneEditPanel() : _BottomPanel(state: state),
+                        ),
                       ),
                     ],
                   );
@@ -513,6 +535,12 @@ class _BottomPanel extends StatelessWidget {
                           onPressed: () => showRulerSettingsSheet(context, cubit),
                         ),
                         _IconAction(
+                          key: const ValueKey<String>('edit-zone'),
+                          icon: AppIcons.zoneFrame,
+                          label: l10n.bookWorkZoneTitle,
+                          onPressed: cubit.startZoneEditing,
+                        ),
+                        _IconAction(
                           icon: AppIcons.notes,
                           label: l10n.bookWorkNotes,
                           onPressed: () => showNotesSheet(context, cubit),
@@ -541,6 +569,58 @@ class _BottomPanel extends StatelessWidget {
                     ),
                   ],
                 ),
+        ),
+      ),
+    );
+  }
+}
+
+/// Нижняя панель, пока выбирают границы схемы: подсказка, «Вся страница» и «Готово».
+class _ZoneEditPanel extends StatelessWidget {
+  const _ZoneEditPanel();
+
+  @override
+  Widget build(BuildContext context) {
+    final AppLocalizations l10n = AppLocalizations.of(context);
+    final AppTokensData tokens = context.tokens;
+    final BookWorkCubit cubit = context.read<BookWorkCubit>();
+    return SafeArea(
+      top: false,
+      child: Padding(
+        padding: EdgeInsets.all(tokens.spacing.s),
+        child: GlassPanel(
+          key: const ValueKey<String>('zone-edit-panel'),
+          density: GlassDensity.dense,
+          padding: EdgeInsets.all(tokens.spacing.s),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: <Widget>[
+              Text(l10n.bookWorkZoneHint, textAlign: TextAlign.center),
+              SizedBox(height: tokens.spacing.s),
+              Row(
+                children: <Widget>[
+                  Expanded(
+                    child: CupertinoButton.tinted(
+                      key: const ValueKey<String>('zone-reset'),
+                      minimumSize: Size.fromHeight(tokens.minTapTarget),
+                      onPressed: cubit.resetZone,
+                      child: Text(l10n.bookWorkZoneReset),
+                    ),
+                  ),
+                  SizedBox(width: tokens.spacing.s),
+                  Expanded(
+                    child: CupertinoButton.filled(
+                      key: const ValueKey<String>('zone-done'),
+                      minimumSize: Size.fromHeight(tokens.minTapTarget),
+                      onPressed: cubit.finishZoneEditing,
+                      child: Text(l10n.bookWorkDone),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
         ),
       ),
     );

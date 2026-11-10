@@ -51,7 +51,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase(super.e);
 
   @override
-  int get schemaVersion => 9;
+  int get schemaVersion => 10;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -88,6 +88,14 @@ class AppDatabase extends _$AppDatabase {
       },
       // v9 (T19): сессии работы над проектом.
       from8To9: (m, schema) => m.createTable(schema.workSessions),
+      // v10 (B02): зона схемы на странице и число рядов в ней.
+      from9To10: (m, schema) async {
+        await m.addColumn(schema.pageWorkStates, schema.pageWorkStates.zoneTop);
+        await m.addColumn(schema.pageWorkStates, schema.pageWorkStates.zoneBottom);
+        await m.addColumn(schema.pageWorkStates, schema.pageWorkStates.zoneLeft);
+        await m.addColumn(schema.pageWorkStates, schema.pageWorkStates.zoneRight);
+        await m.addColumn(schema.pageWorkStates, schema.pageWorkStates.rowCount);
+      },
     ),
     beforeOpen: (details) => customStatement('PRAGMA foreign_keys = ON'),
   );

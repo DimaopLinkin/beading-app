@@ -9,6 +9,9 @@ abstract final class AppIcons {
   static const IconData rowUp = CupertinoIcons.chevron_up;
   static const IconData rowDown = CupertinoIcons.chevron_down;
   static const IconData resize = CupertinoIcons.arrow_up_down;
+  static const IconData resizeWide = CupertinoIcons.arrow_left_right;
+  static const IconData zoneFrame = CupertinoIcons.crop;
+  static const IconData minus = CupertinoIcons.minus;
   static const IconData warning = CupertinoIcons.exclamationmark_triangle;
   static const IconData forward = CupertinoIcons.chevron_forward;
   static const IconData rulerSettings = CupertinoIcons.slider_horizontal_3;
