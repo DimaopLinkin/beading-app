@@ -4,10 +4,13 @@ import 'package:flutter/cupertino.dart';
 
 /// Главный экран «Мои работы». Пока пустой: список проектов появится в T05.
 class LibraryScreen extends StatelessWidget {
-  const LibraryScreen({this.onOpenSettings, super.key});
+  const LibraryScreen({this.onOpenSettings, this.onImportBook, super.key});
 
   /// Открывает настройки; `null` — кнопки нет.
   final VoidCallback? onOpenSettings;
+
+  /// Временный вход в «Схему из книги»; T05 заменит его пунктом листа «Новый проект». `null` — кнопки нет.
+  final VoidCallback? onImportBook;
 
   @override
   Widget build(BuildContext context) {
@@ -15,6 +18,14 @@ class LibraryScreen extends StatelessWidget {
     return CupertinoPageScaffold(
       navigationBar: CupertinoNavigationBar(
         middle: Text(l10n.libraryTitle),
+        leading: onImportBook == null
+            ? null
+            : CupertinoButton(
+                padding: EdgeInsets.zero,
+                minimumSize: const Size.square(44),
+                onPressed: onImportBook,
+                child: Semantics(label: l10n.libraryImportBook, child: const Icon(AppIcons.add)),
+              ),
         trailing: onOpenSettings == null
             ? null
             : CupertinoButton(

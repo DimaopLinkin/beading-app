@@ -1,7 +1,8 @@
-import 'package:beading/domain/image_pattern/crop_rect.dart';
-import 'package:beading/domain/image_pattern/picked_file.dart';
-import 'package:flutter_test/flutter_test.dart';
 import 'dart:typed_data';
+
+import 'package:beading/domain/image_pattern/crop_rect.dart';
+import 'package:beading/domain/image_pattern/picked_book_file.dart';
+import 'package:flutter_test/flutter_test.dart';
 
 void main() {
   test('full — вся картинка, размеры считаются', () {
@@ -18,9 +19,9 @@ void main() {
     expect(() => CropRect(left: 0, top: 0, right: 1.1, bottom: 1), throwsA(isA<AssertionError>()));
   });
 
-  test('PickedFile узнаёт PDF по сигнатуре, а не по имени', () {
-    expect(PickedFile(name: 'a.jpg', bytes: Uint8List.fromList(<int>[0x25, 0x50, 0x44, 0x46, 0x2d])).isPdf, isTrue);
-    expect(PickedFile(name: 'a.pdf', bytes: Uint8List.fromList(<int>[1, 2, 3, 4])).isPdf, isFalse);
-    expect(PickedFile(name: 'a.pdf', bytes: Uint8List(2)).isPdf, isFalse);
+  test('PickedBookFile узнаёт PDF по сигнатуре, а не по имени', () {
+    expect(PickedBookFile(name: 'a.jpg', bytes: Uint8List.fromList(<int>[0x25, 0x50, 0x44, 0x46, 0x2d])).isPdf, isTrue);
+    expect(PickedBookFile(name: 'a.pdf', bytes: Uint8List.fromList(<int>[1, 2, 3, 4])).isPdf, isFalse);
+    expect(PickedBookFile(name: 'a.pdf', bytes: Uint8List(2)).isPdf, isFalse);
   });
 }

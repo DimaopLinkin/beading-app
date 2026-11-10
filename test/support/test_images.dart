@@ -23,7 +23,10 @@ Future<({int width, int height, List<int> pixels})> decodePng(Uint8List png) asy
   final ByteData rgba = (await image.toByteData())!;
   final List<int> pixels = <int>[
     for (int i = 0; i < image.width * image.height; i++)
-      (rgba.getUint8(i * 4 + 3) << 24) | (rgba.getUint8(i * 4) << 16) | (rgba.getUint8(i * 4 + 1) << 8) | rgba.getUint8(i * 4 + 2),
+      (rgba.getUint8(i * 4 + 3) << 24) |
+          (rgba.getUint8(i * 4) << 16) |
+          (rgba.getUint8(i * 4 + 1) << 8) |
+          rgba.getUint8(i * 4 + 2),
   ];
   final result = (width: image.width, height: image.height, pixels: pixels);
   image.dispose();

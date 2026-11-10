@@ -7,15 +7,17 @@ import 'package:beading/data/settings/storage_guard.dart';
 import 'package:beading/domain/image_pattern/image_pattern.dart';
 import 'package:beading/domain/image_pattern/image_pattern_repository.dart';
 import 'package:beading/domain/settings/device_id_provider.dart';
-import 'package:drift/drift.dart';
 
 /// Схемы-картинки в таблицах `image_patterns` и `image_pattern_pages`.
 /// Сам ставит `created_at`, `updated_at` и `device_id`.
 class DriftImagePatternRepository implements ImagePatternRepository {
-  DriftImagePatternRepository({required ImagePatternsDao dao, required DeviceIdProvider deviceIds, required Clock clock})
-    : _dao = dao,
-      _deviceIds = deviceIds,
-      _clock = clock;
+  DriftImagePatternRepository({
+    required ImagePatternsDao dao,
+    required DeviceIdProvider deviceIds,
+    required Clock clock,
+  }) : _dao = dao,
+       _deviceIds = deviceIds,
+       _clock = clock;
 
   final ImagePatternsDao _dao;
   final DeviceIdProvider _deviceIds;
@@ -75,7 +77,8 @@ class DriftImagePatternRepository implements ImagePatternRepository {
   @override
   Future<Result<void>> deleteByProject(String projectId) => _withDeviceId(
     (deviceId) => guardStorage<void>(
-      () => _dao.tombstoneByProject(projectId: projectId, nowMs: _clock.now().millisecondsSinceEpoch, deviceId: deviceId),
+      () =>
+          _dao.tombstoneByProject(projectId: projectId, nowMs: _clock.now().millisecondsSinceEpoch, deviceId: deviceId),
     ),
   );
 

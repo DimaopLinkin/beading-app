@@ -20,12 +20,13 @@ class ImagePatternsDao extends DatabaseAccessor<AppDatabase> with _$ImagePattern
           .get();
 
   /// Схема и страницы одной транзакцией.
-  Future<void> insertAll(ImagePatternsCompanion pattern, List<ImagePatternPagesCompanion> pages) => transaction(() async {
-    await into(imagePatterns).insert(pattern);
-    for (final ImagePatternPagesCompanion page in pages) {
-      await into(imagePatternPages).insert(page);
-    }
-  });
+  Future<void> insertAll(ImagePatternsCompanion pattern, List<ImagePatternPagesCompanion> pages) =>
+      transaction(() async {
+        await into(imagePatterns).insert(pattern);
+        for (final ImagePatternPagesCompanion page in pages) {
+          await into(imagePatternPages).insert(page);
+        }
+      });
 
   /// Ставит надгробие схеме проекта и её страницам.
   Future<void> tombstoneByProject({required String projectId, required int nowMs, required String deviceId}) =>

@@ -108,4 +108,112 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get cancel => 'Отмена';
+
+  @override
+  String get libraryImportBook => 'Схема из книги';
+
+  @override
+  String get importBookTitle => 'Схема из книги';
+
+  @override
+  String get importBookCancel => 'Отмена';
+
+  @override
+  String get importPickHint => 'Сфотографируйте страницу книги или выберите готовые фото и PDF.';
+
+  @override
+  String get importSourceCamera => 'Снять на камеру';
+
+  @override
+  String get importSourcePhotos => 'Выбрать из Фото';
+
+  @override
+  String get importSourceFiles => 'Выбрать из Файлов (фото или PDF)';
+
+  @override
+  String get importPdfTitle => 'Страницы PDF';
+
+  @override
+  String importPdfSelected(int count, int total) {
+    return 'Выбрано: $count из $total';
+  }
+
+  @override
+  String get importPdfSelectAll => 'Все';
+
+  @override
+  String get importPdfClear => 'Снять';
+
+  @override
+  String get importPdfContinue => 'Продолжить';
+
+  @override
+  String importPdfPageLabel(int page) {
+    return 'Страница $page';
+  }
+
+  @override
+  String get importReviewTitle => 'Страницы схемы';
+
+  @override
+  String get importNameLabel => 'Название';
+
+  @override
+  String get importCraftBeading => 'Бисер';
+
+  @override
+  String get importCraftCrossStitch => 'Вышивка';
+
+  @override
+  String get importAddMore => 'Добавить ещё';
+
+  @override
+  String get importSubmit => 'Импортировать';
+
+  @override
+  String get importRotate => 'Повернуть';
+
+  @override
+  String get importCrop => 'Обрезать';
+
+  @override
+  String get importRemove => 'Убрать';
+
+  @override
+  String get importCropped => 'Обрезана';
+
+  @override
+  String importPageNumber(int number) {
+    return 'Страница $number';
+  }
+
+  @override
+  String get importCropTitle => 'Обрезка';
+
+  @override
+  String get importCropReset => 'Сбросить';
+
+  @override
+  String get importCropDone => 'Готово';
+
+  @override
+  String get importSaving => 'Сохраняем страницы…';
+
+  @override
+  String get importProblemSourceUnavailable => 'Нет доступа к камере или Фото. Разрешите его в настройках.';
+
+  @override
+  String get importProblemUnreadable => 'Не удалось прочитать картинку. Попробуйте другой файл.';
+
+  @override
+  String get importProblemPdfFailed => 'Не удалось открыть PDF.';
+
+  @override
+  String get importProblemSaveFailed => 'Не удалось сохранить схему. Проверьте свободное место.';
+
+  @override
+  String get importProblemNoPages => 'Выберите хотя бы одну страницу.';
+
+  @override
+  String get importProblemEmptyName => 'Введите название.';
 }

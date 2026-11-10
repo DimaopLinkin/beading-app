@@ -15,10 +15,11 @@ class PdfrxPdfRasterizer implements PdfRasterizer {
   final Future<void> Function() _initialize;
   Future<void>? _ready;
 
-  static Future<void> _defaultInitialize() async => pdfrxFlutterInitialize();
+  static Future<void> _defaultInitialize() => pdfrxFlutterInitialize();
 
   @override
-  Future<Result<int>> pageCount(Uint8List pdf) => _withDocument(pdf, (document) async => document.pages.length);
+  Future<Result<int>> pageCount(Uint8List pdf) =>
+      _withDocument(pdf, (document) => Future<int>.value(document.pages.length));
 
   @override
   Future<Result<List<ProcessedImage>>> render(Uint8List pdf, List<int> pageIndexes, {double scale = 2}) =>

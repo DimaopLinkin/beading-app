@@ -68,7 +68,13 @@ void main() {
 
     test('передаёт повороты и обрезку каждой страницы в обработку', () async {
       const CropRect crop = CropRect(left: 0.1, top: 0.1, right: 0.9, bottom: 0.9);
-      await import(name: 'Х', pages: <BookPageSource>[page(1, turns: 1), page(2, crop: crop)]);
+      await import(
+        name: 'Х',
+        pages: <BookPageSource>[
+          page(1, turns: 1),
+          page(2, crop: crop),
+        ],
+      );
 
       expect(processor.calls.map((c) => c.quarterTurns), <int>[1, 0]);
       expect(processor.calls.map((c) => c.crop), <CropRect>[CropRect.full, crop]);
@@ -192,7 +198,9 @@ void main() {
     });
 
     test('у проекта без схемы нечего копировать и нечего убирать', () async {
-      final Project empty = (await CreateProject(repository: projects, ids: ids, clock: clock)(name: 'Пусто')).valueOrNull!;
+      final Project empty = (await CreateProject(repository: projects, ids: ids, clock: clock)(
+        name: 'Пусто',
+      )).valueOrNull!;
 
       expect((await cloner.clone(source: empty, targetId: 'x')).isSuccess, isTrue);
       expect((await cleaner.remove(empty)).isSuccess, isTrue);
@@ -201,7 +209,9 @@ void main() {
     test('удаление проекта убирает файлы страниц и схему', () async {
       final Project source = await imported();
 
-      final Result<void> result = await DeleteProject(projects, cleaners: <ImagePatternContentCleaner>[cleaner])(source.id);
+      final Result<void> result = await DeleteProject(projects, cleaners: <ImagePatternContentCleaner>[cleaner])(
+        source.id,
+      );
 
       expect(result.isSuccess, isTrue);
       expect(files.files, isEmpty);

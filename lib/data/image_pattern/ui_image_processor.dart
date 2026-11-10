@@ -44,7 +44,7 @@ class UiImageProcessor implements ImageProcessor {
       final int height = math.max(1, (cropHeight * scale).round());
 
       final ui.PictureRecorder recorder = ui.PictureRecorder();
-      final ui.Canvas canvas = ui.Canvas(recorder)
+      ui.Canvas(recorder)
         ..scale(width / cropWidth, height / cropHeight)
         ..translate(-cropLeft, -cropTop)
         // Поворот вокруг начала координат уводит картинку в минус; сдвиг возвращает её в поле.
@@ -53,7 +53,11 @@ class UiImageProcessor implements ImageProcessor {
           turns == 2 || turns == 3 ? rotatedHeight.toDouble() : 0,
         )
         ..rotate(turns * math.pi / 2)
-        ..drawImage(source, ui.Offset.zero, ui.Paint()..filterQuality = scale < 1 ? ui.FilterQuality.high : ui.FilterQuality.none);
+        ..drawImage(
+          source,
+          ui.Offset.zero,
+          ui.Paint()..filterQuality = scale < 1 ? ui.FilterQuality.high : ui.FilterQuality.none,
+        );
       final ui.Picture picture = recorder.endRecording();
       output = await picture.toImage(width, height);
       picture.dispose();

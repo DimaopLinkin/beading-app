@@ -27,7 +27,7 @@ String? _findPdfium() {
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
-  final String? pdfium = _findPdfium();
+  final pdfium = _findPdfium();
   final Uint8List fixture = File('test/fixtures/book_3_pages.pdf').readAsBytesSync();
   late PdfrxPdfRasterizer rasterizer;
 
@@ -40,7 +40,7 @@ void main() {
   });
 
   // В фикстуре 3 страницы: 200×100, 200×100 и 100×200 пунктов; в каждой красный прямоугольник в левом нижнем углу.
-  final Object? skip = pdfium == null ? 'pdfium не найден: сначала нужен `flutter pub get` и сборка хуков' : false;
+  final Object skip = pdfium == null ? 'pdfium не найден: сначала нужен `flutter pub get` и сборка хуков' : false;
 
   test('считает страницы', () async {
     expect((await rasterizer.pageCount(fixture)).valueOrNull, 3);

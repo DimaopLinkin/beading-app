@@ -11,7 +11,7 @@ void main() {
 
   setUp(() {
     root = Directory.systemTemp.createTempSync('file_store_test');
-    store = LocalFileStore(root);
+    store = LocalFileStore(() async => root);
     addTearDown(() => root.deleteSync(recursive: true));
   });
 
@@ -22,7 +22,9 @@ void main() {
 
     expect(result.isSuccess, isTrue);
     expect(file('book_patterns/a/b.png').readAsBytesSync(), <int>[1, 2, 3]);
-    expect(Directory('${root.path}/book_patterns/a').listSync().map((e) => e.path), <String>['${root.path}/book_patterns/a/b.png']);
+    expect(Directory('${root.path}/book_patterns/a').listSync().map((e) => e.path), <String>[
+      '${root.path}/book_patterns/a/b.png',
+    ]);
   });
 
   test('копирует файл, оригинал остаётся', () async {

@@ -5,17 +5,22 @@ import 'package:beading/core/failure.dart';
 import 'package:beading/core/result.dart';
 import 'package:beading/domain/image_pattern/file_store.dart';
 import 'package:path/path.dart' as p;
+import 'package:path_provider/path_provider.dart';
 
-/// Файлы приложения в каталоге [root] (в приложении — Application Support).
-/// Пути только относительные и не выходят за [root].
+/// Файлы приложения в каталоге, который отдаёт [_rootProvider] (в приложении — Application Support).
+/// Пути только относительные и не выходят за этот каталог.
 class LocalFileStore implements FileStore {
-  const LocalFileStore(this.root);
+  LocalFileStore(Future<Directory> Function() rootProvider) : _rootProvider = rootProvider;
 
-  final Directory root;
+  /// Хранилище в Application Support.
+  factory LocalFileStore.applicationSupport() => LocalFileStore(getApplicationSupportDirectory);
+
+  final Future<Directory> Function() _rootProvider;
+  Directory? _root;
 
   @override
-  Future<Result<void>> write(String relativePath, Uint8List bytes) => _guard(() async {
-    final File target = _resolve(relativePath);
+  Future<Result<void>> write(String relativePath, Uint8List bytes) => _guard((root) async {
+    final File target = _resolve(root, relativePath);
     await target.parent.create(recursive: true);
     // Сначала во временный файл: оборванная запись не оставит битую страницу под настоящим именем.
     final File temp = File('${target.path}.tmp');
@@ -24,16 +29,16 @@ class LocalFileStore implements FileStore {
   });
 
   @override
-  Future<Result<void>> copy({required String from, required String to}) => _guard(() async {
-    final File source = _resolve(from);
-    final File target = _resolve(to);
+  Future<Result<void>> copy({required String from, required String to}) => _guard((root) async {
+    final File source = _resolve(root, from);
+    final File target = _resolve(root, to);
     await target.parent.create(recursive: true);
     await source.copy(target.path);
   });
 
   @override
-  Future<Result<void>> delete(String relativePath) => _guard(() async {
-    final File target = _resolve(relativePath);
+  Future<Result<void>> delete(String relativePath) => _guard((root) async {
+    final File target = _resolve(root, relativePath);
     if (target.existsSync()) {
       await target.delete();
     }
@@ -44,7 +49,7 @@ class LocalFileStore implements FileStore {
     }
   });
 
-  File _resolve(String relativePath) {
+  File _resolve(Directory root, String relativePath) {
     if (p.isAbsolute(relativePath)) {
       throw ArgumentError.value(relativePath, 'relativePath', 'Нужен относительный путь');
     }
@@ -55,9 +60,9 @@ class LocalFileStore implements FileStore {
     return File(full);
   }
 
-  Future<Result<void>> _guard(Future<void> Function() action) async {
+  Future<Result<void>> _guard(Future<void> Function(Directory root) action) async {
     try {
-      await action();
+      await action(_root ??= await _rootProvider());
       return const Success<void>(null);
     } on FileSystemException catch (error) {
       return Err<void>(StorageFailure('${error.message}: ${error.path}'));
