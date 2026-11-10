@@ -1,0 +1,261 @@
+{
+  "version": 1,
+  "material": "bead",
+  "brand": "Miyuki",
+  "series": "Delica",
+  "sizeCode": "11/0",
+  "colors": [
+    {
+      "code": "DB0306",
+      "name": "Matte Dark Grey",
+      "rgb": "#5a5a5c",
+      "finish": "matte"
+    },
+    {
+      "code": "DB1479",
+      "name": "Transparent Pale Peach Luster",
+      "rgb": "#f3d9c8",
+      "finish": "luster"
+    },
+    {
+      "code": "DB1480",
+      "name": "Transparent Peach Luster",
+      "rgb": "#f0c4a8",
+      "finish": "luster"
+    },
+    {
+      "code": "DB1481",
+      "name": "Transparent Salmon Luster",
+      "rgb": "#ee9f8a",
+      "finish": "luster"
+    },
+    {
+      "code": "DB1482",
+      "name": "Transparent Light Rose Luster",
+      "rgb": "#f0b5bf",
+      "finish": "luster"
+    },
+    {
+      "code": "DB2382",
+      "name": "Inside Dyed Aqua",
+      "rgb": "#4fc3d0",
+      "finish": "inside_dyed"
+    },
+    {
+      "code": "DB2383",
+      "name": "Inside Dyed Dusk",
+      "rgb": "#6a5f8f",
+      "finish": "inside_dyed"
+    },
+    {
+      "code": "DB2384",
+      "name": "Inside Dyed Stormy",
+      "rgb": "#5d7080",
+      "finish": "inside_dyed"
+    },
+    {
+      "code": "DB2385",
+      "name": "Inside Dyed Pacific",
+      "rgb": "#1f7fa8",
+      "finish": "inside_dyed"
+    },
+    {
+      "code": "DB2386",
+      "name": "Inside Dyed Night Sky",
+      "rgb": "#1c2a55",
+      "finish": "inside_dyed"
+    },
+    {
+      "code": "DB2387",
+      "name": "Inside Dyed Tidal",
+      "rgb": "#2f8f9a",
+      "finish": "inside_dyed"
+    },
+    {
+      "code": "DB2388",
+      "name": "Inside Dyed Lavender",
+      "rgb": "#a590c8",
+      "finish": "inside_dyed"
+    },
+    {
+      "code": "DB2389",
+      "name": "Inside Dyed Magenta",
+      "rgb": "#b0307e",
+      "finish": "inside_dyed"
+    },
+    {
+      "code": "DB2390",
+      "name": "Inside Dyed Brandy",
+      "rgb": "#a8603a",
+      "finish": "inside_dyed"
+    },
+    {
+      "code": "DB2391",
+      "name": "Inside Dyed Moonstone",
+      "rgb": "#c9c4d0",
+      "finish": "inside_dyed"
+    },
+    {
+      "code": "DB2392",
+      "name": "Inside Dyed Pewter",
+      "rgb": "#7d7f86",
+      "finish": "inside_dyed"
+    },
+    {
+      "code": "DB2393",
+      "name": "Inside Dyed Silver",
+      "rgb": "#b8bcc2",
+      "finish": "inside_dyed"
+    },
+    {
+      "code": "DB2394",
+      "name": "Inside Dyed Steel",
+      "rgb": "#6e8294",
+      "finish": "inside_dyed"
+    },
+    {
+      "code": "DB2395",
+      "name": "Inside Dyed Sand",
+      "rgb": "#d4c0a0",
+      "finish": "inside_dyed"
+    },
+    {
+      "code": "DB2396",
+      "name": "Inside Dyed Moth",
+      "rgb": "#a89a88",
+      "finish": "inside_dyed"
+    },
+    {
+      "code": "DB2501",
+      "name": "Duracoat Galvanized Pale Gold",
+      "rgb": "#d9c37a",
+      "finish": "galvanized"
+    },
+    {
+      "code": "DB2502",
+      "name": "Duracoat Galvanized Yellow",
+      "rgb": "#e6c84a",
+      "finish": "galvanized"
+    },
+    {
+      "code": "DB2503",
+      "name": "Duracoat Galvanized Bright Copper",
+      "rgb": "#c8703c",
+      "finish": "galvanized"
+    },
+    {
+      "code": "DB2504",
+      "name": "Duracoat Galvanized Rose Champagne",
+      "rgb": "#d9a893",
+      "finish": "galvanized"
+    },
+    {
+      "code": "DB2505",
+      "name": "Duracoat Galvanized Dark Mint",
+      "rgb": "#5fa58a",
+      "finish": "galvanized"
+    },
+    {
+      "code": "DB2506",
+      "name": "Duracoat Galvanized Dark Aqua Green",
+      "rgb": "#2f8a80",
+      "finish": "galvanized"
+    },
+    {
+      "code": "DB2507",
+      "name": "Duracoat Galvanized Black Moss",
+      "rgb": "#3a4a3a",
+      "finish": "galvanized"
+    },
+    {
+      "code": "DB2508",
+      "name": "Duracoat Galvanized Purple Orchid",
+      "rgb": "#8a5aa0",
+      "finish": "galvanized"
+    },
+    {
+      "code": "DB2509",
+      "name": "Duracoat Galvanized Dark Lilac",
+      "rgb": "#6e5a8a",
+      "finish": "galvanized"
+    },
+    {
+      "code": "DB2510",
+      "name": "Duracoat Galvanized Lilac Night",
+      "rgb": "#4a3a6a",
+      "finish": "galvanized"
+    },
+    {
+      "code": "DB2511",
+      "name": "Duracoat Galvanized Navy",
+      "rgb": "#1f2c55",
+      "finish": "galvanized"
+    },
+    {
+      "code": "DB2512",
+      "name": "Duracoat Galvanized Dark Steel Green",
+      "rgb": "#3f5f58",
+      "finish": "galvanized"
+    },
+    {
+      "code": "DB2513",
+      "name": "Duracoat Galvanized Capri Blue",
+      "rgb": "#3a8fc0",
+      "finish": "galvanized"
+    },
+    {
+      "code": "DB2514",
+      "name": "Duracoat Galvanized Dark Capri Blue",
+      "rgb": "#2a6a9a",
+      "finish": "galvanized"
+    },
+    {
+      "code": "DB2515",
+      "name": "Duracoat Galvanized Poseidon Blue",
+      "rgb": "#1f5a8a",
+      "finish": "galvanized"
+    },
+    {
+      "code": "DB2516",
+      "name": "Duracoat Galvanized Deep Aqua Blue",
+      "rgb": "#1f7a90",
+      "finish": "galvanized"
+    },
+    {
+      "code": "DB2517",
+      "name": "Duracoat Galvanized Mermaid Blue",
+      "rgb": "#3aa0a8",
+      "finish": "galvanized"
+    },
+    {
+      "code": "DB2521",
+      "name": "24KT Gold Lined Crystal",
+      "rgb": "#e8e2c8",
+      "finish": "gold_lined"
+    },
+    {
+      "code": "DB2522",
+      "name": "24KT Gold Lined Light Aqua",
+      "rgb": "#b8e0d8",
+      "finish": "gold_lined"
+    },
+    {
+      "code": "DB2523",
+      "name": "24KT Gold Lined Light Blue",
+      "rgb": "#b0cce8",
+      "finish": "gold_lined"
+    },
+    {
+      "code": "DB2524",
+      "name": "24KT Gold Lined Pale Rose",
+      "rgb": "#ecc8cc",
+      "finish": "gold_lined"
+    },
+    {
+      "code": "DB2525",
+      "name": "24KT Gold Lined Pale Gray",
+      "rgb": "#d2d0c8",
+      "finish": "gold_lined"
+    }
+  ]
+}

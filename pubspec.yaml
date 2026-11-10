@@ -35,6 +35,7 @@ flutter:
   generate: true
   assets:
     - assets/compliments/
+    - assets/catalog/
 
 dev_dependencies:
   flutter_test:

@@ -15,7 +15,7 @@ enum BeadShape {
 /// Реализует [CellMetrics]: бусина лежит отверстием вдоль ряда: ширина ячейки равна длине вдоль отверстия, высота —
 /// диаметру. Кирпичный стежок меняет их местами в самой геометрии.
 ///
-/// Значения приблизительные (каталожные данные производителей, у реальных бусин разброс ±0,1 мм).
+/// Значения приблизительные: диаметр и бусин в грамме сверены с таблицами розничных каталогов (T13, см. `assets/catalog/README.md`); длина вдоль отверстия — оценка. У реальных бусин разброс ±0,1 мм, у веса — до 30% по отделке.
 final class BeadSize extends Equatable implements CellMetrics {
   const BeadSize._({
     required this.shape,
@@ -49,7 +49,7 @@ final class BeadSize extends Equatable implements CellMetrics {
     sizeCode: '10/0',
     diameterMm: 2.2,
     holeLengthMm: 1.7,
-    weightGrams: 0.0100,
+    weightGrams: 0.0093,
   );
 
   /// Рокайль 15/0.
@@ -58,7 +58,7 @@ final class BeadSize extends Equatable implements CellMetrics {
     sizeCode: '15/0',
     diameterMm: 1.5,
     holeLengthMm: 1.0,
-    weightGrams: 0.0021,
+    weightGrams: 0.0040,
   );
 
   /// Рокайль 11/0.
@@ -67,16 +67,16 @@ final class BeadSize extends Equatable implements CellMetrics {
     sizeCode: '11/0',
     diameterMm: 2.1,
     holeLengthMm: 1.4,
-    weightGrams: 0.0060,
+    weightGrams: 0.0091,
   );
 
   /// Рокайль 8/0.
   static const BeadSize rocaille8 = BeadSize._(
     shape: BeadShape.rocaille,
     sizeCode: '8/0',
-    diameterMm: 3.0,
+    diameterMm: 3.1,
     holeLengthMm: 2.0,
-    weightGrams: 0.0230,
+    weightGrams: 0.0256,
   );
 
   /// Все поддерживаемые размеры: сначала Delica, затем рокайль, по возрастанию размера внутри каждого семейства.

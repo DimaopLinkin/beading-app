@@ -1,3 +1,5 @@
-/// Производители бисера, которых можно выбрать по умолчанию. Заглушка до каталога (T13): значения должны совпасть с
-/// `catalog_colors.brand`.
-const List<String> beadBrandChoices = <String>['Miyuki', 'Toho', 'Preciosa'];
+/// Производители бисера, которых можно выбрать по умолчанию.
+///
+/// Значения совпадают с `brand` в `assets/catalog/*.json` (проверяет `bundled_catalog_test`); новый бренд появляется
+/// здесь вместе с файлом каталога.
+const List<String> beadBrandChoices = <String>['Miyuki', 'Toho'];
