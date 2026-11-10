@@ -41,6 +41,12 @@ class DriftGridProgressStore implements GridProgressStore {
         .listen(
           (result) {
             switch (result) {
+              // Схему удалили при живой подписке: прогресса больше нет.
+              case Err<GridProgress>(failure: NotFoundFailure()):
+                if (previous != const GridProgress.empty()) {
+                  previous = const GridProgress.empty();
+                  controller.add(const GridProgress.empty());
+                }
               case Err<GridProgress>(:final Failure failure):
                 controller.addError(StateError(failure.message));
               case Success<GridProgress>(:final GridProgress value):

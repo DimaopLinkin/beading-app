@@ -319,6 +319,16 @@ void main() {
       }
     });
 
+    test('схема 1×1 сохраняется и читается', () async {
+      final GridPattern tiny = sampleGridPattern().copyWith(
+        grid: Grid.fromCells(width: 1, height: 1, cells: const <int>[2]),
+      );
+
+      await repository.save(tiny);
+
+      expect((await repository.getByProject('proj-1')).valueOrNull, tiny);
+    });
+
     test('схема 100×400 сохраняется и читается быстрее 50 мс каждая операция', () async {
       final List<int> cells = List<int>.generate(100 * 400, (i) => (i ~/ 7 + i ~/ 100) % 6);
       final GridPattern big = GridPattern(
@@ -476,6 +486,21 @@ void main() {
 
       await repository.deleteByProject('proj-1');
       expect((await progress.markRow('pat-1', 0)).failureOrNull, isA<NotFoundFailure>());
+    });
+
+    test('удаление схемы при живой подписке даёт пустой прогресс, а не ошибку', () async {
+      await progress.markRow('pat-1', 1);
+      final List<GridProgress> seen = <GridProgress>[];
+      final List<Object> errors = <Object>[];
+      final subscription = progress.watch('pat-1').listen(seen.add, onError: errors.add);
+      addTearDown(subscription.cancel);
+      await pumpEventQueue();
+
+      await repository.deleteByProject('proj-1');
+      await pumpEventQueue();
+
+      expect(errors, isEmpty);
+      expect(seen.last, GridProgress());
     });
 
     test('поток прогресса отдаёт текущее состояние и только реальные изменения', () async {

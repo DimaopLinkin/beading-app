@@ -34,6 +34,8 @@ class GridPatterns extends Table with UuidIdColumn, SyncColumns {
 
   IntColumn get layersCodecVersion => integer().nullable()();
 
+  /// Уникальность учитывает и строки с надгробием: схема удалённого проекта не освобождает проект. Если появится
+  /// «сброс схемы» без удаления проекта, `save` должен оживлять надгробие.
   @override
   List<Set<Column<Object>>> get uniqueKeys => <Set<Column<Object>>>[
     <Column<Object>>{projectId},

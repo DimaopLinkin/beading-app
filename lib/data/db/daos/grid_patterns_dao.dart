@@ -46,11 +46,11 @@ class GridPatternsDao extends DatabaseAccessor<AppDatabase> with _$GridPatternsD
   Future<List<PatternColorRow>> allColors(String patternId) =>
       (select(patternColors)..where((t) => t.gridPatternId.equals(patternId))).get();
 
-  /// Идентификатор живой схемы проекта при каждом изменении схемы, палитры или прогресса; `null`, пока схемы нет.
+  /// Идентификатор живой схемы проекта при каждом изменении схемы или палитры (отметки рядов не будят, «остановилась здесь» будит — это запись в `grid_patterns`); `null`, пока схемы нет.
   Stream<String?> watchAliveIdByProject(String projectId) => customSelect(
     'SELECT id FROM grid_patterns WHERE project_id = ?1 AND deleted_at IS NULL',
     variables: <Variable<Object>>[Variable<String>(projectId)],
-    readsFrom: <ResultSetImplementation<dynamic, dynamic>>{gridPatterns, patternColors, gridProgressRows},
+    readsFrom: <ResultSetImplementation<dynamic, dynamic>>{gridPatterns, patternColors},
   ).watch().map((rows) => rows.isEmpty ? null : rows.single.read<String>('id'));
 
   /// Сигнал сразу и после каждого изменения схемы или отметок рядов.

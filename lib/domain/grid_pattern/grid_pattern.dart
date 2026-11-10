@@ -3,7 +3,6 @@ import 'dart:typed_data';
 import 'package:beading/domain/grid/cell_metrics.dart';
 import 'package:beading/domain/grid/grid.dart';
 import 'package:beading/domain/grid/grid_geometry.dart';
-import 'package:beading/domain/grid_pattern/cell_metrics_codec.dart';
 import 'package:beading/domain/grid_pattern/grid_geometry_codec.dart';
 import 'package:beading/domain/palette/palette_snapshot.dart';
 import 'package:equatable/equatable.dart';
@@ -52,6 +51,7 @@ final class GridPattern extends Equatable {
     Grid? grid,
     PaletteSnapshot? palette,
     GridLayersBlob? layers,
+    bool clearLayers = false,
   }) => GridPattern(
     id: id,
     projectId: projectId,
@@ -59,7 +59,7 @@ final class GridPattern extends Equatable {
     metrics: metrics ?? this.metrics,
     grid: grid ?? this.grid,
     palette: palette ?? this.palette,
-    layers: layers ?? this.layers,
+    layers: clearLayers ? null : (layers ?? this.layers),
   );
 
   /// Копия с новыми идентификаторами схемы и проекта (для дублирования).
@@ -78,7 +78,7 @@ final class GridPattern extends Equatable {
     id,
     projectId,
     GridGeometryCodec.encode(geometry),
-    CellMetricsCodec.encode(metrics),
+    metrics,
     grid,
     palette,
     layers,

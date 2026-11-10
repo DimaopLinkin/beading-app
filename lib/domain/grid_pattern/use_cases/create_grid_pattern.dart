@@ -4,6 +4,7 @@ import 'package:beading/core/result.dart';
 import 'package:beading/domain/grid/cell_metrics.dart';
 import 'package:beading/domain/grid/grid.dart';
 import 'package:beading/domain/grid/grid_geometry.dart';
+import 'package:beading/domain/grid_pattern/cell_metrics_codec.dart';
 import 'package:beading/domain/grid_pattern/grid_pattern.dart';
 import 'package:beading/domain/grid_pattern/grid_pattern_repository.dart';
 import 'package:beading/domain/grid_pattern/use_cases/validate_grid_pattern.dart';
@@ -64,6 +65,11 @@ class CreateGridPattern {
     final PaletteSnapshot colors = palette ?? PaletteSnapshot.empty();
     final Result<void> consistent = validateGridAgainstPalette(cells, colors);
     if (consistent case Err<void>(:final Failure failure)) {
+      return Err<CreatedGridPattern>(failure);
+    }
+
+    final Result<String> storable = CellMetricsCodec.encode(metrics);
+    if (storable case Err<String>(:final Failure failure)) {
       return Err<CreatedGridPattern>(failure);
     }
 

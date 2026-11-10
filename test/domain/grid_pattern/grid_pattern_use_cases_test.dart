@@ -98,6 +98,18 @@ void main() {
       expect(projects.deleted, projects.projects.keys.toSet());
     });
 
+    test('размер ячейки, который нельзя записать, отклоняется до создания проекта', () async {
+      final Result<CreatedGridPattern> result = await createUseCase()(
+        name: 'Х',
+        metrics: const _UnstorableMetrics(),
+        width: 5,
+        height: 5,
+      );
+
+      expect(result.failureOrNull, isA<ValidationFailure>());
+      expect(projects.projects, isEmpty);
+    });
+
     test('пустое имя и техника чужого ремесла отклоняются до записи схемы', () async {
       expect(
         (await createUseCase()(name: ' ', metrics: BeadSize.delica11, width: 5, height: 5)).failureOrNull,

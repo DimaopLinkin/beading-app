@@ -69,7 +69,10 @@ abstract final class GridPatternMapper {
     }
 
     final List<PatternColor> colors = <PatternColor>[];
-    for (final PatternColorRow color in colorRows) {
+    for (final (int index, PatternColorRow color) in colorRows.indexed) {
+      if (color.position != index) {
+        return const Err<GridPattern>(StorageFailure('В палитре схемы пропущен цвет'));
+      }
       final Result<List<CatalogRef>> components = componentsFromJson(color.components);
       if (components case Err<List<CatalogRef>>(:final Failure failure)) {
         return Err<GridPattern>(failure);
@@ -83,6 +86,10 @@ abstract final class GridPatternMapper {
           symbol: color.symbol,
         ),
       );
+    }
+
+    if (cells.cells.any((v) => v > colors.length)) {
+      return const Err<GridPattern>(StorageFailure('В сетке есть цвет вне палитры'));
     }
 
     final Uint8List? layers = row.layers;
