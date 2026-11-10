@@ -222,8 +222,10 @@ void main() {
   testWidgets('в других шаблонах видны только два цвета и нет «Добавить цвет»', (tester) async {
     await pumpScreen(tester);
 
+    await tester.ensureVisible(find.byKey(const ValueKey<String>('template-checker')));
+    await tester.pumpAndSettle();
     await tester.tap(find.byKey(const ValueKey<String>('template-checker')));
-    await tester.pump();
+    await tester.pumpAndSettle();
 
     expect(find.byKey(const ValueKey<String>('template-color-1')), findsOneWidget);
     expect(find.byKey(const ValueKey<String>('template-color-2')), findsNothing);
@@ -307,6 +309,29 @@ void main() {
     await tester.pump();
 
     expect(tester.getRect(find.byKey(const ValueKey<String>('template-preview'))), before);
+  });
+
+  testWidgets('техника выбирается системным листом действий', (tester) async {
+    final ctx = await pumpScreen(tester);
+
+    await tester.tap(find.widgetWithText(CupertinoListTile, 'Техника'));
+    await tester.pumpAndSettle();
+    expect(find.byType(CupertinoActionSheet), findsOneWidget);
+    await tester.tap(find.text('Мозаика'));
+    await tester.pumpAndSettle();
+
+    expect(ctx.cubit.state.params.technique, Technique.peyote);
+    expect(find.byType(CupertinoActionSheet), findsNothing);
+  });
+
+  testWidgets('лист выбора цвета — системный лист со списком каталога', (tester) async {
+    await pumpScreen(tester);
+
+    await tester.tap(find.byKey(const ValueKey<String>('template-color-0')));
+    await tester.pumpAndSettle();
+
+    expect(find.byType(CupertinoListTile), findsWidgets);
+    expect(find.byKey(const ValueKey<String>('template-pick-3')), findsOneWidget);
   });
 
   testWidgets('крупный шрифт не ломает вёрстку', (tester) async {

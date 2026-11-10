@@ -16,8 +16,6 @@ import 'package:beading/presentation/pattern_template/template_color_sheet.dart'
 import 'package:beading/presentation/theme/app_icons.dart';
 import 'package:beading/presentation/theme/tokens.dart';
 import 'package:beading/presentation/widgets/color_swatch.dart';
-import 'package:beading/presentation/widgets/min_tap_target.dart';
-import 'package:beading/presentation/widgets/pill_chip.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -162,7 +160,6 @@ class _Content extends StatelessWidget {
     final PatternTemplateCubit cubit = context.read<PatternTemplateCubit>();
     final AppTokensData tokens = context.tokens;
     final TemplateParams p = state.params;
-    final double gap = tokens.spacing.m;
     // Предпросмотр закреплён над прокруткой: параметры ниже, а результат всегда на виду. На широком окне — по центру.
     return Center(
       child: ConstrainedBox(
@@ -175,115 +172,94 @@ class _Content extends StatelessWidget {
             ),
             if (state.problem case final TemplateProblem problem when state.status == TemplateStatus.ready)
               Padding(
-                padding: EdgeInsets.only(top: gap, left: tokens.spacing.l, right: tokens.spacing.l),
+                padding: EdgeInsets.only(top: tokens.spacing.m, left: tokens.spacing.l, right: tokens.spacing.l),
                 child: _ProblemLine(text: templateProblemText(l10n, problem)),
               ),
             Expanded(
               child: ListView(
-                padding: EdgeInsets.all(tokens.spacing.l),
                 children: <Widget>[
-                  _Section(
-                    title: l10n.templateSectionKind,
-                    child: _Gallery(state: state),
+                  CupertinoListSection.insetGrouped(
+                    header: Text(l10n.templateSectionKind),
+                    children: <Widget>[
+                      Padding(
+                        padding: EdgeInsets.all(tokens.spacing.m),
+                        child: _Gallery(state: state),
+                      ),
+                    ],
                   ),
-                  _Section(
-                    title: l10n.templateSectionSize,
-                    child: Column(
-                      children: <Widget>[
-                        _Stepper(
-                          label: l10n.templateWidth,
-                          value: p.width,
-                          min: TemplateParams.minSide,
-                          max: TemplateParams.maxWidth,
-                          onChanged: (v) => cubit.setParams(p.copyWith(width: v)),
+                  CupertinoListSection.insetGrouped(
+                    header: Text(l10n.templateSectionSize),
+                    children: <Widget>[
+                      _StepperTile(
+                        label: l10n.templateWidth,
+                        value: p.width,
+                        min: TemplateParams.minSide,
+                        max: TemplateParams.maxWidth,
+                        onChanged: (v) => cubit.setParams(p.copyWith(width: v)),
+                      ),
+                      _StepperTile(
+                        label: l10n.templateHeight,
+                        value: p.height,
+                        min: TemplateParams.minSide,
+                        max: TemplateParams.maxHeight,
+                        step: 5,
+                        onChanged: (v) => cubit.setParams(p.copyWith(height: v)),
+                      ),
+                    ],
+                  ),
+                  CupertinoListSection.insetGrouped(
+                    header: Text(l10n.templateSectionTechnique),
+                    children: <Widget>[
+                      _ChoiceTile(
+                        title: l10n.templateSectionTechnique,
+                        labels: <String>[for (final Technique t in PatternTemplateScreen.techniques) t.label(l10n)],
+                        selected: PatternTemplateScreen.techniques.indexOf(p.technique).clamp(0, 3),
+                        onSelected: (i) => cubit.setParams(p.copyWith(technique: PatternTemplateScreen.techniques[i])),
+                      ),
+                      _ChoiceTile(
+                        title: l10n.templateSectionBead,
+                        labels: <String>[for (final BeadSize b in BeadSize.values) b.label(l10n)],
+                        selected: BeadSize.values.indexOf(p.bead),
+                        onSelected: (i) => cubit.setParams(p.copyWith(bead: BeadSize.values[i])),
+                      ),
+                    ],
+                  ),
+                  CupertinoListSection.insetGrouped(
+                    header: Text(l10n.templateSectionParams),
+                    children: _paramRows(context, state, cubit),
+                  ),
+                  CupertinoListSection.insetGrouped(
+                    header: Text(l10n.templateSectionColors),
+                    children: _colorRows(context, state, cubit),
+                  ),
+                  CupertinoListSection.insetGrouped(
+                    header: Text(l10n.templateSectionSymmetry),
+                    footer: p.isShifted && p.symmetry != PatternSymmetry.none
+                        ? Text(l10n.templateSymmetryApproximate, key: const ValueKey<String>('template-symmetry-note'))
+                        : null,
+                    children: <Widget>[
+                      _ChoiceTile(
+                        title: l10n.templateSectionSymmetry,
+                        labels: <String>[for (final PatternSymmetry s in PatternSymmetry.values) s.label(l10n)],
+                        selected: p.symmetry.index,
+                        onSelected: (i) => cubit.setParams(p.copyWith(symmetry: PatternSymmetry.values[i])),
+                      ),
+                    ],
+                  ),
+                  CupertinoListSection.insetGrouped(
+                    header: Text(l10n.templateSectionName),
+                    children: <Widget>[
+                      CupertinoListTile(
+                        title: CupertinoTextField.borderless(
+                          key: const ValueKey<String>('template-name'),
+                          controller: nameController,
+                          placeholder: defaultName,
+                          maxLength: 80,
+                          padding: EdgeInsets.zero,
+                          onChanged: cubit.setName,
                         ),
-                        _Stepper(
-                          label: l10n.templateHeight,
-                          value: p.height,
-                          min: TemplateParams.minSide,
-                          max: TemplateParams.maxHeight,
-                          step: 5,
-                          onChanged: (v) => cubit.setParams(p.copyWith(height: v)),
-                        ),
-                      ],
-                    ),
-                  ),
-                  _Section(
-                    title: l10n.templateSectionTechnique,
-                    child: Wrap(
-                      runSpacing: tokens.spacing.xs,
-                      children: <Widget>[
-                        for (final Technique t in PatternTemplateScreen.techniques)
-                          PillChip(
-                            label: t.label(l10n),
-                            selected: p.technique == t,
-                            onTap: () => cubit.setParams(p.copyWith(technique: t)),
-                          ),
-                      ],
-                    ),
-                  ),
-                  _Section(
-                    title: l10n.templateSectionBead,
-                    child: Wrap(
-                      runSpacing: tokens.spacing.xs,
-                      children: <Widget>[
-                        for (final BeadSize b in BeadSize.values)
-                          PillChip(
-                            label: b.label(l10n),
-                            selected: p.bead == b,
-                            onTap: () => cubit.setParams(p.copyWith(bead: b)),
-                          ),
-                      ],
-                    ),
-                  ),
-                  _Section(
-                    title: l10n.templateSectionParams,
-                    child: Column(children: _paramRows(context, state, cubit)),
-                  ),
-                  _Section(
-                    title: l10n.templateSectionColors,
-                    child: _Colors(state: state),
-                  ),
-                  _Section(
-                    title: l10n.templateSectionSymmetry,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: <Widget>[
-                        Wrap(
-                          runSpacing: tokens.spacing.xs,
-                          children: <Widget>[
-                            for (final PatternSymmetry sym in PatternSymmetry.values)
-                              PillChip(
-                                label: sym.label(l10n),
-                                selected: p.symmetry == sym,
-                                onTap: () => cubit.setParams(p.copyWith(symmetry: sym)),
-                              ),
-                          ],
-                        ),
-                        if (p.isShifted && p.symmetry != PatternSymmetry.none)
-                          Padding(
-                            padding: EdgeInsets.only(top: tokens.spacing.s),
-                            child: Text(
-                              l10n.templateSymmetryApproximate,
-                              key: const ValueKey<String>('template-symmetry-note'),
-                              style: TextStyle(
-                                fontSize: 13,
-                                color: CupertinoColors.secondaryLabel.resolveFrom(context),
-                              ),
-                            ),
-                          ),
-                      ],
-                    ),
-                  ),
-                  _Section(
-                    title: l10n.templateSectionName,
-                    child: CupertinoTextField(
-                      key: const ValueKey<String>('template-name'),
-                      controller: nameController,
-                      placeholder: defaultName,
-                      maxLength: 80,
-                      onChanged: cubit.setName,
-                    ),
+                      ),
+                    ],
                   ),
                 ],
               ),
@@ -297,115 +273,95 @@ class _Content extends StatelessWidget {
   List<Widget> _paramRows(BuildContext context, PatternTemplateState state, PatternTemplateCubit cubit) {
     final AppLocalizations l10n = AppLocalizations.of(context);
     final TemplateParams p = state.params;
-    Widget axis() => _AxisPicker(
-      value: p.axis,
-      onChanged: (a) => cubit.setParams(p.copyWith(axis: a)),
+    Widget axis() => _ChoiceTile(
+      title: l10n.templateAxis,
+      labels: <String>[l10n.templateAxisX, l10n.templateAxisY],
+      selected: p.axis.index,
+      onSelected: (i) => cubit.setParams(p.copyWith(axis: PatternAxis.values[i])),
+    );
+    Widget number(String label, int value, int min, int max, TemplateParams Function(int) change) => _StepperTile(
+      label: label,
+      value: value,
+      min: min,
+      max: max,
+      onChanged: (v) => cubit.setParams(change(v)),
     );
     return switch (p.kind) {
       TemplateKind.stripes => <Widget>[
-        _Stepper(
-          label: l10n.templateStripeWidth,
-          value: p.stripeWidth,
-          min: 1,
-          max: TemplateParams.maxStripeWidth,
-          onChanged: (v) => cubit.setParams(p.copyWith(stripeWidth: v)),
+        number(
+          l10n.templateStripeWidth,
+          p.stripeWidth,
+          1,
+          TemplateParams.maxStripeWidth,
+          (v) => p.copyWith(stripeWidth: v),
         ),
         axis(),
       ],
       TemplateKind.zigzag => <Widget>[
-        _Stepper(
-          label: l10n.templateAmplitude,
-          value: p.amplitude,
-          min: 1,
-          max: 12,
-          onChanged: (v) => cubit.setParams(p.copyWith(amplitude: v)),
-        ),
-        _Stepper(
-          label: l10n.templateZigzagThickness,
-          value: p.zigzagThickness,
-          min: 1,
-          max: 6,
-          onChanged: (v) => cubit.setParams(p.copyWith(zigzagThickness: v)),
-        ),
-        _Stepper(
-          label: l10n.templateGap,
-          value: p.gap,
-          min: 0,
-          max: 8,
-          onChanged: (v) => cubit.setParams(p.copyWith(gap: v)),
-        ),
+        number(l10n.templateAmplitude, p.amplitude, 1, 12, (v) => p.copyWith(amplitude: v)),
+        number(l10n.templateZigzagThickness, p.zigzagThickness, 1, 6, (v) => p.copyWith(zigzagThickness: v)),
+        number(l10n.templateGap, p.gap, 0, 8, (v) => p.copyWith(gap: v)),
       ],
       TemplateKind.diamonds => <Widget>[
-        _Stepper(
-          label: l10n.templateDiamondSize,
-          value: p.diamondSize,
-          min: 1,
-          max: 12,
-          onChanged: (v) => cubit.setParams(p.copyWith(diamondSize: v)),
-        ),
+        number(l10n.templateDiamondSize, p.diamondSize, 1, 12, (v) => p.copyWith(diamondSize: v)),
       ],
       TemplateKind.checker => <Widget>[
-        _Stepper(
-          label: l10n.templateCellSize,
-          value: p.cellSize,
-          min: 1,
-          max: 12,
-          onChanged: (v) => cubit.setParams(p.copyWith(cellSize: v)),
-        ),
+        number(l10n.templateCellSize, p.cellSize, 1, 12, (v) => p.copyWith(cellSize: v)),
       ],
       TemplateKind.gradient => <Widget>[
-        _Stepper(
-          label: l10n.templateSteps,
-          value: p.steps,
-          min: 2,
-          max: 24,
-          onChanged: (v) => cubit.setParams(p.copyWith(steps: v)),
-        ),
+        number(l10n.templateSteps, p.steps, 2, 24, (v) => p.copyWith(steps: v)),
         axis(),
       ],
       TemplateKind.border => <Widget>[
-        _Stepper(
-          label: l10n.templateBorderThickness,
-          value: p.borderThickness,
-          min: 1,
-          max: 12,
-          onChanged: (v) => cubit.setParams(p.copyWith(borderThickness: v)),
-        ),
+        number(l10n.templateBorderThickness, p.borderThickness, 1, 12, (v) => p.copyWith(borderThickness: v)),
       ],
     };
   }
-}
 
-class _Section extends StatelessWidget {
-  const _Section({required this.title, required this.child});
-
-  final String title;
-  final Widget child;
-
-  @override
-  Widget build(BuildContext context) {
-    final AppTokensData tokens = context.tokens;
-    return Padding(
-      padding: EdgeInsets.only(top: tokens.spacing.l),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: <Widget>[
-          Semantics(
-            header: true,
-            child: Text(
-              title,
-              style: TextStyle(
-                fontSize: 13,
-                fontWeight: FontWeight.w600,
-                color: CupertinoColors.secondaryLabel.resolveFrom(context),
-              ),
-            ),
-          ),
-          SizedBox(height: tokens.spacing.s),
-          child,
-        ],
-      ),
-    );
+  /// Цвета строками списка: образец, название, артикул; нажатие открывает системный лист выбора.
+  List<Widget> _colorRows(BuildContext context, PatternTemplateState state, PatternTemplateCubit cubit) {
+    final AppLocalizations l10n = AppLocalizations.of(context);
+    final int used = state.usedColors;
+    return <Widget>[
+      for (int i = 0; i < used && i < state.colors.length; i++)
+        CupertinoListTile.notched(
+          key: ValueKey<String>('template-color-$i'),
+          leading: ColorSwatchView(rgb: state.colors[i].rgb, size: 28),
+          title: Text(state.colors[i].name, maxLines: 1, overflow: TextOverflow.ellipsis),
+          subtitle: Text(l10n.templateColorSlot(i + 1)),
+          additionalInfo: Text(state.colors[i].components.first.code),
+          trailing: const CupertinoListTileChevron(),
+          onTap: () async {
+            final TemplateColorChoice? choice = await showTemplateColorSheet(
+              context,
+              catalog: state.catalog,
+              removable: state.canRemoveColor,
+            );
+            switch (choice) {
+              case TemplateColorPicked(:final PatternColor color):
+                cubit.setColor(i, color);
+              case TemplateColorRemoved():
+                cubit.removeColor(i);
+              case null:
+                break;
+            }
+          },
+        ),
+      if (state.canAddColor)
+        CupertinoListTile.notched(
+          key: const ValueKey<String>('template-add-color'),
+          leading: const Icon(AppIcons.add),
+          title: Text(l10n.templateAddColor),
+          onTap: () async {
+            final TemplateColorChoice? choice = await showTemplateColorSheet(
+              context,
+              catalog: state.catalog,
+              removable: false,
+            );
+            if (choice case TemplateColorPicked(:final PatternColor color)) cubit.addColor(color);
+          },
+        ),
+    ];
   }
 }
 
@@ -551,125 +507,51 @@ class _GalleryCard extends StatelessWidget {
   }
 }
 
-class _Colors extends StatelessWidget {
-  const _Colors({required this.state});
+/// Строка выбора из нескольких вариантов: текущее значение справа, нажатие открывает системный лист действий.
+class _ChoiceTile extends StatelessWidget {
+  const _ChoiceTile({required this.title, required this.labels, required this.selected, required this.onSelected});
 
-  final PatternTemplateState state;
-
-  @override
-  Widget build(BuildContext context) {
-    final AppLocalizations l10n = AppLocalizations.of(context);
-    final PatternTemplateCubit cubit = context.read<PatternTemplateCubit>();
-    final AppTokensData tokens = context.tokens;
-    final int used = state.usedColors;
-    return Wrap(
-      spacing: tokens.spacing.m,
-      runSpacing: tokens.spacing.s,
-      crossAxisAlignment: WrapCrossAlignment.center,
-      children: <Widget>[
-        for (int i = 0; i < used && i < state.colors.length; i++)
-          Semantics(
-            button: true,
-            label: '${l10n.templateColorSlot(i + 1)}: ${state.colors[i].name}',
-            excludeSemantics: true,
-            child: GestureDetector(
-              key: ValueKey<String>('template-color-$i'),
-              behavior: HitTestBehavior.opaque,
-              onTap: () async {
-                final TemplateColorChoice? choice = await showTemplateColorSheet(
-                  context,
-                  catalog: state.catalog,
-                  removable: state.canRemoveColor,
-                );
-                switch (choice) {
-                  case TemplateColorPicked(:final PatternColor color):
-                    cubit.setColor(i, color);
-                  case TemplateColorRemoved():
-                    cubit.removeColor(i);
-                  case null:
-                    break;
-                }
-              },
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: <Widget>[
-                  MinTapTarget(child: ColorSwatchView(rgb: state.colors[i].rgb, size: 36)),
-                  Text(
-                    state.colors[i].components.first.code,
-                    style: TextStyle(fontSize: 12, color: CupertinoColors.secondaryLabel.resolveFrom(context)),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        if (state.canAddColor)
-          CupertinoButton(
-            key: const ValueKey<String>('template-add-color'),
-            minimumSize: Size.square(tokens.minTapTarget),
-            padding: EdgeInsets.symmetric(horizontal: tokens.spacing.s),
-            onPressed: () async {
-              final TemplateColorChoice? choice = await showTemplateColorSheet(
-                context,
-                catalog: state.catalog,
-                removable: false,
-              );
-              if (choice case TemplateColorPicked(:final PatternColor color)) cubit.addColor(color);
-            },
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: <Widget>[
-                const Icon(AppIcons.add, size: 18),
-                SizedBox(width: tokens.spacing.xs),
-                Flexible(child: Text(l10n.templateAddColor)),
-              ],
-            ),
-          ),
-      ],
-    );
-  }
-}
-
-class _AxisPicker extends StatelessWidget {
-  const _AxisPicker({required this.value, required this.onChanged});
-
-  final PatternAxis value;
-  final ValueChanged<PatternAxis> onChanged;
+  final String title;
+  final List<String> labels;
+  final int selected;
+  final ValueChanged<int> onSelected;
 
   @override
   Widget build(BuildContext context) {
     final AppLocalizations l10n = AppLocalizations.of(context);
-    final AppTokensData tokens = context.tokens;
-    return Padding(
-      padding: EdgeInsets.symmetric(vertical: tokens.spacing.s),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: <Widget>[
-          Text(l10n.templateAxis),
-          SizedBox(height: tokens.spacing.xs),
-          Wrap(
-            runSpacing: tokens.spacing.xs,
-            children: <Widget>[
-              PillChip(
-                label: l10n.templateAxisX,
-                selected: value == PatternAxis.x,
-                onTap: () => onChanged(PatternAxis.x),
+    return CupertinoListTile.notched(
+      title: Text(title),
+      // Значение под названием, а не справа: при крупном шрифте оно переносится, а не вылезает за край.
+      subtitle: Text(labels[selected]),
+      trailing: const CupertinoListTileChevron(),
+      onTap: () => showCupertinoModalPopup<void>(
+        context: context,
+        builder: (sheetContext) => CupertinoActionSheet(
+          title: Text(title),
+          actions: <Widget>[
+            for (int i = 0; i < labels.length; i++)
+              CupertinoActionSheetAction(
+                isDefaultAction: i == selected,
+                onPressed: () {
+                  Navigator.of(sheetContext).pop();
+                  onSelected(i);
+                },
+                child: Text(labels[i]),
               ),
-              PillChip(
-                label: l10n.templateAxisY,
-                selected: value == PatternAxis.y,
-                onTap: () => onChanged(PatternAxis.y),
-              ),
-            ],
+          ],
+          cancelButton: CupertinoActionSheetAction(
+            onPressed: () => Navigator.of(sheetContext).pop(),
+            child: Text(l10n.templateCancel),
           ),
-        ],
+        ),
       ),
     );
   }
 }
 
-/// Число с кнопками «−» и «+» (тач-зона 44 pt).
-class _Stepper extends StatelessWidget {
-  const _Stepper({
+/// Строка с числом и кнопками «−» и «+» (тач-зона 44 pt).
+class _StepperTile extends StatelessWidget {
+  const _StepperTile({
     required this.label,
     required this.value,
     required this.min,
@@ -688,38 +570,40 @@ class _Stepper extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final AppLocalizations l10n = AppLocalizations.of(context);
-    final AppTokensData tokens = context.tokens;
-    final double target = tokens.minTapTarget;
-    return Row(
-      children: <Widget>[
-        Expanded(child: Text(label)),
-        CupertinoButton(
-          key: ValueKey<String>('minus-$label'),
-          minimumSize: Size.square(target),
-          padding: EdgeInsets.zero,
-          onPressed: value > min ? () => onChanged((value - step).clamp(min, max)) : null,
-          child: Semantics(label: '${l10n.templateValueMinus}: $label', child: const Icon(AppIcons.minus)),
-        ),
-        ConstrainedBox(
-          constraints: const BoxConstraints(minWidth: 44),
-          child: Text(
-            '$value',
-            key: ValueKey<String>('value-$label'),
-            textAlign: TextAlign.center,
-            style: const TextStyle(
-              fontWeight: FontWeight.w600,
-              fontFeatures: <FontFeature>[FontFeature.tabularFigures()],
+    final double target = context.tokens.minTapTarget;
+    return CupertinoListTile(
+      title: Text(label, maxLines: 2, overflow: TextOverflow.ellipsis),
+      trailing: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: <Widget>[
+          CupertinoButton(
+            key: ValueKey<String>('minus-$label'),
+            minimumSize: Size.square(target),
+            padding: EdgeInsets.zero,
+            onPressed: value > min ? () => onChanged((value - step).clamp(min, max)) : null,
+            child: Semantics(label: '${l10n.templateValueMinus}: $label', child: const Icon(AppIcons.minus)),
+          ),
+          ConstrainedBox(
+            constraints: const BoxConstraints(minWidth: 44),
+            child: Text(
+              '$value',
+              key: ValueKey<String>('value-$label'),
+              textAlign: TextAlign.center,
+              style: const TextStyle(
+                fontWeight: FontWeight.w600,
+                fontFeatures: <FontFeature>[FontFeature.tabularFigures()],
+              ),
             ),
           ),
-        ),
-        CupertinoButton(
-          key: ValueKey<String>('plus-$label'),
-          minimumSize: Size.square(target),
-          padding: EdgeInsets.zero,
-          onPressed: value < max ? () => onChanged((value + step).clamp(min, max)) : null,
-          child: Semantics(label: '${l10n.templateValuePlus}: $label', child: const Icon(AppIcons.plus)),
-        ),
-      ],
+          CupertinoButton(
+            key: ValueKey<String>('plus-$label'),
+            minimumSize: Size.square(target),
+            padding: EdgeInsets.zero,
+            onPressed: value < max ? () => onChanged((value + step).clamp(min, max)) : null,
+            child: Semantics(label: '${l10n.templateValuePlus}: $label', child: const Icon(AppIcons.plus)),
+          ),
+        ],
+      ),
     );
   }
 }

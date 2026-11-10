@@ -1,8 +1,6 @@
 import 'package:beading/domain/palette/pattern_color.dart';
 import 'package:beading/presentation/l10n/app_localizations.dart';
-import 'package:beading/presentation/theme/tokens.dart';
 import 'package:beading/presentation/widgets/color_swatch.dart';
-import 'package:beading/presentation/widgets/glass/glass_sheet.dart';
 import 'package:flutter/cupertino.dart';
 
 /// Итог выбора в листе цвета.
@@ -20,20 +18,15 @@ class TemplateColorRemoved extends TemplateColorChoice {
   const TemplateColorRemoved();
 }
 
-/// Лист выбора цвета из каталога: поиск по артикулу и названию; для полос — ещё «Убрать этот цвет».
+/// Системный лист (`showCupertinoSheet`, закрывается свайпом вниз) с выбором цвета из каталога: поиск по артикулу
+/// и названию; для полос — ещё «Убрать этот цвет».
 Future<TemplateColorChoice?> showTemplateColorSheet(
   BuildContext context, {
   required List<PatternColor> catalog,
   required bool removable,
-}) => showCupertinoModalPopup<TemplateColorChoice>(
+}) => showCupertinoSheet<TemplateColorChoice>(
   context: context,
-  builder: (_) => Align(
-    alignment: Alignment.bottomCenter,
-    child: ConstrainedBox(
-      constraints: const BoxConstraints(maxWidth: 560),
-      child: TemplateColorSheet(catalog: catalog, removable: removable),
-    ),
-  ),
+  builder: (_) => TemplateColorSheet(catalog: catalog, removable: removable),
 );
 
 class TemplateColorSheet extends StatefulWidget {
@@ -59,86 +52,62 @@ class _TemplateColorSheetState extends State<TemplateColorSheet> {
   @override
   Widget build(BuildContext context) {
     final AppLocalizations l10n = AppLocalizations.of(context);
-    final AppTokensData tokens = context.tokens;
     final List<PatternColor> shown = widget.catalog.where(_matches).toList(growable: false);
-    // Клавиатура поиска не должна закрывать список: высота считается от свободной области.
-    final MediaQueryData media = MediaQuery.of(context);
-    final double available = media.size.height - media.viewInsets.bottom - media.padding.top;
-    return Padding(
-      padding: EdgeInsets.only(bottom: media.viewInsets.bottom),
-      child: GlassSheet(
-        child: SizedBox(
-          height: available * 0.6,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: <Widget>[
-              Semantics(
-                header: true,
-                child: Text(
-                  l10n.templatePickColorTitle,
-                  textAlign: TextAlign.center,
-                  style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w600),
-                ),
-              ),
-              SizedBox(height: tokens.spacing.m),
-              CupertinoSearchTextField(
+    return CupertinoPageScaffold(
+      navigationBar: CupertinoNavigationBar(
+        middle: Text(l10n.templatePickColorTitle),
+        leading: CupertinoButton(
+          padding: EdgeInsets.zero,
+          onPressed: () => Navigator.of(context).pop(),
+          child: Text(l10n.templateCancel),
+        ),
+      ),
+      child: SafeArea(
+        child: Column(
+          children: <Widget>[
+            Padding(
+              padding: const EdgeInsets.all(12),
+              child: CupertinoSearchTextField(
                 key: const ValueKey<String>('template-color-search'),
                 placeholder: l10n.catalogSearchPlaceholder,
                 onChanged: (value) => setState(() => _query = value),
               ),
-              SizedBox(height: tokens.spacing.s),
-              Expanded(
-                child: shown.isEmpty
-                    ? Center(child: Text(l10n.templateColorEmpty))
-                    : ListView.builder(
-                        itemCount: shown.length,
-                        itemBuilder: (context, index) {
-                          final PatternColor color = shown[index];
-                          void pick() => Navigator.of(context).pop<TemplateColorChoice>(TemplateColorPicked(color));
-                          return Semantics(
-                            button: true,
-                            label: '${color.name}, ${color.components.first.code}',
-                            excludeSemantics: true,
-                            onTap: pick,
-                            child: GestureDetector(
-                              key: ValueKey<String>('template-pick-${color.components.first.code}'),
-                              behavior: HitTestBehavior.opaque,
-                              onTap: pick,
-                              child: ConstrainedBox(
-                                constraints: BoxConstraints(minHeight: tokens.minTapTarget),
-                                child: Row(
-                                  children: <Widget>[
-                                    ColorSwatchView(rgb: color.rgb),
-                                    SizedBox(width: tokens.spacing.m),
-                                    Expanded(child: Text(color.name, maxLines: 1, overflow: TextOverflow.ellipsis)),
-                                    SizedBox(width: tokens.spacing.s),
-                                    Text(
-                                      color.components.first.code,
-                                      style: TextStyle(
-                                        fontSize: 13,
-                                        color: CupertinoColors.secondaryLabel.resolveFrom(context),
-                                      ),
-                                    ),
-                                  ],
+            ),
+            Expanded(
+              child: shown.isEmpty
+                  ? Center(child: Text(l10n.templateColorEmpty))
+                  : ListView(
+                      children: <Widget>[
+                        if (widget.removable)
+                          CupertinoListSection.insetGrouped(
+                            children: <Widget>[
+                              CupertinoListTile.notched(
+                                key: const ValueKey<String>('template-remove-color'),
+                                title: Text(
+                                  l10n.templateRemoveColor,
+                                  style: TextStyle(color: CupertinoColors.systemRed.resolveFrom(context)),
                                 ),
+                                onTap: () =>
+                                    Navigator.of(context).pop<TemplateColorChoice>(const TemplateColorRemoved()),
                               ),
-                            ),
-                          );
-                        },
-                      ),
-              ),
-              if (widget.removable)
-                CupertinoButton(
-                  key: const ValueKey<String>('template-remove-color'),
-                  minimumSize: Size.square(tokens.minTapTarget),
-                  onPressed: () => Navigator.of(context).pop<TemplateColorChoice>(const TemplateColorRemoved()),
-                  child: Text(
-                    l10n.templateRemoveColor,
-                    style: TextStyle(color: CupertinoColors.systemRed.resolveFrom(context)),
-                  ),
-                ),
-            ],
-          ),
+                            ],
+                          ),
+                        CupertinoListSection.insetGrouped(
+                          children: <Widget>[
+                            for (final PatternColor color in shown)
+                              CupertinoListTile.notched(
+                                key: ValueKey<String>('template-pick-${color.components.first.code}'),
+                                leading: ColorSwatchView(rgb: color.rgb, size: 28),
+                                title: Text(color.name, maxLines: 1, overflow: TextOverflow.ellipsis),
+                                additionalInfo: Text(color.components.first.code),
+                                onTap: () => Navigator.of(context).pop<TemplateColorChoice>(TemplateColorPicked(color)),
+                              ),
+                          ],
+                        ),
+                      ],
+                    ),
+            ),
+          ],
         ),
       ),
     );
