@@ -5,9 +5,9 @@
     "deltaE": 3.68
   },
   "cat/loom/t24-catalog": {
-    "singles": 24,
-    "colors": 5,
-    "deltaE": 9.64
+    "singles": 103,
+    "colors": 10,
+    "deltaE": 3.9
   },
   "cat/loom/t24-dither": {
     "singles": 170,
@@ -20,9 +20,9 @@
     "deltaE": 3.61
   },
   "cat/peyote/t24-catalog": {
-    "singles": 9,
-    "colors": 5,
-    "deltaE": 9.57
+    "singles": 60,
+    "colors": 10,
+    "deltaE": 3.93
   },
   "cat/peyote/t24-dither": {
     "singles": 106,
@@ -45,9 +45,9 @@
     "deltaE": 3.8
   },
   "coffee/loom/t24-catalog": {
-    "singles": 69,
-    "colors": 8,
-    "deltaE": 7.95
+    "singles": 90,
+    "colors": 10,
+    "deltaE": 4.56
   },
   "coffee/loom/t24-dither": {
     "singles": 142,
@@ -60,9 +60,9 @@
     "deltaE": 3.78
   },
   "coffee/peyote/t24-catalog": {
-    "singles": 43,
-    "colors": 8,
-    "deltaE": 7.95
+    "singles": 67,
+    "colors": 10,
+    "deltaE": 4.37
   },
   "coffee/peyote/t24-dither": {
     "singles": 101,
@@ -85,9 +85,9 @@
     "deltaE": 1.54
   },
   "drawing/loom/t24-catalog": {
-    "singles": 14,
+    "singles": 20,
     "colors": 10,
-    "deltaE": 8.7
+    "deltaE": 4.98
   },
   "drawing/loom/t24-dither": {
     "singles": 45,
@@ -100,9 +100,9 @@
     "deltaE": 1.88
   },
   "drawing/peyote/t24-catalog": {
-    "singles": 22,
-    "colors": 9,
-    "deltaE": 8.96
+    "singles": 43,
+    "colors": 10,
+    "deltaE": 4.99
   },
   "drawing/peyote/t24-dither": {
     "singles": 52,
@@ -125,9 +125,9 @@
     "deltaE": 1.16
   },
   "galaxy/loom/t24-catalog": {
-    "singles": 31,
-    "colors": 4,
-    "deltaE": 2.39
+    "singles": 102,
+    "colors": 8,
+    "deltaE": 1.81
   },
   "galaxy/loom/t24-dither": {
     "singles": 255,
@@ -140,9 +140,9 @@
     "deltaE": 1.1
   },
   "galaxy/peyote/t24-catalog": {
-    "singles": 29,
-    "colors": 4,
-    "deltaE": 2.43
+    "singles": 121,
+    "colors": 9,
+    "deltaE": 1.78
   },
   "galaxy/peyote/t24-dither": {
     "singles": 175,
@@ -165,9 +165,9 @@
     "deltaE": 0.67
   },
   "handwriting/loom/t24-catalog": {
-    "singles": 16,
-    "colors": 3,
-    "deltaE": 5.22
+    "singles": 109,
+    "colors": 9,
+    "deltaE": 1.4
   },
   "handwriting/loom/t24-dither": {
     "singles": 151,
@@ -180,9 +180,9 @@
     "deltaE": 0.68
   },
   "handwriting/peyote/t24-catalog": {
-    "singles": 18,
-    "colors": 3,
-    "deltaE": 5.23
+    "singles": 86,
+    "colors": 9,
+    "deltaE": 1.38
   },
   "handwriting/peyote/t24-dither": {
     "singles": 109,
@@ -205,9 +205,9 @@
     "deltaE": 3.23
   },
   "landscape/loom/t24-catalog": {
-    "singles": 13,
-    "colors": 8,
-    "deltaE": 6.42
+    "singles": 21,
+    "colors": 10,
+    "deltaE": 3.8
   },
   "landscape/loom/t24-dither": {
     "singles": 113,
@@ -220,9 +220,9 @@
     "deltaE": 3.04
   },
   "landscape/peyote/t24-catalog": {
-    "singles": 35,
-    "colors": 9,
-    "deltaE": 6.53
+    "singles": 19,
+    "colors": 10,
+    "deltaE": 3.86
   },
   "landscape/peyote/t24-dither": {
     "singles": 75,
@@ -245,9 +245,9 @@
     "deltaE": 1.45
   },
   "logo/loom/t24-catalog": {
-    "singles": 85,
-    "colors": 7,
-    "deltaE": 5.91
+    "singles": 128,
+    "colors": 10,
+    "deltaE": 3.38
   },
   "logo/loom/t24-dither": {
     "singles": 154,
@@ -260,9 +260,9 @@
     "deltaE": 1.39
   },
   "logo/peyote/t24-catalog": {
-    "singles": 51,
-    "colors": 7,
-    "deltaE": 5.92
+    "singles": 85,
+    "colors": 10,
+    "deltaE": 3.34
   },
   "logo/peyote/t24-dither": {
     "singles": 98,
@@ -285,9 +285,9 @@
     "deltaE": 5.73
   },
   "portrait/loom/t24-catalog": {
-    "singles": 93,
-    "colors": 9,
-    "deltaE": 7.97
+    "singles": 118,
+    "colors": 10,
+    "deltaE": 6.18
   },
   "portrait/loom/t24-dither": {
     "singles": 182,
@@ -300,9 +300,9 @@
     "deltaE": 5.84
   },
   "portrait/peyote/t24-catalog": {
-    "singles": 74,
-    "colors": 9,
-    "deltaE": 8.18
+    "singles": 82,
+    "colors": 10,
+    "deltaE": 6.3
   },
   "portrait/peyote/t24-dither": {
     "singles": 134,
@@ -325,9 +325,9 @@
     "deltaE": 3.2
   },
   "rocket/loom/t24-catalog": {
-    "singles": 22,
-    "colors": 8,
-    "deltaE": 6.57
+    "singles": 19,
+    "colors": 10,
+    "deltaE": 4.14
   },
   "rocket/loom/t24-dither": {
     "singles": 110,
@@ -340,9 +340,9 @@
     "deltaE": 3.2
   },
   "rocket/peyote/t24-catalog": {
-    "singles": 20,
-    "colors": 8,
-    "deltaE": 6.43
+    "singles": 33,
+    "colors": 10,
+    "deltaE": 4.17
   },
   "rocket/peyote/t24-dither": {
     "singles": 64,
