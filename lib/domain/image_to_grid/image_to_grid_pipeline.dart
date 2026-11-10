@@ -57,8 +57,8 @@ final class ImageToGridPipeline {
       );
       image = work.toSourceImage();
       importance = work.importance;
+      times['prefilter'] = lap();
     }
-    times['prefilter'] = lap();
     final SampledCells cells = sampler.sample(
       image: image,
       importance: importance,
