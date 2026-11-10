@@ -1,10 +1,11 @@
 import 'package:beading/data/db/app_database.dart';
+import 'package:beading/data/db/tables/book_work_tables.dart';
 import 'package:beading/data/db/tables/image_pattern_tables.dart';
 import 'package:drift/drift.dart';
 
 part 'image_patterns_dao.g.dart';
 
-@DriftAccessor(tables: <Type>[ImagePatterns, ImagePatternPages])
+@DriftAccessor(tables: <Type>[ImagePatterns, ImagePatternPages, PageWorkStates, BookWorkStates])
 class ImagePatternsDao extends DatabaseAccessor<AppDatabase> with _$ImagePatternsDaoMixin {
   ImagePatternsDao(super.attachedDatabase);
 
@@ -35,6 +36,25 @@ class ImagePatternsDao extends DatabaseAccessor<AppDatabase> with _$ImagePattern
         if (pattern == null) {
           return;
         }
+        final List<ImagePatternPageRow> pages = await (select(
+          imagePatternPages,
+        )..where((t) => t.patternId.equals(pattern.id))).get();
+        final List<String> pageIds = pages.map((p) => p.id).toList(growable: false);
+        // Запомненная работа (T07) живёт и умирает вместе со схемой.
+        await (update(pageWorkStates)..where((t) => t.id.isIn(pageIds) & t.deletedAt.isNull())).write(
+          PageWorkStatesCompanion(
+            updatedAt: Value<int>(nowMs),
+            deletedAt: Value<int?>(nowMs),
+            deviceId: Value<String>(deviceId),
+          ),
+        );
+        await (update(bookWorkStates)..where((t) => t.id.equals(pattern.id) & t.deletedAt.isNull())).write(
+          BookWorkStatesCompanion(
+            updatedAt: Value<int>(nowMs),
+            deletedAt: Value<int?>(nowMs),
+            deviceId: Value<String>(deviceId),
+          ),
+        );
         await (update(imagePatternPages)..where((t) => t.patternId.equals(pattern.id) & t.deletedAt.isNull())).write(
           ImagePatternPagesCompanion(
             updatedAt: Value<int>(nowMs),

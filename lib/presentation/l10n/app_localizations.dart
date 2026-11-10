@@ -594,6 +594,132 @@ abstract class AppLocalizations {
   /// In ru, this message translates to:
   /// **'Введите название.'**
   String get importProblemEmptyName;
+
+  /// Номер текущего ряда на экране работы по схеме
+  ///
+  /// In ru, this message translates to:
+  /// **'Ряд {row}'**
+  String bookWorkRow(int row);
+
+  /// Кнопка: линейка на ряд назад
+  ///
+  /// In ru, this message translates to:
+  /// **'Назад'**
+  String get bookWorkPrevRow;
+
+  /// Кнопка: линейка на следующий ряд
+  ///
+  /// In ru, this message translates to:
+  /// **'Следующий ряд'**
+  String get bookWorkNextRow;
+
+  /// Кнопка выбора страницы многостраничной схемы
+  ///
+  /// In ru, this message translates to:
+  /// **'Стр. {current} из {total}'**
+  String bookWorkPageLabel(int current, int total);
+
+  /// Заголовок списка страниц схемы
+  ///
+  /// In ru, this message translates to:
+  /// **'Страницы'**
+  String get bookWorkPagesTitle;
+
+  /// Пункт списка страниц схемы
+  ///
+  /// In ru, this message translates to:
+  /// **'Страница {number}'**
+  String bookWorkPageItem(int number);
+
+  /// Кнопка выхода с экрана работы по схеме
+  ///
+  /// In ru, this message translates to:
+  /// **'Закрыть'**
+  String get bookWorkClose;
+
+  /// Кнопка и заголовок листа настройки линейки
+  ///
+  /// In ru, this message translates to:
+  /// **'Настройка линейки'**
+  String get bookWorkRulerSettings;
+
+  /// No description provided for @bookWorkRulerHeight.
+  ///
+  /// In ru, this message translates to:
+  /// **'Высота линейки'**
+  String get bookWorkRulerHeight;
+
+  /// No description provided for @bookWorkRulerStep.
+  ///
+  /// In ru, this message translates to:
+  /// **'Шаг сдвига'**
+  String get bookWorkRulerStep;
+
+  /// No description provided for @bookWorkRulerColor.
+  ///
+  /// In ru, this message translates to:
+  /// **'Цвет подсветки'**
+  String get bookWorkRulerColor;
+
+  /// No description provided for @bookWorkColorYellow.
+  ///
+  /// In ru, this message translates to:
+  /// **'Жёлтый'**
+  String get bookWorkColorYellow;
+
+  /// No description provided for @bookWorkColorGreen.
+  ///
+  /// In ru, this message translates to:
+  /// **'Зелёный'**
+  String get bookWorkColorGreen;
+
+  /// No description provided for @bookWorkColorBlue.
+  ///
+  /// In ru, this message translates to:
+  /// **'Синий'**
+  String get bookWorkColorBlue;
+
+  /// No description provided for @bookWorkColorPink.
+  ///
+  /// In ru, this message translates to:
+  /// **'Розовый'**
+  String get bookWorkColorPink;
+
+  /// Кнопка и заголовок листа заметок проекта
+  ///
+  /// In ru, this message translates to:
+  /// **'Заметки'**
+  String get bookWorkNotes;
+
+  /// No description provided for @bookWorkNotesHint.
+  ///
+  /// In ru, this message translates to:
+  /// **'Что важно не забыть: цвета, где остановилась, что поменять'**
+  String get bookWorkNotesHint;
+
+  /// Кнопка закрытия листа
+  ///
+  /// In ru, this message translates to:
+  /// **'Готово'**
+  String get bookWorkDone;
+
+  /// No description provided for @bookWorkLoadFailed.
+  ///
+  /// In ru, this message translates to:
+  /// **'Не получилось открыть схему.'**
+  String get bookWorkLoadFailed;
+
+  /// No description provided for @bookWorkSaveFailed.
+  ///
+  /// In ru, this message translates to:
+  /// **'Не удалось сохранить положение линейки. Проверьте свободное место.'**
+  String get bookWorkSaveFailed;
+
+  /// No description provided for @bookWorkImageFailed.
+  ///
+  /// In ru, this message translates to:
+  /// **'Не удалось открыть картинку страницы.'**
+  String get bookWorkImageFailed;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

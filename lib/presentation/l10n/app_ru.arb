@@ -226,5 +226,74 @@
   "importProblemEmptyName": "Введите название.",
   "@importProblemEmptyName": {
     "description": "Пустое название"
-  }
+  },
+  "bookWorkRow": "Ряд {row}",
+  "@bookWorkRow": {
+    "description": "Номер текущего ряда на экране работы по схеме",
+    "placeholders": {
+      "row": {
+        "type": "int"
+      }
+    }
+  },
+  "bookWorkPrevRow": "Назад",
+  "@bookWorkPrevRow": {
+    "description": "Кнопка: линейка на ряд назад"
+  },
+  "bookWorkNextRow": "Следующий ряд",
+  "@bookWorkNextRow": {
+    "description": "Кнопка: линейка на следующий ряд"
+  },
+  "bookWorkPageLabel": "Стр. {current} из {total}",
+  "@bookWorkPageLabel": {
+    "description": "Кнопка выбора страницы многостраничной схемы",
+    "placeholders": {
+      "current": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "bookWorkPagesTitle": "Страницы",
+  "@bookWorkPagesTitle": {
+    "description": "Заголовок списка страниц схемы"
+  },
+  "bookWorkPageItem": "Страница {number}",
+  "@bookWorkPageItem": {
+    "description": "Пункт списка страниц схемы",
+    "placeholders": {
+      "number": {
+        "type": "int"
+      }
+    }
+  },
+  "bookWorkClose": "Закрыть",
+  "@bookWorkClose": {
+    "description": "Кнопка выхода с экрана работы по схеме"
+  },
+  "bookWorkRulerSettings": "Настройка линейки",
+  "@bookWorkRulerSettings": {
+    "description": "Кнопка и заголовок листа настройки линейки"
+  },
+  "bookWorkRulerHeight": "Высота линейки",
+  "bookWorkRulerStep": "Шаг сдвига",
+  "bookWorkRulerColor": "Цвет подсветки",
+  "bookWorkColorYellow": "Жёлтый",
+  "bookWorkColorGreen": "Зелёный",
+  "bookWorkColorBlue": "Синий",
+  "bookWorkColorPink": "Розовый",
+  "bookWorkNotes": "Заметки",
+  "@bookWorkNotes": {
+    "description": "Кнопка и заголовок листа заметок проекта"
+  },
+  "bookWorkNotesHint": "Что важно не забыть: цвета, где остановилась, что поменять",
+  "bookWorkDone": "Готово",
+  "@bookWorkDone": {
+    "description": "Кнопка закрытия листа"
+  },
+  "bookWorkLoadFailed": "Не получилось открыть схему.",
+  "bookWorkSaveFailed": "Не удалось сохранить положение линейки. Проверьте свободное место.",
+  "bookWorkImageFailed": "Не удалось открыть картинку страницы."
 }
