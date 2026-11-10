@@ -10,6 +10,10 @@ class GlassPolicy extends InheritedWidget {
 
   final bool reduceTransparency;
 
+  /// Значение системной настройки «Уменьшить прозрачность» (без учёта «Повышенной контрастности»).
+  static bool reduceTransparencyOf(BuildContext context) =>
+      context.dependOnInheritedWidgetOfExactType<GlassPolicy>()?.reduceTransparency ?? false;
+
   /// Нужна ли непрозрачная заливка вместо размытия фона.
   static bool isOpaque(BuildContext context) {
     final GlassPolicy? policy = context.dependOnInheritedWidgetOfExactType<GlassPolicy>();

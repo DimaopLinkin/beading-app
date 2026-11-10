@@ -289,6 +289,108 @@ abstract class AppLocalizations {
   /// **'Отмена'**
   String get cancel;
 
+  /// Раздел только в отладочных и профильных сборках
+  ///
+  /// In ru, this message translates to:
+  /// **'Для разработки'**
+  String get settingsSectionDev;
+
+  /// No description provided for @settingsGlassCheck.
+  ///
+  /// In ru, this message translates to:
+  /// **'Проверка стекла'**
+  String get settingsGlassCheck;
+
+  /// No description provided for @glassCheckTitle.
+  ///
+  /// In ru, this message translates to:
+  /// **'Проверка стекла'**
+  String get glassCheckTitle;
+
+  /// No description provided for @glassCheckReduceTransparency.
+  ///
+  /// In ru, this message translates to:
+  /// **'Уменьшить прозрачность: {state}'**
+  String glassCheckReduceTransparency(String state);
+
+  /// No description provided for @glassCheckHighContrast.
+  ///
+  /// In ru, this message translates to:
+  /// **'Повышенная контрастность: {state}'**
+  String glassCheckHighContrast(String state);
+
+  /// No description provided for @glassCheckOn.
+  ///
+  /// In ru, this message translates to:
+  /// **'вкл'**
+  String get glassCheckOn;
+
+  /// No description provided for @glassCheckOff.
+  ///
+  /// In ru, this message translates to:
+  /// **'выкл'**
+  String get glassCheckOff;
+
+  /// No description provided for @glassCheckSurface.
+  ///
+  /// In ru, this message translates to:
+  /// **'Стекло: {mode}'**
+  String glassCheckSurface(String mode);
+
+  /// No description provided for @glassCheckSurfaceGlass.
+  ///
+  /// In ru, this message translates to:
+  /// **'прозрачное'**
+  String get glassCheckSurfaceGlass;
+
+  /// No description provided for @glassCheckSurfaceOpaque.
+  ///
+  /// In ru, this message translates to:
+  /// **'сплошное'**
+  String get glassCheckSurfaceOpaque;
+
+  /// No description provided for @glassCheckFrames.
+  ///
+  /// In ru, this message translates to:
+  /// **'Кадров: {count}'**
+  String glassCheckFrames(int count);
+
+  /// No description provided for @glassCheckAverage.
+  ///
+  /// In ru, this message translates to:
+  /// **'Среднее {ms} мс, 95% кадров до {p95} мс, худший {worst} мс'**
+  String glassCheckAverage(String ms, String p95, String worst);
+
+  /// No description provided for @glassCheckOverBudget.
+  ///
+  /// In ru, this message translates to:
+  /// **'Дольше 8,3 мс: {slow}, дольше 16,7 мс: {jank}'**
+  String glassCheckOverBudget(int slow, int jank);
+
+  /// No description provided for @glassCheckProfileHint.
+  ///
+  /// In ru, this message translates to:
+  /// **'Цифры верны только в профильной сборке: flutter run --profile.'**
+  String get glassCheckProfileHint;
+
+  /// No description provided for @glassCheckPause.
+  ///
+  /// In ru, this message translates to:
+  /// **'Пауза'**
+  String get glassCheckPause;
+
+  /// No description provided for @glassCheckResume.
+  ///
+  /// In ru, this message translates to:
+  /// **'Продолжить'**
+  String get glassCheckResume;
+
+  /// No description provided for @glassCheckReset.
+  ///
+  /// In ru, this message translates to:
+  /// **'Сбросить цифры'**
+  String get glassCheckReset;
+
   /// Кнопка в библиотеке: импорт схемы из книги
   ///
   /// In ru, this message translates to:

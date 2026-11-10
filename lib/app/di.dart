@@ -16,6 +16,7 @@ import 'package:beading/data/image_pattern/local_file_store.dart';
 import 'package:beading/data/image_pattern/pdfrx_pdf_rasterizer.dart';
 import 'package:beading/data/image_pattern/picker_book_image_source.dart';
 import 'package:beading/data/image_pattern/ui_image_processor.dart';
+import 'package:beading/data/platform/method_channel_reduce_transparency_source.dart';
 import 'package:beading/data/platform/wakelock_plus_screen_wake_lock.dart';
 import 'package:beading/data/projects/drift_project_repository.dart';
 import 'package:beading/data/settings/drift_device_id_provider.dart';
@@ -51,6 +52,7 @@ import 'package:beading/domain/settings/app_events_secret_tap_handler.dart';
 import 'package:beading/domain/settings/app_info.dart';
 import 'package:beading/domain/settings/device_id_provider.dart';
 import 'package:beading/domain/settings/keep_screen_awake_setting.dart';
+import 'package:beading/domain/settings/reduce_transparency_source.dart';
 import 'package:beading/domain/settings/screen_wake_lock.dart';
 import 'package:beading/domain/settings/secret_tap_handler.dart';
 import 'package:beading/domain/settings/settings_repository.dart';
@@ -90,6 +92,14 @@ Future<void> configureDependencies({GetIt? locator, AppDatabase? database, Catal
     ..registerLazySingleton<OrientationLock>(SystemChromeOrientationLock.new)
     ..registerLazySingleton<DesktopWindow>(WindowManagerDesktopWindow.new)
     ..registerLazySingleton<ScreenWakeLock>(WakelockPlusScreenWakeLock.new)
+    ..registerLazySingleton<ReduceTransparencySource>(
+      MethodChannelReduceTransparencySource.new,
+      dispose: (source) async {
+        if (source is MethodChannelReduceTransparencySource) {
+          await source.dispose();
+        }
+      },
+    )
     ..registerLazySingleton<KeepScreenAwakeSetting>(
       () => RepositoryKeepScreenAwakeSetting(container<SettingsRepository>()),
     )

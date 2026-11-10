@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:beading/app/platform/desktop_window.dart';
 import 'package:beading/app/platform/orientation_lock.dart';
 import 'package:beading/domain/settings/keep_screen_awake_setting.dart';
+import 'package:beading/domain/settings/reduce_transparency_source.dart';
 import 'package:beading/domain/settings/screen_wake_lock.dart';
 import 'package:beading/domain/settings/wakelock_controller.dart';
 
@@ -63,3 +64,18 @@ class FakeDesktopWindow implements DesktopWindow {
 
 WakelockController fakeWakelockController([FakeScreenWakeLock? lock, FakeKeepScreenAwakeSetting? setting]) =>
     WakelockController(wakeLock: lock ?? FakeScreenWakeLock(), setting: setting ?? FakeKeepScreenAwakeSetting());
+
+class FakeReduceTransparencySource implements ReduceTransparencySource {
+  FakeReduceTransparencySource({this.initial = false});
+
+  bool initial;
+  final StreamController<bool> controller = StreamController<bool>.broadcast();
+
+  @override
+  Future<bool> current() async => initial;
+
+  @override
+  Stream<bool> get changes => controller.stream;
+
+  Future<void> dispose() => controller.close();
+}

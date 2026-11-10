@@ -7,12 +7,14 @@ import 'package:beading/domain/easter_eggs/easter_egg_service.dart';
 import 'package:beading/domain/easter_eggs/long_session_watcher.dart';
 import 'package:beading/domain/events/app_events.dart';
 import 'package:beading/domain/settings/app_theme_mode.dart';
+import 'package:beading/domain/settings/reduce_transparency_source.dart';
 import 'package:beading/presentation/easter_eggs/compliment_banner_cubit.dart';
 import 'package:beading/presentation/easter_eggs/compliment_overlay.dart';
 import 'package:beading/presentation/l10n/app_localizations.dart';
 import 'package:beading/presentation/settings/settings_cubit.dart';
 import 'package:beading/presentation/theme/app_theme.dart';
 import 'package:beading/presentation/theme/theme_mode_cubit.dart';
+import 'package:beading/presentation/widgets/glass/reduce_transparency_scope.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -73,8 +75,13 @@ class _BeadingAppState extends State<BeadingApp> {
             AppThemeMode.light => AppTheme.light,
             AppThemeMode.dark => AppTheme.dark,
           },
-          builder: (context, child) =>
-              AppTheme.builder(context, ComplimentOverlay(child: child ?? const SizedBox.shrink())),
+          builder: (context, child) => AppTheme.builder(
+            context,
+            ReduceTransparencyScope(
+              source: getIt<ReduceTransparencySource>(),
+              child: ComplimentOverlay(child: child ?? const SizedBox.shrink()),
+            ),
+          ),
         ),
       ),
     ),
