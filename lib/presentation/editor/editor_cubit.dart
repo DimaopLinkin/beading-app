@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:typed_data';
 
+import 'package:beading/core/failure.dart';
 import 'package:beading/core/result.dart';
 import 'package:beading/domain/editor/cell_line.dart';
 import 'package:beading/domain/editor/cell_rect.dart';
@@ -55,6 +56,8 @@ class EditorCubit extends Cubit<EditorState> {
   CellPosition? _lastStrokeCell;
 
   GridPattern get _pattern => state.pattern!;
+
+  bool get _ready => !isClosed && state.status == EditorStatus.ready;
 
   Future<void> load() async {
     final Result<Project> project = await _projects.get(_projectId);
@@ -192,17 +195,29 @@ class EditorCubit extends Cubit<EditorState> {
 
   /// Зеркало по горизонтали для выделения (или всей схемы). Для мозаики и кирпичика зеркалятся индексы ячеек, а не
   /// физическая раскладка: экран говорит об этом.
-  void mirrorHorizontal() => _applyGrid(EditorCommands.mirrorHorizontal(_pattern.grid, within: state.selection));
+  void mirrorHorizontal() {
+    if (_ready) _applyGrid(EditorCommands.mirrorHorizontal(_pattern.grid, within: state.selection));
+  }
 
-  void mirrorVertical() => _applyGrid(EditorCommands.mirrorVertical(_pattern.grid, within: state.selection));
+  void mirrorVertical() {
+    if (_ready) _applyGrid(EditorCommands.mirrorVertical(_pattern.grid, within: state.selection));
+  }
 
-  void insertRow(int at) => _applyResult(EditorCommands.insertRow(_pattern.grid, at));
+  void insertRow(int at) {
+    if (_ready) _applyResult(EditorCommands.insertRow(_pattern.grid, at));
+  }
 
-  void deleteRow(int at) => _applyResult(EditorCommands.deleteRow(_pattern.grid, at));
+  void deleteRow(int at) {
+    if (_ready) _applyResult(EditorCommands.deleteRow(_pattern.grid, at));
+  }
 
-  void insertColumn(int at) => _applyResult(EditorCommands.insertColumn(_pattern.grid, at));
+  void insertColumn(int at) {
+    if (_ready) _applyResult(EditorCommands.insertColumn(_pattern.grid, at));
+  }
 
-  void deleteColumn(int at) => _applyResult(EditorCommands.deleteColumn(_pattern.grid, at));
+  void deleteColumn(int at) {
+    if (_ready) _applyResult(EditorCommands.deleteColumn(_pattern.grid, at));
+  }
 
   void _applyResult(Result<Grid> result) {
     switch (result) {
@@ -218,12 +233,14 @@ class EditorCubit extends Cubit<EditorState> {
   // --- отмена -----------------------------------------------------------------------------------------------------
 
   void undo() {
-    final Grid? grid = _undo?.undo();
+    if (!_ready) return;
+    final Grid? grid = _undo!.undo();
     if (grid != null) _afterHistory(grid);
   }
 
   void redo() {
-    final Grid? grid = _undo?.redo();
+    if (!_ready) return;
+    final Grid? grid = _undo!.redo();
     if (grid != null) _afterHistory(grid);
   }
 
@@ -264,7 +281,8 @@ class EditorCubit extends Cubit<EditorState> {
 
   /// Добавляет цвет и делает его текущим. Возвращает значение сетки нового цвета или `null` при ошибке.
   int? addColor(PatternColor color) {
-    if (state.status != EditorStatus.ready) return null;
+    if (!_ready) return null;
+    endStroke();
     final Result<PaletteEdit> edit = _pattern.palette.add(color);
     if (edit case Err<PaletteEdit>()) {
       emit(state.copyWith(problem: EditorProblem.paletteFull));
@@ -285,7 +303,8 @@ class EditorCubit extends Cubit<EditorState> {
 
   /// Меняет название, цвет и позицию каталога цвета палитры; символ остаётся прежним.
   void updateColor(int gridValue, PatternColor color) {
-    if (state.status != EditorStatus.ready) return;
+    if (!_ready) return;
+    endStroke();
     final Result<PaletteEdit> edit = _pattern.palette.replace(gridValue, color);
     if (edit case Success<PaletteEdit>(:final PaletteEdit value)) {
       emit(state.copyWith(pattern: _pattern.copyWith(palette: value.palette), clearProblem: true));
@@ -295,7 +314,8 @@ class EditorCubit extends Cubit<EditorState> {
 
   /// Удаляет цвет из палитры вместе с его ячейками; история отмены начинается заново.
   void removeColor(int gridValue) {
-    if (state.status != EditorStatus.ready) return;
+    if (!_ready) return;
+    endStroke();
     final Result<PaletteEdit> edit = _pattern.palette.remove(gridValue);
     if (edit case Success<PaletteEdit>(:final PaletteEdit value)) {
       final Uint16List cells = Uint16List.fromList(_pattern.grid.cells);
@@ -338,13 +358,21 @@ class EditorCubit extends Cubit<EditorState> {
     if (!_dirty || state.pattern == null) return;
     _dirty = false;
     final GridPattern snapshot = _pattern;
-    final Result<void> saved = await _savePattern(snapshot);
+    Result<void> saved;
+    try {
+      saved = await _savePattern(snapshot);
+      if (saved is Success<void>) {
+        // Подъём проекта в библиотеке не должен ронять сохранение: ошибка тут не страшна.
+        await _touchProject(_projectId);
+      }
+    } on Object {
+      saved = const Err<void>(UnexpectedFailure('сохранение схемы'));
+    }
     if (saved case Err<void>()) {
       _dirty = true;
       if (!isClosed) emit(state.copyWith(save: EditorSave.failed, problem: EditorProblem.saveFailed));
       return;
     }
-    await _touchProject(_projectId);
     if (!isClosed && !_dirty) emit(state.copyWith(save: EditorSave.saved));
   }
 

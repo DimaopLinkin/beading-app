@@ -137,7 +137,8 @@ class _BeadChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final String name = size.shape == BeadShape.delica ? 'Delica' : 'Рокайль';
+    final AppLocalizations l10n = AppLocalizations.of(context);
+    final String name = size.shape == BeadShape.delica ? l10n.newGridBeadDelica : l10n.newGridBeadRocaille;
     return Semantics(
       button: true,
       selected: selected,
@@ -165,7 +166,7 @@ class _BeadChip extends StatelessWidget {
   }
 }
 
-class _Stepper extends StatelessWidget {
+class _Stepper extends StatefulWidget {
   const _Stepper({required this.keyPrefix, required this.label, required this.value, required this.onChanged});
 
   final String keyPrefix;
@@ -174,37 +175,62 @@ class _Stepper extends StatelessWidget {
   final ValueChanged<int> onChanged;
 
   @override
+  State<_Stepper> createState() => _StepperState();
+}
+
+class _StepperState extends State<_Stepper> {
+  late final TextEditingController _controller = TextEditingController(text: '${widget.value}');
+
+  @override
+  void didUpdateWidget(_Stepper oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    // Кнопки +/− меняют число; набранный текст не трогаем, пока он и так равен значению.
+    if (int.tryParse(_controller.text) != widget.value && _controller.text.isNotEmpty) {
+      _controller.text = '${widget.value}';
+    }
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  void _step(int delta) {
+    final int next = widget.value + delta;
+    _controller.text = '$next';
+    widget.onChanged(next);
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final String p = widget.keyPrefix;
     return Row(
       children: <Widget>[
-        Expanded(child: Text(label)),
+        Expanded(child: Text(widget.label)),
         CupertinoButton(
-          key: ValueKey<String>('$keyPrefix-minus'),
+          key: ValueKey<String>('$p-minus'),
           padding: EdgeInsets.zero,
           minimumSize: const Size(44, 44),
-          onPressed: value > NewGridState.minSide ? () => onChanged(value - 1) : null,
+          onPressed: widget.value > NewGridState.minSide ? () => _step(-1) : null,
           child: const Icon(CupertinoIcons.minus_circle),
         ),
         SizedBox(
           width: 64,
           child: CupertinoTextField(
-            key: ValueKey<String>('$keyPrefix-field'),
-            controller: TextEditingController.fromValue(
-              TextEditingValue(
-                text: '$value',
-                selection: TextSelection.collapsed(offset: '$value'.length),
-              ),
-            ),
+            key: ValueKey<String>('$p-field'),
+            controller: _controller,
             textAlign: TextAlign.center,
             keyboardType: TextInputType.number,
-            onChanged: (text) => onChanged(int.tryParse(text) ?? 0),
+            // Пустое поле — «ещё не введено»: размер 0 недопустим, «Создать» недоступна.
+            onChanged: (text) => widget.onChanged(int.tryParse(text) ?? 0),
           ),
         ),
         CupertinoButton(
-          key: ValueKey<String>('$keyPrefix-plus'),
+          key: ValueKey<String>('$p-plus'),
           padding: EdgeInsets.zero,
           minimumSize: const Size(44, 44),
-          onPressed: value < NewGridState.maxSide ? () => onChanged(value + 1) : null,
+          onPressed: widget.value < NewGridState.maxSide ? () => _step(1) : null,
           child: const Icon(CupertinoIcons.plus_circle),
         ),
       ],

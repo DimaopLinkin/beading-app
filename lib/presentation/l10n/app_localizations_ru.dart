@@ -657,4 +657,10 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get colorSheetDeleteHint => 'Бусины этого цвета на схеме станут пустыми.';
+
+  @override
+  String get newGridBeadDelica => 'Delica';
+
+  @override
+  String get newGridBeadRocaille => 'Рокайль';
 }

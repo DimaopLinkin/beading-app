@@ -1296,6 +1296,18 @@ abstract class AppLocalizations {
   /// In ru, this message translates to:
   /// **'Бусины этого цвета на схеме станут пустыми.'**
   String get colorSheetDeleteHint;
+
+  /// Название типа бисера: цилиндрический Miyuki Delica
+  ///
+  /// In ru, this message translates to:
+  /// **'Delica'**
+  String get newGridBeadDelica;
+
+  /// Название типа бисера: круглый рокайль
+  ///
+  /// In ru, this message translates to:
+  /// **'Рокайль'**
+  String get newGridBeadRocaille;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

@@ -69,6 +69,10 @@ class _EditorCanvasState extends State<EditorCanvas> {
   CellPosition? _anchor;
   bool _gestureMode = false;
 
+  /// За это касание был второй палец: ни тап, ни одиночная точка не засчитываются.
+  bool _multiTouch = false;
+  CellPosition? _pendingCell;
+
   TransformationController get _controller => widget.controller ?? (_own ??= TransformationController());
 
   GridScene _buildScene() => GridScene(
@@ -127,11 +131,11 @@ class _EditorCanvasState extends State<EditorCanvas> {
     _downAt = e.localPosition;
     _moved = false;
     _gestureMode = false;
+    _multiTouch = false;
     final CellPosition? cell = _cellAt(e.localPosition);
     if (_paints) {
-      widget.onStrokeStart();
-      _drawing = true;
-      if (cell != null) widget.onStrokeCell(cell);
+      // Мазок начинается, когда палец сдвинулся или поднялся: второй палец (зум) не должен оставлять точку.
+      _pendingCell = cell;
     } else if (widget.tool == EditorTool.selection) {
       _anchor = cell;
       if (cell != null) widget.onSelect(cell, cell);
@@ -140,8 +144,18 @@ class _EditorCanvasState extends State<EditorCanvas> {
 
   void _enterGestureMode() {
     _gestureMode = true;
+    _multiTouch = true;
+    _pendingCell = null;
     _endStroke();
     _anchor = null;
+  }
+
+  void _beginStroke() {
+    widget.onStrokeStart();
+    _drawing = true;
+    final CellPosition? first = _pendingCell;
+    _pendingCell = null;
+    if (first != null) widget.onStrokeCell(first);
   }
 
   void _endStroke() {
@@ -162,6 +176,7 @@ class _EditorCanvasState extends State<EditorCanvas> {
     if (e.pointer != _primary || _gestureMode) return;
     if (!_moved && (e.localPosition - _downAt!).distance > _tapSlop) _moved = true;
     final CellPosition? cell = _cellAt(e.localPosition);
+    if (_moved && _paints && !_drawing) _beginStroke();
     if (cell == null) return;
     if (_drawing) {
       widget.onStrokeCell(cell);
@@ -214,8 +229,15 @@ class _EditorCanvasState extends State<EditorCanvas> {
     if (_pointers.isEmpty) _gestureMode = false;
     if (!wasPrimary) return;
     _primary = null;
+    if (!_multiTouch && _paints && !_drawing && _pendingCell != null) {
+      // Тап: одна точка.
+      final CellPosition cell = _pendingCell!;
+      _beginStroke();
+      widget.onStrokeCell(cell);
+    }
+    _pendingCell = null;
     _endStroke();
-    if (!_moved && !_paints && widget.tool != EditorTool.selection) {
+    if (!_multiTouch && !_moved && !_paints && widget.tool != EditorTool.selection) {
       final CellPosition? cell = _cellAt(e.localPosition);
       if (cell != null) widget.onTap(cell);
     }

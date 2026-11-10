@@ -133,6 +133,34 @@ void main() {
     await finish(tester);
   });
 
+  testWidgets('два пальца (зум) не оставляют точку и не запускают заливку', (tester) async {
+    await pumpEditor(tester);
+    final Offset center = tester.getCenter(find.byType(EditorCanvas));
+
+    final TestGesture a = await tester.startGesture(center - const Offset(20, 0), pointer: 1);
+    final TestGesture b = await tester.startGesture(center + const Offset(20, 0), pointer: 2);
+    await a.moveTo(center - const Offset(60, 0));
+    await b.moveTo(center + const Offset(60, 0));
+    await a.up();
+    await b.up();
+    await tester.pump();
+    expect(grid().cells.every((v) => v == 0), isTrue);
+    expect(cubit.state.canUndo, isFalse);
+
+    await tester.ensureVisible(find.byKey(const ValueKey<String>('tool-fill')));
+    await tester.tap(find.byKey(const ValueKey<String>('tool-fill')));
+    await tester.pump();
+    final TestGesture c = await tester.startGesture(center - const Offset(20, 0), pointer: 3);
+    final TestGesture d = await tester.startGesture(center + const Offset(20, 0), pointer: 4);
+    await c.moveTo(center - const Offset(60, 0));
+    await d.moveTo(center + const Offset(60, 0));
+    await c.up();
+    await d.up();
+    await tester.pump();
+    expect(grid().cells.every((v) => v == 0), isTrue);
+    await finish(tester);
+  });
+
   testWidgets('отмена и повтор мазка кнопками', (tester) async {
     await pumpEditor(tester);
     await tester.tapAt(tester.getCenter(find.byType(EditorCanvas)));

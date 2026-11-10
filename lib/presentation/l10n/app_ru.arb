@@ -499,5 +499,9 @@
   "colorSheetDelete": "Удалить цвет из палитры",
   "@colorSheetDelete": {"description": "Кнопка удаления цвета"},
   "colorSheetDeleteHint": "Бусины этого цвета на схеме станут пустыми.",
-  "@colorSheetDeleteHint": {"description": "Пояснение к удалению цвета"}
+  "@colorSheetDeleteHint": {"description": "Пояснение к удалению цвета"},
+  "newGridBeadDelica": "Delica",
+  "@newGridBeadDelica": {"description": "Название типа бисера: цилиндрический Miyuki Delica"},
+  "newGridBeadRocaille": "Рокайль",
+  "@newGridBeadRocaille": {"description": "Название типа бисера: круглый рокайль"}
 }
