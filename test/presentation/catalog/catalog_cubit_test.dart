@@ -183,6 +183,17 @@ void main() {
     expect(cubit.state.colors, <CatalogColor>[rocaille]);
   });
 
+  test('вкладка с одноимённой серией другого бренда не показывает чужие цвета', () async {
+    final CatalogColor other = catalogColor('X1', 'Other', '#123456', brand: 'Other');
+    catalog = FakeCatalogRepository(<CatalogColor>[red, other]);
+    final CatalogCubit cubit = make(useBrandSetting: false);
+    await cubit.start();
+
+    await cubit.selectTab(cubit.state.tabs.first);
+
+    expect(cubit.state.colors, <CatalogColor>[red]);
+  });
+
   test('настройка бренда не перебивает вкладку, выбранную до ответа настройки и при «Повторить»', () async {
     settings.values[SettingKeys.defaultBeadBrand.name] = 'Toho';
     final CatalogCubit cubit = make();

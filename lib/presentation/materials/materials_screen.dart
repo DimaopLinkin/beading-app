@@ -223,14 +223,16 @@ class _ReserveSwitch extends StatelessWidget {
         SizedBox(height: tokens.spacing.m),
         if (MediaQuery.textScalerOf(context).scale(1) > 1.3)
           // Крупный шрифт: подписи сегментов не помещаются, вместо них выключатель.
-          Row(
-            children: <Widget>[
-              Expanded(child: Text(l10n.materialsReserveWith(format.reservePercent), style: base)),
-              CupertinoSwitch(
-                value: state.withReserve,
-                onChanged: (value) => context.read<MaterialsCubit>().setWithReserve(value: value),
-              ),
-            ],
+          MergeSemantics(
+            child: Row(
+              children: <Widget>[
+                Expanded(child: Text(l10n.materialsReserveWith(format.reservePercent), style: base)),
+                CupertinoSwitch(
+                  value: state.withReserve,
+                  onChanged: (value) => context.read<MaterialsCubit>().setWithReserve(value: value),
+                ),
+              ],
+            ),
           )
         else
           CupertinoSlidingSegmentedControl<bool>(

@@ -173,7 +173,9 @@ class CatalogCubit extends Cubit<CatalogState> {
         emit(
           state.copyWith(
             status: CatalogStatus.ready,
-            colors: tab == null ? value : value.where((c) => c.series == tab.series).toList(growable: false),
+            colors: tab == null
+                ? value
+                : value.where((c) => c.brand == tab.brand && c.series == tab.series).toList(growable: false),
           ),
         );
       case Err<List<CatalogColor>>():
