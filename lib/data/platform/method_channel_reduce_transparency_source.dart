@@ -7,7 +7,7 @@ import 'package:flutter/services.dart';
 ///
 /// Dart → платформа: `isReduceTransparencyEnabled` → `bool`.
 /// Платформа → Dart: `reduceTransparencyChanged` с `bool` при смене настройки.
-/// Нативная часть: `ios/Runner/AppDelegate.swift` и `macos/Runner/AppDelegate.swift`.
+/// Нативная часть: `ios/Runner/AppDelegate.swift` и `macos/Runner/MainFlutterWindow.swift`.
 class MethodChannelReduceTransparencySource implements ReduceTransparencySource {
   MethodChannelReduceTransparencySource({MethodChannel? channel}) : _channel = channel ?? const MethodChannel(name) {
     _channel.setMethodCallHandler(_onCall);

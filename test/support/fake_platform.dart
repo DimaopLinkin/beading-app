@@ -68,7 +68,7 @@ WakelockController fakeWakelockController([FakeScreenWakeLock? lock, FakeKeepScr
 class FakeReduceTransparencySource implements ReduceTransparencySource {
   FakeReduceTransparencySource({this.initial = false});
 
-  final bool initial;
+  bool initial;
   final StreamController<bool> controller = StreamController<bool>.broadcast();
 
   @override

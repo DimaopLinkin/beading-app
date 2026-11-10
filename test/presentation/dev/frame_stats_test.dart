@@ -14,12 +14,12 @@ void main() {
     expect(s.countOver(8.3), 0);
   });
 
-  test('кадр = сборка + растеризация', () {
+  test('кадр = большее из сборки и растеризации', () {
     final FrameStats s = stats()..add(build: const Duration(milliseconds: 3), raster: const Duration(milliseconds: 5));
 
     expect(s.frames, 1);
-    expect(s.averageMs, 8);
-    expect(s.worstMs, 8);
+    expect(s.averageMs, 5);
+    expect(s.worstMs, 5);
   });
 
   test('среднее, худший и превышения бюджета', () {

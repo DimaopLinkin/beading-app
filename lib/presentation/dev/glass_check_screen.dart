@@ -31,6 +31,7 @@ class _GlassCheckScreenState extends State<GlassCheckScreen> with SingleTickerPr
     ..repeat();
   final FrameStats _stats = FrameStats();
   bool _running = true;
+  final Stopwatch _sinceRefresh = Stopwatch()..start();
 
   @override
   void initState() {
@@ -52,7 +53,11 @@ class _GlassCheckScreenState extends State<GlassCheckScreen> with SingleTickerPr
     for (final ui.FrameTiming t in timings) {
       _stats.add(build: t.buildDuration, raster: t.rasterDuration);
     }
-    setState(() {});
+    // Не чаще раза в полсекунды: частая перерисовка самих цифр искажала бы измеряемые кадры.
+    if (_sinceRefresh.elapsedMilliseconds >= 500) {
+      _sinceRefresh.reset();
+      setState(() {});
+    }
   }
 
   void _togglePause() {

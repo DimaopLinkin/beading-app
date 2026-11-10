@@ -17,7 +17,7 @@ source scripts/release_common.sh
 
 while (($#)); do
   case "$1" in
-    -h|--help) sed -n '2,13p' "$0"; exit 0 ;;
+    -h|--help) sed -n '2,12p' "$0"; exit 0 ;;
     *) die "неизвестный аргумент '$1'" ;;
   esac
 done
@@ -34,11 +34,12 @@ out=build/release/macos
 archive="$out/beading.xcarchive"
 app="$out/export/beading.app"
 dmg_name="biser-${BUILD_NAME}+${BUILD_NUMBER}${SUFFIX}.dmg"
-rm -rf "$out"; mkdir -p "$out"
+[[ "${DRY_RUN:-0}" == 1 ]] || { rm -rf "$out"; mkdir -p "$out"; }
 
 run flutter build macos --release --config-only --build-name "$BUILD_NAME" --build-number "$BUILD_NUMBER"
 run xcodebuild -workspace macos/Runner.xcworkspace -scheme Runner -configuration Release \
-  -archivePath "$archive" -allowProvisioningUpdates DEVELOPMENT_TEAM="$TEAM_ID" archive
+  -archivePath "$archive" -allowProvisioningUpdates DEVELOPMENT_TEAM="$TEAM_ID" \
+  CODE_SIGN_STYLE=Automatic CODE_SIGN_IDENTITY="Apple Development" archive
 
 render_export_options macos/ExportOptions-DeveloperID.plist "$out/ExportOptions.plist"
 run xcodebuild -exportArchive -archivePath "$archive" -exportPath "$out/export" \

@@ -74,7 +74,11 @@ Future<void> configureDependencies({GetIt? locator, AppDatabase? database}) asyn
     ..registerLazySingleton<ScreenWakeLock>(WakelockPlusScreenWakeLock.new)
     ..registerLazySingleton<ReduceTransparencySource>(
       MethodChannelReduceTransparencySource.new,
-      dispose: (source) => (source as MethodChannelReduceTransparencySource).dispose(),
+      dispose: (source) async {
+        if (source is MethodChannelReduceTransparencySource) {
+          await source.dispose();
+        }
+      },
     )
     ..registerLazySingleton<KeepScreenAwakeSetting>(
       () => RepositoryKeepScreenAwakeSetting(container<SettingsRepository>()),

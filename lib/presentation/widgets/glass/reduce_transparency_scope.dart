@@ -15,13 +15,14 @@ class ReduceTransparencyScope extends StatefulWidget {
   State<ReduceTransparencyScope> createState() => _ReduceTransparencyScopeState();
 }
 
-class _ReduceTransparencyScopeState extends State<ReduceTransparencyScope> {
+class _ReduceTransparencyScopeState extends State<ReduceTransparencyScope> with WidgetsBindingObserver {
   bool _reduce = false;
   StreamSubscription<bool>? _subscription;
 
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     _bind();
   }
 
@@ -30,7 +31,16 @@ class _ReduceTransparencyScopeState extends State<ReduceTransparencyScope> {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.source != widget.source) {
       unawaited(_subscription?.cancel());
+      _reduce = false;
       _bind();
+    }
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    // Настройку могли сменить, пока приложение было в фоне, а нативная сторона могла ответить «нет» слишком рано.
+    if (state == AppLifecycleState.resumed) {
+      unawaited(widget.source.current().then(_set));
     }
   }
 
@@ -59,6 +69,7 @@ class _ReduceTransparencyScopeState extends State<ReduceTransparencyScope> {
 
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     unawaited(_subscription?.cancel());
     super.dispose();
   }

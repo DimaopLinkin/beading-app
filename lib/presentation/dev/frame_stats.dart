@@ -1,6 +1,9 @@
 import 'dart:collection';
 
-/// Скользящая статистика времени кадров для экрана проверки стекла: сборка + растеризация, в миллисекундах.
+/// Скользящая статистика времени кадров для экрана проверки стекла, в миллисекундах.
+///
+/// Потоки UI и растеризации работают конвейером, бюджет кадра относится к каждому из них отдельно, поэтому время
+/// кадра — большее из двух (build, raster).
 class FrameStats {
   FrameStats({this.capacity = 600}) : assert(capacity > 0, 'capacity должен быть положительным');
 
@@ -15,7 +18,8 @@ class FrameStats {
 
   void add({required Duration build, required Duration raster}) {
     _total++;
-    _window.addLast((build + raster).inMicroseconds / 1000);
+    final Duration frame = build > raster ? build : raster;
+    _window.addLast(frame.inMicroseconds / 1000);
     if (_window.length > capacity) {
       _window.removeFirst();
     }

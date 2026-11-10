@@ -55,5 +55,6 @@ check_release_source() {
 
 # render_export_options <шаблон> <куда> — подставляет Team ID.
 render_export_options() {
+  if [[ "${DRY_RUN:-0}" == 1 ]]; then echo "+ render $1 -> $2"; return 0; fi
   sed "s/__TEAM_ID__/${TEAM_ID}/g" "$1" > "$2"
 }

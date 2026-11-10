@@ -16,7 +16,7 @@ device=""
 while (($#)); do
   case "$1" in
     --install) device="${2:?после --install нужен UDID или имя устройства}"; shift 2 ;;
-    -h|--help) sed -n '2,10p' "$0"; exit 0 ;;
+    -h|--help) sed -n '2,9p' "$0"; exit 0 ;;
     *) die "неизвестный аргумент '$1'" ;;
   esac
 done
@@ -30,7 +30,7 @@ check_release_source
 out=build/release/ios
 archive="$out/beading.xcarchive"
 ipa_name="biser-${BUILD_NAME}+${BUILD_NUMBER}-adhoc${SUFFIX}.ipa"
-rm -rf "$out"; mkdir -p "$out"
+[[ "${DRY_RUN:-0}" == 1 ]] || { rm -rf "$out"; mkdir -p "$out"; }
 
 run flutter build ios --release --config-only --no-codesign --build-name "$BUILD_NAME" --build-number "$BUILD_NUMBER"
 run xcodebuild -workspace ios/Runner.xcworkspace -scheme Runner -configuration Release \

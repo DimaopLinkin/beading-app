@@ -87,4 +87,30 @@ void main() {
 
     expect(source.controller.hasListener, isFalse);
   });
+
+  testWidgets('при возврате из фона значение читается заново', (tester) async {
+    final FakeReduceTransparencySource source = FakeReduceTransparencySource();
+    await tester.pumpWidget(app(source));
+    await tester.pump();
+    expect(opaque, isFalse);
+
+    source.initial = true;
+    tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.inactive);
+    tester.binding.handleAppLifecycleStateChanged(AppLifecycleState.resumed);
+    await tester.idle();
+    await tester.pump();
+
+    expect(opaque, isTrue);
+  });
+
+  testWidgets('при замене источника старое значение сбрасывается', (tester) async {
+    await tester.pumpWidget(app(FakeReduceTransparencySource(initial: true)));
+    await tester.pump();
+    expect(opaque, isTrue);
+
+    await tester.pumpWidget(app(FakeReduceTransparencySource()));
+    await tester.pump();
+
+    expect(opaque, isFalse);
+  });
 }
