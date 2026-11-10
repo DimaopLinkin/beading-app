@@ -18,4 +18,13 @@ void main() {
     expect(registry.entriesFor(Craft.crossStitch), hasLength(1));
     expect(registry.entriesFor(Craft.beading).any((e) => e.id == 'image-to-grid-beading'), isTrue);
   });
+
+  test('«Узор по шаблону» есть только у бисера: цвета и геометрия пока бисерные', () {
+    final NewProjectRegistry registry = NewProjectRegistry();
+
+    registerLibraryEntries(registry);
+
+    expect(registry.entriesFor(Craft.beading).map((e) => e.id), contains('pattern-template'));
+    expect(registry.entriesFor(Craft.crossStitch).map((e) => e.id), isNot(contains('pattern-template')));
+  });
 }

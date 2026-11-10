@@ -28,6 +28,8 @@ import 'package:beading/presentation/library/new_project_entry.dart';
 import 'package:beading/presentation/library/project_thumbnail_provider.dart';
 import 'package:beading/presentation/materials/materials_cubit.dart';
 import 'package:beading/presentation/materials/materials_screen.dart';
+import 'package:beading/presentation/pattern_template/pattern_template_cubit.dart';
+import 'package:beading/presentation/pattern_template/pattern_template_screen.dart';
 import 'package:beading/presentation/settings/about_screen.dart';
 import 'package:beading/presentation/settings/hidden_settings_screen.dart';
 import 'package:beading/presentation/settings/settings_screen.dart';
@@ -46,6 +48,9 @@ abstract final class AppRoutes {
 
   /// «Схема из книги». Закрывается с id созданного проекта.
   static const String importBook = ImportBookScreen.routePath;
+
+  /// «Узор по шаблону». Закрывается с id созданного проекта.
+  static const String patternTemplate = PatternTemplateScreen.routePath;
 
   /// Плетение по своей схеме (T19).
   static String weave(String projectId) => WeaveScreen.locationFor(projectId);
@@ -148,6 +153,13 @@ GoRouter createRouter({bool showDeveloperTools = !kReleaseMode}) => GoRouter(
       builder: (_, _) => BlocProvider<ImageWizardCubit>(
         create: (_) => getIt<ImageWizardCubit>()..start(),
         child: const ImageWizardScreen(),
+      ),
+    ),
+    GoRoute(
+      path: AppRoutes.patternTemplate,
+      builder: (_, _) => BlocProvider<PatternTemplateCubit>(
+        create: (_) => getIt<PatternTemplateCubit>()..start(),
+        child: const PatternTemplateScreen(),
       ),
     ),
     GoRoute(

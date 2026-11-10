@@ -41,6 +41,7 @@ import 'package:beading/domain/sharing/text_sharer.dart';
 import 'package:beading/presentation/catalog/catalog_cubit.dart';
 import 'package:beading/presentation/image_to_grid/image_wizard_cubit.dart';
 import 'package:beading/presentation/materials/materials_cubit.dart';
+import 'package:beading/presentation/pattern_template/pattern_template_cubit.dart';
 import 'package:beading/presentation/settings/settings_cubit.dart';
 import 'package:beading/presentation/theme/theme_mode_cubit.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -85,6 +86,7 @@ void main() {
     expect(locator<FindSimilarColors>(), isA<FindSimilarColors>());
     expect(locator<LoadProjectMaterials>(), isA<LoadProjectMaterials>());
     expect(locator<CatalogCubit>(), isA<CatalogCubit>());
+    expect(locator<PatternTemplateCubit>(), isA<PatternTemplateCubit>());
     expect(locator<ImageWizardCubit>(), isA<ImageWizardCubit>());
     expect(locator<MaterialsCubit>(param1: 'proj-1'), isA<MaterialsCubit>());
   });

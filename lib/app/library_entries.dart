@@ -60,4 +60,21 @@ void registerLibraryEntries(NewProjectRegistry registry) {
       },
     ),
   );
+
+  // Узор по готовому шаблону: бисер; после сохранения проект открывается в редакторе.
+  registry.register(
+    NewProjectEntry(
+      id: 'pattern-template',
+      craft: Craft.beading,
+      order: 40,
+      title: (l10n) => l10n.templateEntryTitle,
+      icon: AppIcons.template,
+      onSelected: (context) async {
+        final String? projectId = await context.push<String>(AppRoutes.patternTemplate);
+        if (projectId != null && context.mounted) {
+          await context.push<void>(AppRoutes.editor(projectId));
+        }
+      },
+    ),
+  );
 }
