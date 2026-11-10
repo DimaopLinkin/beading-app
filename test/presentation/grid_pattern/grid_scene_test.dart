@@ -56,4 +56,21 @@ void main() {
       }
     }
   });
+
+  test('rowBounds верен для пейота с большим drop', () {
+    final GridScene scene = GridScene(geometry: const GridGeometry.peyote(drop: 4), metrics: wide, columns: 6, rows: 3);
+    final Rect bounds = scene.rowBounds(1);
+    for (int column = 0; column < 6; column++) {
+      final Rect cell = scene.cellRect(CellPosition(column, 1));
+      expect(bounds.top <= cell.top && bounds.bottom >= cell.bottom, isTrue, reason: 'столбец $column');
+    }
+  });
+
+  test('rowPath ступенчатого ряда не заходит на соседний ряд', () {
+    final GridScene scene = GridScene(geometry: const GridGeometry.peyote(), metrics: wide, columns: 4, rows: 4);
+    final Rect cell = scene.cellRect(const CellPosition(0, 2));
+    final Path path = scene.rowPath(2);
+    expect(path.contains(cell.center), isTrue);
+    expect(path.contains(scene.cellRect(const CellPosition(0, 3)).center), isFalse);
+  });
 }

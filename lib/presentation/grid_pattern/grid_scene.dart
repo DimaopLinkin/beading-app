@@ -73,12 +73,32 @@ final class GridScene {
 
   /// Охватывающий прямоугольник ряда (в пейоте и кирпиче ряд ступенчатый, прямоугольник покрывает его целиком).
   Rect rowBounds(int row) {
-    Rect bounds = cellRect(CellPosition(0, row));
-    // Достаточно первых ячеек: сдвиг геометрий периодичен, а крайние ячейки ряда дают границы по другой оси.
-    final int probe = math.min(columns, 4);
-    for (int column = 1; column < probe; column++) {
-      bounds = bounds.expandToInclude(cellRect(CellPosition(column, row)));
+    // Сдвиг геометрий периодичен: хватает первой ячейки, первой сдвинутой и последней.
+    final GridGeometry g = geometry;
+    final Set<int> probes = <int>{
+      0,
+      if (columns > 1) 1,
+      columns - 1,
+      if (g is PeyoteGeometry) math.min(columns - 1, g.drop),
+    };
+    Rect? bounds;
+    for (final int column in probes) {
+      final Rect cell = cellRect(CellPosition(column, row));
+      bounds = bounds == null ? cell : bounds.expandToInclude(cell);
     }
-    return bounds.expandToInclude(cellRect(CellPosition(columns - 1, row)));
+    return bounds!;
+  }
+
+  /// Контур ряда: прямоугольник для ровных рядов и ступенчатый путь по ячейкам для пейота и кирпичного стежка.
+  ///
+  /// С [outline] ячейки объединяются в один контур (для обводки); без него — просто набор прямоугольников (для заливки).
+  Path rowPath(int row, {bool outline = false}) {
+    if (geometry is RectangularGeometry) return Path()..addRect(rowBounds(row));
+    Path path = Path();
+    for (int column = 0; column < columns; column++) {
+      final Path cell = Path()..addRect(cellRect(CellPosition(column, row)));
+      path = outline ? Path.combine(PathOperation.union, path, cell) : (path..addPath(cell, Offset.zero));
+    }
+    return path;
   }
 }

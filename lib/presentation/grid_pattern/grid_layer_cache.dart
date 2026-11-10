@@ -104,14 +104,15 @@ final class GridLayerCache {
       picture.dispose();
     }
     _blocks.clear();
-  }
-
-  void dispose() {
-    invalidate();
+    // Знаки рассчитаны под размер ячейки: после смены раскладки их считаем заново.
     for (final TextPainter painter in _symbols.values) {
       painter.dispose();
     }
     _symbols.clear();
+  }
+
+  void dispose() {
+    invalidate();
   }
 
   /// Рисует блоки, пересекающие [visible] (прямоугольник в сцене).

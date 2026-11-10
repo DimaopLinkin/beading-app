@@ -1,6 +1,7 @@
 import 'dart:math' as math;
 
 import 'package:beading/domain/grid/cell_position.dart';
+import 'package:beading/domain/grid/grid_geometry.dart';
 import 'package:beading/presentation/grid_pattern/grid_colors.dart';
 import 'package:beading/presentation/grid_pattern/grid_scene.dart';
 import 'package:beading/presentation/grid_pattern/grid_view_options.dart';
@@ -31,6 +32,22 @@ class GridOverlayPainter extends CustomPainter {
     canvas.drawRRect(RRect.fromRectAndRadius(rect.inflate(width * 0.5), Radius.circular(radius)), inner);
   }
 
+  /// То же двойное кольцо вдоль произвольного контура (ступенчатый ряд пейота и кирпича).
+  static void paintDoubleRingPath(Canvas canvas, Path path, {required double width}) {
+    final Paint outer = Paint()
+      ..style = PaintingStyle.stroke
+      ..strokeJoin = StrokeJoin.round
+      ..strokeWidth = width * 3
+      ..color = GridColors.ringOuter;
+    final Paint inner = Paint()
+      ..style = PaintingStyle.stroke
+      ..strokeJoin = StrokeJoin.round
+      ..strokeWidth = width
+      ..color = GridColors.ringInner;
+    canvas.drawPath(path, outer);
+    canvas.drawPath(path, inner);
+  }
+
   @override
   void paint(Canvas canvas, Size size) {
     final double shortSide = math.min(scene.cellSize.width, scene.cellSize.height);
@@ -39,19 +56,32 @@ class GridOverlayPainter extends CustomPainter {
 
     // Пройденные ряды: подряд идущие сливаем в один прямоугольник.
     final List<int> done = options.doneRows.where((r) => r >= 0 && r < scene.rows && r != current).toList()..sort();
-    int i = 0;
-    while (i < done.length) {
-      int j = i;
-      while (j + 1 < done.length && done[j + 1] == done[j] + 1) {
-        j++;
+    if (scene.geometry is RectangularGeometry) {
+      int i = 0;
+      while (i < done.length) {
+        int j = i;
+        while (j + 1 < done.length && done[j + 1] == done[j] + 1) {
+          j++;
+        }
+        canvas.drawRect(scene.rowBounds(done[i]).expandToInclude(scene.rowBounds(done[j])), veilPaint);
+        i = j + 1;
       }
-      canvas.drawRect(scene.rowBounds(done[i]).expandToInclude(scene.rowBounds(done[j])), veilPaint);
-      i = j + 1;
+    } else {
+      // Ступенчатые ряды: вуаль ровно по ячейкам, не заходя на соседний ряд.
+      final Path veilPath = Path();
+      for (final int row in done) {
+        veilPath.addPath(scene.rowPath(row), Offset.zero);
+      }
+      canvas.drawPath(veilPath, veilPaint);
     }
 
     if (current != null && current >= 0 && current < scene.rows) {
-      final Rect bounds = scene.rowBounds(current);
-      paintDoubleRing(canvas, bounds, width: math.max(1.5, shortSide * 0.09), radius: shortSide * 0.3);
+      final double ringWidth = math.max(1.5, shortSide * 0.09);
+      if (scene.geometry is RectangularGeometry) {
+        paintDoubleRing(canvas, scene.rowBounds(current), width: ringWidth, radius: shortSide * 0.3);
+      } else {
+        paintDoubleRingPath(canvas, scene.rowPath(current, outline: true), width: ringWidth);
+      }
       if (options.markCurrentRowBeads) {
         final Paint dot = Paint()..color = GridColors.ringInner;
         final Paint halo = Paint()..color = GridColors.ringOuter;
