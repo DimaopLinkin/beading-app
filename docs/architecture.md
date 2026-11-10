@@ -30,7 +30,7 @@ presentation ──► domain ◄── data
 
 ### Структура каталогов
 
-Слой — верхний уровень, фича — внутри слоя. Так правило зависимостей проверяется простой проверкой импортов (см. `scripts/check_architecture.sh` в [workflow.md](workflow.md)).
+Слой — верхний уровень, фича — внутри слоя. Так правило зависимостей проверяется простой проверкой импортов (см. `scripts/internal/check_architecture.sh` в [workflow.md](workflow.md)).
 
 ```text
 lib/

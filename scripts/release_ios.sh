@@ -9,8 +9,8 @@
 # Результат: build/release/biser-<версия>+<сборка>-adhoc[-dev].ipa
 set -euo pipefail
 cd "$(dirname "$0")/.."
-# shellcheck source=scripts/release_common.sh
-source scripts/release_common.sh
+# shellcheck source=scripts/internal/release_common.sh
+source scripts/internal/release_common.sh
 
 device=""
 while (($#)); do

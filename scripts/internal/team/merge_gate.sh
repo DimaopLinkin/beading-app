@@ -2,9 +2,9 @@
 # Можно ли мёржить: последний раунд ревью был после последнего изменения
 # кода, в журнале нет незакрытых замечаний, есть фрагмент changelog.
 # CI проверяется отдельно (статус PR). Код выхода 0 — можно.
-# Использование: scripts/team/merge_gate.sh T05
+# Использование: scripts/internal/team/merge_gate.sh T05
 set -euo pipefail
-cd "$(dirname "$0")/../.."
+cd "$(dirname "$0")/../../.."
 id="${1:?ID задачи}"
 log="docs/review/findings/${id}.md"
 fail=0

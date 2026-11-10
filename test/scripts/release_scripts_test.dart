@@ -16,7 +16,7 @@ void main() {
     log = File('${work.path}/calls.log')..createSync();
     // Копия скриптов и шаблонов в «проект», чтобы cd "$(dirname "$0")/.." попал в песочницу.
     for (final String f in <String>[
-      'scripts/release_common.sh',
+      'scripts/internal/release_common.sh',
       'scripts/release_ios.sh',
       'scripts/release_macos.sh',
       'ios/ExportOptions-AdHoc.plist',

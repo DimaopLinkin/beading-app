@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 # Печатает раздел задачи из docs/tasks.md и действующие правила ревью.
-# Использование: scripts/team/task_brief.sh T05
+# Использование: scripts/internal/team/task_brief.sh T05
 set -euo pipefail
-cd "$(dirname "$0")/../.."
+cd "$(dirname "$0")/../../.."
 id="${1:?ID задачи}"
 
 section=$(awk -v id="$id" '

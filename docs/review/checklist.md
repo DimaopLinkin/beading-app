@@ -3,7 +3,7 @@
 Ревьюер проходит каждый пункт. Категория замечания — код в скобках.
 
 ## Архитектура (`arch`)
-- Импорты соблюдают направление слоёв (см. [../architecture.md](../architecture.md)); `scripts/check_architecture.sh` чистый.
+- Импорты соблюдают направление слоёв (см. [../architecture.md](../architecture.md)); `scripts/internal/check_architecture.sh` чистый.
 - Use case делает одно дело; бизнес-логика не живёт в виджетах и Cubit.
 - Новые зависимости регистрируются только в `lib/app/di.dart`.
 

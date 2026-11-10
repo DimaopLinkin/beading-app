@@ -2,10 +2,10 @@ import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
 
-/// Запускает scripts/check_architecture.sh на временной фикстуре проекта.
+/// Запускает scripts/internal/check_architecture.sh на временной фикстуре проекта.
 void main() {
   late Directory fixture;
-  final String script = '${Directory.current.path}/scripts/check_architecture.sh';
+  final String script = '${Directory.current.path}/scripts/internal/check_architecture.sh';
 
   setUp(() {
     fixture = Directory.systemTemp.createTempSync('arch_fixture_');

@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 # Начинает задачу: ветка от свежего dev, фрагмент changelog, журнал ревью.
-# Использование: scripts/team/task_start.sh T05 library
+# Использование: scripts/internal/team/task_start.sh T05 library
 set -euo pipefail
-cd "$(dirname "$0")/../.."
+cd "$(dirname "$0")/../../.."
 id="${1:?ID задачи, например T05}"; slug="${2:?slug ветки, например library}"
 
 git fetch -q origin dev

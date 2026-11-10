@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // Рисует иконки iOS и macOS из docs/design/app_icon.svg по размерам из Contents.json.
-// Запуск: node scripts/make_app_icons.js   (нужен пакет playwright с Chromium).
+// Запуск: node tool/make_app_icons.js   (нужен пакет playwright с Chromium).
 // iOS: квадрат без прозрачности, маску накладывает система. macOS: скруглённая плитка с полями и прозрачными углами.
 const fs = require('fs');
 const path = require('path');
