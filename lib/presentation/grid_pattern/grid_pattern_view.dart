@@ -87,6 +87,7 @@ class _GridPatternViewState extends State<GridPatternView> {
   @override
   void didUpdateWidget(GridPatternView oldWidget) {
     super.didUpdateWidget(oldWidget);
+    if (oldWidget.controller != widget.controller) _fitted = false;
     if (oldWidget.geometry != widget.geometry ||
         oldWidget.metrics != widget.metrics ||
         oldWidget.grid.width != widget.grid.width ||
@@ -157,6 +158,7 @@ class _GridPatternViewState extends State<GridPatternView> {
                       controller: _controller,
                       viewportSize: viewport,
                       revision: _revision,
+                      wholeScene: !widget.interactive,
                     ),
                   ),
                 ),

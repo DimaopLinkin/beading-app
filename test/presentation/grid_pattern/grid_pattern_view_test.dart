@@ -191,4 +191,26 @@ void main() {
     final GridBasePainter second = _basePainter(tester);
     expect(second.shouldRepaint(first), isFalse);
   });
+
+  testWidgets('неинтерактивный вид строит всю схему, а не окно', (tester) async {
+    final GridLayerCache cache = GridLayerCache();
+    addTearDown(cache.dispose);
+    await pumpGlass(
+      tester,
+      SizedBox(
+        width: 360,
+        height: 640,
+        child: GridPatternView(
+          grid: sampleGrid(width: 100, height: 400),
+          palette: samplePalette(),
+          geometry: const GridGeometry.rectangular(),
+          metrics: BeadSize.delica11,
+          interactive: false,
+          layerCache: cache,
+        ),
+      ),
+    );
+    // 100×400 ячеек = 4×13 блоков по 32.
+    expect(cache.buildCount, 4 * 13);
+  });
 }
