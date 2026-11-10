@@ -348,17 +348,26 @@ void main() {
         ]),
       );
 
-      final Stopwatch save = Stopwatch()..start();
-      final bool saved = (await repository.save(big)).isSuccess;
-      save.stop();
-      final Stopwatch load = Stopwatch()..start();
-      final GridPattern? loaded = (await repository.getByProject('proj-1')).valueOrNull;
-      load.stop();
+      // Единственное место с настоящим временем: берём медиану пяти прогонов после разогрева,
+      // чтобы один медленный запуск на общем CI не ронял тест.
+      expect((await repository.save(big)).isSuccess, isTrue);
+      final List<int> saves = <int>[];
+      final List<int> loads = <int>[];
+      GridPattern? loaded;
+      for (int i = 0; i < 5; i++) {
+        final Stopwatch save = Stopwatch()..start();
+        await repository.save(big);
+        saves.add(save.elapsedMilliseconds);
+        final Stopwatch load = Stopwatch()..start();
+        loaded = (await repository.getByProject('proj-1')).valueOrNull;
+        loads.add(load.elapsedMilliseconds);
+      }
+      saves.sort();
+      loads.sort();
 
-      expect(saved, isTrue);
       expect(loaded, big);
-      expect(save.elapsedMilliseconds, lessThan(50), reason: 'сохранение ${save.elapsedMilliseconds} мс');
-      expect(load.elapsedMilliseconds, lessThan(50), reason: 'чтение ${load.elapsedMilliseconds} мс');
+      expect(saves[2], lessThan(50), reason: 'сохранение $saves мс');
+      expect(loads[2], lessThan(50), reason: 'чтение $loads мс');
     });
   });
 
