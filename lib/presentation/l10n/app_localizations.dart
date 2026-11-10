@@ -1056,6 +1056,282 @@ abstract class AppLocalizations {
   /// In ru, this message translates to:
   /// **'Добавить проект'**
   String get libraryAddSemantic;
+
+  /// Подпись для VoiceOver у кнопки открытия каталога в шапке библиотеки
+  ///
+  /// In ru, this message translates to:
+  /// **'Каталог цветов'**
+  String get libraryCatalogSemantic;
+
+  /// Действие над проектом: список бисера для схемы
+  ///
+  /// In ru, this message translates to:
+  /// **'Материалы'**
+  String get projectMaterials;
+
+  /// Заголовок экрана каталога бисера
+  ///
+  /// In ru, this message translates to:
+  /// **'Каталог бисера'**
+  String get catalogTitleBead;
+
+  /// Заголовок экрана каталога ниток
+  ///
+  /// In ru, this message translates to:
+  /// **'Каталог ниток'**
+  String get catalogTitleFloss;
+
+  /// Подсказка в поле поиска по каталогу
+  ///
+  /// In ru, this message translates to:
+  /// **'Артикул или название'**
+  String get catalogSearchPlaceholder;
+
+  /// Вкладка каталога без фильтра по бренду
+  ///
+  /// In ru, this message translates to:
+  /// **'Все'**
+  String get catalogAllBrands;
+
+  /// Заголовок пустого результата поиска по каталогу
+  ///
+  /// In ru, this message translates to:
+  /// **'Ничего не найдено'**
+  String get catalogEmptyTitle;
+
+  /// Подсказка при пустом результате поиска по каталогу
+  ///
+  /// In ru, this message translates to:
+  /// **'Попробуйте другой артикул или название.'**
+  String get catalogEmptyMessage;
+
+  /// Заголовок ошибки загрузки каталога
+  ///
+  /// In ru, this message translates to:
+  /// **'Не удалось открыть каталог'**
+  String get catalogLoadFailedTitle;
+
+  /// Подпись образца цвета в каталоге для VoiceOver
+  ///
+  /// In ru, this message translates to:
+  /// **'{code}, {name}'**
+  String catalogItemSemantic(String code, String name);
+
+  /// Строка «бренд, серия, размер» под названием цвета
+  ///
+  /// In ru, this message translates to:
+  /// **'{brand} {series} {size}'**
+  String catalogSeriesAndSize(String brand, String series, String size);
+
+  /// Заголовок списка похожих цветов в листе цвета
+  ///
+  /// In ru, this message translates to:
+  /// **'Похожие цвета'**
+  String get catalogSimilarTitle;
+
+  /// Список похожих цветов пуст
+  ///
+  /// In ru, this message translates to:
+  /// **'Похожих цветов не нашлось'**
+  String get catalogSimilarNone;
+
+  /// Ошибка подбора похожих цветов
+  ///
+  /// In ru, this message translates to:
+  /// **'Не удалось подобрать похожие цвета'**
+  String get catalogSimilarFailed;
+
+  /// Мера похожести цвета в процентах
+  ///
+  /// In ru, this message translates to:
+  /// **'{percent}%'**
+  String catalogSimilarityPercent(int percent);
+
+  /// Подпись похожего цвета для VoiceOver
+  ///
+  /// In ru, this message translates to:
+  /// **'{code}, {name}, похожесть {percent} процентов, {level}'**
+  String catalogSimilaritySemantic(String code, String name, int percent, String level);
+
+  /// Уровень похожести цветов: ΔE меньше 1
+  ///
+  /// In ru, this message translates to:
+  /// **'почти не отличить'**
+  String get similarityNearlyIdentical;
+
+  /// Уровень похожести цветов: ΔE меньше 3
+  ///
+  /// In ru, this message translates to:
+  /// **'очень похож'**
+  String get similarityVeryClose;
+
+  /// Уровень похожести цветов: ΔE меньше 6
+  ///
+  /// In ru, this message translates to:
+  /// **'похож'**
+  String get similarityClose;
+
+  /// Уровень похожести цветов: ΔE от 6
+  ///
+  /// In ru, this message translates to:
+  /// **'заметно отличается'**
+  String get similarityNoticeable;
+
+  /// Пометка в листе цвета каталога
+  ///
+  /// In ru, this message translates to:
+  /// **'Цвет на экране может чуть отличаться от настоящего бисера.'**
+  String get catalogColorApproximate;
+
+  /// Закрыть лист цвета
+  ///
+  /// In ru, this message translates to:
+  /// **'Закрыть'**
+  String get catalogClose;
+
+  /// Заголовок экрана материалов проекта
+  ///
+  /// In ru, this message translates to:
+  /// **'Материалы'**
+  String get materialsTitle;
+
+  /// Переключатель расчёта без запаса
+  ///
+  /// In ru, this message translates to:
+  /// **'По схеме'**
+  String get materialsReserveNone;
+
+  /// Переключатель расчёта с запасом
+  ///
+  /// In ru, this message translates to:
+  /// **'С запасом {percent}%'**
+  String materialsReserveWith(int percent);
+
+  /// Количество бусин в таблице материалов
+  ///
+  /// In ru, this message translates to:
+  /// **'{count} шт'**
+  String materialsPieces(String count);
+
+  /// Вес меньше точности показа в таблице материалов
+  ///
+  /// In ru, this message translates to:
+  /// **'< {grams} г'**
+  String materialsGramsLess(String grams);
+
+  /// Вес бусин в таблице материалов
+  ///
+  /// In ru, this message translates to:
+  /// **'{grams} г'**
+  String materialsGrams(String grams);
+
+  /// Подпись строки итогов в таблице материалов
+  ///
+  /// In ru, this message translates to:
+  /// **'Итого'**
+  String get materialsTotal;
+
+  /// Строка под заголовком материалов
+  ///
+  /// In ru, this message translates to:
+  /// **'Размер бисера: {size}'**
+  String materialsBeadSize(String size);
+
+  /// Пояснение под итогом материалов
+  ///
+  /// In ru, this message translates to:
+  /// **'Вес примерный: у разных отделок бисер весит по-разному.'**
+  String get materialsWeightHint;
+
+  /// Кнопка «Поделиться» на экране материалов
+  ///
+  /// In ru, this message translates to:
+  /// **'Поделиться списком'**
+  String get materialsShare;
+
+  /// Заголовок пустого экрана материалов
+  ///
+  /// In ru, this message translates to:
+  /// **'В схеме пока нет бусин'**
+  String get materialsEmptyTitle;
+
+  /// Подсказка пустого экрана материалов
+  ///
+  /// In ru, this message translates to:
+  /// **'Когда в схеме появятся цвета, здесь будет список.'**
+  String get materialsEmptyMessage;
+
+  /// Ошибка экрана материалов: нет размера бусины
+  ///
+  /// In ru, this message translates to:
+  /// **'Для этой схемы размер бусины не задан, поэтому материалы посчитать нельзя.'**
+  String get materialsUnsupported;
+
+  /// Заголовок ошибки экрана материалов
+  ///
+  /// In ru, this message translates to:
+  /// **'Не удалось посчитать материалы'**
+  String get materialsLoadFailedTitle;
+
+  /// Тема сообщения при «Поделиться» списком материалов
+  ///
+  /// In ru, this message translates to:
+  /// **'Материалы: {name}'**
+  String materialsShareSubject(String name);
+
+  /// Первая строка текста списка материалов
+  ///
+  /// In ru, this message translates to:
+  /// **'Материалы: {name}'**
+  String materialsShareHeader(String name);
+
+  /// Строка о размере бисера в тексте списка
+  ///
+  /// In ru, this message translates to:
+  /// **'Бисер {size}'**
+  String materialsShareBeads(String size);
+
+  /// Строка цвета в тексте списка
+  ///
+  /// In ru, this message translates to:
+  /// **'{number}. {color} — {pieces}, {grams}'**
+  String materialsShareLine(int number, String color, String pieces, String grams);
+
+  /// Строка итога в тексте списка
+  ///
+  /// In ru, this message translates to:
+  /// **'Итого: {pieces}, {grams}'**
+  String materialsShareTotal(String pieces, String grams);
+
+  /// Пояснение в тексте списка, если выбран запас
+  ///
+  /// In ru, this message translates to:
+  /// **'Количество указано с запасом {percent}%.'**
+  String materialsShareReserve(int percent);
+
+  /// Пояснение в тексте списка
+  ///
+  /// In ru, this message translates to:
+  /// **'Вес приблизительный.'**
+  String get materialsShareApprox;
+
+  /// Ошибка системного листа «Поделиться»
+  ///
+  /// In ru, this message translates to:
+  /// **'Не удалось поделиться. Попробуйте ещё раз.'**
+  String get shareFailed;
+
+  /// Форма бусины: цилиндрическая, в названии размера бисера
+  ///
+  /// In ru, this message translates to:
+  /// **'Delica'**
+  String get beadShapeDelica;
+
+  /// Форма бусины: круглая, в названии размера бисера
+  ///
+  /// In ru, this message translates to:
+  /// **'рокайль'**
+  String get beadShapeRocaille;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

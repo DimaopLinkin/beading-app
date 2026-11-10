@@ -20,6 +20,7 @@ import 'package:beading/data/image_pattern/pdfrx_pdf_rasterizer.dart';
 import 'package:beading/data/image_pattern/picker_book_image_source.dart';
 import 'package:beading/data/image_pattern/ui_image_processor.dart';
 import 'package:beading/data/platform/method_channel_reduce_transparency_source.dart';
+import 'package:beading/data/platform/share_plus_text_sharer.dart';
 import 'package:beading/data/platform/wakelock_plus_screen_wake_lock.dart';
 import 'package:beading/data/projects/drift_project_repository.dart';
 import 'package:beading/data/settings/drift_device_id_provider.dart';
@@ -27,6 +28,7 @@ import 'package:beading/data/settings/drift_settings_repository.dart';
 import 'package:beading/data/settings/package_info_app_info_provider.dart';
 import 'package:beading/data/settings/repository_keep_screen_awake_setting.dart';
 import 'package:beading/domain/catalog/catalog_repository.dart';
+import 'package:beading/domain/catalog/use_cases/find_similar_colors.dart';
 import 'package:beading/domain/easter_eggs/compliment_source.dart';
 import 'package:beading/domain/easter_eggs/easter_egg_log.dart';
 import 'package:beading/domain/easter_eggs/easter_egg_policy.dart';
@@ -48,6 +50,7 @@ import 'package:beading/domain/image_pattern/image_processor.dart';
 import 'package:beading/domain/image_pattern/pdf_rasterizer.dart';
 import 'package:beading/domain/image_pattern/picked_book_file.dart';
 import 'package:beading/domain/image_pattern/use_cases/import_book_pattern.dart';
+import 'package:beading/domain/materials/use_cases/load_project_materials.dart';
 import 'package:beading/domain/projects/project_content_cleaner.dart';
 import 'package:beading/domain/projects/project_content_cloner.dart';
 import 'package:beading/domain/projects/project_repository.dart';
@@ -66,14 +69,18 @@ import 'package:beading/domain/settings/keep_screen_awake_setting.dart';
 import 'package:beading/domain/settings/reduce_transparency_source.dart';
 import 'package:beading/domain/settings/screen_wake_lock.dart';
 import 'package:beading/domain/settings/secret_tap_handler.dart';
+import 'package:beading/domain/settings/setting_keys.dart';
 import 'package:beading/domain/settings/settings_repository.dart';
 import 'package:beading/domain/settings/wakelock_controller.dart';
+import 'package:beading/domain/sharing/text_sharer.dart';
 import 'package:beading/presentation/book_work/book_work_cubit.dart';
+import 'package:beading/presentation/catalog/catalog_cubit.dart';
 import 'package:beading/presentation/easter_eggs/compliment_banner_cubit.dart';
 import 'package:beading/presentation/import_book/import_book_cubit.dart';
 import 'package:beading/presentation/library/library_cubit.dart';
 import 'package:beading/presentation/library/new_project_entry.dart';
 import 'package:beading/presentation/library/project_thumbnail_provider.dart';
+import 'package:beading/presentation/materials/materials_cubit.dart';
 import 'package:beading/presentation/settings/settings_cubit.dart';
 import 'package:beading/presentation/theme/theme_mode_cubit.dart';
 import 'package:get_it/get_it.dart';
@@ -299,6 +306,24 @@ Future<void> configureDependencies({GetIt? locator, AppDatabase? database, Catal
       () => CatalogSeeder(dao: db.catalogDao, assets: container<CatalogAssetSource>()),
     )
     ..registerLazySingleton<CatalogRepository>(() => DriftCatalogRepository(db.catalogDao))
+    ..registerFactory<FindSimilarColors>(() => FindSimilarColors(container<CatalogRepository>()))
+    ..registerFactory<CatalogCubit>(
+      () => CatalogCubit(
+        catalog: container<CatalogRepository>(),
+        findSimilar: container<FindSimilarColors>(),
+        settings: container<SettingsRepository>(),
+        brandSetting: SettingKeys.defaultBeadBrand,
+      ),
+    )
+    ..registerLazySingleton<TextSharer>(SharePlusTextSharer.new)
+    ..registerFactory<LoadProjectMaterials>(() => LoadProjectMaterials(container<GridPatternRepository>()))
+    ..registerFactoryParam<MaterialsCubit, String, void>(
+      (projectId, _) => MaterialsCubit(
+        projectId: projectId,
+        loadMaterials: container<LoadProjectMaterials>(),
+        projects: container<ProjectRepository>(),
+      ),
+    )
     ..registerFactory<ThemeModeCubit>(() => ThemeModeCubit(container<SettingsRepository>()))
     ..registerFactory<SettingsCubit>(() => SettingsCubit(container<SettingsRepository>()))
     ..registerLazySingleton<AppInfoProvider>(PackageInfoAppInfoProvider.new)
