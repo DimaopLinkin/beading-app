@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:typed_data';
 
 import 'package:beading/core/failure.dart';
@@ -274,4 +275,39 @@ void main() {
 
     expect(cubit.state.problem, ImportProblem.noPages);
   });
+
+  test('закрытие cubit во время выбора не вызывает ошибку при ответе источника', () async {
+    final Completer<Result<List<PickedBookFile>>> reply = Completer<Result<List<PickedBookFile>>>();
+    final ImportBookCubit closing = ImportBookCubit(
+      source: _SlowSource(reply),
+      rasterizer: rasterizer,
+      importBookPattern: ImportBookPattern(
+        createProject: CreateProject(
+          repository: projects,
+          ids: FakeIdGenerator(),
+          clock: FakeClock(DateTime.utc(2026)),
+        ),
+        projects: projects,
+        patterns: patterns,
+        processor: processor,
+        files: files,
+        ids: FakeIdGenerator(),
+      ),
+    );
+
+    final Future<void> pending = closing.pickPhotos();
+    await closing.close();
+    reply.complete(Success<List<PickedBookFile>>(<PickedBookFile>[_photo('a.jpg')]));
+
+    await expectLater(pending, completes);
+  });
+}
+
+class _SlowSource extends FakeBookImageSource {
+  _SlowSource(this.reply);
+
+  final Completer<Result<List<PickedBookFile>>> reply;
+
+  @override
+  Future<Result<List<PickedBookFile>>> pickPhotos() => reply.future;
 }

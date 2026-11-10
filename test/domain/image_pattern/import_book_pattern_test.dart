@@ -197,6 +197,20 @@ void main() {
       expect(files.files, hasLength(2));
     });
 
+    test('сбой сохранения обложки копии откатывает схему и файлы', () async {
+      final Project source = await imported();
+      final Project target = (await CreateProject(repository: projects, ids: ids, clock: clock)(
+        name: 'Копия',
+      )).valueOrNull!;
+      projects.failNextWrite = const StorageFailure('БД');
+
+      final Result<void> result = await cloner.clone(source: source, targetId: target.id);
+
+      expect(result.failureOrNull, isA<StorageFailure>());
+      expect(patterns.byProject[target.id], isNull);
+      expect(files.files, hasLength(2));
+    });
+
     test('у проекта без схемы нечего копировать и нечего убирать', () async {
       final Project empty = (await CreateProject(repository: projects, ids: ids, clock: clock)(
         name: 'Пусто',
