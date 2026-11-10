@@ -27,6 +27,7 @@ import 'package:beading/domain/sharing/biser/biser_models.dart';
 abstract final class BiserJson {
   static const String formatName = 'biser';
   static const String manifestPath = 'manifest.json';
+  static final RegExp _safeId = RegExp(r'^[A-Za-z0-9_-]{1,100}$');
 
   /// PNG-подпись: проверяем, что файл страницы — действительно картинка.
   static const List<int> _pngSignature = <int>[0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A];
@@ -373,7 +374,8 @@ abstract final class BiserJson {
 
   static String _id(Object? v, String what) {
     final String s = _string(v, what);
-    if (s.isEmpty || s.length > 100) {
+    // id попадают в пути файлов: только безопасные символы, никаких «/» и «..».
+    if (!_safeId.hasMatch(s)) {
       throw _BadBiser('Файл повреждён: $what записан неверно');
     }
     return s;

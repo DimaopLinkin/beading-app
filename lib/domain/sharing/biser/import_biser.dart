@@ -149,14 +149,17 @@ class ImportBiser {
     try {
       result = await _unitOfWork.run<ImportResult>(() async {
         final List<String> imported = <String>[];
+        final Set<String> occupied = await _occupiedIds();
         int skipped = 0;
         for (final BiserProject item in bundle.projects) {
           final bool exists = await _exists(item.project.id);
+          // Чужая схема, книга или страница с тем же id не должна быть перезаписана: тогда тоже новые id.
+          final bool clash = _contentIds(item).any(occupied.contains);
           if (exists && (choices[item.project.id] ?? defaultChoice) == ConflictChoice.skip) {
             skipped++;
             continue;
           }
-          final Result<String> id = await _importOne(item, bundle.files, fresh: exists, written: written);
+          final Result<String> id = await _importOne(item, bundle.files, fresh: exists || clash, written: written);
           if (id case Err<String>(:final Failure failure)) {
             return Err<ImportResult>(failure);
           }
@@ -176,6 +179,33 @@ class ImportBiser {
   }
 
   Future<bool> _exists(String id) async => (await _projects.get(id)).isSuccess;
+
+  /// id схем, книг и страниц, уже занятые живыми проектами библиотеки.
+  Future<Set<String>> _occupiedIds() async {
+    final Set<String> ids = <String>{};
+    try {
+      for (final Project project in await _projects.watchAll().first) {
+        final GridPatternSummary? grid = (await _grids.summaryByProject(project.id)).valueOrNull;
+        if (grid != null) {
+          ids.add(grid.id);
+        }
+        final ImagePattern? book = (await _images.getByProject(project.id)).valueOrNull;
+        if (book != null) {
+          ids
+            ..add(book.id)
+            ..addAll(book.pages.map((p) => p.id));
+        }
+      }
+    } on Object {
+      // Не смогли прочитать библиотеку — дальше упадёт сама запись, и импорт откатится.
+    }
+    return ids;
+  }
+
+  static Iterable<String> _contentIds(BiserProject item) => <String>[
+    ?item.grid?.id,
+    if (item.book != null) ...<String>[item.book!.patternId, ...item.book!.pages.map((p) => p.id)],
+  ];
 
   Future<Result<String>> _importOne(
     BiserProject item,

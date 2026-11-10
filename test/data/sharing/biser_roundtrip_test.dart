@@ -128,6 +128,41 @@ void main() {
     expect(await a.allProjects(), hasLength(2));
   });
 
+  test('чужая схема или страница с тем же id не перезаписывается: импорт берёт новые id', () async {
+    final BiserDevice source = BiserDevice();
+    BiserBundle bundle = randomBundle(0, projects: 1);
+    for (int seed = 1; bundle.projects.first.book == null; seed++) {
+      bundle = randomBundle(seed, projects: 1);
+    }
+    await populate(source, bundle);
+    final Uint8List bytes = await source.backupBytes();
+
+    final BiserDevice target = BiserDevice();
+    // На устройстве чужой проект с другим id, но теми же id книги и страниц, что в файле.
+    final BiserProject original = bundle.projects.first;
+    final BiserProject foreign = BiserProject(
+      project: sampleProject('other-project', kind: ContentKind.image),
+      book: original.book,
+    );
+    await populate(
+      target,
+      BiserBundle(
+        kind: bundle.kind,
+        exportedAt: bundle.exportedAt,
+        appVersion: '0',
+        projects: <BiserProject>[foreign],
+        files: bundle.files,
+      ),
+    );
+    final before = (await target.images.getByProject('other-project')).valueOrNull!;
+
+    final ImportResult result = (await target.import(bytes)).valueOrNull!;
+    expect(result.importedIds, hasLength(1));
+    expect(result.importedIds.single, isNot('other-project'));
+    final after = (await target.images.getByProject('other-project')).valueOrNull!;
+    expect(after, before);
+  });
+
   test('проект, удалённый раньше, возвращается копией с новым id', () async {
     final BiserDevice a = BiserDevice();
     await populate(a, randomBundle(9, projects: 1));

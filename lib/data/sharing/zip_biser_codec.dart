@@ -15,6 +15,9 @@ class ZipBiserCodec implements BiserCodec {
   /// Предел распакованного размера: защита от «бомбы» в чужом файле.
   static const int maxUnpackedBytes = 512 * 1024 * 1024;
 
+  /// Предел числа записей в архиве.
+  static const int maxEntries = 5000;
+
   @override
   Result<Uint8List> encode(BiserBundle bundle) {
     try {
@@ -40,6 +43,9 @@ class ZipBiserCodec implements BiserCodec {
     } on Object {
       return const Err<BiserBundle>(ValidationFailure('Файл повреждён или это не файл «Бисера»'));
     }
+    if (archive.files.length > maxEntries) {
+      return const Err<BiserBundle>(ValidationFailure('В файле слишком много записей'));
+    }
     int total = 0;
     for (final ArchiveFile file in archive.files) {
       total += file.size;
@@ -49,9 +55,15 @@ class ZipBiserCodec implements BiserCodec {
     }
     final Map<String, Uint8List> files = <String, Uint8List>{};
     String? manifest;
+    int unpacked = 0;
     try {
       for (final ArchiveFile file in archive.files.where((f) => f.isFile)) {
         final Uint8List content = Uint8List.fromList(file.content as List<int>);
+        // Размер в заголовке zip можно подделать: считаем то, что реально распаковали.
+        unpacked += content.length;
+        if (unpacked > maxUnpackedBytes) {
+          return const Err<BiserBundle>(ValidationFailure('Файл слишком большой'));
+        }
         if (file.name == BiserJson.manifestPath) {
           manifest = utf8.decode(content);
         } else {

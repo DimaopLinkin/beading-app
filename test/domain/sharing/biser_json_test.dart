@@ -116,6 +116,18 @@ void main() {
       expect(messageOf(parse(manifest, grids.files)), contains('дважды'));
     });
 
+    test('id с «/» и «..» отвергаются: он попадал бы в путь файла', () {
+      expect(
+        mutate(withBook, (p) => (p['book']! as Map<String, Object?>)['id'] = 'x/../чужая').failureOrNull,
+        isA<ValidationFailure>(),
+      );
+      expect(
+        mutate(withBook, (p) => (p['book']! as Map<String, Object?>)['id'] = '../x').failureOrNull,
+        isA<ValidationFailure>(),
+      );
+      expect(mutate(grids, (p) => p['id'] = 'a b').failureOrNull, isA<ValidationFailure>());
+    });
+
     test('пустой id и нечисловое время', () {
       expect(mutate(grids, (p) => p['id'] = '').failureOrNull, isA<ValidationFailure>());
       expect(mutate(grids, (p) => p['lastWorkedAt'] = 'вчера').failureOrNull, isA<ValidationFailure>());
