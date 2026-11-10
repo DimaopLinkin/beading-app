@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Показывает, что ждёт ревью в обмене с Claude Design.
 # Использование: scripts/design_review.sh [--remote]
-#   --remote  сначала подтянуть ветку origin/design/inbox и учесть файлы из неё
+#   --remote  сначала подтянуть ветку origin/design/* и учесть файлы из неё
 set -euo pipefail
 cd "$(dirname "$0")/.."
 
@@ -29,7 +29,9 @@ reviewed() { grep -oE '^## [0-9a-z-]+ v[0-9]+' docs/design/review-log.md | sed '
 
 sources=(.)
 if [[ "${1:-}" == "--remote" ]]; then
-  git fetch -q origin design/inbox 2>/dev/null && sources+=(origin/design/inbox) || echo "(ветки origin/design/inbox пока нет)"
+  git fetch -q origin '+refs/heads/design/*:refs/remotes/origin/design/*' 2>/dev/null || true
+  mapfile -t branches < <(git for-each-ref --format='%(refname:short)' 'refs/remotes/origin/design/*')
+  [[ ${#branches[@]} -gt 0 ]] && sources+=("${branches[@]}") || echo "(веток origin/design/* пока нет)"
 fi
 
 echo
