@@ -310,16 +310,54 @@ void main() {
     });
   });
 
-  group('все геометрии: структурные команды не зависят от раскладки', () {
+  group('все геометрии', () {
     for (final MapEntry<String, GridGeometry> e in _geometries.entries) {
-      test('${e.key}: цикл вставка/удаление и зеркало-инволюция', () {
-        final Grid g = _g(<String>['1.2', '.3.', '4.5']);
-        expect(_ok(EditorCommands.deleteColumn(_ok(EditorCommands.insertColumn(g, 1)), 1)), g);
-        expect(EditorCommands.mirrorVertical(EditorCommands.mirrorVertical(g)), g);
-        final Grid filled = EditorCommands.floodFill(g, e.value, _p(1, 1), 8);
-        expect(filled.at(1, 1), 8);
+      group(e.key, () {
+        test('1×1: заливка и стирание', () {
+          final Grid out = EditorCommands.floodFill(_g(<String>['.']), e.value, _p(0, 0), 4);
+          expect(_rows(out), <String>['4']);
+        });
+
+        test('заливка с выделением не выходит за него (чётная и нечётная ширина)', () {
+          for (final int w in <int>[4, 5]) {
+            final Grid out = EditorCommands.floodFill(
+              Grid.empty(width: w, height: 4),
+              e.value,
+              _p(1, 1),
+              6,
+              within: const CellRect(left: 1, top: 1, width: 2, height: 2),
+            );
+            expect(out.cells.where((v) => v == 6).length, 4);
+            expect(out.at(1, 1), 6);
+            expect(out.at(0, 0), 0);
+          }
+        });
+
+        test('заливка не трогает чужой цвет и недопустимое значение даёт ошибку даже вне сетки', () {
+          final Grid g = _g(<String>['1.1', '111']);
+          expect(_rows(EditorCommands.floodFill(g, e.value, _p(1, 0), 9)), <String>['191', '111']);
+          expect(() => EditorCommands.floodFill(g, e.value, _p(9, 9), 70000), throwsArgumentError);
+        });
+
+        test('вставка/удаление и зеркало работают по индексам, а не по раскладке', () {
+          final Grid g = _g(<String>['1.2', '.3.', '4.5']);
+          expect(_ok(EditorCommands.deleteColumn(_ok(EditorCommands.insertColumn(g, 1)), 1)), g);
+          expect(_ok(EditorCommands.deleteRow(_ok(EditorCommands.insertRow(g, 1)), 1)), g);
+          expect(EditorCommands.mirrorVertical(EditorCommands.mirrorVertical(g)), g);
+          expect(EditorCommands.mirrorHorizontal(g).at(0, 0), 2);
+        });
       });
     }
+
+    test('змейка через сдвинутые соседи в peyote заливается целиком', () {
+      // Диагональная цепочка пустых ячеек в стенах из 1: связна только благодаря сдвигу столбца.
+      final Grid g = _g(<String>['1.1', '..1', '111']);
+      expect(_rows(EditorCommands.floodFill(g, const GridGeometry.peyote(), _p(1, 0), 7)), <String>[
+        '171',
+        '771',
+        '111',
+      ]);
+    });
   });
 
   test('CellRect: углы в любом порядке, содержит, обрезка', () {

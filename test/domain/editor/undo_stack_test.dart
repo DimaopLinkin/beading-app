@@ -125,4 +125,16 @@ void main() {
     expect(stack.canUndo, isFalse);
     expect(stack.canRedo, isFalse);
   });
+
+  test('вложенный beginGroup остаётся одним шагом; равное состояние в группе игнорируется', () {
+    final Grid start = _empty();
+    final UndoStack stack = UndoStack(start)
+      ..beginGroup()
+      ..apply(start)
+      ..apply(_paint(start, 0, 1))
+      ..beginGroup()
+      ..apply(_paint(_paint(start, 0, 1), 1, 1));
+    stack.endGroup();
+    expect(stack.undoDepth, 2);
+  });
 }

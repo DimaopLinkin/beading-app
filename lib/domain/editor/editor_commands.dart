@@ -43,9 +43,9 @@ abstract final class EditorCommands {
   /// Заливка: заменяет на [value] связную область одного цвета от [start]; связность задаёт [geometry].
   /// С [within] область не выходит за выделение. Старт вне сетки или выделения — без изменений.
   static Grid floodFill(Grid grid, GridGeometry geometry, CellPosition start, int value, {CellRect? within}) {
+    _checkValue(value);
     if (!_inGrid(grid, start) || (within != null && !within.contains(start))) return grid;
     final int target = grid.at(start.column, start.row);
-    _checkValue(value);
     if (target == value) return grid;
     final Uint16List buffer = Uint16List.fromList(grid.cells);
     final Queue<CellPosition> queue = Queue<CellPosition>()..add(start);
