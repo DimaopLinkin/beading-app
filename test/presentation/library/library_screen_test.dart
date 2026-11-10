@@ -47,6 +47,7 @@ void main() {
     VoidCallback? onOpenSettings,
     VoidCallback? onOpenCatalog,
     void Function(BuildContext, Project)? onOpenMaterials,
+    void Function(BuildContext, Project)? onShareFile,
   }) async {
     final FakeProjectRepository source = repository;
     final LibraryCubit cubit = LibraryCubit(
@@ -76,6 +77,7 @@ void main() {
             onOpenSettings: onOpenSettings,
             onOpenCatalog: onOpenCatalog,
             onOpenMaterials: onOpenMaterials,
+            onShareFile: onShareFile,
           ),
         ),
       ),
@@ -193,6 +195,23 @@ void main() {
     coverPath: null,
     lastWorkedAt: DateTime.utc(2026),
   );
+
+  testWidgets('«Поделиться файлом» есть в меню, только если передан обработчик', (tester) async {
+    repository.projects['g'] = gridProject('g');
+    final List<String> shared = <String>[];
+    await pumpScreen(tester, onShareFile: (_, p) => shared.add(p.id));
+
+    await tester.longPress(find.text('Схема g'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.widgetWithText(CupertinoActionSheetAction, 'Поделиться файлом'));
+    await tester.pumpAndSettle();
+    expect(shared, <String>['g']);
+
+    await pumpScreen(tester);
+    await tester.longPress(find.text('Схема g'));
+    await tester.pumpAndSettle();
+    expect(find.text('Поделиться файлом'), findsNothing);
+  });
 
   testWidgets('в меню бисерной схемы есть «Материалы» и открывают материалы этого проекта', (tester) async {
     repository.projects['g'] = gridProject('g');

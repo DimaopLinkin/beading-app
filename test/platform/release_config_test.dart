@@ -45,6 +45,31 @@ void main() {
     });
   });
 
+  group('тип файла .biser (T21)', () {
+    for (final String platform in <String>['ios', 'macos']) {
+      final String plist = read('$platform/Runner/Info.plist');
+      test('$platform: тип объявлен и приложение — его владелец', () {
+        expect(plist, contains('UTExportedTypeDeclarations'));
+        expect(plist, contains('CFBundleDocumentTypes'));
+        expect(plist, contains('<string>biser</string>'));
+        expect('com.dimaoplinkin.beading.biser'.allMatches(plist), hasLength(2));
+        expect(stringValue(plist, 'LSHandlerRank'), 'Owner');
+      });
+    }
+
+    test('ios: файл копируется в приложение, а не открывается на месте', () {
+      expect(
+        RegExp(r'<key>LSSupportsOpeningDocumentsInPlace</key>\s*<false/>').hasMatch(read('ios/Runner/Info.plist')),
+        isTrue,
+      );
+    });
+
+    test('macos: нативный AppDelegate передаёт пути каналом app.beading/incoming_files', () {
+      expect(read('macos/Runner/AppDelegate.swift'), contains('app.beading/incoming_files'));
+      expect(read('macos/Runner/MainFlutterWindow.swift'), contains('incomingFiles.attach'));
+    });
+  });
+
   group('macOS entitlements', () {
     final String release = read('macos/Runner/Release.entitlements');
     final String debug = read('macos/Runner/DebugProfile.entitlements');

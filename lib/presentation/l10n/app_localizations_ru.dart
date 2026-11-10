@@ -57,6 +57,48 @@ class AppLocalizationsRu extends AppLocalizations {
   String get settingsSoon => 'Скоро';
 
   @override
+  String get settingsBackupCreate => 'Создать резервную копию';
+
+  @override
+  String get settingsRestore => 'Восстановить из файла';
+
+  @override
+  String get projectShareFile => 'Поделиться файлом';
+
+  @override
+  String get ok => 'Понятно';
+
+  @override
+  String importConfirmTitle(int count) {
+    return 'В файле проектов: $count';
+  }
+
+  @override
+  String importConflictsNote(int count) {
+    return 'Уже есть в библиотеке: $count';
+  }
+
+  @override
+  String get importAction => 'Добавить в библиотеку';
+
+  @override
+  String get importAsNew => 'Добавить как новые';
+
+  @override
+  String get importSkipExisting => 'Пропустить уже существующие';
+
+  @override
+  String get importDoneTitle => 'Готово';
+
+  @override
+  String importDoneBody(int added, int skipped) {
+    return 'Добавлено проектов: $added. Пропущено: $skipped.';
+  }
+
+  @override
+  String get transferFailedGeneric => 'Не получилось. Попробуйте ещё раз.';
+
+  @override
   String get settingsAbout => 'О приложении';
 
   @override

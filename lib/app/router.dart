@@ -33,6 +33,8 @@ import 'package:beading/presentation/pattern_template/pattern_template_screen.da
 import 'package:beading/presentation/settings/about_screen.dart';
 import 'package:beading/presentation/settings/hidden_settings_screen.dart';
 import 'package:beading/presentation/settings/settings_screen.dart';
+import 'package:beading/presentation/sharing/data_transfer_cubit.dart';
+import 'package:beading/presentation/sharing/share_origin.dart';
 import 'package:beading/presentation/weaving/weave_cubit.dart';
 import 'package:beading/presentation/weaving/weave_screen.dart';
 import 'package:flutter/foundation.dart';
@@ -89,6 +91,9 @@ GoRouter createRouter({bool showDeveloperTools = !kReleaseMode}) => GoRouter(
           onOpenSettings: () => context.push(AppRoutes.settings),
           onOpenCatalog: () => context.push(AppRoutes.catalog),
           onOpenMaterials: (context, project) => context.push(AppRoutes.materials(project.id)),
+          onShareFile: (context, project) => unawaited(
+            getIt<DataTransferCubit>().shareProject(project.id, origin: shareOriginOf(context)),
+          ),
           onOpenProject: (context, project) {
             switch (project.contentKind) {
               case ContentKind.image:
@@ -107,6 +112,7 @@ GoRouter createRouter({bool showDeveloperTools = !kReleaseMode}) => GoRouter(
       builder: (context, _) => SettingsScreen(
         onOpenAbout: () => context.push(AppRoutes.about),
         onOpenGlassCheck: showDeveloperTools ? () => context.push(AppRoutes.glassCheck) : null,
+        dataTransfer: getIt<DataTransferCubit>(),
       ),
     ),
     GoRoute(

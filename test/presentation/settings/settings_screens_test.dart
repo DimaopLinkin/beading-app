@@ -8,12 +8,14 @@ import 'package:beading/presentation/settings/about_screen.dart';
 import 'package:beading/presentation/settings/hidden_settings_screen.dart';
 import 'package:beading/presentation/settings/settings_cubit.dart';
 import 'package:beading/presentation/settings/settings_screen.dart';
+import 'package:beading/presentation/sharing/data_transfer_cubit.dart';
 import 'package:beading/presentation/theme/app_theme.dart';
 import 'package:beading/presentation/theme/theme_mode_cubit.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import '../../support/fake_biser.dart';
 import '../../support/fake_clock.dart';
 import '../../support/fake_settings_repository.dart';
 
@@ -137,6 +139,22 @@ void main() {
       await tester.pump();
 
       expect(find.text('Не удалось сохранить настройку. Попробуй ещё раз.'), findsOneWidget);
+    });
+
+    testWidgets('с резервной копией вместо «Скоро» две рабочие строки', (tester) async {
+      final FakeFileSharer sharer = FakeFileSharer();
+      final DataTransferCubit transfer = fakeDataTransfer(sharer: sharer);
+      addTearDown(transfer.close);
+      await tester.pumpWidget(wrap(SettingsScreen(onOpenAbout: () {}, dataTransfer: transfer)));
+
+      expect(find.text('Создать резервную копию'), findsOneWidget);
+      expect(find.text('Восстановить из файла'), findsOneWidget);
+      expect(find.text('Скоро'), findsOneWidget);
+
+      await tester.tap(find.byKey(const ValueKey<String>('settings-backup')));
+      await tester.pump();
+      await tester.pump();
+      expect(sharer.shared.single.fileName, startsWith('Biser-backup-'));
     });
 
     testWidgets('«О приложении» вызывает переход', (tester) async {
