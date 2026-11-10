@@ -140,6 +140,7 @@ void main() {
 
     final BuildContext context = tester.element(find.text('Мои работы'));
     expect(GlassPolicy.isOpaque(context), isTrue);
+    await unmountApp(tester);
   });
 
   testWidgets('в отладочной сборке из настроек открывается «Проверка стекла»', (tester) async {
@@ -154,5 +155,6 @@ void main() {
     await tester.pump(const Duration(seconds: 1));
 
     expect(find.text('Кадров: 0'), findsOneWidget);
+    await unmountApp(tester);
   });
 }

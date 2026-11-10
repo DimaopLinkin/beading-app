@@ -112,13 +112,12 @@ class _SwipeActionRowState extends State<SwipeActionRow> {
                 duration: _dragging ? Duration.zero : const Duration(milliseconds: 200),
                 curve: Curves.easeOut,
                 transform: Matrix4.translationValues(_offset, 0, 0),
-                child: _isOpen
-                    ? GestureDetector(
-                        behavior: HitTestBehavior.opaque,
-                        onTap: _close,
-                        child: AbsorbPointer(child: widget.child),
-                      )
-                    : widget.child,
+                // Одна и та же пара обёрток при открытой и закрытой строке: иначе карточка пересоздавалась бы.
+                child: GestureDetector(
+                  behavior: HitTestBehavior.opaque,
+                  onTap: _isOpen ? _close : null,
+                  child: AbsorbPointer(absorbing: _isOpen, child: widget.child),
+                ),
               ),
             ),
           ],
