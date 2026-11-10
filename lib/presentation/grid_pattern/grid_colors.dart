@@ -1,14 +1,7 @@
 import 'package:flutter/cupertino.dart';
 
-/// Цвета схемы поверх бусин. Значения подсветки взяты из принятого дополнения UI kit
-/// (`docs/design/accepted/01b-ui-kit-addendum`, раздел 3): двойное кольцо отличимо от любой бусины и любого фона.
+/// Цвета схемы поверх бусин. Двойное кольцо текущего ряда берётся из токена `rowRing`.
 abstract final class GridColors {
-  /// Внутреннее кольцо текущего ряда: почти чёрное.
-  static const Color ringInner = Color(0xFF151316);
-
-  /// Внешнее кольцо текущего ряда: белое.
-  static const Color ringOuter = Color(0xFFFFFFFF);
-
   /// Вуаль на пройденных рядах: цвет фона при 62% непрозрачности.
   static const CupertinoDynamicColor veil = CupertinoDynamicColor.withBrightness(
     color: Color(0x9EF7F4EF),

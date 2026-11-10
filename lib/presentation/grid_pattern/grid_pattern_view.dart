@@ -167,7 +167,12 @@ class _GridPatternViewState extends State<GridPatternView> {
                 child: IgnorePointer(
                   child: CustomPaint(
                     key: const ValueKey<String>('grid-overlay'),
-                    painter: GridOverlayPainter(scene: _scene, options: widget.options, veil: veil),
+                    painter: GridOverlayPainter(
+                      scene: _scene,
+                      options: widget.options,
+                      veil: veil,
+                      ring: context.tokens.rowRing,
+                    ),
                   ),
                 ),
               ),

@@ -2,15 +2,15 @@ import 'dart:math' as math;
 
 import 'package:beading/domain/grid/cell_position.dart';
 import 'package:beading/domain/grid/grid_geometry.dart';
-import 'package:beading/presentation/grid_pattern/grid_colors.dart';
 import 'package:beading/presentation/grid_pattern/grid_scene.dart';
 import 'package:beading/presentation/grid_pattern/grid_view_options.dart';
+import 'package:beading/presentation/theme/tokens.dart';
 import 'package:flutter/rendering.dart';
 
 /// Слой подсветки поверх ячеек: вуаль на пройденных рядах, двойное кольцо текущего ряда, метки бусин и текущая бусина.
 /// Рисуется заново при каждом изменении настроек: он дешёвый и в кеш `Picture` не входит.
 class GridOverlayPainter extends CustomPainter {
-  const GridOverlayPainter({required this.scene, required this.options, required this.veil});
+  const GridOverlayPainter({required this.scene, required this.options, required this.veil, required this.ring});
 
   final GridScene scene;
   final GridViewOptions options;
@@ -18,34 +18,51 @@ class GridOverlayPainter extends CustomPainter {
   /// Цвет вуали, уже подобранный под тему.
   final Color veil;
 
-  /// Двойное кольцо вокруг [rect]: белое снаружи, почти чёрное внутри.
-  static void paintDoubleRing(Canvas canvas, Rect rect, {required double width, required double radius}) {
-    final Paint outer = Paint()
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = width * 2
-      ..color = GridColors.ringOuter;
-    final Paint inner = Paint()
-      ..style = PaintingStyle.stroke
-      ..strokeWidth = width
-      ..color = GridColors.ringInner;
-    canvas.drawRRect(RRect.fromRectAndRadius(rect.inflate(width * 1.5), Radius.circular(radius + width)), outer);
-    canvas.drawRRect(RRect.fromRectAndRadius(rect.inflate(width * 0.5), Radius.circular(radius)), inner);
+  /// Токен двойного кольца текущего ряда.
+  final RowRingTokens ring;
+
+  /// Двойное кольцо вокруг [rect]: внутренняя линия, широкое белое кольцо и тонкая внешняя кромка (токен `rowRing`).
+  /// [width] — толщина внутренней линии; остальное по пропорциям токена.
+  static void paintDoubleRing(
+    Canvas canvas,
+    Rect rect, {
+    required RowRingTokens ring,
+    required double width,
+    required double radius,
+  }) {
+    double offset = 0;
+    void band(Color color, double w) {
+      canvas.drawRRect(
+        RRect.fromRectAndRadius(rect.inflate(offset + w / 2), Radius.circular(radius + offset + w / 2)),
+        Paint()
+          ..style = PaintingStyle.stroke
+          ..strokeWidth = w
+          ..color = color,
+      );
+      offset += w;
+    }
+
+    band(ring.inner, width);
+    band(ring.outer, width * ring.outerWidth / ring.innerWidth);
+    band(ring.inner, width * ring.edgeWidth / ring.innerWidth);
   }
 
   /// То же двойное кольцо вдоль произвольного контура (ступенчатый ряд пейота и кирпича).
-  static void paintDoubleRingPath(Canvas canvas, Path path, {required double width}) {
-    final Paint outer = Paint()
-      ..style = PaintingStyle.stroke
-      ..strokeJoin = StrokeJoin.round
-      ..strokeWidth = width * 3
-      ..color = GridColors.ringOuter;
-    final Paint inner = Paint()
-      ..style = PaintingStyle.stroke
-      ..strokeJoin = StrokeJoin.round
-      ..strokeWidth = width
-      ..color = GridColors.ringInner;
-    canvas.drawPath(path, outer);
-    canvas.drawPath(path, inner);
+  static void paintDoubleRingPath(Canvas canvas, Path path, {required RowRingTokens ring, required double width}) {
+    final double outer = width * ring.outerWidth / ring.innerWidth;
+    final double edge = width * ring.edgeWidth / ring.innerWidth;
+    void stroke(Color color, double w) => canvas.drawPath(
+      path,
+      Paint()
+        ..style = PaintingStyle.stroke
+        ..strokeJoin = StrokeJoin.round
+        ..strokeWidth = w
+        ..color = color,
+    );
+    // Линия идёт по краю бусин: слои рисуются от самого широкого к самому узкому.
+    stroke(ring.inner, width + (outer + edge) * 2);
+    stroke(ring.outer, width + outer * 2);
+    stroke(ring.inner, width);
   }
 
   @override
@@ -78,13 +95,13 @@ class GridOverlayPainter extends CustomPainter {
     if (current != null && current >= 0 && current < scene.rows) {
       final double ringWidth = math.max(1.5, shortSide * 0.09);
       if (scene.geometry is RectangularGeometry) {
-        paintDoubleRing(canvas, scene.rowBounds(current), width: ringWidth, radius: shortSide * 0.3);
+        paintDoubleRing(canvas, scene.rowBounds(current), ring: ring, width: ringWidth, radius: shortSide * 0.3);
       } else {
-        paintDoubleRingPath(canvas, scene.rowPath(current, outline: true), width: ringWidth);
+        paintDoubleRingPath(canvas, scene.rowPath(current, outline: true), ring: ring, width: ringWidth);
       }
       if (options.markCurrentRowBeads) {
-        final Paint dot = Paint()..color = GridColors.ringInner;
-        final Paint halo = Paint()..color = GridColors.ringOuter;
+        final Paint dot = Paint()..color = ring.inner;
+        final Paint halo = Paint()..color = ring.outer;
         for (int column = 0; column < scene.columns; column++) {
           final Offset c = scene.cellRect(CellPosition(column, current)).center;
           canvas.drawCircle(c, shortSide * 0.16, halo);
@@ -98,6 +115,7 @@ class GridOverlayPainter extends CustomPainter {
       paintDoubleRing(
         canvas,
         scene.cellRect(CellPosition(cell.column, cell.row)).deflate(shortSide * 0.04),
+        ring: ring,
         width: math.max(2, shortSide * 0.11),
         radius: shortSide * 0.3,
       );
@@ -106,5 +124,8 @@ class GridOverlayPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(GridOverlayPainter oldDelegate) =>
-      oldDelegate.options != options || oldDelegate.veil != veil || oldDelegate.scene != scene;
+      oldDelegate.options != options ||
+      oldDelegate.veil != veil ||
+      oldDelegate.ring != ring ||
+      oldDelegate.scene != scene;
 }
