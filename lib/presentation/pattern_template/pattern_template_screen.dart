@@ -661,6 +661,7 @@ class _StepperTile extends StatelessWidget {
         ),
       ),
     );
+    if (!context.mounted) return;
     if (chosen != value) onChanged(chosen);
   }
 }
