@@ -1,3 +1,4 @@
+import 'package:beading/presentation/l10n/app_localizations.dart';
 import 'package:beading/presentation/theme/app_theme.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -12,6 +13,8 @@ Future<void> pumpGlass(
   return tester.pumpWidget(
     CupertinoApp(
       debugShowCheckedModeBanner: false,
+      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      supportedLocales: AppLocalizations.supportedLocales,
       builder: (context, app) {
         final Widget themed = AppTheme.builder(context, app);
         return MediaQuery(

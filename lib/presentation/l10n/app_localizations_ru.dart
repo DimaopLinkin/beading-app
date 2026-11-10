@@ -348,6 +348,11 @@ class AppLocalizationsRu extends AppLocalizations {
       'Не получилось сохранить, где ты остановилась. Проверь, есть ли место на устройстве.';
 
   @override
+  String gridRowMarker(int row) {
+    return 'Ряд $row';
+  }
+
+  @override
   String get bookWorkImageFailed => 'Не получилось показать эту страницу. Попробуй открыть её ещё раз.';
 
   @override

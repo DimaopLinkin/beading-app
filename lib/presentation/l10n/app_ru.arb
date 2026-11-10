@@ -295,6 +295,11 @@
   },
   "bookWorkLoadFailed": "Схема не открылась. Закрой экран и попробуй ещё раз.",
   "bookWorkSaveFailed": "Не получилось сохранить, где ты остановилась. Проверь, есть ли место на устройстве.",
+  "gridRowMarker": "Ряд {row}",
+  "@gridRowMarker": {
+    "description": "Маркер текущего ряда сеточной схемы у левого края (номер с единицы)",
+    "placeholders": {"row": {"type": "int"}}
+  },
   "bookWorkImageFailed": "Не получилось показать эту страницу. Попробуй открыть её ещё раз.",
   "librarySearchPlaceholder": "Поиск",
   "@librarySearchPlaceholder": {"description": "Подсказка в поле поиска по проектам"},
