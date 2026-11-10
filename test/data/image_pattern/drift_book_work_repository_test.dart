@@ -76,7 +76,7 @@ void main() {
   test('повторная запись заменяет состояние, время создания остаётся', () async {
     await repository.savePage(_workA);
     clock.advance(const Duration(minutes: 5));
-    final PageWork moved = _workA.copyWith(ruler: _workA.ruler.moveUp());
+    final PageWork moved = _workA.copyWith(ruler: _workA.ruler.previous(1000));
 
     await repository.savePage(moved);
 
