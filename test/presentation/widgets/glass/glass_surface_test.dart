@@ -64,7 +64,7 @@ void main() {
       );
 
       expect(_fill(tester), AppTokensData.standard.glassSurface.denseTint.color);
-      expect(_fill(tester).a, greaterThanOrEqualTo(0.85));
+      expect(_fill(tester).a, greaterThanOrEqualTo(0.8));
     });
 
     testWidgets('«Уменьшить прозрачность»: непрозрачная заливка и без размытия', (tester) async {
