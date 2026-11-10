@@ -720,6 +720,240 @@ abstract class AppLocalizations {
   /// In ru, this message translates to:
   /// **'Не получилось показать эту страницу. Попробуй открыть её ещё раз.'**
   String get bookWorkImageFailed;
+
+  /// Подсказка в поле поиска по проектам
+  ///
+  /// In ru, this message translates to:
+  /// **'Поиск'**
+  String get librarySearchPlaceholder;
+
+  /// Кнопка и заголовок листа создания проекта
+  ///
+  /// In ru, this message translates to:
+  /// **'Новый проект'**
+  String get libraryNewProject;
+
+  /// Заголовок пустой библиотеки
+  ///
+  /// In ru, this message translates to:
+  /// **'Пока нет работ'**
+  String get libraryEmptyTitle;
+
+  /// Подсказка в пустой библиотеке
+  ///
+  /// In ru, this message translates to:
+  /// **'Нажмите «+», чтобы добавить первую схему.'**
+  String get libraryEmptyMessage;
+
+  /// Заголовок, когда поиск и фильтры ничего не оставили
+  ///
+  /// In ru, this message translates to:
+  /// **'Ничего не найдено'**
+  String get libraryNoMatchesTitle;
+
+  /// Подсказка, когда ничего не найдено
+  ///
+  /// In ru, this message translates to:
+  /// **'Попробуйте изменить запрос или сбросить фильтры.'**
+  String get libraryNoMatchesMessage;
+
+  /// Кнопка сброса поиска и фильтров
+  ///
+  /// In ru, this message translates to:
+  /// **'Сбросить фильтры'**
+  String get libraryResetFilters;
+
+  /// Заголовок ошибки загрузки списка
+  ///
+  /// In ru, this message translates to:
+  /// **'Не удалось загрузить работы'**
+  String get libraryLoadFailedTitle;
+
+  /// Кнопка повторной попытки
+  ///
+  /// In ru, this message translates to:
+  /// **'Повторить'**
+  String get libraryRetry;
+
+  /// Ремесло: бисероплетение
+  ///
+  /// In ru, this message translates to:
+  /// **'Бисер'**
+  String get craftBeading;
+
+  /// Ремесло: вышивка крестом
+  ///
+  /// In ru, this message translates to:
+  /// **'Вышивка'**
+  String get craftCrossStitch;
+
+  /// Статус проекта: ещё не начат
+  ///
+  /// In ru, this message translates to:
+  /// **'Идея'**
+  String get statusIdea;
+
+  /// Статус проекта: в процессе
+  ///
+  /// In ru, this message translates to:
+  /// **'В работе'**
+  String get statusInProgress;
+
+  /// Статус проекта: закончен
+  ///
+  /// In ru, this message translates to:
+  /// **'Готово'**
+  String get statusDone;
+
+  /// Техника бисероплетения: на станке
+  ///
+  /// In ru, this message translates to:
+  /// **'Станок'**
+  String get techniqueLoom;
+
+  /// Техника бисероплетения: мозаичное плетение
+  ///
+  /// In ru, this message translates to:
+  /// **'Мозаика'**
+  String get techniquePeyote;
+
+  /// Техника бисероплетения: кирпичный стежок
+  ///
+  /// In ru, this message translates to:
+  /// **'Кирпичик'**
+  String get techniqueBrick;
+
+  /// Техника бисероплетения: квадратное плетение
+  ///
+  /// In ru, this message translates to:
+  /// **'Квадратное'**
+  String get techniqueSquare;
+
+  /// Техника бисероплетения: свободное плетение
+  ///
+  /// In ru, this message translates to:
+  /// **'Без станка'**
+  String get techniqueOffLoom;
+
+  /// Техника вышивки: счётный крест
+  ///
+  /// In ru, this message translates to:
+  /// **'Крестик'**
+  String get techniqueCrossStitch;
+
+  /// Техника вышивки: полукрест (гобеленовый стежок)
+  ///
+  /// In ru, this message translates to:
+  /// **'Полукрест'**
+  String get techniqueTent;
+
+  /// Подпись карточки проекта: ремесло и техника
+  ///
+  /// In ru, this message translates to:
+  /// **'{craft} · {technique}'**
+  String libraryCardSubtitle(String craft, String technique);
+
+  /// Статус проекта и дата последней работы
+  ///
+  /// In ru, this message translates to:
+  /// **'{status} · {date}'**
+  String libraryCardLastWorked(String status, DateTime date);
+
+  /// Действие над проектом
+  ///
+  /// In ru, this message translates to:
+  /// **'Переименовать'**
+  String get projectRename;
+
+  /// Действие над проектом
+  ///
+  /// In ru, this message translates to:
+  /// **'Дублировать'**
+  String get projectDuplicate;
+
+  /// Действие над проектом
+  ///
+  /// In ru, this message translates to:
+  /// **'Удалить'**
+  String get projectDelete;
+
+  /// Заголовок подтверждения удаления
+  ///
+  /// In ru, this message translates to:
+  /// **'Удалить «{name}»?'**
+  String projectDeleteTitle(String name);
+
+  /// Пояснение в подтверждении удаления
+  ///
+  /// In ru, this message translates to:
+  /// **'Работа исчезнет из списка.'**
+  String get projectDeleteMessage;
+
+  /// Заголовок диалога переименования
+  ///
+  /// In ru, this message translates to:
+  /// **'Новое название'**
+  String get projectRenameTitle;
+
+  /// Подсказка в поле названия проекта
+  ///
+  /// In ru, this message translates to:
+  /// **'Название'**
+  String get projectNamePlaceholder;
+
+  /// Подтверждение в диалоге
+  ///
+  /// In ru, this message translates to:
+  /// **'Сохранить'**
+  String get commonSave;
+
+  /// Закрыть сообщение
+  ///
+  /// In ru, this message translates to:
+  /// **'Понятно'**
+  String get commonOk;
+
+  /// Заголовок сообщения об ошибке действия
+  ///
+  /// In ru, this message translates to:
+  /// **'Не получилось'**
+  String get actionFailedTitle;
+
+  /// Ошибка проверки названия
+  ///
+  /// In ru, this message translates to:
+  /// **'Проверьте название: оно не должно быть пустым или слишком длинным.'**
+  String get actionFailedValidation;
+
+  /// Проект не найден
+  ///
+  /// In ru, this message translates to:
+  /// **'Этой работы уже нет.'**
+  String get actionFailedNotFound;
+
+  /// Прочая ошибка действия
+  ///
+  /// In ru, this message translates to:
+  /// **'Что-то пошло не так. Попробуйте ещё раз.'**
+  String get actionFailedGeneric;
+
+  /// Подсказка над выбором ремесла в листе создания
+  ///
+  /// In ru, this message translates to:
+  /// **'Что будем делать?'**
+  String get newProjectCraftQuestion;
+
+  /// Лист создания пуст: ни одна фича не добавила пункты
+  ///
+  /// In ru, this message translates to:
+  /// **'Способы создания появятся в следующих версиях.'**
+  String get newProjectNoEntries;
+
+  /// Подпись для VoiceOver у кнопки «+»
+  ///
+  /// In ru, this message translates to:
+  /// **'Добавить проект'**
+  String get libraryAddSemantic;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {
