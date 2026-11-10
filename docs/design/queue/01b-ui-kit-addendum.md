@@ -1,7 +1,7 @@
 ---
 id: 01b-ui-kit-addendum
 title: Дополнение к UI kit (по ревью v1)
-status: todo
+status: accepted
 depends: 01-ui-kit
 ---
 

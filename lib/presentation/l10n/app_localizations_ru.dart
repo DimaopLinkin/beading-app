@@ -279,4 +279,74 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get importProblemEmptyName => 'Введите название.';
+
+  @override
+  String bookWorkRow(int row) {
+    return 'Ряд $row';
+  }
+
+  @override
+  String get bookWorkPrevRow => 'Ряд назад';
+
+  @override
+  String get bookWorkNextRow => 'Следующий ряд';
+
+  @override
+  String bookWorkPageLabel(int current, int total) {
+    return 'Стр. $current из $total';
+  }
+
+  @override
+  String get bookWorkPagesTitle => 'Страницы';
+
+  @override
+  String bookWorkPageItem(int number) {
+    return 'Страница $number';
+  }
+
+  @override
+  String get bookWorkClose => 'Закрыть';
+
+  @override
+  String get bookWorkRulerSettings => 'Настройка линейки';
+
+  @override
+  String get bookWorkRulerHeight => 'Высота линейки';
+
+  @override
+  String get bookWorkRulerStep => 'Шаг сдвига';
+
+  @override
+  String get bookWorkRulerColor => 'Цвет подсветки';
+
+  @override
+  String get bookWorkColorYellow => 'Жёлтый';
+
+  @override
+  String get bookWorkColorGreen => 'Зелёный';
+
+  @override
+  String get bookWorkColorBlue => 'Синий';
+
+  @override
+  String get bookWorkColorPink => 'Розовый';
+
+  @override
+  String get bookWorkNotes => 'Заметки';
+
+  @override
+  String get bookWorkNotesHint => 'Что важно не забыть: цвета, где остановилась, что поменять';
+
+  @override
+  String get bookWorkDone => 'Готово';
+
+  @override
+  String get bookWorkLoadFailed => 'Схема не открылась. Закрой экран и попробуй ещё раз.';
+
+  @override
+  String get bookWorkSaveFailed =>
+      'Не получилось сохранить, где ты остановилась. Проверь, есть ли место на устройстве.';
+
+  @override
+  String get bookWorkImageFailed => 'Не получилось показать эту страницу. Попробуй открыть её ещё раз.';
 }

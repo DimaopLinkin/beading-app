@@ -534,498 +534,6 @@
     },
     {
       "id": 5,
-      "references": [
-        1
-      ],
-      "type": "table",
-      "data": {
-        "name": "grid_patterns",
-        "was_declared_in_moor": false,
-        "columns": [
-          {
-            "name": "id",
-            "getter_name": "id",
-            "moor_type": "string",
-            "nullable": false,
-            "customConstraints": null,
-            "default_dart": null,
-            "default_client_dart": null,
-            "dsl_features": []
-          },
-          {
-            "name": "created_at",
-            "getter_name": "createdAt",
-            "moor_type": "int",
-            "nullable": false,
-            "customConstraints": null,
-            "default_dart": null,
-            "default_client_dart": null,
-            "dsl_features": []
-          },
-          {
-            "name": "updated_at",
-            "getter_name": "updatedAt",
-            "moor_type": "int",
-            "nullable": false,
-            "customConstraints": null,
-            "default_dart": null,
-            "default_client_dart": null,
-            "dsl_features": []
-          },
-          {
-            "name": "deleted_at",
-            "getter_name": "deletedAt",
-            "moor_type": "int",
-            "nullable": true,
-            "customConstraints": null,
-            "default_dart": null,
-            "default_client_dart": null,
-            "dsl_features": []
-          },
-          {
-            "name": "device_id",
-            "getter_name": "deviceId",
-            "moor_type": "string",
-            "nullable": false,
-            "customConstraints": null,
-            "default_dart": null,
-            "default_client_dart": null,
-            "dsl_features": []
-          },
-          {
-            "name": "project_id",
-            "getter_name": "projectId",
-            "moor_type": "string",
-            "nullable": false,
-            "customConstraints": null,
-            "defaultConstraints": "REFERENCES projects (id)",
-            "dialectAwareDefaultConstraints": {
-              "sqlite": "REFERENCES projects (id)"
-            },
-            "default_dart": null,
-            "default_client_dart": null,
-            "dsl_features": [
-              {
-                "foreign_key": {
-                  "to": {
-                    "table": "projects",
-                    "column": "id"
-                  },
-                  "initially_deferred": false,
-                  "on_update": null,
-                  "on_delete": null
-                }
-              }
-            ]
-          },
-          {
-            "name": "geometry",
-            "getter_name": "geometry",
-            "moor_type": "string",
-            "nullable": false,
-            "customConstraints": null,
-            "default_dart": null,
-            "default_client_dart": null,
-            "dsl_features": []
-          },
-          {
-            "name": "geometry_drop",
-            "getter_name": "geometryDrop",
-            "moor_type": "int",
-            "nullable": false,
-            "customConstraints": null,
-            "default_dart": "const CustomExpression('1')",
-            "default_client_dart": null,
-            "dsl_features": []
-          },
-          {
-            "name": "width",
-            "getter_name": "width",
-            "moor_type": "int",
-            "nullable": false,
-            "customConstraints": null,
-            "default_dart": null,
-            "default_client_dart": null,
-            "dsl_features": []
-          },
-          {
-            "name": "height",
-            "getter_name": "height",
-            "moor_type": "int",
-            "nullable": false,
-            "customConstraints": null,
-            "default_dart": null,
-            "default_client_dart": null,
-            "dsl_features": []
-          },
-          {
-            "name": "cell_metrics",
-            "getter_name": "cellMetrics",
-            "moor_type": "string",
-            "nullable": false,
-            "customConstraints": null,
-            "default_dart": null,
-            "default_client_dart": null,
-            "dsl_features": []
-          },
-          {
-            "name": "current_row",
-            "getter_name": "currentRow",
-            "moor_type": "int",
-            "nullable": true,
-            "customConstraints": null,
-            "default_dart": null,
-            "default_client_dart": null,
-            "dsl_features": []
-          },
-          {
-            "name": "current_bead",
-            "getter_name": "currentBead",
-            "moor_type": "int",
-            "nullable": true,
-            "customConstraints": null,
-            "default_dart": null,
-            "default_client_dart": null,
-            "dsl_features": []
-          },
-          {
-            "name": "cells",
-            "getter_name": "cells",
-            "moor_type": "blob",
-            "nullable": false,
-            "customConstraints": null,
-            "default_dart": null,
-            "default_client_dart": null,
-            "dsl_features": []
-          },
-          {
-            "name": "cells_codec_version",
-            "getter_name": "cellsCodecVersion",
-            "moor_type": "int",
-            "nullable": false,
-            "customConstraints": null,
-            "default_dart": null,
-            "default_client_dart": null,
-            "dsl_features": []
-          },
-          {
-            "name": "layers",
-            "getter_name": "layers",
-            "moor_type": "blob",
-            "nullable": true,
-            "customConstraints": null,
-            "default_dart": null,
-            "default_client_dart": null,
-            "dsl_features": []
-          },
-          {
-            "name": "layers_codec_version",
-            "getter_name": "layersCodecVersion",
-            "moor_type": "int",
-            "nullable": true,
-            "customConstraints": null,
-            "default_dart": null,
-            "default_client_dart": null,
-            "dsl_features": []
-          }
-        ],
-        "is_virtual": false,
-        "without_rowid": false,
-        "constraints": [],
-        "explicit_pk": [
-          "id"
-        ],
-        "unique_keys": [
-          [
-            "project_id"
-          ]
-        ]
-      }
-    },
-    {
-      "id": 6,
-      "references": [
-        5
-      ],
-      "type": "table",
-      "data": {
-        "name": "pattern_colors",
-        "was_declared_in_moor": false,
-        "columns": [
-          {
-            "name": "id",
-            "getter_name": "id",
-            "moor_type": "string",
-            "nullable": false,
-            "customConstraints": null,
-            "default_dart": null,
-            "default_client_dart": null,
-            "dsl_features": []
-          },
-          {
-            "name": "created_at",
-            "getter_name": "createdAt",
-            "moor_type": "int",
-            "nullable": false,
-            "customConstraints": null,
-            "default_dart": null,
-            "default_client_dart": null,
-            "dsl_features": []
-          },
-          {
-            "name": "updated_at",
-            "getter_name": "updatedAt",
-            "moor_type": "int",
-            "nullable": false,
-            "customConstraints": null,
-            "default_dart": null,
-            "default_client_dart": null,
-            "dsl_features": []
-          },
-          {
-            "name": "deleted_at",
-            "getter_name": "deletedAt",
-            "moor_type": "int",
-            "nullable": true,
-            "customConstraints": null,
-            "default_dart": null,
-            "default_client_dart": null,
-            "dsl_features": []
-          },
-          {
-            "name": "device_id",
-            "getter_name": "deviceId",
-            "moor_type": "string",
-            "nullable": false,
-            "customConstraints": null,
-            "default_dart": null,
-            "default_client_dart": null,
-            "dsl_features": []
-          },
-          {
-            "name": "grid_pattern_id",
-            "getter_name": "gridPatternId",
-            "moor_type": "string",
-            "nullable": false,
-            "customConstraints": null,
-            "defaultConstraints": "REFERENCES grid_patterns (id)",
-            "dialectAwareDefaultConstraints": {
-              "sqlite": "REFERENCES grid_patterns (id)"
-            },
-            "default_dart": null,
-            "default_client_dart": null,
-            "dsl_features": [
-              {
-                "foreign_key": {
-                  "to": {
-                    "table": "grid_patterns",
-                    "column": "id"
-                  },
-                  "initially_deferred": false,
-                  "on_update": null,
-                  "on_delete": null
-                }
-              }
-            ]
-          },
-          {
-            "name": "position",
-            "getter_name": "position",
-            "moor_type": "int",
-            "nullable": false,
-            "customConstraints": null,
-            "default_dart": null,
-            "default_client_dart": null,
-            "dsl_features": []
-          },
-          {
-            "name": "rgb",
-            "getter_name": "rgb",
-            "moor_type": "int",
-            "nullable": false,
-            "customConstraints": null,
-            "default_dart": null,
-            "default_client_dart": null,
-            "dsl_features": []
-          },
-          {
-            "name": "name",
-            "getter_name": "name",
-            "moor_type": "string",
-            "nullable": false,
-            "customConstraints": null,
-            "default_dart": null,
-            "default_client_dart": null,
-            "dsl_features": []
-          },
-          {
-            "name": "components",
-            "getter_name": "components",
-            "moor_type": "string",
-            "nullable": false,
-            "customConstraints": null,
-            "default_dart": null,
-            "default_client_dart": null,
-            "dsl_features": []
-          },
-          {
-            "name": "finish",
-            "getter_name": "finish",
-            "moor_type": "string",
-            "nullable": true,
-            "customConstraints": null,
-            "default_dart": null,
-            "default_client_dart": null,
-            "dsl_features": []
-          },
-          {
-            "name": "symbol",
-            "getter_name": "symbol",
-            "moor_type": "string",
-            "nullable": true,
-            "customConstraints": null,
-            "default_dart": null,
-            "default_client_dart": null,
-            "dsl_features": []
-          }
-        ],
-        "is_virtual": false,
-        "without_rowid": false,
-        "constraints": [],
-        "explicit_pk": [
-          "id"
-        ],
-        "unique_keys": [
-          [
-            "grid_pattern_id",
-            "position"
-          ]
-        ]
-      }
-    },
-    {
-      "id": 7,
-      "references": [
-        5
-      ],
-      "type": "table",
-      "data": {
-        "name": "grid_progress_rows",
-        "was_declared_in_moor": false,
-        "columns": [
-          {
-            "name": "id",
-            "getter_name": "id",
-            "moor_type": "string",
-            "nullable": false,
-            "customConstraints": null,
-            "default_dart": null,
-            "default_client_dart": null,
-            "dsl_features": []
-          },
-          {
-            "name": "created_at",
-            "getter_name": "createdAt",
-            "moor_type": "int",
-            "nullable": false,
-            "customConstraints": null,
-            "default_dart": null,
-            "default_client_dart": null,
-            "dsl_features": []
-          },
-          {
-            "name": "updated_at",
-            "getter_name": "updatedAt",
-            "moor_type": "int",
-            "nullable": false,
-            "customConstraints": null,
-            "default_dart": null,
-            "default_client_dart": null,
-            "dsl_features": []
-          },
-          {
-            "name": "deleted_at",
-            "getter_name": "deletedAt",
-            "moor_type": "int",
-            "nullable": true,
-            "customConstraints": null,
-            "default_dart": null,
-            "default_client_dart": null,
-            "dsl_features": []
-          },
-          {
-            "name": "device_id",
-            "getter_name": "deviceId",
-            "moor_type": "string",
-            "nullable": false,
-            "customConstraints": null,
-            "default_dart": null,
-            "default_client_dart": null,
-            "dsl_features": []
-          },
-          {
-            "name": "grid_pattern_id",
-            "getter_name": "gridPatternId",
-            "moor_type": "string",
-            "nullable": false,
-            "customConstraints": null,
-            "defaultConstraints": "REFERENCES grid_patterns (id)",
-            "dialectAwareDefaultConstraints": {
-              "sqlite": "REFERENCES grid_patterns (id)"
-            },
-            "default_dart": null,
-            "default_client_dart": null,
-            "dsl_features": [
-              {
-                "foreign_key": {
-                  "to": {
-                    "table": "grid_patterns",
-                    "column": "id"
-                  },
-                  "initially_deferred": false,
-                  "on_update": null,
-                  "on_delete": null
-                }
-              }
-            ]
-          },
-          {
-            "name": "row_index",
-            "getter_name": "rowIndex",
-            "moor_type": "int",
-            "nullable": false,
-            "customConstraints": null,
-            "default_dart": null,
-            "default_client_dart": null,
-            "dsl_features": []
-          },
-          {
-            "name": "completed_at",
-            "getter_name": "completedAt",
-            "moor_type": "int",
-            "nullable": false,
-            "customConstraints": null,
-            "default_dart": null,
-            "default_client_dart": null,
-            "dsl_features": []
-          }
-        ],
-        "is_virtual": false,
-        "without_rowid": false,
-        "constraints": [],
-        "explicit_pk": [
-          "id"
-        ],
-        "unique_keys": [
-          [
-            "grid_pattern_id",
-            "row_index"
-          ]
-        ]
-      }
-    },
-    {
-      "id": 8,
       "references": [],
       "type": "table",
       "data": {
@@ -1162,7 +670,7 @@
       }
     },
     {
-      "id": 9,
+      "id": 6,
       "references": [],
       "type": "table",
       "data": {
@@ -1188,6 +696,283 @@
             "default_dart": null,
             "default_client_dart": null,
             "dsl_features": []
+          }
+        ],
+        "is_virtual": false,
+        "without_rowid": false,
+        "constraints": [],
+        "explicit_pk": [
+          "id"
+        ]
+      }
+    },
+    {
+      "id": 7,
+      "references": [
+        4
+      ],
+      "type": "table",
+      "data": {
+        "name": "page_work_states",
+        "was_declared_in_moor": false,
+        "columns": [
+          {
+            "name": "id",
+            "getter_name": "id",
+            "moor_type": "string",
+            "nullable": false,
+            "customConstraints": null,
+            "defaultConstraints": "REFERENCES image_pattern_pages (id)",
+            "dialectAwareDefaultConstraints": {
+              "sqlite": "REFERENCES image_pattern_pages (id)"
+            },
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": [
+              {
+                "foreign_key": {
+                  "to": {
+                    "table": "image_pattern_pages",
+                    "column": "id"
+                  },
+                  "initially_deferred": false,
+                  "on_update": null,
+                  "on_delete": null
+                }
+              }
+            ]
+          },
+          {
+            "name": "created_at",
+            "getter_name": "createdAt",
+            "moor_type": "int",
+            "nullable": false,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "updated_at",
+            "getter_name": "updatedAt",
+            "moor_type": "int",
+            "nullable": false,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "deleted_at",
+            "getter_name": "deletedAt",
+            "moor_type": "int",
+            "nullable": true,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "device_id",
+            "getter_name": "deviceId",
+            "moor_type": "string",
+            "nullable": false,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "ruler_top",
+            "getter_name": "rulerTop",
+            "moor_type": "double",
+            "nullable": false,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "ruler_height",
+            "getter_name": "rulerHeight",
+            "moor_type": "double",
+            "nullable": false,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "ruler_step",
+            "getter_name": "rulerStep",
+            "moor_type": "double",
+            "nullable": false,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "ruler_row",
+            "getter_name": "rulerRow",
+            "moor_type": "int",
+            "nullable": false,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "highlight",
+            "getter_name": "highlight",
+            "moor_type": "string",
+            "nullable": false,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "view_scale",
+            "getter_name": "viewScale",
+            "moor_type": "double",
+            "nullable": false,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "view_dx",
+            "getter_name": "viewDx",
+            "moor_type": "double",
+            "nullable": false,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "view_dy",
+            "getter_name": "viewDy",
+            "moor_type": "double",
+            "nullable": false,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          }
+        ],
+        "is_virtual": false,
+        "without_rowid": false,
+        "constraints": [],
+        "explicit_pk": [
+          "id"
+        ]
+      }
+    },
+    {
+      "id": 8,
+      "references": [
+        3,
+        4
+      ],
+      "type": "table",
+      "data": {
+        "name": "book_work_states",
+        "was_declared_in_moor": false,
+        "columns": [
+          {
+            "name": "id",
+            "getter_name": "id",
+            "moor_type": "string",
+            "nullable": false,
+            "customConstraints": null,
+            "defaultConstraints": "REFERENCES image_patterns (id)",
+            "dialectAwareDefaultConstraints": {
+              "sqlite": "REFERENCES image_patterns (id)"
+            },
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": [
+              {
+                "foreign_key": {
+                  "to": {
+                    "table": "image_patterns",
+                    "column": "id"
+                  },
+                  "initially_deferred": false,
+                  "on_update": null,
+                  "on_delete": null
+                }
+              }
+            ]
+          },
+          {
+            "name": "created_at",
+            "getter_name": "createdAt",
+            "moor_type": "int",
+            "nullable": false,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "updated_at",
+            "getter_name": "updatedAt",
+            "moor_type": "int",
+            "nullable": false,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "deleted_at",
+            "getter_name": "deletedAt",
+            "moor_type": "int",
+            "nullable": true,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "device_id",
+            "getter_name": "deviceId",
+            "moor_type": "string",
+            "nullable": false,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "current_page_id",
+            "getter_name": "currentPageId",
+            "moor_type": "string",
+            "nullable": false,
+            "customConstraints": null,
+            "defaultConstraints": "REFERENCES image_pattern_pages (id)",
+            "dialectAwareDefaultConstraints": {
+              "sqlite": "REFERENCES image_pattern_pages (id)"
+            },
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": [
+              {
+                "foreign_key": {
+                  "to": {
+                    "table": "image_pattern_pages",
+                    "column": "id"
+                  },
+                  "initially_deferred": false,
+                  "on_update": null,
+                  "on_delete": null
+                }
+              }
+            ]
           }
         ],
         "is_virtual": false,
@@ -1246,33 +1031,6 @@
       ]
     },
     {
-      "name": "grid_patterns",
-      "sql": [
-        {
-          "dialect": "sqlite",
-          "sql": "CREATE TABLE IF NOT EXISTS \"grid_patterns\" (\"id\" TEXT NOT NULL, \"created_at\" INTEGER NOT NULL, \"updated_at\" INTEGER NOT NULL, \"deleted_at\" INTEGER NULL, \"device_id\" TEXT NOT NULL, \"project_id\" TEXT NOT NULL REFERENCES projects (id), \"geometry\" TEXT NOT NULL, \"geometry_drop\" INTEGER NOT NULL DEFAULT 1, \"width\" INTEGER NOT NULL, \"height\" INTEGER NOT NULL, \"cell_metrics\" TEXT NOT NULL, \"current_row\" INTEGER NULL, \"current_bead\" INTEGER NULL, \"cells\" BLOB NOT NULL, \"cells_codec_version\" INTEGER NOT NULL, \"layers\" BLOB NULL, \"layers_codec_version\" INTEGER NULL, PRIMARY KEY (\"id\"), UNIQUE (\"project_id\"));"
-        }
-      ]
-    },
-    {
-      "name": "pattern_colors",
-      "sql": [
-        {
-          "dialect": "sqlite",
-          "sql": "CREATE TABLE IF NOT EXISTS \"pattern_colors\" (\"id\" TEXT NOT NULL, \"created_at\" INTEGER NOT NULL, \"updated_at\" INTEGER NOT NULL, \"deleted_at\" INTEGER NULL, \"device_id\" TEXT NOT NULL, \"grid_pattern_id\" TEXT NOT NULL REFERENCES grid_patterns (id), \"position\" INTEGER NOT NULL, \"rgb\" INTEGER NOT NULL, \"name\" TEXT NOT NULL, \"components\" TEXT NOT NULL, \"finish\" TEXT NULL, \"symbol\" TEXT NULL, PRIMARY KEY (\"id\"), UNIQUE (\"grid_pattern_id\", \"position\"));"
-        }
-      ]
-    },
-    {
-      "name": "grid_progress_rows",
-      "sql": [
-        {
-          "dialect": "sqlite",
-          "sql": "CREATE TABLE IF NOT EXISTS \"grid_progress_rows\" (\"id\" TEXT NOT NULL, \"created_at\" INTEGER NOT NULL, \"updated_at\" INTEGER NOT NULL, \"deleted_at\" INTEGER NULL, \"device_id\" TEXT NOT NULL, \"grid_pattern_id\" TEXT NOT NULL REFERENCES grid_patterns (id), \"row_index\" INTEGER NOT NULL, \"completed_at\" INTEGER NOT NULL, PRIMARY KEY (\"id\"), UNIQUE (\"grid_pattern_id\", \"row_index\"));"
-        }
-      ]
-    },
-    {
       "name": "catalog_colors",
       "sql": [
         {
@@ -1287,6 +1045,24 @@
         {
           "dialect": "sqlite",
           "sql": "CREATE TABLE IF NOT EXISTS \"catalog_sources\" (\"id\" TEXT NOT NULL, \"version\" INTEGER NOT NULL, PRIMARY KEY (\"id\"));"
+        }
+      ]
+    },
+    {
+      "name": "page_work_states",
+      "sql": [
+        {
+          "dialect": "sqlite",
+          "sql": "CREATE TABLE IF NOT EXISTS \"page_work_states\" (\"id\" TEXT NOT NULL REFERENCES image_pattern_pages (id), \"created_at\" INTEGER NOT NULL, \"updated_at\" INTEGER NOT NULL, \"deleted_at\" INTEGER NULL, \"device_id\" TEXT NOT NULL, \"ruler_top\" REAL NOT NULL, \"ruler_height\" REAL NOT NULL, \"ruler_step\" REAL NOT NULL, \"ruler_row\" INTEGER NOT NULL, \"highlight\" TEXT NOT NULL, \"view_scale\" REAL NOT NULL, \"view_dx\" REAL NOT NULL, \"view_dy\" REAL NOT NULL, PRIMARY KEY (\"id\"));"
+        }
+      ]
+    },
+    {
+      "name": "book_work_states",
+      "sql": [
+        {
+          "dialect": "sqlite",
+          "sql": "CREATE TABLE IF NOT EXISTS \"book_work_states\" (\"id\" TEXT NOT NULL REFERENCES image_patterns (id), \"created_at\" INTEGER NOT NULL, \"updated_at\" INTEGER NOT NULL, \"deleted_at\" INTEGER NULL, \"device_id\" TEXT NOT NULL, \"current_page_id\" TEXT NOT NULL REFERENCES image_pattern_pages (id), PRIMARY KEY (\"id\"));"
         }
       ]
     }

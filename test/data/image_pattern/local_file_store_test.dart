@@ -27,6 +27,14 @@ void main() {
     ]);
   });
 
+  test('читает записанный файл; нет файла — StorageFailure, выход за каталог — ValidationFailure', () async {
+    await store.write('a/1.png', Uint8List.fromList(<int>[4, 5]));
+
+    expect((await store.read('a/1.png')).valueOrNull, <int>[4, 5]);
+    expect((await store.read('a/нет.png')).failureOrNull, isA<StorageFailure>());
+    expect((await store.read('../x.png')).failureOrNull, isA<ValidationFailure>());
+  });
+
   test('копирует файл, оригинал остаётся', () async {
     await store.write('a/1.png', Uint8List.fromList(<int>[9]));
 

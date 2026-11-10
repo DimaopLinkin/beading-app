@@ -7,8 +7,8 @@ import 'generated/schema.dart';
 import 'generated/schema_v2.dart' as v2;
 import 'generated/schema_v3.dart' as v3;
 import 'generated/schema_v4.dart' as v4;
-import 'generated/schema_v5.dart' as v5;
 import 'generated/schema_v6.dart' as v6;
+import 'generated/schema_v7.dart' as v7;
 
 void main() {
   driftRuntimeOptions.dontWarnAboutMultipleDatabases = true;
@@ -125,9 +125,9 @@ void main() {
     );
   });
 
-  test('миграция v5 → v6 сохраняет проекты и каталог, создаёт пустые таблицы сеточных схем', () async {
-    const oldProjects = <v5.ProjectsData>[
-      v5.ProjectsData(
+  test('миграция v6 → v7 сохраняет проекты и каталог, создаёт пустые таблицы сеточных схем', () async {
+    const oldProjects = <v6.ProjectsData>[
+      v6.ProjectsData(
         id: 'p1',
         name: 'Браслет',
         craft: 'beading',
@@ -141,8 +141,8 @@ void main() {
         deviceId: 'device-a',
       ),
     ];
-    const expectedProjects = <v6.ProjectsData>[
-      v6.ProjectsData(
+    const expectedProjects = <v7.ProjectsData>[
+      v7.ProjectsData(
         id: 'p1',
         name: 'Браслет',
         craft: 'beading',
@@ -158,10 +158,10 @@ void main() {
     ];
 
     await verifier.testWithDataIntegrity(
-      oldVersion: 5,
-      newVersion: 6,
-      createOld: v5.DatabaseAtV5.new,
-      createNew: v6.DatabaseAtV6.new,
+      oldVersion: 6,
+      newVersion: 7,
+      createOld: v6.DatabaseAtV6.new,
+      createNew: v7.DatabaseAtV7.new,
       openTestedDatabase: AppDatabase.new,
       createItems: (batch, oldDb) {
         batch.insertAll(oldDb.projects, oldProjects);

@@ -19,6 +19,18 @@ class LocalFileStore implements FileStore {
   Directory? _root;
 
   @override
+  Future<Result<Uint8List>> read(String relativePath) async {
+    try {
+      final Directory root = _root ??= await _rootProvider();
+      return Success<Uint8List>(await _resolve(root, relativePath).readAsBytes());
+    } on FileSystemException catch (error) {
+      return Err<Uint8List>(StorageFailure('${error.message}: ${error.path}'));
+    } on ArgumentError catch (error) {
+      return Err<Uint8List>(ValidationFailure('${error.message}'));
+    }
+  }
+
+  @override
   Future<Result<void>> write(String relativePath, Uint8List bytes) => _guard((root) async {
     final File target = _resolve(root, relativePath);
     await target.parent.create(recursive: true);

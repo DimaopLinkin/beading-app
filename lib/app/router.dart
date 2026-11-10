@@ -1,7 +1,10 @@
 import 'package:beading/app/di.dart';
 import 'package:beading/core/clock.dart';
+import 'package:beading/domain/image_pattern/file_store.dart';
 import 'package:beading/domain/settings/app_info.dart';
 import 'package:beading/domain/settings/secret_tap_handler.dart';
+import 'package:beading/presentation/book_work/book_work_cubit.dart';
+import 'package:beading/presentation/book_work/book_work_screen.dart';
 import 'package:beading/presentation/dev/glass_check_screen.dart';
 import 'package:beading/presentation/import_book/import_book_cubit.dart';
 import 'package:beading/presentation/import_book/import_book_screen.dart';
@@ -22,6 +25,9 @@ abstract final class AppRoutes {
 
   /// «Схема из книги». Закрывается с id созданного проекта.
   static const String importBook = ImportBookScreen.routePath;
+
+  /// Работа по схеме из книги (T07): линейка, зум, страницы, заметки. T05 откроет её из карточки проекта.
+  static String bookWork(String projectId) => BookWorkScreen.locationFor(projectId);
 }
 
 /// Все страницы настроек делят [SettingsCubit] из корня приложения ([BeadingApp]).
@@ -33,7 +39,13 @@ GoRouter createRouter({bool showDeveloperTools = !kReleaseMode}) => GoRouter(
       path: AppRoutes.library,
       builder: (context, _) => LibraryScreen(
         onOpenSettings: () => context.push(AppRoutes.settings),
-        onImportBook: () => context.push<String>(AppRoutes.importBook),
+        onImportBook: () async {
+          // Новая схема сразу открывается для работы.
+          final String? projectId = await context.push<String>(AppRoutes.importBook);
+          if (projectId != null && context.mounted) {
+            await context.push<void>(AppRoutes.bookWork(projectId));
+          }
+        },
       ),
     ),
     GoRoute(
@@ -59,6 +71,13 @@ GoRouter createRouter({bool showDeveloperTools = !kReleaseMode}) => GoRouter(
       builder: (_, _) => BlocProvider<ImportBookCubit>(
         create: (_) => getIt<ImportBookCubit>(),
         child: const ImportBookScreen(),
+      ),
+    ),
+    GoRoute(
+      path: BookWorkScreen.routePath,
+      builder: (_, state) => BlocProvider<BookWorkCubit>(
+        create: (_) => getIt<BookWorkCubit>(param1: state.pathParameters['projectId'])..load(),
+        child: BookWorkScreen(files: getIt<FileStore>()),
       ),
     ),
   ],

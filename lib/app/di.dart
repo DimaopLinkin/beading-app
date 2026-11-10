@@ -13,6 +13,7 @@ import 'package:beading/data/easter_eggs/asset_compliment_source.dart';
 import 'package:beading/data/easter_eggs/drift_easter_egg_log.dart';
 import 'package:beading/data/grid_pattern/drift_grid_pattern_repository.dart';
 import 'package:beading/data/grid_pattern/drift_grid_progress_store.dart';
+import 'package:beading/data/image_pattern/drift_book_work_repository.dart';
 import 'package:beading/data/image_pattern/drift_image_pattern_repository.dart';
 import 'package:beading/data/image_pattern/local_file_store.dart';
 import 'package:beading/data/image_pattern/pdfrx_pdf_rasterizer.dart';
@@ -38,6 +39,8 @@ import 'package:beading/domain/grid_pattern/grid_progress_store.dart';
 import 'package:beading/domain/grid_pattern/use_cases/create_grid_pattern.dart';
 import 'package:beading/domain/grid_pattern/use_cases/grid_progress_commands.dart';
 import 'package:beading/domain/grid_pattern/use_cases/save_grid_pattern.dart';
+import 'package:beading/domain/image_pattern/book_work/book_work_repository.dart';
+import 'package:beading/domain/image_pattern/book_work/record_book_progress.dart';
 import 'package:beading/domain/image_pattern/file_store.dart';
 import 'package:beading/domain/image_pattern/image_pattern_content.dart';
 import 'package:beading/domain/image_pattern/image_pattern_repository.dart';
@@ -65,6 +68,7 @@ import 'package:beading/domain/settings/screen_wake_lock.dart';
 import 'package:beading/domain/settings/secret_tap_handler.dart';
 import 'package:beading/domain/settings/settings_repository.dart';
 import 'package:beading/domain/settings/wakelock_controller.dart';
+import 'package:beading/presentation/book_work/book_work_cubit.dart';
 import 'package:beading/presentation/easter_eggs/compliment_banner_cubit.dart';
 import 'package:beading/presentation/import_book/import_book_cubit.dart';
 import 'package:beading/presentation/settings/settings_cubit.dart';
@@ -216,6 +220,13 @@ Future<void> configureDependencies({GetIt? locator, AppDatabase? database, Catal
     ..registerFactory<SetCurrentBead>(
       () => SetCurrentBead(patterns: container<GridPatternRepository>(), progress: container<GridProgressStore>()),
     )
+    ..registerLazySingleton<BookWorkRepository>(
+      () => DriftBookWorkRepository(
+        dao: db.bookWorkDao,
+        deviceIds: container<DeviceIdProvider>(),
+        clock: container<Clock>(),
+      ),
+    )
     ..registerFactory<DeleteProject>(
       () => DeleteProject(
         container<ProjectRepository>(),
@@ -233,6 +244,23 @@ Future<void> configureDependencies({GetIt? locator, AppDatabase? database, Catal
       () => ChangeProjectStatus(repository: container<ProjectRepository>(), events: container<AppEvents>()),
     )
     // Клонеры содержимого: схемы-картинки (T06) и сетки (T14).
+    ..registerFactory<RecordBookProgress>(
+      () => RecordBookProgress(
+        projects: container<ProjectRepository>(),
+        changeStatus: container<ChangeProjectStatus>(),
+        touch: container<TouchProject>(),
+      ),
+    )
+    ..registerFactoryParam<BookWorkCubit, String, void>(
+      (projectId, _) => BookWorkCubit(
+        projectId: projectId,
+        projects: container<ProjectRepository>(),
+        patterns: container<ImagePatternRepository>(),
+        work: container<BookWorkRepository>(),
+        recordProgress: container<RecordBookProgress>(),
+        updateNotes: container<UpdateNotes>(),
+      ),
+    )
     ..registerFactory<DuplicateProject>(
       () => DuplicateProject(
         repository: container<ProjectRepository>(),

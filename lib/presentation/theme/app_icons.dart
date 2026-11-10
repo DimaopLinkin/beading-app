@@ -6,4 +6,10 @@ abstract final class AppIcons {
   static const IconData settings = CupertinoIcons.settings;
   static const IconData add = CupertinoIcons.add;
   static const IconData back = CupertinoIcons.back;
+  static const IconData rowUp = CupertinoIcons.chevron_up;
+  static const IconData rowDown = CupertinoIcons.chevron_down;
+  static const IconData rulerSettings = CupertinoIcons.slider_horizontal_3;
+  static const IconData notes = CupertinoIcons.doc_text;
+  static const IconData pages = CupertinoIcons.square_on_square;
+  static const IconData selected = CupertinoIcons.checkmark;
 }
