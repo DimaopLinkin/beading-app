@@ -68,6 +68,7 @@ class _GlassCheckScreenState extends State<GlassCheckScreen> with SingleTickerPr
       } else {
         _scroll.stop();
       }
+      _sinceRefresh.reset();
     });
   }
 
@@ -138,7 +139,10 @@ class _GlassCheckScreenState extends State<GlassCheckScreen> with SingleTickerPr
                   SizedBox(height: tokens.spacing.m),
                   GlassButton(
                     semanticLabel: l10n.glassCheckReset,
-                    onPressed: () => setState(_stats.reset),
+                    onPressed: () => setState(() {
+                      _stats.reset();
+                      _sinceRefresh.reset();
+                    }),
                     child: Text(l10n.glassCheckReset),
                   ),
                 ],

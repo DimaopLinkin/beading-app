@@ -40,7 +40,15 @@ class _ReduceTransparencyScopeState extends State<ReduceTransparencyScope> with 
   void didChangeAppLifecycleState(AppLifecycleState state) {
     // Настройку могли сменить, пока приложение было в фоне, а нативная сторона могла ответить «нет» слишком рано.
     if (state == AppLifecycleState.resumed) {
-      unawaited(widget.source.current().then(_set));
+      unawaited(_refresh());
+    }
+  }
+
+  Future<void> _refresh() async {
+    try {
+      _set(await widget.source.current());
+    } on Exception {
+      // Источник не ответил: остаётся прежнее значение.
     }
   }
 
@@ -53,11 +61,14 @@ class _ReduceTransparencyScopeState extends State<ReduceTransparencyScope> with 
     });
     // Ответ на первый запрос мог устареть, если за это время пришла смена: событие новее.
     unawaited(
-      widget.source.current().then((value) {
-        if (!changed) {
-          _set(value);
-        }
-      }),
+      widget.source
+          .current()
+          .then((value) {
+            if (!changed) {
+              _set(value);
+            }
+          })
+          .onError<Exception>((_, _) {}),
     );
   }
 
