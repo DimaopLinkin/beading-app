@@ -10,6 +10,7 @@
 
 from __future__ import annotations
 
+import json
 import sys
 from dataclasses import dataclass
 from pathlib import Path
@@ -166,7 +167,7 @@ def remove_islands(lab: np.ndarray, pal: np.ndarray, protect: np.ndarray, min_is
     out = lab.copy()
     h, w = lab.shape
     for comp in components(lab):
-        if len(comp) >= min_island or any(protect[y, x] for y, x in comp):
+        if len(comp) >= min_island or any(protect[y, x] for y, x in comp) or _thin_line(comp):
             continue
         own = lab[comp[0]]
         nbs = set()
@@ -183,6 +184,13 @@ def remove_islands(lab: np.ndarray, pal: np.ndarray, protect: np.ndarray, min_is
     return out
 
 
+def _thin_line(comp: list[tuple[int, int]]) -> bool:
+    """Тонкая линия (усы, стебель, оправа): компонента шириной в одну клетку и длиной от трёх."""
+    ys = {y for y, _ in comp}
+    xs = {x for _, x in comp}
+    return len(comp) >= 3 and (len(ys) == 1 or len(xs) == 1)
+
+
 def singles(lab: np.ndarray) -> int:
     return sum(1 for comp in components(lab) if len(comp) == 1)
 
@@ -196,12 +204,16 @@ class Result:
     palette_lab: np.ndarray
 
 
-def current_t24(img: np.ndarray, w: int, h: int, k: int, dither: bool) -> Result:
+def current_t24(img: np.ndarray, w: int, h: int, k: int, dither: bool, catalog: np.ndarray | None = None) -> Result:
     """Как сейчас в dev: среднее по ячейке в sRGB → k-means в Lab по ячейкам → ближайший цвет (+дизеринг)."""
     cells = area_resize(img, w, h, linear=False)
     lab = to_lab(cells)
     flat = lab.reshape(-1, 3)
     pal = kmeans_lab(flat, np.ones(len(flat)), k)
+    if catalog is not None:
+        # Как в T24: каждому центру ближайшая позиция каталога по ΔE2000, повторы схлопываются.
+        idx = de2000(pal[:, None, :], catalog[None]).argmin(1)
+        pal = catalog[np.unique(idx)]
     if not dither:
         return Result(((flat[:, None] - pal[None]) ** 2).sum(2).argmin(1).reshape(h, w), pal)
     work = lab.copy()
@@ -252,8 +264,45 @@ def edge_strength(lab: np.ndarray) -> np.ndarray:
     return np.hypot(gx, gy)
 
 
+def kmedoids_catalog(x: np.ndarray, wts: np.ndarray, centers: np.ndarray, catalog: np.ndarray, iters: int = 8):
+    """Палитра сразу из каталога: центр кластера — ближайшая ещё не занятая позиция, затем пересчёт кластеров."""
+    k = min(len(centers), len(catalog))
+
+    def snap(c: np.ndarray) -> np.ndarray:
+        d = de2000(c[:, None, :], catalog[None])
+        taken: list[int] = []
+        for i in np.argsort(d.min(1)):  # сначала центры, у которых есть очень близкая позиция
+            for j in np.argsort(d[i]):
+                if int(j) not in taken:
+                    taken.append(int(j))
+                    break
+        return np.array(taken[:k])
+
+    chosen = snap(centers[:k])
+    for _ in range(iters):
+        pal = catalog[chosen]
+        lab = ((x[:, None, :] - pal[None]) ** 2).sum(2).argmin(1)
+        means = np.array(
+            [(x[lab == j] * wts[lab == j, None]).sum(0) / wts[lab == j].sum() if (lab == j).any() else pal[j]
+             for j in range(len(pal))]
+        )
+        new = snap(means)
+        if set(new.tolist()) == set(chosen.tolist()):
+            break
+        chosen = new
+    return catalog[chosen]
+
+
 def proposed(
-    img: np.ndarray, w: int, h: int, k: int, *, detail: float, importance: np.ndarray | None = None, sub: int = 6
+    img: np.ndarray,
+    w: int,
+    h: int,
+    k: int,
+    *,
+    detail: float,
+    importance: np.ndarray | None = None,
+    catalog: np.ndarray | None = None,
+    sub: int = 6,
 ) -> Result:
     """Предложенный конвейер: рабочее разрешение → сглаживание с краями → яркость → палитра по пикселям с акцентами
     → цвет ячейки голосованием → сглаживание Поттса (сильнее в однотонных местах) → острова → слияние."""
@@ -271,9 +320,12 @@ def proposed(
     base = max(2, k - max(1, k // 5))
     pal = kmeans_lab(sample, sw, base)
     pal = ensure_accents(sample, pal, k)
+    if catalog is not None:
+        pal = kmedoids_catalog(sample, sw, pal, catalog)
 
     # Голосование: каждый пиксель выбирает ближайший цвет, ячейка берёт цену «средней ΔE её пикселей до цвета».
-    d = de2000(flat[:, None, :], pal[None])
+    # Евклид в Lab (ΔE76), как в ADR-0004 и T53: ΔE2000 на каждый пиксель слишком дорог для телефона.
+    d = np.sqrt(((flat[:, None, :] - pal[None]) ** 2).sum(2))
     cost = d.reshape(h, sub, w, sub, len(pal)).mean((1, 3))
     labels = cost.argmin(2)
 
@@ -393,6 +445,17 @@ def mean_de(img: np.ndarray, res: Result) -> float:
     return float(de2000(ref, res.palette_lab[res.labels]).mean())
 
 
+def _load_catalog() -> np.ndarray:
+    """Каталоги бисера из assets/catalog (Toho Round 11/0 и Miyuki Delica 11/0) в Lab."""
+    root = Path(__file__).resolve().parents[3] / "assets" / "catalog"
+    rgb = []
+    for name in ("toho_round_11.json", "miyuki_delica_11.json"):
+        for c in json.loads((root / name).read_text())["colors"]:
+            h = c["rgb"].lstrip("#")
+            rgb.append([int(h[i : i + 2], 16) for i in (0, 2, 4)])
+    return to_lab(np.array(rgb, dtype=np.uint8)[None])[0]
+
+
 def main(out_dir: Path) -> None:
     out_dir.mkdir(parents=True, exist_ok=True)
     examples = {
@@ -402,6 +465,7 @@ def main(out_dir: Path) -> None:
     }
     # Лицо на кадре портрета (как вернул бы VNDetectFaceRectangles): глаза и улыбка получают вес 4.
     masks = {"portrait": ellipse_mask(examples["portrait"].shape[:2], cx=120, cy=118, rx=62, ry=80, weight=4.0)}
+    catalog = _load_catalog()
     crafts = {"beads": (36, 10, render_beads, 14), "stitch": (64, 16, render_stitches, 10)}
     rows = ["| Пример | Ремесло | Вариант | Цветов | Одиночных клеток | Средняя ΔE2000 |", "|---|---|---|---|---|---|"]
     for name, img in examples.items():
@@ -413,6 +477,9 @@ def main(out_dir: Path) -> None:
                 "предложено, детально": proposed(img, cols, h, k, detail=0.8),
                 "предложено, проще": proposed(img, cols, h, k, detail=0.3),
             }
+            if craft == "beads":
+                variants["T24 + каталог Toho/Delica"] = current_t24(img, cols, h, k, dither=False, catalog=catalog)
+                variants["предложено + каталог"] = proposed(img, cols, h, k, detail=0.8, catalog=catalog)
             if name in masks:
                 variants["предложено + маска лица"] = proposed(img, cols, h, k, detail=0.8, importance=masks[name])
             src = Image.fromarray(img).resize((cols * cell, h * cell), Image.LANCZOS)
