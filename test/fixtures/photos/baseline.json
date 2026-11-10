@@ -14,6 +14,11 @@
     "colors": 10,
     "deltaE": 4.31
   },
+  "cat/loom/t52-prefilter": {
+    "singles": 111,
+    "colors": 10,
+    "deltaE": 3.68
+  },
   "cat/peyote/t24": {
     "singles": 56,
     "colors": 10,
@@ -29,6 +34,11 @@
     "colors": 10,
     "deltaE": 4.22
   },
+  "cat/peyote/t52-prefilter": {
+    "singles": 62,
+    "colors": 10,
+    "deltaE": 3.58
+  },
   "cat/stitch/t24": {
     "singles": 312,
     "colors": 16,
@@ -38,6 +48,11 @@
     "singles": 534,
     "colors": 16,
     "deltaE": 4.18
+  },
+  "cat/stitch/t52-prefilter": {
+    "singles": 305,
+    "colors": 16,
+    "deltaE": 3.17
   },
   "coffee/loom/t24": {
     "singles": 92,
@@ -54,6 +69,11 @@
     "colors": 10,
     "deltaE": 4.59
   },
+  "coffee/loom/t52-prefilter": {
+    "singles": 86,
+    "colors": 10,
+    "deltaE": 3.85
+  },
   "coffee/peyote/t24": {
     "singles": 65,
     "colors": 10,
@@ -69,6 +89,11 @@
     "colors": 10,
     "deltaE": 4.56
   },
+  "coffee/peyote/t52-prefilter": {
+    "singles": 69,
+    "colors": 10,
+    "deltaE": 3.82
+  },
   "coffee/stitch/t24": {
     "singles": 342,
     "colors": 16,
@@ -78,6 +103,11 @@
     "singles": 446,
     "colors": 16,
     "deltaE": 3.53
+  },
+  "coffee/stitch/t52-prefilter": {
+    "singles": 318,
+    "colors": 16,
+    "deltaE": 3.12
   },
   "drawing/loom/t24": {
     "singles": 19,
@@ -94,6 +124,11 @@
     "colors": 10,
     "deltaE": 1.89
   },
+  "drawing/loom/t52-prefilter": {
+    "singles": 22,
+    "colors": 10,
+    "deltaE": 1.4
+  },
   "drawing/peyote/t24": {
     "singles": 44,
     "colors": 10,
@@ -109,6 +144,11 @@
     "colors": 10,
     "deltaE": 2.19
   },
+  "drawing/peyote/t52-prefilter": {
+    "singles": 43,
+    "colors": 10,
+    "deltaE": 1.8
+  },
   "drawing/stitch/t24": {
     "singles": 71,
     "colors": 16,
@@ -118,6 +158,11 @@
     "singles": 129,
     "colors": 16,
     "deltaE": 1.14
+  },
+  "drawing/stitch/t52-prefilter": {
+    "singles": 61,
+    "colors": 16,
+    "deltaE": 0.72
   },
   "galaxy/loom/t24": {
     "singles": 256,
@@ -134,6 +179,11 @@
     "colors": 10,
     "deltaE": 1.44
   },
+  "galaxy/loom/t52-prefilter": {
+    "singles": 240,
+    "colors": 10,
+    "deltaE": 1.13
+  },
   "galaxy/peyote/t24": {
     "singles": 198,
     "colors": 10,
@@ -149,6 +199,11 @@
     "colors": 10,
     "deltaE": 1.24
   },
+  "galaxy/peyote/t52-prefilter": {
+    "singles": 204,
+    "colors": 10,
+    "deltaE": 1.16
+  },
   "galaxy/stitch/t24": {
     "singles": 616,
     "colors": 16,
@@ -158,6 +213,11 @@
     "singles": 491,
     "colors": 16,
     "deltaE": 1.38
+  },
+  "galaxy/stitch/t52-prefilter": {
+    "singles": 655,
+    "colors": 16,
+    "deltaE": 1.16
   },
   "handwriting/loom/t24": {
     "singles": 141,
@@ -174,6 +234,11 @@
     "colors": 10,
     "deltaE": 0.76
   },
+  "handwriting/loom/t52-prefilter": {
+    "singles": 120,
+    "colors": 10,
+    "deltaE": 0.54
+  },
   "handwriting/peyote/t24": {
     "singles": 109,
     "colors": 10,
@@ -189,6 +254,11 @@
     "colors": 10,
     "deltaE": 0.73
   },
+  "handwriting/peyote/t52-prefilter": {
+    "singles": 81,
+    "colors": 10,
+    "deltaE": 0.63
+  },
   "handwriting/stitch/t24": {
     "singles": 417,
     "colors": 16,
@@ -198,6 +268,11 @@
     "singles": 472,
     "colors": 16,
     "deltaE": 0.58
+  },
+  "handwriting/stitch/t52-prefilter": {
+    "singles": 378,
+    "colors": 16,
+    "deltaE": 0.47
   },
   "landscape/loom/t24": {
     "singles": 19,
@@ -214,6 +289,11 @@
     "colors": 10,
     "deltaE": 4.02
   },
+  "landscape/loom/t52-prefilter": {
+    "singles": 19,
+    "colors": 10,
+    "deltaE": 2.94
+  },
   "landscape/peyote/t24": {
     "singles": 16,
     "colors": 10,
@@ -229,6 +309,11 @@
     "colors": 10,
     "deltaE": 3.76
   },
+  "landscape/peyote/t52-prefilter": {
+    "singles": 13,
+    "colors": 10,
+    "deltaE": 3.06
+  },
   "landscape/stitch/t24": {
     "singles": 45,
     "colors": 16,
@@ -238,6 +323,11 @@
     "singles": 181,
     "colors": 16,
     "deltaE": 1.98
+  },
+  "landscape/stitch/t52-prefilter": {
+    "singles": 36,
+    "colors": 16,
+    "deltaE": 2.57
   },
   "logo/loom/t24": {
     "singles": 139,
@@ -254,6 +344,11 @@
     "colors": 10,
     "deltaE": 1.69
   },
+  "logo/loom/t52-prefilter": {
+    "singles": 137,
+    "colors": 10,
+    "deltaE": 1.41
+  },
   "logo/peyote/t24": {
     "singles": 98,
     "colors": 10,
@@ -269,6 +364,11 @@
     "colors": 10,
     "deltaE": 1.59
   },
+  "logo/peyote/t52-prefilter": {
+    "singles": 106,
+    "colors": 10,
+    "deltaE": 1.46
+  },
   "logo/stitch/t24": {
     "singles": 422,
     "colors": 16,
@@ -278,6 +378,11 @@
     "singles": 476,
     "colors": 16,
     "deltaE": 1.07
+  },
+  "logo/stitch/t52-prefilter": {
+    "singles": 384,
+    "colors": 16,
+    "deltaE": 0.82
   },
   "portrait/loom/t24": {
     "singles": 110,
@@ -294,6 +399,11 @@
     "colors": 10,
     "deltaE": 6.92
   },
+  "portrait/loom/t52-prefilter": {
+    "singles": 119,
+    "colors": 10,
+    "deltaE": 5.64
+  },
   "portrait/peyote/t24": {
     "singles": 96,
     "colors": 10,
@@ -309,6 +419,11 @@
     "colors": 10,
     "deltaE": 7.23
   },
+  "portrait/peyote/t52-prefilter": {
+    "singles": 96,
+    "colors": 10,
+    "deltaE": 5.74
+  },
   "portrait/stitch/t24": {
     "singles": 321,
     "colors": 16,
@@ -318,6 +433,11 @@
     "singles": 518,
     "colors": 16,
     "deltaE": 5.36
+  },
+  "portrait/stitch/t52-prefilter": {
+    "singles": 314,
+    "colors": 16,
+    "deltaE": 4.4
   },
   "rocket/loom/t24": {
     "singles": 21,
@@ -334,6 +454,11 @@
     "colors": 10,
     "deltaE": 3.75
   },
+  "rocket/loom/t52-prefilter": {
+    "singles": 22,
+    "colors": 10,
+    "deltaE": 3.3
+  },
   "rocket/peyote/t24": {
     "singles": 23,
     "colors": 10,
@@ -349,6 +474,11 @@
     "colors": 10,
     "deltaE": 3.69
   },
+  "rocket/peyote/t52-prefilter": {
+    "singles": 16,
+    "colors": 10,
+    "deltaE": 3.12
+  },
   "rocket/stitch/t24": {
     "singles": 76,
     "colors": 16,
@@ -358,5 +488,10 @@
     "singles": 328,
     "colors": 16,
     "deltaE": 3.13
+  },
+  "rocket/stitch/t52-prefilter": {
+    "singles": 55,
+    "colors": 16,
+    "deltaE": 2.65
   }
 }

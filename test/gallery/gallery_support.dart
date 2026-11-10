@@ -16,6 +16,7 @@ import 'package:beading/domain/grid/mm.dart';
 import 'package:beading/domain/image_to_grid/cell_sampler.dart';
 import 'package:beading/domain/image_to_grid/generated_pattern.dart';
 import 'package:beading/domain/image_to_grid/generation_stats.dart';
+import 'package:beading/domain/image_to_grid/image_prefilter.dart';
 import 'package:beading/domain/image_to_grid/image_to_grid_pipeline.dart';
 import 'package:beading/domain/image_to_grid/image_to_grid_request.dart';
 import 'package:beading/domain/image_to_grid/image_to_grid_settings.dart';
@@ -105,6 +106,7 @@ ImageToGridRequest _request(
   List<CatalogColor> catalog, {
   bool dither = false,
   bool useCatalog = false,
+  ImagePrefilter? prefilter,
 }) {
   final ImageToGridSettings settings = ImageToGridSettings(
     technique: target.technique,
@@ -118,7 +120,20 @@ ImageToGridRequest _request(
     image: image,
     catalog: useCatalog ? catalog : const <CatalogColor>[],
   );
-  if (target.metrics is BeadSize) return request;
+  if (target.metrics is BeadSize) {
+    if (prefilter == null) return request;
+    return ImageToGridRequest(
+      image: image,
+      geometry: request.geometry,
+      metrics: request.metrics,
+      columns: request.columns,
+      rows: request.rows,
+      maxColors: request.maxColors,
+      constraint: request.constraint,
+      dither: dither,
+      prefilter: prefilter,
+    );
+  }
   // Для вышивки размер ячейки свой: пересобираем запрос с квадратной клеткой.
   return ImageToGridRequest(
     image: image,
@@ -134,6 +149,7 @@ ImageToGridRequest _request(
     ),
     maxColors: target.maxColors,
     dither: dither,
+    prefilter: prefilter,
   );
 }
 
@@ -154,6 +170,11 @@ final List<GalleryVariant> galleryVariants = <GalleryVariant>[
     title: 'T24 + каталог Toho/Delica',
     beadsOnly: true,
     build: (image, target, catalog) => _request(image, target, catalog, useCatalog: true),
+  ),
+  GalleryVariant(
+    id: 't52-prefilter',
+    title: 'T52: подготовка фото',
+    build: (image, target, catalog) => _request(image, target, catalog, prefilter: const EdgePreservingPrefilter()),
   ),
 ];
 
