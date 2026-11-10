@@ -1,5 +1,6 @@
 import 'dart:ui';
 
+import 'package:beading/domain/grid/bead_size.dart';
 import 'package:beading/domain/grid/cell_position.dart';
 import 'package:beading/domain/grid/grid_geometry.dart';
 import 'package:beading/presentation/grid_pattern/grid_scene.dart';
@@ -72,5 +73,39 @@ void main() {
     final Path path = scene.rowPath(2);
     expect(path.contains(cell.center), isTrue);
     expect(path.contains(scene.cellRect(const CellPosition(0, 3)).center), isFalse);
+  });
+
+  group('ячейки произвольного ряда', () {
+    test('cellsBounds охватывает ячейки, для пустого набора — нулевой прямоугольник', () {
+      final GridScene scene = GridScene(
+        geometry: const GridGeometry.rectangular(),
+        metrics: BeadSize.delica11,
+        columns: 4,
+        rows: 4,
+      );
+      final Rect bounds = scene.cellsBounds(const <CellPosition>[CellPosition(0, 1), CellPosition(3, 1)]);
+      expect(bounds, scene.rowBounds(1));
+      expect(scene.cellsBounds(const <CellPosition>[]), Rect.zero);
+    });
+
+    test('cellsPath: набор прямоугольников и единый контур', () {
+      final GridScene scene = GridScene(
+        geometry: const GridGeometry.peyote(),
+        metrics: BeadSize.delica11,
+        columns: 3,
+        rows: 3,
+      );
+      const List<CellPosition> column = <CellPosition>[CellPosition(1, 0), CellPosition(1, 1)];
+      final Rect expected = scene.cellsBounds(column);
+      for (final Rect actual in <Rect>[
+        scene.cellsPath(column).getBounds(),
+        scene.cellsPath(column, outline: true).getBounds(),
+      ]) {
+        expect(actual.left, closeTo(expected.left, 1e-3));
+        expect(actual.top, closeTo(expected.top, 1e-3));
+        expect(actual.right, closeTo(expected.right, 1e-3));
+        expect(actual.bottom, closeTo(expected.bottom, 1e-3));
+      }
+    });
   });
 }

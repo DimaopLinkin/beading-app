@@ -68,7 +68,26 @@ abstract final class SettingKeys {
     decode: _decodeSpecialDates,
   );
 
+  /// Сколько рядов отмечено на этом устройстве за всё время: по нему приходит `RowsCompleted` для пасхалок.
+  /// Локальная: счётчики двух устройств в синхронизацию не складываем.
+  static const SettingKey<int> rowsCompleted = SettingKey<int>(
+    name: '${SettingKey.localPrefix}rowsCompleted',
+    defaultValue: 0,
+    encode: _encodeInt,
+    decode: int.tryParse,
+  );
+
+  /// Режим плетения «по бусине» (иначе «по ряду»): запоминается между запусками.
+  static const SettingKey<bool> weaveByBead = SettingKey<bool>(
+    name: 'weaveByBead',
+    defaultValue: false,
+    encode: _encodeBool,
+    decode: _decodeBool,
+  );
+
   static String _identity(String value) => value;
+
+  static String _encodeInt(int value) => value.toString();
 
   static String _encodeBool(bool value) => value ? 'true' : 'false';
 

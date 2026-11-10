@@ -14,8 +14,8 @@ Future<Result<void>> _onPattern(GridPatternRepository patterns, String projectId
   };
 }
 
-Result<void> _checkRow(GridPatternSummary summary, int row) => row < 0 || row >= summary.height
-    ? Err<void>(ValidationFailure('Ряда $row нет в схеме из ${summary.height} рядов'))
+Result<void> _checkRow(GridPatternSummary summary, int row) => row < 0 || row >= summary.readingRowCount
+    ? Err<void>(ValidationFailure('Ряда $row нет в схеме из ${summary.readingRowCount} рядов'))
     : const Success<void>(null);
 
 /// Отмечает ряд схемы выполненным.
@@ -73,8 +73,8 @@ class SetCurrentBead {
       if (checked is Err<void>) {
         return checked;
       }
-      if (bead != null && (bead < 0 || bead >= summary.width)) {
-        return Err<void>(ValidationFailure('Бусины $bead нет в ряду из ${summary.width} бусин'));
+      if (bead != null && (bead < 0 || bead >= summary.maxRowLength)) {
+        return Err<void>(ValidationFailure('Бусины $bead нет в ряду из ${summary.maxRowLength} бусин'));
       }
       return _progress.setCurrent(summary.id, row: row, bead: bead);
     },

@@ -101,4 +101,24 @@ final class GridScene {
     }
     return path;
   }
+
+  /// Охватывающий прямоугольник произвольного набора ячеек (например, ряда плетения).
+  Rect cellsBounds(Iterable<CellPosition> cells) {
+    Rect? bounds;
+    for (final CellPosition cell in cells) {
+      final Rect rect = cellRect(cell);
+      bounds = bounds == null ? rect : bounds.expandToInclude(rect);
+    }
+    return bounds ?? Rect.zero;
+  }
+
+  /// Контур набора ячеек: объединение прямоугольников с [outline], иначе просто набор прямоугольников.
+  Path cellsPath(Iterable<CellPosition> cells, {bool outline = false}) {
+    Path path = Path();
+    for (final CellPosition cell in cells) {
+      final Path rect = Path()..addRect(cellRect(cell));
+      path = outline ? Path.combine(PathOperation.union, path, rect) : (path..addPath(rect, Offset.zero));
+    }
+    return path;
+  }
 }
