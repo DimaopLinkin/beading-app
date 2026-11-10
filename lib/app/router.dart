@@ -6,8 +6,11 @@ import 'package:beading/domain/image_pattern/file_store.dart';
 import 'package:beading/domain/projects/project.dart';
 import 'package:beading/domain/settings/app_info.dart';
 import 'package:beading/domain/settings/secret_tap_handler.dart';
+import 'package:beading/domain/sharing/text_sharer.dart';
 import 'package:beading/presentation/book_work/book_work_cubit.dart';
 import 'package:beading/presentation/book_work/book_work_screen.dart';
+import 'package:beading/presentation/catalog/catalog_cubit.dart';
+import 'package:beading/presentation/catalog/catalog_screen.dart';
 import 'package:beading/presentation/dev/glass_check_screen.dart';
 import 'package:beading/presentation/import_book/import_book_cubit.dart';
 import 'package:beading/presentation/import_book/import_book_screen.dart';
@@ -15,6 +18,8 @@ import 'package:beading/presentation/library/library_cubit.dart';
 import 'package:beading/presentation/library/library_screen.dart';
 import 'package:beading/presentation/library/new_project_entry.dart';
 import 'package:beading/presentation/library/project_thumbnail_provider.dart';
+import 'package:beading/presentation/materials/materials_cubit.dart';
+import 'package:beading/presentation/materials/materials_screen.dart';
 import 'package:beading/presentation/settings/about_screen.dart';
 import 'package:beading/presentation/settings/hidden_settings_screen.dart';
 import 'package:beading/presentation/settings/settings_screen.dart';
@@ -37,6 +42,12 @@ abstract final class AppRoutes {
   /// Плетение по своей схеме (T19).
   static String weave(String projectId) => WeaveScreen.locationFor(projectId);
 
+  /// Каталог цветов бисера (T20).
+  static const String catalog = CatalogScreen.routePath;
+
+  /// Материалы проекта: расход бисера по цветам схемы (T20).
+  static String materials(String projectId) => MaterialsScreen.locationFor(projectId);
+
   /// Работа по схеме из книги (T07): линейка, зум, страницы, заметки. T05 откроет её из карточки проекта.
   static String bookWork(String projectId) => BookWorkScreen.locationFor(projectId);
 }
@@ -54,6 +65,8 @@ GoRouter createRouter({bool showDeveloperTools = !kReleaseMode}) => GoRouter(
           newProjects: getIt<NewProjectRegistry>(),
           thumbnails: getIt<ProjectThumbnailRegistry>(),
           onOpenSettings: () => context.push(AppRoutes.settings),
+          onOpenCatalog: () => context.push(AppRoutes.catalog),
+          onOpenMaterials: (context, project) => context.push(AppRoutes.materials(project.id)),
           onOpenProject: (context, project) {
             switch (project.contentKind) {
               case ContentKind.image:
@@ -97,6 +110,20 @@ GoRouter createRouter({bool showDeveloperTools = !kReleaseMode}) => GoRouter(
       builder: (_, state) => BlocProvider<WeaveCubit>(
         create: (_) => getIt<WeaveCubit>(param1: state.pathParameters['projectId'])..load(),
         child: const WeaveScreen(),
+      ),
+    ),
+    GoRoute(
+      path: AppRoutes.catalog,
+      builder: (_, _) => BlocProvider<CatalogCubit>(
+        create: (_) => getIt<CatalogCubit>()..start(),
+        child: const CatalogScreen(),
+      ),
+    ),
+    GoRoute(
+      path: MaterialsScreen.routePath,
+      builder: (_, state) => BlocProvider<MaterialsCubit>(
+        create: (_) => getIt<MaterialsCubit>(param1: state.pathParameters['projectId'])..load(),
+        child: MaterialsScreen(sharer: getIt<TextSharer>()),
       ),
     ),
     GoRoute(

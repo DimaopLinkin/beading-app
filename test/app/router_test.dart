@@ -13,6 +13,13 @@ void main() {
     expect(paths(devTools: true), contains(AppRoutes.glassCheck));
   });
 
+  test('есть маршруты каталога и материалов проекта (в том числе в релизной сборке)', () {
+    for (final bool devTools in <bool>[true, false]) {
+      expect(paths(devTools: devTools), containsAll(<String>[AppRoutes.catalog, '/projects/:projectId/materials']));
+    }
+    expect(AppRoutes.materials('p-1'), '/projects/p-1/materials');
+  });
+
   test('в релизной сборке маршрута проверки стекла нет', () {
     expect(paths(devTools: false), isNot(contains(AppRoutes.glassCheck)));
     expect(paths(devTools: false), contains(AppRoutes.settings));

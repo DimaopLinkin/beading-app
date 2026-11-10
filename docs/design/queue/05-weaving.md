@@ -1,7 +1,7 @@
 ---
 id: 05-weaving
 title: Режим плетения по своей схеме (MUST-F1–F4)
-status: rework
+status: delivered
 depends: 01-ui-kit
 ---
 
