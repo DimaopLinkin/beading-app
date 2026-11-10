@@ -37,7 +37,7 @@ class ProjectCard extends StatelessWidget {
       onLongPress: onLongPress,
       onSecondaryTap: onLongPress,
       child: Semantics(
-        button: true,
+        button: onTap != null,
         container: true,
         child: DecoratedBox(
           decoration: BoxDecoration(color: background, borderRadius: BorderRadius.circular(tokens.radius.m)),

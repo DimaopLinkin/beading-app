@@ -80,6 +80,51 @@ void main() {
     expect(cubit.state.hasNoMatches, isFalse);
   });
 
+  group('последовательность состояний', () {
+    blocTest<LibraryCubit, LibraryState>(
+      'загрузка: проекты приходят одним состоянием ready',
+      setUp: () => repository.projects['a'] = project('a', 'Браслет'),
+      build: createCubit,
+      act: (cubit) => cubit.start(),
+      wait: Duration.zero,
+      expect: () => <Matcher>[
+        isA<LibraryState>().having((s) => s.status, 'status', LibraryStatus.ready).having(
+          (s) => s.projects.map((p) => p.id),
+          'ids',
+          <String>['a'],
+        ),
+      ],
+    );
+
+    blocTest<LibraryCubit, LibraryState>(
+      'поиск и фильтр дают отдельные состояния с обновлённым фильтром',
+      setUp: () => repository.projects['a'] = project('a', 'Браслет'),
+      build: createCubit,
+      seed: () => LibraryState(status: LibraryStatus.ready, projects: <Project>[project('a', 'Браслет')]),
+      act: (cubit) => cubit
+        ..setQuery('бр')
+        ..toggleCraft(Craft.beading),
+      expect: () => <Matcher>[
+        isA<LibraryState>().having((s) => s.filter.query, 'query', 'бр'),
+        isA<LibraryState>()
+            .having((s) => s.filter.query, 'query', 'бр')
+            .having((s) => s.filter.craft, 'craft', Craft.beading),
+      ],
+    );
+  });
+
+  test('действие, завершившееся после close, не падает', () async {
+    repository.projects['a'] = project('a', 'Браслет');
+    final LibraryCubit cubit = createCubit();
+    cubit.start();
+    await pumpEventQueue();
+
+    final Future<void> pending = cubit.delete('нет-такого');
+    await cubit.close();
+
+    await expectLater(pending, completes);
+  });
+
   group('фильтры', () {
     setUp(() {
       repository.projects['a'] = project('a', 'Браслет Ёлка', day: 3);

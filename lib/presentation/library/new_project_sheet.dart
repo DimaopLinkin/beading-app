@@ -70,9 +70,9 @@ class _NewProjectSheetState extends State<NewProjectSheet> {
               groupValue: craft,
               children: <Craft, Widget>{
                 for (final Craft c in crafts)
-                  c: Padding(
-                    padding: EdgeInsets.symmetric(vertical: tokens.spacing.xs),
-                    child: Text(c.label(l10n)),
+                  c: ConstrainedBox(
+                    constraints: BoxConstraints(minHeight: tokens.minTapTarget - 4),
+                    child: Center(child: Text(c.label(l10n))),
                   ),
               },
               onValueChanged: (value) => setState(() => _craft = value),

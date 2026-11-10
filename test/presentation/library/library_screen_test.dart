@@ -9,6 +9,7 @@ import 'package:beading/presentation/l10n/app_localizations.dart';
 import 'package:beading/presentation/library/library_cubit.dart';
 import 'package:beading/presentation/library/library_screen.dart';
 import 'package:beading/presentation/library/new_project_entry.dart';
+import 'package:beading/presentation/library/project_card.dart';
 import 'package:beading/presentation/library/project_thumbnail_provider.dart';
 import 'package:beading/presentation/theme/app_theme.dart';
 import 'package:flutter/cupertino.dart';
@@ -205,6 +206,63 @@ void main() {
       expect(find.text('Браслет'), findsNothing);
       expect(find.text('Пока нет работ'), findsOneWidget);
     });
+  });
+
+  testWidgets('удаление из меню долгого нажатия тоже просит подтверждение', (tester) async {
+    repository.projects['a'] = project('a', 'Браслет');
+    await pumpScreen(tester);
+
+    await tester.longPress(find.text('Браслет'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.widgetWithText(CupertinoActionSheetAction, 'Удалить'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Удалить «Браслет»?'), findsOneWidget);
+    expect(repository.deleted, isEmpty);
+  });
+
+  testWidgets('ошибка удаления показывает сообщение', (tester) async {
+    repository.projects['a'] = project('a', 'Браслет');
+    await pumpScreen(tester);
+    repository.deleted.add('a'); // проект исчез из хранилища, а список ещё не обновился
+
+    await tester.drag(find.text('Браслет'), const Offset(-300, 0));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Удалить'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.widgetWithText(CupertinoDialogAction, 'Удалить'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Этой работы уже нет.'), findsOneWidget);
+  });
+
+  testWidgets('ошибка дублирования показывает сообщение', (tester) async {
+    repository.projects['a'] = project('a', 'Браслет');
+    await pumpScreen(tester);
+    repository.deleted.add('a');
+
+    await tester.drag(find.text('Браслет'), const Offset(-300, 0));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Дублировать'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Этой работы уже нет.'), findsOneWidget);
+  });
+
+  testWidgets('нажатие на открытую строку закрывает её и не открывает проект', (tester) async {
+    repository.projects['a'] = project('a', 'Браслет');
+    await pumpScreen(tester);
+    final double closedX = tester.getTopLeft(find.text('Браслет')).dx;
+
+    await tester.drag(find.text('Браслет'), const Offset(-300, 0));
+    await tester.pumpAndSettle();
+    expect(tester.getTopLeft(find.text('Браслет')).dx, lessThan(closedX));
+
+    await tester.tap(find.byType(ProjectCard));
+    await tester.pumpAndSettle();
+
+    expect(tester.getTopLeft(find.text('Браслет')).dx, closedX);
+    expect(opened, isEmpty);
   });
 
   testWidgets('свайп «Дублировать» добавляет копию', (tester) async {

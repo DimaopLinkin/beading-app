@@ -32,6 +32,8 @@ class _SwipeActionRowState extends State<SwipeActionRow> {
 
   double get _extent => widget.actionWidth * widget.actions.length;
 
+  bool get _isOpen => _offset < 0;
+
   void _close() => setState(() => _offset = 0);
 
   void _onDragUpdate(DragUpdateDetails details) =>
@@ -60,37 +62,40 @@ class _SwipeActionRowState extends State<SwipeActionRow> {
             Positioned.fill(
               child: Align(
                 alignment: Alignment.centerRight,
-                child: SizedBox(
-                  width: _extent,
-                  child: Row(
-                    children: <Widget>[
-                      for (final SwipeAction action in widget.actions)
-                        Expanded(
-                          child: GestureDetector(
-                            behavior: HitTestBehavior.opaque,
-                            onTap: () {
-                              _close();
-                              action.onPressed();
-                            },
-                            child: ColoredBox(
-                              color: action.color,
-                              child: Center(
-                                child: Text(
-                                  action.label,
-                                  maxLines: 2,
-                                  textAlign: TextAlign.center,
-                                  style: const TextStyle(
-                                    color: CupertinoColors.white,
-                                    fontSize: 13,
-                                    fontWeight: FontWeight.w600,
-                                    decoration: TextDecoration.none,
+                child: ExcludeSemantics(
+                  excluding: !_isOpen,
+                  child: SizedBox(
+                    width: _extent,
+                    child: Row(
+                      children: <Widget>[
+                        for (final SwipeAction action in widget.actions)
+                          Expanded(
+                            child: GestureDetector(
+                              behavior: HitTestBehavior.opaque,
+                              onTap: () {
+                                _close();
+                                action.onPressed();
+                              },
+                              child: ColoredBox(
+                                color: action.color,
+                                child: Center(
+                                  child: Text(
+                                    action.label,
+                                    maxLines: 2,
+                                    textAlign: TextAlign.center,
+                                    style: const TextStyle(
+                                      color: CupertinoColors.white,
+                                      fontSize: 13,
+                                      fontWeight: FontWeight.w600,
+                                      decoration: TextDecoration.none,
+                                    ),
                                   ),
                                 ),
                               ),
                             ),
                           ),
-                        ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
               ),
@@ -99,11 +104,21 @@ class _SwipeActionRowState extends State<SwipeActionRow> {
               onHorizontalDragStart: (_) => setState(() => _dragging = true),
               onHorizontalDragUpdate: _onDragUpdate,
               onHorizontalDragEnd: _onDragEnd,
+              onHorizontalDragCancel: () => setState(() {
+                _dragging = false;
+                _offset = _offset < -_extent / 2 ? -_extent : 0;
+              }),
               child: AnimatedContainer(
                 duration: _dragging ? Duration.zero : const Duration(milliseconds: 200),
                 curve: Curves.easeOut,
                 transform: Matrix4.translationValues(_offset, 0, 0),
-                child: widget.child,
+                child: _isOpen
+                    ? GestureDetector(
+                        behavior: HitTestBehavior.opaque,
+                        onTap: _close,
+                        child: AbsorbPointer(child: widget.child),
+                      )
+                    : widget.child,
               ),
             ),
           ],

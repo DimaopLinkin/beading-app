@@ -12,4 +12,6 @@ abstract final class AppIcons {
   static const IconData notes = CupertinoIcons.doc_text;
   static const IconData pages = CupertinoIcons.square_on_square;
   static const IconData selected = CupertinoIcons.checkmark;
+  static const IconData craftBeading = CupertinoIcons.circle_grid_3x3_fill;
+  static const IconData craftCrossStitch = CupertinoIcons.square_grid_2x2_fill;
 }

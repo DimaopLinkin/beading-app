@@ -132,6 +132,9 @@ class LibraryCubit extends Cubit<LibraryState> {
   void acknowledgeActionFailure() => emit(state.copyWith(actionFailure: () => null));
 
   void _report(Result<Object?> result) {
+    if (isClosed) {
+      return;
+    }
     if (result case Err<Object?>(:final Failure failure)) {
       emit(state.copyWith(actionFailure: () => failure));
     }

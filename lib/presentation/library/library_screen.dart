@@ -79,33 +79,10 @@ class _LibraryScreenState extends State<LibraryScreen> {
 
   Future<void> _rename(Project project) async {
     final LibraryCubit cubit = context.read<LibraryCubit>();
-    final AppLocalizations l10n = AppLocalizations.of(context);
-    final TextEditingController controller = TextEditingController(text: project.name);
     final String? name = await showCupertinoDialog<String>(
       context: context,
-      builder: (dialogContext) => CupertinoAlertDialog(
-        title: Text(l10n.projectRenameTitle),
-        content: Padding(
-          padding: const EdgeInsets.only(top: 12),
-          child: CupertinoTextField(
-            controller: controller,
-            autofocus: true,
-            placeholder: l10n.projectNamePlaceholder,
-            textCapitalization: TextCapitalization.sentences,
-            onSubmitted: (value) => Navigator.of(dialogContext).pop(value),
-          ),
-        ),
-        actions: <Widget>[
-          CupertinoDialogAction(onPressed: () => Navigator.of(dialogContext).pop(), child: Text(l10n.cancel)),
-          CupertinoDialogAction(
-            isDefaultAction: true,
-            onPressed: () => Navigator.of(dialogContext).pop(controller.text),
-            child: Text(l10n.commonSave),
-          ),
-        ],
-      ),
+      builder: (_) => _RenameDialog(initialName: project.name),
     );
-    controller.dispose();
     if (name != null) {
       await cubit.rename(project.id, name);
     }
@@ -336,7 +313,7 @@ class _LibraryScreenState extends State<LibraryScreen> {
                     ),
                     SwipeAction(
                       label: l10n.projectDuplicate,
-                      color: CupertinoColors.systemOrange.resolveFrom(context),
+                      color: CupertinoColors.systemIndigo.resolveFrom(context),
                       onPressed: () => cubit.duplicate(project.id),
                     ),
                     SwipeAction(
@@ -357,5 +334,51 @@ class _LibraryScreenState extends State<LibraryScreen> {
           ),
         ];
     }
+  }
+}
+
+/// Диалог переименования; контроллер живёт и освобождается вместе с ним.
+class _RenameDialog extends StatefulWidget {
+  const _RenameDialog({required this.initialName});
+
+  final String initialName;
+
+  @override
+  State<_RenameDialog> createState() => _RenameDialogState();
+}
+
+class _RenameDialogState extends State<_RenameDialog> {
+  late final TextEditingController _controller = TextEditingController(text: widget.initialName);
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final AppLocalizations l10n = AppLocalizations.of(context);
+    return CupertinoAlertDialog(
+      title: Text(l10n.projectRenameTitle),
+      content: Padding(
+        padding: const EdgeInsets.only(top: 12),
+        child: CupertinoTextField(
+          controller: _controller,
+          autofocus: true,
+          placeholder: l10n.projectNamePlaceholder,
+          textCapitalization: TextCapitalization.sentences,
+          onSubmitted: (value) => Navigator.of(context).pop(value),
+        ),
+      ),
+      actions: <Widget>[
+        CupertinoDialogAction(onPressed: () => Navigator.of(context).pop(), child: Text(l10n.cancel)),
+        CupertinoDialogAction(
+          isDefaultAction: true,
+          onPressed: () => Navigator.of(context).pop(_controller.text),
+          child: Text(l10n.commonSave),
+        ),
+      ],
+    );
   }
 }

@@ -2,6 +2,7 @@ import 'package:beading/core/failure.dart';
 import 'package:beading/domain/projects/craft.dart';
 import 'package:beading/domain/projects/project.dart';
 import 'package:beading/presentation/l10n/app_localizations.dart';
+import 'package:beading/presentation/theme/app_icons.dart';
 import 'package:flutter/cupertino.dart';
 
 /// Русские названия перечислений предметной области и иконки ремёсел: единственное место, где они определены.
@@ -12,8 +13,8 @@ extension CraftLabel on Craft {
   };
 
   IconData get icon => switch (this) {
-    Craft.beading => CupertinoIcons.circle_grid_3x3_fill,
-    Craft.crossStitch => CupertinoIcons.square_grid_2x2_fill,
+    Craft.beading => AppIcons.craftBeading,
+    Craft.crossStitch => AppIcons.craftCrossStitch,
   };
 }
 
