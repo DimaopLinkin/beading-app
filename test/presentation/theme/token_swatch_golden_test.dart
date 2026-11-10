@@ -50,7 +50,7 @@ class _TokenSwatch extends StatelessWidget {
 void main() {
   for (final Brightness brightness in Brightness.values) {
     testWidgets('образец токенов, ${brightness.name}', (tester) async {
-      await tester.binding.setSurfaceSize(const Size(560, 220));
+      await tester.binding.setSurfaceSize(const Size(560, 280));
       addTearDown(() => tester.binding.setSurfaceSize(null));
 
       await tester.pumpWidget(

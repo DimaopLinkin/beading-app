@@ -6,6 +6,6 @@ void main() {
   test('иконки берутся из CupertinoIcons', () {
     expect(AppIcons.settings, CupertinoIcons.settings);
     expect(AppIcons.add, CupertinoIcons.add);
-    expect(AppIcons.back, CupertinoIcons.back);
+    expect(AppIcons.back, CupertinoIcons.chevron_back);
   });
 }

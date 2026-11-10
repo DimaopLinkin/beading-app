@@ -2,7 +2,8 @@ import 'package:beading/domain/image_pattern/book_work/ruler_state.dart';
 import 'package:beading/presentation/theme/tokens.dart';
 import 'package:flutter/cupertino.dart';
 
-/// Цвета подсветки линейки: полупрозрачные, чтобы схема под ними читалась.
+/// Цвета подсветки линейки: полупрозрачные, чтобы схема под ними читалась. Края полосы рисует двойное кольцо
+/// (`RowRing`), а «жёлтый» по умолчанию теперь тинт акцента «Янтарь» из UI kit.
 abstract final class RulerColors {
   static const CupertinoDynamicColor _green = CupertinoDynamicColor.withBrightness(
     color: Color(0x6634C759),
@@ -28,7 +29,7 @@ abstract final class RulerColors {
 
   /// Непрозрачный образец для выбора цвета и границ линейки.
   static Color swatch(BuildContext context, RulerHighlight highlight) => switch (highlight) {
-    RulerHighlight.yellow => CupertinoColors.systemYellow,
+    RulerHighlight.yellow => context.tokens.accent,
     RulerHighlight.green => CupertinoColors.systemGreen,
     RulerHighlight.blue => CupertinoColors.systemBlue,
     RulerHighlight.pink => CupertinoColors.systemPink,

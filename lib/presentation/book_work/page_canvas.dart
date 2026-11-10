@@ -7,6 +7,7 @@ import 'package:beading/domain/image_pattern/image_pattern.dart';
 import 'package:beading/presentation/book_work/ruler_colors.dart';
 import 'package:beading/presentation/l10n/app_localizations.dart';
 import 'package:beading/presentation/theme/tokens.dart';
+import 'package:beading/presentation/widgets/row_ring.dart';
 import 'package:flutter/cupertino.dart';
 
 /// Страница схемы вместе с линейкой. Рисуется в системе координат страницы: линейка и притушение масштабируются
@@ -28,7 +29,6 @@ class PageCanvas extends StatelessWidget {
   Widget build(BuildContext context) {
     final double scale = width / page.width;
     final Color fill = RulerColors.fill(context, ruler.highlight);
-    final Color edge = RulerColors.swatch(context, ruler.highlight);
     final Color dim = context.tokens.rowDim.resolveFrom(context);
     return SizedBox(
       width: width,
@@ -54,12 +54,7 @@ class PageCanvas extends StatelessWidget {
             top: ruler.top * scale,
             height: ruler.height * scale,
             child: IgnorePointer(
-              child: DecoratedBox(
-                decoration: BoxDecoration(
-                  color: fill,
-                  border: Border.symmetric(horizontal: BorderSide(color: edge)),
-                ),
-              ),
+              child: RowRing(child: ColoredBox(color: fill)),
             ),
           ),
         ],
