@@ -4,10 +4,13 @@ import 'package:flutter/cupertino.dart';
 
 /// Нижний стеклянный лист с крупными верхними скруглениями и ручкой.
 class GlassSheet extends StatelessWidget {
-  const GlassSheet({required this.child, this.showGrabber = true, this.density = GlassDensity.regular, super.key});
+  const GlassSheet({required this.child, this.showGrabber = true, this.floating = false, this.density = GlassDensity.regular, super.key});
 
   final Widget child;
   final bool showGrabber;
+
+  /// Лист «парит» над низом экрана (iOS 26): скруглён со всех сторон, без ручки-перетаскивания.
+  final bool floating;
   final GlassDensity density;
 
   @override
@@ -18,7 +21,9 @@ class GlassSheet extends StatelessWidget {
       material: GlassMaterial.bar,
       density: density,
       shape: RoundedSuperellipseBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(tokens.radius.xl)),
+        borderRadius: floating
+            ? BorderRadius.circular(tokens.radius.xl)
+            : BorderRadius.vertical(top: Radius.circular(tokens.radius.xl)),
       ),
       child: Padding(
         padding: EdgeInsets.fromLTRB(tokens.spacing.l, tokens.spacing.s, tokens.spacing.l, tokens.spacing.l),
@@ -26,7 +31,7 @@ class GlassSheet extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: <Widget>[
-            if (showGrabber)
+            if (showGrabber && !floating)
               Padding(
                 padding: EdgeInsets.only(bottom: tokens.spacing.m),
                 child: Center(

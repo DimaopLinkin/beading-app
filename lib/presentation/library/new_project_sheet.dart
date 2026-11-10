@@ -11,11 +11,16 @@ import 'package:flutter/cupertino.dart';
 Future<void> showNewProjectSheet(BuildContext context, NewProjectRegistry registry, {Craft? initialCraft}) async {
   final NewProjectEntry? chosen = await showCupertinoModalPopup<NewProjectEntry>(
     context: context,
-    builder: (_) => Align(
-      alignment: Alignment.bottomCenter,
-      child: ConstrainedBox(
-        constraints: const BoxConstraints(maxWidth: 560),
-        child: NewProjectSheet(registry: registry, initialCraft: initialCraft),
+    builder: (_) => SafeArea(
+      child: Align(
+        alignment: Alignment.bottomCenter,
+        child: Padding(
+          padding: const EdgeInsets.all(8),
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 560),
+            child: NewProjectSheet(registry: registry, initialCraft: initialCraft),
+          ),
+        ),
       ),
     ),
   );
@@ -55,6 +60,7 @@ class _NewProjectSheetState extends State<NewProjectSheet> {
     final List<NewProjectEntry> entries = craft == null ? const <NewProjectEntry>[] : widget.registry.entriesFor(craft);
 
     return GlassSheet(
+      floating: true,
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
