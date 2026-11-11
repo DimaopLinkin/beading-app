@@ -1,6 +1,7 @@
 import 'dart:typed_data';
 
 import 'package:beading/domain/image_pattern/crop_rect.dart';
+import 'package:beading/domain/image_to_grid/face_size_advisor.dart';
 import 'package:beading/domain/image_to_grid/generated_pattern.dart';
 import 'package:beading/domain/image_to_grid/image_mask_set.dart';
 import 'package:beading/domain/image_to_grid/image_to_grid_settings.dart';
@@ -69,6 +70,15 @@ class ImageWizardState extends Equatable {
   final ImageMaskSet? masks;
 
   /// Есть что выделять: показываем переключатель «Выделять главное».
+  /// Совет, если лицо на схеме слишком мелкое (T54); пока маски не учитываются, лицо не важно и совета нет.
+  FaceSizeAdvice? get faceAdvice {
+    final ImageMaskSet? found = masks;
+    if (found == null || !settings.useMasks) {
+      return null;
+    }
+    return const FaceSizeAdvisor().advise(found, columns: settings.columns);
+  }
+
   bool get hasMasks => masks != null && !masks!.isEmpty;
 
   /// Созданный проект, когда [step] — [ImageWizardStep.done].

@@ -1293,6 +1293,17 @@ class AppLocalizationsRu extends AppLocalizations {
   String get imageWizardUseMasksHint => 'Лица и главный предмет получают больше цветов и деталей, фон — меньше.';
 
   @override
+  String imageWizardFaceSmall(int cells, int min) {
+    return 'Лицо шириной всего $cells бусин: глаза и губы могут не получиться. Нужно хотя бы $min.';
+  }
+
+  @override
+  String get imageWizardFaceCrop => 'Обрезать по лицу';
+
+  @override
+  String get imageWizardFaceWider => 'Схема шире';
+
+  @override
   String get imageWizardName => 'Название';
 
   @override

@@ -5,6 +5,7 @@ import 'package:beading/core/result.dart';
 import 'package:beading/domain/catalog/catalog_color.dart';
 import 'package:beading/domain/grid/grid.dart';
 import 'package:beading/domain/grid_pattern/use_cases/create_grid_pattern.dart';
+import 'package:beading/domain/image_pattern/crop_rect.dart';
 import 'package:beading/domain/image_pattern/picked_book_file.dart';
 import 'package:beading/domain/image_to_grid/generated_pattern.dart';
 import 'package:beading/domain/image_to_grid/image_decoder.dart';
@@ -149,6 +150,56 @@ void main() {
     await tester.tap(toggle);
     await tester.pumpAndSettle();
     expect(cubit.state.settings.useMasks, isFalse);
+  });
+
+  ImageMaskSet faceOfWidth(double width) => ImageMaskSet(
+    width: 10,
+    height: 10,
+    faces: <DetectedFace>[
+      DetectedFace(
+        bounds: NormalizedRect(left: 0.3, top: 0.2, right: 0.3 + width, bottom: 0.2 + width),
+      ),
+    ],
+  );
+
+  testWidgets('мелкое лицо: плашка с двумя действиями, обрезка и ширина меняют настройки', (tester) async {
+    masks.result = faceOfWidth(0.2);
+    await openPhoto(tester, AppTheme.light);
+    final Finder warning = find.byKey(const ValueKey<String>('wizard-face-warning'));
+    await tester.scrollUntilVisible(warning, 200, scrollable: find.byType(Scrollable).last);
+    expect(find.textContaining('Лицо шириной всего'), findsOneWidget);
+
+    await tester.tap(find.byKey(const ValueKey<String>('wizard-face-wider')));
+    await tester.pumpAndSettle();
+    expect(cubit.state.settings.columns, 100);
+    expect(find.byKey(const ValueKey<String>('wizard-face-warning'), skipOffstage: false), findsNothing);
+  });
+
+  testWidgets('мелкое лицо: «Обрезать по лицу» сужает рамку', (tester) async {
+    masks.result = faceOfWidth(0.2);
+    await openPhoto(tester, AppTheme.light);
+    final Finder warning = find.byKey(const ValueKey<String>('wizard-face-warning'));
+    await tester.scrollUntilVisible(warning, 200, scrollable: find.byType(Scrollable).last);
+
+    await tester.tap(find.byKey(const ValueKey<String>('wizard-face-crop')));
+    await tester.pumpAndSettle();
+    expect(cubit.state.crop.isFull, isFalse);
+    expect(cubit.state.crop.width, lessThan(1));
+  });
+
+  testWidgets('крупное лицо или выключенное «Выделять главное»: плашки нет', (tester) async {
+    masks.result = faceOfWidth(0.6);
+    await openPhoto(tester, AppTheme.light);
+    expect(find.byKey(const ValueKey<String>('wizard-face-warning'), skipOffstage: false), findsNothing);
+
+    masks.result = faceOfWidth(0.2);
+    await cubit.setCrop(CropRect.full);
+    await tester.pumpAndSettle();
+    expect(cubit.state.faceAdvice, isNotNull);
+    cubit.setUseMasks(value: false);
+    await tester.pumpAndSettle();
+    expect(cubit.state.faceAdvice, isNull);
+    expect(find.byKey(const ValueKey<String>('wizard-face-warning'), skipOffstage: false), findsNothing);
   });
 
   testWidgets('на Mac кнопки камеры нет', (tester) async {

@@ -2449,6 +2449,24 @@ abstract class AppLocalizations {
   /// **'Лица и главный предмет получают больше цветов и деталей, фон — меньше.'**
   String get imageWizardUseMasksHint;
 
+  /// Предупреждение: лицо на схеме слишком мелкое
+  ///
+  /// In ru, this message translates to:
+  /// **'Лицо шириной всего {cells} бусин: глаза и губы могут не получиться. Нужно хотя бы {min}.'**
+  String imageWizardFaceSmall(int cells, int min);
+
+  /// Действие: обрезать фото вокруг лица
+  ///
+  /// In ru, this message translates to:
+  /// **'Обрезать по лицу'**
+  String get imageWizardFaceCrop;
+
+  /// Действие: увеличить ширину схемы, чтобы лицо стало крупнее
+  ///
+  /// In ru, this message translates to:
+  /// **'Схема шире'**
+  String get imageWizardFaceWider;
+
   /// Подсказка в поле названия схемы
   ///
   /// In ru, this message translates to:
