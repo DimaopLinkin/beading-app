@@ -2401,6 +2401,30 @@ abstract class AppLocalizations {
   /// **'В каталоге нет бисера такого размера, поэтому цвета подобраны свободно.'**
   String get imageWizardCatalogMissing;
 
+  /// Заголовок выбора предустановки генератора
+  ///
+  /// In ru, this message translates to:
+  /// **'Детальность'**
+  String get imageWizardPreset;
+
+  /// Предустановка: крупные чистые области
+  ///
+  /// In ru, this message translates to:
+  /// **'Проще'**
+  String get imageWizardPresetSimpler;
+
+  /// Предустановка по умолчанию
+  ///
+  /// In ru, this message translates to:
+  /// **'Средне'**
+  String get imageWizardPresetBalanced;
+
+  /// Предустановка: больше мелких деталей
+  ///
+  /// In ru, this message translates to:
+  /// **'Детально'**
+  String get imageWizardPresetDetailed;
+
   /// Переключатель дизеринга
   ///
   /// In ru, this message translates to:
@@ -2410,7 +2434,7 @@ abstract class AppLocalizations {
   /// Пояснение к плавным переходам
   ///
   /// In ru, this message translates to:
-  /// **'Лучше передаёт оттенки, но схема становится пестрее.'**
+  /// **'Лучше передаёт оттенки, но схема становится пестрее. При включении выбор «Детальность» не применяется.'**
   String get imageWizardDitherHint;
 
   /// Подсказка в поле названия схемы

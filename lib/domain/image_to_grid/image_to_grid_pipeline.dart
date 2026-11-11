@@ -2,7 +2,10 @@ import 'dart:typed_data';
 
 import 'package:beading/domain/grid/grid.dart';
 import 'package:beading/domain/grid/grid_geometry.dart';
+import 'package:beading/domain/image_to_grid/accent_refill.dart';
+import 'package:beading/domain/image_to_grid/cell_edges.dart';
 import 'package:beading/domain/image_to_grid/cell_labeler.dart';
+import 'package:beading/domain/image_to_grid/cell_neighbors.dart';
 import 'package:beading/domain/image_to_grid/cell_regions.dart';
 import 'package:beading/domain/image_to_grid/cell_sampler.dart';
 import 'package:beading/domain/image_to_grid/color_assigner.dart';
@@ -10,6 +13,7 @@ import 'package:beading/domain/image_to_grid/generated_pattern.dart';
 import 'package:beading/domain/image_to_grid/generation_stats.dart';
 import 'package:beading/domain/image_to_grid/image_prefilter.dart';
 import 'package:beading/domain/image_to_grid/image_to_grid_request.dart';
+import 'package:beading/domain/image_to_grid/label_smoother.dart';
 import 'package:beading/domain/image_to_grid/palette_builder.dart';
 import 'package:beading/domain/image_to_grid/palette_entry.dart';
 import 'package:beading/domain/image_to_grid/pattern_metrics.dart';
@@ -152,22 +156,63 @@ final class ImageToGridPipeline {
       regions: regions,
       palette: <Lab>[for (final PaletteEntry e in palette) Lab.fromRgb(e.rgb)],
     );
-    final (GeneratedPattern compact, List<int> order) = _compactOrdered(labeled.values, palette, cells);
+    final int singlesBefore = countSingleCells(
+      Grid.fromCells(width: cells.columns, height: cells.rows, cells: labeled.values.toList()),
+      request.geometry,
+    );
+    final CellNeighbors neighbors = CellNeighbors.of(
+      geometry: request.geometry,
+      columns: cells.columns,
+      rows: cells.rows,
+    );
+    final Float32List edges = cellEdges(work, regions);
+    final LabelSmoother? smoother = request.smoother;
+    final Uint16List values = smoother == null
+        ? labeled.values
+        : smoother.smooth(
+            values: labeled.values,
+            costs: labeled.costs,
+            neighbors: neighbors,
+            importance: cells.importance,
+            edges: edges,
+          );
+    final (GeneratedPattern compact, List<int> order) = _compactOrdered(values, palette, cells);
     GeneratedPattern pattern = compact;
     times['assign'] = lap();
     final PatternStepContext context = PatternStepContext(
       geometry: request.geometry,
       cellImportance: cells.importance,
       costs: labeled.costs.select(order),
+      cellEdges: edges,
     );
     for (final PatternStep step in request.steps) {
       pattern = step.apply(pattern, context);
     }
+    if (request.refillFreedColors) {
+      // Сначала убираем опустевшие записи палитры: только так видно, сколько мест освободилось.
+      pattern = _compactPattern(pattern, cells);
+      pattern = refillAccents(
+        pattern: pattern,
+        cells: cells,
+        neighbors: neighbors,
+        importance: cells.importance,
+        maxColors: request.maxColors,
+        constraint: request.constraint,
+      );
+    }
+    // Шаги могли опустошить цвета: убираем неиспользуемые и снова упорядочиваем по площади.
+    pattern = _compactPattern(pattern, cells);
     times['steps'] = lap();
     return GeneratedPattern(
       grid: pattern.grid,
       palette: pattern.palette,
-      stats: _stats(pattern, cells, request.geometry, times),
+      stats: _stats(
+        pattern,
+        cells,
+        request.geometry,
+        times,
+        singlesBefore: request.steps.isEmpty && smoother == null ? null : singlesBefore,
+      ),
     );
   }
 
@@ -175,8 +220,9 @@ final class ImageToGridPipeline {
     GeneratedPattern pattern,
     SampledCells cells,
     GridGeometry geometry,
-    Map<String, Duration> times,
-  ) {
+    Map<String, Duration> times, {
+    int? singlesBefore,
+  }) {
     final List<Lab> paletteLab = <Lab>[for (final PaletteEntry e in pattern.palette) Lab.fromRgb(e.rgb)];
     final Set<int> used = <int>{};
     double sum = 0;
@@ -191,6 +237,7 @@ final class ImageToGridPipeline {
     }
     return GenerationStats(
       singleCells: countSingleCells(pattern.grid, geometry),
+      singleCellsBefore: singlesBefore,
       colorCount: used.length,
       meanDeltaE: counted == 0 ? 0 : sum / counted,
       stageTimes: times,
@@ -255,6 +302,14 @@ final class ImageToGridPipeline {
   /// Убирает цвета, которых нет в сетке, и упорядочивает палитру: чаще встречающиеся первыми.
   GeneratedPattern _compact(Uint16List values, List<PaletteEntry> palette, SampledCells cells) =>
       _compactOrdered(values, palette, cells).$1;
+
+  GeneratedPattern _compactPattern(GeneratedPattern pattern, SampledCells cells) {
+    final Uint16List values = Uint16List(cells.columns * cells.rows);
+    for (int i = 0; i < values.length; i++) {
+      values[i] = pattern.grid.at(i % cells.columns, i ~/ cells.columns);
+    }
+    return _compactOrdered(values, pattern.palette, cells).$1;
+  }
 
   /// То же, что [_compact], и ещё порядок: какие цвета исходной палитры остались и в каком порядке.
   (GeneratedPattern, List<int>) _compactOrdered(Uint16List values, List<PaletteEntry> palette, SampledCells cells) {

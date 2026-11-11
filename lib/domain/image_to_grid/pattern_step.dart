@@ -6,7 +6,7 @@ import 'package:beading/domain/image_to_grid/generated_pattern.dart';
 
 /// Что знает шаг о схеме, кроме самой сетки.
 final class PatternStepContext {
-  const PatternStepContext({required this.geometry, required this.cellImportance, this.costs});
+  const PatternStepContext({required this.geometry, required this.cellImportance, this.costs, this.cellEdges});
 
   final GridGeometry geometry;
 
@@ -16,6 +16,9 @@ final class PatternStepContext {
   /// Цена каждого цвета палитры для каждой клетки (столбцы — в порядке `GeneratedPattern.palette`) или `null`,
   /// если конвейер шёл путём T24 без разметки по пикселям.
   final CellCosts? costs;
+
+  /// Сила края в каждой клетке (`cellEdges`) или `null`, если рабочего изображения не было: путь T24.
+  final Float32List? cellEdges;
 }
 
 /// Шаг конвейера после привязки к палитре: очистка «конфетти» (T47), слои и им подобное.

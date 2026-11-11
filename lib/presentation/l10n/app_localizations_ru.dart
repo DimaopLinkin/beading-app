@@ -1268,10 +1268,23 @@ class AppLocalizationsRu extends AppLocalizations {
   String get imageWizardCatalogMissing => 'В каталоге нет бисера такого размера, поэтому цвета подобраны свободно.';
 
   @override
+  String get imageWizardPreset => 'Детальность';
+
+  @override
+  String get imageWizardPresetSimpler => 'Проще';
+
+  @override
+  String get imageWizardPresetBalanced => 'Средне';
+
+  @override
+  String get imageWizardPresetDetailed => 'Детально';
+
+  @override
   String get imageWizardDither => 'Плавные переходы';
 
   @override
-  String get imageWizardDitherHint => 'Лучше передаёт оттенки, но схема становится пестрее.';
+  String get imageWizardDitherHint =>
+      'Лучше передаёт оттенки, но схема становится пестрее. При включении выбор «Детальность» не применяется.';
 
   @override
   String get imageWizardName => 'Название';

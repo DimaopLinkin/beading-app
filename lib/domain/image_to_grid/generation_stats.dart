@@ -7,10 +7,14 @@ final class GenerationStats extends Equatable {
     required this.colorCount,
     required this.meanDeltaE,
     required Map<String, Duration> stageTimes,
+    this.singleCellsBefore,
   }) : stageTimes = Map<String, Duration>.unmodifiable(stageTimes);
 
   /// Клетки без единого соседа своего цвета («конфетти»); пустые клетки не считаются.
   final int singleCells;
+
+  /// Одиночных клеток сразу после разметки, до сглаживания и очистки; `null`, если очистки не было.
+  final int? singleCellsBefore;
 
   /// Сколько цветов осталось в схеме.
   final int colorCount;
@@ -24,5 +28,5 @@ final class GenerationStats extends Equatable {
   Duration get totalTime => stageTimes.values.fold(Duration.zero, (sum, d) => sum + d);
 
   @override
-  List<Object?> get props => <Object?>[singleCells, colorCount, meanDeltaE, stageTimes];
+  List<Object?> get props => <Object?>[singleCells, singleCellsBefore, colorCount, meanDeltaE, stageTimes];
 }

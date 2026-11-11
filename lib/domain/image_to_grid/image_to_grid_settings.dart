@@ -6,8 +6,11 @@ import 'package:beading/domain/catalog/catalog_material.dart';
 import 'package:beading/domain/grid/bead_size.dart';
 import 'package:beading/domain/grid/grid.dart';
 import 'package:beading/domain/grid/grid_geometry.dart';
+import 'package:beading/domain/image_to_grid/cell_labeler.dart';
 import 'package:beading/domain/image_to_grid/cell_sampler.dart';
+import 'package:beading/domain/image_to_grid/generation_preset.dart';
 import 'package:beading/domain/image_to_grid/image_to_grid_request.dart';
+import 'package:beading/domain/image_to_grid/palette_builder.dart';
 import 'package:beading/domain/image_to_grid/palette_constraint.dart';
 import 'package:beading/domain/image_to_grid/pattern_step.dart';
 import 'package:beading/domain/image_to_grid/source_image.dart';
@@ -33,6 +36,7 @@ final class ImageToGridSettings extends Equatable {
     this.maxColors = defaultMaxColors,
     this.paletteSource = PaletteSource.catalog,
     this.dither = false,
+    this.preset = GenerationPreset.balanced,
     this.steps = const <PatternStep>[],
   });
 
@@ -57,7 +61,11 @@ final class ImageToGridSettings extends Equatable {
   final PaletteSource paletteSource;
   final bool dither;
 
-  /// Шаги после привязки к палитре (очистка «конфетти» и прочее): расширение для T47–T49.
+  /// Предустановка стадий генератора: подготовка фото, палитра с акцентами, голосование, сглаживание и очистка.
+  /// `null` — путь T24 без новых стадий (для сравнения и тестов).
+  final GenerationPreset? preset;
+
+  /// Дополнительные шаги после очистки предустановки (контуры, слои): расширение для T49 и дальше.
   final List<PatternStep> steps;
 
   GridGeometry get geometry => geometryForTechnique(technique);
@@ -69,6 +77,8 @@ final class ImageToGridSettings extends Equatable {
     int? maxColors,
     PaletteSource? paletteSource,
     bool? dither,
+    GenerationPreset? preset,
+    bool clearPreset = false,
     List<PatternStep>? steps,
   }) => ImageToGridSettings(
     technique: technique ?? this.technique,
@@ -77,6 +87,7 @@ final class ImageToGridSettings extends Equatable {
     maxColors: (maxColors ?? this.maxColors).clamp(minColors, maxColorsLimit),
     paletteSource: paletteSource ?? this.paletteSource,
     dither: dither ?? this.dither,
+    preset: clearPreset ? null : preset ?? this.preset,
     steps: steps ?? this.steps,
   );
 
@@ -111,6 +122,8 @@ final class ImageToGridSettings extends Equatable {
   }) {
     final List<CatalogColor> allowed = catalogFor(catalog, brand: brand);
     final bool useCatalog = paletteSource == PaletteSource.catalog && allowed.isNotEmpty;
+    // Дизеринг по градиентам пиксельный путь пока не умеет (T57): с ним идёт путь T24 без стадий предустановки.
+    final GenerationPreset? active = dither ? null : preset;
     return ImageToGridRequest(
       image: image,
       geometry: geometry,
@@ -124,10 +137,15 @@ final class ImageToGridSettings extends Equatable {
       importance: importance,
       dither: dither,
       seed: seed,
-      steps: steps,
+      prefilter: active?.prefilter,
+      paletteBuilder: active == null ? null : const AccentPaletteBuilder(),
+      labeler: active == null ? null : const VotingCellLabeler(),
+      smoother: active?.smoother,
+      refillFreedColors: active?.refillFreedColors ?? false,
+      steps: <PatternStep>[...?active?.steps, ...steps],
     );
   }
 
   @override
-  List<Object?> get props => <Object?>[technique, beadSize, columns, maxColors, paletteSource, dither, steps];
+  List<Object?> get props => <Object?>[technique, beadSize, columns, maxColors, paletteSource, dither, preset, steps];
 }
