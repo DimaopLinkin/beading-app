@@ -35,4 +35,22 @@ abstract final class GridColors {
   /// Цвет знака на бусине: чёрный или белый, по яркости заливки.
   static Color symbolOn(Color fill) =>
       fill.computeLuminance() > 0.45 ? const Color(0xFF151316) : const Color(0xFFFFFFFF);
+
+  /// Подложка под бисером.
+  static const CupertinoDynamicColor beadSurface = CupertinoDynamicColor.withBrightness(
+    color: Color(0xFFE6E1D8),
+    darkColor: Color(0xFF2A272C),
+  );
+
+  /// Нить между бусинами.
+  static const CupertinoDynamicColor beadThread = CupertinoDynamicColor.withBrightness(
+    color: Color(0xFF9A948A),
+    darkColor: Color(0xFF8E8A92),
+  );
+
+  /// Канва Аида: тёплый кремовый, в тёмной теме чуть приглушён.
+  static const CupertinoDynamicColor aida = CupertinoDynamicColor.withBrightness(
+    color: Color(0xFFF2EBDB),
+    darkColor: Color(0xFFD3CBB8),
+  );
 }

@@ -29,6 +29,7 @@ class ImageWizardState extends Equatable {
     this.calculating = false,
     this.catalogColors = 0,
     this.comparing = false,
+    this.realistic = false,
     this.masks,
     this.problem,
     this.projectId,
@@ -64,6 +65,9 @@ class ImageWizardState extends Equatable {
 
   /// Пользовательница держит палец на предпросмотре: показываем исходную картинку.
   final bool comparing;
+
+  /// Предпросмотр «как будет выглядеть» (бусины с бликом) вместо плоской схемы.
+  final bool realistic;
   final ImageWizardProblem? problem;
 
   /// Маски и лица, найденные на подготовленной картинке (T48); `null` — Vision недоступен или ничего не нашёл.
@@ -108,6 +112,7 @@ class ImageWizardState extends Equatable {
     bool? calculating,
     int? catalogColors,
     bool? comparing,
+    bool? realistic,
     ImageMaskSet? masks,
     ImageWizardProblem? problem,
     String? projectId,
@@ -129,6 +134,7 @@ class ImageWizardState extends Equatable {
     calculating: calculating ?? this.calculating,
     catalogColors: catalogColors ?? this.catalogColors,
     comparing: comparing ?? this.comparing,
+    realistic: realistic ?? this.realistic,
     masks: clearMasks ? null : (masks ?? this.masks),
     problem: clearProblem ? null : (problem ?? this.problem),
     projectId: projectId ?? this.projectId,
@@ -150,6 +156,7 @@ class ImageWizardState extends Equatable {
     calculating,
     catalogColors,
     comparing,
+    realistic,
     masks,
     problem,
     projectId,
