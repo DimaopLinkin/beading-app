@@ -55,7 +55,13 @@ final class AccentPaletteBuilder extends Equatable implements PaletteBuilder {
     this.accentMinCells = 2,
     this.iterations = 20,
     this.medoidIterations = 8,
+    this.extremeTones = false,
   });
+
+  /// Крайние тона (T63): самый тёмный и самый светлый цвет сдвигаются к 2-му и 98-му перцентилю светлоты, если
+  /// не дотягивают до него больше чем на [extremeGap] L и пикселей за порогом хватает на [accentMinCells] клеток.
+  final bool extremeTones;
+  static const double extremeGap = 5;
 
   final int sampleSize;
   final double accentDeltaE;
@@ -64,7 +70,14 @@ final class AccentPaletteBuilder extends Equatable implements PaletteBuilder {
   final int medoidIterations;
 
   @override
-  List<Object?> get props => <Object?>[sampleSize, accentDeltaE, accentMinCells, iterations, medoidIterations];
+  List<Object?> get props => <Object?>[
+    sampleSize,
+    accentDeltaE,
+    accentMinCells,
+    iterations,
+    medoidIterations,
+    extremeTones,
+  ];
 
   @override
   List<PaletteEntry> build(PaletteRequest request) {
@@ -81,6 +94,7 @@ final class AccentPaletteBuilder extends Equatable implements PaletteBuilder {
     final double minGroup = _minGroup(sample, request.work.scale);
     List<Lab> centers = _kMeans(sample, base, random, minGroup);
     centers = _addAccents(sample, centers, k, minGroup);
+    if (extremeTones) centers = _stretchExtremes(sample, centers);
 
     final CellRegions? regions = request.regions;
     final _CellMeans? cells = regions == null ? null : _CellMeans.of(request.work, regions);
@@ -103,6 +117,28 @@ final class AccentPaletteBuilder extends Equatable implements PaletteBuilder {
       }
       return best;
     }, cells);
+  }
+
+  /// Сдвигает самый тёмный и самый светлый центр к 2-му и 98-му перцентилю светлоты выборки (T63); оттенок сохраняется.
+  List<Lab> _stretchExtremes(_Sample s, List<Lab> centers) {
+    if (centers.length < 2) return centers;
+    final List<double> sorted = <double>[for (int i = 0; i < s.count; i++) s.l[i]]..sort();
+    final double low = sorted[((sorted.length - 1) * 0.02).floor()];
+    final double high = sorted[((sorted.length - 1) * 0.98).ceil()];
+    int darkest = 0;
+    int lightest = 0;
+    for (int i = 1; i < centers.length; i++) {
+      if (centers[i].l < centers[darkest].l) darkest = i;
+      if (centers[i].l > centers[lightest].l) lightest = i;
+    }
+    final List<Lab> out = <Lab>[...centers];
+    if (centers[darkest].l - low > extremeGap) {
+      out[darkest] = Lab(low, centers[darkest].a, centers[darkest].b);
+    }
+    if (high - centers[lightest].l > extremeGap) {
+      out[lightest] = Lab(high, centers[lightest].a, centers[lightest].b);
+    }
+    return out;
   }
 
   /// Цвета, не выигравшие ни одной клетки, заменяются: новый цвет берётся там, где клетка хуже всего покрыта палитрой.
