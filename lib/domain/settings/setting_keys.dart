@@ -44,7 +44,7 @@ abstract final class SettingKeys {
 
   /// Производитель мулине по умолчанию (значение каталога `catalog_colors.brand`). Отдельно от бисера: ADR-0003.
   ///
-  /// Строка-заглушка: T36 (каталог мулине) сверит её с `catalog_colors.brand`.
+  /// Совпадает с брендом из `assets/catalog` (проверяет `bundled_catalog_test`).
   static const SettingKey<String> defaultFlossBrand = SettingKey<String>(
     name: 'defaultFlossBrand',
     defaultValue: 'DMC',

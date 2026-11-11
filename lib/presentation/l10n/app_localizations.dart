@@ -283,6 +283,12 @@ abstract class AppLocalizations {
   /// **'Каждая бусинка на своём месте. Плети с удовольствием!'**
   String get aboutTagline;
 
+  /// No description provided for @aboutCredits.
+  ///
+  /// In ru, this message translates to:
+  /// **'Цвета ниток DMC: craft-color-codes, MakeBead (makebead.com), лицензия CC BY 4.0. DMC — торговая марка DMC, приложение с ней не связано.'**
+  String get aboutCredits;
+
   /// No description provided for @aboutVersion.
   ///
   /// In ru, this message translates to:

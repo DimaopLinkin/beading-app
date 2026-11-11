@@ -111,6 +111,10 @@ class AppLocalizationsRu extends AppLocalizations {
   String get aboutTagline => 'Каждая бусинка на своём месте. Плети с удовольствием!';
 
   @override
+  String get aboutCredits =>
+      'Цвета ниток DMC: craft-color-codes, MakeBead (makebead.com), лицензия CC BY 4.0. DMC — торговая марка DMC, приложение с ней не связано.';
+
+  @override
   String aboutVersion(String version) {
     return 'Версия $version';
   }
