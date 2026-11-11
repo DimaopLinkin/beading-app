@@ -39,6 +39,7 @@ final class ImageToGridRequest {
     this.subjectMask,
     this.background = BackgroundMode.keep,
     this.outline = false,
+    this.suggestBlends = false,
   }) {
     if (columns < 1 || columns > Grid.maxSide) throw ArgumentError.value(columns, 'columns', 'от 1 до ${Grid.maxSide}');
     if (rows < 1 || rows > Grid.maxSide) throw ArgumentError.value(rows, 'rows', 'от 1 до ${Grid.maxSide}');
@@ -78,6 +79,8 @@ final class ImageToGridRequest {
   /// Маска важности: вес на пиксель картинки, ряды сверху вниз. `null` — все пиксели одинаково важны.
   final Float32List? importance;
 
+  /// Дизеринг Флойда — Стейнберга по всей картинке; только путь T24. На пиксельном пути плавные переходы даёт шаг
+  /// `OrderedDitherStep` (T57), и этот флаг не действует.
   final bool dither;
 
   /// Зерно для единственного случайного выбора в квантовании: один вход и одно зерно дают один результат.
@@ -93,8 +96,6 @@ final class ImageToGridRequest {
   /// Стадия 3: цены цветов и начальная разметка клеток. См. [paletteBuilder].
   final CellLabeler? labeler;
 
-  /// Дизеринг пиксельный путь не применяет: цвет клетки там выбирается голосованием пикселей (дизеринг по градиентам —
-  /// отдельная стадия T57).
   /// Стадия 4: сглаживание разметки по ценам цветов (T47). Работает только на пиксельном пути.
   final LabelSmoother? smoother;
 
@@ -138,6 +139,7 @@ final class ImageToGridRequest {
     subjectMask: subjectMask,
     background: background,
     outline: outline,
+    suggestBlends: suggestBlends,
   );
 
   /// Маска объекта (T55): значение на пиксель картинки, ряды сверху вниз; `0` — фон, остальное — объект. `null` — маски
@@ -149,6 +151,9 @@ final class ImageToGridRequest {
 
   /// Обводка объекта одной клеткой тёмного цвета (бисер); действует только при [subjectMask].
   final bool outline;
+
+  /// Искать бленды двух ниток (вышивка, T57): результат в `GeneratedPattern.blendSuggestions`.
+  final bool suggestBlends;
 
   /// Тот же запрос с маской объекта, режимом фона и обводкой (маска, фон и обводка заменяются целиком).
   ImageToGridRequest withBackground({
@@ -177,6 +182,7 @@ final class ImageToGridRequest {
     subjectMask: mask,
     background: mode,
     outline: outline,
+    suggestBlends: suggestBlends,
   );
 
   bool get usesBackgroundStage => subjectMask != null && (background != BackgroundMode.keep || outline);

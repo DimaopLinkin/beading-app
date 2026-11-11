@@ -15,6 +15,7 @@ import 'package:beading/domain/image_to_grid/face_step.dart';
 import 'package:beading/domain/image_to_grid/generation_preset.dart';
 import 'package:beading/domain/image_to_grid/image_mask_set.dart';
 import 'package:beading/domain/image_to_grid/image_to_grid_request.dart';
+import 'package:beading/domain/image_to_grid/ordered_dither_step.dart';
 import 'package:beading/domain/image_to_grid/palette_builder.dart';
 import 'package:beading/domain/image_to_grid/palette_constraint.dart';
 import 'package:beading/domain/image_to_grid/pattern_step.dart';
@@ -152,8 +153,9 @@ final class ImageToGridSettings extends Equatable {
   }) {
     final List<CatalogColor> allowed = catalogFor(catalog, brand: brand);
     final bool useCatalog = paletteSource == PaletteSource.catalog && allowed.isNotEmpty;
-    // Дизеринг по градиентам пиксельный путь пока не умеет (T57): с ним идёт путь T24 без стадий предустановки.
-    final GenerationPreset? active = dither ? null : preset;
+    // «Плавные переходы» с предустановкой — упорядоченный дизеринг только в градиентах последним шагом (T57); без
+    // предустановки остаётся путь T24 с Флойдом — Стейнбергом.
+    final GenerationPreset? active = preset;
     // Лица (T54): отдельные цвета кожи и защита черт; без лиц на фото поведение прежнее.
     final FaceGuide? faceGuide = active == null || masks == null || masks.faces.isEmpty ? null : FaceGuide(masks);
     return ImageToGridRequest(
@@ -167,7 +169,7 @@ final class ImageToGridSettings extends Equatable {
           ? PaletteConstraint.catalog(allowed, material: CatalogMaterial.bead)
           : const PaletteConstraint.free(),
       importance: importance,
-      dither: dither,
+      dither: dither && active == null,
       seed: seed,
       prefilter: active?.prefilter,
       paletteBuilder: active == null
@@ -180,10 +182,16 @@ final class ImageToGridSettings extends Equatable {
       refillFreedColors: active?.refillFreedColors ?? false,
       faces: faceGuide,
       draft: draft,
-      steps: <PatternStep>[...?active?.steps, if (faceGuide != null) const FaceFeatureStep(), ...steps],
+      steps: <PatternStep>[
+        ...?active?.steps,
+        if (faceGuide != null) const FaceFeatureStep(),
+        ...steps,
+        if (dither && active != null) const OrderedDitherStep(),
+      ],
       subjectMask: subjectMask,
       background: background,
       outline: outline,
+      suggestBlends: technique.craft == Craft.crossStitch,
     );
   }
 

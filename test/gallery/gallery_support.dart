@@ -179,6 +179,7 @@ ImageToGridRequest _request(
     refillFreedColors: request.refillFreedColors,
     faces: request.faces,
     steps: request.steps,
+    suggestBlends: target.technique.craft == Craft.crossStitch,
   );
 }
 
@@ -291,6 +292,19 @@ final List<GalleryVariant> galleryVariants = <GalleryVariant>[
     beadsOnly: true,
     build: (image, target, catalog) =>
         _request(image, target, catalog, useCatalog: true, preset: GenerationPreset.balanced),
+  ),
+  GalleryVariant(
+    id: 't57-dither',
+    title: 'T57: сбалансированно + плавные переходы',
+    build: (image, target, catalog) =>
+        _request(image, target, catalog, preset: GenerationPreset.balanced, dither: true),
+  ),
+  GalleryVariant(
+    id: 't57-dither-catalog',
+    title: 'T57: плавные переходы + каталог Toho/Delica',
+    beadsOnly: true,
+    build: (image, target, catalog) =>
+        _request(image, target, catalog, useCatalog: true, preset: GenerationPreset.balanced, dither: true),
   ),
   GalleryVariant(
     id: 't55-simplify',

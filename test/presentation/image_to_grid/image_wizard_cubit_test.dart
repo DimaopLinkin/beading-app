@@ -16,6 +16,7 @@ import 'package:beading/domain/image_to_grid/image_mask_set.dart';
 import 'package:beading/domain/image_to_grid/image_to_grid_request.dart';
 import 'package:beading/domain/image_to_grid/image_to_grid_runner.dart';
 import 'package:beading/domain/image_to_grid/image_to_grid_settings.dart';
+import 'package:beading/domain/image_to_grid/ordered_dither_step.dart';
 import 'package:beading/domain/image_to_grid/palette_entry.dart';
 import 'package:beading/domain/image_to_grid/source_image.dart';
 import 'package:beading/domain/image_to_grid/use_cases/create_pattern_from_image.dart';
@@ -371,13 +372,13 @@ void main() {
       expect(cubit.state.canSave, isTrue);
     });
 
-    test('без предустановки (путь T24) черновик не запрашивается', () async {
+    test('плавные переходы — тоже пиксельный путь: черновик запрашивается', () async {
       cubit = build(debounce: const Duration(milliseconds: 20));
       addTearDown(cubit.close);
       await openPhoto();
       cubit.setDither(value: true);
       await Future<void>.delayed(const Duration(milliseconds: 40));
-      expect(runner.requests.map((r) => r.draft), <bool>[false, false]);
+      expect(runner.requests.map((r) => r.draft), <bool>[false, true, false]);
     });
 
     test('закрытие мастера освобождает расчётную сессию', () async {
@@ -445,7 +446,9 @@ void main() {
       final ImageToGridRequest request = runner.requests.last;
       expect(request.columns, 30);
       expect(request.maxColors, 6);
-      expect(request.dither, isTrue);
+      // Плавные переходы на пиксельном пути — шаг упорядоченного дизеринга, а не Флойд — Стейнберг.
+      expect(request.dither, isFalse);
+      expect(request.steps.last, isA<OrderedDitherStep>());
       expect(request.metrics, BeadSize.delica10);
       expect(request.constraint.isFree, isTrue);
     });

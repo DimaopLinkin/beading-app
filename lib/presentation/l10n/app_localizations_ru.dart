@@ -1290,7 +1290,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get imageWizardDitherHint =>
-      'Лучше передаёт оттенки, но схема становится пестрее. При включении выбор «Детальность» не применяется.';
+      'Плавные переходы цвета (небо, тени) выкладываются узором из соседних цветов. Остальное в схеме не меняется.';
 
   @override
   String get imageWizardUseMasks => 'Выделять главное';

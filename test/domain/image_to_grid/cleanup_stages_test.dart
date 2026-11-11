@@ -12,6 +12,7 @@ import 'package:beading/domain/image_to_grid/image_to_grid_pipeline.dart';
 import 'package:beading/domain/image_to_grid/image_to_grid_request.dart';
 import 'package:beading/domain/image_to_grid/image_to_grid_settings.dart';
 import 'package:beading/domain/image_to_grid/label_smoother.dart';
+import 'package:beading/domain/image_to_grid/ordered_dither_step.dart';
 import 'package:beading/domain/image_to_grid/palette_entry.dart';
 import 'package:beading/domain/image_to_grid/pattern_metrics.dart';
 import 'package:beading/domain/image_to_grid/pattern_step.dart';
@@ -291,10 +292,20 @@ void main() {
       }
     });
 
-    test('с дизерингом предустановка не применяется (путь T24)', () {
+    test('с дизерингом предустановка действует, а дизеринг — последний шаг (T57)', () {
       final ImageToGridRequest r = const ImageToGridSettings(dither: true).toRequest(image: noisy());
+      expect(r.usesPixelStages, isTrue);
+      expect(r.dither, isFalse);
+      expect(r.steps.last, isA<OrderedDitherStep>());
+    });
+
+    test('без предустановки с дизерингом остаётся путь T24 с Флойдом — Стейнбергом', () {
+      final ImageToGridRequest r = const ImageToGridSettings(
+        dither: true,
+        preset: null,
+      ).toRequest(image: noisy());
       expect(r.usesPixelStages, isFalse);
-      expect(r.steps, isEmpty);
+      expect(r.dither, isTrue);
     });
   });
 }
