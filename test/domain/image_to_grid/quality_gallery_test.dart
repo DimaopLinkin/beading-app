@@ -1,6 +1,8 @@
 import 'dart:io';
 import 'dart:math' as math;
 
+import 'package:beading/domain/catalog/bead_finish_group.dart';
+import 'package:beading/domain/image_to_grid/image_to_grid_settings.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import '../../gallery/gallery_support.dart';
@@ -99,6 +101,33 @@ void main() {
         );
         expect(run.pattern.grid, balanced.pattern.grid, reason: '${run.key}: без лиц результат не меняется');
       }
+      // T62: каталожные варианты по умолчанию берут одну серию и только матовые и блестящие отделки.
+      for (final GalleryRun run in runs.where(
+        (r) => r.variant.id.endsWith('-catalog') && r.variant.id != 't62-catalog-all',
+      )) {
+        final Set<String?> series = <String?>{for (final entry in run.pattern.palette) entry.catalog?.series};
+        final Set<String?> finishes = <String?>{for (final entry in run.pattern.palette) entry.catalog?.finish};
+        expect(series, hasLength(1), reason: '${run.key}: серий в палитре $series');
+        expect(series.contains(null), isFalse, reason: '${run.key}: палитра не из каталога');
+        expect(
+          finishes.difference(<String?>{...BeadFinishGroup.finishesOf(ImageToGridSettings.defaultFinishGroups)}),
+          isEmpty,
+          reason: '${run.key}: отделки $finishes',
+        );
+      }
+      // T62: отбор по серии и отделкам (матовые и блестящие) стоит в среднем по галерее около +0,9 ΔE2000 против всего каталога 11/0.
+      double restricted = 0;
+      double all = 0;
+      int pairs = 0;
+      for (final GalleryRun run in runs.where((r) => r.variant.id == 't47-catalog')) {
+        final GalleryRun full = runs.firstWhere(
+          (r) => r.variant.id == 't62-catalog-all' && r.photo == run.photo && r.target == run.target,
+        );
+        restricted += run.stats.meanDeltaE;
+        all += full.stats.meanDeltaE;
+        pairs++;
+      }
+      expect((restricted - all) / pairs, lessThanOrEqualTo(1.0));
       expect(
         baseline.keys.toSet().difference(runs.map((r) => r.key).toSet()),
         isEmpty,

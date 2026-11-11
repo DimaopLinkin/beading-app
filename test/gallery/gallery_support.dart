@@ -10,6 +10,7 @@ import 'package:beading/data/catalog/catalog_file_parser.dart';
 import 'package:beading/data/image_to_grid/ui_image_decoder.dart';
 import 'package:beading/domain/catalog/catalog_color.dart';
 import 'package:beading/domain/catalog/catalog_file.dart';
+import 'package:beading/domain/catalog/catalog_material.dart';
 import 'package:beading/domain/grid/bead_size.dart';
 import 'package:beading/domain/grid/cell_metrics.dart';
 import 'package:beading/domain/grid/cell_position.dart';
@@ -29,6 +30,7 @@ import 'package:beading/domain/image_to_grid/image_to_grid_pipeline.dart';
 import 'package:beading/domain/image_to_grid/image_to_grid_request.dart';
 import 'package:beading/domain/image_to_grid/image_to_grid_settings.dart';
 import 'package:beading/domain/image_to_grid/palette_builder.dart';
+import 'package:beading/domain/image_to_grid/palette_constraint.dart';
 import 'package:beading/domain/image_to_grid/palette_from_generated.dart';
 import 'package:beading/domain/image_to_grid/source_image.dart';
 import 'package:beading/domain/image_to_grid/work_image.dart';
@@ -320,6 +322,28 @@ final List<GalleryVariant> galleryVariants = <GalleryVariant>[
     title: 'T54: лица (цвета кожи, зрачки, губы)',
     build: (image, target, catalog) =>
         _request(image, target, catalog, preset: GenerationPreset.balanced, masks: galleryFaces[image]),
+  ),
+  GalleryVariant(
+    id: 't62-catalog-all',
+    title: 'T47 + весь каталог 11/0 (обе серии, все отделки; как до T62)',
+    beadsOnly: true,
+    catalog: true,
+    build: (image, target, catalog) =>
+        _request(
+          image,
+          target,
+          catalog,
+          useCatalog: true,
+          preset: GenerationPreset.balanced,
+        ).withConstraint(
+          PaletteConstraint.catalog(
+            <CatalogColor>[
+              for (final CatalogColor c in catalog)
+                if (c.sizeCode == '11/0') c,
+            ],
+            material: CatalogMaterial.bead,
+          ),
+        ),
   ),
   GalleryVariant(
     id: 't47-catalog',

@@ -3,6 +3,8 @@ import 'dart:typed_data';
 
 import 'package:beading/core/failure.dart';
 import 'package:beading/core/result.dart';
+import 'package:beading/domain/catalog/bead_finish_group.dart';
+import 'package:beading/domain/catalog/bead_series.dart';
 import 'package:beading/domain/catalog/catalog_color.dart';
 import 'package:beading/domain/catalog/catalog_material.dart';
 import 'package:beading/domain/catalog/catalog_repository.dart';
@@ -293,6 +295,24 @@ class ImageWizardCubit extends Cubit<ImageWizardState> {
   void setMaxColors(int colors) => _change(state.settings.copyWith(maxColors: colors));
 
   void setPaletteSource(PaletteSource source) => _change(state.settings.copyWith(paletteSource: source));
+
+  /// Серия бисера в палитре (T62).
+  void setBeadSeries(BeadSeries series) => _change(state.settings.copyWith(beadSeries: series));
+
+  /// Серия, из которой сейчас берутся цвета: выбранная или по бренду из настроек.
+  BeadSeries get beadSeries => state.settings.seriesFor(_brand);
+
+  /// Включает или выключает группу отделок; последнюю включённую выключить нельзя.
+  void setFinishGroup(BeadFinishGroup group, {required bool value}) {
+    final Set<BeadFinishGroup> groups = <BeadFinishGroup>{...state.settings.finishGroups};
+    if (value) {
+      groups.add(group);
+    } else {
+      groups.remove(group);
+    }
+    if (groups.isEmpty) return;
+    _change(state.settings.copyWith(finishGroups: groups));
+  }
 
   void setPreset(GenerationPreset preset) => _change(state.settings.copyWith(preset: preset));
 

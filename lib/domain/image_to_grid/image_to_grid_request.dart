@@ -146,6 +146,32 @@ final class ImageToGridRequest {
     backstitch: backstitch,
   );
 
+  /// Тот же запрос с другим ограничением палитры.
+  ImageToGridRequest withConstraint(PaletteConstraint constraint) => ImageToGridRequest(
+    image: image,
+    geometry: geometry,
+    metrics: metrics,
+    columns: columns,
+    rows: rows,
+    maxColors: maxColors,
+    constraint: constraint,
+    importance: importance,
+    dither: dither,
+    seed: seed,
+    prefilter: prefilter,
+    paletteBuilder: paletteBuilder,
+    labeler: labeler,
+    smoother: smoother,
+    refillFreedColors: refillFreedColors,
+    faces: faces,
+    draft: draft,
+    steps: steps,
+    subjectMask: subjectMask,
+    background: background,
+    outline: outline,
+    suggestBlends: suggestBlends,
+  );
+
   /// Маска объекта (T55): значение на пиксель картинки, ряды сверху вниз; `0` — фон, остальное — объект. `null` — маски
   /// нет, и [background] с [outline] не действуют.
   final Uint8List? subjectMask;

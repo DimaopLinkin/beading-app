@@ -1,6 +1,8 @@
 import 'dart:math' as math;
 import 'dart:typed_data';
 
+import 'package:beading/domain/catalog/bead_finish_group.dart';
+import 'package:beading/domain/catalog/bead_series.dart';
 import 'package:beading/domain/catalog/catalog_color.dart';
 import 'package:beading/domain/catalog/catalog_material.dart';
 import 'package:beading/domain/grid/bead_size.dart';
@@ -44,6 +46,8 @@ final class ImageToGridSettings extends Equatable {
     this.columns = defaultColumns,
     this.maxColors = defaultMaxColors,
     this.paletteSource = PaletteSource.catalog,
+    this.beadSeries,
+    this.finishGroups = defaultFinishGroups,
     this.dither = false,
     this.useMasks = true,
     this.preset = GenerationPreset.balanced,
@@ -66,6 +70,12 @@ final class ImageToGridSettings extends Equatable {
   static const int defaultMaxColors = 8;
   static const int minColors = 2;
   static const int maxColorsLimit = 30;
+
+  /// Отделки по умолчанию (T62): непрозрачный, матовый и блестящий бисер (Настя плетёт и тем, и другим).
+  static const Set<BeadFinishGroup> defaultFinishGroups = <BeadFinishGroup>{
+    BeadFinishGroup.solid,
+    BeadFinishGroup.luster,
+  };
 
   /// Техники мастера для [craft].
   static List<Technique> techniquesOf(Craft craft) => craft.techniques;
@@ -99,6 +109,12 @@ final class ImageToGridSettings extends Equatable {
   /// Сколько цветов в схеме самое большее.
   final int maxColors;
   final PaletteSource paletteSource;
+
+  /// Серия бисера в палитре (T62); `null` — по бренду из настройки, а если и он пуст, Delica.
+  final BeadSeries? beadSeries;
+
+  /// Группы отделок, из которых берутся цвета (T62); всегда хотя бы одна.
+  final Set<BeadFinishGroup> finishGroups;
   final bool dither;
 
   /// Учитывать лица и объект, найденные на фото (T48), как «важное». Без найденных масок ни на что не влияет.
@@ -129,6 +145,8 @@ final class ImageToGridSettings extends Equatable {
     int? columns,
     int? maxColors,
     PaletteSource? paletteSource,
+    BeadSeries? beadSeries,
+    Set<BeadFinishGroup>? finishGroups,
     bool? dither,
     bool? useMasks,
     GenerationPreset? preset,
@@ -145,6 +163,10 @@ final class ImageToGridSettings extends Equatable {
     columns: (columns ?? this.columns).clamp(minColumns, maxColumnsOf((technique ?? this.technique).craft)),
     maxColors: (maxColors ?? this.maxColors).clamp(minColors, maxColorsLimit),
     paletteSource: paletteSource ?? this.paletteSource,
+    beadSeries: beadSeries ?? this.beadSeries,
+    finishGroups: finishGroups == null
+        ? this.finishGroups
+        : (finishGroups.isEmpty ? defaultFinishGroups : Set<BeadFinishGroup>.unmodifiable(finishGroups)),
     dither: dither ?? this.dither,
     useMasks: useMasks ?? this.useMasks,
     preset: clearPreset ? null : preset ?? this.preset,
@@ -171,15 +193,31 @@ final class ImageToGridSettings extends Equatable {
   /// Материал каталога под ремесло: бисер или мулине.
   CatalogMaterial get material => craft == Craft.crossStitch ? CatalogMaterial.floss : CatalogMaterial.bead;
 
-  /// Подходящие под ремесло, размер бисера и бренд позиции [catalog]; [brand] пустой — любой бренд.
-  /// У мулине размера нет: годится любая позиция бренда.
-  List<CatalogColor> catalogFor(List<CatalogColor> catalog, {String brand = ''}) => <CatalogColor>[
-    for (final CatalogColor color in catalog)
-      if (color.material == material &&
-          (brand.isEmpty || color.brand == brand) &&
-          (craft == Craft.crossStitch || color.sizeCode == beadSize.sizeCode))
-        color,
-  ];
+  /// Серия палитры: выбранная в мастере или та, что по бренду [brand] из настройки (T62).
+  BeadSeries seriesFor(String brand) => beadSeries ?? BeadSeries.forBrand(brand);
+
+  /// Подходящие под ремесло позиции [catalog]. Бисер: размер, одна серия (выбранная или по [brand]; пустой бренд —
+  /// Delica) и группы отделок; позиция с неизвестной отделкой проходит (T62). Мулине: размера нет, годится любая
+  /// позиция бренда [brand] (пустой — любого).
+  List<CatalogColor> catalogFor(List<CatalogColor> catalog, {String brand = ''}) {
+    if (craft == Craft.crossStitch) {
+      return <CatalogColor>[
+        for (final CatalogColor color in catalog)
+          if (color.material == CatalogMaterial.floss && (brand.isEmpty || color.brand == brand)) color,
+      ];
+    }
+    final BeadSeries series = seriesFor(brand);
+    final Set<String> finishes = BeadFinishGroup.finishesOf(finishGroups);
+    return <CatalogColor>[
+      for (final CatalogColor color in catalog)
+        if (color.material == CatalogMaterial.bead &&
+            color.brand == series.brand &&
+            color.series == series.catalogSeries &&
+            color.sizeCode == beadSize.sizeCode &&
+            (color.finish == null || finishes.contains(color.finish)))
+          color,
+    ];
+  }
 
   /// Запрос к конвейеру. Если каталожных цветов под размер и бренд нет, палитра выбирается свободно.
   ImageToGridRequest toRequest({
@@ -207,7 +245,13 @@ final class ImageToGridSettings extends Equatable {
       columns: columns,
       rows: rowsFor(image),
       maxColors: maxColors,
-      constraint: useCatalog ? PaletteConstraint.catalog(allowed, material: material) : const PaletteConstraint.free(),
+      constraint: useCatalog
+          ? PaletteConstraint.catalog(
+              allowed,
+              material: material,
+              finishes: craft == Craft.crossStitch ? const <String>{} : BeadFinishGroup.finishesOf(finishGroups),
+            )
+          : const PaletteConstraint.free(),
       importance: importance,
       dither: dither && active == null,
       seed: seed,
@@ -246,6 +290,8 @@ final class ImageToGridSettings extends Equatable {
     columns,
     maxColors,
     paletteSource,
+    beadSeries,
+    finishGroups,
     dither,
     useMasks,
     preset,
