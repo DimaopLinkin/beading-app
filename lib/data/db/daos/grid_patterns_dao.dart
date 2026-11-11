@@ -4,7 +4,7 @@ import 'package:drift/drift.dart';
 
 part 'grid_patterns_dao.g.dart';
 
-@DriftAccessor(tables: <Type>[GridPatterns, PatternColors, GridProgressRows])
+@DriftAccessor(tables: <Type>[GridPatterns, PatternColors, GridProgressRows, GridProgressCells])
 class GridPatternsDao extends DatabaseAccessor<AppDatabase> with _$GridPatternsDaoMixin {
   GridPatternsDao(super.attachedDatabase);
 
@@ -78,6 +78,20 @@ class GridPatternsDao extends DatabaseAccessor<AppDatabase> with _$GridPatternsD
     gridProgressRows,
   )..where((t) => t.gridPatternId.equals(patternId) & t.rowIndex.equals(rowIndex))).getSingleOrNull();
 
+  /// Сигнал сразу и после каждого изменения отметок клеток.
+  Stream<void> watchCellProgressChanges() => customSelect(
+    'SELECT 1',
+    readsFrom: <ResultSetImplementation<dynamic, dynamic>>{gridProgressCells},
+  ).watch();
+
+  /// Блоки отметок клеток (живые).
+  Future<List<GridProgressCellRecord>> aliveProgressCells(String patternId) =>
+      (select(gridProgressCells)..where((t) => t.gridPatternId.equals(patternId) & t.deletedAt.isNull())).get();
+
+  /// Все блоки схемы, включая с надгробием.
+  Future<List<GridProgressCellRecord>> allProgressCells(String patternId) =>
+      (select(gridProgressCells)..where((t) => t.gridPatternId.equals(patternId))).get();
+
   /// Ставит надгробие схеме проекта, её цветам и отметкам рядов.
   Future<void> tombstoneByProject({required String projectId, required int nowMs, required String deviceId}) =>
       transaction(() async {
@@ -87,6 +101,15 @@ class GridPatternsDao extends DatabaseAccessor<AppDatabase> with _$GridPatternsD
         }
         await (update(gridProgressRows)..where((t) => t.gridPatternId.equals(pattern.id) & t.deletedAt.isNull())).write(
           GridProgressRowsCompanion(
+            updatedAt: Value<int>(nowMs),
+            deletedAt: Value<int?>(nowMs),
+            deviceId: Value<String>(deviceId),
+          ),
+        );
+        await (update(
+          gridProgressCells,
+        )..where((t) => t.gridPatternId.equals(pattern.id) & t.deletedAt.isNull())).write(
+          GridProgressCellsCompanion(
             updatedAt: Value<int>(nowMs),
             deletedAt: Value<int?>(nowMs),
             deviceId: Value<String>(deviceId),

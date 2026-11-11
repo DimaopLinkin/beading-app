@@ -42,6 +42,9 @@ Future<void> populate(BiserDevice device, BiserBundle bundle) async {
       if (item.progress!.currentRow != null) {
         await device.progress.setCurrent(item.grid!.id, row: item.progress!.currentRow!);
       }
+      if (item.cells != null) {
+        await device.cellProgress.writeBlocks(item.grid!.id, item.cells!.blocks);
+      }
     }
     await device.workSessions.addAll(item.project.id, item.workSessions);
     final BiserBook? book = item.book;
@@ -243,6 +246,19 @@ void main() {
       expect((await b.grids.getByProject(bundle.projects.first.project.id)).isFailure, isTrue);
       expect(b.filesOnDisk(), isEmpty);
     });
+  });
+
+  test('отметки клеток вышивки переезжают через .biser на другое устройство', () async {
+    final BiserDevice a = BiserDevice();
+    final BiserDevice b = BiserDevice();
+    BiserBundle bundle = randomBundle(0, projects: 1);
+    for (int seed = 1; bundle.projects.first.cells == null; seed++) {
+      bundle = randomBundle(seed, projects: 1);
+    }
+    await populate(a, bundle);
+    await b.import(await a.backupBytes());
+    final GridPattern grid = (await b.grids.getByProject(bundle.projects.first.project.id)).valueOrNull!;
+    expect((await b.cellProgress.load(grid.id)).valueOrNull, bundle.projects.first.cells);
   });
 
   test('импорт не делает проект общим: проверка, что прогресс и «где остановилась» доехали', () async {

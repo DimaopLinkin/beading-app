@@ -84,3 +84,21 @@ class GridProgressRows extends Table with UuidIdColumn, SyncColumns {
     <Column<Object>>{gridPatternId, rowIndex},
   ];
 }
+
+/// Прогресс вышивки по клеткам (T38): битовые блоки 16×16 (`CellProgress`), по 32 байта. Блок без отметок —
+/// надгробие. Единица слияния при синхронизации — блок (LWW).
+@DataClassName('GridProgressCellRecord')
+class GridProgressCells extends Table with UuidIdColumn, SyncColumns {
+  TextColumn get gridPatternId => text().references(GridPatterns, #id)();
+
+  /// Индекс блока: `(ряд ~/ 16) * 4096 + столбец ~/ 16`; не зависит от размера схемы.
+  IntColumn get blockIndex => integer()();
+
+  /// 32 байта: бит клетки `(ряд % 16) * 16 + столбец % 16`.
+  BlobColumn get bits => blob()();
+
+  @override
+  List<Set<Column<Object>>> get uniqueKeys => <Set<Column<Object>>>[
+    <Column<Object>>{gridPatternId, blockIndex},
+  ];
+}

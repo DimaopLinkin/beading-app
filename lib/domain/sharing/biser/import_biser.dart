@@ -3,6 +3,8 @@ import 'dart:typed_data';
 import 'package:beading/core/failure.dart';
 import 'package:beading/core/id_generator.dart';
 import 'package:beading/core/result.dart';
+import 'package:beading/domain/grid_pattern/cell_progress.dart';
+import 'package:beading/domain/grid_pattern/cell_progress_store.dart';
 import 'package:beading/domain/grid_pattern/grid_pattern.dart';
 import 'package:beading/domain/grid_pattern/grid_pattern_repository.dart';
 import 'package:beading/domain/grid_pattern/grid_progress.dart';
@@ -86,6 +88,7 @@ class ImportBiser {
     required ProjectRepository projects,
     required GridPatternRepository grids,
     required GridProgressStore progress,
+    required CellProgressStore cellProgress,
     required ImagePatternRepository images,
     required BookWorkRepository bookWork,
     required WorkSessionRepository workSessions,
@@ -96,6 +99,7 @@ class ImportBiser {
        _projects = projects,
        _grids = grids,
        _progress = progress,
+       _cellProgress = cellProgress,
        _images = images,
        _bookWork = bookWork,
        _workSessions = workSessions,
@@ -107,6 +111,7 @@ class ImportBiser {
   final ProjectRepository _projects;
   final GridPatternRepository _grids;
   final GridProgressStore _progress;
+  final CellProgressStore _cellProgress;
   final ImagePatternRepository _images;
   final BookWorkRepository _bookWork;
   final WorkSessionRepository _workSessions;
@@ -278,6 +283,13 @@ class ImportBiser {
           if (current case Err<void>(:final Failure failure)) {
             return Err<String>(failure);
           }
+        }
+      }
+      final CellProgress? cells = item.cells;
+      if (cells != null && !cells.isEmpty) {
+        final Result<void> wrote = await _cellProgress.writeBlocks(pattern.id, cells.blocks);
+        if (wrote case Err<void>(:final Failure failure)) {
+          return Err<String>(failure);
         }
       }
     }

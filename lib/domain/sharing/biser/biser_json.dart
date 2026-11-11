@@ -8,6 +8,7 @@ import 'package:beading/domain/grid/grid.dart';
 import 'package:beading/domain/grid/grid_codec.dart';
 import 'package:beading/domain/grid/grid_geometry.dart';
 import 'package:beading/domain/grid_pattern/cell_metrics_codec.dart';
+import 'package:beading/domain/grid_pattern/cell_progress.dart';
 import 'package:beading/domain/grid_pattern/grid_geometry_codec.dart';
 import 'package:beading/domain/grid_pattern/grid_pattern.dart';
 import 'package:beading/domain/grid_pattern/grid_progress.dart';
@@ -55,7 +56,7 @@ abstract final class BiserJson {
       'notes': p.notes,
       'lastWorkedAt': p.lastWorkedAt.toUtc().millisecondsSinceEpoch,
       'coverPageId': item.coverPageId,
-      'grid': item.grid == null ? null : _grid(item.grid!, item.progress),
+      'grid': item.grid == null ? null : _grid(item.grid!, item.progress, item.cells),
       'book': item.book == null ? null : _book(item.book!),
       'workSessions': <Object?>[
         for (final WorkSession s in item.workSessions)
@@ -67,7 +68,7 @@ abstract final class BiserJson {
     };
   }
 
-  static Map<String, Object?> _grid(GridPattern g, GridProgress? progress) {
+  static Map<String, Object?> _grid(GridPattern g, GridProgress? progress, CellProgress? cells) {
     final StoredGeometry geometry = GridGeometryCodec.encode(g.geometry);
     final GridLayersBlob? layers = g.layers;
     return <String, Object?>{
@@ -98,6 +99,10 @@ abstract final class BiserJson {
               'completedRows': (progress.completedRows.toList()..sort()),
               'currentRow': progress.currentRow,
               'currentBead': progress.currentBead,
+              if (cells != null && !cells.isEmpty)
+                'cellBlocks': <String, Object?>{
+                  for (final MapEntry<int, Uint8List> e in cells.blocks.entries) '${e.key}': base64Encode(e.value),
+                },
             },
     };
   }
@@ -201,10 +206,13 @@ abstract final class BiserJson {
     );
     GridPattern? grid;
     GridProgress? progress;
+    CellProgress? cells;
     if (m['grid'] != null) {
       final Map<String, Object?> g = _map(m['grid'], 'схема');
       grid = _readGrid(g, id);
-      progress = g['progress'] == null ? null : _readProgress(_map(g['progress'], 'прогресс'), grid.grid);
+      final Map<String, Object?>? p = g['progress'] == null ? null : _map(g['progress'], 'прогресс');
+      progress = p == null ? null : _readProgress(p, grid.grid);
+      cells = p == null || p['cellBlocks'] == null ? null : _readCellBlocks(p['cellBlocks'], grid.grid);
     }
     BiserBook? book;
     if (m['book'] != null) {
@@ -228,6 +236,7 @@ abstract final class BiserJson {
       project: project,
       grid: grid,
       progress: progress,
+      cells: cells,
       book: book,
       coverPageId: coverPageId,
       workSessions: _readWorkSessions(m['workSessions'], id),
@@ -346,6 +355,34 @@ abstract final class BiserJson {
       throw const _BadBiser('Текущая бусина вне схемы');
     }
     return GridProgress(completedRows: rows, currentRow: row, currentBead: bead);
+  }
+
+  static CellProgress _readCellBlocks(Object? raw, Grid grid) {
+    final Map<String, Object?> m = _map(raw, 'отметки клеток');
+    final int blocksPerRow = (grid.width + CellProgress.blockSide - 1) ~/ CellProgress.blockSide;
+    final int blockRows = (grid.height + CellProgress.blockSide - 1) ~/ CellProgress.blockSide;
+    final Map<int, Uint8List> blocks = <int, Uint8List>{};
+    for (final MapEntry<String, Object?> e in m.entries) {
+      final int? index = int.tryParse(e.key);
+      if (index == null ||
+          index < 0 ||
+          index % CellProgress.blockStride >= blocksPerRow ||
+          index ~/ CellProgress.blockStride >= blockRows) {
+        throw const _BadBiser('Блок отметок вне схемы');
+      }
+      final Uint8List bytes;
+      try {
+        bytes = base64Decode(_string(e.value, 'блок отметок'));
+      } on FormatException {
+        throw const _BadBiser('Блок отметок записан неверно');
+      }
+      if (bytes.length != CellProgress.blockBytes) {
+        throw const _BadBiser('Блок отметок записан неверно');
+      }
+      blocks[index] = bytes;
+    }
+    // Отметки за краем схемы (в неполном блоке) отбрасываем, а не считаем файл повреждённым.
+    return CellProgress(width: grid.width, blocks: blocks).resized(newWidth: grid.width, newHeight: grid.height);
   }
 
   static BiserBook _readBook(Map<String, Object?> b, Map<String, Uint8List> files) {

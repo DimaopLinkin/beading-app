@@ -12,6 +12,7 @@ import 'package:beading/data/db/app_database.dart';
 import 'package:beading/data/db/open_database.dart';
 import 'package:beading/data/easter_eggs/asset_compliment_source.dart';
 import 'package:beading/data/easter_eggs/drift_easter_egg_log.dart';
+import 'package:beading/data/grid_pattern/drift_cell_progress_store.dart';
 import 'package:beading/data/grid_pattern/drift_grid_pattern_repository.dart';
 import 'package:beading/data/grid_pattern/drift_grid_progress_store.dart';
 import 'package:beading/data/image_pattern/drift_book_work_repository.dart';
@@ -45,9 +46,11 @@ import 'package:beading/domain/easter_eggs/easter_egg_policy.dart';
 import 'package:beading/domain/easter_eggs/easter_egg_service.dart';
 import 'package:beading/domain/easter_eggs/long_session_watcher.dart';
 import 'package:beading/domain/events/app_events.dart';
+import 'package:beading/domain/grid_pattern/cell_progress_store.dart';
 import 'package:beading/domain/grid_pattern/grid_pattern_content.dart';
 import 'package:beading/domain/grid_pattern/grid_pattern_repository.dart';
 import 'package:beading/domain/grid_pattern/grid_progress_store.dart';
+import 'package:beading/domain/grid_pattern/use_cases/cell_progress_commands.dart';
 import 'package:beading/domain/grid_pattern/use_cases/create_grid_pattern.dart';
 import 'package:beading/domain/grid_pattern/use_cases/grid_progress_commands.dart';
 import 'package:beading/domain/grid_pattern/use_cases/save_grid_pattern.dart';
@@ -255,6 +258,23 @@ Future<void> configureDependencies({GetIt? locator, AppDatabase? database, Catal
         ids: container<IdGenerator>(),
       ),
     )
+    ..registerLazySingleton<CellProgressStore>(
+      () => DriftCellProgressStore(
+        dao: db.gridPatternsDao,
+        deviceIds: container<DeviceIdProvider>(),
+        clock: container<Clock>(),
+        ids: container<IdGenerator>(),
+      ),
+    )
+    ..registerFactory<MarkCells>(
+      () => MarkCells(patterns: container<GridPatternRepository>(), progress: container<CellProgressStore>()),
+    )
+    ..registerFactory<MarkRect>(
+      () => MarkRect(patterns: container<GridPatternRepository>(), progress: container<CellProgressStore>()),
+    )
+    ..registerFactory<MarkColor>(
+      () => MarkColor(patterns: container<GridPatternRepository>(), progress: container<CellProgressStore>()),
+    )
     ..registerLazySingleton<GridPatternContentCleaner>(
       () => GridPatternContentCleaner(container<GridPatternRepository>()),
     )
@@ -439,6 +459,7 @@ Future<void> configureDependencies({GetIt? locator, AppDatabase? database, Catal
         projects: container<ProjectRepository>(),
         grids: container<GridPatternRepository>(),
         progress: container<GridProgressStore>(),
+        cellProgress: container<CellProgressStore>(),
         images: container<ImagePatternRepository>(),
         bookWork: container<BookWorkRepository>(),
         workSessions: container<WorkSessionRepository>(),
@@ -454,6 +475,7 @@ Future<void> configureDependencies({GetIt? locator, AppDatabase? database, Catal
         projects: container<ProjectRepository>(),
         grids: container<GridPatternRepository>(),
         progress: container<GridProgressStore>(),
+        cellProgress: container<CellProgressStore>(),
         images: container<ImagePatternRepository>(),
         bookWork: container<BookWorkRepository>(),
         workSessions: container<WorkSessionRepository>(),

@@ -146,4 +146,30 @@ void main() {
     expect((await db.select(db.bookWorkStates).get()).single.currentPageId, 'pg');
     expect(await db.select(db.workSessions).get(), isEmpty);
   });
+
+  test('миграция v10→v11 сохраняет сетку и отметки рядов, таблица отметок клеток пуста', () async {
+    final SchemaVerifier verifier = SchemaVerifier(GeneratedHelper());
+    final InitializedSchema old = await verifier.schemaAt(10);
+    old.rawDatabase
+      ..execute(
+        'INSERT INTO projects (id, name, technique, content_kind, last_worked_at, created_at, updated_at, device_id) '
+        "VALUES ('proj', 'Вышивка', 'crossStitch', 'grid', 0, 1, 1, 'd')",
+      )
+      ..execute(
+        'INSERT INTO grid_patterns (id, project_id, geometry, width, height, cell_metrics, cells, cells_codec_version, '
+        "created_at, updated_at, device_id) VALUES ('pat', 'proj', 'rectangular', 1, 1, '{}', x'00', 1, 1, 1, 'd')",
+      )
+      ..execute(
+        'INSERT INTO grid_progress_rows (id, grid_pattern_id, row_index, completed_at, created_at, updated_at, device_id) '
+        "VALUES ('r', 'pat', 0, 5, 1, 1, 'd')",
+      );
+
+    final AppDatabase db = AppDatabase(old.newConnection());
+    addTearDown(db.close);
+    await verifier.migrateAndValidate(db, 11);
+
+    expect((await db.select(db.gridPatterns).get()).single.id, 'pat');
+    expect((await db.select(db.gridProgressRows).get()).single.rowIndex, 0);
+    expect(await db.select(db.gridProgressCells).get(), isEmpty);
+  });
 }

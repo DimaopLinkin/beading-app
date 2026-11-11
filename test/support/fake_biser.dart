@@ -55,6 +55,7 @@ DataTransferCubit fakeDataTransfer({FileSharer? sharer, BiserFilePicker? picker,
   final FakeProjectRepository repo = projects ?? FakeProjectRepository();
   final FakeGridPatternRepository grids = FakeGridPatternRepository();
   final FakeGridProgressStore progress = FakeGridProgressStore();
+  final FakeCellProgressStore cellProgress = FakeCellProgressStore();
   final FakeImagePatternRepository images = FakeImagePatternRepository();
   final FakeBookWorkRepository bookWork = FakeBookWorkRepository();
   final FakeWorkSessionRepository workSessions = FakeWorkSessionRepository();
@@ -65,6 +66,7 @@ DataTransferCubit fakeDataTransfer({FileSharer? sharer, BiserFilePicker? picker,
       projects: repo,
       grids: grids,
       progress: progress,
+      cellProgress: cellProgress,
       images: images,
       bookWork: bookWork,
       workSessions: workSessions,
@@ -78,6 +80,7 @@ DataTransferCubit fakeDataTransfer({FileSharer? sharer, BiserFilePicker? picker,
       projects: repo,
       grids: grids,
       progress: progress,
+      cellProgress: cellProgress,
       images: images,
       bookWork: bookWork,
       workSessions: workSessions,

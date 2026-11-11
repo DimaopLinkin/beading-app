@@ -1,10 +1,14 @@
 import 'dart:async';
+import 'dart:typed_data';
 
 import 'package:beading/core/failure.dart';
 import 'package:beading/core/result.dart';
 import 'package:beading/domain/grid/bead_size.dart';
+import 'package:beading/domain/grid/cell_position.dart';
 import 'package:beading/domain/grid/grid.dart';
 import 'package:beading/domain/grid/grid_geometry.dart';
+import 'package:beading/domain/grid_pattern/cell_progress.dart';
+import 'package:beading/domain/grid_pattern/cell_progress_store.dart';
 import 'package:beading/domain/grid_pattern/grid_pattern.dart';
 import 'package:beading/domain/grid_pattern/grid_pattern_repository.dart';
 import 'package:beading/domain/grid_pattern/grid_progress.dart';
@@ -135,6 +139,54 @@ class FakeGridProgressStore implements GridProgressStore {
     calls.add('current $patternId $row $bead');
     currentRow = row;
     currentBead = bead;
+    return const Success<void>(null);
+  }
+}
+
+/// Прогресс по клеткам в памяти. [widthOf] — ширина схемы по id (если схема неизвестна, ширина 0).
+class FakeCellProgressStore implements CellProgressStore {
+  FakeCellProgressStore({this.width = 4});
+
+  final int width;
+  final Map<String, Map<int, Uint8List>> blocksByPattern = <String, Map<int, Uint8List>>{};
+  final List<String> calls = <String>[];
+  Failure? failNextWrite;
+
+  @override
+  Future<Result<CellProgress>> load(String patternId) async =>
+      Success<CellProgress>(CellProgress(width: width, blocks: blocksByPattern[patternId] ?? <int, Uint8List>{}));
+
+  @override
+  Stream<CellProgress> watch(String patternId) => const Stream<CellProgress>.empty();
+
+  @override
+  Future<Result<void>> setCells(String patternId, Iterable<CellPosition> cells, {required bool done}) async {
+    final Failure? failure = failNextWrite;
+    if (failure != null) {
+      failNextWrite = null;
+      return Err<void>(failure);
+    }
+    final CellProgress before = CellProgress(width: width, blocks: blocksByPattern[patternId] ?? <int, Uint8List>{});
+    final Map<int, Uint8List> changed = before.withCells(cells, done: done).changedBlocksFrom(before);
+    return changed.isEmpty ? const Success<void>(null) : writeBlocks(patternId, changed);
+  }
+
+  @override
+  Future<Result<void>> writeBlocks(String patternId, Map<int, Uint8List> blocks) async {
+    final Failure? failure = failNextWrite;
+    if (failure != null) {
+      failNextWrite = null;
+      return Err<void>(failure);
+    }
+    calls.add('write $patternId ${(blocks.keys.toList()..sort()).join(',')}');
+    final Map<int, Uint8List> mine = blocksByPattern.putIfAbsent(patternId, () => <int, Uint8List>{});
+    for (final MapEntry<int, Uint8List> e in blocks.entries) {
+      if (e.value.isEmpty) {
+        mine.remove(e.key);
+      } else {
+        mine[e.key] = e.value;
+      }
+    }
     return const Success<void>(null);
   }
 }
