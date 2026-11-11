@@ -3,6 +3,8 @@ import 'dart:typed_data';
 import 'package:beading/core/clock.dart';
 import 'package:beading/core/failure.dart';
 import 'package:beading/core/result.dart';
+import 'package:beading/domain/grid_pattern/cell_progress.dart';
+import 'package:beading/domain/grid_pattern/cell_progress_store.dart';
 import 'package:beading/domain/grid_pattern/grid_pattern.dart';
 import 'package:beading/domain/grid_pattern/grid_pattern_repository.dart';
 import 'package:beading/domain/grid_pattern/grid_progress.dart';
@@ -35,6 +37,7 @@ class ExportProjects {
     required ProjectRepository projects,
     required GridPatternRepository grids,
     required GridProgressStore progress,
+    required CellProgressStore cellProgress,
     required ImagePatternRepository images,
     required BookWorkRepository bookWork,
     required WorkSessionRepository workSessions,
@@ -45,6 +48,7 @@ class ExportProjects {
   }) : _projects = projects,
        _grids = grids,
        _progress = progress,
+       _cellProgress = cellProgress,
        _images = images,
        _bookWork = bookWork,
        _workSessions = workSessions,
@@ -58,6 +62,7 @@ class ExportProjects {
   final ProjectRepository _projects;
   final GridPatternRepository _grids;
   final GridProgressStore _progress;
+  final CellProgressStore _cellProgress;
   final ImagePatternRepository _images;
   final BookWorkRepository _bookWork;
   final WorkSessionRepository _workSessions;
@@ -129,7 +134,13 @@ class ExportProjects {
         if (progress case Err<GridProgress>(:final Failure failure)) {
           return Err<BiserProject>(failure);
         }
-        return Success<BiserProject>(BiserProject(project: project, grid: pattern, progress: progress.valueOrNull));
+        final Result<CellProgress> cells = await _cellProgress.load(pattern.id);
+        if (cells case Err<CellProgress>(:final Failure failure)) {
+          return Err<BiserProject>(failure);
+        }
+        return Success<BiserProject>(
+          BiserProject(project: project, grid: pattern, progress: progress.valueOrNull, cells: cells.valueOrNull),
+        );
       case ContentKind.image:
         final Result<ImagePattern> found = await _images.getByProject(project.id);
         if (found case Err<ImagePattern>(:final Failure failure)) {

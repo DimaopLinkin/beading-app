@@ -59,6 +59,7 @@ void main() {
     incoming = _Incoming();
     final FakeGridPatternRepository grids = FakeGridPatternRepository();
     final FakeGridProgressStore progress = FakeGridProgressStore();
+    final FakeCellProgressStore cellProgress = FakeCellProgressStore();
     final FakeImagePatternRepository images = FakeImagePatternRepository();
     final FakeBookWorkRepository bookWork = FakeBookWorkRepository();
     final FakeWorkSessionRepository workSessions = FakeWorkSessionRepository();
@@ -68,6 +69,7 @@ void main() {
         projects: projects,
         grids: grids,
         progress: progress,
+        cellProgress: cellProgress,
         images: images,
         bookWork: bookWork,
         workSessions: workSessions,
@@ -81,6 +83,7 @@ void main() {
         projects: projects,
         grids: grids,
         progress: progress,
+        cellProgress: cellProgress,
         images: images,
         bookWork: bookWork,
         workSessions: workSessions,

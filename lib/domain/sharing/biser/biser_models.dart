@@ -1,5 +1,6 @@
 import 'dart:typed_data';
 
+import 'package:beading/domain/grid_pattern/cell_progress.dart';
 import 'package:beading/domain/grid_pattern/grid_pattern.dart';
 import 'package:beading/domain/grid_pattern/grid_progress.dart';
 import 'package:beading/domain/image_pattern/book_work/page_work.dart';
@@ -8,7 +9,8 @@ import 'package:beading/domain/weaving/work_session.dart';
 import 'package:equatable/equatable.dart';
 
 /// Версия формата `.biser`, которую пишет это приложение. Файл новее — понятная ошибка, а не порча данных.
-const int biserFormatVersion = 1;
+/// Версия 2 добавила отметки клеток вышивки (`progress.cellBlocks`); файлы версии 1 читаются по-прежнему.
+const int biserFormatVersion = 2;
 
 /// Что лежит в файле: один проект или резервная копия всей библиотеки.
 enum BiserKind { project, backup }
@@ -48,6 +50,7 @@ final class BiserProject extends Equatable {
     required this.project,
     this.grid,
     this.progress,
+    this.cells,
     this.book,
     this.coverPageId,
     this.workSessions = const <WorkSession>[],
@@ -56,6 +59,9 @@ final class BiserProject extends Equatable {
   final Project project;
   final GridPattern? grid;
   final GridProgress? progress;
+
+  /// Отметки клеток вышивки; `null` или пусто, если не отмечено ни одной.
+  final CellProgress? cells;
   final BiserBook? book;
   final String? coverPageId;
 
@@ -66,13 +72,14 @@ final class BiserProject extends Equatable {
     project: project,
     grid: grid,
     progress: progress,
+    cells: cells,
     book: book,
     coverPageId: coverPageId,
     workSessions: List<WorkSession>.unmodifiable(sessions),
   );
 
   @override
-  List<Object?> get props => <Object?>[project, grid, progress, book, coverPageId, workSessions];
+  List<Object?> get props => <Object?>[project, grid, progress, cells, book, coverPageId, workSessions];
 }
 
 /// Всё содержимое файла `.biser`: манифест и файлы (картинки страниц) по путям внутри архива.
@@ -83,10 +90,13 @@ final class BiserBundle extends Equatable {
     required this.appVersion,
     required List<BiserProject> projects,
     Map<String, Uint8List> files = const <String, Uint8List>{},
-    this.formatVersion = biserFormatVersion,
-  }) : projects = List<BiserProject>.unmodifiable(projects),
+    int? formatVersion,
+  }) : formatVersion = formatVersion ?? (projects.any((p) => p.cells != null && !p.cells!.isEmpty) ? 2 : 1),
+       projects = List<BiserProject>.unmodifiable(projects),
        files = Map<String, Uint8List>.unmodifiable(files);
 
+  /// Версия формата. По умолчанию — наименьшая, которой хватает содержимому: 2 только при отметках клеток, иначе файл
+  /// остаётся читаемым приложением, которое знает лишь версию 1.
   final int formatVersion;
   final BiserKind kind;
   final DateTime exportedAt;

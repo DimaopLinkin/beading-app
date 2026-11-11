@@ -42,6 +42,35 @@ void main() {
     expect(parse(manifest, randomBundle(2, projects: 1).files).failureOrNull, isA<ValidationFailure>());
   });
 
+  test('версия 2 пишется только при отметках клеток, иначе файл остаётся версии 1', () {
+    final BiserBundle plain = BiserBundle(
+      kind: BiserKind.backup,
+      exportedAt: DateTime.utc(2026),
+      appVersion: '1',
+      projects: const <BiserProject>[],
+    );
+    expect(manifestOf(plain)['version'], 1);
+    BiserBundle withCells = randomBundle(0, projects: 1);
+    for (int seed = 1; withCells.projects.first.cells == null; seed++) {
+      withCells = randomBundle(seed, projects: 1);
+    }
+    expect(manifestOf(withCells)['version'], 2);
+  });
+
+  test('файл формата версии 1 (без отметок клеток) читается', () {
+    BiserBundle source = randomBundle(3, projects: 1);
+    for (int seed = 4; source.projects.first.grid == null; seed++) {
+      source = randomBundle(seed, projects: 1);
+    }
+    final Map<String, Object?> manifest = manifestOf(source)..['version'] = 1;
+    final Map<String, Object?> project = (manifest['projects']! as List<Object?>).single! as Map<String, Object?>;
+    ((project['grid']! as Map<String, Object?>)['progress']! as Map<String, Object?>).remove('cellBlocks');
+    final BiserBundle decoded = parse(manifest, source.files).valueOrNull!;
+    expect(decoded.formatVersion, 1);
+    expect(decoded.projects.single.cells, isNull);
+    expect(decoded.projects.single.progress, source.projects.single.progress);
+  });
+
   test('неизвестная (новая) версия формата — понятная ошибка', () {
     final Map<String, Object?> manifest = manifestOf(randomBundle(1))..['version'] = biserFormatVersion + 1;
     final Result<BiserBundle> result = parse(manifest, const <String, Uint8List>{});
@@ -94,6 +123,25 @@ void main() {
         ((p['grid']! as Map<String, Object?>)['progress']! as Map<String, Object?>)['completedRows'] = <int>[999];
       });
       expect(messageOf(result), contains('вне схемы'));
+    });
+
+    test('блок отметок клеток вне схемы или не тех размеров', () {
+      final BiserBundle gridBundle = _bundleWith(ContentKindForTest.grid);
+      Result<BiserBundle> withBlocks(Map<String, Object?> blocks) => mutate(gridBundle, (p) {
+        ((p['grid']! as Map<String, Object?>)['progress']! as Map<String, Object?>)['cellBlocks'] = blocks;
+      });
+      final String ok = base64Encode(List<int>.filled(32, 1));
+      expect(withBlocks(<String, Object?>{'999': ok}).failureOrNull, isA<ValidationFailure>());
+      expect(withBlocks(<String, Object?>{'x': ok}).failureOrNull, isA<ValidationFailure>());
+      expect(
+        withBlocks(<String, Object?>{
+          '0': base64Encode(<int>[1, 2]),
+        }).failureOrNull,
+        isA<ValidationFailure>(),
+      );
+      expect(withBlocks(<String, Object?>{'0': '***'}).failureOrNull, isA<ValidationFailure>());
+      expect(withBlocks(<String, Object?>{'0': 5}).failureOrNull, isA<ValidationFailure>());
+      expect(withBlocks(<String, Object?>{'0': ok}).isSuccess, isTrue);
     });
 
     test('нет файла страницы в архиве', () {

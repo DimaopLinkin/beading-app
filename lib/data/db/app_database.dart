@@ -30,6 +30,7 @@ part 'app_database.g.dart';
     GridPatterns,
     PatternColors,
     GridProgressRows,
+    GridProgressCells,
     CatalogColors,
     CatalogSources,
     PageWorkStates,
@@ -51,7 +52,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase(super.e);
 
   @override
-  int get schemaVersion => 10;
+  int get schemaVersion => 11;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -96,6 +97,8 @@ class AppDatabase extends _$AppDatabase {
         await m.addColumn(schema.pageWorkStates, schema.pageWorkStates.zoneRight);
         await m.addColumn(schema.pageWorkStates, schema.pageWorkStates.rowCount);
       },
+      // v11 (T38): прогресс вышивки по клеткам.
+      from10To11: (m, schema) => m.createTable(schema.gridProgressCells),
     ),
     beforeOpen: (details) => customStatement('PRAGMA foreign_keys = ON'),
   );

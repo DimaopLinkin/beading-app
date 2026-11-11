@@ -3,6 +3,7 @@ import 'dart:typed_data';
 
 import 'package:beading/core/id_generator.dart';
 import 'package:beading/data/db/app_database.dart';
+import 'package:beading/data/grid_pattern/drift_cell_progress_store.dart';
 import 'package:beading/data/grid_pattern/drift_grid_pattern_repository.dart';
 import 'package:beading/data/grid_pattern/drift_grid_progress_store.dart';
 import 'package:beading/data/image_pattern/drift_book_work_repository.dart';
@@ -44,6 +45,7 @@ class BiserDevice {
     projects = DriftProjectRepository(dao: db.projectsDao, deviceIds: devices, clock: clock);
     grids = DriftGridPatternRepository(dao: db.gridPatternsDao, deviceIds: devices, clock: clock, ids: ids);
     progress = DriftGridProgressStore(dao: db.gridPatternsDao, deviceIds: devices, clock: clock, ids: ids);
+    cellProgress = DriftCellProgressStore(dao: db.gridPatternsDao, deviceIds: devices, clock: clock, ids: ids);
     images = DriftImagePatternRepository(dao: db.imagePatternsDao, deviceIds: devices, clock: clock);
     bookWork = DriftBookWorkRepository(dao: db.bookWorkDao, deviceIds: devices, clock: clock);
     workSessions = DriftWorkSessionRepository(dao: db.workSessionsDao, deviceIds: devices, clock: clock, ids: ids);
@@ -54,6 +56,7 @@ class BiserDevice {
       projects: projects,
       grids: grids,
       progress: progress,
+      cellProgress: cellProgress,
       images: images,
       bookWork: bookWork,
       workSessions: workSessions,
@@ -67,6 +70,7 @@ class BiserDevice {
       projects: projects,
       grids: grids,
       progress: progress,
+      cellProgress: cellProgress,
       images: images,
       bookWork: bookWork,
       workSessions: workSessions,
@@ -83,6 +87,7 @@ class BiserDevice {
   late final DriftProjectRepository projects;
   late final DriftGridPatternRepository grids;
   late final DriftGridProgressStore progress;
+  late final DriftCellProgressStore cellProgress;
   late final DriftImagePatternRepository images;
   late final DriftBookWorkRepository bookWork;
   late final DriftWorkSessionRepository workSessions;

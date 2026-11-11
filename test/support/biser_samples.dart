@@ -2,8 +2,10 @@ import 'dart:math';
 import 'dart:typed_data';
 
 import 'package:beading/domain/grid/bead_size.dart';
+import 'package:beading/domain/grid/cell_position.dart';
 import 'package:beading/domain/grid/grid.dart';
 import 'package:beading/domain/grid/grid_geometry.dart';
+import 'package:beading/domain/grid_pattern/cell_progress.dart';
 import 'package:beading/domain/grid_pattern/grid_pattern.dart';
 import 'package:beading/domain/grid_pattern/grid_progress.dart';
 import 'package:beading/domain/image_pattern/book_work/page_viewport.dart';
@@ -69,6 +71,12 @@ BiserBundle randomBundle(int seed, {int projects = 4}) {
             completedRows: rows,
             currentRow: random.nextBool() ? currentRow : null,
           ),
+          cells: random.nextBool()
+              ? CellProgress(width: width).withCells(<CellPosition>[
+                  for (int n = 0; n < 1 + random.nextInt(8); n++)
+                    CellPosition(random.nextInt(width), random.nextInt(height)),
+                ], done: true)
+              : null,
           workSessions: sampleWorkSessions(id, i),
         ),
       );

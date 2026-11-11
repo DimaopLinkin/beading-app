@@ -6,12 +6,14 @@ import 'package:beading/core/id_generator.dart';
 import 'package:beading/core/result.dart';
 import 'package:beading/data/db/app_database.dart';
 import 'package:beading/data/db/daos/grid_patterns_dao.dart';
+import 'package:beading/data/grid_pattern/cell_blocks_writer.dart';
 import 'package:beading/data/grid_pattern/grid_pattern_mapper.dart';
 import 'package:beading/data/settings/storage_guard.dart';
 import 'package:beading/domain/grid/grid_codec.dart';
 import 'package:beading/domain/grid/grid_geometry.dart';
 import 'package:beading/domain/grid/reading_order.dart';
 import 'package:beading/domain/grid_pattern/cell_metrics_codec.dart';
+import 'package:beading/domain/grid_pattern/cell_progress.dart';
 import 'package:beading/domain/grid_pattern/grid_geometry_codec.dart';
 import 'package:beading/domain/grid_pattern/grid_pattern.dart';
 import 'package:beading/domain/grid_pattern/grid_pattern_repository.dart';
@@ -122,6 +124,29 @@ class DriftGridPatternRepository implements GridPatternRepository {
     );
   }
 
+  /// При смене размера индексы блоков отметок не меняются (шаг строки блоков фиксирован): клетки вне схемы отбрасываются.
+  Future<void> _resizeCellProgress(
+    String patternId,
+    int oldWidth,
+    int newWidth,
+    int newHeight, {
+    required int now,
+    required String deviceId,
+  }) async {
+    final List<GridProgressCellRecord> rows = await _dao.aliveProgressCells(patternId);
+    if (rows.isEmpty) {
+      return;
+    }
+    final CellProgress before = CellProgress(
+      width: oldWidth,
+      blocks: <int, Uint8List>{for (final GridProgressCellRecord r in rows) r.blockIndex: r.bits},
+    );
+    final Map<int, Uint8List> changes = before
+        .resized(newWidth: newWidth, newHeight: newHeight)
+        .changedBlocksFrom(before);
+    await writeCellBlocks(_dao, ids: _ids, patternId: patternId, blocks: changes, now: now, deviceId: deviceId);
+  }
+
   Future<Result<void>> _write(GridPattern pattern, {required String metrics, required String deviceId}) async {
     final int now = _clock.now().millisecondsSinceEpoch;
     final StoredGeometry geometry = GridGeometryCodec.encode(pattern.geometry);
@@ -195,6 +220,9 @@ class DriftGridPatternRepository implements GridPatternRepository {
           );
     }
     await _writePalette(pattern, existing: existing != null, now: now, deviceId: deviceId);
+    if (existing != null && (existing.width != width || existing.height != height)) {
+      await _resizeCellProgress(pattern.id, existing.width, width, height, now: now, deviceId: deviceId);
+    }
     return const Success<void>(null);
   }
 
