@@ -4,6 +4,7 @@ import 'package:beading/app/di.dart';
 import 'package:beading/core/clock.dart';
 import 'package:beading/domain/catalog/catalog_repository.dart';
 import 'package:beading/domain/image_pattern/file_store.dart';
+import 'package:beading/domain/projects/craft.dart';
 import 'package:beading/domain/projects/project.dart';
 import 'package:beading/domain/settings/app_info.dart';
 import 'package:beading/domain/settings/secret_tap_handler.dart';
@@ -35,6 +36,8 @@ import 'package:beading/presentation/settings/hidden_settings_screen.dart';
 import 'package:beading/presentation/settings/settings_screen.dart';
 import 'package:beading/presentation/sharing/data_transfer_cubit.dart';
 import 'package:beading/presentation/sharing/share_origin.dart';
+import 'package:beading/presentation/stitching/stitch_cubit.dart';
+import 'package:beading/presentation/stitching/stitch_screen.dart';
 import 'package:beading/presentation/weaving/weave_cubit.dart';
 import 'package:beading/presentation/weaving/weave_screen.dart';
 import 'package:flutter/foundation.dart';
@@ -56,6 +59,8 @@ abstract final class AppRoutes {
 
   /// Плетение по своей схеме (T19).
   static String weave(String projectId) => WeaveScreen.locationFor(projectId);
+
+  static String stitch(String projectId) => StitchScreen.locationFor(projectId);
 
   /// «Схема из картинки» (T25). Закрывается с id созданного проекта.
   static const String imageToGrid = ImageWizardScreen.routePath;
@@ -99,7 +104,11 @@ GoRouter createRouter({bool showDeveloperTools = !kReleaseMode}) => GoRouter(
               case ContentKind.image:
                 unawaited(context.push<void>(AppRoutes.bookWork(project.id)));
               case ContentKind.grid:
-                unawaited(context.push<void>(AppRoutes.weave(project.id)));
+                unawaited(
+                  context.push<void>(
+                    project.craft == Craft.crossStitch ? AppRoutes.stitch(project.id) : AppRoutes.weave(project.id),
+                  ),
+                );
               case ContentKind.steps:
                 break;
             }
@@ -131,6 +140,13 @@ GoRouter createRouter({bool showDeveloperTools = !kReleaseMode}) => GoRouter(
       builder: (_, _) => BlocProvider<ImportBookCubit>(
         create: (_) => getIt<ImportBookCubit>(),
         child: const ImportBookScreen(),
+      ),
+    ),
+    GoRoute(
+      path: StitchScreen.routePath,
+      builder: (context, state) => BlocProvider<StitchCubit>(
+        create: (_) => getIt<StitchCubit>(param1: state.pathParameters['projectId'])..load(),
+        child: const StitchScreen(),
       ),
     ),
     GoRoute(

@@ -107,4 +107,35 @@ void main() {
       expect(StitchCounters.overall(grid, p), (total: 5, done: 2));
     });
   });
+
+  group('StitchBlocks', () {
+    test('блоки 10×10: неполные по краям, без пустых клеток; доля и «закрыт»', () {
+      final Grid grid = Grid.fromCells(width: 12, height: 11, cells: List<int>.filled(12 * 11, 1));
+      final CellProgress p = CellProgress(width: 12).withCells(<CellPosition>[
+        for (int r = 0; r < 10; r++)
+          for (int c = 0; c < 10; c++) CellPosition(c, r),
+        const CellPosition(10, 0),
+      ], done: true);
+      final List<BlockCount> blocks = StitchBlocks.compute(grid, p);
+      expect(blocks, hasLength(4));
+      expect(blocks[0], const BlockCount(blockColumn: 0, blockRow: 0, total: 100, done: 100));
+      expect(blocks[0].isComplete, isTrue);
+      expect(blocks[1], const BlockCount(blockColumn: 1, blockRow: 0, total: 20, done: 1));
+      expect(blocks[1].fraction, closeTo(0.05, 1e-9));
+      expect(blocks[3].total, 2);
+    });
+
+    test('блок без клеток с цветом пропускается', () {
+      final Grid grid = Grid.fromCells(
+        width: 20,
+        height: 10,
+        cells: <int>[
+          for (int r = 0; r < 10; r++)
+            for (int c = 0; c < 20; c++) c < 10 ? 1 : 0,
+        ],
+      );
+      expect(StitchBlocks.compute(grid, CellProgress(width: 20)), hasLength(1));
+      expect(const BlockCount(blockColumn: 0, blockRow: 0, total: 0, done: 0).fraction, 1);
+    });
+  });
 }

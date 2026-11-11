@@ -114,6 +114,7 @@ import 'package:beading/presentation/materials/materials_cubit.dart';
 import 'package:beading/presentation/pattern_template/pattern_template_cubit.dart';
 import 'package:beading/presentation/settings/settings_cubit.dart';
 import 'package:beading/presentation/sharing/data_transfer_cubit.dart';
+import 'package:beading/presentation/stitching/stitch_cubit.dart';
 import 'package:beading/presentation/theme/theme_mode_cubit.dart';
 import 'package:beading/presentation/weaving/weave_cubit.dart';
 import 'package:get_it/get_it.dart';
@@ -385,6 +386,23 @@ Future<void> configureDependencies({GetIt? locator, AppDatabase? database, Catal
         changeStatus: container<ChangeProjectStatus>(),
         rowsCounter: container<RowsCounter>(),
         tracker: container<WorkSessionTracker>(),
+      ),
+    )
+    ..registerFactoryParam<StitchCubit, String, void>(
+      (projectId, _) => StitchCubit(
+        projectId: projectId,
+        projects: container<ProjectRepository>(),
+        patterns: container<GridPatternRepository>(),
+        cellProgress: container<CellProgressStore>(),
+        progress: container<GridProgressStore>(),
+        markCells: container<MarkCells>(),
+        markRect: container<MarkRect>(),
+        markColor: container<MarkColor>(),
+        settings: container<SettingsRepository>(),
+        recordProgress: container<RecordBookProgress>(),
+        changeStatus: container<ChangeProjectStatus>(),
+        tracker: container<WorkSessionTracker>(),
+        events: container<AppEvents>(),
       ),
     )
     ..registerFactory<DuplicateProject>(

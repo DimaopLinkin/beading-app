@@ -1,0 +1,243 @@
+import 'package:beading/core/failure.dart';
+import 'package:beading/domain/events/app_events.dart';
+import 'package:beading/domain/grid/bead_size.dart';
+import 'package:beading/domain/grid/grid.dart';
+import 'package:beading/domain/grid/grid_geometry.dart';
+import 'package:beading/domain/grid_pattern/grid_pattern.dart';
+import 'package:beading/domain/grid_pattern/use_cases/cell_progress_commands.dart';
+import 'package:beading/domain/image_pattern/book_work/record_book_progress.dart';
+import 'package:beading/domain/projects/project.dart';
+import 'package:beading/domain/projects/use_cases/change_project_status.dart';
+import 'package:beading/domain/projects/use_cases/create_project.dart';
+import 'package:beading/domain/projects/use_cases/touch_project.dart';
+import 'package:beading/domain/weaving/work_session_tracker.dart';
+import 'package:beading/presentation/l10n/app_localizations.dart';
+import 'package:beading/presentation/stitching/stitch_cubit.dart';
+import 'package:beading/presentation/stitching/stitch_screen.dart';
+import 'package:beading/presentation/stitching/stitch_state.dart';
+import 'package:beading/presentation/theme/app_theme.dart';
+import 'package:flutter/cupertino.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_test/flutter_test.dart';
+
+import '../../support/fake_clock.dart';
+import '../../support/fake_grid_pattern.dart';
+import '../../support/fake_project_repository.dart';
+import '../../support/fake_settings_repository.dart';
+import '../../support/fake_work_sessions.dart';
+
+/// 10 × 10, цвета по шахматке: по 50 клеток.
+GridPattern _pattern(String projectId) => GridPattern(
+  id: 'pat-1',
+  projectId: projectId,
+  geometry: const GridGeometry.rectangular(),
+  metrics: BeadSize.delica11,
+  grid: Grid.fromCells(width: 10, height: 10, cells: List<int>.generate(100, (i) => (i + i ~/ 10) % 2 + 1)),
+  palette: samplePalette(),
+);
+
+void main() {
+  late FakeProjectRepository projects;
+  late FakeGridPatternRepository patterns;
+  late FakeCellProgressStore cells;
+  late FakeClock clock;
+  late BroadcastAppEvents events;
+  late String projectId;
+  late FakeSettingsRepository settings;
+  late FakeWorkSessionRepository sessions;
+  late FakeGridProgressStore rows;
+
+  setUp(() async {
+    projects = FakeProjectRepository();
+    patterns = FakeGridPatternRepository();
+    cells = FakeCellProgressStore(width: 10);
+    rows = FakeGridProgressStore();
+    settings = FakeSettingsRepository();
+    sessions = FakeWorkSessionRepository();
+    clock = FakeClock(DateTime.utc(2026, 11, 11, 9));
+    events = BroadcastAppEvents();
+    projectId = (await CreateProject(repository: projects, ids: FakeIdGenerator(), clock: clock)(
+      name: 'Котик',
+    )).valueOrNull!.id;
+    patterns.byProject[projectId] = _pattern(projectId);
+  });
+
+  tearDown(() => events.dispose());
+
+  StitchCubit newCubit() {
+    final ChangeProjectStatus change = ChangeProjectStatus(repository: projects, events: events);
+    return StitchCubit(
+      projectId: projectId,
+      projects: projects,
+      patterns: patterns,
+      cellProgress: cells,
+      progress: rows,
+      markCells: MarkCells(patterns: patterns, progress: cells),
+      markRect: MarkRect(patterns: patterns, progress: cells),
+      markColor: MarkColor(patterns: patterns, progress: cells),
+      settings: settings,
+      recordProgress: RecordBookProgress(
+        projects: projects,
+        changeStatus: change,
+        touch: TouchProject(repository: projects, clock: clock),
+      ),
+      changeStatus: change,
+      tracker: WorkSessionTracker(sessions: sessions, clock: clock),
+      events: events,
+    );
+  }
+
+  Widget app(StitchCubit cubit, CupertinoThemeData theme) => CupertinoApp(
+    theme: theme,
+    builder: AppTheme.builder,
+    localizationsDelegates: AppLocalizations.localizationsDelegates,
+    supportedLocales: AppLocalizations.supportedLocales,
+    home: BlocProvider<StitchCubit>.value(value: cubit, child: const StitchScreen()),
+  );
+
+  Future<StitchCubit> open(WidgetTester tester, {CupertinoThemeData? theme}) async {
+    await tester.binding.setSurfaceSize(const Size(430, 932));
+    addTearDown(() => tester.binding.setSurfaceSize(null));
+    final StitchCubit cubit = newCubit();
+    await tester.pumpWidget(app(cubit, theme ?? AppTheme.light));
+    await tester.runAsync(cubit.load);
+    await tester.pump();
+    await tester.pump();
+    return cubit;
+  }
+
+  Future<void> closeScreen(WidgetTester tester, StitchCubit cubit) async {
+    await tester.pumpWidget(const SizedBox.shrink());
+    await tester.runAsync(cubit.close);
+  }
+
+  testWidgets('нет схемы — сообщение и «Закрыть»', (tester) async {
+    patterns.byProject.clear();
+    final StitchCubit cubit = newCubit();
+    await tester.pumpWidget(app(cubit, AppTheme.light));
+    expect(find.byType(CupertinoActivityIndicator), findsOneWidget);
+    await tester.runAsync(cubit.load);
+    await tester.pump();
+    expect(find.text('Не получилось открыть вышивку. Попробуй ещё раз.'), findsOneWidget);
+    await tester.tap(find.text('Закрыть'));
+    await tester.pump();
+    await closeScreen(tester, cubit);
+  });
+
+  for (final CupertinoThemeData theme in <CupertinoThemeData>[AppTheme.light, AppTheme.dark]) {
+    testWidgets('главный вид в теме ${theme.brightness}: название, процент, счётчик, остаток, инструменты', (
+      tester,
+    ) async {
+      final StitchCubit cubit = await open(tester, theme: theme);
+      expect(find.text('Котик'), findsOneWidget);
+      expect(find.text('0%'), findsOneWidget);
+      expect(find.text('Сделано 0 из 100'), findsOneWidget);
+      expect(find.text('Осталось 100'), findsOneWidget);
+      expect(find.text('Касание'), findsOneWidget);
+      expect(find.text('Мазок'), findsOneWidget);
+      expect(find.text('Область'), findsOneWidget);
+      expect(find.text('Цвета'), findsOneWidget);
+      expect(find.byKey(const ValueKey<String>('stitch-overlay')), findsOneWidget);
+      await closeScreen(tester, cubit);
+    });
+  }
+
+  testWidgets('касание клетки отмечает её, счётчик и процент растут', (tester) async {
+    final StitchCubit cubit = await open(tester);
+    final Offset center = tester.getCenter(find.byKey(const ValueKey<String>('stitch-overlay')));
+    await tester.tapAt(center);
+    await tester.pump();
+    expect(find.text('Сделано 1 из 100'), findsOneWidget);
+    expect(find.text('Осталось 99'), findsOneWidget);
+    expect(find.text('1%'), findsOneWidget);
+    await closeScreen(tester, cubit);
+    expect(cells.calls, isNotEmpty);
+  });
+
+  testWidgets('инструменты переключаются; мазок пальцем отмечает несколько клеток', (tester) async {
+    final StitchCubit cubit = await open(tester);
+    await tester.tap(find.text('Мазок'));
+    await tester.pump(const Duration(milliseconds: 300));
+    expect(cubit.state.tool, StitchTool.stroke);
+    final Offset center = tester.getCenter(find.byKey(const ValueKey<String>('stitch-overlay')));
+    final TestGesture gesture = await tester.startGesture(center);
+    await gesture.moveBy(const Offset(30, 0));
+    await gesture.moveBy(const Offset(30, 0));
+    await gesture.up();
+    await tester.pump();
+    expect(cubit.state.done, greaterThan(1));
+    await tester.tap(find.text('Область'));
+    await tester.pump(const Duration(milliseconds: 300));
+    final TestGesture drag = await tester.startGesture(center + const Offset(0, 80));
+    await drag.moveBy(const Offset(40, 40));
+    await tester.pump();
+    expect(cubit.state.areaPreview, isNotNull);
+    await drag.up();
+    await tester.pump();
+    expect(cubit.state.areaPreview, isNull);
+    await closeScreen(tester, cubit);
+  });
+
+  testWidgets('долгое касание паркует клетку, кнопка «К месту остановки» появляется', (tester) async {
+    final StitchCubit cubit = await open(tester);
+    expect(find.byKey(const ValueKey<String>('stitch-go-parked')), findsOneWidget);
+    final Offset center = tester.getCenter(find.byKey(const ValueKey<String>('stitch-overlay')));
+    final TestGesture press = await tester.startGesture(center);
+    await tester.pump(const Duration(milliseconds: 700));
+    await press.up();
+    await tester.pump();
+    expect(cubit.state.parked, isNotNull);
+    expect(find.text('К месту остановки'), findsOneWidget);
+    await tester.tap(find.byKey(const ValueKey<String>('stitch-go-parked')));
+    await tester.pump();
+    await closeScreen(tester, cubit);
+  });
+
+  testWidgets('список цветов: остаток, подсветка касанием, отметка цвета целиком, предложение «Готово»', (
+    tester,
+  ) async {
+    final StitchCubit cubit = await open(tester);
+    await tester.tap(find.byKey(const ValueKey<String>('stitch-colors')));
+    await tester.pumpAndSettle();
+    expect(find.text('Что осталось по цветам'), findsOneWidget);
+    expect(find.text('0 из 50'), findsNWidgets(2));
+    await tester.tap(find.byKey(const ValueKey<String>('stitch-mark-color-0')));
+    await tester.pump();
+    expect(find.text('Цвет готов'), findsOneWidget);
+    expect(find.text('50 из 50'), findsOneWidget);
+    await tester.tap(find.byKey(const ValueKey<String>('stitch-color-1')));
+    await tester.pumpAndSettle();
+    expect(cubit.state.highlight, 2);
+    // Закрываем второй цвет — всё сделано.
+    await tester.tap(find.byKey(const ValueKey<String>('stitch-colors')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey<String>('stitch-mark-color-1')));
+    await tester.pump();
+    await tester.tap(find.text('Закрыть'));
+    await tester.pumpAndSettle();
+    expect(find.text('Вся вышивка сделана. Отметить работу законченной?'), findsOneWidget);
+    await tester.tap(find.byKey(const ValueKey<String>('stitch-finish-yes')));
+    await tester.pump();
+    expect(cubit.state.projectDone, isTrue);
+    await closeScreen(tester, cubit);
+    expect((await projects.get(projectId)).valueOrNull!.status, ProjectStatus.done);
+  });
+
+  testWidgets('сбой записи: уведомление; переключатели символов и блоков', (tester) async {
+    final StitchCubit cubit = await open(tester);
+    await tester.tap(find.byKey(const ValueKey<String>('stitch-symbols')));
+    await tester.tap(find.byKey(const ValueKey<String>('stitch-blocks')));
+    await tester.pump();
+    expect(cubit.state.showSymbols, isTrue);
+    expect(cubit.state.showBlocks, isFalse);
+    expect(find.byKey(const ValueKey<String>('stitch-overlay')), findsNothing);
+    await tester.tap(find.byKey(const ValueKey<String>('stitch-blocks')));
+    await tester.pump();
+    cells.failNextWrite = const StorageFailure('диск');
+    await tester.tapAt(tester.getCenter(find.byKey(const ValueKey<String>('stitch-overlay'))));
+    await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 50)));
+    await tester.pump();
+    expect(find.byKey(const ValueKey<String>('stitch-save-failed')), findsOneWidget);
+    await closeScreen(tester, cubit);
+  });
+}
