@@ -1,8 +1,10 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
+import 'dart:math' as math;
 import 'dart:typed_data';
 import 'dart:ui' as ui;
+import 'dart:ui' show Color;
 
 import 'package:beading/data/catalog/catalog_file_parser.dart';
 import 'package:beading/data/image_to_grid/ui_image_decoder.dart';
@@ -27,11 +29,14 @@ import 'package:beading/domain/image_to_grid/image_to_grid_pipeline.dart';
 import 'package:beading/domain/image_to_grid/image_to_grid_request.dart';
 import 'package:beading/domain/image_to_grid/image_to_grid_settings.dart';
 import 'package:beading/domain/image_to_grid/palette_builder.dart';
+import 'package:beading/domain/image_to_grid/palette_from_generated.dart';
 import 'package:beading/domain/image_to_grid/source_image.dart';
 import 'package:beading/domain/image_to_grid/work_image.dart';
 import 'package:beading/domain/palette/lab.dart';
 import 'package:beading/domain/palette/rgb.dart';
 import 'package:beading/domain/projects/craft.dart';
+import 'package:beading/presentation/grid_pattern/grid_scene.dart';
+import 'package:beading/presentation/grid_pattern/realistic_cells.dart';
 
 /// Галерея качества генератора (T51): фото-фикстуры × виды схем × варианты конвейера.
 ///
@@ -598,16 +603,26 @@ String metricsTable(List<GalleryRun> runs) {
 }
 
 const int _panelHeight = 360;
+const int _realisticPanelHeight = 600;
 const int _gap = 12;
 
 /// Лист «до / после» одного фото и одного вида: слева фото, правее — варианты по порядку (плоский вид).
-Future<Uint8List> renderSheet(GalleryPhoto photo, GalleryTarget target, List<GalleryRun> runs) async {
+///
+/// С [realistic] схемы нарисованы тем же кодом, что вид «как будет выглядеть» в приложении (бусины с бликом,
+/// крестики на канве), и крупнее: иначе у бусины в 8 пикселей блика не видно.
+Future<Uint8List> renderSheet(
+  GalleryPhoto photo,
+  GalleryTarget target,
+  List<GalleryRun> runs, {
+  bool realistic = false,
+}) async {
+  final int panelHeight = realistic ? _realisticPanelHeight : _panelHeight;
   final List<_Panel> panels = <_Panel>[
-    _photoPanel(photo.image, runs.first),
-    for (final GalleryRun run in runs) _patternPanel(run),
+    _photoPanel(photo.image, runs.first, panelHeight),
+    for (final GalleryRun run in runs) realistic ? await _realisticPanel(run, panelHeight) : _patternPanel(run),
   ];
   final int width = panels.fold<int>(_gap, (sum, p) => sum + p.width + _gap);
-  const int height = _panelHeight + 2 * _gap;
+  final int height = panelHeight + 2 * _gap;
   final Uint8List rgba = Uint8List(width * height * 4);
   for (int i = 0; i < rgba.length; i += 4) {
     rgba[i] = 245;
@@ -617,7 +632,7 @@ Future<Uint8List> renderSheet(GalleryPhoto photo, GalleryTarget target, List<Gal
   }
   int left = _gap;
   for (final _Panel panel in panels) {
-    for (int y = 0; y < _panelHeight; y++) {
+    for (int y = 0; y < panelHeight; y++) {
       final int from = y * panel.width * 4;
       rgba.setRange(((y + _gap) * width + left) * 4, ((y + _gap) * width + left + panel.width) * 4, panel.rgba, from);
     }
@@ -638,18 +653,18 @@ final class _Panel {
   final Uint8List rgba;
 }
 
-_Panel _photoPanel(SourceImage image, GalleryRun run) {
+_Panel _photoPanel(SourceImage image, GalleryRun run, int panelHeight) {
   final MmSize extent = run.target.geometry.extent(
     run.target.metrics,
     columns: run.pattern.grid.width,
     rows: run.pattern.grid.height,
   );
-  final int width = (_panelHeight * extent.width / extent.height).round();
-  final Uint8List out = Uint8List(width * _panelHeight * 4);
-  for (int y = 0; y < _panelHeight; y++) {
+  final int width = (panelHeight * extent.width / extent.height).round();
+  final Uint8List out = Uint8List(width * panelHeight * 4);
+  for (int y = 0; y < panelHeight; y++) {
     for (int x = 0; x < width; x++) {
       final int sx = (x * image.width / width).floor().clamp(0, image.width - 1);
-      final int sy = (y * image.height / _panelHeight).floor().clamp(0, image.height - 1);
+      final int sy = (y * image.height / panelHeight).floor().clamp(0, image.height - 1);
       final int from = (sy * image.width + sx) * 4;
       final int to = (y * width + x) * 4;
       out.setRange(to, to + 3, image.rgba, from);
@@ -698,4 +713,47 @@ _Panel _patternPanel(GalleryRun run) {
     }
   }
   return _Panel(width, out);
+}
+
+/// Панель схемы в реалистичном виде: тот же `RealisticCells`, что рисует приложение.
+Future<_Panel> _realisticPanel(GalleryRun run, int panelHeight) async {
+  final GalleryTarget target = run.target;
+  final MmSize extent = target.geometry.extent(
+    target.metrics,
+    columns: run.pattern.grid.width,
+    rows: run.pattern.grid.height,
+  );
+  final MmSize cell = target.geometry.cellSize(target.metrics);
+  final double pxPerMm = panelHeight / extent.height;
+  final GridScene scene = GridScene(
+    geometry: target.geometry,
+    metrics: target.metrics,
+    columns: run.pattern.grid.width,
+    rows: run.pattern.grid.height,
+    smallestCellPx: pxPerMm * math.min(cell.width, cell.height),
+  );
+  final int width = scene.size.width.round();
+  final RealisticMaterial material = RealisticMaterial.forMetrics(target.metrics);
+  const RealisticColors beadColors = RealisticColors(surface: Color(0xFFE6E1D8), thread: Color(0xFF9A948A));
+  const RealisticColors clothColors = RealisticColors(surface: Color(0xFFF2EBDB), thread: Color(0xFF9A948A));
+  final RealisticColors colors = material.isBead ? beadColors : clothColors;
+  final ui.PictureRecorder recorder = ui.PictureRecorder();
+  final ui.Canvas canvas = ui.Canvas(recorder);
+  RealisticCells.paintSurface(canvas, ui.Rect.fromLTWH(0, 0, width.toDouble(), panelHeight.toDouble()), colors);
+  RealisticCells.paintBlock(
+    canvas,
+    scene: scene,
+    grid: run.pattern.grid,
+    palette: paletteFromGenerated(run.pattern).valueOrNull!,
+    colors: colors,
+    material: material,
+    c0: 0,
+    c1: run.pattern.grid.width,
+    r0: 0,
+    r1: run.pattern.grid.height,
+  );
+  final ui.Image image = await recorder.endRecording().toImage(width, panelHeight);
+  final ByteData? data = await image.toByteData();
+  image.dispose();
+  return _Panel(width, data!.buffer.asUint8List());
 }

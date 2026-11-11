@@ -558,4 +558,15 @@ void main() {
     cubit.setComparing(value: false);
     expect(cubit.state.comparing, isFalse);
   });
+
+  test('вид предпросмотра переключается между схемой и «как будет»', () async {
+    cubit = build(debounce: Duration.zero);
+    addTearDown(cubit.close);
+    await openPhoto();
+    expect(cubit.state.realistic, isFalse);
+    cubit.setRealistic(value: true);
+    expect(cubit.state.realistic, isTrue);
+    cubit.setRealistic(value: false);
+    expect(cubit.state.realistic, isFalse);
+  });
 }
