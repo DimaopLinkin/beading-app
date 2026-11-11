@@ -1,7 +1,7 @@
 ---
 id: 04b-ruler-handle
 title: Линейка: понятная ручка высоты ряда (доработка 04-book-ruler)
-status: delivered
+status: accepted
 depends: 04-book-ruler
 ---
 
