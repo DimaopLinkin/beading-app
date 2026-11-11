@@ -12,6 +12,7 @@ import 'package:beading/presentation/grid_pattern/grid_layer_cache.dart';
 import 'package:beading/presentation/grid_pattern/grid_overlay_painter.dart';
 import 'package:beading/presentation/grid_pattern/grid_scene.dart';
 import 'package:beading/presentation/grid_pattern/grid_view_options.dart';
+import 'package:beading/presentation/grid_pattern/realistic_cells.dart';
 import 'package:beading/presentation/l10n/app_localizations.dart';
 import 'package:beading/presentation/theme/tokens.dart';
 import 'package:flutter/cupertino.dart';
@@ -115,6 +116,11 @@ class _GridPatternViewState extends State<GridPatternView> {
     boldLine: GridColors.boldLine.resolveFrom(context),
     emptyCell: GridColors.emptyCell.resolveFrom(context),
     unknown: GridColors.unknown.resolveFrom(context),
+    realistic: RealisticColors(
+      surface: (RealisticMaterial.forMetrics(widget.metrics).isBead ? GridColors.beadSurface : GridColors.aida)
+          .resolveFrom(context),
+      thread: GridColors.beadThread.resolveFrom(context),
+    ),
   );
 
   /// Вписывает схему по ширине окна (не крупнее 3×) один раз на схему.

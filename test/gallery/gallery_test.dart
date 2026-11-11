@@ -32,8 +32,11 @@ void main() {
             for (final GalleryRun r in runs)
               if (r.photo == photo && r.target == target) r,
           ];
-          final Uint8List png = await renderSheet(photo, target, own);
-          File('$out/${photo.name}-${target.id}.png').writeAsBytesSync(png);
+          // Лист «как будет выглядеть» и плоский («до», как было до T56).
+          final Uint8List real = await renderSheet(photo, target, own, realistic: true);
+          File('$out/${photo.name}-${target.id}.png').writeAsBytesSync(real);
+          final Uint8List flat = await renderSheet(photo, target, own);
+          File('$out/${photo.name}-${target.id}-flat.png').writeAsBytesSync(flat);
         }
       }
       File('$out/metrics.md').writeAsStringSync(metricsTable(runs));

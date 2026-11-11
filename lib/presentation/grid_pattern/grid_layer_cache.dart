@@ -11,6 +11,7 @@ import 'package:beading/presentation/grid_pattern/bead_finish.dart';
 import 'package:beading/presentation/grid_pattern/grid_colors.dart';
 import 'package:beading/presentation/grid_pattern/grid_scene.dart';
 import 'package:beading/presentation/grid_pattern/grid_view_options.dart';
+import 'package:beading/presentation/grid_pattern/realistic_cells.dart';
 import 'package:flutter/painting.dart';
 
 /// Цвета слоя ячеек, уже приведённые к яркости темы. Часть ключа кеша: сменилась тема — слой строится заново.
@@ -20,12 +21,16 @@ final class GridPaintStyle {
     required this.boldLine,
     required this.emptyCell,
     required this.unknown,
+    this.realistic = const RealisticColors(surface: Color(0xFFE6E1D8), thread: Color(0xFF9A948A)),
   });
 
   final Color line;
   final Color boldLine;
   final Color emptyCell;
   final Color unknown;
+
+  /// Подложка и нить вида «как будет выглядеть».
+  final RealisticColors realistic;
 
   @override
   // ignore: avoid_equals_and_hash_code_on_mutable_classes, поля final
@@ -34,11 +39,12 @@ final class GridPaintStyle {
       other.line == line &&
       other.boldLine == boldLine &&
       other.emptyCell == emptyCell &&
-      other.unknown == unknown;
+      other.unknown == unknown &&
+      other.realistic == realistic;
 
   @override
   // ignore: avoid_equals_and_hash_code_on_mutable_classes, см. выше
-  int get hashCode => Object.hash(line, boldLine, emptyCell, unknown);
+  int get hashCode => Object.hash(line, boldLine, emptyCell, unknown, realistic);
 }
 
 /// Кеш слоя ячеек: `Picture` на блок [blockSize]×[blockSize] ячеек, строится лениво и только для видимых блоков.
@@ -91,6 +97,7 @@ final class GridLayerCache {
     if (old == null) return false;
     return identical(old, scene) ||
         (old.geometry == scene.geometry &&
+            old.metrics == scene.metrics &&
             old.columns == scene.columns &&
             old.rows == scene.rows &&
             old.pxPerMm == scene.pxPerMm &&
@@ -121,6 +128,9 @@ final class GridLayerCache {
     if (scene == null) return;
     final CellRange range = scene.visibleCells(visible);
     if (range.isEmpty) return;
+    if (_options?.realistic ?? false) {
+      RealisticCells.paintSurface(canvas, visible.intersect(Offset.zero & scene.size), _style!.realistic);
+    }
     final int blocksPerRow = _blocksAcross(scene);
     for (int by = range.firstRow ~/ blockSize; by <= range.lastRow ~/ blockSize; by++) {
       for (int bx = range.firstColumn ~/ blockSize; bx <= range.lastColumn ~/ blockSize; bx++) {
@@ -147,6 +157,21 @@ final class GridLayerCache {
 
     final PictureRecorder recorder = PictureRecorder();
     final Canvas canvas = Canvas(recorder);
+    if (options.realistic) {
+      RealisticCells.paintBlock(
+        canvas,
+        scene: scene,
+        grid: grid,
+        palette: palette,
+        colors: style.realistic,
+        material: RealisticMaterial.forMetrics(scene.metrics),
+        c0: c0,
+        c1: c1,
+        r0: r0,
+        r1: r1,
+      );
+      return recorder.endRecording();
+    }
     final Paint linePaint = Paint()
       ..style = PaintingStyle.stroke
       ..strokeWidth = 0
