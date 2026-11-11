@@ -5,6 +5,7 @@ import 'package:beading/domain/image_to_grid/face_size_advisor.dart';
 import 'package:beading/domain/image_to_grid/generated_pattern.dart';
 import 'package:beading/domain/image_to_grid/image_mask_set.dart';
 import 'package:beading/domain/image_to_grid/image_to_grid_settings.dart';
+import 'package:beading/domain/image_to_grid/size_suggester.dart';
 import 'package:beading/domain/palette/palette_snapshot.dart';
 import 'package:beading/domain/projects/craft.dart';
 import 'package:equatable/equatable.dart';
@@ -33,6 +34,7 @@ class ImageWizardState extends Equatable {
     this.comparing = false,
     this.realistic = false,
     this.masks,
+    this.sizeHint,
     this.problem,
     this.projectId,
   });
@@ -77,6 +79,19 @@ class ImageWizardState extends Equatable {
 
   /// Маски и лица, найденные на подготовленной картинке (T48); `null` — Vision недоступен или ничего не нашёл.
   final ImageMaskSet? masks;
+
+  /// Подсказка размера по черновикам (T61); `null` — ещё не посчитана, устарела или фото без разброса светлоты.
+  final SizeSuggestion? sizeHint;
+
+  /// Подсказка уже применена: ширина и число цветов совпадают с ней.
+  bool get sizeHintApplied =>
+      sizeHint != null && settings.columns == sizeHint!.columns && settings.maxColors == sizeHint!.colors;
+
+  /// На фото есть лицо, а схема из бисера уже порога, с которого лица читаются (60 столбцов, T61).
+  bool get beadsTooSmallForFace =>
+      settings.craft == Craft.beading && masks != null && masks!.faces.isNotEmpty && settings.columns < beadFaceColumns;
+
+  static const int beadFaceColumns = 60;
 
   /// Совет, если лицо на схеме слишком мелкое (T54); пока маски не учитываются, лицо не важно и совета нет.
   FaceSizeAdvice? get faceAdvice {
@@ -127,11 +142,13 @@ class ImageWizardState extends Equatable {
     bool? comparing,
     bool? realistic,
     ImageMaskSet? masks,
+    SizeSuggestion? sizeHint,
     ImageWizardProblem? problem,
     String? projectId,
     bool clearProblem = false,
     bool clearPreview = false,
     bool clearMasks = false,
+    bool clearSizeHint = false,
   }) => ImageWizardState(
     step: step ?? this.step,
     opening: opening ?? this.opening,
@@ -150,6 +167,7 @@ class ImageWizardState extends Equatable {
     comparing: comparing ?? this.comparing,
     realistic: realistic ?? this.realistic,
     masks: clearMasks ? null : (masks ?? this.masks),
+    sizeHint: clearSizeHint ? null : (sizeHint ?? this.sizeHint),
     problem: clearProblem ? null : (problem ?? this.problem),
     projectId: projectId ?? this.projectId,
   );
@@ -173,6 +191,7 @@ class ImageWizardState extends Equatable {
     comparing,
     realistic,
     masks,
+    sizeHint,
     problem,
     projectId,
   ];

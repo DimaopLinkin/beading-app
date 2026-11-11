@@ -1389,6 +1389,50 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
+  String imageWizardSizeHintBeads(int columns, int colors, String cm) {
+    return 'Для этого фото лучше от $columns бусин по ширине и $colors цветов, около $cm см.';
+  }
+
+  @override
+  String imageWizardSizeHintStitch(String fabric, String cm, int columns, int colors) {
+    return 'Для этого фото на канве $fabric лучше от $cm см ($columns крестиков) и $colors цветов.';
+  }
+
+  @override
+  String get imageWizardSizeHintLimit => 'Мелкие детали этого фото не получатся даже на самом большом размере.';
+
+  @override
+  String get imageWizardSizeHintApply => 'Применить';
+
+  @override
+  String get imageWizardSizeHintApplied => 'Размер подобран по фото';
+
+  @override
+  String get imageWizardPurpose => 'Размер по назначению';
+
+  @override
+  String get imageWizardPurposeBracelet => 'Браслет';
+
+  @override
+  String get imageWizardPurposePanel => 'Панно';
+
+  @override
+  String get imageWizardPurposePicture => 'Картина';
+
+  @override
+  String imageWizardPurposeBeads(int columns, String cm) {
+    return '$columns бусин, около $cm см';
+  }
+
+  @override
+  String imageWizardBeadsFewForFace(int columns) {
+    return 'Бисера на такое лицо не хватает: на $columns столбцах глаза и губы не получатся. Возьми размер из подсказки или вышивку.';
+  }
+
+  @override
+  String get imageWizardToStitch => 'Сделать вышивкой';
+
+  @override
   String get imageWizardPreset => 'Детальность';
 
   @override

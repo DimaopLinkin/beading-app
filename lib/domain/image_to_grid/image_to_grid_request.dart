@@ -35,6 +35,7 @@ final class ImageToGridRequest {
     this.refillFreedColors = false,
     this.faces,
     this.draft = false,
+    this.measure = false,
     this.steps = const <PatternStep>[],
     this.subjectMask,
     this.background = BackgroundMode.keep,
@@ -112,6 +113,10 @@ final class ImageToGridRequest {
   /// Такой результат показывают, но не сохраняют: после паузы мастер считает полный. Путь T24 черновик не знает.
   final bool draft;
 
+  /// Считать контраст и корреляцию светлоты и в черновике (T61: подсказка размера сравнивает черновики разной ширины).
+  /// Вне черновика метрики считаются всегда.
+  final bool measure;
+
   /// Тот же запрос на другой картинке, маске важности, маске объекта и лицах: так изолят сессии подставляет то, что уже
   /// получил. Лица [faces] и маска объекта заменяются, `null` — без них.
   ImageToGridRequest withSource({
@@ -137,6 +142,7 @@ final class ImageToGridRequest {
     refillFreedColors: refillFreedColors,
     faces: faces,
     draft: draft,
+    measure: measure,
     steps: steps,
     subjectMask: subjectMask,
     background: background,
@@ -165,6 +171,7 @@ final class ImageToGridRequest {
     refillFreedColors: refillFreedColors,
     faces: faces,
     draft: draft,
+    measure: measure,
     steps: steps,
     subjectMask: subjectMask,
     background: background,
@@ -214,6 +221,7 @@ final class ImageToGridRequest {
     refillFreedColors: refillFreedColors,
     faces: faces,
     draft: draft,
+    measure: measure,
     steps: steps,
     subjectMask: mask,
     background: mode,
