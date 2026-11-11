@@ -84,13 +84,23 @@ final class EdgePreservingPrefilter extends Equatable implements ImagePrefilter 
 
   /// Добавляет к светлоте [l] долю разницы с её размытой копией, поправка ограничена, результат в 0…100.
   void _boost(WorkImage image, Float32List l, Uint8List? protectedPixels) {
+    final int w = image.width;
+    final int h = image.height;
     final int r = math.max(1, (localContrastRadiusCells * image.scale).round());
-    final Float32List blur = boxBlur(boxBlur(l, image.width, image.height, r), image.width, image.height, r);
+    final Float32List alpha = image.alpha;
+    // Размытие с весом непрозрачности: прозрачный фон не подмешивается в светлоту у силуэта.
+    final Float32List weighted = Float32List(l.length);
     for (int i = 0; i < l.length; i++) {
+      weighted[i] = l[i] * alpha[i];
+    }
+    final Float32List blurL = boxBlur(boxBlur(weighted, w, h, r), w, h, r);
+    final Float32List blurA = boxBlur(boxBlur(alpha, w, h, r), w, h, r);
+    for (int i = 0; i < l.length; i++) {
+      if (alpha[i] < 0.5 || blurA[i] <= 1e-6) continue;
       final double amount = protectedPixels != null && protectedPixels[i] != 0
           ? localContrast * protectedFactor
           : localContrast;
-      final double delta = (amount * (l[i] - blur[i])).clamp(-localContrastLimit, localContrastLimit);
+      final double delta = (amount * (l[i] - blurL[i] / blurA[i])).clamp(-localContrastLimit, localContrastLimit);
       l[i] = (l[i] + delta).clamp(0, 100);
     }
   }

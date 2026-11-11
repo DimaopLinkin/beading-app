@@ -94,7 +94,7 @@ final class AccentPaletteBuilder extends Equatable implements PaletteBuilder {
     final double minGroup = _minGroup(sample, request.work.scale);
     List<Lab> centers = _kMeans(sample, base, random, minGroup);
     centers = _addAccents(sample, centers, k, minGroup);
-    if (extremeTones) centers = _stretchExtremes(sample, centers, minGroup);
+    if (extremeTones) centers = _stretchExtremes(sample, centers);
 
     final CellRegions? regions = request.regions;
     final _CellMeans? cells = regions == null ? null : _CellMeans.of(request.work, regions);
@@ -120,7 +120,7 @@ final class AccentPaletteBuilder extends Equatable implements PaletteBuilder {
   }
 
   /// Сдвигает самый тёмный и самый светлый центр к 2-му и 98-му перцентилю светлоты выборки (T63); оттенок сохраняется.
-  List<Lab> _stretchExtremes(_Sample s, List<Lab> centers, double minGroup) {
+  List<Lab> _stretchExtremes(_Sample s, List<Lab> centers) {
     if (centers.length < 2) return centers;
     final List<double> sorted = <double>[for (int i = 0; i < s.count; i++) s.l[i]]..sort();
     final double low = sorted[((sorted.length - 1) * 0.02).floor()];
@@ -132,12 +132,10 @@ final class AccentPaletteBuilder extends Equatable implements PaletteBuilder {
       if (centers[i].l > centers[lightest].l) lightest = i;
     }
     final List<Lab> out = <Lab>[...centers];
-    final int beyondLow = sorted.where((v) => v <= low).length;
-    final int beyondHigh = sorted.where((v) => v >= high).length;
-    if (centers[darkest].l - low > extremeGap && beyondLow >= minGroup) {
+    if (centers[darkest].l - low > extremeGap) {
       out[darkest] = Lab(low, centers[darkest].a, centers[darkest].b);
     }
-    if (high - centers[lightest].l > extremeGap && beyondHigh >= minGroup) {
+    if (high - centers[lightest].l > extremeGap) {
       out[lightest] = Lab(high, centers[lightest].a, centers[lightest].b);
     }
     return out;

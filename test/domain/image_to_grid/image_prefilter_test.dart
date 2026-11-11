@@ -231,5 +231,16 @@ void main() {
       final WorkImage out = const EdgePreservingPrefilter(localContrast: 0.5).apply(image);
       expect(at(out, 20, 20).l, closeTo(55, 1e-3));
     });
+
+    test('прозрачный фон не даёт ореола у силуэта', () {
+      final WorkImage image = build(40, 40, (x, y) => x < 20 ? const Lab(60, 0, 0) : const Lab(0, 0, 0));
+      for (int y = 0; y < 40; y++) {
+        for (int x = 20; x < 40; x++) {
+          image.alpha[y * 40 + x] = 0;
+        }
+      }
+      final WorkImage out = const EdgePreservingPrefilter(localContrast: 0.5).apply(image);
+      expect(at(out, 19, 20).l, closeTo(60, 0.5));
+    });
   });
 }

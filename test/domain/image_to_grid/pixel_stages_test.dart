@@ -90,7 +90,7 @@ class _CaptureCosts implements PatternStep {
 void main() {
   backstitchPipelineTests();
   group('AccentPaletteBuilder: крайние тона (T63)', () {
-    // Серый кружок 0x8C8C8C и светлее/темнее края: палитра из двух-трёх цветов обычно усредняет края.
+    // Серый кружок 0x808080 и светлее/темнее края: палитра из двух-трёх цветов обычно усредняет края.
     SourceImage whiteCircle() => painted(120, 120, 0x808080, <(int, int, int, int, int)>[
       (30, 30, 90, 90, 0xFFFFFF),
       (0, 0, 10, 120, 0x1A1A1A),
@@ -117,6 +117,17 @@ void main() {
       final List<PaletteEntry> on = const AccentPaletteBuilder(extremeTones: true).build(request);
       expect(lightest(on), greaterThanOrEqualTo(lightest(off)));
       expect(darkest(on), lessThanOrEqualTo(darkest(off)));
+    });
+
+    test('с каталогом результат остаётся из каталога', () {
+      final List<PaletteEntry> catalog = <PaletteEntry>[
+        for (int v = 10; v <= 250; v += 20) PaletteEntry(rgb: Rgb(v, v, v)),
+      ];
+      final List<PaletteEntry> palette = const AccentPaletteBuilder(extremeTones: true).build(
+        PaletteRequest(work: workOf(whiteCircle(), 20, 20), maxColors: 3, constraint: PaletteConstraint.list(catalog)),
+      );
+      expect(catalog.toSet().containsAll(palette), isTrue);
+      expect(lightest(palette), greaterThanOrEqualTo(90));
     });
 
     test('единичные светлые пиксели не тянут светлый цвет к себе (мало пикселей за порогом)', () {
