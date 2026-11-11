@@ -33,12 +33,12 @@ void main() {
       final PaletteConstraint byBrand = PaletteConstraint.catalog(
         catalog,
         material: CatalogMaterial.bead,
-        brands: <String>{'Miyuki'},
+        brands: const <String>{'Miyuki'},
       );
       final PaletteConstraint bySeries = PaletteConstraint.catalog(
         catalog,
         material: CatalogMaterial.bead,
-        series: <String>{'Round'},
+        series: const <String>{'Round'},
       );
 
       expect(byBrand.candidates!.map((e) => e.catalog!.code), <String>['DB0001', 'DB0002']);
@@ -49,12 +49,12 @@ void main() {
       final PaletteConstraint eleven = PaletteConstraint.catalog(
         catalog,
         material: CatalogMaterial.bead,
-        sizeCodes: <String>{'11/0'},
+        sizeCodes: const <String>{'11/0'},
       );
       final PaletteConstraint fifteen = PaletteConstraint.catalog(
         catalog,
         material: CatalogMaterial.bead,
-        sizeCodes: <String>{'15/0'},
+        sizeCodes: const <String>{'15/0'},
       );
 
       expect(eleven.candidates, hasLength(3));

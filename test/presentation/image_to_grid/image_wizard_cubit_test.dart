@@ -46,6 +46,11 @@ class _ControlledRunner implements ImageToGridRunner {
     completers.add(completer);
     return completer.future;
   }
+
+  int releases = 0;
+
+  @override
+  Future<void> release() async => releases++;
 }
 
 class _FakeDecoder implements ImageDecoder {
@@ -179,13 +184,14 @@ void main() {
   });
 
   group('предпросмотр', () {
-    test('быстрые правки подряд сливаются в один расчёт после паузы', () {
+    test('быстрые правки подряд: черновик сразу и один полный расчёт после паузы', () {
       fakeAsync((async) {
         cubit = build();
         source.next = Success<List<PickedBookFile>>(<PickedBookFile>[photo()]);
         unawaited(cubit.pickPhotos());
         async.flushMicrotasks();
-        expect(runner.requests, hasLength(1)); // первый расчёт после выбора — сразу
+        expect(runner.requests, hasLength(1)); // первый расчёт после выбора — сразу и полный
+        expect(runner.requests.single.draft, isFalse);
         runner.completers.last.complete(_pattern(1));
         async.flushMicrotasks();
 
@@ -193,14 +199,81 @@ void main() {
           ..setColumns(50)
           ..setColumns(60)
           ..setColumns(70);
-        async.elapse(const Duration(milliseconds: 200));
-        expect(runner.requests, hasLength(1));
-        expect(cubit.state.calculating, isTrue);
+        async.flushMicrotasks();
+        // Пока черновик считается, следующие правки не копятся в очереди.
+        expect(runner.requests, hasLength(2));
+        expect(runner.requests.last.draft, isTrue);
+        expect(runner.requests.last.columns, 50);
         async.elapse(const Duration(milliseconds: 200));
         expect(runner.requests, hasLength(2));
+        expect(cubit.state.calculating, isTrue);
+        // Черновик устарел (параметры сменились): его не показываем, а считаем свежий.
+        runner.completers.last.complete(_pattern(2));
+        async.flushMicrotasks();
+        expect(runner.requests, hasLength(3));
+        expect(runner.requests.last.draft, isTrue);
+        expect(runner.requests.last.columns, 70);
+        async.elapse(const Duration(milliseconds: 200));
+        expect(runner.requests, hasLength(4));
+        expect(runner.requests.last.draft, isFalse);
         expect(runner.requests.last.columns, 70);
         unawaited(cubit.close());
       });
+    });
+
+    test('черновик показывается, но сохранить можно только полную схему', () async {
+      cubit = build(debounce: const Duration(milliseconds: 20));
+      addTearDown(cubit.close);
+      await openPhoto();
+      expect(cubit.state.canSave, isTrue);
+
+      cubit.setColumns(50);
+      await Future<void>.delayed(Duration.zero);
+      expect(runner.requests.last.draft, isTrue);
+      runner.completers.last.complete(_pattern(2));
+      await Future<void>.delayed(Duration.zero);
+      expect(cubit.state.preview!.palette.single.rgb, const Rgb(2, 0, 0));
+      expect(cubit.state.calculating, isTrue);
+      expect(cubit.state.canSave, isFalse);
+
+      await Future<void>.delayed(const Duration(milliseconds: 40));
+      expect(runner.requests.last.draft, isFalse);
+      runner.completers.last.complete(_pattern(3));
+      await Future<void>.delayed(Duration.zero);
+      expect(cubit.state.preview!.palette.single.rgb, const Rgb(3, 0, 0));
+      expect(cubit.state.canSave, isTrue);
+    });
+
+    test('опоздавший черновик не затирает уже показанную полную схему', () async {
+      cubit = build(debounce: const Duration(milliseconds: 20));
+      addTearDown(cubit.close);
+      await openPhoto();
+
+      cubit.setColumns(50);
+      await Future<void>.delayed(const Duration(milliseconds: 40));
+      expect(runner.requests.map((r) => r.draft), <bool>[false, true, false]);
+      runner.completers[2].complete(_pattern(3));
+      await Future<void>.delayed(Duration.zero);
+      runner.completers[1].complete(_pattern(2));
+      await Future<void>.delayed(Duration.zero);
+      expect(cubit.state.preview!.palette.single.rgb, const Rgb(3, 0, 0));
+      expect(cubit.state.canSave, isTrue);
+    });
+
+    test('без предустановки (путь T24) черновик не запрашивается', () async {
+      cubit = build(debounce: const Duration(milliseconds: 20));
+      addTearDown(cubit.close);
+      await openPhoto();
+      cubit.setDither(value: true);
+      await Future<void>.delayed(const Duration(milliseconds: 40));
+      expect(runner.requests.map((r) => r.draft), <bool>[false, false]);
+    });
+
+    test('закрытие мастера освобождает расчётную сессию', () async {
+      cubit = build();
+      await openPhoto();
+      await cubit.close();
+      expect(runner.releases, 1);
     });
 
     test('устаревший расчёт отбрасывается, на экране схема последних параметров', () async {

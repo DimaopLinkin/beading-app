@@ -6,6 +6,7 @@ import 'package:beading/domain/image_to_grid/palette_constraint.dart';
 import 'package:beading/domain/image_to_grid/palette_entry.dart';
 import 'package:beading/domain/image_to_grid/work_image.dart';
 import 'package:beading/domain/palette/lab.dart';
+import 'package:equatable/equatable.dart';
 
 /// Что нужно строителю палитры.
 final class PaletteRequest {
@@ -43,7 +44,7 @@ abstract interface class PaletteBuilder {
 ///   [accentDeltaE] (ΔE2000) от всех цветов, получает свой цвет (глаза, блики, губы).
 /// - При ограничении каталогом или списком центры сразу привязываются к разным позициям (k-medoids): повторов нет,
 ///   число цветов равно заданному, если кандидатов хватает.
-final class AccentPaletteBuilder implements PaletteBuilder {
+final class AccentPaletteBuilder extends Equatable implements PaletteBuilder {
   const AccentPaletteBuilder({
     this.sampleSize = 20000,
     this.accentDeltaE = 12,
@@ -57,6 +58,9 @@ final class AccentPaletteBuilder implements PaletteBuilder {
   final double accentMinCells;
   final int iterations;
   final int medoidIterations;
+
+  @override
+  List<Object?> get props => <Object?>[sampleSize, accentDeltaE, accentMinCells, iterations, medoidIterations];
 
   @override
   List<PaletteEntry> build(PaletteRequest request) {
