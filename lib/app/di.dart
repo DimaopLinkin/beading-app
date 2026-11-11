@@ -123,6 +123,9 @@ final GetIt getIt = GetIt.instance;
 ///
 /// [database] — готовая база (в тестах — в памяти); без неё открывается файл в Application Support.
 /// [catalogAssets] подменяет файлы каталога (в тестах).
+/// Длинная сторона картинки в мастере «картинка → схема», пикселей.
+const int _wizardImageMaxSide = 2048;
+
 Future<void> configureDependencies({GetIt? locator, AppDatabase? database, CatalogAssetSource? catalogAssets}) async {
   final GetIt container = locator ?? getIt;
   await container.reset();
@@ -226,7 +229,8 @@ Future<void> configureDependencies({GetIt? locator, AppDatabase? database, Catal
     ..registerFactory<ImageWizardCubit>(
       () => ImageWizardCubit(
         source: container<BookImageSource>(),
-        processor: container<ImageProcessor>(),
+        // Генератору хватает 2048: поворот и обрезка отзываются быстрее, пик памяти и маска Vision меньше. Книги — 4096.
+        processor: const UiImageProcessor(maxSide: _wizardImageMaxSide),
         decoder: container<ImageDecoder>(),
         runner: container<ImageToGridRunner>(),
         masks: container<ImageMasks>(),

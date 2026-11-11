@@ -170,8 +170,14 @@ void main() {
 
     test('клетка под маской «важное» сохраняется', () {
       final GeneratedPattern p = _pattern(<String>['111', '121', '111'], <int>[0xFF0000, 0x00FF00]);
-      final GeneratedPattern out = const RemoveIslandsStep().apply(p, _context(p, importance: <int, double>{4: 4}));
+      final GeneratedPattern out = const RemoveIslandsStep().apply(p, _context(p, importance: <int, double>{4: 5}));
       expect(out.grid.at(1, 1), 2);
+    });
+
+    test('вес рамки лица (4) сам не защищает: одиночная клетка внутри лица чистится', () {
+      final GeneratedPattern p = _pattern(<String>['111', '121', '111'], <int>[0xFF0000, 0x00FF00]);
+      final GeneratedPattern out = const RemoveIslandsStep().apply(p, _context(p, importance: <int, double>{4: 4}));
+      expect(out.grid.at(1, 1), 1);
     });
 
     test('сильный край защищает клетку', () {
