@@ -2,10 +2,12 @@ import 'dart:math' as math;
 
 import 'package:beading/domain/grid/cell_metrics.dart';
 import 'package:beading/domain/grid/cell_position.dart';
+import 'package:beading/domain/grid/fabric.dart';
 import 'package:beading/domain/grid/grid.dart';
 import 'package:beading/domain/grid/grid_geometry.dart';
 import 'package:beading/domain/grid/reading_order.dart';
 import 'package:beading/domain/palette/palette_snapshot.dart';
+import 'package:beading/domain/stitch/stitch_layers.dart';
 import 'package:beading/presentation/grid_pattern/grid_base_painter.dart';
 import 'package:beading/presentation/grid_pattern/grid_colors.dart';
 import 'package:beading/presentation/grid_pattern/grid_layer_cache.dart';
@@ -13,6 +15,7 @@ import 'package:beading/presentation/grid_pattern/grid_overlay_painter.dart';
 import 'package:beading/presentation/grid_pattern/grid_scene.dart';
 import 'package:beading/presentation/grid_pattern/grid_view_options.dart';
 import 'package:beading/presentation/grid_pattern/realistic_cells.dart';
+import 'package:beading/presentation/grid_pattern/stitch_layers_painter.dart';
 import 'package:beading/presentation/l10n/app_localizations.dart';
 import 'package:beading/presentation/theme/tokens.dart';
 import 'package:flutter/cupertino.dart';
@@ -29,6 +32,7 @@ class GridPatternView extends StatefulWidget {
     required this.geometry,
     required this.metrics,
     this.options = const GridViewOptions(),
+    this.layers,
     this.controller,
     this.onCellTap,
     this.onCellLongPress,
@@ -44,6 +48,9 @@ class GridPatternView extends StatefulWidget {
   final GridGeometry geometry;
   final CellMetrics metrics;
   final GridViewOptions options;
+
+  /// Слои вышивки (неполные крестики, бэкстич, узелки) поверх крестиков; у бисера `null`.
+  final StitchLayers? layers;
 
   /// Зум и сдвиг снаружи (например, чтобы доехать до ряда). Если не задан, вид сам вписывается по ширине.
   final TransformationController? controller;
@@ -75,6 +82,8 @@ const double gridRowGutter = 72;
 
 class _GridPatternViewState extends State<GridPatternView> {
   GridLayerCache? _ownCache;
+  final StitchLayerCache _layerCache = StitchLayerCache();
+  int _layerRevision = 0;
   TransformationController? _ownController;
   late GridScene _scene = _buildScene();
   int _revision = 0;
@@ -107,6 +116,7 @@ class _GridPatternViewState extends State<GridPatternView> {
   @override
   void dispose() {
     _ownCache?.dispose();
+    _layerCache.dispose();
     _ownController?.dispose();
     super.dispose();
   }
@@ -117,14 +127,36 @@ class _GridPatternViewState extends State<GridPatternView> {
     emptyCell: widget.options.canvasColor ?? GridColors.emptyCell.resolveFrom(context),
     unknown: GridColors.unknown.resolveFrom(context),
     realistic: RealisticColors(
-      surface:
-          widget.options.canvasColor ??
-          (RealisticMaterial.forMetrics(widget.metrics).isBead ? GridColors.beadSurface : GridColors.aida).resolveFrom(
-            context,
-          ),
+      surface: widget.options.canvasColor ?? _surface(context),
       thread: GridColors.beadThread.resolveFrom(context),
     ),
   );
+
+  void _configureLayers(GridPaintStyle style) {
+    final StitchLayers? layers = widget.layers;
+    if (layers == null) return;
+    final bool changed = _layerCache.configure(
+      layers: layers,
+      palette: widget.palette,
+      scene: _scene,
+      style: StitchLayersStyle(
+        surface: style.realistic.surface,
+        unknown: style.unknown,
+        realistic: widget.options.realistic,
+        hiddenLayers: widget.options.hiddenLayers,
+        highlightColor: widget.options.highlightColor,
+      ),
+    );
+    if (changed) _layerRevision++;
+  }
+
+  /// Подложка: у бисера ткань, у вышивки — цвет канвы схемы (у канвы без цвета — кремовая аида).
+  Color _surface(BuildContext context) {
+    final CellMetrics metrics = widget.metrics;
+    if (RealisticMaterial.forMetrics(metrics).isBead) return GridColors.beadSurface.resolveFrom(context);
+    if (metrics is Fabric) return Color.fromARGB(255, metrics.color.r, metrics.color.g, metrics.color.b);
+    return GridColors.aida.resolveFrom(context);
+  }
 
   /// Вписывает схему по ширине окна (не крупнее 3×) один раз на схему.
   void _fit(Size viewport) {
@@ -147,7 +179,9 @@ class _GridPatternViewState extends State<GridPatternView> {
       scene: _scene,
       options: widget.options,
       style: style,
+      layers: widget.layers,
     );
+    _configureLayers(style);
     // Слой сброшен конфигурацией — painter должен перерисоваться (счётчик построений не годится: блоки ленивые).
     if (_cache.cachedBlocks == 0 && before == _cache.buildCount) _revision++;
     final Color veil = GridColors.veil.resolveFrom(context);
@@ -179,6 +213,17 @@ class _GridPatternViewState extends State<GridPatternView> {
                   ),
                 ),
               ),
+              if (widget.layers != null && !widget.layers!.isEmpty)
+                Positioned.fill(
+                  child: IgnorePointer(
+                    child: RepaintBoundary(
+                      child: CustomPaint(
+                        key: const ValueKey<String>('stitch-layers'),
+                        painter: StitchLayersPainter(cache: _layerCache, revision: _layerRevision),
+                      ),
+                    ),
+                  ),
+                ),
               Positioned.fill(
                 child: IgnorePointer(
                   child: CustomPaint(

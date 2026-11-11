@@ -961,6 +961,54 @@ abstract class AppLocalizations {
   /// **'Ряд {row}'**
   String gridRowMarker(int row);
 
+  /// Легенда вышивки: сколько полных крестиков этим цветом
+  ///
+  /// In ru, this message translates to:
+  /// **'{count, plural, one{{count} крестик} few{{count} крестика} many{{count} крестиков} other{{count} крестика}}'**
+  String stitchLegendCrosses(int count);
+
+  /// Легенда вышивки: сколько неполных крестиков (½, ¼, ¾, петит) этим цветом
+  ///
+  /// In ru, this message translates to:
+  /// **'{count, plural, one{{count} неполный} few{{count} неполных} many{{count} неполных} other{{count} неполных}}'**
+  String stitchLegendPartials(int count);
+
+  /// Легенда вышивки: общая длина бэкстича и прямых стежков этим цветом, в клетках
+  ///
+  /// In ru, this message translates to:
+  /// **'бэкстич {length} кл.'**
+  String stitchLegendBackstitch(String length);
+
+  /// Легенда вышивки: сколько узелков этим цветом
+  ///
+  /// In ru, this message translates to:
+  /// **'{count, plural, one{{count} узелок} few{{count} узелка} many{{count} узелков} other{{count} узелка}}'**
+  String stitchLegendKnots(int count);
+
+  /// Легенда вышивки: сколько ниток мулине в иголке для крестика
+  ///
+  /// In ru, this message translates to:
+  /// **'крестик в {count, plural, one{{count} нитку} few{{count} нитки} many{{count} ниток} other{{count} нитки}}'**
+  String stitchLegendCrossStrands(int count);
+
+  /// Легенда вышивки: сколько ниток мулине в иголке для бэкстича
+  ///
+  /// In ru, this message translates to:
+  /// **'бэкстич в {count, plural, one{{count} нитку} few{{count} нитки} many{{count} ниток} other{{count} нитки}}'**
+  String stitchLegendBackStrands(int count);
+
+  /// Легенда вышивки: пометка для голосового чтения у подсвеченного цвета
+  ///
+  /// In ru, this message translates to:
+  /// **'подсвечен'**
+  String get stitchLegendHighlighted;
+
+  /// Легенда вышивки, когда в палитре нет цветов
+  ///
+  /// In ru, this message translates to:
+  /// **'В схеме пока нет ни одной нитки.'**
+  String get stitchLegendEmpty;
+
   /// No description provided for @bookWorkImageFailed.
   ///
   /// In ru, this message translates to:
