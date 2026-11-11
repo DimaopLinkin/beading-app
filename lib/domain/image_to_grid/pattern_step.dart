@@ -4,6 +4,7 @@ import 'package:beading/domain/grid/grid_geometry.dart';
 import 'package:beading/domain/image_to_grid/cell_costs.dart';
 import 'package:beading/domain/image_to_grid/face_guide.dart';
 import 'package:beading/domain/image_to_grid/generated_pattern.dart';
+import 'package:beading/domain/palette/rgb.dart';
 
 /// Что знает шаг о схеме, кроме самой сетки.
 final class PatternStepContext {
@@ -12,6 +13,7 @@ final class PatternStepContext {
     required this.cellImportance,
     this.costs,
     this.cellEdges,
+    this.cellColors,
     this.faces,
   });
 
@@ -26,6 +28,9 @@ final class PatternStepContext {
 
   /// Сила края в каждой клетке (`cellEdges`) или `null`, если рабочего изображения не было: путь T24.
   final Float32List? cellEdges;
+
+  /// Цвета клеток после ресэмплинга (по рядам, `null` — пустая клетка): по ним шаг видит, какой цвет «хотела» клетка.
+  final List<Rgb?>? cellColors;
 
   /// Кожа и черты лиц в клетках (T54) или `null`, если на фото лиц нет.
   final FaceCells? faces;

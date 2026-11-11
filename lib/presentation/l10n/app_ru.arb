@@ -928,7 +928,7 @@
   "@imageWizardPresetDetailed": {"description": "Предустановка: больше мелких деталей"},
   "imageWizardDither": "Плавные переходы",
   "@imageWizardDither": {"description": "Переключатель дизеринга"},
-  "imageWizardDitherHint": "Лучше передаёт оттенки, но схема становится пестрее. При включении выбор «Детальность» не применяется.",
+  "imageWizardDitherHint": "Плавные переходы цвета (небо, тени) выкладываются узором из соседних цветов. Остальное в схеме не меняется.",
   "@imageWizardDitherHint": {"description": "Пояснение к плавным переходам"},
   "imageWizardUseMasks": "Выделять главное",
   "@imageWizardUseMasks": {"description": "Переключатель: учитывать найденные на фото лица и объект"},

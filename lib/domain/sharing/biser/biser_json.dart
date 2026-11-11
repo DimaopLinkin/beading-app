@@ -13,6 +13,7 @@ import 'package:beading/domain/grid_pattern/grid_pattern.dart';
 import 'package:beading/domain/grid_pattern/grid_progress.dart';
 import 'package:beading/domain/image_pattern/book_work/page_viewport.dart';
 import 'package:beading/domain/image_pattern/book_work/page_work.dart';
+import 'package:beading/domain/image_pattern/book_work/pattern_zone.dart';
 import 'package:beading/domain/image_pattern/book_work/ruler_state.dart';
 import 'package:beading/domain/palette/catalog_ref.dart';
 import 'package:beading/domain/palette/palette_snapshot.dart';
@@ -21,6 +22,7 @@ import 'package:beading/domain/palette/rgb.dart';
 import 'package:beading/domain/projects/craft.dart';
 import 'package:beading/domain/projects/project.dart';
 import 'package:beading/domain/sharing/biser/biser_models.dart';
+import 'package:beading/domain/weaving/work_session.dart';
 
 /// Манифест `manifest.json` файла `.biser`: проекты, схемы (сетка — base64 от `GridCodec`), палитры, прогресс.
 /// Картинки страниц в манифесте не лежат, на них ссылаются пути внутри архива.
@@ -55,6 +57,13 @@ abstract final class BiserJson {
       'coverPageId': item.coverPageId,
       'grid': item.grid == null ? null : _grid(item.grid!, item.progress),
       'book': item.book == null ? null : _book(item.book!),
+      'workSessions': <Object?>[
+        for (final WorkSession s in item.workSessions)
+          <String, Object?>{
+            'startedAt': s.startedAt.toUtc().millisecondsSinceEpoch,
+            'endedAt': s.endedAt?.toUtc().millisecondsSinceEpoch,
+          },
+      ],
     };
   }
 
@@ -112,6 +121,8 @@ abstract final class BiserJson {
                   'highlight': page.work!.ruler.highlight.name,
                   'row': page.work!.ruler.row,
                   'direction': page.work!.ruler.direction.name,
+                  'zone': _zone(page.work!.ruler.zone),
+                  'rowCount': page.work!.ruler.rowCount,
                   'scale': page.work!.viewport.scale,
                   'dx': page.work!.viewport.dx,
                   'dy': page.work!.viewport.dy,
@@ -213,7 +224,39 @@ abstract final class BiserJson {
         throw const _BadBiser('Обложка ссылается на несуществующую страницу');
       }
     }
-    return BiserProject(project: project, grid: grid, progress: progress, book: book, coverPageId: coverPageId);
+    return BiserProject(
+      project: project,
+      grid: grid,
+      progress: progress,
+      book: book,
+      coverPageId: coverPageId,
+      workSessions: _readWorkSessions(m['workSessions'], id),
+    );
+  }
+
+  /// Поля нет в файлах старше учёта времени: тогда сессий нет.
+  static List<WorkSession> _readWorkSessions(Object? raw, String projectId) {
+    if (raw == null) {
+      return const <WorkSession>[];
+    }
+    if (raw is! List<Object?>) {
+      throw const _BadBiser('Файл повреждён: сессии работы записаны неверно');
+    }
+    final List<WorkSession> sessions = <WorkSession>[];
+    for (int i = 0; i < raw.length; i++) {
+      final Map<String, Object?> s = _map(raw[i], 'сессия работы');
+      final DateTime start = DateTime.fromMillisecondsSinceEpoch(_int(s['startedAt'], 'начало сессии'), isUtc: true);
+      final Object? end = s['endedAt'];
+      sessions.add(
+        WorkSession(
+          id: 'imported-$i',
+          projectId: projectId,
+          startedAt: start,
+          endedAt: end == null ? null : DateTime.fromMillisecondsSinceEpoch(_int(end, 'конец сессии'), isUtc: true),
+        ),
+      );
+    }
+    return sessions;
   }
 
   static GridPattern _readGrid(Map<String, Object?> g, String projectId) {
@@ -339,6 +382,8 @@ abstract final class BiserJson {
             highlight: _enum(RulerHighlight.values, w['highlight'], 'подсветка'),
             row: _int(w['row'], 'ряд линейки'),
             direction: _enum(RowDirection.values, w['direction'], 'направление рядов'),
+            zone: _readZone(w['zone']),
+            rowCount: _readRowCount(w['rowCount']),
           ),
           viewport: PageViewport(
             scale: _double(w['scale'], 'масштаб'),
@@ -360,6 +405,39 @@ abstract final class BiserJson {
     Success<T>(:final T value) => value,
     Err<T>(:final Failure failure) => throw _BadBiser(failure.message),
   };
+
+  static Map<String, Object?>? _zone(PatternZone? zone) => zone == null
+      ? null
+      : <String, Object?>{'top': zone.top, 'bottom': zone.bottom, 'left': zone.left, 'right': zone.right};
+
+  /// Зона схемы на странице. В файлах без неё (`null` или ключа нет) схема занимает всю страницу.
+  static PatternZone? _readZone(Object? v) {
+    if (v == null) {
+      return null;
+    }
+    final Map<String, Object?> z = _map(v, 'зона схемы');
+    final PatternZone zone = PatternZone(
+      top: _double(z['top'], 'зона схемы'),
+      bottom: _double(z['bottom'], 'зона схемы'),
+      left: _double(z['left'], 'зона схемы'),
+      right: _double(z['right'], 'зона схемы'),
+    );
+    if (zone.top < 0 || zone.left < 0 || zone.height <= 0 || zone.width <= 0) {
+      throw const _BadBiser('Файл повреждён: зона схемы записана неверно');
+    }
+    return zone;
+  }
+
+  static int? _readRowCount(Object? v) {
+    if (v == null) {
+      return null;
+    }
+    final int count = _int(v, 'число рядов');
+    if (count < 1) {
+      throw const _BadBiser('Файл повреждён: число рядов записано неверно');
+    }
+    return count;
+  }
 
   static Map<String, Object?> _map(Object? v, String what) =>
       v is Map<String, Object?> ? v : throw _BadBiser('Файл повреждён: $what записан неверно');

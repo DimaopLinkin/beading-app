@@ -4,6 +4,7 @@ import 'package:beading/domain/grid/grid.dart';
 import 'package:beading/domain/grid/grid_geometry.dart';
 import 'package:beading/domain/image_to_grid/accent_refill.dart';
 import 'package:beading/domain/image_to_grid/background_stage.dart';
+import 'package:beading/domain/image_to_grid/blend_suggester.dart';
 import 'package:beading/domain/image_to_grid/cell_edges.dart';
 import 'package:beading/domain/image_to_grid/cell_labeler.dart';
 import 'package:beading/domain/image_to_grid/cell_neighbors.dart';
@@ -95,16 +96,20 @@ final class ImageToGridPipeline {
     final PatternStepContext context = PatternStepContext(
       geometry: request.geometry,
       cellImportance: cells.importance,
+      cellColors: cells.colors,
     );
     for (final PatternStep step in request.steps) {
       pattern = step.apply(pattern, context);
     }
     pattern = _compactPattern(_backgroundStage(request, pattern, cells), cells);
     times['steps'] = lap();
+    final List<BlendSuggestion> blends = _blends(request, pattern, cells);
+    if (request.suggestBlends && !request.draft) times['blends'] = lap();
     return GeneratedPattern(
       grid: pattern.grid,
       palette: pattern.palette,
       stats: _stats(pattern, cells, request.geometry, times),
+      blendSuggestions: blends,
     );
   }
 
@@ -213,6 +218,7 @@ final class ImageToGridPipeline {
       cellImportance: cells.importance,
       costs: labeled.costs.select(order),
       cellEdges: edges,
+      cellColors: cells.colors,
       faces: prepared.faceCells,
     );
     for (final PatternStep step in request.steps) {
@@ -234,9 +240,12 @@ final class ImageToGridPipeline {
     pattern = _compactPattern(pattern, cells);
     pattern = _compactPattern(_backgroundStage(request, pattern, cells), cells);
     times['steps'] = lap();
+    final List<BlendSuggestion> blends = _blends(request, pattern, cells);
+    if (request.suggestBlends && !request.draft) times['blends'] = lap();
     return GeneratedPattern(
       grid: pattern.grid,
       palette: pattern.palette,
+      blendSuggestions: blends,
       stats: _stats(
         pattern,
         cells,
@@ -288,6 +297,10 @@ final class ImageToGridPipeline {
       edges: cellEdges(work, regions),
     );
   }
+
+  /// Бленды двух ниток (T57): только если запрос просил и это не черновик (его не сохраняют); по цветам клеток после ресэмплинга.
+  List<BlendSuggestion> _blends(ImageToGridRequest request, GeneratedPattern pattern, SampledCells cells) =>
+      request.suggestBlends && !request.draft ? suggestBlends(pattern, cells.colors) : const <BlendSuggestion>[];
 
   /// Фон и обводка (T55): после всех шагов, по маске объекта на уровне клеток.
   GeneratedPattern _backgroundStage(ImageToGridRequest request, GeneratedPattern pattern, SampledCells cells) {

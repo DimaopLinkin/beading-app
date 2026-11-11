@@ -18,6 +18,7 @@ import 'fake_clock.dart';
 import 'fake_grid_pattern.dart';
 import 'fake_image_pattern.dart';
 import 'fake_project_repository.dart';
+import 'fake_work_sessions.dart';
 
 class FakeFileSharer implements FileSharer {
   final List<({Uint8List bytes, String fileName, ShareOrigin? origin})> shared =
@@ -56,6 +57,7 @@ DataTransferCubit fakeDataTransfer({FileSharer? sharer, BiserFilePicker? picker,
   final FakeGridProgressStore progress = FakeGridProgressStore();
   final FakeImagePatternRepository images = FakeImagePatternRepository();
   final FakeBookWorkRepository bookWork = FakeBookWorkRepository();
+  final FakeWorkSessionRepository workSessions = FakeWorkSessionRepository();
   final FakeFileStore files = FakeFileStore();
   final Clock clock = FakeClock(DateTime.utc(2026, 11, 10));
   return DataTransferCubit(
@@ -65,6 +67,7 @@ DataTransferCubit fakeDataTransfer({FileSharer? sharer, BiserFilePicker? picker,
       progress: progress,
       images: images,
       bookWork: bookWork,
+      workSessions: workSessions,
       files: files,
       codec: const ZipBiserCodec(),
       clock: clock,
@@ -77,6 +80,7 @@ DataTransferCubit fakeDataTransfer({FileSharer? sharer, BiserFilePicker? picker,
       progress: progress,
       images: images,
       bookWork: bookWork,
+      workSessions: workSessions,
       files: files,
       ids: FakeIdGenerator(),
       unitOfWork: PassThroughUnitOfWork(),

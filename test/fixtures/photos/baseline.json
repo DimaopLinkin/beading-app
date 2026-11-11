@@ -69,6 +69,16 @@
     "colors": 8,
     "deltaE": 5.53
   },
+  "cat/loom/t57-dither": {
+    "singles": 5,
+    "colors": 10,
+    "deltaE": 4.46
+  },
+  "cat/loom/t57-dither-catalog": {
+    "singles": 7,
+    "colors": 10,
+    "deltaE": 4.7
+  },
   "cat/peyote/t24": {
     "singles": 56,
     "colors": 10,
@@ -139,6 +149,16 @@
     "colors": 8,
     "deltaE": 5.33
   },
+  "cat/peyote/t57-dither": {
+    "singles": 6,
+    "colors": 8,
+    "deltaE": 4.54
+  },
+  "cat/peyote/t57-dither-catalog": {
+    "singles": 3,
+    "colors": 10,
+    "deltaE": 4.88
+  },
   "cat/stitch/t24": {
     "singles": 312,
     "colors": 16,
@@ -188,6 +208,11 @@
     "singles": 30,
     "colors": 13,
     "deltaE": 5.0
+  },
+  "cat/stitch/t57-dither": {
+    "singles": 35,
+    "colors": 14,
+    "deltaE": 4.01
   },
   "coffee/loom/t24": {
     "singles": 92,
@@ -259,6 +284,16 @@
     "colors": 9,
     "deltaE": 7.18
   },
+  "coffee/loom/t57-dither": {
+    "singles": 6,
+    "colors": 8,
+    "deltaE": 5.79
+  },
+  "coffee/loom/t57-dither-catalog": {
+    "singles": 15,
+    "colors": 9,
+    "deltaE": 6.12
+  },
   "coffee/peyote/t24": {
     "singles": 65,
     "colors": 10,
@@ -329,6 +364,16 @@
     "colors": 9,
     "deltaE": 6.2
   },
+  "coffee/peyote/t57-dither": {
+    "singles": 5,
+    "colors": 9,
+    "deltaE": 5.13
+  },
+  "coffee/peyote/t57-dither-catalog": {
+    "singles": 3,
+    "colors": 9,
+    "deltaE": 5.8
+  },
   "coffee/stitch/t24": {
     "singles": 342,
     "colors": 16,
@@ -378,6 +423,11 @@
     "singles": 21,
     "colors": 13,
     "deltaE": 5.87
+  },
+  "coffee/stitch/t57-dither": {
+    "singles": 39,
+    "colors": 13,
+    "deltaE": 4.36
   },
   "drawing/loom/t24": {
     "singles": 19,
@@ -449,6 +499,16 @@
     "colors": 8,
     "deltaE": 2.93
   },
+  "drawing/loom/t57-dither": {
+    "singles": 7,
+    "colors": 9,
+    "deltaE": 2.94
+  },
+  "drawing/loom/t57-dither-catalog": {
+    "singles": 10,
+    "colors": 9,
+    "deltaE": 6.0
+  },
   "drawing/peyote/t24": {
     "singles": 44,
     "colors": 10,
@@ -519,6 +579,16 @@
     "colors": 6,
     "deltaE": 3.26
   },
+  "drawing/peyote/t57-dither": {
+    "singles": 3,
+    "colors": 7,
+    "deltaE": 2.94
+  },
+  "drawing/peyote/t57-dither-catalog": {
+    "singles": 5,
+    "colors": 9,
+    "deltaE": 6.21
+  },
   "drawing/stitch/t24": {
     "singles": 71,
     "colors": 16,
@@ -568,6 +638,11 @@
     "singles": 8,
     "colors": 13,
     "deltaE": 2.14
+  },
+  "drawing/stitch/t57-dither": {
+    "singles": 21,
+    "colors": 12,
+    "deltaE": 2.12
   },
   "galaxy/loom/t24": {
     "singles": 256,
@@ -639,6 +714,16 @@
     "colors": 6,
     "deltaE": 2.22
   },
+  "galaxy/loom/t57-dither": {
+    "singles": 13,
+    "colors": 7,
+    "deltaE": 2.19
+  },
+  "galaxy/loom/t57-dither-catalog": {
+    "singles": 6,
+    "colors": 6,
+    "deltaE": 2.46
+  },
   "galaxy/peyote/t24": {
     "singles": 198,
     "colors": 10,
@@ -709,6 +794,16 @@
     "colors": 7,
     "deltaE": 2.27
   },
+  "galaxy/peyote/t57-dither": {
+    "singles": 11,
+    "colors": 8,
+    "deltaE": 2.22
+  },
+  "galaxy/peyote/t57-dither-catalog": {
+    "singles": 7,
+    "colors": 9,
+    "deltaE": 2.44
+  },
   "galaxy/stitch/t24": {
     "singles": 616,
     "colors": 16,
@@ -758,6 +853,11 @@
     "singles": 40,
     "colors": 12,
     "deltaE": 2.23
+  },
+  "galaxy/stitch/t57-dither": {
+    "singles": 51,
+    "colors": 13,
+    "deltaE": 2.16
   },
   "handwriting/loom/t24": {
     "singles": 141,
@@ -829,6 +929,16 @@
     "colors": 4,
     "deltaE": 2.14
   },
+  "handwriting/loom/t57-dither": {
+    "singles": 2,
+    "colors": 5,
+    "deltaE": 1.58
+  },
+  "handwriting/loom/t57-dither-catalog": {
+    "singles": 1,
+    "colors": 7,
+    "deltaE": 2.17
+  },
   "handwriting/peyote/t24": {
     "singles": 109,
     "colors": 10,
@@ -899,6 +1009,16 @@
     "colors": 4,
     "deltaE": 2.2
   },
+  "handwriting/peyote/t57-dither": {
+    "singles": 1,
+    "colors": 6,
+    "deltaE": 1.74
+  },
+  "handwriting/peyote/t57-dither-catalog": {
+    "singles": 5,
+    "colors": 6,
+    "deltaE": 2.19
+  },
   "handwriting/stitch/t24": {
     "singles": 417,
     "colors": 16,
@@ -948,6 +1068,11 @@
     "singles": 42,
     "colors": 8,
     "deltaE": 2.34
+  },
+  "handwriting/stitch/t57-dither": {
+    "singles": 13,
+    "colors": 10,
+    "deltaE": 1.64
   },
   "landscape/loom/t24": {
     "singles": 19,
@@ -1019,6 +1144,16 @@
     "colors": 7,
     "deltaE": 4.07
   },
+  "landscape/loom/t57-dither": {
+    "singles": 0,
+    "colors": 8,
+    "deltaE": 2.85
+  },
+  "landscape/loom/t57-dither-catalog": {
+    "singles": 1,
+    "colors": 9,
+    "deltaE": 3.57
+  },
   "landscape/peyote/t24": {
     "singles": 16,
     "colors": 10,
@@ -1089,6 +1224,16 @@
     "colors": 8,
     "deltaE": 3.74
   },
+  "landscape/peyote/t57-dither": {
+    "singles": 0,
+    "colors": 7,
+    "deltaE": 3.21
+  },
+  "landscape/peyote/t57-dither-catalog": {
+    "singles": 2,
+    "colors": 8,
+    "deltaE": 3.92
+  },
   "landscape/stitch/t24": {
     "singles": 45,
     "colors": 16,
@@ -1138,6 +1283,11 @@
     "singles": 5,
     "colors": 11,
     "deltaE": 3.58
+  },
+  "landscape/stitch/t57-dither": {
+    "singles": 7,
+    "colors": 12,
+    "deltaE": 1.95
   },
   "logo/loom/t24": {
     "singles": 139,
@@ -1209,6 +1359,16 @@
     "colors": 9,
     "deltaE": 2.95
   },
+  "logo/loom/t57-dither": {
+    "singles": 20,
+    "colors": 8,
+    "deltaE": 2.85
+  },
+  "logo/loom/t57-dither-catalog": {
+    "singles": 40,
+    "colors": 9,
+    "deltaE": 4.27
+  },
   "logo/peyote/t24": {
     "singles": 98,
     "colors": 10,
@@ -1279,6 +1439,16 @@
     "colors": 8,
     "deltaE": 2.84
   },
+  "logo/peyote/t57-dither": {
+    "singles": 11,
+    "colors": 8,
+    "deltaE": 3.0
+  },
+  "logo/peyote/t57-dither-catalog": {
+    "singles": 17,
+    "colors": 10,
+    "deltaE": 4.22
+  },
   "logo/stitch/t24": {
     "singles": 422,
     "colors": 16,
@@ -1328,6 +1498,11 @@
     "singles": 56,
     "colors": 12,
     "deltaE": 2.14
+  },
+  "logo/stitch/t57-dither": {
+    "singles": 58,
+    "colors": 13,
+    "deltaE": 2.05
   },
   "portrait/loom/t24": {
     "singles": 110,
@@ -1399,6 +1574,16 @@
     "colors": 9,
     "deltaE": 10.76
   },
+  "portrait/loom/t57-dither": {
+    "singles": 14,
+    "colors": 10,
+    "deltaE": 7.71
+  },
+  "portrait/loom/t57-dither-catalog": {
+    "singles": 20,
+    "colors": 10,
+    "deltaE": 8.13
+  },
   "portrait/peyote/t24": {
     "singles": 96,
     "colors": 10,
@@ -1469,6 +1654,16 @@
     "colors": 10,
     "deltaE": 11.3
   },
+  "portrait/peyote/t57-dither": {
+    "singles": 8,
+    "colors": 10,
+    "deltaE": 7.69
+  },
+  "portrait/peyote/t57-dither-catalog": {
+    "singles": 7,
+    "colors": 10,
+    "deltaE": 7.87
+  },
   "portrait/stitch/t24": {
     "singles": 321,
     "colors": 16,
@@ -1518,6 +1713,11 @@
     "singles": 48,
     "colors": 16,
     "deltaE": 9.45
+  },
+  "portrait/stitch/t57-dither": {
+    "singles": 77,
+    "colors": 16,
+    "deltaE": 5.65
   },
   "rocket/loom/t24": {
     "singles": 21,
@@ -1589,6 +1789,16 @@
     "colors": 7,
     "deltaE": 5.09
   },
+  "rocket/loom/t57-dither": {
+    "singles": 8,
+    "colors": 10,
+    "deltaE": 4.23
+  },
+  "rocket/loom/t57-dither-catalog": {
+    "singles": 12,
+    "colors": 10,
+    "deltaE": 5.0
+  },
   "rocket/peyote/t24": {
     "singles": 23,
     "colors": 10,
@@ -1659,6 +1869,16 @@
     "colors": 9,
     "deltaE": 5.0
   },
+  "rocket/peyote/t57-dither": {
+    "singles": 5,
+    "colors": 9,
+    "deltaE": 4.16
+  },
+  "rocket/peyote/t57-dither-catalog": {
+    "singles": 7,
+    "colors": 10,
+    "deltaE": 4.99
+  },
   "rocket/stitch/t24": {
     "singles": 76,
     "colors": 16,
@@ -1708,5 +1928,10 @@
     "singles": 8,
     "colors": 12,
     "deltaE": 4.62
+  },
+  "rocket/stitch/t57-dither": {
+    "singles": 10,
+    "colors": 13,
+    "deltaE": 3.47
   }
 }
