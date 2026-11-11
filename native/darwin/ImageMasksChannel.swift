@@ -92,7 +92,6 @@ enum ImageMasksAnalyzer {
   // MARK: Объект
 
   private static func subjectMask(handler: VNImageRequestHandler, width: Int, height: Int) -> Data? {
-    guard #available(iOS 17.0, macOS 14.0, *) else { return nil }
     let request = VNGenerateForegroundInstanceMaskRequest()
     do {
       try handler.perform([request])

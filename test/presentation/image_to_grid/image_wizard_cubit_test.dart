@@ -182,6 +182,27 @@ void main() {
       expect(runner.requests.single.importance, isNull);
     });
 
+    test('поздний ответ масок для прошлой обрезки не попадает в запрос', () async {
+      await pick();
+      final Completer<void> gate = Completer<void>();
+      masks
+        ..result = withFace()
+        ..gate = gate.future;
+      final Future<void> first = cubit.rotate();
+      await Future<void>.delayed(Duration.zero);
+      masks
+        ..gate = null
+        ..result = ImageMaskSet.empty(width: 20, height: 40);
+      await cubit.rotate();
+      await Future<void>.delayed(Duration.zero);
+      gate.complete();
+      await first;
+      await Future<void>.delayed(Duration.zero);
+      expect(cubit.state.quarterTurns, 2);
+      expect(cubit.state.hasMasks, isFalse);
+      expect(runner.requests.last.importance, isNull);
+    });
+
     test('пустой набор масок: переключатель не нужен, всё одинаково важно', () async {
       await pick();
       expect(cubit.state.hasMasks, isFalse);

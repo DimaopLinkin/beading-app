@@ -73,4 +73,21 @@ void main() {
     );
     expect(await masks.analyze(png, width: 4, height: 2), isA<Err<ImageMaskSet>>());
   });
+
+  test('маска неверной длины и лицо с битой рамкой отбрасываются', () async {
+    messenger.setMockMethodCallHandler(
+      channel,
+      (call) async => <String, Object?>{
+        'person': Uint8List(3),
+        'faces': <Object?>[
+          <String, Object?>{
+            'bounds': <double>[0, 0, 1],
+          },
+        ],
+      },
+    );
+    final ImageMaskSet set = (await masks.analyze(png, width: 4, height: 2)).valueOrNull!;
+    expect(set.person, isNull);
+    expect(set.faces, isEmpty);
+  });
 }
