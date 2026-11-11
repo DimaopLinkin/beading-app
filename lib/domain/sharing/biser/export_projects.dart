@@ -17,6 +17,8 @@ import 'package:beading/domain/projects/project_repository.dart';
 import 'package:beading/domain/settings/app_info.dart';
 import 'package:beading/domain/sharing/biser/biser_codec.dart';
 import 'package:beading/domain/sharing/biser/biser_models.dart';
+import 'package:beading/domain/weaving/work_session.dart';
+import 'package:beading/domain/weaving/work_session_repository.dart';
 
 /// Готовый файл: байты, имя для листа «Поделиться» и число проектов внутри.
 final class BiserExport {
@@ -35,6 +37,7 @@ class ExportProjects {
     required GridProgressStore progress,
     required ImagePatternRepository images,
     required BookWorkRepository bookWork,
+    required WorkSessionRepository workSessions,
     required FileStore files,
     required BiserCodec codec,
     required Clock clock,
@@ -44,6 +47,7 @@ class ExportProjects {
        _progress = progress,
        _images = images,
        _bookWork = bookWork,
+       _workSessions = workSessions,
        _files = files,
        _codec = codec,
        _clock = clock,
@@ -56,6 +60,7 @@ class ExportProjects {
   final GridProgressStore _progress;
   final ImagePatternRepository _images;
   final BookWorkRepository _bookWork;
+  final WorkSessionRepository _workSessions;
   final FileStore _files;
   final BiserCodec _codec;
   final Clock _clock;
@@ -92,7 +97,11 @@ class ExportProjects {
       if (item case Err<BiserProject>(:final Failure failure)) {
         return Err<BiserExport>(failure);
       }
-      items.add(item.valueOrNull!);
+      final Result<List<WorkSession>> sessions = await _workSessions.byProject(project.id);
+      if (sessions case Err<List<WorkSession>>(:final Failure failure)) {
+        return Err<BiserExport>(failure);
+      }
+      items.add(item.valueOrNull!.withWorkSessions(sessions.valueOrNull!));
     }
     final AppInfo info = await _appInfo.load();
     final Result<Uint8List> bytes = _codec.encode(

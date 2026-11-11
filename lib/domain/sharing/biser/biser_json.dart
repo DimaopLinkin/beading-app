@@ -22,6 +22,7 @@ import 'package:beading/domain/palette/rgb.dart';
 import 'package:beading/domain/projects/craft.dart';
 import 'package:beading/domain/projects/project.dart';
 import 'package:beading/domain/sharing/biser/biser_models.dart';
+import 'package:beading/domain/weaving/work_session.dart';
 
 /// Манифест `manifest.json` файла `.biser`: проекты, схемы (сетка — base64 от `GridCodec`), палитры, прогресс.
 /// Картинки страниц в манифесте не лежат, на них ссылаются пути внутри архива.
@@ -56,6 +57,13 @@ abstract final class BiserJson {
       'coverPageId': item.coverPageId,
       'grid': item.grid == null ? null : _grid(item.grid!, item.progress),
       'book': item.book == null ? null : _book(item.book!),
+      'workSessions': <Object?>[
+        for (final WorkSession s in item.workSessions)
+          <String, Object?>{
+            'startedAt': s.startedAt.toUtc().millisecondsSinceEpoch,
+            'endedAt': s.endedAt?.toUtc().millisecondsSinceEpoch,
+          },
+      ],
     };
   }
 
@@ -216,7 +224,39 @@ abstract final class BiserJson {
         throw const _BadBiser('Обложка ссылается на несуществующую страницу');
       }
     }
-    return BiserProject(project: project, grid: grid, progress: progress, book: book, coverPageId: coverPageId);
+    return BiserProject(
+      project: project,
+      grid: grid,
+      progress: progress,
+      book: book,
+      coverPageId: coverPageId,
+      workSessions: _readWorkSessions(m['workSessions'], id),
+    );
+  }
+
+  /// Поля нет в файлах старше учёта времени: тогда сессий нет.
+  static List<WorkSession> _readWorkSessions(Object? raw, String projectId) {
+    if (raw == null) {
+      return const <WorkSession>[];
+    }
+    if (raw is! List<Object?>) {
+      throw const _BadBiser('Файл повреждён: сессии работы записаны неверно');
+    }
+    final List<WorkSession> sessions = <WorkSession>[];
+    for (int i = 0; i < raw.length; i++) {
+      final Map<String, Object?> s = _map(raw[i], 'сессия работы');
+      final DateTime start = DateTime.fromMillisecondsSinceEpoch(_int(s['startedAt'], 'начало сессии'), isUtc: true);
+      final Object? end = s['endedAt'];
+      sessions.add(
+        WorkSession(
+          id: 'imported-$i',
+          projectId: projectId,
+          startedAt: start,
+          endedAt: end == null ? null : DateTime.fromMillisecondsSinceEpoch(_int(end, 'конец сессии'), isUtc: true),
+        ),
+      );
+    }
+    return sessions;
   }
 
   static GridPattern _readGrid(Map<String, Object?> g, String projectId) {

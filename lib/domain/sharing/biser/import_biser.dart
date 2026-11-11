@@ -19,6 +19,7 @@ import 'package:beading/domain/projects/project_repository.dart';
 import 'package:beading/domain/sharing/biser/biser_codec.dart';
 import 'package:beading/domain/sharing/biser/biser_models.dart';
 import 'package:beading/domain/sharing/unit_of_work.dart';
+import 'package:beading/domain/weaving/work_session_repository.dart';
 import 'package:equatable/equatable.dart';
 
 /// Что делать с проектом файла, id которого уже есть в библиотеке.
@@ -87,6 +88,7 @@ class ImportBiser {
     required GridProgressStore progress,
     required ImagePatternRepository images,
     required BookWorkRepository bookWork,
+    required WorkSessionRepository workSessions,
     required FileStore files,
     required IdGenerator ids,
     required UnitOfWork unitOfWork,
@@ -96,6 +98,7 @@ class ImportBiser {
        _progress = progress,
        _images = images,
        _bookWork = bookWork,
+       _workSessions = workSessions,
        _files = files,
        _ids = ids,
        _unitOfWork = unitOfWork;
@@ -106,6 +109,7 @@ class ImportBiser {
   final GridProgressStore _progress;
   final ImagePatternRepository _images;
   final BookWorkRepository _bookWork;
+  final WorkSessionRepository _workSessions;
   final FileStore _files;
   final IdGenerator _ids;
   final UnitOfWork _unitOfWork;
@@ -313,6 +317,12 @@ class ImportBiser {
         if (currentSaved case Err<void>(:final Failure failure)) {
           return Err<String>(failure);
         }
+      }
+    }
+    if (item.workSessions.isNotEmpty) {
+      final Result<void> sessionsSaved = await _workSessions.addAll(projectId, item.workSessions);
+      if (sessionsSaved case Err<void>(:final Failure failure)) {
+        return Err<String>(failure);
       }
     }
     return Success<String>(projectId);

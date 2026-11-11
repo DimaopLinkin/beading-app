@@ -43,6 +43,7 @@ Future<void> populate(BiserDevice device, BiserBundle bundle) async {
         await device.progress.setCurrent(item.grid!.id, row: item.progress!.currentRow!);
       }
     }
+    await device.workSessions.addAll(item.project.id, item.workSessions);
     final BiserBook? book = item.book;
     if (book != null) {
       final List<ImagePatternPage> pages = <ImagePatternPage>[];
@@ -84,6 +85,32 @@ void main() {
       expect(second.projects.toSet(), first.projects.toSet(), reason: 'seed $seed');
       expect(second.files, first.files, reason: 'seed $seed');
     }
+  });
+
+  test('время работы переезжает в резервной копии и считается так же', () async {
+    final BiserDevice a = BiserDevice();
+    final BiserDevice b = BiserDevice();
+    await populate(a, randomBundle(5, projects: 2));
+    final List<Project> original = await a.allProjects();
+    final Result<ImportResult> imported = await b.import(await a.backupBytes());
+    expect(imported.failureOrNull, isNull);
+
+    for (final Project project in original) {
+      expect((await a.workSessions.totalFor(project.id)).valueOrNull, const Duration(minutes: 20));
+      expect((await b.workSessions.totalFor(project.id)).valueOrNull, const Duration(minutes: 20));
+      expect((await b.workSessions.byProject(project.id)).valueOrNull, hasLength(2));
+    }
+  });
+
+  test('копия проекта при совпавшем id получает своё время работы, исходное не меняется', () async {
+    final BiserDevice a = BiserDevice();
+    await populate(a, randomBundle(6, projects: 1));
+    final String id = (await a.allProjects()).single.id;
+    final ImportResult result = (await a.import(await a.backupBytes())).valueOrNull!;
+    final String copyId = result.importedIds.single;
+    expect(copyId, isNot(id));
+    expect((await a.workSessions.byProject(id)).valueOrNull, hasLength(2));
+    expect((await a.workSessions.totalFor(copyId)).valueOrNull, const Duration(minutes: 20));
   });
 
   test('один проект: экспорт даёт имя файла из названия и только этот проект', () async {

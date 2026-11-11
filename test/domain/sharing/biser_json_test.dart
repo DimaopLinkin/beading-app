@@ -27,6 +27,21 @@ void main() {
     }
   });
 
+  test('файл без сессий работы читается: времени нет; кривые сессии отвергаются', () {
+    final Map<String, Object?> manifest = manifestOf(randomBundle(2, projects: 1));
+    final Map<String, Object?> project = (manifest['projects']! as List<Object?>).single! as Map<String, Object?>;
+    project.remove('workSessions');
+    final BiserBundle decoded = parse(manifest, randomBundle(2, projects: 1).files).valueOrNull!;
+    expect(decoded.projects.single.workSessions, isEmpty);
+
+    project['workSessions'] = <Object?>[
+      <String, Object?>{'startedAt': 'вчера'},
+    ];
+    expect(parse(manifest, randomBundle(2, projects: 1).files).failureOrNull, isA<ValidationFailure>());
+    project['workSessions'] = 'много';
+    expect(parse(manifest, randomBundle(2, projects: 1).files).failureOrNull, isA<ValidationFailure>());
+  });
+
   test('неизвестная (новая) версия формата — понятная ошибка', () {
     final Map<String, Object?> manifest = manifestOf(randomBundle(1))..['version'] = biserFormatVersion + 1;
     final Result<BiserBundle> result = parse(manifest, const <String, Uint8List>{});
