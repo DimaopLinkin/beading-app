@@ -4,6 +4,7 @@ import 'package:beading/domain/grid/cell_metrics.dart';
 import 'package:beading/domain/grid/grid.dart';
 import 'package:beading/domain/grid/grid_geometry.dart';
 import 'package:beading/domain/image_to_grid/cell_labeler.dart';
+import 'package:beading/domain/image_to_grid/face_guide.dart';
 import 'package:beading/domain/image_to_grid/image_prefilter.dart';
 import 'package:beading/domain/image_to_grid/label_smoother.dart';
 import 'package:beading/domain/image_to_grid/palette_builder.dart';
@@ -30,6 +31,7 @@ final class ImageToGridRequest {
     this.labeler,
     this.smoother,
     this.refillFreedColors = false,
+    this.faces,
     this.steps = const <PatternStep>[],
   }) {
     if (columns < 1 || columns > Grid.maxSide) throw ArgumentError.value(columns, 'columns', 'от 1 до ${Grid.maxSide}');
@@ -88,6 +90,10 @@ final class ImageToGridRequest {
 
   /// «Детально»: цвета, освободившиеся при слиянии и очистке, достаются следующему акценту (число цветов — верхняя граница).
   final bool refillFreedColors;
+
+  /// Лица на фото (T54): отдельные цвета кожи, защита черт, зрачки и губы. Работает только на пиксельном пути; нужны
+  /// `FaceAwarePaletteBuilder` и `FaceFeatureStep`. `null` — лиц нет или они не нужны.
+  final FaceGuide? faces;
 
   bool get usesPixelStages => paletteBuilder != null || labeler != null || smoother != null;
 

@@ -9,6 +9,7 @@ import 'package:beading/domain/image_to_grid/cell_neighbors.dart';
 import 'package:beading/domain/image_to_grid/cell_regions.dart';
 import 'package:beading/domain/image_to_grid/cell_sampler.dart';
 import 'package:beading/domain/image_to_grid/color_assigner.dart';
+import 'package:beading/domain/image_to_grid/face_guide.dart';
 import 'package:beading/domain/image_to_grid/generated_pattern.dart';
 import 'package:beading/domain/image_to_grid/generation_stats.dart';
 import 'package:beading/domain/image_to_grid/image_prefilter.dart';
@@ -140,6 +141,7 @@ final class ImageToGridPipeline {
       imageWidth: work.width,
       imageHeight: work.height,
     );
+    final FaceGuide? faceGuide = (request.faces?.isEmpty ?? true) ? null : request.faces;
     times['sample'] = lap();
     final List<PaletteEntry> palette = (request.paletteBuilder ?? const AccentPaletteBuilder()).build(
       PaletteRequest(
@@ -148,6 +150,7 @@ final class ImageToGridPipeline {
         constraint: request.constraint,
         seed: request.seed,
         regions: regions,
+        skinPixels: faceGuide?.skinPixels(work.width, work.height),
       ),
     );
     times['palette'] = lap();
@@ -184,6 +187,7 @@ final class ImageToGridPipeline {
       cellImportance: cells.importance,
       costs: labeled.costs.select(order),
       cellEdges: edges,
+      faces: faceGuide?.cells(regions, workWidth: work.width, workHeight: work.height),
     );
     for (final PatternStep step in request.steps) {
       pattern = step.apply(pattern, context);

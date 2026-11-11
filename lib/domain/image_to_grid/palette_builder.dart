@@ -15,6 +15,7 @@ final class PaletteRequest {
     required this.constraint,
     this.seed = 0,
     this.regions,
+    this.skinPixels,
   });
 
   final WorkImage work;
@@ -28,6 +29,9 @@ final class PaletteRequest {
   /// Клетки схемы в рабочих пикселях. С ними строитель проверяет палитру на клетках: цвет, который не выиграл ни одной
   /// клетки (блики мельче клетки), заменяется цветом самой плохо покрытой клетки.
   final CellRegions? regions;
+
+  /// Пиксели кожи на лицах (единицы, размер рабочей картинки) или `null`, если лиц нет (T54).
+  final Uint8List? skinPixels;
 }
 
 /// Стадия 2 конвейера (ADR-0004): палитра по рабочим пикселям, с привязкой к каталогу или списку внутри.

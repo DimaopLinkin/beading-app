@@ -8,7 +8,11 @@ import 'package:beading/domain/grid/grid.dart';
 import 'package:beading/domain/grid/grid_geometry.dart';
 import 'package:beading/domain/image_to_grid/cell_labeler.dart';
 import 'package:beading/domain/image_to_grid/cell_sampler.dart';
+import 'package:beading/domain/image_to_grid/face_guide.dart';
+import 'package:beading/domain/image_to_grid/face_palette_builder.dart';
+import 'package:beading/domain/image_to_grid/face_step.dart';
 import 'package:beading/domain/image_to_grid/generation_preset.dart';
+import 'package:beading/domain/image_to_grid/image_mask_set.dart';
 import 'package:beading/domain/image_to_grid/image_to_grid_request.dart';
 import 'package:beading/domain/image_to_grid/palette_builder.dart';
 import 'package:beading/domain/image_to_grid/palette_constraint.dart';
@@ -118,12 +122,15 @@ final class ImageToGridSettings extends Equatable {
     List<CatalogColor> catalog = const <CatalogColor>[],
     String brand = '',
     Float32List? importance,
+    ImageMaskSet? masks,
     int seed = 0,
   }) {
     final List<CatalogColor> allowed = catalogFor(catalog, brand: brand);
     final bool useCatalog = paletteSource == PaletteSource.catalog && allowed.isNotEmpty;
     // Дизеринг по градиентам пиксельный путь пока не умеет (T57): с ним идёт путь T24 без стадий предустановки.
     final GenerationPreset? active = dither ? null : preset;
+    // Лица (T54): отдельные цвета кожи и защита черт; без лиц на фото поведение прежнее.
+    final FaceGuide? faceGuide = active == null || masks == null || masks.faces.isEmpty ? null : FaceGuide(masks);
     return ImageToGridRequest(
       image: image,
       geometry: geometry,
@@ -138,11 +145,16 @@ final class ImageToGridSettings extends Equatable {
       dither: dither,
       seed: seed,
       prefilter: active?.prefilter,
-      paletteBuilder: active == null ? null : const AccentPaletteBuilder(),
+      paletteBuilder: active == null
+          ? null
+          : faceGuide == null
+          ? const AccentPaletteBuilder()
+          : const FaceAwarePaletteBuilder(),
       labeler: active == null ? null : const VotingCellLabeler(),
       smoother: active?.smoother,
       refillFreedColors: active?.refillFreedColors ?? false,
-      steps: <PatternStep>[...?active?.steps, ...steps],
+      faces: faceGuide,
+      steps: <PatternStep>[...?active?.steps, if (faceGuide != null) const FaceFeatureStep(), ...steps],
     );
   }
 

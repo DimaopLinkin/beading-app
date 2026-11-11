@@ -53,6 +53,7 @@ final class RemoveIslandsStep implements PatternStep {
     final Float32List? edges = context.cellEdges;
     for (final int cell in component) {
       if (context.cellImportance[cell] > protectImportance) return true;
+      if (context.faces?.isFeature(cell) ?? false) return true;
       if (edges != null && edges[cell] >= edgeLimit) return true;
     }
     return false;
