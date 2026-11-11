@@ -59,6 +59,26 @@ void main() {
         if (run.variant.id == 't53-catalog') t53Catalog += run.stats.singleCells;
       }
       expect(t53Catalog, lessThan(t24Catalog));
+      // T47: «сбалансированно» оставляет не больше половины одиночных клеток T24 на каждом фото и вида и не больше трети по всей галерее.
+      int t24Total = 0;
+      int t47Total = 0;
+      final List<String> notHalved = <String>[];
+      for (final GalleryRun run in runs.where((r) => r.variant.id == 't47-balanced')) {
+        final GalleryRun t24 = runs.firstWhere(
+          (r) => r.variant.id == 't24' && r.photo == run.photo && r.target == run.target,
+        );
+        t24Total += t24.stats.singleCells;
+        t47Total += run.stats.singleCells;
+        if (run.stats.singleCells * 2 > t24.stats.singleCells) {
+          notHalved.add('${run.key}: ${run.stats.singleCells} против ${t24.stats.singleCells} у T24');
+        }
+      }
+      expect(notHalved, isEmpty);
+      expect(t47Total * 3, lessThanOrEqualTo(t24Total));
+      // Число цветов в настройке — верхняя граница.
+      for (final GalleryRun run in runs.where((r) => r.variant.id.startsWith('t47-'))) {
+        expect(run.stats.colorCount, lessThanOrEqualTo(run.target.maxColors), reason: run.key);
+      }
       expect(
         baseline.keys.toSet().difference(runs.map((r) => r.key).toSet()),
         isEmpty,

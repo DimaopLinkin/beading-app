@@ -5,6 +5,7 @@ import 'package:beading/domain/grid/grid.dart';
 import 'package:beading/domain/grid/grid_geometry.dart';
 import 'package:beading/domain/image_to_grid/cell_labeler.dart';
 import 'package:beading/domain/image_to_grid/image_prefilter.dart';
+import 'package:beading/domain/image_to_grid/label_smoother.dart';
 import 'package:beading/domain/image_to_grid/palette_builder.dart';
 import 'package:beading/domain/image_to_grid/palette_constraint.dart';
 import 'package:beading/domain/image_to_grid/pattern_step.dart';
@@ -27,6 +28,8 @@ final class ImageToGridRequest {
     this.prefilter,
     this.paletteBuilder,
     this.labeler,
+    this.smoother,
+    this.refillFreedColors = false,
     this.steps = const <PatternStep>[],
   }) {
     if (columns < 1 || columns > Grid.maxSide) throw ArgumentError.value(columns, 'columns', 'от 1 до ${Grid.maxSide}');
@@ -80,7 +83,13 @@ final class ImageToGridRequest {
 
   /// Дизеринг пиксельный путь не применяет: цвет клетки там выбирается голосованием пикселей (дизеринг по градиентам —
   /// отдельная стадия T57).
-  bool get usesPixelStages => paletteBuilder != null || labeler != null;
+  /// Стадия 4: сглаживание разметки по ценам цветов (T47). Работает только на пиксельном пути.
+  final LabelSmoother? smoother;
+
+  /// «Детально»: цвета, освободившиеся при слиянии и очистке, достаются следующему акценту (число цветов — верхняя граница).
+  final bool refillFreedColors;
+
+  bool get usesPixelStages => paletteBuilder != null || labeler != null || smoother != null;
 
   /// Шаги после привязки к палитре, по порядку.
   final List<PatternStep> steps;

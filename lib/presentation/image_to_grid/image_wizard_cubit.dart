@@ -11,6 +11,7 @@ import 'package:beading/domain/image_pattern/crop_rect.dart';
 import 'package:beading/domain/image_pattern/image_processor.dart';
 import 'package:beading/domain/image_pattern/picked_book_file.dart';
 import 'package:beading/domain/image_to_grid/generated_pattern.dart';
+import 'package:beading/domain/image_to_grid/generation_preset.dart';
 import 'package:beading/domain/image_to_grid/image_decoder.dart';
 import 'package:beading/domain/image_to_grid/image_to_grid_runner.dart';
 import 'package:beading/domain/image_to_grid/image_to_grid_settings.dart';
@@ -201,6 +202,8 @@ class ImageWizardCubit extends Cubit<ImageWizardState> {
   void setMaxColors(int colors) => _change(state.settings.copyWith(maxColors: colors));
 
   void setPaletteSource(PaletteSource source) => _change(state.settings.copyWith(paletteSource: source));
+
+  void setPreset(GenerationPreset preset) => _change(state.settings.copyWith(preset: preset));
 
   void setDither({required bool value}) => _change(state.settings.copyWith(dither: value));
 

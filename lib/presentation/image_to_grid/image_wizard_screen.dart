@@ -3,6 +3,7 @@ import 'dart:io' show Platform;
 import 'package:beading/domain/grid/bead_size.dart';
 import 'package:beading/domain/grid/grid.dart';
 import 'package:beading/domain/image_pattern/crop_rect.dart';
+import 'package:beading/domain/image_to_grid/generation_preset.dart';
 import 'package:beading/domain/image_to_grid/image_to_grid_settings.dart';
 import 'package:beading/domain/projects/craft.dart';
 import 'package:beading/presentation/grid_pattern/grid_pattern_view.dart';
@@ -293,6 +294,22 @@ class _EditState extends State<_Edit> {
                 min: ImageToGridSettings.minColors,
                 max: ImageToGridSettings.maxColorsLimit,
                 onChanged: cubit.setMaxColors,
+              ),
+              _Section(
+                title: l10n.imageWizardPreset,
+                child: CupertinoSlidingSegmentedControl<GenerationPreset>(
+                  groupValue: settings.preset,
+                  children: <GenerationPreset, Widget>{
+                    GenerationPreset.simpler: _SegmentLabel(l10n.imageWizardPresetSimpler),
+                    GenerationPreset.balanced: _SegmentLabel(l10n.imageWizardPresetBalanced),
+                    GenerationPreset.detailed: _SegmentLabel(l10n.imageWizardPresetDetailed),
+                  },
+                  onValueChanged: (value) {
+                    if (value != null) {
+                      cubit.setPreset(value);
+                    }
+                  },
+                ),
               ),
               _Section(
                 title: l10n.imageWizardPalette,

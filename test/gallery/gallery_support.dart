@@ -16,6 +16,7 @@ import 'package:beading/domain/grid/mm.dart';
 import 'package:beading/domain/image_to_grid/cell_labeler.dart';
 import 'package:beading/domain/image_to_grid/cell_sampler.dart';
 import 'package:beading/domain/image_to_grid/generated_pattern.dart';
+import 'package:beading/domain/image_to_grid/generation_preset.dart';
 import 'package:beading/domain/image_to_grid/generation_stats.dart';
 import 'package:beading/domain/image_to_grid/image_prefilter.dart';
 import 'package:beading/domain/image_to_grid/image_to_grid_pipeline.dart';
@@ -110,6 +111,7 @@ ImageToGridRequest _request(
   bool useCatalog = false,
   ImagePrefilter? prefilter,
   bool pixelStages = false,
+  GenerationPreset? preset,
 }) {
   final ImageToGridSettings settings = ImageToGridSettings(
     technique: target.technique,
@@ -118,6 +120,7 @@ ImageToGridRequest _request(
     maxColors: target.maxColors,
     paletteSource: useCatalog ? PaletteSource.catalog : PaletteSource.free,
     dither: dither,
+    preset: preset,
   );
   final ImageToGridRequest request = settings.toRequest(
     image: image,
@@ -126,7 +129,7 @@ ImageToGridRequest _request(
   final PaletteBuilder? paletteBuilder = pixelStages ? const AccentPaletteBuilder() : null;
   final CellLabeler? labeler = pixelStages ? const VotingCellLabeler() : null;
   if (target.metrics is BeadSize) {
-    if (prefilter == null && !pixelStages) return request;
+    if (preset != null || (prefilter == null && !pixelStages)) return request;
     return ImageToGridRequest(
       image: image,
       geometry: request.geometry,
@@ -156,9 +159,12 @@ ImageToGridRequest _request(
     ),
     maxColors: target.maxColors,
     dither: dither,
-    prefilter: prefilter,
-    paletteBuilder: paletteBuilder,
-    labeler: labeler,
+    prefilter: prefilter ?? request.prefilter,
+    paletteBuilder: paletteBuilder ?? request.paletteBuilder,
+    labeler: labeler ?? request.labeler,
+    smoother: request.smoother,
+    refillFreedColors: request.refillFreedColors,
+    steps: request.steps,
   );
 }
 
@@ -208,6 +214,28 @@ final List<GalleryVariant> galleryVariants = <GalleryVariant>[
       prefilter: const EdgePreservingPrefilter(),
       pixelStages: true,
     ),
+  ),
+  GalleryVariant(
+    id: 't47-simpler',
+    title: 'T47: проще',
+    build: (image, target, catalog) => _request(image, target, catalog, preset: GenerationPreset.simpler),
+  ),
+  GalleryVariant(
+    id: 't47-balanced',
+    title: 'T47: сбалансированно',
+    build: (image, target, catalog) => _request(image, target, catalog, preset: GenerationPreset.balanced),
+  ),
+  GalleryVariant(
+    id: 't47-detailed',
+    title: 'T47: детально',
+    build: (image, target, catalog) => _request(image, target, catalog, preset: GenerationPreset.detailed),
+  ),
+  GalleryVariant(
+    id: 't47-catalog',
+    title: 'T47: сбалансированно + каталог Toho/Delica',
+    beadsOnly: true,
+    build: (image, target, catalog) =>
+        _request(image, target, catalog, useCatalog: true, preset: GenerationPreset.balanced),
   ),
 ];
 
@@ -324,7 +352,7 @@ String metricsTable(List<GalleryRun> runs) {
     final GenerationStats s = run.stats;
     String ms(String stage) => (s.stageTimes[stage]!.inMicroseconds / 1000).toStringAsFixed(1);
     out.writeln(
-      '| ${run.photo.name} | ${run.target.id} | ${run.variant.title} | ${s.colorCount} | ${s.singleCells} | '
+      '| ${run.photo.name} | ${run.target.id} | ${run.variant.title} | ${s.colorCount} | ${s.singleCells}${s.singleCellsBefore == null ? '' : ' (было ${s.singleCellsBefore})'} | '
       '${s.meanDeltaE.toStringAsFixed(1)} | ${ms('sample')} / ${ms('palette')} / ${ms('assign')} / ${ms('steps')} |',
     );
   }
