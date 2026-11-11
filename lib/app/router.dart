@@ -4,6 +4,7 @@ import 'package:beading/app/di.dart';
 import 'package:beading/core/clock.dart';
 import 'package:beading/domain/catalog/catalog_repository.dart';
 import 'package:beading/domain/image_pattern/file_store.dart';
+import 'package:beading/domain/projects/craft.dart';
 import 'package:beading/domain/projects/project.dart';
 import 'package:beading/domain/settings/app_info.dart';
 import 'package:beading/domain/settings/secret_tap_handler.dart';
@@ -17,6 +18,8 @@ import 'package:beading/presentation/editor/editor_cubit.dart';
 import 'package:beading/presentation/editor/editor_screen.dart';
 import 'package:beading/presentation/editor/new_grid_cubit.dart';
 import 'package:beading/presentation/editor/new_grid_screen.dart';
+import 'package:beading/presentation/floss/floss_cubit.dart';
+import 'package:beading/presentation/floss/floss_screen.dart';
 import 'package:beading/presentation/image_to_grid/image_wizard_cubit.dart';
 import 'package:beading/presentation/image_to_grid/image_wizard_screen.dart';
 import 'package:beading/presentation/import_book/import_book_cubit.dart';
@@ -65,6 +68,7 @@ abstract final class AppRoutes {
 
   /// Материалы проекта: расход бисера по цветам схемы (T20).
   static String materials(String projectId) => MaterialsScreen.locationFor(projectId);
+  static String floss(String projectId) => FlossScreen.locationFor(projectId);
 
   /// Работа по схеме из книги (T07): линейка, зум, страницы, заметки. T05 откроет её из карточки проекта.
   /// Лист создания схемы (T17). Закрывается с id созданного проекта.
@@ -90,7 +94,9 @@ GoRouter createRouter({bool showDeveloperTools = !kReleaseMode}) => GoRouter(
           thumbnails: getIt<ProjectThumbnailRegistry>(),
           onOpenSettings: () => context.push(AppRoutes.settings),
           onOpenCatalog: () => context.push(AppRoutes.catalog),
-          onOpenMaterials: (context, project) => context.push(AppRoutes.materials(project.id)),
+          onOpenMaterials: (context, project) => context.push(
+            project.craft == Craft.crossStitch ? AppRoutes.floss(project.id) : AppRoutes.materials(project.id),
+          ),
           onShareFile: (context, project) => unawaited(
             getIt<DataTransferCubit>().shareProject(project.id, origin: shareOriginOf(context)),
           ),
@@ -180,6 +186,13 @@ GoRouter createRouter({bool showDeveloperTools = !kReleaseMode}) => GoRouter(
       builder: (_, state) => BlocProvider<MaterialsCubit>(
         create: (_) => getIt<MaterialsCubit>(param1: state.pathParameters['projectId'])..load(),
         child: MaterialsScreen(sharer: getIt<TextSharer>()),
+      ),
+    ),
+    GoRoute(
+      path: FlossScreen.routePath,
+      builder: (_, state) => BlocProvider<FlossCubit>(
+        create: (_) => getIt<FlossCubit>(param1: state.pathParameters['projectId'])..load(),
+        child: FlossScreen(sharer: getIt<TextSharer>()),
       ),
     ),
     GoRoute(

@@ -67,6 +67,7 @@ import 'package:beading/domain/image_to_grid/image_decoder.dart';
 import 'package:beading/domain/image_to_grid/image_masks.dart';
 import 'package:beading/domain/image_to_grid/image_to_grid_runner.dart';
 import 'package:beading/domain/image_to_grid/use_cases/create_pattern_from_image.dart';
+import 'package:beading/domain/materials/use_cases/load_project_floss.dart';
 import 'package:beading/domain/materials/use_cases/load_project_materials.dart';
 import 'package:beading/domain/projects/project_content_cleaner.dart';
 import 'package:beading/domain/projects/project_content_cloner.dart';
@@ -105,6 +106,7 @@ import 'package:beading/presentation/catalog/catalog_cubit.dart';
 import 'package:beading/presentation/easter_eggs/compliment_banner_cubit.dart';
 import 'package:beading/presentation/editor/editor_cubit.dart';
 import 'package:beading/presentation/editor/new_grid_cubit.dart';
+import 'package:beading/presentation/floss/floss_cubit.dart';
 import 'package:beading/presentation/image_to_grid/image_wizard_cubit.dart';
 import 'package:beading/presentation/import_book/import_book_cubit.dart';
 import 'package:beading/presentation/library/library_cubit.dart';
@@ -441,6 +443,14 @@ Future<void> configureDependencies({GetIt? locator, AppDatabase? database, Catal
     )
     ..registerLazySingleton<TextSharer>(SharePlusTextSharer.new)
     ..registerFactory<LoadProjectMaterials>(() => LoadProjectMaterials(container<GridPatternRepository>()))
+    ..registerFactory<LoadProjectFloss>(() => LoadProjectFloss(container<GridPatternRepository>()))
+    ..registerFactoryParam<FlossCubit, String, void>(
+      (projectId, _) => FlossCubit(
+        projectId: projectId,
+        loadFloss: container<LoadProjectFloss>(),
+        projects: container<ProjectRepository>(),
+      ),
+    )
     ..registerFactoryParam<MaterialsCubit, String, void>(
       (projectId, _) => MaterialsCubit(
         projectId: projectId,
