@@ -75,6 +75,8 @@ class GridOverlayPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     final double shortSide = math.min(scene.cellSize.width, scene.cellSize.height);
+    _paintDoneCells(canvas);
+    if (options.showCenter) _paintCenter(canvas, shortSide);
     final ReadingOrder? order = options.order;
     if (order != null) {
       _paintReading(canvas, order, shortSide);
@@ -132,6 +134,55 @@ class GridOverlayPainter extends CustomPainter {
         radius: shortSide * 0.3,
       );
     }
+  }
+
+  /// Сделанные клетки вышивки: вуаль вполсилы, чтобы стежки под ней оставались видны.
+  void _paintDoneCells(Canvas canvas) {
+    if (options.doneCells.isEmpty) return;
+    // Одним контуром: тысячи клеток — одна отрисовка, а не тысяча.
+    final Path path = Path();
+    for (final CellPosition cell in options.doneCells) {
+      if (cell.column < 0 || cell.row < 0 || cell.column >= scene.columns || cell.row >= scene.rows) continue;
+      path.addRect(scene.cellRect(cell));
+    }
+    canvas.drawPath(path, Paint()..color = veil.withValues(alpha: veil.a * 0.7));
+  }
+
+  /// Центр схемы: треугольники на всех четырёх краях, острием внутрь. Для чётной ширины или высоты центр лежит
+  /// на линии между клетками.
+  void _paintCenter(Canvas canvas, double shortSide) {
+    final Rect all = Offset.zero & scene.size;
+    final double size = math.max(4, shortSide * 0.45);
+    final Path path = Path();
+    final double cx = all.center.dx;
+    final double cy = all.center.dy;
+    path
+      ..moveTo(cx - size / 2, all.top)
+      ..lineTo(cx + size / 2, all.top)
+      ..lineTo(cx, all.top + size)
+      ..close()
+      ..moveTo(cx - size / 2, all.bottom)
+      ..lineTo(cx + size / 2, all.bottom)
+      ..lineTo(cx, all.bottom - size)
+      ..close()
+      ..moveTo(all.left, cy - size / 2)
+      ..lineTo(all.left, cy + size / 2)
+      ..lineTo(all.left + size, cy)
+      ..close()
+      ..moveTo(all.right, cy - size / 2)
+      ..lineTo(all.right, cy + size / 2)
+      ..lineTo(all.right - size, cy)
+      ..close();
+    canvas
+      ..drawPath(
+        path,
+        Paint()
+          ..style = PaintingStyle.stroke
+          ..strokeWidth = math.max(1.5, size * 0.3)
+          ..strokeJoin = StrokeJoin.round
+          ..color = ring.outer,
+      )
+      ..drawPath(path, Paint()..color = ring.inner);
   }
 
   /// Подсветка по порядку плетения: ряд — это набор ячеек [ReadingRow], а не ряд сетки.

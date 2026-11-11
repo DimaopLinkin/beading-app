@@ -9,6 +9,7 @@ import 'package:beading/domain/palette/palette_snapshot.dart';
 import 'package:beading/domain/palette/pattern_color.dart';
 import 'package:beading/presentation/grid_pattern/bead_finish.dart';
 import 'package:beading/presentation/grid_pattern/grid_scene.dart';
+import 'package:beading/presentation/grid_pattern/stitch_cells.dart';
 
 /// Из чего сделана вещь на экране «как будет выглядеть».
 enum RealisticMaterial {
@@ -75,15 +76,26 @@ abstract final class RealisticCells {
     required int c1,
     required int r0,
     required int r1,
+    int Function(int color)? strandsFor,
+    int? highlight,
   }) {
     final Paint paint = Paint();
+    // Не подсвеченный цвет притушен к подложке (подсветка одного цвета).
+    Color shown(int value, Color base) =>
+        highlight != null && highlight != value ? StitchCells.dim(base, colors.surface) : base;
     if (material == RealisticMaterial.crossStitch) {
       _fabric(canvas, scene, paint, c0, c1, r0, r1);
       for (int row = r0; row < r1; row++) {
         for (int column = c0; column < c1; column++) {
           final int value = grid.at(column, row);
           if (value == 0) continue;
-          _stitch(canvas, paint, scene.cellRect(CellPosition(column, row)), _rgb(palette.colorAt(value)));
+          _stitch(
+            canvas,
+            paint,
+            scene.cellRect(CellPosition(column, row)),
+            shown(value, _rgb(palette.colorAt(value))),
+            strandsFor?.call(value) ?? 2,
+          );
         }
       }
       return;
@@ -104,7 +116,7 @@ abstract final class RealisticCells {
           canvas,
           paint,
           scene.cellRect(CellPosition(column, row)),
-          _rgb(color),
+          shown(value, _rgb(color)),
           BeadFinish.parse(color?.finish),
           cylinder: material == RealisticMaterial.cylinderBead,
         );
@@ -293,16 +305,25 @@ abstract final class RealisticCells {
   }
 
   /// Крестик: нижний стежок «/», поверх него верхний «\», светлее.
-  static void _stitch(Canvas canvas, Paint paint, Rect cell, Color base) {
+  static void _stitch(Canvas canvas, Paint paint, Rect cell, Color base, int strands) {
     final double s = math.min(cell.width, cell.height);
     final Rect r = cell.deflate(s * 0.12);
-    _strand(canvas, paint, r.bottomLeft, r.topRight, s, Color.lerp(base, _black, 0.1)!, 0.22);
-    _strand(canvas, paint, r.topLeft, r.bottomRight, s, Color.lerp(base, _white, 0.1)!, 0.3);
+    final double width = s * StitchCells.strandWidth(strands);
+    _strand(canvas, paint, r.bottomLeft, r.topRight, s, width, Color.lerp(base, _black, 0.1)!, 0.22);
+    _strand(canvas, paint, r.topLeft, r.bottomRight, s, width, Color.lerp(base, _white, 0.1)!, 0.3);
   }
 
   /// Один стежок: тень, тело, щель между двумя нитками и по блику на каждой.
-  static void _strand(Canvas canvas, Paint paint, Offset from, Offset to, double s, Color color, double shadow) {
-    final double width = s * 0.32;
+  static void _strand(
+    Canvas canvas,
+    Paint paint,
+    Offset from,
+    Offset to,
+    double s,
+    double width,
+    Color color,
+    double shadow,
+  ) {
     paint
       ..shader = null
       ..style = PaintingStyle.stroke
