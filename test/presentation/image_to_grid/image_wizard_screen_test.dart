@@ -218,6 +218,8 @@ void main() {
     masks.result = ImageMaskSet(width: 10, height: 10, subject: Uint8List(100)..fillRange(0, 50, 255));
     await openPhoto(tester, AppTheme.light);
     await tester.scrollUntilVisible(find.text('Убрать'), 200, scrollable: find.byType(Scrollable).last);
+    await tester.ensureVisible(find.text('Убрать'));
+    await tester.pumpAndSettle();
     await tester.tap(find.text('Убрать'));
     await tester.pumpAndSettle();
     final Finder outline = find.byKey(const ValueKey<String>('wizard-outline'));
@@ -232,14 +234,16 @@ void main() {
     await openPhoto(tester, AppTheme.light);
     final Finder series = find.byKey(const ValueKey<String>('wizard-bead-series'));
     await tester.scrollUntilVisible(series, 200, scrollable: find.byType(Scrollable).last);
+    await tester.ensureVisible(find.text('Круглый Toho'));
+    await tester.pumpAndSettle();
     await tester.tap(find.text('Круглый Toho'));
     await tester.pumpAndSettle();
     expect(cubit.state.settings.beadSeries, BeadSeries.round);
-    final Finder luster = find.byKey(const ValueKey<String>('wizard-finish-luster'));
-    await tester.ensureVisible(luster);
-    await tester.tap(luster);
+    final Finder transparent = find.byKey(const ValueKey<String>('wizard-finish-transparent'));
+    await tester.ensureVisible(transparent);
+    await tester.tap(transparent);
     await tester.pumpAndSettle();
-    expect(cubit.state.settings.finishGroups, contains(BeadFinishGroup.luster));
+    expect(cubit.state.settings.finishGroups, contains(BeadFinishGroup.transparent));
   });
 
   testWidgets('без предмета настроек фона нет', (tester) async {

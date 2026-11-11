@@ -71,8 +71,11 @@ final class ImageToGridSettings extends Equatable {
   static const int minColors = 2;
   static const int maxColorsLimit = 30;
 
-  /// Отделки по умолчанию (T62): непрозрачный и матовый бисер.
-  static const Set<BeadFinishGroup> defaultFinishGroups = <BeadFinishGroup>{BeadFinishGroup.solid};
+  /// Отделки по умолчанию (T62): непрозрачный, матовый и блестящий бисер (Настя плетёт и тем, и другим).
+  static const Set<BeadFinishGroup> defaultFinishGroups = <BeadFinishGroup>{
+    BeadFinishGroup.solid,
+    BeadFinishGroup.luster,
+  };
 
   /// Техники мастера для [craft].
   static List<Technique> techniquesOf(Craft craft) => craft.techniques;

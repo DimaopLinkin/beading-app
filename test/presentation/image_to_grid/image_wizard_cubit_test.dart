@@ -520,10 +520,10 @@ void main() {
     });
     tearDown(() => cubit.close());
 
-    test('по умолчанию Delica и только непрозрачный и матовый', () {
+    test('по умолчанию Delica, матовый и блестящий', () {
       expect(cubit.beadSeries, BeadSeries.delica);
-      expect(cubit.state.settings.finishGroups, <BeadFinishGroup>{BeadFinishGroup.solid});
-      expect(cubit.state.catalogColors, 1);
+      expect(cubit.state.settings.finishGroups, <BeadFinishGroup>{BeadFinishGroup.solid, BeadFinishGroup.luster});
+      expect(cubit.state.catalogColors, 2);
     });
 
     test('смена серии и группы отделок пересчитывает число цветов каталога', () {
@@ -531,20 +531,20 @@ void main() {
       expect(cubit.state.catalogColors, 1);
       cubit
         ..setBeadSeries(BeadSeries.delica)
-        ..setFinishGroup(BeadFinishGroup.luster, value: true);
-      expect(cubit.state.catalogColors, 2);
+        ..setFinishGroup(BeadFinishGroup.luster, value: false);
+      expect(cubit.state.catalogColors, 1);
     });
 
     test('последнюю группу отделок выключить нельзя', () {
-      cubit.setFinishGroup(BeadFinishGroup.solid, value: false);
+      cubit
+        ..setFinishGroup(BeadFinishGroup.luster, value: false)
+        ..setFinishGroup(BeadFinishGroup.solid, value: false);
       expect(cubit.state.settings.finishGroups, <BeadFinishGroup>{BeadFinishGroup.solid});
     });
 
     test('цветов в каталоге меньше, чем в схеме: мастер предупреждает', () {
-      expect(cubit.state.catalogShort, isTrue); // 1 цвет при 8 в схеме
-      cubit
-        ..setFinishGroup(BeadFinishGroup.luster, value: true)
-        ..setMaxColors(2);
+      expect(cubit.state.catalogShort, isTrue); // 2 цвета при 8 в схеме
+      cubit.setMaxColors(2);
       expect(cubit.state.catalogShort, isFalse); // 2 цвета при 2 в схеме
       cubit.setPaletteSource(PaletteSource.free);
       cubit.setMaxColors(8);

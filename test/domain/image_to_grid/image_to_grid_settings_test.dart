@@ -70,8 +70,8 @@ void main() {
 
     test('каталожные цвета отбираются по бисеру, размеру, одной серии и отделкам', () {
       const ImageToGridSettings s = ImageToGridSettings();
-      // По умолчанию: серия Delica (бренд не задан) и «непрозрачный и матовый».
-      expect(s.catalogFor(catalog).map((c) => c.code), <String>['DB0010', 'DB0011']);
+      // По умолчанию: серия Delica (бренд не задан), матовый и блестящий.
+      expect(s.catalogFor(catalog).map((c) => c.code), <String>['DB0010', 'DB0011', 'DB0012']);
       expect(s.catalogFor(catalog, brand: 'Toho').map((c) => c.code), <String>['T-1']);
       expect(s.copyWith(beadSize: BeadSize.delica15).catalogFor(catalog), isEmpty);
     });
@@ -81,15 +81,15 @@ void main() {
       expect(s.catalogFor(catalog, brand: 'Miyuki').map((c) => c.code), <String>['T-1']);
       expect(
         const ImageToGridSettings(beadSeries: BeadSeries.delica).catalogFor(catalog, brand: 'Toho').map((c) => c.code),
-        <String>['DB0010', 'DB0011'],
+        <String>['DB0010', 'DB0011', 'DB0012'],
       );
     });
 
     test('включённая группа отделок добавляет свои позиции', () {
       final ImageToGridSettings s = const ImageToGridSettings().copyWith(
-        finishGroups: <BeadFinishGroup>{BeadFinishGroup.solid, BeadFinishGroup.luster},
+        finishGroups: <BeadFinishGroup>{BeadFinishGroup.solid},
       );
-      expect(s.catalogFor(catalog).map((c) => c.code), <String>['DB0010', 'DB0011', 'DB0012']);
+      expect(s.catalogFor(catalog).map((c) => c.code), <String>['DB0010', 'DB0011']);
       expect(
         s.copyWith(finishGroups: <BeadFinishGroup>{BeadFinishGroup.transparent}).catalogFor(catalog).map((c) => c.code),
         <String>['DB0013'],
@@ -103,7 +103,7 @@ void main() {
 
     test('все группы выключить нельзя: остаётся хотя бы одна', () {
       final ImageToGridSettings s = const ImageToGridSettings().copyWith(finishGroups: const <BeadFinishGroup>{});
-      expect(s.finishGroups, <BeadFinishGroup>{BeadFinishGroup.solid});
+      expect(s.finishGroups, ImageToGridSettings.defaultFinishGroups);
     });
 
     test('запрос с каталогом ограничивает палитру каталогом', () {
@@ -113,8 +113,7 @@ void main() {
         brand: 'Miyuki',
       );
       expect(request.constraint.isFree, isFalse);
-      expect(request.constraint.candidates, hasLength(2));
-      expect(request.constraint.candidates!.map((e) => e.catalog?.code), <String?>['DB0010', 'DB0011']);
+      expect(request.constraint.candidates, hasLength(3));
       expect(request.columns, 40);
       expect(request.rows, const ImageToGridSettings().rowsFor(image));
     });

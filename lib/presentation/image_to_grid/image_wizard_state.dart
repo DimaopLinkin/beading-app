@@ -6,6 +6,7 @@ import 'package:beading/domain/image_to_grid/generated_pattern.dart';
 import 'package:beading/domain/image_to_grid/image_mask_set.dart';
 import 'package:beading/domain/image_to_grid/image_to_grid_settings.dart';
 import 'package:beading/domain/palette/palette_snapshot.dart';
+import 'package:beading/domain/projects/craft.dart';
 import 'package:equatable/equatable.dart';
 
 enum ImageWizardStep { pickSource, edit, saving, done }
@@ -99,7 +100,10 @@ class ImageWizardState extends Equatable {
 
   /// Каталог после отбора по серии и отделкам беднее числа цветов в схеме (T62): мастер предупреждает.
   bool get catalogShort =>
-      settings.paletteSource == PaletteSource.catalog && catalogColors > 0 && catalogColors < settings.maxColors;
+      settings.craft == Craft.beading &&
+      settings.paletteSource == PaletteSource.catalog &&
+      catalogColors > 0 &&
+      catalogColors < settings.maxColors;
 
   ImageWizardState copyWith({
     ImageWizardStep? step,
