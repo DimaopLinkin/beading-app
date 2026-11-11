@@ -6,6 +6,7 @@ import 'package:beading/domain/catalog/catalog_material.dart';
 import 'package:beading/domain/grid/bead_size.dart';
 import 'package:beading/domain/grid/grid.dart';
 import 'package:beading/domain/grid/grid_geometry.dart';
+import 'package:beading/domain/image_to_grid/background_stage.dart';
 import 'package:beading/domain/image_to_grid/cell_labeler.dart';
 import 'package:beading/domain/image_to_grid/cell_sampler.dart';
 import 'package:beading/domain/image_to_grid/face_guide.dart';
@@ -43,6 +44,8 @@ final class ImageToGridSettings extends Equatable {
     this.useMasks = true,
     this.preset = GenerationPreset.balanced,
     this.steps = const <PatternStep>[],
+    this.background = BackgroundMode.keep,
+    this.outline = false,
   });
 
   static const int defaultColumns = 40;
@@ -80,6 +83,12 @@ final class ImageToGridSettings extends Equatable {
   static const AccentPaletteBuilder draftPaletteBuilder = AccentPaletteBuilder(sampleSize: 5000, iterations: 10);
   static const FaceAwarePaletteBuilder draftFacePaletteBuilder = FaceAwarePaletteBuilder(inner: draftPaletteBuilder);
 
+  /// Что делать с фоном: действует, только если у мастера есть маска объекта (T48); без неё настройку не показывают.
+  final BackgroundMode background;
+
+  /// Обводка объекта одной клеткой тёмного цвета (только бисер, нужна маска объекта).
+  final bool outline;
+
   GridGeometry get geometry => geometryForTechnique(technique);
 
   ImageToGridSettings copyWith({
@@ -93,6 +102,8 @@ final class ImageToGridSettings extends Equatable {
     GenerationPreset? preset,
     bool clearPreset = false,
     List<PatternStep>? steps,
+    BackgroundMode? background,
+    bool? outline,
   }) => ImageToGridSettings(
     technique: technique ?? this.technique,
     beadSize: beadSize ?? this.beadSize,
@@ -103,6 +114,8 @@ final class ImageToGridSettings extends Equatable {
     useMasks: useMasks ?? this.useMasks,
     preset: clearPreset ? null : preset ?? this.preset,
     steps: steps ?? this.steps,
+    background: background ?? this.background,
+    outline: outline ?? this.outline,
   );
 
   /// Число рядов, при котором схема повторяет пропорции [image].
@@ -135,6 +148,7 @@ final class ImageToGridSettings extends Equatable {
     ImageMaskSet? masks,
     int seed = 0,
     bool draft = false,
+    Uint8List? subjectMask,
   }) {
     final List<CatalogColor> allowed = catalogFor(catalog, brand: brand);
     final bool useCatalog = paletteSource == PaletteSource.catalog && allowed.isNotEmpty;
@@ -167,6 +181,9 @@ final class ImageToGridSettings extends Equatable {
       faces: faceGuide,
       draft: draft,
       steps: <PatternStep>[...?active?.steps, if (faceGuide != null) const FaceFeatureStep(), ...steps],
+      subjectMask: subjectMask,
+      background: background,
+      outline: outline,
     );
   }
 
@@ -181,5 +198,7 @@ final class ImageToGridSettings extends Equatable {
     useMasks,
     preset,
     steps,
+    background,
+    outline,
   ];
 }

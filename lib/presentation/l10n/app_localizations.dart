@@ -2467,6 +2467,42 @@ abstract class AppLocalizations {
   /// **'Схема шире'**
   String get imageWizardFaceWider;
 
+  /// Заголовок выбора, что делать с фоном фото
+  ///
+  /// In ru, this message translates to:
+  /// **'Фон'**
+  String get imageWizardBackground;
+
+  /// Фон как на фото
+  ///
+  /// In ru, this message translates to:
+  /// **'Оставить'**
+  String get imageWizardBackgroundKeep;
+
+  /// Фон в несколько спокойных цветов
+  ///
+  /// In ru, this message translates to:
+  /// **'Упростить'**
+  String get imageWizardBackgroundSimplify;
+
+  /// Фон без бусин
+  ///
+  /// In ru, this message translates to:
+  /// **'Убрать'**
+  String get imageWizardBackgroundRemove;
+
+  /// Переключатель обводки главного предмета
+  ///
+  /// In ru, this message translates to:
+  /// **'Обводка'**
+  String get imageWizardOutline;
+
+  /// Пояснение к обводке
+  ///
+  /// In ru, this message translates to:
+  /// **'Тёмная линия в одну бусину вокруг главного: силуэт виден сразу.'**
+  String get imageWizardOutlineHint;
+
   /// Подсказка в поле названия схемы
   ///
   /// In ru, this message translates to:

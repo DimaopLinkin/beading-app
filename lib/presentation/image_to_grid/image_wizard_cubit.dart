@@ -10,6 +10,7 @@ import 'package:beading/domain/grid/bead_size.dart';
 import 'package:beading/domain/image_pattern/crop_rect.dart';
 import 'package:beading/domain/image_pattern/image_processor.dart';
 import 'package:beading/domain/image_pattern/picked_book_file.dart';
+import 'package:beading/domain/image_to_grid/background_stage.dart';
 import 'package:beading/domain/image_to_grid/generated_pattern.dart';
 import 'package:beading/domain/image_to_grid/generation_preset.dart';
 import 'package:beading/domain/image_to_grid/image_decoder.dart';
@@ -72,6 +73,7 @@ class ImageWizardCubit extends Cubit<ImageWizardState> {
 
   /// Маска важности по пикселям [_image]: из масок Vision; `null` — масок нет и всё одинаково важно.
   Float32List? _importance;
+  Uint8List? _subjectMask;
   Timer? _timer;
 
   /// Номер последнего запрошенного расчёта: результаты с другим номером устарели.
@@ -153,6 +155,7 @@ class ImageWizardCubit extends Cubit<ImageWizardState> {
       return;
     }
     _importance = maskSet?.importance();
+    _subjectMask = maskSet?.subjectOrPerson;
     emit(
       state.copyWith(
         step: ImageWizardStep.edit,
@@ -200,6 +203,7 @@ class ImageWizardCubit extends Cubit<ImageWizardState> {
     }
     _image = prepared.image;
     _importance = maskSet?.importance();
+    _subjectMask = maskSet?.subjectOrPerson;
     emit(state.copyWith(prepared: prepared.png, masks: maskSet, clearMasks: maskSet == null));
     _schedule(immediate: true);
   }
@@ -272,6 +276,12 @@ class ImageWizardCubit extends Cubit<ImageWizardState> {
     }
   }
 
+  /// Фон: оставить, упростить или убрать (нужна маска объекта).
+  void setBackground(BackgroundMode mode) => _change(state.settings.copyWith(background: mode));
+
+  /// Обводка объекта одной тёмной бусиной (нужна маска объекта).
+  void setOutline({required bool value}) => _change(state.settings.copyWith(outline: value));
+
   void setDither({required bool value}) => _change(state.settings.copyWith(dither: value));
 
   void setName(String name) => emit(state.copyWith(name: name, clearProblem: true));
@@ -343,6 +353,7 @@ class ImageWizardCubit extends Cubit<ImageWizardState> {
           brand: _brand,
           importance: settings.useMasks ? _importance : null,
           masks: settings.useMasks ? state.masks : null,
+          subjectMask: _subjectMask,
           draft: draft,
         ),
       );

@@ -81,6 +81,9 @@ class ImageWizardState extends Equatable {
   /// Есть что выделять: показываем переключатель «Выделять главное».
   bool get hasMasks => masks != null && !masks!.isEmpty;
 
+  /// Найден главный предмет или человек: показываем настройки фона и обводки (T55).
+  bool get hasSubject => masks?.subjectOrPerson != null;
+
   /// Созданный проект, когда [step] — [ImageWizardStep.done].
   final String? projectId;
 

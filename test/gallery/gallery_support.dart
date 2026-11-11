@@ -13,6 +13,7 @@ import 'package:beading/domain/grid/cell_metrics.dart';
 import 'package:beading/domain/grid/cell_position.dart';
 import 'package:beading/domain/grid/grid_geometry.dart';
 import 'package:beading/domain/grid/mm.dart';
+import 'package:beading/domain/image_to_grid/background_stage.dart';
 import 'package:beading/domain/image_to_grid/cell_labeler.dart';
 import 'package:beading/domain/image_to_grid/cell_regions.dart';
 import 'package:beading/domain/image_to_grid/cell_sampler.dart';
@@ -28,6 +29,7 @@ import 'package:beading/domain/image_to_grid/image_to_grid_settings.dart';
 import 'package:beading/domain/image_to_grid/palette_builder.dart';
 import 'package:beading/domain/image_to_grid/source_image.dart';
 import 'package:beading/domain/image_to_grid/work_image.dart';
+import 'package:beading/domain/palette/lab.dart';
 import 'package:beading/domain/palette/rgb.dart';
 import 'package:beading/domain/projects/craft.dart';
 
@@ -285,7 +287,155 @@ final List<GalleryVariant> galleryVariants = <GalleryVariant>[
     build: (image, target, catalog) =>
         _request(image, target, catalog, useCatalog: true, preset: GenerationPreset.balanced),
   ),
+  GalleryVariant(
+    id: 't55-simplify',
+    title: 'T55: фон упрощён',
+    build: (image, target, catalog) => _request(
+      image,
+      target,
+      catalog,
+      preset: GenerationPreset.balanced,
+    ).withBackground(mask: standInSubjectMask(image), mode: BackgroundMode.simplify),
+  ),
+  GalleryVariant(
+    id: 't55-remove',
+    title: 'T55: фон убран',
+    build: (image, target, catalog) => _request(
+      image,
+      target,
+      catalog,
+      preset: GenerationPreset.balanced,
+    ).withBackground(mask: standInSubjectMask(image), mode: BackgroundMode.remove),
+  ),
+  GalleryVariant(
+    id: 't55-outline',
+    title: 'T55: обводка (бисер)',
+    beadsOnly: true,
+    build: (image, target, catalog) => _request(
+      image,
+      target,
+      catalog,
+      preset: GenerationPreset.balanced,
+    ).withBackground(mask: standInSubjectMask(image), mode: BackgroundMode.simplify, outline: true),
+  ),
 ];
+
+/// Заменитель маски объекта для листов галереи (на устройстве маску даёт Vision, T48): пиксели, заметно
+/// отличающиеся от цвета рамки кадра, все крупные (от десятой доли наибольшей) связные области с закрытыми дырами; если так не вышло
+/// (объект занимает меньше 5 % или больше 95 % кадра), центральный эллипс.
+Uint8List standInSubjectMask(SourceImage image) {
+  final int w = image.width;
+  final int h = image.height;
+  final List<Lab> border = <Lab>[];
+  Lab at(int x, int y) {
+    final int o = (y * w + x) * 4;
+    return Lab.fromRgb(Rgb(image.rgba[o], image.rgba[o + 1], image.rgba[o + 2]));
+  }
+
+  for (int x = 0; x < w; x++) {
+    border
+      ..add(at(x, 0))
+      ..add(at(x, h - 1));
+  }
+  for (int y = 0; y < h; y++) {
+    border
+      ..add(at(0, y))
+      ..add(at(w - 1, y));
+  }
+  double median(List<double> v) => (v..sort())[v.length ~/ 2];
+  final Lab bg = Lab(
+    median(<double>[for (final Lab c in border) c.l]),
+    median(<double>[for (final Lab c in border) c.a]),
+    median(<double>[for (final Lab c in border) c.b]),
+  );
+  // Рамка кадра должна быть почти однотонной (плоский фон), иначе по цвету объект не найти.
+  final int flat = border.where((c) => deltaE2000(c, bg) <= 10).length;
+  final bool flatBackground = flat >= border.length * 0.85;
+  final Uint8List raw = Uint8List(w * h);
+  for (int y = 0; y < h; y++) {
+    for (int x = 0; x < w; x++) {
+      if (flatBackground && deltaE2000(at(x, y), bg) > 12) raw[y * w + x] = 1;
+    }
+  }
+  // Наибольшая связная область объекта.
+  final Int32List label = Int32List(w * h);
+  final List<int> sizes = <int>[0];
+  for (int start = 0; start < raw.length; start++) {
+    if (raw[start] == 0 || label[start] != 0) continue;
+    final int id = sizes.length;
+    int size = 0;
+    final List<int> stack = <int>[start];
+    label[start] = id;
+    while (stack.isNotEmpty) {
+      final int p = stack.removeLast();
+      size++;
+      final int x = p % w;
+      final int y = p ~/ w;
+      for (final (int dx, int dy) in const <(int, int)>[(1, 0), (-1, 0), (0, 1), (0, -1)]) {
+        final int nx = x + dx;
+        final int ny = y + dy;
+        if (nx < 0 || ny < 0 || nx >= w || ny >= h) continue;
+        final int q = ny * w + nx;
+        if (raw[q] == 1 && label[q] == 0) {
+          label[q] = id;
+          stack.add(q);
+        }
+      }
+    }
+    sizes.add(size);
+  }
+  int bestLabel = 0;
+  for (int i = 1; i < sizes.length; i++) {
+    if (bestLabel == 0 || sizes[i] > sizes[bestLabel]) bestLabel = i;
+  }
+  final Uint8List mask = Uint8List(w * h);
+  if (bestLabel != 0) {
+    for (int i = 0; i < mask.length; i++) {
+      if (label[i] != 0 && sizes[label[i]] * 10 >= sizes[bestLabel]) mask[i] = 255;
+    }
+    // Закрываем дыры: фон, до которого нельзя дойти от рамки кадра, тоже объект.
+    final Uint8List reach = Uint8List(w * h);
+    final List<int> stack = <int>[];
+    void seed(int x, int y) {
+      final int p = y * w + x;
+      if (mask[p] == 0 && reach[p] == 0) {
+        reach[p] = 1;
+        stack.add(p);
+      }
+    }
+
+    for (int x = 0; x < w; x++) {
+      seed(x, 0);
+      seed(x, h - 1);
+    }
+    for (int y = 0; y < h; y++) {
+      seed(0, y);
+      seed(w - 1, y);
+    }
+    while (stack.isNotEmpty) {
+      final int p = stack.removeLast();
+      final int x = p % w;
+      final int y = p ~/ w;
+      if (x > 0) seed(x - 1, y);
+      if (x < w - 1) seed(x + 1, y);
+      if (y > 0) seed(x, y - 1);
+      if (y < h - 1) seed(x, y + 1);
+    }
+    for (int i = 0; i < mask.length; i++) {
+      if (reach[i] == 0) mask[i] = 255;
+    }
+  }
+  final int inside = mask.where((v) => v != 0).length;
+  if (inside >= w * h * 0.05 && inside <= w * h * 0.95) return mask;
+  for (int y = 0; y < h; y++) {
+    for (int x = 0; x < w; x++) {
+      final double dx = (x - w / 2) / (w * 0.38);
+      final double dy = (y - h / 2) / (h * 0.42);
+      mask[y * w + x] = dx * dx + dy * dy <= 1 ? 255 : 0;
+    }
+  }
+  return mask;
+}
 
 /// Бисерный каталог приложения (Toho Round и Miyuki Delica 11/0), как его видит мастер.
 List<CatalogColor> loadBeadCatalog() {

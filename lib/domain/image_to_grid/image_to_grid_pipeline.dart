@@ -3,6 +3,7 @@ import 'dart:typed_data';
 import 'package:beading/domain/grid/grid.dart';
 import 'package:beading/domain/grid/grid_geometry.dart';
 import 'package:beading/domain/image_to_grid/accent_refill.dart';
+import 'package:beading/domain/image_to_grid/background_stage.dart';
 import 'package:beading/domain/image_to_grid/cell_edges.dart';
 import 'package:beading/domain/image_to_grid/cell_labeler.dart';
 import 'package:beading/domain/image_to_grid/cell_neighbors.dart';
@@ -54,7 +55,7 @@ final class ImageToGridPipeline {
     if (request.usesPixelStages) return _runPixelStages(request, clock, times, lap, cache ?? PixelStageCache());
 
     SourceImage image = request.image;
-    Float32List? importance = request.importance;
+    Float32List? importance = request.effectiveImportance;
     final ImagePrefilter? prefilter = request.prefilter;
     if (prefilter != null) {
       final WorkImage work = prefilter.apply(
@@ -98,6 +99,7 @@ final class ImageToGridPipeline {
     for (final PatternStep step in request.steps) {
       pattern = step.apply(pattern, context);
     }
+    pattern = _compactPattern(_backgroundStage(request, pattern, cells), cells);
     times['steps'] = lap();
     return GeneratedPattern(
       grid: pattern.grid,
@@ -122,6 +124,8 @@ final class ImageToGridPipeline {
     final List<Object?> prepareKey = <Object?>[
       request.image,
       request.importance,
+      request.subjectMask,
+      request.background,
       request.geometry,
       request.metrics,
       request.columns,
@@ -228,6 +232,7 @@ final class ImageToGridPipeline {
     }
     // Шаги могли опустошить цвета: убираем неиспользуемые и снова упорядочиваем по площади.
     pattern = _compactPattern(pattern, cells);
+    pattern = _compactPattern(_backgroundStage(request, pattern, cells), cells);
     times['steps'] = lap();
     return GeneratedPattern(
       grid: pattern.grid,
@@ -246,7 +251,7 @@ final class ImageToGridPipeline {
   _Prepared _prepare(ImageToGridRequest request) {
     WorkImage work = WorkImage.fromSource(
       image: request.image,
-      importance: request.importance,
+      importance: request.effectiveImportance,
       geometry: request.geometry,
       metrics: request.metrics,
       columns: request.columns,
@@ -281,6 +286,30 @@ final class ImageToGridPipeline {
       regions: regions,
       neighbors: CellNeighbors.of(geometry: request.geometry, columns: cells.columns, rows: cells.rows),
       edges: cellEdges(work, regions),
+    );
+  }
+
+  /// Фон и обводка (T55): после всех шагов, по маске объекта на уровне клеток.
+  GeneratedPattern _backgroundStage(ImageToGridRequest request, GeneratedPattern pattern, SampledCells cells) {
+    final Uint8List? mask = request.subjectMask;
+    if (mask == null || !request.usesBackgroundStage) return pattern;
+    final CellRegions regions = CellRegions.forGrid(
+      geometry: request.geometry,
+      metrics: request.metrics,
+      columns: request.columns,
+      rows: request.rows,
+      imageWidth: request.image.width,
+      imageHeight: request.image.height,
+    );
+    return BackgroundStage.apply(
+      pattern: pattern,
+      cellColors: cells.colors,
+      subject: subjectCellsFrom(mask: mask, imageWidth: request.image.width, regions: regions),
+      neighbors: CellNeighbors.of(geometry: request.geometry, columns: cells.columns, rows: cells.rows),
+      mode: request.background,
+      outline: request.outline,
+      maxColors: request.maxColors,
+      constraint: request.constraint,
     );
   }
 
@@ -452,7 +481,9 @@ bool _sameKey(List<Object?>? a, List<Object?> b) {
   if (a == null || a.length != b.length) return false;
   for (int i = 0; i < a.length; i++) {
     // Картинку и маску сравниваем по тождеству: перебирать мегабайты пикселей незачем.
-    final bool same = a[i] is SourceImage || a[i] is Float32List ? identical(a[i], b[i]) : a[i] == b[i];
+    final bool same = a[i] is SourceImage || a[i] is Float32List || a[i] is Uint8List
+        ? identical(a[i], b[i])
+        : a[i] == b[i];
     if (!same) return false;
   }
   return true;
