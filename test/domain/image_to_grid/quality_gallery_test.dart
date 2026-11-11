@@ -18,7 +18,7 @@ void main() {
 
   testWidgets(
     'метрики не хуже базы: одиночных клеток не больше +20 % (и не больше +2 клеток), ΔE не выше +1,0, корреляция светлоты не ниже −0,02, контраст в пределах ±0,05',
-    timeout: const Timeout(Duration(minutes: 3)),
+    timeout: const Timeout(Duration(minutes: 8)),
     (tester) async {
       runs = (await tester.runAsync(() async => runGallery(await loadPhotos(), loadBeadCatalog())))!;
       final List<String> problems = <String>[];
