@@ -2437,6 +2437,18 @@ abstract class AppLocalizations {
   /// **'Лучше передаёт оттенки, но схема становится пестрее. При включении выбор «Детальность» не применяется.'**
   String get imageWizardDitherHint;
 
+  /// Переключатель: учитывать найденные на фото лица и объект
+  ///
+  /// In ru, this message translates to:
+  /// **'Выделять главное'**
+  String get imageWizardUseMasks;
+
+  /// Пояснение к выделению главного
+  ///
+  /// In ru, this message translates to:
+  /// **'Лица и главный предмет получают больше цветов и деталей, фон — меньше.'**
+  String get imageWizardUseMasksHint;
+
   /// Подсказка в поле названия схемы
   ///
   /// In ru, this message translates to:
