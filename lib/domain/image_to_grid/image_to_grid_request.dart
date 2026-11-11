@@ -193,9 +193,11 @@ final class ImageToGridRequest {
     if (mask == null || background == BackgroundMode.keep) return importance;
     final double factor = background == BackgroundMode.remove ? 0.05 : 0.5;
     final Float32List? base = importance;
-    return Float32List.fromList(<double>[
-      for (int i = 0; i < mask.length; i++) (base == null ? 1.0 : base[i]) * (mask[i] == 0 ? factor : 1),
-    ]);
+    final Float32List out = Float32List(mask.length);
+    for (int i = 0; i < mask.length; i++) {
+      out[i] = (base == null ? 1.0 : base[i]) * (mask[i] == 0 ? factor : 1);
+    }
+    return out;
   }
 
   bool get usesPixelStages => paletteBuilder != null || labeler != null || smoother != null;

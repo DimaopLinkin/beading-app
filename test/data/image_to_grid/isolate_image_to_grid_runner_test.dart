@@ -1,3 +1,5 @@
+import 'dart:isolate';
+
 import 'package:beading/data/image_to_grid/isolate_image_to_grid_runner.dart';
 import 'package:beading/domain/grid/grid_geometry.dart';
 import 'package:beading/domain/image_to_grid/cell_labeler.dart';
@@ -17,6 +19,17 @@ import 'package:flutter_test/flutter_test.dart';
 
 import '../../domain/grid/fake_cell_metrics.dart';
 import '../../domain/image_to_grid/image_fixtures.dart';
+
+/// Шаг, убивающий изолят посреди расчёта (изолят «умер вне задания»).
+final class _KillIsolateStep implements PatternStep {
+  const _KillIsolateStep();
+
+  @override
+  GeneratedPattern apply(GeneratedPattern pattern, PatternStepContext context) {
+    Isolate.current.kill(priority: Isolate.immediate);
+    return pattern;
+  }
+}
 
 void main() {
   test('изолят возвращает тот же результат, что и прямой запуск', () async {
@@ -43,7 +56,12 @@ void main() {
   });
 
   group('сессия', () {
-    ImageToGridRequest pixelRequest(SourceImage image, {int maxColors = 4, bool draft = false}) => ImageToGridRequest(
+    ImageToGridRequest pixelRequest(
+      SourceImage image, {
+      int maxColors = 4,
+      bool draft = false,
+      List<PatternStep> steps = const <PatternStep>[],
+    }) => ImageToGridRequest(
       image: image,
       geometry: const GridGeometry.rectangular(),
       metrics: const FakeCellMetrics(1, 1),
@@ -53,6 +71,7 @@ void main() {
       paletteBuilder: const AccentPaletteBuilder(),
       labeler: const VotingCellLabeler(),
       draft: draft,
+      steps: steps,
     );
 
     final SourceImage image = blockImage(<List<int>>[
@@ -140,6 +159,18 @@ void main() {
       await expectation;
       final GeneratedPattern next = await runner.run(pixelRequest(image));
       expect(next.grid, const ImageToGridPipeline().run(pixelRequest(image)).grid);
+    });
+
+    test('после гибели изолята следующий запрос с той же картинкой считается по ней, а не по заглушке', () async {
+      final IsolateImageToGridRunner runner = IsolateImageToGridRunner();
+      addTearDown(runner.release);
+      final ImageToGridRequest dying = pixelRequest(image, steps: const <PatternStep>[_KillIsolateStep()]);
+      await expectLater(runner.run(dying), throwsStateError);
+      final GeneratedPattern next = await runner.run(pixelRequest(image));
+      final GeneratedPattern expected = const ImageToGridPipeline().run(pixelRequest(image));
+      expect(next.grid, expected.grid);
+      expect(next.palette, expected.palette);
+      expect(next.palette.length, greaterThan(1));
     });
   });
 }

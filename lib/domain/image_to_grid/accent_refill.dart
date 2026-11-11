@@ -38,19 +38,25 @@ GeneratedPattern refillAccents({
   final NearestColorMatcher<PaletteEntry>? matcher = candidates == null
       ? null
       : NearestColorMatcher<PaletteEntry>(candidates, rgbOf: (e) => e.rgb);
-  final Set<int> rejected = <int>{};
   bool changed = false;
 
+  // Недобор цвета по клеткам считается один раз: отвергнутый зародыш обнуляет свою клетку, принятая группа пересчитывает
+  // только свои клетки, а не все (ΔE2000 по миллиону клеток на каждый зародыш был самым дорогим местом конвейера).
+  final List<Lab> paletteLab = <Lab>[for (final PaletteEntry e in palette) Lab.fromRgb(e.rgb)];
+  final List<double> miss = List<double>.filled(count, 0);
+  for (int i = 0; i < count; i++) {
+    final Lab? lab = source[i];
+    if (lab == null || values[i] == 0) continue;
+    miss[i] = deltaE2000(lab, paletteLab[values[i] - 1]);
+  }
+
   while (palette.length < maxColors) {
-    final List<double> miss = List<double>.filled(count, 0);
     int seed = -1;
     double seedScore = 0;
     for (int i = 0; i < count; i++) {
-      final Lab? lab = source[i];
-      if (lab == null || values[i] == 0 || rejected.contains(i)) continue;
-      miss[i] = deltaE2000(lab, Lab.fromRgb(palette[values[i] - 1].rgb));
+      if (miss[i] < minDeltaE) continue;
       final double score = miss[i] * importance[i];
-      if (miss[i] >= minDeltaE && score > seedScore) {
+      if (score > seedScore) {
         seedScore = score;
         seed = i;
       }
@@ -77,7 +83,7 @@ GeneratedPattern refillAccents({
       }
     }
     if (group.length < minGroup || !group.contains(seed)) {
-      rejected.add(seed);
+      miss[seed] = 0; // отвергнутый зародыш больше не рассматривается
       continue;
     }
     double l = 0;
@@ -100,8 +106,11 @@ GeneratedPattern refillAccents({
       entry = free;
     }
     palette.add(entry);
+    final Lab entryLab = Lab.fromRgb(entry.rgb);
+    paletteLab.add(entryLab);
     for (final int cell in group) {
       values[cell] = palette.length;
+      miss[cell] = deltaE2000(source[cell]!, entryLab);
     }
     changed = true;
   }

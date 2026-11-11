@@ -63,15 +63,19 @@ final class IsolateImageToGridRunner implements ImageToGridRunner {
   Future<void> release() async {
     _epoch++;
     _worker = null;
-    _sentImage = null;
-    _sentImportance = null;
-    _sentMasks = null;
-    _sentMask = null;
+    _forgetSent();
     _replies?.close();
     _replies = null;
     _isolate?.kill(priority: Isolate.immediate);
     _isolate = null;
     _failPending('Сессия расчёта закрыта');
+  }
+
+  void _forgetSent() {
+    _sentImage = null;
+    _sentImportance = null;
+    _sentMasks = null;
+    _sentMask = null;
   }
 
   void _failPending(String reason) {
@@ -82,7 +86,22 @@ final class IsolateImageToGridRunner implements ImageToGridRunner {
     _pending.clear();
   }
 
-  Future<SendPort> _start() => _worker ??= _spawn();
+  Future<SendPort> _start() {
+    final Future<SendPort>? running = _worker;
+    if (running != null) return running;
+    final int epoch = _epoch;
+    late final Future<SendPort> spawned;
+    spawned = _spawn().catchError((Object error, StackTrace stack) {
+      // Неудавшийся запуск не должен оставаться в _worker до release: следующий запрос поднимет изолят заново.
+      if (epoch == _epoch && identical(_worker, spawned)) {
+        _worker = null;
+        _forgetSent();
+      }
+      Error.throwWithStackTrace(error, stack);
+    });
+    _worker = spawned;
+    return spawned;
+  }
 
   Future<SendPort> _spawn() async {
     final int epoch = _epoch;
@@ -95,6 +114,8 @@ final class IsolateImageToGridRunner implements ImageToGridRunner {
       } else if (message == null || message is List) {
         // Изолят завершился или упал вне задания: ждать ответов не от кого, следующий запуск поднимет новый.
         if (epoch == _epoch) {
+          // Новый изолят пуст: помним только то, что отправлено в живой, иначе следующий запрос уйдёт без пикселей.
+          _forgetSent();
           _worker = null;
           _failPending('Расчёт прерван');
         }
@@ -162,6 +183,10 @@ void _serve((SendPort, ImageToGridPipeline) args) {
         subjectMask = message.request.subjectMask;
       }
       final SourceImage? held = image;
+      if (held == null && !message.carriesImage) {
+        // Задание без картинки, а картинки в изоляте нет: считать по заглушке нельзя, это молча даст одноцветную схему.
+        throw StateError('В расчёт не передана картинка');
+      }
       final ImageToGridRequest request = held == null
           ? message.request
           : message.request.withSource(image: held, importance: importance, faces: faces, subjectMask: subjectMask);
