@@ -6,6 +6,8 @@ import 'package:beading/domain/grid/grid_geometry.dart';
 import 'package:beading/domain/image_to_grid/cell_costs.dart';
 import 'package:beading/domain/image_to_grid/cell_regions.dart';
 import 'package:beading/domain/image_to_grid/face_guide.dart';
+import 'package:beading/domain/image_to_grid/generation_preset.dart';
+import 'package:beading/domain/projects/craft.dart';
 import 'package:beading/domain/image_to_grid/face_size_advisor.dart';
 import 'package:beading/domain/image_to_grid/face_step.dart';
 import 'package:beading/domain/image_to_grid/generated_pattern.dart';
@@ -298,6 +300,41 @@ void main() {
         cellImportance: Float32List(pattern.grid.width * pattern.grid.height),
       );
       expect(const FaceFeatureStep().apply(pattern, context), same(pattern));
+    });
+
+    test('peyote и «детально»: кожа — не больше 4 цветов, цветов не больше заданного', () {
+      for (final GenerationPreset preset in GenerationPreset.values) {
+        final ImageToGridSettings settings = _settings.copyWith(technique: Technique.peyote, preset: preset);
+        final GeneratedPattern pattern = const ImageToGridPipeline().run(
+          settings.toRequest(image: _face(), masks: _masks()),
+        );
+        final ImageToGridRequest request = settings.toRequest(image: _face(), masks: _masks());
+        final WorkImage work = WorkImage.fromSource(
+          image: request.image,
+          geometry: request.geometry,
+          metrics: request.metrics,
+          columns: request.columns,
+          rows: request.rows,
+        );
+        final FaceCells cells = FaceGuide(_masks()).cells(
+          CellRegions.forGrid(
+            geometry: request.geometry,
+            metrics: request.metrics,
+            columns: request.columns,
+            rows: request.rows,
+            imageWidth: work.width,
+            imageHeight: work.height,
+          ),
+          workWidth: work.width,
+          workHeight: work.height,
+        );
+        final Set<int> colors = <int>{
+          for (int i = 0; i < cells.skin.length; i++)
+            if (cells.isSkin(i)) pattern.grid.at(i % pattern.grid.width, i ~/ pattern.grid.width),
+        };
+        expect(colors.length, lessThanOrEqualTo(4), reason: '$preset');
+        expect(pattern.palette.length, lessThanOrEqualTo(10), reason: '$preset');
+      }
     });
 
     test('цветов не больше заданного, результат детерминирован', () {

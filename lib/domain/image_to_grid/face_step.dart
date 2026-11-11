@@ -86,13 +86,13 @@ final class FaceFeatureStep implements PatternStep {
           final int cell = component[head];
           for (int n = 0; n < neighbors.count(cell); n++) {
             final int other = neighbors.at(cell, n);
-            if (seen[other] == 0 && values[other] == values[start]) {
+            if (seen[other] == 0 && values[other] == values[start] && faces.isSkin(other)) {
               seen[other] = 1;
               component.add(other);
             }
           }
         }
-        if (component.length >= minSkinIsland || component.any((c) => !faces.isSkin(c))) continue;
+        if (component.length >= minSkinIsland) continue;
         final Map<int, double> score = <int, double>{};
         for (final int cell in component) {
           for (int n = 0; n < neighbors.count(cell); n++) {
