@@ -4,7 +4,9 @@ import 'dart:typed_data';
 import 'package:beading/core/failure.dart';
 import 'package:beading/core/result.dart';
 import 'package:beading/domain/catalog/catalog_color.dart';
+import 'package:beading/domain/catalog/catalog_material.dart';
 import 'package:beading/domain/grid/bead_size.dart';
+import 'package:beading/domain/grid/fabric.dart';
 import 'package:beading/domain/grid/grid.dart';
 import 'package:beading/domain/grid_pattern/use_cases/create_grid_pattern.dart';
 import 'package:beading/domain/image_pattern/crop_rect.dart';
@@ -546,6 +548,76 @@ void main() {
       expect(cubit.state.step, ImageWizardStep.edit);
       expect(cubit.state.problem, ImageWizardProblem.saveFailed);
       expect(cubit.state.canSave, isTrue);
+    });
+  });
+
+  group('вышивка (T46)', () {
+    setUp(() {
+      catalog = FakeCatalogRepository(<CatalogColor>[
+        catalogColor('DB0010', 'Красный', '#C80A14'),
+        catalogColor('321', 'Красный', '#C80A14', brand: 'DMC', series: '', material: CatalogMaterial.floss),
+        catalogColor('797', 'Синий', '#0A14C8', brand: 'DMC', series: '', material: CatalogMaterial.floss),
+      ]);
+      cubit = build(debounce: Duration.zero);
+    });
+    tearDown(() => cubit.close());
+
+    test('переход на вышивку ставит большие ширину и число цветов, канву и контуры', () {
+      cubit.setCraft(Craft.crossStitch);
+      final ImageToGridSettings s = cubit.state.settings;
+      expect(s.technique, Technique.crossStitch);
+      expect(s.columns, ImageToGridSettings.defaultStitchColumns);
+      expect(s.maxColors, ImageToGridSettings.defaultStitchColors);
+      expect(s.backstitch, isTrue);
+      cubit.setCraft(Craft.beading);
+      expect(cubit.state.settings.technique, Technique.loom);
+      expect(cubit.state.settings.columns, ImageToGridSettings.defaultColumns);
+    });
+
+    test('при смене канвы ширина работы в сантиметрах сохраняется, число клеток пересчитывается', () {
+      cubit.setCraft(Craft.crossStitch);
+      cubit.setWidthCm(25);
+      expect(cubit.state.settings.columns, 138);
+      final Fabric aida18 = Fabric.create(kind: FabricKind.aida, count: 18).valueOrNull!;
+      cubit.setFabric(aida18);
+      expect(cubit.state.settings.columns, 177);
+      expect(cubit.state.settings.widthCm, closeTo(25, 0.2));
+    });
+
+    test('каталог — мулине бренда по умолчанию, а запрос уходит с канвой и контурами', () async {
+      await settings.write(SettingKeys.defaultFlossBrand, 'DMC');
+      await cubit.start();
+      cubit.setCraft(Craft.crossStitch);
+      expect(cubit.state.catalogColors, 2);
+      await openPhoto();
+      final ImageToGridRequest request = runner.requests.last;
+      expect(request.constraint.candidates, hasLength(2));
+      expect(request.metrics, Fabric.standard);
+      expect(request.backstitch, isTrue);
+    });
+
+    test('цвет канвы и бленды попадают в настройки', () {
+      cubit.setCraft(Craft.crossStitch);
+      cubit.setFabricColor(const Rgb(20, 20, 20));
+      cubit.setBlends(value: true);
+      cubit.setBackstitch(value: false);
+      final ImageToGridSettings s = cubit.state.settings;
+      expect(s.fabric.color, const Rgb(20, 20, 20));
+      expect(s.blends, isTrue);
+      expect(s.backstitch, isFalse);
+    });
+
+    test('сохранение: проект-вышивка с канвой как размером клетки', () async {
+      await openPhoto();
+      cubit.setCraft(Craft.crossStitch);
+      runner.completers.last.complete(_pattern(7));
+      await Future<void>.delayed(Duration.zero);
+      cubit.setName('Котик');
+      await cubit.save();
+      final Project project = projects.projects[cubit.state.projectId!]!;
+      expect(project.craft, Craft.crossStitch);
+      expect(patterns.byProject[project.id]!.metrics, Fabric.standard);
+      expect(patterns.byProject[project.id]!.layers, isNotNull);
     });
   });
 

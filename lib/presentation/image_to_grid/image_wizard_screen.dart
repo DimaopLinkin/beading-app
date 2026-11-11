@@ -1,12 +1,14 @@
 import 'dart:io' show Platform;
 
 import 'package:beading/domain/grid/bead_size.dart';
+import 'package:beading/domain/grid/fabric.dart';
 import 'package:beading/domain/grid/grid.dart';
 import 'package:beading/domain/image_pattern/crop_rect.dart';
 import 'package:beading/domain/image_to_grid/background_stage.dart';
 import 'package:beading/domain/image_to_grid/face_size_advisor.dart';
 import 'package:beading/domain/image_to_grid/generation_preset.dart';
 import 'package:beading/domain/image_to_grid/image_to_grid_settings.dart';
+import 'package:beading/domain/palette/rgb.dart';
 import 'package:beading/domain/projects/craft.dart';
 import 'package:beading/presentation/grid_pattern/grid_pattern_view.dart';
 import 'package:beading/presentation/grid_pattern/grid_view_options.dart';
@@ -282,6 +284,22 @@ class _EditState extends State<_Edit> {
                 ],
               ),
               SizedBox(height: gap),
+              _Section(
+                title: l10n.imageWizardCraft,
+                child: CupertinoSlidingSegmentedControl<Craft>(
+                  key: const ValueKey<String>('wizard-craft'),
+                  groupValue: settings.craft,
+                  children: <Craft, Widget>{
+                    Craft.beading: _SegmentLabel(l10n.imageWizardCraftBeading),
+                    Craft.crossStitch: _SegmentLabel(l10n.imageWizardCraftStitch),
+                  },
+                  onValueChanged: (value) {
+                    if (value != null) {
+                      cubit.setCraft(value);
+                    }
+                  },
+                ),
+              ),
               CupertinoListSection.insetGrouped(
                 margin: EdgeInsets.zero,
                 children: <Widget>[
@@ -294,7 +312,7 @@ class _EditState extends State<_Edit> {
                       final Technique? chosen = await _pick<Technique>(
                         context,
                         title: l10n.imageWizardTechnique,
-                        values: ImageToGridSettings.techniques,
+                        values: ImageToGridSettings.techniquesOf(settings.craft),
                         label: (t) => t.label(l10n),
                         cancel: l10n.imageWizardCancel,
                       );
@@ -303,34 +321,76 @@ class _EditState extends State<_Edit> {
                       }
                     },
                   ),
-                  CupertinoListTile.notched(
-                    key: const ValueKey<String>('wizard-bead-size'),
-                    title: Text(l10n.imageWizardBeadSize),
-                    additionalInfo: Text(_beadLabel(l10n, settings.beadSize)),
-                    trailing: const CupertinoListTileChevron(),
-                    onTap: () async {
-                      final BeadSize? chosen = await _pick<BeadSize>(
-                        context,
-                        title: l10n.imageWizardBeadSize,
-                        values: BeadSize.values,
-                        label: (size) => _beadLabel(l10n, size),
-                        cancel: l10n.imageWizardCancel,
-                      );
-                      if (chosen != null) {
-                        cubit.setBeadSize(chosen);
-                      }
-                    },
-                  ),
+                  if (settings.craft == Craft.crossStitch) ...<Widget>[
+                    CupertinoListTile.notched(
+                      key: const ValueKey<String>('wizard-fabric'),
+                      title: Text(l10n.imageWizardFabric),
+                      additionalInfo: Text(_fabricLabel(l10n, settings.fabric)),
+                      trailing: const CupertinoListTileChevron(),
+                      onTap: () async {
+                        final Fabric? chosen = await _pick<Fabric>(
+                          context,
+                          title: l10n.imageWizardFabric,
+                          values: _fabricChoices(settings.fabric),
+                          label: (fabric) => _fabricLabel(l10n, fabric),
+                          cancel: l10n.imageWizardCancel,
+                        );
+                        if (chosen != null) {
+                          cubit.setFabric(chosen);
+                        }
+                      },
+                    ),
+                    CupertinoListTile.notched(
+                      key: const ValueKey<String>('wizard-fabric-color'),
+                      title: Text(l10n.imageWizardFabricColor),
+                      leading: _Swatch(settings.fabric.color),
+                      additionalInfo: Text(_canvasName(l10n, settings.fabric.color)),
+                      trailing: const CupertinoListTileChevron(),
+                      onTap: () async {
+                        final Rgb? chosen = await _pick<Rgb>(
+                          context,
+                          title: l10n.imageWizardFabricColor,
+                          values: _canvasColors,
+                          label: (color) => _canvasName(l10n, color),
+                          cancel: l10n.imageWizardCancel,
+                        );
+                        if (chosen != null) {
+                          cubit.setFabricColor(chosen);
+                        }
+                      },
+                    ),
+                  ] else
+                    CupertinoListTile.notched(
+                      key: const ValueKey<String>('wizard-bead-size'),
+                      title: Text(l10n.imageWizardBeadSize),
+                      additionalInfo: Text(_beadLabel(l10n, settings.beadSize)),
+                      trailing: const CupertinoListTileChevron(),
+                      onTap: () async {
+                        final BeadSize? chosen = await _pick<BeadSize>(
+                          context,
+                          title: l10n.imageWizardBeadSize,
+                          values: BeadSize.values,
+                          label: (size) => _beadLabel(l10n, size),
+                          cancel: l10n.imageWizardCancel,
+                        );
+                        if (chosen != null) {
+                          cubit.setBeadSize(chosen);
+                        }
+                      },
+                    ),
                 ],
               ),
               SizedBox(height: gap),
-              _SliderRow(
-                title: l10n.imageWizardWidth,
-                value: settings.columns,
-                min: ImageToGridSettings.minColumns,
-                max: ImageToGridSettings.maxColumns,
-                onChanged: cubit.setColumns,
-              ),
+              if (settings.craft == Craft.crossStitch)
+                _WidthCmRow(settings: settings, onChanged: cubit.setWidthCm)
+              else
+                _SliderRow(
+                  title: l10n.imageWizardWidth,
+                  value: settings.columns,
+                  min: ImageToGridSettings.minColumns,
+                  max: ImageToGridSettings.maxColumns,
+                  onChanged: cubit.setColumns,
+                ),
               _SliderRow(
                 title: l10n.imageWizardColorCount,
                 value: settings.maxColors,
@@ -372,30 +432,51 @@ class _EditState extends State<_Edit> {
                     },
                   ),
                 ),
-                MergeSemantics(
-                  child: Row(
-                    children: <Widget>[
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: <Widget>[
-                            Text(l10n.imageWizardOutline),
-                            Text(l10n.imageWizardOutlineHint, style: caption),
-                          ],
+                if (settings.craft == Craft.beading)
+                  MergeSemantics(
+                    child: Row(
+                      children: <Widget>[
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: <Widget>[
+                              Text(l10n.imageWizardOutline),
+                              Text(l10n.imageWizardOutlineHint, style: caption),
+                            ],
+                          ),
                         ),
-                      ),
-                      CupertinoSwitch(
-                        key: const ValueKey<String>('wizard-outline'),
-                        value: settings.outline,
-                        onChanged: (value) => cubit.setOutline(value: value),
-                      ),
-                    ],
+                        CupertinoSwitch(
+                          key: const ValueKey<String>('wizard-outline'),
+                          value: settings.outline,
+                          onChanged: (value) => cubit.setOutline(value: value),
+                        ),
+                      ],
+                    ),
                   ),
+                SizedBox(height: gap),
+              ],
+              if (settings.craft == Craft.crossStitch) ...<Widget>[
+                _SwitchRow(
+                  switchKey: const ValueKey<String>('wizard-backstitch'),
+                  title: l10n.imageWizardBackstitch,
+                  hint: state.preview == null || !settings.backstitch || state.calculating
+                      ? l10n.imageWizardBackstitchHint
+                      : '${l10n.imageWizardBackstitchHint}\n${l10n.imageWizardBackstitchCount(state.preview!.lines.length)}',
+                  value: settings.backstitch,
+                  onChanged: (value) => cubit.setBackstitch(value: value),
                 ),
+                if ((state.preview?.blendSuggestions.isNotEmpty ?? false) || settings.blends)
+                  _SwitchRow(
+                    switchKey: const ValueKey<String>('wizard-blends'),
+                    title: l10n.imageWizardBlends,
+                    hint: l10n.imageWizardBlendsHint(state.preview?.blendSuggestions.length ?? 0),
+                    value: settings.blends,
+                    onChanged: (value) => cubit.setBlends(value: value),
+                  ),
                 SizedBox(height: gap),
               ],
               _Section(
-                title: l10n.imageWizardPalette,
+                title: settings.craft == Craft.crossStitch ? l10n.imageWizardFlossPalette : l10n.imageWizardPalette,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: <Widget>[
@@ -414,7 +495,12 @@ class _EditState extends State<_Edit> {
                     if (state.catalogMissing)
                       Padding(
                         padding: EdgeInsets.only(top: tokens.spacing.s),
-                        child: Text(l10n.imageWizardCatalogMissing, style: caption),
+                        child: Text(
+                          settings.craft == Craft.crossStitch
+                              ? l10n.imageWizardFlossMissing
+                              : l10n.imageWizardCatalogMissing,
+                          style: caption,
+                        ),
                       ),
                   ],
                 ),
@@ -653,8 +739,14 @@ class _Preview extends StatelessWidget {
             grid: grid,
             palette: state.previewPalette!,
             geometry: shown.geometry,
-            metrics: shown.beadSize,
-            options: GridViewOptions(showGridLines: false, realistic: state.realistic),
+            metrics: shown.metrics,
+            options: GridViewOptions(
+              showGridLines: false,
+              realistic: state.realistic,
+              canvasColor: shown.craft == Craft.crossStitch
+                  ? Color.fromARGB(255, shown.fabric.color.r, shown.fabric.color.g, shown.fabric.color.b)
+                  : null,
+            ),
             interactive: false,
           ),
         ),
@@ -719,7 +811,14 @@ class _Preview extends StatelessWidget {
           Padding(
             padding: EdgeInsets.only(top: tokens.spacing.s),
             child: Text(
-              l10n.imageWizardSize(grid.width, grid.height),
+              shown?.craft == Craft.crossStitch
+                  ? l10n.imageWizardSizeStitch(
+                      grid.width,
+                      grid.height,
+                      _cm(shown!.fabric.cmForCells(grid.width)),
+                      _cm(shown.fabric.cmForCells(grid.height)),
+                    )
+                  : l10n.imageWizardSize(grid.width, grid.height),
               key: const ValueKey<String>('wizard-size'),
               style: TextStyle(fontSize: 13, color: CupertinoColors.secondaryLabel.resolveFrom(context)),
             ),
@@ -727,4 +826,134 @@ class _Preview extends StatelessWidget {
       ],
     );
   }
+}
+
+String _cm(double value) => value.toStringAsFixed(1).replaceAll('.', ',');
+
+/// Канвы на выбор: самые частые в наборах. Цвет канвы берётся у текущей.
+List<Fabric> _fabricChoices(Fabric current) {
+  Fabric make(FabricKind kind, int count) => Fabric.create(kind: kind, count: count, color: current.color).valueOrNull!;
+  return <Fabric>[
+    for (final int count in <int>[11, 14, 16, 18, 20]) make(FabricKind.aida, count),
+    make(FabricKind.evenweave, 28),
+    make(FabricKind.evenweave, 32),
+    make(FabricKind.linen, 28),
+    make(FabricKind.linen, 32),
+  ];
+}
+
+String _fabricLabel(AppLocalizations l10n, Fabric fabric) => switch (fabric.kind) {
+  FabricKind.aida => l10n.imageWizardFabricAida(fabric.count),
+  FabricKind.evenweave => l10n.imageWizardFabricEvenweave(fabric.count, fabric.overCount),
+  FabricKind.linen => l10n.imageWizardFabricLinen(fabric.count, fabric.overCount),
+};
+
+const List<Rgb> _canvasColors = <Rgb>[
+  Rgb(255, 255, 255),
+  Rgb(245, 239, 224),
+  Rgb(227, 213, 184),
+  Rgb(150, 150, 150),
+  Rgb(20, 20, 20),
+];
+
+String _canvasName(AppLocalizations l10n, Rgb color) => switch (_canvasColors.indexOf(color)) {
+  0 => l10n.imageWizardCanvasWhite,
+  1 => l10n.imageWizardCanvasCream,
+  2 => l10n.imageWizardCanvasLinen,
+  3 => l10n.imageWizardCanvasGray,
+  4 => l10n.imageWizardCanvasBlack,
+  _ => color.hex,
+};
+
+class _Swatch extends StatelessWidget {
+  const _Swatch(this.color);
+
+  final Rgb color;
+
+  @override
+  Widget build(BuildContext context) => Container(
+    width: 24,
+    height: 24,
+    decoration: BoxDecoration(
+      color: Color.fromARGB(255, color.r, color.g, color.b),
+      shape: BoxShape.circle,
+      border: Border.all(color: CupertinoColors.separator.resolveFrom(context)),
+    ),
+  );
+}
+
+/// Ширина вышивки в сантиметрах: клетки считаются по канве.
+class _WidthCmRow extends StatelessWidget {
+  const _WidthCmRow({required this.settings, required this.onChanged});
+
+  final ImageToGridSettings settings;
+  final ValueChanged<double> onChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    final AppLocalizations l10n = AppLocalizations.of(context);
+    final Fabric fabric = settings.fabric;
+    final double min = fabric.cmForCells(ImageToGridSettings.minColumns);
+    final double max = fabric.cmForCells(ImageToGridSettings.maxStitchColumns);
+    return Padding(
+      padding: EdgeInsets.only(bottom: context.tokens.spacing.s),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          Row(
+            children: <Widget>[
+              Expanded(
+                child: Text(l10n.imageWizardWidthCm, style: const TextStyle(fontWeight: FontWeight.w600)),
+              ),
+              Text(l10n.imageWizardCm(_cm(settings.widthCm)), key: const ValueKey<String>('wizard-width-cm')),
+            ],
+          ),
+          CupertinoSlider(
+            key: const ValueKey<String>('wizard-width-cm-slider'),
+            value: settings.widthCm.clamp(min, max),
+            min: min,
+            max: max,
+            onChanged: onChanged,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _SwitchRow extends StatelessWidget {
+  const _SwitchRow({
+    required this.switchKey,
+    required this.title,
+    required this.hint,
+    required this.value,
+    required this.onChanged,
+  });
+
+  final Key switchKey;
+  final String title;
+  final String hint;
+  final bool value;
+  final ValueChanged<bool> onChanged;
+
+  @override
+  Widget build(BuildContext context) => MergeSemantics(
+    child: Row(
+      children: <Widget>[
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              Text(title),
+              Text(
+                hint,
+                style: TextStyle(fontSize: 13, color: CupertinoColors.secondaryLabel.resolveFrom(context)),
+              ),
+            ],
+          ),
+        ),
+        CupertinoSwitch(key: switchKey, value: value, onChanged: onChanged),
+      ],
+    ),
+  );
 }

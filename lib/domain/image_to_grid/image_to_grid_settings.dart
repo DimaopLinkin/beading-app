@@ -4,6 +4,8 @@ import 'dart:typed_data';
 import 'package:beading/domain/catalog/catalog_color.dart';
 import 'package:beading/domain/catalog/catalog_material.dart';
 import 'package:beading/domain/grid/bead_size.dart';
+import 'package:beading/domain/grid/cell_metrics.dart';
+import 'package:beading/domain/grid/fabric.dart';
 import 'package:beading/domain/grid/grid.dart';
 import 'package:beading/domain/grid/grid_geometry.dart';
 import 'package:beading/domain/image_to_grid/background_stage.dart';
@@ -21,6 +23,7 @@ import 'package:beading/domain/image_to_grid/palette_constraint.dart';
 import 'package:beading/domain/image_to_grid/pattern_step.dart';
 import 'package:beading/domain/image_to_grid/source_image.dart';
 import 'package:beading/domain/image_to_grid/technique_geometry.dart';
+import 'package:beading/domain/palette/rgb.dart';
 import 'package:beading/domain/projects/craft.dart';
 import 'package:equatable/equatable.dart';
 
@@ -47,20 +50,48 @@ final class ImageToGridSettings extends Equatable {
     this.steps = const <PatternStep>[],
     this.background = BackgroundMode.keep,
     this.outline = false,
+    this.fabric = Fabric.standard,
+    this.backstitch = false,
+    this.blends = false,
   });
 
   static const int defaultColumns = 40;
   static const int minColumns = 8;
   static const int maxColumns = 120;
+
+  /// Вышивка большая: ориентир A09 — 110–200 крестиков по ширине (канва Аида 14, 20–30 см).
+  static const int maxStitchColumns = 250;
+  static const int defaultStitchColumns = 150;
+  static const int defaultStitchColors = 30;
   static const int defaultMaxColors = 8;
   static const int minColors = 2;
   static const int maxColorsLimit = 30;
 
-  /// Техники мастера: бисерные; вышивкой займётся T46.
-  static List<Technique> get techniques => Craft.beading.techniques;
+  /// Техники мастера для [craft].
+  static List<Technique> techniquesOf(Craft craft) => craft.techniques;
+
+  /// Самая большая ширина схемы в ячейках для [craft].
+  static int maxColumnsOf(Craft craft) => craft == Craft.crossStitch ? maxStitchColumns : maxColumns;
 
   final Technique technique;
   final BeadSize beadSize;
+
+  /// Канва для вышивки (T46): плотность, «через N» и цвет; размер крестика и фон схемы берутся из неё.
+  final Fabric fabric;
+
+  /// Контуры-бэкстич из картинки (T49, только вышивка).
+  final bool backstitch;
+
+  /// Заменить области «посередине» двух ниток блендом (T57, только вышивка).
+  final bool blends;
+
+  Craft get craft => technique.craft;
+
+  /// Размер ячейки: бусина или крестик на канве.
+  CellMetrics get metrics => craft == Craft.crossStitch ? fabric : beadSize;
+
+  /// Ширина схемы в сантиметрах (вышивка).
+  double get widthCm => fabric.cmForCells(columns);
 
   /// Ширина схемы в ячейках.
   final int columns;
@@ -105,10 +136,13 @@ final class ImageToGridSettings extends Equatable {
     List<PatternStep>? steps,
     BackgroundMode? background,
     bool? outline,
+    Fabric? fabric,
+    bool? backstitch,
+    bool? blends,
   }) => ImageToGridSettings(
     technique: technique ?? this.technique,
     beadSize: beadSize ?? this.beadSize,
-    columns: (columns ?? this.columns).clamp(minColumns, maxColumns),
+    columns: (columns ?? this.columns).clamp(minColumns, maxColumnsOf((technique ?? this.technique).craft)),
     maxColors: (maxColors ?? this.maxColors).clamp(minColors, maxColorsLimit),
     paletteSource: paletteSource ?? this.paletteSource,
     dither: dither ?? this.dither,
@@ -117,6 +151,9 @@ final class ImageToGridSettings extends Equatable {
     steps: steps ?? this.steps,
     background: background ?? this.background,
     outline: outline ?? this.outline,
+    fabric: fabric ?? this.fabric,
+    backstitch: backstitch ?? this.backstitch,
+    blends: blends ?? this.blends,
   );
 
   /// Число рядов, при котором схема повторяет пропорции [image].
@@ -126,17 +163,21 @@ final class ImageToGridSettings extends Equatable {
       imageWidth: image.width,
       imageHeight: image.height,
       geometry: geometry,
-      metrics: beadSize,
+      metrics: metrics,
       columns: columns,
     ),
   );
 
-  /// Подходящие под размер бисера и бренд позиции [catalog]; [brand] пустой — любой бренд.
+  /// Материал каталога под ремесло: бисер или мулине.
+  CatalogMaterial get material => craft == Craft.crossStitch ? CatalogMaterial.floss : CatalogMaterial.bead;
+
+  /// Подходящие под ремесло, размер бисера и бренд позиции [catalog]; [brand] пустой — любой бренд.
+  /// У мулине размера нет: годится любая позиция бренда.
   List<CatalogColor> catalogFor(List<CatalogColor> catalog, {String brand = ''}) => <CatalogColor>[
     for (final CatalogColor color in catalog)
-      if (color.material == CatalogMaterial.bead &&
+      if (color.material == material &&
           (brand.isEmpty || color.brand == brand) &&
-          color.sizeCode == beadSize.sizeCode)
+          (craft == Craft.crossStitch || color.sizeCode == beadSize.sizeCode))
         color,
   ];
 
@@ -161,13 +202,12 @@ final class ImageToGridSettings extends Equatable {
     return ImageToGridRequest(
       image: image,
       geometry: geometry,
-      metrics: beadSize,
+      // Цвет канвы расчёт не меняет: метрики без него, чтобы его смена не сбрасывала кеш стадий (T58).
+      metrics: craft == Craft.crossStitch ? fabric.withColor(const Rgb(255, 255, 255)) : metrics,
       columns: columns,
       rows: rowsFor(image),
       maxColors: maxColors,
-      constraint: useCatalog
-          ? PaletteConstraint.catalog(allowed, material: CatalogMaterial.bead)
-          : const PaletteConstraint.free(),
+      constraint: useCatalog ? PaletteConstraint.catalog(allowed, material: material) : const PaletteConstraint.free(),
       importance: importance,
       dither: dither && active == null,
       seed: seed,
@@ -190,8 +230,12 @@ final class ImageToGridSettings extends Equatable {
       ],
       subjectMask: subjectMask,
       background: background,
-      outline: outline,
-      suggestBlends: technique.craft == Craft.crossStitch,
+      // Обводка одной бусиной — для бисера; у вышивки контуры — бэкстич (T49).
+      outline: outline && craft == Craft.beading,
+      suggestBlends: craft == Craft.crossStitch,
+      applyBlends: craft == Craft.crossStitch && blends && useCatalog,
+      // Контуры строятся по рабочей картинке пиксельного пути: без предустановки их нет.
+      backstitch: craft == Craft.crossStitch && backstitch && active != null,
     );
   }
 
@@ -208,5 +252,8 @@ final class ImageToGridSettings extends Equatable {
     steps,
     background,
     outline,
+    fabric,
+    backstitch,
+    blends,
   ];
 }

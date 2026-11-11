@@ -114,11 +114,14 @@ class _GridPatternViewState extends State<GridPatternView> {
   GridPaintStyle _style(BuildContext context) => GridPaintStyle(
     line: GridColors.line.resolveFrom(context),
     boldLine: GridColors.boldLine.resolveFrom(context),
-    emptyCell: GridColors.emptyCell.resolveFrom(context),
+    emptyCell: widget.options.canvasColor ?? GridColors.emptyCell.resolveFrom(context),
     unknown: GridColors.unknown.resolveFrom(context),
     realistic: RealisticColors(
-      surface: (RealisticMaterial.forMetrics(widget.metrics).isBead ? GridColors.beadSurface : GridColors.aida)
-          .resolveFrom(context),
+      surface:
+          widget.options.canvasColor ??
+          (RealisticMaterial.forMetrics(widget.metrics).isBead ? GridColors.beadSurface : GridColors.aida).resolveFrom(
+            context,
+          ),
       thread: GridColors.beadThread.resolveFrom(context),
     ),
   );

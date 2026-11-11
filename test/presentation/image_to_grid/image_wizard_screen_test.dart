@@ -3,6 +3,7 @@ import 'dart:typed_data';
 import 'package:beading/core/failure.dart';
 import 'package:beading/core/result.dart';
 import 'package:beading/domain/catalog/catalog_color.dart';
+import 'package:beading/domain/grid/fabric.dart';
 import 'package:beading/domain/grid/grid.dart';
 import 'package:beading/domain/grid_pattern/use_cases/create_grid_pattern.dart';
 import 'package:beading/domain/image_pattern/crop_rect.dart';
@@ -16,6 +17,7 @@ import 'package:beading/domain/image_to_grid/palette_entry.dart';
 import 'package:beading/domain/image_to_grid/source_image.dart';
 import 'package:beading/domain/image_to_grid/use_cases/create_pattern_from_image.dart';
 import 'package:beading/domain/palette/rgb.dart';
+import 'package:beading/domain/projects/craft.dart';
 import 'package:beading/domain/projects/use_cases/create_project.dart';
 import 'package:beading/presentation/image_to_grid/image_wizard_cubit.dart';
 import 'package:beading/presentation/image_to_grid/image_wizard_screen.dart';
@@ -115,6 +117,11 @@ void main() {
     });
 
     testWidgets('правка в теме ${theme.brightness}: предпросмотр, параметры и сохранение', (tester) async {
+      // Высокий экран: настройки стали длиннее, а нижняя кнопка закрывает край списка.
+      tester.view
+        ..physicalSize = const Size(800, 1600)
+        ..devicePixelRatio = 1;
+      addTearDown(tester.view.reset);
       await openPhoto(tester, theme);
       expect(find.byKey(const ValueKey<String>('wizard-grid')), findsOneWidget);
       expect(find.text('3 × 2 бусин'), findsOneWidget);
@@ -122,7 +129,10 @@ void main() {
       expect(find.text('Delica 11/0', skipOffstage: false), findsOneWidget);
       expect(tester.widget<CupertinoButton>(find.byKey(const ValueKey<String>('wizard-save'))).onPressed, isNotNull);
 
-      await tester.tap(find.byKey(const ValueKey<String>('wizard-technique')));
+      final Finder technique = find.byKey(const ValueKey<String>('wizard-technique'));
+      await tester.ensureVisible(technique);
+      await tester.pumpAndSettle();
+      await tester.tap(technique);
       await tester.pumpAndSettle();
       await tester.tap(find.text('Мозаика'));
       await tester.pumpAndSettle();
@@ -218,6 +228,60 @@ void main() {
   testWidgets('без предмета настроек фона нет', (tester) async {
     await openPhoto(tester, AppTheme.light);
     expect(find.byKey(const ValueKey<String>('wizard-outline'), skipOffstage: false), findsNothing);
+  });
+
+  group('вышивка (T46)', () {
+    Future<void> toStitch(WidgetTester tester) async {
+      await openPhoto(tester, AppTheme.light);
+      final Finder craft = find.byKey(const ValueKey<String>('wizard-craft'));
+      await tester.scrollUntilVisible(craft, 200, scrollable: find.byType(Scrollable).last);
+      await tester.tap(find.text('Вышивка'));
+      await tester.pumpAndSettle();
+    }
+
+    testWidgets('переключатель ремесла: канва и ширина в сантиметрах вместо бисера, контуры включены', (tester) async {
+      await toStitch(tester);
+      expect(cubit.state.settings.craft, Craft.crossStitch);
+      expect(find.byKey(const ValueKey<String>('wizard-fabric'), skipOffstage: false), findsOneWidget);
+      expect(find.byKey(const ValueKey<String>('wizard-bead-size'), skipOffstage: false), findsNothing);
+      expect(find.text('Аида 14', skipOffstage: false), findsOneWidget);
+      expect(find.byKey(const ValueKey<String>('wizard-width-cm'), skipOffstage: false), findsOneWidget);
+      expect(find.text('Цвета мулине', skipOffstage: false), findsOneWidget);
+      final Finder backstitch = find.byKey(const ValueKey<String>('wizard-backstitch'));
+      await tester.scrollUntilVisible(backstitch, 200, scrollable: find.byType(Scrollable).last);
+      expect(tester.widget<CupertinoSwitch>(backstitch).value, isTrue);
+      await tester.tap(backstitch);
+      await tester.pumpAndSettle();
+      expect(cubit.state.settings.backstitch, isFalse);
+    });
+
+    testWidgets('размер схемы показан и в клетках, и в сантиметрах', (tester) async {
+      await toStitch(tester);
+      expect(find.text('3 × 2 крестиков, 0,5 × 0,4 см', skipOffstage: false), findsOneWidget);
+    });
+
+    testWidgets('выбор канвы и её цвета меняет настройки', (tester) async {
+      await toStitch(tester);
+      await tester.tap(find.byKey(const ValueKey<String>('wizard-fabric')));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Аида 18'));
+      await tester.pumpAndSettle();
+      expect(cubit.state.settings.fabric.count, 18);
+      expect(cubit.state.settings.fabric.kind, FabricKind.aida);
+
+      await tester.tap(find.byKey(const ValueKey<String>('wizard-fabric-color')));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Чёрная'));
+      await tester.pumpAndSettle();
+      expect(cubit.state.settings.fabric.color, const Rgb(20, 20, 20));
+    });
+
+    testWidgets('обводка бусиной у вышивки не показывается', (tester) async {
+      masks.result = ImageMaskSet(width: 10, height: 10, subject: Uint8List(100)..fillRange(0, 50, 255));
+      await toStitch(tester);
+      expect(find.byKey(const ValueKey<String>('wizard-outline'), skipOffstage: false), findsNothing);
+      expect(find.byKey(const ValueKey<String>('wizard-background'), skipOffstage: false), findsOneWidget);
+    });
   });
 
   testWidgets('на Mac кнопки камеры нет', (tester) async {

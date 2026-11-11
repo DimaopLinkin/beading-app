@@ -4,6 +4,7 @@ import 'package:beading/domain/grid/grid.dart';
 import 'package:beading/domain/grid/grid_geometry.dart';
 import 'package:beading/domain/image_to_grid/accent_refill.dart';
 import 'package:beading/domain/image_to_grid/background_stage.dart';
+import 'package:beading/domain/image_to_grid/blend_applier.dart';
 import 'package:beading/domain/image_to_grid/blend_suggester.dart';
 import 'package:beading/domain/image_to_grid/cell_edges.dart';
 import 'package:beading/domain/image_to_grid/cell_labeler.dart';
@@ -17,6 +18,7 @@ import 'package:beading/domain/image_to_grid/generation_stats.dart';
 import 'package:beading/domain/image_to_grid/image_prefilter.dart';
 import 'package:beading/domain/image_to_grid/image_to_grid_request.dart';
 import 'package:beading/domain/image_to_grid/label_smoother.dart';
+import 'package:beading/domain/image_to_grid/outline_backstitch.dart';
 import 'package:beading/domain/image_to_grid/palette_builder.dart';
 import 'package:beading/domain/image_to_grid/palette_entry.dart';
 import 'package:beading/domain/image_to_grid/pattern_metrics.dart';
@@ -27,6 +29,7 @@ import 'package:beading/domain/image_to_grid/work_image.dart';
 import 'package:beading/domain/palette/lab.dart';
 import 'package:beading/domain/palette/nearest_color_matcher.dart';
 import 'package:beading/domain/palette/rgb.dart';
+import 'package:beading/domain/stitch/line_stitch.dart';
 
 /// Конвейер «картинка → схема»: подготовка фото (по желанию) → ресэмплинг → квантование → привязка к допустимым цветам → шаги (очистка, слои).
 ///
@@ -105,6 +108,7 @@ final class ImageToGridPipeline {
     times['steps'] = lap();
     final List<BlendSuggestion> blends = _blends(request, pattern, cells);
     if (request.suggestBlends && !request.draft) times['blends'] = lap();
+    if (request.applyBlends && blends.isNotEmpty) pattern = applyBlends(pattern, blends);
     return GeneratedPattern(
       grid: pattern.grid,
       palette: pattern.palette,
@@ -273,10 +277,14 @@ final class ImageToGridPipeline {
     times['steps'] = lap();
     final List<BlendSuggestion> blends = _blends(request, pattern, cells);
     if (request.suggestBlends && !request.draft) times['blends'] = lap();
+    if (request.applyBlends && blends.isNotEmpty) pattern = applyBlends(pattern, blends);
+    final List<LineStitch> lines = _backstitch(request, pattern, work, regions);
+    if (request.backstitch && !request.draft) times['backstitch'] = lap();
     return GeneratedPattern(
       grid: pattern.grid,
       palette: pattern.palette,
       blendSuggestions: blends,
+      lines: lines,
       stats: _stats(
         pattern,
         cells,
@@ -335,6 +343,49 @@ final class ImageToGridPipeline {
   /// Бленды двух ниток (T57): только если запрос просил и это не черновик (его не сохраняют); по цветам клеток после ресэмплинга.
   List<BlendSuggestion> _blends(ImageToGridRequest request, GeneratedPattern pattern, SampledCells cells) =>
       request.suggestBlends && !request.draft ? suggestBlends(pattern, cells.colors) : const <BlendSuggestion>[];
+
+  /// Контуры-бэкстич (T49): тёмным цветом палитры, по маске объекта и контрастным границам рабочей картинки.
+  /// Нет палитры или запроса — линий нет; на пути T24 нет рабочей картинки, и контуров тоже нет.
+  List<LineStitch> _backstitch(
+    ImageToGridRequest request,
+    GeneratedPattern pattern,
+    WorkImage work,
+    CellRegions regions,
+  ) {
+    if (!request.backstitch || request.draft || pattern.palette.isEmpty) return const <LineStitch>[];
+    // Бэкстич шьют одной ниткой, поэтому бленд для контура не годится (если есть из чего выбрать).
+    final bool hasPlain = pattern.palette.any((e) => e.blendPartner == null);
+    int darkest = 0;
+    double darkestL = double.infinity;
+    for (int i = 0; i < pattern.palette.length; i++) {
+      if (hasPlain && pattern.palette[i].blendPartner != null) continue;
+      final double l = Lab.fromRgb(pattern.palette[i].rgb).l;
+      if (l < darkestL) {
+        darkestL = l;
+        darkest = i;
+      }
+    }
+    final Uint8List? mask = request.subjectMask;
+    Uint8List? subject;
+    if (mask != null) {
+      final CellRegions subjectRegions = CellRegions.forGrid(
+        geometry: request.geometry,
+        metrics: request.metrics,
+        columns: request.columns,
+        rows: request.rows,
+        imageWidth: request.image.width,
+        imageHeight: request.image.height,
+      );
+      subject = subjectCellsFrom(mask: mask, imageWidth: request.image.width, regions: subjectRegions);
+    }
+    return const OutlineBackstitch().build(
+      grid: pattern.grid,
+      work: work,
+      regions: regions,
+      color: darkest + 1,
+      subject: subject,
+    );
+  }
 
   /// Фон и обводка (T55): после всех шагов, по маске объекта на уровне клеток.
   GeneratedPattern _backgroundStage(ImageToGridRequest request, GeneratedPattern pattern, SampledCells cells) {
