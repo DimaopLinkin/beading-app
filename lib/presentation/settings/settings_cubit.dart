@@ -20,6 +20,7 @@ class SettingsCubit extends Cubit<SettingsState> {
     final bool keepAwake = await _read(SettingKeys.keepScreenAwake);
     final bool symbols = await _read(SettingKeys.symbolMode);
     final String brand = await _read(SettingKeys.defaultBeadBrand);
+    final String flossBrand = await _read(SettingKeys.defaultFlossBrand);
     final String name = await _read(SettingKeys.userName);
     final List<SpecialDate> dates = await _read(SettingKeys.specialDates);
     if (isClosed) return;
@@ -29,6 +30,7 @@ class SettingsCubit extends Cubit<SettingsState> {
         keepScreenAwake: free(SettingKeys.keepScreenAwake) ? keepAwake : null,
         symbolMode: free(SettingKeys.symbolMode) ? symbols : null,
         defaultBeadBrand: free(SettingKeys.defaultBeadBrand) ? brand : null,
+        defaultFlossBrand: free(SettingKeys.defaultFlossBrand) ? flossBrand : null,
         userName: free(SettingKeys.userName) ? name : null,
         specialDates: free(SettingKeys.specialDates) ? dates : null,
         loaded: true,
@@ -55,6 +57,13 @@ class SettingsCubit extends Cubit<SettingsState> {
     brand,
     (s) => s.defaultBeadBrand,
     (s, v) => s.copyWith(defaultBeadBrand: v),
+  );
+
+  Future<void> setDefaultFlossBrand(String brand) => _apply(
+    SettingKeys.defaultFlossBrand,
+    brand,
+    (s) => s.defaultFlossBrand,
+    (s, v) => s.copyWith(defaultFlossBrand: v),
   );
 
   /// Пустое имя (после обрезки пробелов) возвращает имя по умолчанию; длиннее [userNameMaxLength] обрезается.

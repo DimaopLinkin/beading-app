@@ -21,6 +21,7 @@
   "settingsKeepScreenAwake": "Не гасить экран",
   "settingsSymbolMode": "Символы на схеме",
   "settingsDefaultBrand": "Производитель бисера",
+  "settingsDefaultFlossBrand": "Производитель мулине",
   "settingsSectionData": "Данные",
   "settingsBackup": "Резервная копия",
   "settingsSync": "Синхронизация с iCloud",
@@ -47,7 +48,7 @@
   "settingsSaveFailed": "Не удалось сохранить настройку. Попробуй ещё раз.",
   "aboutTitle": "О приложении",
   "aboutTagline": "Каждая бусинка на своём месте. Плети с удовольствием!",
-  "aboutCredits": "Цвета ниток DMC: craft-color-codes, MakeBead (makebead.com), лицензия CC BY 4.0. DMC — торговая марка DMC, приложение с ней не связано.",
+  "aboutCredits": "Цвета ниток DMC: craft-color-codes, MakeBead (makebead.com), лицензия CC BY 4.0. DMC — торговая марка DMC, приложение с ней не связано. Цвета ниток «Гамма» и Anchor: firma-gamma.ru и crosti.ru. «Гамма» и Anchor — торговые марки своих владельцев, приложение с ними не связано.",
   "aboutVersion": "Версия {version}",
   "@aboutVersion": {
     "placeholders": {
@@ -1008,6 +1009,8 @@
   "@imageWizardCraftBeading": {"description": "Ремесло в мастере: бисероплетение"},
   "imageWizardCraftStitch": "Вышивка",
   "@imageWizardCraftStitch": {"description": "Ремесло в мастере: вышивка крестиком"},
+  "imageWizardFlossBrand": "Производитель мулине",
+  "@imageWizardFlossBrand": {"description": "Заголовок выбора производителя мулине в мастере схемы из фото"},
   "imageWizardFabric": "Канва",
   "@imageWizardFabric": {"description": "Заголовок выбора канвы для вышивки"},
   "imageWizardFabricAida": "Аида {count}",

@@ -109,7 +109,7 @@ class ImageWizardCubit extends Cubit<ImageWizardState> {
     ];
     _brand = brand.valueOrNull ?? '';
     _flossBrand = flossBrand.valueOrNull ?? '';
-    emit(state.copyWith(catalogColors: _countCatalog(state.settings)));
+    emit(state.copyWith(catalogColors: _countCatalog(state.settings), flossBrand: _flossBrand));
     if (_image != null) {
       _schedule(immediate: true);
     }
@@ -278,6 +278,19 @@ class ImageWizardCubit extends Cubit<ImageWizardState> {
 
   /// Цвет канвы: фон схемы (невышитые места).
   void setFabricColor(Rgb color) => _change(state.settings.copyWith(fabric: state.settings.fabric.withColor(color)));
+
+  /// Производитель мулине для схемы: запоминается как бренд по умолчанию.
+  Future<void> setFlossBrand(String brand) async {
+    if (brand == _flossBrand) {
+      return;
+    }
+    _flossBrand = brand;
+    emit(state.copyWith(flossBrand: brand, catalogColors: _countCatalog(state.settings)));
+    if (_image != null) {
+      _schedule();
+    }
+    await _settings.write(SettingKeys.defaultFlossBrand, brand);
+  }
 
   /// Ширина готовой вышивки в сантиметрах: клетки считаются по канве.
   void setWidthCm(double cm) => _change(state.settings.copyWith(columns: state.settings.fabric.cellsForCm(cm)));

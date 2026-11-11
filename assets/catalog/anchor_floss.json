@@ -1,0 +1,2229 @@
+{
+ "version": 1,
+ "material": "floss",
+ "brand": "Anchor",
+ "series": "Stranded Cotton",
+ "source": "crosti.ru, таблица цветов Anchor (444 номеров), снято 2026-11-11",
+ "colors": [
+  {
+   "code": "1",
+   "name": "Snow white",
+   "rgb": "#fdfbff"
+  },
+  {
+   "code": "2",
+   "name": "White",
+   "rgb": "#fafafa"
+  },
+  {
+   "code": "6",
+   "name": "Very Light Salmon",
+   "rgb": "#fbbba7"
+  },
+  {
+   "code": "8",
+   "name": "Light Salmon",
+   "rgb": "#f8a597"
+  },
+  {
+   "code": "9",
+   "name": "Medium Light Salmon",
+   "rgb": "#f48a7d"
+  },
+  {
+   "code": "10",
+   "name": "Medium Salmon",
+   "rgb": "#e15a52"
+  },
+  {
+   "code": "11",
+   "name": "Medium Dark Salmon",
+   "rgb": "#e13e29"
+  },
+  {
+   "code": "13",
+   "name": "Dark Salmon",
+   "rgb": "#b21012"
+  },
+  {
+   "code": "19",
+   "name": "Medium Burgundy",
+   "rgb": "#a4002b"
+  },
+  {
+   "code": "20",
+   "name": "Medium Dark Burgundy",
+   "rgb": "#790c14"
+  },
+  {
+   "code": "22",
+   "name": "Very Dark Burgundy",
+   "rgb": "#59091f"
+  },
+  {
+   "code": "23",
+   "name": "Ultra Light Carnation",
+   "rgb": "#fbbec3"
+  },
+  {
+   "code": "24",
+   "name": "Very Light Carnation",
+   "rgb": "#faa6ab"
+  },
+  {
+   "code": "25",
+   "name": "Light Carnation",
+   "rgb": "#f49aa9"
+  },
+  {
+   "code": "26",
+   "name": "Medium Light Carnation",
+   "rgb": "#f56988"
+  },
+  {
+   "code": "27",
+   "name": "Medium Carnation",
+   "rgb": "#f76b84"
+  },
+  {
+   "code": "28",
+   "name": "Medium Dark Carnation",
+   "rgb": "#ef3b58"
+  },
+  {
+   "code": "29",
+   "name": "Dark Carnation",
+   "rgb": "#cc0a22"
+  },
+  {
+   "code": "31",
+   "name": "Light Blush",
+   "rgb": "#f77c8a"
+  },
+  {
+   "code": "33",
+   "name": "Medium Blush",
+   "rgb": "#f85a65"
+  },
+  {
+   "code": "35",
+   "name": "Dark Blush",
+   "rgb": "#ea3138"
+  },
+  {
+   "code": "36",
+   "name": "Light Blossom Pink",
+   "rgb": "#f5939e"
+  },
+  {
+   "code": "38",
+   "name": "Medium Blossom Pink",
+   "rgb": "#e13a5f"
+  },
+  {
+   "code": "39",
+   "name": "Dark Blossom Pink",
+   "rgb": "#b11520"
+  },
+  {
+   "code": "40",
+   "name": "Light Carmine Rose",
+   "rgb": "#f15981"
+  },
+  {
+   "code": "41",
+   "name": "Medium Light Carmine Rose",
+   "rgb": "#da3b5f"
+  },
+  {
+   "code": "42",
+   "name": "Medium Carmine Rose",
+   "rgb": "#b40a3e"
+  },
+  {
+   "code": "43",
+   "name": "Medium Dark Carmine Rose",
+   "rgb": "#7d1428"
+  },
+  {
+   "code": "44",
+   "name": "Dark Carmine Rose",
+   "rgb": "#610021"
+  },
+  {
+   "code": "45",
+   "name": "Very Dark Carmine Rose",
+   "rgb": "#5f0f14"
+  },
+  {
+   "code": "46",
+   "name": "Crimson Red",
+   "rgb": "#d3050d"
+  },
+  {
+   "code": "47",
+   "name": "Carmine Red",
+   "rgb": "#ac0023"
+  },
+  {
+   "code": "48",
+   "name": "Very Light China Rose",
+   "rgb": "#f9c4ce"
+  },
+  {
+   "code": "49",
+   "name": "Light China Rose",
+   "rgb": "#ecb5bd"
+  },
+  {
+   "code": "50",
+   "name": "Medium China Rose",
+   "rgb": "#f599af"
+  },
+  {
+   "code": "52",
+   "name": "Medium Dark China Rose",
+   "rgb": "#f46293"
+  },
+  {
+   "code": "54",
+   "name": "Dark China Rose",
+   "rgb": "#e02862"
+  },
+  {
+   "code": "55",
+   "name": "Light Beauty Rose",
+   "rgb": "#f279a3"
+  },
+  {
+   "code": "57",
+   "name": "Medium Beauty Rose",
+   "rgb": "#da1b5b"
+  },
+  {
+   "code": "59",
+   "name": "China Rose",
+   "rgb": "#a80646"
+  },
+  {
+   "code": "60",
+   "name": "Light Magenta",
+   "rgb": "#e99fbe"
+  },
+  {
+   "code": "62",
+   "name": "Medium Magenta",
+   "rgb": "#eb5d8a"
+  },
+  {
+   "code": "63",
+   "name": "Dark Magenta",
+   "rgb": "#e12068"
+  },
+  {
+   "code": "65",
+   "name": "Very Dark Antique Rose",
+   "rgb": "#980c47"
+  },
+  {
+   "code": "66",
+   "name": "Light Raspberry",
+   "rgb": "#e987ad"
+  },
+  {
+   "code": "68",
+   "name": "Medium Light Raspberry",
+   "rgb": "#c24f77"
+  },
+  {
+   "code": "69",
+   "name": "Very Dark Dusty Rose",
+   "rgb": "#96244b"
+  },
+  {
+   "code": "70",
+   "name": "Dark Raspberry",
+   "rgb": "#6a0b32"
+  },
+  {
+   "code": "72",
+   "name": "Very Dark Raspberry",
+   "rgb": "#550925"
+  },
+  {
+   "code": "73",
+   "name": "Very Light Antique Rose",
+   "rgb": "#fcc3cc"
+  },
+  {
+   "code": "74",
+   "name": "Light Antique Rose",
+   "rgb": "#f49baf"
+  },
+  {
+   "code": "75",
+   "name": "Medium Light Antique Rose",
+   "rgb": "#f285a3"
+  },
+  {
+   "code": "76",
+   "name": "Medium Antique Rose",
+   "rgb": "#d05c77"
+  },
+  {
+   "code": "77",
+   "name": "Medium Dark Antique Rose",
+   "rgb": "#b63063"
+  },
+  {
+   "code": "78",
+   "name": "Dark Antique Rose",
+   "rgb": "#a81258"
+  },
+  {
+   "code": "85",
+   "name": "Light Orchid",
+   "rgb": "#e99fc8"
+  },
+  {
+   "code": "86",
+   "name": "Medium Light Orchid",
+   "rgb": "#dd78b1"
+  },
+  {
+   "code": "87",
+   "name": "Medium Orchid",
+   "rgb": "#c73784"
+  },
+  {
+   "code": "88",
+   "name": "Medium Dark Orchid",
+   "rgb": "#ae1164"
+  },
+  {
+   "code": "89",
+   "name": "Dark Orchid",
+   "rgb": "#af0d64"
+  },
+  {
+   "code": "90",
+   "name": "Light Plum",
+   "rgb": "#d095b3"
+  },
+  {
+   "code": "92",
+   "name": "Medium Plum",
+   "rgb": "#a14998"
+  },
+  {
+   "code": "94",
+   "name": "Dark Plum",
+   "rgb": "#83186a"
+  },
+  {
+   "code": "95",
+   "name": "Very Light Violet",
+   "rgb": "#d7a7c9"
+  },
+  {
+   "code": "96",
+   "name": "Light Violet",
+   "rgb": "#d18eb7"
+  },
+  {
+   "code": "97",
+   "name": "Medium Light Violet",
+   "rgb": "#b66aa6"
+  },
+  {
+   "code": "98",
+   "name": "Medium Violet",
+   "rgb": "#9f538c"
+  },
+  {
+   "code": "99",
+   "name": "Violet",
+   "rgb": "#873876"
+  },
+  {
+   "code": "100",
+   "name": "Medium Dark Violet",
+   "rgb": "#7a2862"
+  },
+  {
+   "code": "101",
+   "name": "Dark Violet",
+   "rgb": "#5a005c"
+  },
+  {
+   "code": "102",
+   "name": "Very Dark Violet",
+   "rgb": "#450844"
+  },
+  {
+   "code": "103",
+   "name": "Very Light Plum",
+   "rgb": "#e3bad2"
+  },
+  {
+   "code": "108",
+   "name": "Light Lavender",
+   "rgb": "#c29fd0"
+  },
+  {
+   "code": "109",
+   "name": "Medium Light Lavender",
+   "rgb": "#a57aaf"
+  },
+  {
+   "code": "110",
+   "name": "Medium Lavender",
+   "rgb": "#7a52a5"
+  },
+  {
+   "code": "111",
+   "name": "Medium Dark Lavender",
+   "rgb": "#5d2e84"
+  },
+  {
+   "code": "112",
+   "name": "Dark Lavender",
+   "rgb": "#542279"
+  },
+  {
+   "code": "117",
+   "name": "Light Thistle",
+   "rgb": "#99a9c9"
+  },
+  {
+   "code": "118",
+   "name": "Medium Thistle",
+   "rgb": "#7978b6"
+  },
+  {
+   "code": "119",
+   "name": "Dark Thistle",
+   "rgb": "#503682"
+  },
+  {
+   "code": "120",
+   "name": "Light Blueberry",
+   "rgb": "#b3c5df"
+  },
+  {
+   "code": "121",
+   "name": "Medium Light Blueberry",
+   "rgb": "#748bb8"
+  },
+  {
+   "code": "122",
+   "name": "Medium Blueberry",
+   "rgb": "#525f91"
+  },
+  {
+   "code": "123",
+   "name": "Dark Blueberry",
+   "rgb": "#2c306a"
+  },
+  {
+   "code": "127",
+   "name": "Indigo",
+   "rgb": "#00003f"
+  },
+  {
+   "code": "128",
+   "name": "Light Cobalt Blue",
+   "rgb": "#c7dee9"
+  },
+  {
+   "code": "129",
+   "name": "Cobalt Blue",
+   "rgb": "#88aacb"
+  },
+  {
+   "code": "130",
+   "name": "Medium Light Cobalt Blue",
+   "rgb": "#799cc6"
+  },
+  {
+   "code": "131",
+   "name": "Medium Cobalt Blue",
+   "rgb": "#3e5f9d"
+  },
+  {
+   "code": "132",
+   "name": "Medium Dark Cobalt Blue",
+   "rgb": "#103e85"
+  },
+  {
+   "code": "133",
+   "name": "Dark Cobalt Blue",
+   "rgb": "#143374"
+  },
+  {
+   "code": "134",
+   "name": "Very Dark Cobalt Blue",
+   "rgb": "#081764"
+  },
+  {
+   "code": "136",
+   "name": "Light Wedgewood",
+   "rgb": "#5b82ac"
+  },
+  {
+   "code": "137",
+   "name": "Medium Wedgewood",
+   "rgb": "#3161a1"
+  },
+  {
+   "code": "139",
+   "name": "Dark Wedgewood",
+   "rgb": "#0d3c78"
+  },
+  {
+   "code": "140",
+   "name": "Light Copen Blue",
+   "rgb": "#7fa5c8"
+  },
+  {
+   "code": "142",
+   "name": "Medium Copen Blue",
+   "rgb": "#165ba4"
+  },
+  {
+   "code": "143",
+   "name": "Dark Copen Blue",
+   "rgb": "#0c4386"
+  },
+  {
+   "code": "144",
+   "name": "Very Light Delft Blue",
+   "rgb": "#9dbdcf"
+  },
+  {
+   "code": "145",
+   "name": "Light Delft Blue",
+   "rgb": "#7191bc"
+  },
+  {
+   "code": "146",
+   "name": "Delft Blue",
+   "rgb": "#3870a9"
+  },
+  {
+   "code": "147",
+   "name": "Medium Light Delft Blue",
+   "rgb": "#074d8e"
+  },
+  {
+   "code": "148",
+   "name": "Medium Delft Blue",
+   "rgb": "#082d63"
+  },
+  {
+   "code": "149",
+   "name": "Medium Dark Delft Blue",
+   "rgb": "#092056"
+  },
+  {
+   "code": "150",
+   "name": "Dark Delft Blue",
+   "rgb": "#152247"
+  },
+  {
+   "code": "152",
+   "name": "Very Dark Delft Blue",
+   "rgb": "#0f1232"
+  },
+  {
+   "code": "158",
+   "name": "Very Light Sapphire",
+   "rgb": "#cee9e9"
+  },
+  {
+   "code": "159",
+   "name": "Light Sapphire",
+   "rgb": "#aacae2"
+  },
+  {
+   "code": "160",
+   "name": "Medium Light Sapphire",
+   "rgb": "#9ecddd"
+  },
+  {
+   "code": "161",
+   "name": "Medium Sapphire",
+   "rgb": "#4389a8"
+  },
+  {
+   "code": "162",
+   "name": "Medium Dark Sapphire",
+   "rgb": "#0b658c"
+  },
+  {
+   "code": "164",
+   "name": "Dark Sapphire",
+   "rgb": "#094264"
+  },
+  {
+   "code": "167",
+   "name": "Very Light Surf Blue",
+   "rgb": "#8eccd3"
+  },
+  {
+   "code": "168",
+   "name": "Light Surf Blue",
+   "rgb": "#599ea9"
+  },
+  {
+   "code": "169",
+   "name": "Medium Surf Blue",
+   "rgb": "#15718b"
+  },
+  {
+   "code": "170",
+   "name": "Dark Surf Blue",
+   "rgb": "#00556c"
+  },
+  {
+   "code": "175",
+   "name": "Light Ocean Blue",
+   "rgb": "#7b9dc1"
+  },
+  {
+   "code": "176",
+   "name": "Ocean Blue",
+   "rgb": "#647da6"
+  },
+  {
+   "code": "177",
+   "name": "Medium Ocean Blue",
+   "rgb": "#475299"
+  },
+  {
+   "code": "178",
+   "name": "Dark Ocean Blue",
+   "rgb": "#2f2b67"
+  },
+  {
+   "code": "185",
+   "name": "Light Sea Green",
+   "rgb": "#81d6c4"
+  },
+  {
+   "code": "186",
+   "name": "Medium Light Sea Green",
+   "rgb": "#52bfac"
+  },
+  {
+   "code": "187",
+   "name": "Medium Sea Green",
+   "rgb": "#2ba899"
+  },
+  {
+   "code": "188",
+   "name": "Medium Dark Sea Green",
+   "rgb": "#078b81"
+  },
+  {
+   "code": "189",
+   "name": "Dark Sea Green",
+   "rgb": "#0e7d71"
+  },
+  {
+   "code": "203",
+   "name": "Light Mint Green",
+   "rgb": "#7cc08c"
+  },
+  {
+   "code": "204",
+   "name": "Medium Mint Green",
+   "rgb": "#64bb87"
+  },
+  {
+   "code": "205",
+   "name": "Dark Mint Green",
+   "rgb": "#349568"
+  },
+  {
+   "code": "206",
+   "name": "Light Spruce",
+   "rgb": "#a6cea4"
+  },
+  {
+   "code": "208",
+   "name": "Medium Light Spruce",
+   "rgb": "#63ae80"
+  },
+  {
+   "code": "209",
+   "name": "Spruce",
+   "rgb": "#49a170"
+  },
+  {
+   "code": "210",
+   "name": "Medium Spruce",
+   "rgb": "#287548"
+  },
+  {
+   "code": "211",
+   "name": "Medium Dark Spruce",
+   "rgb": "#0b6033"
+  },
+  {
+   "code": "212",
+   "name": "Dark Spruce",
+   "rgb": "#145236"
+  },
+  {
+   "code": "213",
+   "name": "Very Light Juniper",
+   "rgb": "#baccab"
+  },
+  {
+   "code": "214",
+   "name": "Light Juniper",
+   "rgb": "#99b786"
+  },
+  {
+   "code": "215",
+   "name": "Medium Light Juniper",
+   "rgb": "#6a8e64"
+  },
+  {
+   "code": "216",
+   "name": "Medium Juniper",
+   "rgb": "#517c60"
+  },
+  {
+   "code": "217",
+   "name": "Medium Dark Juniper",
+   "rgb": "#346544"
+  },
+  {
+   "code": "218",
+   "name": "Dark Juniper",
+   "rgb": "#154725"
+  },
+  {
+   "code": "225",
+   "name": "Light Emerald",
+   "rgb": "#64b55d"
+  },
+  {
+   "code": "226",
+   "name": "Medium Light Emerald",
+   "rgb": "#419937"
+  },
+  {
+   "code": "227",
+   "name": "Medium Emerald",
+   "rgb": "#1c8532"
+  },
+  {
+   "code": "228",
+   "name": "Medium Dark Emerald",
+   "rgb": "#0a762f"
+  },
+  {
+   "code": "229",
+   "name": "Dark Emerald",
+   "rgb": "#076f2f"
+  },
+  {
+   "code": "230",
+   "name": "Very Dark Mint Green",
+   "rgb": "#02774e"
+  },
+  {
+   "code": "231",
+   "name": "Light Rose Grey",
+   "rgb": "#c0b0aa"
+  },
+  {
+   "code": "232",
+   "name": "Medium Rose Grey",
+   "rgb": "#a99793"
+  },
+  {
+   "code": "233",
+   "name": "Rose Grey",
+   "rgb": "#826e6d"
+  },
+  {
+   "code": "234",
+   "name": "Light Charcoal Grey",
+   "rgb": "#cdd0cd"
+  },
+  {
+   "code": "235",
+   "name": "Medium Charcoal Grey",
+   "rgb": "#6f7177"
+  },
+  {
+   "code": "236",
+   "name": "Dark Charcoal Grey",
+   "rgb": "#353237"
+  },
+  {
+   "code": "238",
+   "name": "Medium Spring Green",
+   "rgb": "#60ad36"
+  },
+  {
+   "code": "239",
+   "name": "Dark Spring Green",
+   "rgb": "#439c17"
+  },
+  {
+   "code": "240",
+   "name": "Light Grass Green",
+   "rgb": "#9fcd88"
+  },
+  {
+   "code": "241",
+   "name": "Grass Green",
+   "rgb": "#87c677"
+  },
+  {
+   "code": "242",
+   "name": "Medium Light Grass Green",
+   "rgb": "#73a85e"
+  },
+  {
+   "code": "243",
+   "name": "Medium Grass Green",
+   "rgb": "#58924a"
+  },
+  {
+   "code": "244",
+   "name": "Medium Dark Grass Green",
+   "rgb": "#377739"
+  },
+  {
+   "code": "245",
+   "name": "Dark Grass Green",
+   "rgb": "#156817"
+  },
+  {
+   "code": "246",
+   "name": "Very Dark Grass Green",
+   "rgb": "#144c19"
+  },
+  {
+   "code": "253",
+   "name": "Very Light Parrot Green",
+   "rgb": "#cfe080"
+  },
+  {
+   "code": "254",
+   "name": "Light Parrot Green",
+   "rgb": "#c7dd63"
+  },
+  {
+   "code": "255",
+   "name": "Medium Light Parrot Green",
+   "rgb": "#8baf22"
+  },
+  {
+   "code": "256",
+   "name": "Medium Parrot Green",
+   "rgb": "#5c9619"
+  },
+  {
+   "code": "257",
+   "name": "Medium Dark Parrot Green",
+   "rgb": "#478719"
+  },
+  {
+   "code": "258",
+   "name": "Dark Parrot Green",
+   "rgb": "#357316"
+  },
+  {
+   "code": "259",
+   "name": "Very Light Loden Green",
+   "rgb": "#dee9a5"
+  },
+  {
+   "code": "260",
+   "name": "Light Loden Green",
+   "rgb": "#9fb476"
+  },
+  {
+   "code": "261",
+   "name": "Medium Light Loden Green",
+   "rgb": "#889f72"
+  },
+  {
+   "code": "262",
+   "name": "Medium Loden Green",
+   "rgb": "#466633"
+  },
+  {
+   "code": "263",
+   "name": "Dark Loden Green",
+   "rgb": "#2b451e"
+  },
+  {
+   "code": "264",
+   "name": "Very Light Avocado",
+   "rgb": "#b5c382"
+  },
+  {
+   "code": "265",
+   "name": "Light Avocado",
+   "rgb": "#98b45a"
+  },
+  {
+   "code": "266",
+   "name": "Medium Light Avocado",
+   "rgb": "#708b3a"
+  },
+  {
+   "code": "267",
+   "name": "Medium Avocado",
+   "rgb": "#556f1f"
+  },
+  {
+   "code": "268",
+   "name": "Medium Dark Avocado",
+   "rgb": "#3a5818"
+  },
+  {
+   "code": "269",
+   "name": "Dark Avocado",
+   "rgb": "#37461e"
+  },
+  {
+   "code": "271",
+   "name": "Soft Carnation",
+   "rgb": "#fde2dd"
+  },
+  {
+   "code": "273",
+   "name": "Dark Stone Grey",
+   "rgb": "#554d3a"
+  },
+  {
+   "code": "274",
+   "name": "Light Blue Mist",
+   "rgb": "#c7d1ca"
+  },
+  {
+   "code": "275",
+   "name": "Ultra Light Citrus",
+   "rgb": "#fbf1ce"
+  },
+  {
+   "code": "276",
+   "name": "Pearl",
+   "rgb": "#efd9bb"
+  },
+  {
+   "code": "277",
+   "name": "Very Dark Desert",
+   "rgb": "#7c5815"
+  },
+  {
+   "code": "278",
+   "name": "Light Olive Green",
+   "rgb": "#cfcb67"
+  },
+  {
+   "code": "279",
+   "name": "Medium Light Olive Green",
+   "rgb": "#bfaf4b"
+  },
+  {
+   "code": "280",
+   "name": "Medium Olive Green",
+   "rgb": "#9b8e3e"
+  },
+  {
+   "code": "281",
+   "name": "Dark Olive Green",
+   "rgb": "#75672c"
+  },
+  {
+   "code": "288",
+   "name": "Light Canary Yellow",
+   "rgb": "#fbeb69"
+  },
+  {
+   "code": "289",
+   "name": "Medium Light Canary Yellow",
+   "rgb": "#fbe950"
+  },
+  {
+   "code": "290",
+   "name": "Medium Canary Yellow",
+   "rgb": "#fdd610"
+  },
+  {
+   "code": "291",
+   "name": "Dark Canary Yellow",
+   "rgb": "#fccd0d"
+  },
+  {
+   "code": "292",
+   "name": "Very Light Jonquil",
+   "rgb": "#fceca0"
+  },
+  {
+   "code": "293",
+   "name": "Light Jonquil",
+   "rgb": "#fce378"
+  },
+  {
+   "code": "295",
+   "name": "Medium Light Jonquil",
+   "rgb": "#fdd951"
+  },
+  {
+   "code": "297",
+   "name": "Medium Jonquil",
+   "rgb": "#fcd01d"
+  },
+  {
+   "code": "298",
+   "name": "Dark Jonquil",
+   "rgb": "#fbb51e"
+  },
+  {
+   "code": "300",
+   "name": "Light Citrus",
+   "rgb": "#f7dd9f"
+  },
+  {
+   "code": "301",
+   "name": "Citrus",
+   "rgb": "#f5d484"
+  },
+  {
+   "code": "302",
+   "name": "Medium Light Citrus",
+   "rgb": "#fabd48"
+  },
+  {
+   "code": "303",
+   "name": "Medium Citrus",
+   "rgb": "#fa9517"
+  },
+  {
+   "code": "304",
+   "name": "Dark Citrus",
+   "rgb": "#f77b0d"
+  },
+  {
+   "code": "305",
+   "name": "Light Topaz",
+   "rgb": "#f9c654"
+  },
+  {
+   "code": "306",
+   "name": "Medium Light Topaz",
+   "rgb": "#eda231"
+  },
+  {
+   "code": "307",
+   "name": "Medium Topaz",
+   "rgb": "#de8e17"
+  },
+  {
+   "code": "308",
+   "name": "Medium Dark Topaz",
+   "rgb": "#bd6e1a"
+  },
+  {
+   "code": "309",
+   "name": "Dark Topaz",
+   "rgb": "#ad5f26"
+  },
+  {
+   "code": "310",
+   "name": "Very Dark Topaz",
+   "rgb": "#944c22"
+  },
+  {
+   "code": "311",
+   "name": "Very Light Tangerine",
+   "rgb": "#f3ba71"
+  },
+  {
+   "code": "313",
+   "name": "Light Tangerine",
+   "rgb": "#faaa55"
+  },
+  {
+   "code": "314",
+   "name": "Medium Light Tangerine",
+   "rgb": "#f58916"
+  },
+  {
+   "code": "316",
+   "name": "Dark Tangerine",
+   "rgb": "#fa7017"
+  },
+  {
+   "code": "323",
+   "name": "Light Apricot",
+   "rgb": "#f9884f"
+  },
+  {
+   "code": "324",
+   "name": "Medium Apricot",
+   "rgb": "#ed6e32"
+  },
+  {
+   "code": "326",
+   "name": "Dark Apricot",
+   "rgb": "#cf460f"
+  },
+  {
+   "code": "328",
+   "name": "Light Melon",
+   "rgb": "#fc8e75"
+  },
+  {
+   "code": "329",
+   "name": "Medium Melon",
+   "rgb": "#f86e45"
+  },
+  {
+   "code": "330",
+   "name": "Dark Medium",
+   "rgb": "#f75d1f"
+  },
+  {
+   "code": "332",
+   "name": "Light Blaze",
+   "rgb": "#f6451f"
+  },
+  {
+   "code": "333",
+   "name": "Medium Light Blaze",
+   "rgb": "#e62714"
+  },
+  {
+   "code": "334",
+   "name": "Medium Blaze",
+   "rgb": "#e8130f"
+  },
+  {
+   "code": "335",
+   "name": "Dark Blaze",
+   "rgb": "#e1090d"
+  },
+  {
+   "code": "336",
+   "name": "Light Terra Cotta",
+   "rgb": "#ef9e79"
+  },
+  {
+   "code": "337",
+   "name": "Medium Light Terra Cotta",
+   "rgb": "#e28b6e"
+  },
+  {
+   "code": "338",
+   "name": "Terra Cotta",
+   "rgb": "#ca6e58"
+  },
+  {
+   "code": "339",
+   "name": "Medium Terra Cotta",
+   "rgb": "#b13f28"
+  },
+  {
+   "code": "340",
+   "name": "Medium Dark Terra Cotta",
+   "rgb": "#9d3022"
+  },
+  {
+   "code": "341",
+   "name": "Dark Terra Cotta",
+   "rgb": "#8d2419"
+  },
+  {
+   "code": "342",
+   "name": "Light Lilac",
+   "rgb": "#d9bedd"
+  },
+  {
+   "code": "343",
+   "name": "Slate Blue",
+   "rgb": "#8ca2b4"
+  },
+  {
+   "code": "347",
+   "name": "Light Bark",
+   "rgb": "#d0925c"
+  },
+  {
+   "code": "349",
+   "name": "Medium Bark",
+   "rgb": "#aa551b"
+  },
+  {
+   "code": "351",
+   "name": "Medium Dark Bark",
+   "rgb": "#8c2f18"
+  },
+  {
+   "code": "352",
+   "name": "Dark Bark",
+   "rgb": "#6d1815"
+  },
+  {
+   "code": "355",
+   "name": "Medium Mocha",
+   "rgb": "#93421a"
+  },
+  {
+   "code": "357",
+   "name": "Dark Mocha",
+   "rgb": "#742b11"
+  },
+  {
+   "code": "358",
+   "name": "Coffee",
+   "rgb": "#75371a"
+  },
+  {
+   "code": "359",
+   "name": "Medium Coffee",
+   "rgb": "#682d12"
+  },
+  {
+   "code": "360",
+   "name": "Dark Coffee",
+   "rgb": "#532b19"
+  },
+  {
+   "code": "361",
+   "name": "Light Nutmeg",
+   "rgb": "#eec38a"
+  },
+  {
+   "code": "362",
+   "name": "Medium Light Nutmeg",
+   "rgb": "#e1a266"
+  },
+  {
+   "code": "363",
+   "name": "Medium Nutmeg",
+   "rgb": "#e09638"
+  },
+  {
+   "code": "365",
+   "name": "Dark Nutmeg",
+   "rgb": "#a96014"
+  },
+  {
+   "code": "366",
+   "name": "Very Light Spice",
+   "rgb": "#e9c797"
+  },
+  {
+   "code": "367",
+   "name": "Light Spice",
+   "rgb": "#e3b386"
+  },
+  {
+   "code": "368",
+   "name": "Medium Light Spice",
+   "rgb": "#d29a64"
+  },
+  {
+   "code": "369",
+   "name": "Medium Spice",
+   "rgb": "#b87243"
+  },
+  {
+   "code": "370",
+   "name": "Medium Dark Spice",
+   "rgb": "#97491b"
+  },
+  {
+   "code": "371",
+   "name": "Dark Spice",
+   "rgb": "#823a17"
+  },
+  {
+   "code": "372",
+   "name": "Light Desert",
+   "rgb": "#e3bb85"
+  },
+  {
+   "code": "373",
+   "name": "Medium Desert",
+   "rgb": "#c4975e"
+  },
+  {
+   "code": "374",
+   "name": "Medium Dark Desert",
+   "rgb": "#a36e36"
+  },
+  {
+   "code": "375",
+   "name": "Dark Desert",
+   "rgb": "#885a23"
+  },
+  {
+   "code": "376",
+   "name": "Light Fawn",
+   "rgb": "#d7ad98"
+  },
+  {
+   "code": "378",
+   "name": "Medium Fawn",
+   "rgb": "#a68068"
+  },
+  {
+   "code": "379",
+   "name": "Dark Fawn",
+   "rgb": "#8d6149"
+  },
+  {
+   "code": "380",
+   "name": "Fudge",
+   "rgb": "#472117"
+  },
+  {
+   "code": "381",
+   "name": "Medium Fudge",
+   "rgb": "#3d1d11"
+  },
+  {
+   "code": "382",
+   "name": "Dark Fudge",
+   "rgb": "#361c11"
+  },
+  {
+   "code": "386",
+   "name": "Very Light Citrus",
+   "rgb": "#f5e7c9"
+  },
+  {
+   "code": "387",
+   "name": "Ecru",
+   "rgb": "#efdab6"
+  },
+  {
+   "code": "388",
+   "name": "Medium Ecru",
+   "rgb": "#c9b397"
+  },
+  {
+   "code": "390",
+   "name": "Light Linen",
+   "rgb": "#e5d7b8"
+  },
+  {
+   "code": "391",
+   "name": "Linen",
+   "rgb": "#cabaa0"
+  },
+  {
+   "code": "392",
+   "name": "Medium Linen",
+   "rgb": "#a38b6c"
+  },
+  {
+   "code": "393",
+   "name": "Dark Linen",
+   "rgb": "#766139"
+  },
+  {
+   "code": "397",
+   "name": "Light Grey",
+   "rgb": "#c5c1b3"
+  },
+  {
+   "code": "398",
+   "name": "Grey",
+   "rgb": "#afb0ad"
+  },
+  {
+   "code": "399",
+   "name": "Medium Light Grey",
+   "rgb": "#929293"
+  },
+  {
+   "code": "400",
+   "name": "Medium Grey",
+   "rgb": "#58565a"
+  },
+  {
+   "code": "401",
+   "name": "Dark Grey",
+   "rgb": "#3e3a41"
+  },
+  {
+   "code": "403",
+   "name": "Black",
+   "rgb": "#000000"
+  },
+  {
+   "code": "410",
+   "name": "Dark Electric Blue",
+   "rgb": "#0078a9"
+  },
+  {
+   "code": "433",
+   "name": "Electric Blue",
+   "rgb": "#00a6de"
+  },
+  {
+   "code": "681",
+   "name": "Dark Forest",
+   "rgb": "#555733"
+  },
+  {
+   "code": "683",
+   "name": "Turf Green",
+   "rgb": "#1f433a"
+  },
+  {
+   "code": "778",
+   "name": "Light Flesh",
+   "rgb": "#eec6ab"
+  },
+  {
+   "code": "779",
+   "name": "Medium Dark Blue Mist",
+   "rgb": "#4d787b"
+  },
+  {
+   "code": "830",
+   "name": "Very Light Sierra",
+   "rgb": "#d1bf9e"
+  },
+  {
+   "code": "831",
+   "name": "Light Sierra",
+   "rgb": "#c6ae8a"
+  },
+  {
+   "code": "832",
+   "name": "Medium Sierra",
+   "rgb": "#9d8360"
+  },
+  {
+   "code": "842",
+   "name": "Light Fern Green",
+   "rgb": "#c1b879"
+  },
+  {
+   "code": "843",
+   "name": "Fern Green",
+   "rgb": "#8a8948"
+  },
+  {
+   "code": "844",
+   "name": "Medium Fern Green",
+   "rgb": "#817731"
+  },
+  {
+   "code": "845",
+   "name": "Medium Dark Fern Green",
+   "rgb": "#615b20"
+  },
+  {
+   "code": "846",
+   "name": "Dark Fern Green",
+   "rgb": "#46410b"
+  },
+  {
+   "code": "847",
+   "name": "Very Light Blue Mist",
+   "rgb": "#d6ded7"
+  },
+  {
+   "code": "848",
+   "name": "Blue Mist",
+   "rgb": "#afbfba"
+  },
+  {
+   "code": "849",
+   "name": "Medium Light Blue Mist",
+   "rgb": "#9caaab"
+  },
+  {
+   "code": "850",
+   "name": "Medium Blue Mist",
+   "rgb": "#7a8b8c"
+  },
+  {
+   "code": "851",
+   "name": "Dark Blue Mist",
+   "rgb": "#295056"
+  },
+  {
+   "code": "852",
+   "name": "Very Light Turf",
+   "rgb": "#e3cf9f"
+  },
+  {
+   "code": "853",
+   "name": "Light Turf",
+   "rgb": "#bea975"
+  },
+  {
+   "code": "854",
+   "name": "Medium Light Turf",
+   "rgb": "#a28d53"
+  },
+  {
+   "code": "855",
+   "name": "Medium Turf",
+   "rgb": "#997f43"
+  },
+  {
+   "code": "856",
+   "name": "Dark Turf",
+   "rgb": "#7c6a2f"
+  },
+  {
+   "code": "858",
+   "name": "Light Laurel Green",
+   "rgb": "#a3ae8f"
+  },
+  {
+   "code": "859",
+   "name": "Laurel Green",
+   "rgb": "#8b9570"
+  },
+  {
+   "code": "860",
+   "name": "Medium Light Laurel Green",
+   "rgb": "#727e5b"
+  },
+  {
+   "code": "861",
+   "name": "Medium Laurel Green",
+   "rgb": "#4a5937"
+  },
+  {
+   "code": "862",
+   "name": "Dark Laurel Green",
+   "rgb": "#314424"
+  },
+  {
+   "code": "868",
+   "name": "Medium Flesh",
+   "rgb": "#eaa68e"
+  },
+  {
+   "code": "869",
+   "name": "Light Amethyst",
+   "rgb": "#c4b0b9"
+  },
+  {
+   "code": "870",
+   "name": "Amethyst",
+   "rgb": "#ab92a8"
+  },
+  {
+   "code": "871",
+   "name": "Medium Light Amethyst",
+   "rgb": "#816175"
+  },
+  {
+   "code": "872",
+   "name": "Medium Amethyst",
+   "rgb": "#744f68"
+  },
+  {
+   "code": "873",
+   "name": "Dark Amethyst",
+   "rgb": "#583147"
+  },
+  {
+   "code": "874",
+   "name": "Medium Saffron",
+   "rgb": "#d6af5c"
+  },
+  {
+   "code": "875",
+   "name": "Light Pine",
+   "rgb": "#92b69f"
+  },
+  {
+   "code": "876",
+   "name": "Pine",
+   "rgb": "#609079"
+  },
+  {
+   "code": "877",
+   "name": "Medium Pine",
+   "rgb": "#417160"
+  },
+  {
+   "code": "878",
+   "name": "Medium Dark Pine",
+   "rgb": "#2b5446"
+  },
+  {
+   "code": "879",
+   "name": "Dark Pine",
+   "rgb": "#114c38"
+  },
+  {
+   "code": "880",
+   "name": "Light Copper",
+   "rgb": "#e2c0a5"
+  },
+  {
+   "code": "881",
+   "name": "Copper",
+   "rgb": "#e9ba98"
+  },
+  {
+   "code": "882",
+   "name": "Medium Light Copper",
+   "rgb": "#dc9476"
+  },
+  {
+   "code": "883",
+   "name": "Medium Copper",
+   "rgb": "#bd7255"
+  },
+  {
+   "code": "884",
+   "name": "Dark Copper",
+   "rgb": "#9a432e"
+  },
+  {
+   "code": "885",
+   "name": "Light Sand Stone",
+   "rgb": "#f5e2b4"
+  },
+  {
+   "code": "886",
+   "name": "Sand Stone",
+   "rgb": "#e7ce87"
+  },
+  {
+   "code": "887",
+   "name": "Medium Light Sand Stone",
+   "rgb": "#d5b471"
+  },
+  {
+   "code": "888",
+   "name": "Medium Sand Stone",
+   "rgb": "#a98038"
+  },
+  {
+   "code": "889",
+   "name": "Medium Dark Sand Stone",
+   "rgb": "#6f4b1a"
+  },
+  {
+   "code": "890",
+   "name": "Light Brass",
+   "rgb": "#d1943f"
+  },
+  {
+   "code": "891",
+   "name": "Brass",
+   "rgb": "#eabd6f"
+  },
+  {
+   "code": "892",
+   "name": "Light Rose Wine",
+   "rgb": "#f3d3c5"
+  },
+  {
+   "code": "893",
+   "name": "Rose Wine",
+   "rgb": "#eeb3a7"
+  },
+  {
+   "code": "894",
+   "name": "Medium Light Rose Wine",
+   "rgb": "#df9a97"
+  },
+  {
+   "code": "895",
+   "name": "Medium Rose Wine",
+   "rgb": "#d1717a"
+  },
+  {
+   "code": "896",
+   "name": "Dark Rose Wine",
+   "rgb": "#a2424f"
+  },
+  {
+   "code": "897",
+   "name": "Very Dark Rose Wine",
+   "rgb": "#701a24"
+  },
+  {
+   "code": "898",
+   "name": "Sierra",
+   "rgb": "#876b3e"
+  },
+  {
+   "code": "899",
+   "name": "Light Tawny",
+   "rgb": "#b29b7e"
+  },
+  {
+   "code": "900",
+   "name": "Light Pewter",
+   "rgb": "#a9a995"
+  },
+  {
+   "code": "901",
+   "name": "Medium Brass",
+   "rgb": "#b67a27"
+  },
+  {
+   "code": "903",
+   "name": "Medium Tawny",
+   "rgb": "#897050"
+  },
+  {
+   "code": "904",
+   "name": "Tawny",
+   "rgb": "#5f4d31"
+  },
+  {
+   "code": "905",
+   "name": "Dark Tawny",
+   "rgb": "#41321c"
+  },
+  {
+   "code": "906",
+   "name": "Dark Brass",
+   "rgb": "#6a480d"
+  },
+  {
+   "code": "907",
+   "name": "Dark saffron",
+   "rgb": "#b68b28"
+  },
+  {
+   "code": "914",
+   "name": "Medium Dark Flesh",
+   "rgb": "#c17b5d"
+  },
+  {
+   "code": "920",
+   "name": "Light Denim",
+   "rgb": "#728d9e"
+  },
+  {
+   "code": "921",
+   "name": "Medium Denim",
+   "rgb": "#567080"
+  },
+  {
+   "code": "922",
+   "name": "Dark Denim",
+   "rgb": "#41596a"
+  },
+  {
+   "code": "923",
+   "name": "Very Dark Emerald",
+   "rgb": "#005d30"
+  },
+  {
+   "code": "924",
+   "name": "Very Dark Olive Green",
+   "rgb": "#5e590e"
+  },
+  {
+   "code": "925",
+   "name": "Very Dark Tangerine",
+   "rgb": "#e95207"
+  },
+  {
+   "code": "926",
+   "name": "Very Light Ecru",
+   "rgb": "#f9edd2"
+  },
+  {
+   "code": "928",
+   "name": "Light Larkspur",
+   "rgb": "#aad9df"
+  },
+  {
+   "code": "933",
+   "name": "Very Light Fawn",
+   "rgb": "#f0cfb3"
+  },
+  {
+   "code": "936",
+   "name": "Very Dark Fawn",
+   "rgb": "#7f3d26"
+  },
+  {
+   "code": "939",
+   "name": "Medium Stormy Blue",
+   "rgb": "#7982a9"
+  },
+  {
+   "code": "940",
+   "name": "Medium Dark Stormy Bue",
+   "rgb": "#3c5090"
+  },
+  {
+   "code": "941",
+   "name": "Very Dark Stormy Blue",
+   "rgb": "#3c477d"
+  },
+  {
+   "code": "942",
+   "name": "Light Wheat",
+   "rgb": "#eac381"
+  },
+  {
+   "code": "943",
+   "name": "Medium Wheat",
+   "rgb": "#c99d57"
+  },
+  {
+   "code": "944",
+   "name": "Dark Wheat",
+   "rgb": "#854e1c"
+  },
+  {
+   "code": "945",
+   "name": "Medium Harvest",
+   "rgb": "#bea558"
+  },
+  {
+   "code": "956",
+   "name": "Light Harvest",
+   "rgb": "#d1bf8b"
+  },
+  {
+   "code": "968",
+   "name": "Light Wineberry",
+   "rgb": "#e5acaa"
+  },
+  {
+   "code": "969",
+   "name": "Medium Wineberry",
+   "rgb": "#ce8f94"
+  },
+  {
+   "code": "970",
+   "name": "Medium Dark Wineberry",
+   "rgb": "#ab5d74"
+  },
+  {
+   "code": "972",
+   "name": "Dark Wineberry",
+   "rgb": "#8a3059"
+  },
+  {
+   "code": "975",
+   "name": "Light Sea Blue",
+   "rgb": "#aac5cb"
+  },
+  {
+   "code": "976",
+   "name": "Medium Light Sea Blue",
+   "rgb": "#8dacb9"
+  },
+  {
+   "code": "977",
+   "name": "Medium Sea Blue",
+   "rgb": "#6189aa"
+  },
+  {
+   "code": "978",
+   "name": "Medium Dark Sea Blue",
+   "rgb": "#467196"
+  },
+  {
+   "code": "979",
+   "name": "Dark Sea Blue",
+   "rgb": "#185073"
+  },
+  {
+   "code": "1001",
+   "name": "Medium Antique Gold",
+   "rgb": "#d26c10"
+  },
+  {
+   "code": "1002",
+   "name": "Light Antique Gold",
+   "rgb": "#ed8b1d"
+  },
+  {
+   "code": "1003",
+   "name": "Amberglow",
+   "rgb": "#dd6c36"
+  },
+  {
+   "code": "1004",
+   "name": "Very Dark Apricot",
+   "rgb": "#a53d14"
+  },
+  {
+   "code": "1005",
+   "name": "Medium Cherry Red",
+   "rgb": "#8d0821"
+  },
+  {
+   "code": "1006",
+   "name": "Cherry Red",
+   "rgb": "#9b0018"
+  },
+  {
+   "code": "1007",
+   "name": "Dark Chicory",
+   "rgb": "#a05945"
+  },
+  {
+   "code": "1008",
+   "name": "Medium Chicory",
+   "rgb": "#cf9278"
+  },
+  {
+   "code": "1009",
+   "name": "Very Light Copper",
+   "rgb": "#f7dcc2"
+  },
+  {
+   "code": "1010",
+   "name": "Very Light Cinnamon",
+   "rgb": "#fdd9b4"
+  },
+  {
+   "code": "1011",
+   "name": "Very Light Flesh",
+   "rgb": "#f8dcc6"
+  },
+  {
+   "code": "1012",
+   "name": "Light Chickory",
+   "rgb": "#f5c0a6"
+  },
+  {
+   "code": "1013",
+   "name": "Medium Brick",
+   "rgb": "#c6705e"
+  },
+  {
+   "code": "1014",
+   "name": "Very Dark Brick",
+   "rgb": "#9e1f21"
+  },
+  {
+   "code": "1015",
+   "name": "Ultra Dark Brick",
+   "rgb": "#900911"
+  },
+  {
+   "code": "1016",
+   "name": "Light Antique Mauve",
+   "rgb": "#d39ba7"
+  },
+  {
+   "code": "1017",
+   "name": "Medium Antique Mauve",
+   "rgb": "#be7b8e"
+  },
+  {
+   "code": "1018",
+   "name": "Dark Antique Mauve",
+   "rgb": "#9c5965"
+  },
+  {
+   "code": "1019",
+   "name": "Very Dark Antique Mauve",
+   "rgb": "#863f50"
+  },
+  {
+   "code": "1020",
+   "name": "Very Light Peony",
+   "rgb": "#f1beb6"
+  },
+  {
+   "code": "1021",
+   "name": "Light Peony",
+   "rgb": "#e9aba5"
+  },
+  {
+   "code": "1022",
+   "name": "Medium Light Peony",
+   "rgb": "#e4847d"
+  },
+  {
+   "code": "1023",
+   "name": "Peony",
+   "rgb": "#d66b71"
+  },
+  {
+   "code": "1024",
+   "name": "Medium Peony",
+   "rgb": "#c65656"
+  },
+  {
+   "code": "1025",
+   "name": "Medium Dark Peony",
+   "rgb": "#ad1123"
+  },
+  {
+   "code": "1026",
+   "name": "Very Light Wineberry",
+   "rgb": "#f7cec4"
+  },
+  {
+   "code": "1027",
+   "name": "Medium Dark Rose Wine",
+   "rgb": "#bc595e"
+  },
+  {
+   "code": "1028",
+   "name": "Medium Dark Raspberry",
+   "rgb": "#7c1c41"
+  },
+  {
+   "code": "1029",
+   "name": "Ultra Dark Antique Rose",
+   "rgb": "#86103d"
+  },
+  {
+   "code": "1030",
+   "name": "Medium Dark Thistle",
+   "rgb": "#7363a6"
+  },
+  {
+   "code": "1031",
+   "name": "Ultra Light Antique Blue",
+   "rgb": "#c9dce3"
+  },
+  {
+   "code": "1032",
+   "name": "Very Light Antique Blue",
+   "rgb": "#abc2cf"
+  },
+  {
+   "code": "1033",
+   "name": "Light Antique Blue",
+   "rgb": "#8da1b4"
+  },
+  {
+   "code": "1034",
+   "name": "Medium Antique Blue",
+   "rgb": "#5d758c"
+  },
+  {
+   "code": "1035",
+   "name": "Dark Antique Blue",
+   "rgb": "#2d3f54"
+  },
+  {
+   "code": "1036",
+   "name": "Very Dark Antique Blue",
+   "rgb": "#233856"
+  },
+  {
+   "code": "1037",
+   "name": "Very Light Sea Blue",
+   "rgb": "#deebec"
+  },
+  {
+   "code": "1038",
+   "name": "Medium Glacier Blue",
+   "rgb": "#8bbdc7"
+  },
+  {
+   "code": "1039",
+   "name": "Medium Dark Glacier Blue",
+   "rgb": "#579cb1"
+  },
+  {
+   "code": "1040",
+   "name": "Medium Pewter",
+   "rgb": "#888170"
+  },
+  {
+   "code": "1041",
+   "name": "Very Dark Stone Grey",
+   "rgb": "#3c362b"
+  },
+  {
+   "code": "1042",
+   "name": "Very Light Pine",
+   "rgb": "#bfdac0"
+  },
+  {
+   "code": "1043",
+   "name": "Very Light Grass Green",
+   "rgb": "#cee5ad"
+  },
+  {
+   "code": "1044",
+   "name": "Ultra Dark Grass Green",
+   "rgb": "#173d13"
+  },
+  {
+   "code": "1045",
+   "name": "Light Toast",
+   "rgb": "#ca874c"
+  },
+  {
+   "code": "1046",
+   "name": "Toast",
+   "rgb": "#ac641f"
+  },
+  {
+   "code": "1047",
+   "name": "Light Cinnamon",
+   "rgb": "#f39f64"
+  },
+  {
+   "code": "1048",
+   "name": "Red Cinnamon",
+   "rgb": "#d46b34"
+  },
+  {
+   "code": "1049",
+   "name": "Cinnamon",
+   "rgb": "#ae5023"
+  },
+  {
+   "code": "1050",
+   "name": "Dark Mocha Brown",
+   "rgb": "#694228"
+  },
+  {
+   "code": "1060",
+   "name": "Ultra Light Teal",
+   "rgb": "#9ec6cd"
+  },
+  {
+   "code": "1062",
+   "name": "Very Light Teal",
+   "rgb": "#6392a1"
+  },
+  {
+   "code": "1064",
+   "name": "Light Teal",
+   "rgb": "#4b8297"
+  },
+  {
+   "code": "1066",
+   "name": "Medium Teal",
+   "rgb": "#1b576a"
+  },
+  {
+   "code": "1068",
+   "name": "Teal",
+   "rgb": "#004457"
+  },
+  {
+   "code": "1070",
+   "name": "Light Jade",
+   "rgb": "#54ac99"
+  },
+  {
+   "code": "1072",
+   "name": "Medium Light Jade",
+   "rgb": "#309c84"
+  },
+  {
+   "code": "1074",
+   "name": "Medium Jade",
+   "rgb": "#008373"
+  },
+  {
+   "code": "1076",
+   "name": "Jade",
+   "rgb": "#007265"
+  },
+  {
+   "code": "1080",
+   "name": "Light Taupe",
+   "rgb": "#c8a689"
+  },
+  {
+   "code": "1082",
+   "name": "Medium Light Taupe",
+   "rgb": "#9f816c"
+  },
+  {
+   "code": "1084",
+   "name": "Taupe",
+   "rgb": "#846550"
+  },
+  {
+   "code": "1086",
+   "name": "Dark Taupe",
+   "rgb": "#5c4636"
+  },
+  {
+   "code": "1088",
+   "name": "Very Dark Taupe",
+   "rgb": "#3d2c23"
+  },
+  {
+   "code": "1089",
+   "name": "Medium Electric Blue",
+   "rgb": "#0088d3"
+  },
+  {
+   "code": "1090",
+   "name": "Light Electric Blue",
+   "rgb": "#3ea9ea"
+  },
+  {
+   "code": "1092",
+   "name": "Very Light Sea Green",
+   "rgb": "#99d8d2"
+  },
+  {
+   "code": "1094",
+   "name": "Very Light Beauty Rose",
+   "rgb": "#fc9ec5"
+  },
+  {
+   "code": "1096",
+   "name": "Light Slate Blue",
+   "rgb": "#9fb3c1"
+  },
+  {
+   "code": "1098",
+   "name": "Light Crimson Red",
+   "rgb": "#d41829"
+  },
+  {
+   "code": "4146",
+   "name": "Medium Light Flesh",
+   "rgb": "#eabaa4"
+  },
+  {
+   "code": "5975",
+   "name": "Dark Brick",
+   "rgb": "#b65245"
+  },
+  {
+   "code": "8581",
+   "name": "Stone Grey",
+   "rgb": "#79725e"
+  },
+  {
+   "code": "9046",
+   "name": "Christmas Red",
+   "rgb": "#c60019"
+  },
+  {
+   "code": "9159",
+   "name": "Glacier Blue",
+   "rgb": "#b7dae4"
+  },
+  {
+   "code": "9575",
+   "name": "Medium Light Brick",
+   "rgb": "#dc9479"
+  }
+ ]
+}

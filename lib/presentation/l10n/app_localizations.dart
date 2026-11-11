@@ -163,6 +163,12 @@ abstract class AppLocalizations {
   /// **'Производитель бисера'**
   String get settingsDefaultBrand;
 
+  /// No description provided for @settingsDefaultFlossBrand.
+  ///
+  /// In ru, this message translates to:
+  /// **'Производитель мулине'**
+  String get settingsDefaultFlossBrand;
+
   /// No description provided for @settingsSectionData.
   ///
   /// In ru, this message translates to:
@@ -286,7 +292,7 @@ abstract class AppLocalizations {
   /// No description provided for @aboutCredits.
   ///
   /// In ru, this message translates to:
-  /// **'Цвета ниток DMC: craft-color-codes, MakeBead (makebead.com), лицензия CC BY 4.0. DMC — торговая марка DMC, приложение с ней не связано.'**
+  /// **'Цвета ниток DMC: craft-color-codes, MakeBead (makebead.com), лицензия CC BY 4.0. DMC — торговая марка DMC, приложение с ней не связано. Цвета ниток «Гамма» и Anchor: firma-gamma.ru и crosti.ru. «Гамма» и Anchor — торговые марки своих владельцев, приложение с ними не связано.'**
   String get aboutCredits;
 
   /// No description provided for @aboutVersion.
@@ -2628,6 +2634,12 @@ abstract class AppLocalizations {
   /// In ru, this message translates to:
   /// **'Вышивка'**
   String get imageWizardCraftStitch;
+
+  /// Заголовок выбора производителя мулине в мастере схемы из фото
+  ///
+  /// In ru, this message translates to:
+  /// **'Производитель мулине'**
+  String get imageWizardFlossBrand;
 
   /// Заголовок выбора канвы для вышивки
   ///

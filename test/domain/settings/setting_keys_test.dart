@@ -11,7 +11,7 @@ void main() {
       expect(SettingKeys.keepScreenAwake.defaultValue, isTrue);
       expect(SettingKeys.symbolMode.defaultValue, isFalse);
       expect(SettingKeys.defaultBeadBrand.defaultValue, 'Miyuki');
-      expect(SettingKeys.defaultFlossBrand.defaultValue, 'DMC');
+      expect(SettingKeys.defaultFlossBrand.defaultValue, 'Гамма');
       expect(SettingKeys.userName.defaultValue, 'Настя');
       expect(SettingKeys.specialDates.defaultValue, isEmpty);
     });
