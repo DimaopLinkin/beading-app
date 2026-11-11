@@ -3,10 +3,17 @@ import 'dart:typed_data';
 import 'package:beading/domain/grid/grid_geometry.dart';
 import 'package:beading/domain/image_to_grid/cell_costs.dart';
 import 'package:beading/domain/image_to_grid/generated_pattern.dart';
+import 'package:beading/domain/palette/rgb.dart';
 
 /// Что знает шаг о схеме, кроме самой сетки.
 final class PatternStepContext {
-  const PatternStepContext({required this.geometry, required this.cellImportance, this.costs, this.cellEdges});
+  const PatternStepContext({
+    required this.geometry,
+    required this.cellImportance,
+    this.costs,
+    this.cellEdges,
+    this.cellColors,
+  });
 
   final GridGeometry geometry;
 
@@ -19,6 +26,9 @@ final class PatternStepContext {
 
   /// Сила края в каждой клетке (`cellEdges`) или `null`, если рабочего изображения не было: путь T24.
   final Float32List? cellEdges;
+
+  /// Цвета клеток после ресэмплинга (по рядам, `null` — пустая клетка): по ним шаг видит, какой цвет «хотела» клетка.
+  final List<Rgb?>? cellColors;
 }
 
 /// Шаг конвейера после привязки к палитре: очистка «конфетти» (T47), слои и им подобное.

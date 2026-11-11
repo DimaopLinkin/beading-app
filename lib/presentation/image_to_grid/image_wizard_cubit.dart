@@ -297,8 +297,8 @@ class ImageWizardCubit extends Cubit<ImageWizardState> {
     }
   }
 
-  /// Черновик есть только у пиксельного пути конвейера: путь T24 (без предустановки или с дизерингом) его не знает.
-  bool get _hasDraft => state.settings.preset != null && !state.settings.dither;
+  /// Черновик есть только у пиксельного пути конвейера: путь T24 (без предустановки) его не знает.
+  bool get _hasDraft => state.settings.preset != null;
 
   void _requestDraft() {
     if (_draftRunning) {
