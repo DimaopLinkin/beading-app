@@ -3,6 +3,7 @@ import 'dart:typed_data';
 import 'package:beading/domain/grid/grid.dart';
 import 'package:beading/domain/grid/grid_geometry.dart';
 import 'package:beading/domain/image_to_grid/accent_refill.dart';
+import 'package:beading/domain/image_to_grid/background_stage.dart';
 import 'package:beading/domain/image_to_grid/cell_edges.dart';
 import 'package:beading/domain/image_to_grid/cell_labeler.dart';
 import 'package:beading/domain/image_to_grid/cell_neighbors.dart';
@@ -41,6 +42,7 @@ final class ImageToGridPipeline {
 
   GeneratedPattern run(ImageToGridRequest request) {
     final Stopwatch clock = Stopwatch()..start();
+    final Float32List? weights = request.effectiveImportance;
     final Map<String, Duration> times = <String, Duration>{};
     Duration lap() {
       final Duration elapsed = clock.elapsed;
@@ -48,10 +50,10 @@ final class ImageToGridPipeline {
       return elapsed;
     }
 
-    if (request.usesPixelStages) return _runPixelStages(request, clock, times, lap);
+    if (request.usesPixelStages) return _runPixelStages(request, weights, clock, times, lap);
 
     SourceImage image = request.image;
-    Float32List? importance = request.importance;
+    Float32List? importance = weights;
     final ImagePrefilter? prefilter = request.prefilter;
     if (prefilter != null) {
       final WorkImage work = prefilter.apply(
@@ -95,6 +97,7 @@ final class ImageToGridPipeline {
     for (final PatternStep step in request.steps) {
       pattern = step.apply(pattern, context);
     }
+    pattern = _compactPattern(_backgroundStage(request, pattern, cells), cells);
     times['steps'] = lap();
     return GeneratedPattern(
       grid: pattern.grid,
@@ -106,13 +109,14 @@ final class ImageToGridPipeline {
   /// Путь по ADR-0004: рабочее изображение → палитра по пикселям → цвет клетки голосованием → шаги с ценами цветов.
   GeneratedPattern _runPixelStages(
     ImageToGridRequest request,
+    Float32List? weights,
     Stopwatch clock,
     Map<String, Duration> times,
     Duration Function() lap,
   ) {
     WorkImage work = WorkImage.fromSource(
       image: request.image,
-      importance: request.importance,
+      importance: weights,
       geometry: request.geometry,
       metrics: request.metrics,
       columns: request.columns,
@@ -202,6 +206,7 @@ final class ImageToGridPipeline {
     }
     // Шаги могли опустошить цвета: убираем неиспользуемые и снова упорядочиваем по площади.
     pattern = _compactPattern(pattern, cells);
+    pattern = _compactPattern(_backgroundStage(request, pattern, cells), cells);
     times['steps'] = lap();
     return GeneratedPattern(
       grid: pattern.grid,
@@ -213,6 +218,30 @@ final class ImageToGridPipeline {
         times,
         singlesBefore: request.steps.isEmpty && smoother == null ? null : singlesBefore,
       ),
+    );
+  }
+
+  /// Фон и обводка (T55): после всех шагов, по маске объекта на уровне клеток.
+  GeneratedPattern _backgroundStage(ImageToGridRequest request, GeneratedPattern pattern, SampledCells cells) {
+    final Uint8List? mask = request.subjectMask;
+    if (mask == null || !request.usesBackgroundStage) return pattern;
+    final CellRegions regions = CellRegions.forGrid(
+      geometry: request.geometry,
+      metrics: request.metrics,
+      columns: request.columns,
+      rows: request.rows,
+      imageWidth: request.image.width,
+      imageHeight: request.image.height,
+    );
+    return BackgroundStage.apply(
+      pattern: pattern,
+      cellColors: cells.colors,
+      subject: subjectCellsFrom(mask: mask, imageWidth: request.image.width, regions: regions),
+      neighbors: CellNeighbors.of(geometry: request.geometry, columns: cells.columns, rows: cells.rows),
+      mode: request.background,
+      outline: request.outline,
+      maxColors: request.maxColors,
+      constraint: request.constraint,
     );
   }
 

@@ -49,6 +49,21 @@
     "colors": 10,
     "deltaE": 4.2
   },
+  "cat/loom/t55-outline": {
+    "singles": 22,
+    "colors": 8,
+    "deltaE": 7.39
+  },
+  "cat/loom/t55-remove": {
+    "singles": 14,
+    "colors": 10,
+    "deltaE": 4.58
+  },
+  "cat/loom/t55-simplify": {
+    "singles": 10,
+    "colors": 8,
+    "deltaE": 5.53
+  },
   "cat/peyote/t24": {
     "singles": 56,
     "colors": 10,
@@ -99,6 +114,21 @@
     "colors": 8,
     "deltaE": 4.32
   },
+  "cat/peyote/t55-outline": {
+    "singles": 8,
+    "colors": 8,
+    "deltaE": 7.47
+  },
+  "cat/peyote/t55-remove": {
+    "singles": 8,
+    "colors": 9,
+    "deltaE": 4.56
+  },
+  "cat/peyote/t55-simplify": {
+    "singles": 7,
+    "colors": 8,
+    "deltaE": 5.33
+  },
   "cat/stitch/t24": {
     "singles": 312,
     "colors": 16,
@@ -133,6 +163,16 @@
     "singles": 150,
     "colors": 14,
     "deltaE": 3.7
+  },
+  "cat/stitch/t55-remove": {
+    "singles": 34,
+    "colors": 14,
+    "deltaE": 3.82
+  },
+  "cat/stitch/t55-simplify": {
+    "singles": 30,
+    "colors": 13,
+    "deltaE": 5.0
   },
   "coffee/loom/t24": {
     "singles": 92,
@@ -184,6 +224,21 @@
     "colors": 8,
     "deltaE": 5.38
   },
+  "coffee/loom/t55-outline": {
+    "singles": 20,
+    "colors": 9,
+    "deltaE": 9.64
+  },
+  "coffee/loom/t55-remove": {
+    "singles": 11,
+    "colors": 8,
+    "deltaE": 5.81
+  },
+  "coffee/loom/t55-simplify": {
+    "singles": 11,
+    "colors": 9,
+    "deltaE": 7.18
+  },
   "coffee/peyote/t24": {
     "singles": 65,
     "colors": 10,
@@ -234,6 +289,21 @@
     "colors": 9,
     "deltaE": 4.84
   },
+  "coffee/peyote/t55-outline": {
+    "singles": 7,
+    "colors": 9,
+    "deltaE": 8.9
+  },
+  "coffee/peyote/t55-remove": {
+    "singles": 7,
+    "colors": 8,
+    "deltaE": 5.33
+  },
+  "coffee/peyote/t55-simplify": {
+    "singles": 5,
+    "colors": 9,
+    "deltaE": 6.2
+  },
   "coffee/stitch/t24": {
     "singles": 342,
     "colors": 16,
@@ -268,6 +338,16 @@
     "singles": 147,
     "colors": 13,
     "deltaE": 3.91
+  },
+  "coffee/stitch/t55-remove": {
+    "singles": 38,
+    "colors": 14,
+    "deltaE": 4.03
+  },
+  "coffee/stitch/t55-simplify": {
+    "singles": 21,
+    "colors": 13,
+    "deltaE": 5.87
   },
   "drawing/loom/t24": {
     "singles": 19,
@@ -319,6 +399,21 @@
     "colors": 9,
     "deltaE": 2.94
   },
+  "drawing/loom/t55-outline": {
+    "singles": 11,
+    "colors": 8,
+    "deltaE": 7.71
+  },
+  "drawing/loom/t55-remove": {
+    "singles": 6,
+    "colors": 8,
+    "deltaE": 4.18
+  },
+  "drawing/loom/t55-simplify": {
+    "singles": 7,
+    "colors": 8,
+    "deltaE": 2.93
+  },
   "drawing/peyote/t24": {
     "singles": 44,
     "colors": 10,
@@ -369,6 +464,21 @@
     "colors": 8,
     "deltaE": 2.93
   },
+  "drawing/peyote/t55-outline": {
+    "singles": 3,
+    "colors": 6,
+    "deltaE": 7.79
+  },
+  "drawing/peyote/t55-remove": {
+    "singles": 2,
+    "colors": 7,
+    "deltaE": 4.26
+  },
+  "drawing/peyote/t55-simplify": {
+    "singles": 2,
+    "colors": 6,
+    "deltaE": 3.26
+  },
   "drawing/stitch/t24": {
     "singles": 71,
     "colors": 16,
@@ -403,6 +513,16 @@
     "singles": 24,
     "colors": 12,
     "deltaE": 2.11
+  },
+  "drawing/stitch/t55-remove": {
+    "singles": 7,
+    "colors": 13,
+    "deltaE": 3.03
+  },
+  "drawing/stitch/t55-simplify": {
+    "singles": 8,
+    "colors": 13,
+    "deltaE": 2.14
   },
   "galaxy/loom/t24": {
     "singles": 256,
@@ -454,6 +574,21 @@
     "colors": 8,
     "deltaE": 2.03
   },
+  "galaxy/loom/t55-outline": {
+    "singles": 4,
+    "colors": 5,
+    "deltaE": 2.24
+  },
+  "galaxy/loom/t55-remove": {
+    "singles": 5,
+    "colors": 6,
+    "deltaE": 2.35
+  },
+  "galaxy/loom/t55-simplify": {
+    "singles": 5,
+    "colors": 6,
+    "deltaE": 2.22
+  },
   "galaxy/peyote/t24": {
     "singles": 198,
     "colors": 10,
@@ -504,6 +639,21 @@
     "colors": 8,
     "deltaE": 2.07
   },
+  "galaxy/peyote/t55-outline": {
+    "singles": 6,
+    "colors": 7,
+    "deltaE": 2.29
+  },
+  "galaxy/peyote/t55-remove": {
+    "singles": 6,
+    "colors": 7,
+    "deltaE": 2.39
+  },
+  "galaxy/peyote/t55-simplify": {
+    "singles": 7,
+    "colors": 7,
+    "deltaE": 2.27
+  },
   "galaxy/stitch/t24": {
     "singles": 616,
     "colors": 16,
@@ -538,6 +688,16 @@
     "singles": 167,
     "colors": 13,
     "deltaE": 1.87
+  },
+  "galaxy/stitch/t55-remove": {
+    "singles": 26,
+    "colors": 10,
+    "deltaE": 2.51
+  },
+  "galaxy/stitch/t55-simplify": {
+    "singles": 40,
+    "colors": 12,
+    "deltaE": 2.23
   },
   "handwriting/loom/t24": {
     "singles": 141,
@@ -589,6 +749,21 @@
     "colors": 6,
     "deltaE": 1.32
   },
+  "handwriting/loom/t55-outline": {
+    "singles": 14,
+    "colors": 4,
+    "deltaE": 2.57
+  },
+  "handwriting/loom/t55-remove": {
+    "singles": 6,
+    "colors": 2,
+    "deltaE": 3.34
+  },
+  "handwriting/loom/t55-simplify": {
+    "singles": 13,
+    "colors": 4,
+    "deltaE": 2.14
+  },
   "handwriting/peyote/t24": {
     "singles": 109,
     "colors": 10,
@@ -639,6 +814,21 @@
     "colors": 7,
     "deltaE": 1.33
   },
+  "handwriting/peyote/t55-outline": {
+    "singles": 6,
+    "colors": 4,
+    "deltaE": 2.69
+  },
+  "handwriting/peyote/t55-remove": {
+    "singles": 5,
+    "colors": 4,
+    "deltaE": 3.57
+  },
+  "handwriting/peyote/t55-simplify": {
+    "singles": 5,
+    "colors": 4,
+    "deltaE": 2.2
+  },
   "handwriting/stitch/t24": {
     "singles": 417,
     "colors": 16,
@@ -673,6 +863,16 @@
     "singles": 240,
     "colors": 12,
     "deltaE": 1.14
+  },
+  "handwriting/stitch/t55-remove": {
+    "singles": 35,
+    "colors": 8,
+    "deltaE": 4.1
+  },
+  "handwriting/stitch/t55-simplify": {
+    "singles": 42,
+    "colors": 8,
+    "deltaE": 2.34
   },
   "landscape/loom/t24": {
     "singles": 19,
@@ -724,6 +924,21 @@
     "colors": 8,
     "deltaE": 2.57
   },
+  "landscape/loom/t55-outline": {
+    "singles": 12,
+    "colors": 7,
+    "deltaE": 5.0
+  },
+  "landscape/loom/t55-remove": {
+    "singles": 0,
+    "colors": 5,
+    "deltaE": 3.25
+  },
+  "landscape/loom/t55-simplify": {
+    "singles": 0,
+    "colors": 7,
+    "deltaE": 4.07
+  },
   "landscape/peyote/t24": {
     "singles": 16,
     "colors": 10,
@@ -774,6 +989,21 @@
     "colors": 7,
     "deltaE": 2.91
   },
+  "landscape/peyote/t55-outline": {
+    "singles": 1,
+    "colors": 8,
+    "deltaE": 4.85
+  },
+  "landscape/peyote/t55-remove": {
+    "singles": 0,
+    "colors": 7,
+    "deltaE": 2.94
+  },
+  "landscape/peyote/t55-simplify": {
+    "singles": 0,
+    "colors": 8,
+    "deltaE": 3.74
+  },
   "landscape/stitch/t24": {
     "singles": 45,
     "colors": 16,
@@ -808,6 +1038,16 @@
     "singles": 9,
     "colors": 13,
     "deltaE": 1.69
+  },
+  "landscape/stitch/t55-remove": {
+    "singles": 3,
+    "colors": 11,
+    "deltaE": 2.01
+  },
+  "landscape/stitch/t55-simplify": {
+    "singles": 5,
+    "colors": 11,
+    "deltaE": 3.58
   },
   "logo/loom/t24": {
     "singles": 139,
@@ -859,6 +1099,21 @@
     "colors": 9,
     "deltaE": 2.61
   },
+  "logo/loom/t55-outline": {
+    "singles": 63,
+    "colors": 10,
+    "deltaE": 7.98
+  },
+  "logo/loom/t55-remove": {
+    "singles": 29,
+    "colors": 8,
+    "deltaE": 2.77
+  },
+  "logo/loom/t55-simplify": {
+    "singles": 28,
+    "colors": 9,
+    "deltaE": 2.95
+  },
   "logo/peyote/t24": {
     "singles": 98,
     "colors": 10,
@@ -909,6 +1164,21 @@
     "colors": 8,
     "deltaE": 2.77
   },
+  "logo/peyote/t55-outline": {
+    "singles": 29,
+    "colors": 9,
+    "deltaE": 10.08
+  },
+  "logo/peyote/t55-remove": {
+    "singles": 18,
+    "colors": 10,
+    "deltaE": 2.61
+  },
+  "logo/peyote/t55-simplify": {
+    "singles": 25,
+    "colors": 8,
+    "deltaE": 2.84
+  },
   "logo/stitch/t24": {
     "singles": 422,
     "colors": 16,
@@ -943,6 +1213,16 @@
     "singles": 194,
     "colors": 13,
     "deltaE": 1.76
+  },
+  "logo/stitch/t55-remove": {
+    "singles": 74,
+    "colors": 13,
+    "deltaE": 1.72
+  },
+  "logo/stitch/t55-simplify": {
+    "singles": 56,
+    "colors": 12,
+    "deltaE": 2.14
   },
   "portrait/loom/t24": {
     "singles": 110,
@@ -994,6 +1274,21 @@
     "colors": 10,
     "deltaE": 7.05
   },
+  "portrait/loom/t55-outline": {
+    "singles": 19,
+    "colors": 9,
+    "deltaE": 12.69
+  },
+  "portrait/loom/t55-remove": {
+    "singles": 14,
+    "colors": 9,
+    "deltaE": 7.78
+  },
+  "portrait/loom/t55-simplify": {
+    "singles": 15,
+    "colors": 9,
+    "deltaE": 10.76
+  },
   "portrait/peyote/t24": {
     "singles": 96,
     "colors": 10,
@@ -1044,6 +1339,21 @@
     "colors": 10,
     "deltaE": 7.3
   },
+  "portrait/peyote/t55-outline": {
+    "singles": 7,
+    "colors": 10,
+    "deltaE": 13.51
+  },
+  "portrait/peyote/t55-remove": {
+    "singles": 5,
+    "colors": 9,
+    "deltaE": 7.73
+  },
+  "portrait/peyote/t55-simplify": {
+    "singles": 7,
+    "colors": 10,
+    "deltaE": 11.3
+  },
   "portrait/stitch/t24": {
     "singles": 321,
     "colors": 16,
@@ -1078,6 +1388,16 @@
     "singles": 233,
     "colors": 16,
     "deltaE": 5.2
+  },
+  "portrait/stitch/t55-remove": {
+    "singles": 37,
+    "colors": 15,
+    "deltaE": 5.69
+  },
+  "portrait/stitch/t55-simplify": {
+    "singles": 48,
+    "colors": 16,
+    "deltaE": 9.45
   },
   "rocket/loom/t24": {
     "singles": 21,
@@ -1129,6 +1449,21 @@
     "colors": 10,
     "deltaE": 3.92
   },
+  "rocket/loom/t55-outline": {
+    "singles": 10,
+    "colors": 7,
+    "deltaE": 5.73
+  },
+  "rocket/loom/t55-remove": {
+    "singles": 6,
+    "colors": 7,
+    "deltaE": 3.09
+  },
+  "rocket/loom/t55-simplify": {
+    "singles": 1,
+    "colors": 7,
+    "deltaE": 5.09
+  },
   "rocket/peyote/t24": {
     "singles": 23,
     "colors": 10,
@@ -1179,6 +1514,21 @@
     "colors": 9,
     "deltaE": 3.84
   },
+  "rocket/peyote/t55-outline": {
+    "singles": 3,
+    "colors": 8,
+    "deltaE": 5.77
+  },
+  "rocket/peyote/t55-remove": {
+    "singles": 1,
+    "colors": 8,
+    "deltaE": 3.02
+  },
+  "rocket/peyote/t55-simplify": {
+    "singles": 1,
+    "colors": 9,
+    "deltaE": 5.0
+  },
   "rocket/stitch/t24": {
     "singles": 76,
     "colors": 16,
@@ -1213,5 +1563,15 @@
     "singles": 40,
     "colors": 13,
     "deltaE": 3.25
+  },
+  "rocket/stitch/t55-remove": {
+    "singles": 5,
+    "colors": 12,
+    "deltaE": 2.42
+  },
+  "rocket/stitch/t55-simplify": {
+    "singles": 8,
+    "colors": 12,
+    "deltaE": 4.62
   }
 }

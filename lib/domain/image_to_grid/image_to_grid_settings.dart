@@ -6,6 +6,7 @@ import 'package:beading/domain/catalog/catalog_material.dart';
 import 'package:beading/domain/grid/bead_size.dart';
 import 'package:beading/domain/grid/grid.dart';
 import 'package:beading/domain/grid/grid_geometry.dart';
+import 'package:beading/domain/image_to_grid/background_stage.dart';
 import 'package:beading/domain/image_to_grid/cell_labeler.dart';
 import 'package:beading/domain/image_to_grid/cell_sampler.dart';
 import 'package:beading/domain/image_to_grid/generation_preset.dart';
@@ -38,6 +39,8 @@ final class ImageToGridSettings extends Equatable {
     this.dither = false,
     this.preset = GenerationPreset.balanced,
     this.steps = const <PatternStep>[],
+    this.background = BackgroundMode.keep,
+    this.outline = false,
   });
 
   static const int defaultColumns = 40;
@@ -68,6 +71,12 @@ final class ImageToGridSettings extends Equatable {
   /// Дополнительные шаги после очистки предустановки (контуры, слои): расширение для T49 и дальше.
   final List<PatternStep> steps;
 
+  /// Что делать с фоном: действует, только если у мастера есть маска объекта (T48); без неё настройку не показывают.
+  final BackgroundMode background;
+
+  /// Обводка объекта одной клеткой тёмного цвета (только бисер, нужна маска объекта).
+  final bool outline;
+
   GridGeometry get geometry => geometryForTechnique(technique);
 
   ImageToGridSettings copyWith({
@@ -80,6 +89,8 @@ final class ImageToGridSettings extends Equatable {
     GenerationPreset? preset,
     bool clearPreset = false,
     List<PatternStep>? steps,
+    BackgroundMode? background,
+    bool? outline,
   }) => ImageToGridSettings(
     technique: technique ?? this.technique,
     beadSize: beadSize ?? this.beadSize,
@@ -89,6 +100,8 @@ final class ImageToGridSettings extends Equatable {
     dither: dither ?? this.dither,
     preset: clearPreset ? null : preset ?? this.preset,
     steps: steps ?? this.steps,
+    background: background ?? this.background,
+    outline: outline ?? this.outline,
   );
 
   /// Число рядов, при котором схема повторяет пропорции [image].
@@ -119,6 +132,7 @@ final class ImageToGridSettings extends Equatable {
     String brand = '',
     Float32List? importance,
     int seed = 0,
+    Uint8List? subjectMask,
   }) {
     final List<CatalogColor> allowed = catalogFor(catalog, brand: brand);
     final bool useCatalog = paletteSource == PaletteSource.catalog && allowed.isNotEmpty;
@@ -143,9 +157,23 @@ final class ImageToGridSettings extends Equatable {
       smoother: active?.smoother,
       refillFreedColors: active?.refillFreedColors ?? false,
       steps: <PatternStep>[...?active?.steps, ...steps],
+      subjectMask: subjectMask,
+      background: background,
+      outline: outline,
     );
   }
 
   @override
-  List<Object?> get props => <Object?>[technique, beadSize, columns, maxColors, paletteSource, dither, preset, steps];
+  List<Object?> get props => <Object?>[
+    technique,
+    beadSize,
+    columns,
+    maxColors,
+    paletteSource,
+    dither,
+    preset,
+    steps,
+    background,
+    outline,
+  ];
 }
