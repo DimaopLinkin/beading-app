@@ -1287,6 +1287,12 @@ class AppLocalizationsRu extends AppLocalizations {
       'Лучше передаёт оттенки, но схема становится пестрее. При включении выбор «Детальность» не применяется.';
 
   @override
+  String get imageWizardUseMasks => 'Выделять главное';
+
+  @override
+  String get imageWizardUseMasksHint => 'Лица и главный предмет получают больше цветов и деталей, фон — меньше.';
+
+  @override
   String get imageWizardName => 'Название';
 
   @override

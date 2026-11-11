@@ -355,6 +355,29 @@ class _EditState extends State<_Edit> {
                   ],
                 ),
               ),
+              if (state.hasMasks) ...<Widget>[
+                SizedBox(height: gap),
+                MergeSemantics(
+                  child: Row(
+                    children: <Widget>[
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: <Widget>[
+                            Text(l10n.imageWizardUseMasks),
+                            Text(l10n.imageWizardUseMasksHint, style: caption),
+                          ],
+                        ),
+                      ),
+                      CupertinoSwitch(
+                        key: const ValueKey<String>('wizard-use-masks'),
+                        value: settings.useMasks,
+                        onChanged: (value) => cubit.setUseMasks(value: value),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
               SizedBox(height: gap),
               CupertinoTextField(
                 key: const ValueKey<String>('wizard-name'),
