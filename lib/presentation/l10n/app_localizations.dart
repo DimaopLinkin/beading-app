@@ -2335,6 +2335,18 @@ abstract class AppLocalizations {
   /// **'Исходная картинка'**
   String get imageWizardOriginalLabel;
 
+  /// Переключатель вида предпросмотра: плоская схема
+  ///
+  /// In ru, this message translates to:
+  /// **'Схема'**
+  String get imageWizardLookChart;
+
+  /// Переключатель вида предпросмотра: реалистичный вид бусин
+  ///
+  /// In ru, this message translates to:
+  /// **'Как будет'**
+  String get imageWizardLookRealistic;
+
   /// Подсказка про сравнение до/после
   ///
   /// In ru, this message translates to:

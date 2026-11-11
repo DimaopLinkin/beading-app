@@ -9,6 +9,7 @@ final class GridViewOptions extends Equatable {
     this.showGridLines = true,
     this.boldEvery = 0,
     this.showFinish = true,
+    this.realistic = false,
     this.currentRow,
     this.currentCell,
     this.doneRows = const <int>{},
@@ -28,6 +29,10 @@ final class GridViewOptions extends Equatable {
 
   /// Подсказка отделки бусины (блик, металлик, прозрачность).
   final bool showFinish;
+
+  /// Вид «как будет выглядеть»: настоящие бусины или крестики на канве вместо плоской схемы. Символы и линии сетки
+  /// в нём не рисуются.
+  final bool realistic;
 
   /// Текущий ряд: двойное кольцо и маркер слева. `null` — нет.
   final int? currentRow;
@@ -53,7 +58,8 @@ final class GridViewOptions extends Equatable {
       showSymbols == other.showSymbols &&
       showGridLines == other.showGridLines &&
       boldEvery == other.boldEvery &&
-      showFinish == other.showFinish;
+      showFinish == other.showFinish &&
+      realistic == other.realistic;
 
   @override
   List<Object?> get props => <Object?>[
@@ -61,6 +67,7 @@ final class GridViewOptions extends Equatable {
     showGridLines,
     boldEvery,
     showFinish,
+    realistic,
     currentRow,
     currentCell,
     doneRows,

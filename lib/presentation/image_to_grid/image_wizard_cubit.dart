@@ -266,6 +266,11 @@ class ImageWizardCubit extends Cubit<ImageWizardState> {
     }
   }
 
+  /// Переключает предпросмотр между плоской схемой и видом «как будет выглядеть».
+  void setRealistic({required bool value}) {
+    if (state.realistic != value) emit(state.copyWith(realistic: value));
+  }
+
   void _change(ImageToGridSettings settings) {
     if (settings == state.settings) {
       return;

@@ -604,7 +604,7 @@ class _Preview extends StatelessWidget {
             palette: state.previewPalette!,
             geometry: shown.geometry,
             metrics: shown.beadSize,
-            options: const GridViewOptions(showGridLines: false),
+            options: GridViewOptions(showGridLines: false, realistic: state.realistic),
             interactive: false,
           ),
         ),
@@ -646,6 +646,25 @@ class _Preview extends StatelessWidget {
             ),
           ),
         ),
+        if (grid != null)
+          Padding(
+            padding: EdgeInsets.only(top: tokens.spacing.s),
+            child: CupertinoSlidingSegmentedControl<bool>(
+              key: const ValueKey<String>('wizard-look'),
+              groupValue: state.realistic,
+              onValueChanged: (value) => cubit.setRealistic(value: value ?? false),
+              children: <bool, Widget>{
+                false: Padding(
+                  padding: EdgeInsets.symmetric(horizontal: tokens.spacing.m),
+                  child: Text(l10n.imageWizardLookChart),
+                ),
+                true: Padding(
+                  padding: EdgeInsets.symmetric(horizontal: tokens.spacing.m),
+                  child: Text(l10n.imageWizardLookRealistic),
+                ),
+              },
+            ),
+          ),
         if (grid != null)
           Padding(
             padding: EdgeInsets.only(top: tokens.spacing.s),

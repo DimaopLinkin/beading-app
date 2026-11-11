@@ -1233,6 +1233,12 @@ class AppLocalizationsRu extends AppLocalizations {
   String get imageWizardOriginalLabel => 'Исходная картинка';
 
   @override
+  String get imageWizardLookChart => 'Схема';
+
+  @override
+  String get imageWizardLookRealistic => 'Как будет';
+
+  @override
   String get imageWizardCompareHint => 'Удерживайте схему, чтобы увидеть исходную картинку';
 
   @override
