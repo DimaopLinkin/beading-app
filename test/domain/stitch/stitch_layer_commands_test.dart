@@ -335,4 +335,87 @@ void main() {
       expect(l.points.single.kind, PointKind.bead);
     });
   });
+
+  group('вставка и удаление рядов и столбцов', () {
+    StitchLayers sample() => StitchLayers(
+      columns: 4,
+      rows: 3,
+      partials: <PartialStitch>[
+        partial(1, 0, PartialKind.half, StitchOrientation.slash),
+        partial(2, 2, PartialKind.quarter, StitchOrientation.topLeft),
+      ],
+      lines: <LineStitch>[line(0, 2, 4, 2), line(2, 0, 2, 6)],
+      points: <PointStitch>[knot(3, 3), knot(1, 5)],
+    );
+
+    test('вставка ряда сдвигает всё, что ниже, и растягивает линию через вставку', () {
+      final StitchLayers next = StitchLayerCommands.insertRow(sample(), 1);
+
+      expect(next.rows, 4);
+      expect(next.partials.map((p) => p.row), <int>[0, 3]);
+      expect(next.lines.map((l) => (l.from, l.to)), <(LatticeNode, LatticeNode)>[
+        (const LatticeNode(2, 0), const LatticeNode(2, 8)),
+        (const LatticeNode(0, 4), const LatticeNode(4, 4)),
+      ]);
+      expect(next.points.map((p) => p.node), <LatticeNode>[const LatticeNode(3, 5), const LatticeNode(1, 7)]);
+    });
+
+    test('вставка столбца в конец ничего не двигает', () {
+      final StitchLayers next = StitchLayerCommands.insertColumn(sample(), 4);
+
+      expect(next.columns, 5);
+      expect(next.partials, sample().partials);
+      expect(next.lines, sample().lines);
+    });
+
+    test('вставка столбца слева сдвигает всё вправо', () {
+      final StitchLayers next = StitchLayerCommands.insertColumn(sample(), 0);
+
+      expect(next.partials.map((p) => p.column), <int>[2, 3]);
+      expect(next.points.map((p) => p.node.x), <int>[5, 3]);
+    });
+
+    test('удаление ряда убирает стежки в нём и сдвигает остальное вверх', () {
+      final StitchLayers next = StitchLayerCommands.deleteRow(sample(), 2);
+
+      expect(next.rows, 2);
+      expect(next.partials.map((p) => (p.column, p.row)), <(int, int)>[(1, 0)]);
+      // Горизонтальная линия на узле y = 2 осталась; вертикальная 0–6 сжалась до 0–4; узелок (1, 5) внутри ряда — удалён.
+      expect(next.lines.map((l) => (l.from, l.to)), <(LatticeNode, LatticeNode)>[
+        (const LatticeNode(2, 0), const LatticeNode(2, 4)),
+        (const LatticeNode(0, 2), const LatticeNode(4, 2)),
+      ]);
+      expect(next.points.map((p) => p.node), <LatticeNode>[const LatticeNode(3, 3)]);
+    });
+
+    test('удаление столбца убирает стежки в нём и сжимает линии', () {
+      final StitchLayers next = StitchLayerCommands.deleteColumn(sample(), 1);
+
+      expect(next.columns, 3);
+      expect(next.partials.map((p) => p.column), <int>[1]);
+      // Узел x = 2 лежит на границе столбца и сливается с x = 2 слева; линия 2–2 по вертикали остаётся на месте.
+      expect(next.lines.map((l) => (l.from.x, l.to.x)), contains((2, 2)));
+    });
+  });
+
+  group('eraseNear', () {
+    final StitchLayers layers = StitchLayers(
+      columns: 4,
+      rows: 3,
+      lines: <LineStitch>[line(0, 0, 4, 0)],
+      points: <PointStitch>[knot(5, 5)],
+    );
+
+    test('убирает линию рядом с касанием', () {
+      expect(StitchLayerCommands.eraseNear(layers, 1, 0.2).lines, isEmpty);
+    });
+
+    test('убирает узелок рядом с касанием', () {
+      expect(StitchLayerCommands.eraseNear(layers, 2.6, 2.4).points, isEmpty);
+    });
+
+    test('далеко от всего — слои те же', () {
+      expect(identical(StitchLayerCommands.eraseNear(layers, 3, 2), layers), isTrue);
+    });
+  });
 }

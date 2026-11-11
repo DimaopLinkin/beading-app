@@ -26,7 +26,7 @@ void registerLibraryEntries(NewProjectRegistry registry) {
     );
   }
 
-  // Редактор бисерных схем (T17); вышивку редактирует T40.
+  // Редактор бисерных схем (T17).
   registry.register(
     NewProjectEntry(
       id: 'draw-grid-beading',
@@ -36,6 +36,23 @@ void registerLibraryEntries(NewProjectRegistry registry) {
       icon: AppIcons.brush,
       onSelected: (context) async {
         final String? projectId = await context.push<String>(AppRoutes.newGrid);
+        if (projectId != null && context.mounted) {
+          await context.push<void>(AppRoutes.editor(projectId));
+        }
+      },
+    ),
+  );
+
+  // Редактор схем вышивки (T40): канва, размер, потом тот же редактор со стежками и слоями.
+  registry.register(
+    NewProjectEntry(
+      id: 'draw-grid-cross-stitch',
+      craft: Craft.crossStitch,
+      order: 20,
+      title: (l10n) => l10n.libraryDrawStitchPattern,
+      icon: AppIcons.brush,
+      onSelected: (context) async {
+        final String? projectId = await context.push<String>(AppRoutes.newStitch);
         if (projectId != null && context.mounted) {
           await context.push<void>(AppRoutes.editor(projectId));
         }

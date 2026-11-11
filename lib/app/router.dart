@@ -8,6 +8,7 @@ import 'package:beading/domain/projects/craft.dart';
 import 'package:beading/domain/projects/project.dart';
 import 'package:beading/domain/settings/app_info.dart';
 import 'package:beading/domain/settings/secret_tap_handler.dart';
+import 'package:beading/domain/settings/settings_repository.dart';
 import 'package:beading/domain/sharing/text_sharer.dart';
 import 'package:beading/presentation/book_work/book_work_cubit.dart';
 import 'package:beading/presentation/book_work/book_work_screen.dart';
@@ -18,6 +19,8 @@ import 'package:beading/presentation/editor/editor_cubit.dart';
 import 'package:beading/presentation/editor/editor_screen.dart';
 import 'package:beading/presentation/editor/new_grid_cubit.dart';
 import 'package:beading/presentation/editor/new_grid_screen.dart';
+import 'package:beading/presentation/editor/new_stitch_cubit.dart';
+import 'package:beading/presentation/editor/new_stitch_screen.dart';
 import 'package:beading/presentation/floss/floss_cubit.dart';
 import 'package:beading/presentation/floss/floss_screen.dart';
 import 'package:beading/presentation/image_to_grid/image_wizard_cubit.dart';
@@ -73,6 +76,7 @@ abstract final class AppRoutes {
   /// Работа по схеме из книги (T07): линейка, зум, страницы, заметки. T05 откроет её из карточки проекта.
   /// Лист создания схемы (T17). Закрывается с id созданного проекта.
   static const String newGrid = NewGridScreen.routePath;
+  static const String newStitch = NewStitchScreen.routePath;
 
   /// Редактор сеточной схемы (T17).
   static String editor(String projectId) => EditorScreen.locationFor(projectId);
@@ -154,10 +158,17 @@ GoRouter createRouter({bool showDeveloperTools = !kReleaseMode}) => GoRouter(
       ),
     ),
     GoRoute(
+      path: AppRoutes.newStitch,
+      builder: (context, _) => BlocProvider<NewStitchCubit>(
+        create: (_) => getIt<NewStitchCubit>(param1: AppLocalizations.of(context).newStitchDefaultName),
+        child: const NewStitchScreen(),
+      ),
+    ),
+    GoRoute(
       path: EditorScreen.routePath,
       builder: (_, state) => BlocProvider<EditorCubit>(
         create: (_) => getIt<EditorCubit>(param1: state.pathParameters['projectId'])..load(),
-        child: EditorScreen(catalog: getIt<CatalogRepository>()),
+        child: EditorScreen(catalog: getIt<CatalogRepository>(), settings: getIt<SettingsRepository>()),
       ),
     ),
     GoRoute(

@@ -1678,4 +1678,103 @@ class AppLocalizationsRu extends AppLocalizations {
   String flossShareReserve(int percent) {
     return 'Мотки указаны с запасом $percent%.';
   }
+
+  @override
+  String get editorToolHalfStitch => 'Полукрестик';
+
+  @override
+  String get editorToolQuarterStitch => 'Четверть крестика';
+
+  @override
+  String get editorToolThreeQuarterStitch => '¾ крестика';
+
+  @override
+  String get editorToolPetit => 'Петит';
+
+  @override
+  String get editorToolBackstitch => 'Бэкстич';
+
+  @override
+  String get editorToolKnot => 'Французский узелок';
+
+  @override
+  String get editorHintPartial => 'Коснитесь клетки у нужного угла или диагонали. Повторное касание убирает стежок.';
+
+  @override
+  String get editorHintBackstitch =>
+      'Коснитесь двух узлов подряд или проведите пальцем: между ними ляжет стежок. Узлы — углы, середины сторон и центры клеток.';
+
+  @override
+  String get editorHintBackstitchStart =>
+      'Начало отмечено. Коснитесь следующего узла, повторное касание узла закончит линию.';
+
+  @override
+  String get editorHintKnot =>
+      'Коснитесь узла: угла, середины стороны или центра клетки. Повторное касание убирает узелок.';
+
+  @override
+  String get editorHintEraserStitch =>
+      'Коснитесь линии или узелка, чтобы убрать их; клетку очищает касание внутри неё, мазок стирает несколько клеток.';
+
+  @override
+  String get newStitchTitle => 'Новая вышивка';
+
+  @override
+  String get newStitchDefaultName => 'Новая вышивка';
+
+  @override
+  String get newStitchUnitCells => 'Крестики';
+
+  @override
+  String get newStitchUnitCm => 'Сантиметры';
+
+  @override
+  String get newStitchWidthCells => 'Ширина, крестиков';
+
+  @override
+  String get newStitchHeightCells => 'Высота, крестиков';
+
+  @override
+  String get newStitchWidthCm => 'Ширина, см';
+
+  @override
+  String get newStitchHeightCm => 'Высота, см';
+
+  @override
+  String newStitchSizeSummary(String width, String height, String widthCm, String heightCm) {
+    return '$width × $height крестиков, на этой канве $widthCm × $heightCm см';
+  }
+
+  @override
+  String newStitchSizeInvalid(int max) {
+    return 'Размер: от 1 до $max крестиков по каждой стороне';
+  }
+
+  @override
+  String get libraryDrawStitchPattern => 'Нарисовать схему вышивки';
+
+  @override
+  String get colorSheetAllBrands => 'Все';
+
+  @override
+  String get colorSheetBlend => 'Смесь двух ниток';
+
+  @override
+  String get colorSheetBlendHint =>
+      'В иголку идут две нитки. Выберите каждую из каталога, цвет на схеме будет средним.';
+
+  @override
+  String colorSheetThread(int number, String code) {
+    return 'Нитка $number: $code';
+  }
+
+  @override
+  String get editorToolBead => 'Бусина';
+
+  @override
+  String get editorHintBead =>
+      'Коснитесь узла, чтобы поставить бусину. Повторное касание значка инструмента выбирает другую бусину из каталога.';
+
+  @override
+  String get editorProblemNoBead => 'Сначала выберите бусину из каталога.';
 }

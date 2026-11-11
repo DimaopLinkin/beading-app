@@ -13,9 +13,9 @@ void main() {
     for (final Craft craft in Craft.values) {
       expect(registry.entriesFor(craft).any((e) => e.id.startsWith('import-book')), isTrue);
     }
-    // «Нарисовать схему» — только бисер: редактор вышивки делает T40.
+    // «Нарисовать схему» есть у обоих ремёсел: у вышивки свой лист с канвой (T40).
     expect(registry.entriesFor(Craft.beading).any((e) => e.id == 'draw-grid-beading'), isTrue);
-    expect(registry.entriesFor(Craft.crossStitch), hasLength(1));
+    expect(registry.entriesFor(Craft.crossStitch).any((e) => e.id == 'draw-grid-cross-stitch'), isTrue);
     expect(registry.entriesFor(Craft.beading).any((e) => e.id == 'image-to-grid-beading'), isTrue);
   });
 

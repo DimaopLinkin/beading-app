@@ -4,11 +4,13 @@ import 'package:beading/domain/grid/fabric.dart';
 import 'package:beading/domain/grid/grid.dart';
 import 'package:beading/domain/grid/grid_geometry.dart';
 import 'package:beading/domain/materials/floss_estimate.dart';
+import 'package:beading/domain/palette/catalog_ref.dart';
 import 'package:beading/domain/stitch/stitch_layers.dart';
 import 'package:beading/domain/stitch/stitch_legend.dart';
 import 'package:beading/presentation/grid_pattern/grid_layer_cache.dart';
 import 'package:beading/presentation/grid_pattern/grid_pattern_view.dart';
 import 'package:beading/presentation/grid_pattern/grid_view_options.dart';
+import 'package:beading/presentation/grid_pattern/stitch_layers_painter.dart';
 import 'package:beading/presentation/grid_pattern/stitch_legend_view.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -191,5 +193,31 @@ void main() {
       await pumpGlass(tester, const StitchLegendView(entries: <StitchLegendEntry>[]));
       expect(find.text('В схеме пока нет ни одной нитки.'), findsOneWidget);
     });
+  });
+
+  test('цвета бусин входят в сравнение стиля слоёв: смена цвета перерисует слой', () {
+    const CatalogRef ref = CatalogRef(brand: 'Miyuki', code: 'DB0010');
+    final Map<CatalogRef, Color> reds = <CatalogRef, Color>{ref: const Color(0xFFC80A14)};
+    const Color surface = Color(0xFFFFFFFF);
+    const Color unknown = Color(0xFF888888);
+
+    const StitchLayersStyle plain = StitchLayersStyle(surface: surface, unknown: unknown);
+    final StitchLayersStyle red = StitchLayersStyle(
+      surface: surface,
+      unknown: unknown,
+      beadColors: reds,
+    );
+
+    expect(plain == red, isFalse);
+    expect(
+      red ==
+          StitchLayersStyle(
+            surface: surface,
+            unknown: unknown,
+            beadColors: reds,
+          ),
+      isTrue,
+    );
+    expect(red.hashCode, isNot(plain.hashCode));
   });
 }
