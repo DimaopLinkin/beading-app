@@ -1,10 +1,13 @@
 import 'dart:async';
 
+import 'package:beading/domain/catalog/catalog_material.dart';
 import 'package:beading/domain/catalog/catalog_repository.dart';
 import 'package:beading/domain/grid/cell_position.dart';
 import 'package:beading/domain/grid/grid_geometry.dart';
 import 'package:beading/domain/grid_pattern/grid_pattern.dart';
 import 'package:beading/domain/palette/pattern_color.dart';
+import 'package:beading/domain/settings/setting_keys.dart';
+import 'package:beading/domain/settings/settings_repository.dart';
 import 'package:beading/presentation/editor/color_sheet.dart';
 import 'package:beading/presentation/editor/editor_canvas.dart';
 import 'package:beading/presentation/editor/editor_cubit.dart';
@@ -22,13 +25,16 @@ const double editorWideBreakpoint = 720;
 
 /// Экран редактора сеточной схемы: полотно, панель инструментов и палитра.
 class EditorScreen extends StatelessWidget {
-  const EditorScreen({required this.catalog, super.key});
+  const EditorScreen({required this.catalog, this.settings, super.key});
 
   static const String routePath = '/editor/:projectId';
 
   static String locationFor(String projectId) => '/editor/$projectId';
 
   final CatalogRepository catalog;
+
+  /// Настройки (бренд ниток по умолчанию); в тестах можно не задавать.
+  final SettingsRepository? settings;
 
   @override
   Widget build(BuildContext context) {
@@ -64,7 +70,7 @@ class EditorScreen extends StatelessWidget {
             child: switch (state.status) {
               EditorStatus.loading => const Center(child: CupertinoActivityIndicator()),
               EditorStatus.loadFailed => Center(child: Text(l10n.editorLoadFailed)),
-              EditorStatus.ready => _Body(state: state, catalog: catalog),
+              EditorStatus.ready => _Body(state: state, catalog: catalog, settings: settings),
             },
           ),
         );
@@ -120,10 +126,11 @@ class _SaveBadge extends StatelessWidget {
 }
 
 class _Body extends StatelessWidget {
-  const _Body({required this.state, required this.catalog});
+  const _Body({required this.state, required this.catalog, this.settings});
 
   final EditorState state;
   final CatalogRepository catalog;
+  final SettingsRepository? settings;
 
   @override
   Widget build(BuildContext context) {
@@ -143,14 +150,19 @@ class _Body extends StatelessWidget {
             onStrokeCell: cubit.strokeTo,
             onStrokeEnd: cubit.endStroke,
             onSelect: cubit.selectRect,
+            layers: state.layers,
+            lineAnchor: state.lineAnchor,
+            beadColors: state.beadColors,
+            onPointTap: cubit.tapPoint,
+            onLineDrag: cubit.dragLine,
           ),
         ),
         if (state.problem != null)
           Positioned(left: 12, right: 12, top: 8, child: _ProblemBanner(problem: state.problem!)),
       ],
     );
-    final Widget palette = PaletteView(state: state, catalog: catalog, vertical: wide);
-    final Widget tools = _ToolBar(state: state);
+    final Widget palette = PaletteView(state: state, catalog: catalog, vertical: wide, settings: settings);
+    final Widget tools = _ToolBar(state: state, catalog: catalog);
     if (wide) {
       return Row(
         children: <Widget>[
@@ -187,6 +199,7 @@ class _ProblemBanner extends StatelessWidget {
     final String text = switch (problem) {
       EditorProblem.saveFailed => l10n.editorSaveFailed,
       EditorProblem.noColor => l10n.editorProblemNoColor,
+      EditorProblem.noBead => l10n.editorProblemNoBead,
       EditorProblem.paletteFull => l10n.editorProblemPaletteFull,
       EditorProblem.limitReached => l10n.editorProblemLimit,
       EditorProblem.lastRowOrColumn => l10n.editorProblemLast,
@@ -201,10 +214,19 @@ class _ProblemBanner extends StatelessWidget {
 
 /// Палитра схемы: цвета-кружки, текущий с кольцом; «+» добавляет цвет. Повторное касание текущего — правка цвета.
 class PaletteView extends StatelessWidget {
-  const PaletteView({required this.state, required this.catalog, required this.vertical, super.key});
+  const PaletteView({
+    required this.state,
+    required this.catalog,
+    required this.vertical,
+    this.settings,
+    super.key,
+  });
 
   final EditorState state;
   final CatalogRepository catalog;
+
+  /// Настройки: бренд ниток по умолчанию для вышивки. Без них выбор начинается со всех брендов.
+  final SettingsRepository? settings;
   final bool vertical;
 
   @override
@@ -249,16 +271,39 @@ class PaletteView extends StatelessWidget {
     );
   }
 
+  CatalogMaterial get _material => state.isStitch ? CatalogMaterial.floss : CatalogMaterial.bead;
+
+  /// Производитель ниток из настроек: с него начинается выбор цвета в вышивке.
+  Future<String?> _flossBrand() async {
+    if (!state.isStitch || settings == null) return null;
+    return (await settings!.read(SettingKeys.defaultFlossBrand)).valueOrNull;
+  }
+
   Future<void> _add(BuildContext context) async {
     final EditorCubit cubit = context.read<EditorCubit>();
-    final ColorSheetResult? result = await showColorSheet(context, catalog: catalog);
+    final String? brand = await _flossBrand();
+    if (!context.mounted) return;
+    final ColorSheetResult? result = await showColorSheet(
+      context,
+      catalog: catalog,
+      material: _material,
+      defaultBrand: brand,
+    );
     if (result is ColorChosen) cubit.addColor(result.color);
   }
 
   Future<void> _edit(BuildContext context, int value) async {
     final EditorCubit cubit = context.read<EditorCubit>();
     final PatternColor initial = state.pattern!.palette.colorAt(value)!;
-    final ColorSheetResult? result = await showColorSheet(context, catalog: catalog, initial: initial);
+    final String? brand = await _flossBrand();
+    if (!context.mounted) return;
+    final ColorSheetResult? result = await showColorSheet(
+      context,
+      catalog: catalog,
+      initial: initial,
+      material: _material,
+      defaultBrand: brand,
+    );
     switch (result) {
       case ColorChosen(:final PatternColor color):
         cubit.updateColor(value, color);
@@ -361,10 +406,21 @@ class _AddSwatch extends StatelessWidget {
 }
 
 /// Панель инструментов: рисование, зеркало, ряды/столбцы.
-class _ToolBar extends StatelessWidget {
-  const _ToolBar({required this.state});
+class _ToolBar extends StatefulWidget {
+  const _ToolBar({required this.state, required this.catalog});
 
   final EditorState state;
+  final CatalogRepository catalog;
+
+  @override
+  State<_ToolBar> createState() => _ToolBarState();
+}
+
+class _ToolBarState extends State<_ToolBar> {
+  /// Подпись кнопки, на которую навели курсор или которую держат пальцем.
+  String? _shownLabel;
+
+  EditorState get state => widget.state;
 
   @override
   Widget build(BuildContext context) {
@@ -374,46 +430,110 @@ class _ToolBar extends StatelessWidget {
       keyName: t.name,
       label: label,
       selected: state.tool == t,
-      onTap: () => cubit.selectTool(t),
+      onTap: () {
+        // Бусина: первое касание значка выбирает бусину из каталога; повторное — меняет её.
+        if (t == EditorTool.bead && (state.activeBead == null || state.tool == EditorTool.bead)) {
+          unawaited(_pickBead(context));
+        } else {
+          cubit.selectTool(t);
+        }
+      },
+      onShowLabel: () => setState(() => _shownLabel = label),
+      onHideLabel: () => setState(() => _shownLabel = null),
       child: icon,
     );
+    final String? hint = _shownLabel ?? _hint(l10n);
     return GlassBar(
-      child: SingleChildScrollView(
-        key: const ValueKey<String>('editor-toolbar'),
-        scrollDirection: Axis.horizontal,
-        child: Row(
-          children: <Widget>[
-            tool(EditorTool.brush, l10n.editorToolBrush, const Icon(AppIcons.brush)),
-            tool(EditorTool.eraser, l10n.editorToolEraser, const AppGlyph(AppGlyphKind.eraser)),
-            tool(EditorTool.fill, l10n.editorToolFill, const Icon(AppIcons.fill)),
-            tool(EditorTool.pipette, l10n.editorToolPipette, const Icon(AppIcons.pipette)),
-            tool(EditorTool.replaceColor, l10n.editorToolReplace, const Icon(AppIcons.replaceColor)),
-            tool(EditorTool.selection, l10n.editorToolSelection, const AppGlyph(AppGlyphKind.selection)),
-            _ToolButton(
-              keyName: 'mirror',
-              label: l10n.editorMirrorHorizontal,
-              selected: false,
-              onTap: () => unawaited(_mirrorMenu(context, state)),
-              child: const AppGlyph(AppGlyphKind.mirror),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: <Widget>[
+          if (hint != null)
+            Padding(
+              padding: const EdgeInsets.only(bottom: 4),
+              child: Text(
+                hint,
+                key: const ValueKey<String>('editor-hint'),
+                textAlign: TextAlign.center,
+                style: TextStyle(fontSize: 13, color: CupertinoColors.secondaryLabel.resolveFrom(context)),
+              ),
             ),
-            _ToolButton(
-              keyName: 'rows',
-              label: l10n.editorRowsColumns,
-              selected: false,
-              onTap: () => unawaited(_rowsMenu(context, state)),
-              child: const Icon(CupertinoIcons.table),
+          SingleChildScrollView(
+            key: const ValueKey<String>('editor-toolbar'),
+            scrollDirection: Axis.horizontal,
+            child: Row(
+              children: <Widget>[
+                tool(EditorTool.brush, l10n.editorToolBrush, const Icon(AppIcons.brush)),
+                tool(EditorTool.eraser, l10n.editorToolEraser, const AppGlyph(AppGlyphKind.eraser)),
+                if (state.isStitch) ...<Widget>[
+                  tool(EditorTool.halfStitch, l10n.editorToolHalfStitch, const AppGlyph(AppGlyphKind.halfStitch)),
+                  tool(
+                    EditorTool.quarterStitch,
+                    l10n.editorToolQuarterStitch,
+                    const AppGlyph(AppGlyphKind.quarterStitch),
+                  ),
+                  tool(
+                    EditorTool.threeQuarterStitch,
+                    l10n.editorToolThreeQuarterStitch,
+                    const AppGlyph(AppGlyphKind.threeQuarterStitch),
+                  ),
+                  tool(EditorTool.petit, l10n.editorToolPetit, const AppGlyph(AppGlyphKind.petit)),
+                  tool(EditorTool.backstitch, l10n.editorToolBackstitch, const AppGlyph(AppGlyphKind.backstitch)),
+                  tool(EditorTool.knot, l10n.editorToolKnot, const AppGlyph(AppGlyphKind.knot)),
+                  tool(EditorTool.bead, l10n.editorToolBead, const AppGlyph(AppGlyphKind.beadMode)),
+                ],
+                tool(EditorTool.fill, l10n.editorToolFill, const Icon(AppIcons.fill)),
+                tool(EditorTool.pipette, l10n.editorToolPipette, const Icon(AppIcons.pipette)),
+                tool(EditorTool.replaceColor, l10n.editorToolReplace, const Icon(AppIcons.replaceColor)),
+                tool(EditorTool.selection, l10n.editorToolSelection, const AppGlyph(AppGlyphKind.selection)),
+                _ToolButton(
+                  keyName: 'mirror',
+                  label: l10n.editorMirrorHorizontal,
+                  selected: false,
+                  onTap: () => unawaited(_mirrorMenu(context, state)),
+                  child: const AppGlyph(AppGlyphKind.mirror),
+                ),
+                _ToolButton(
+                  keyName: 'rows',
+                  label: l10n.editorRowsColumns,
+                  selected: false,
+                  onTap: () => unawaited(_rowsMenu(context, state)),
+                  child: const Icon(CupertinoIcons.table),
+                ),
+                _ToolButton(
+                  keyName: 'symbols',
+                  label: l10n.editorSymbols,
+                  selected: state.showSymbols,
+                  onTap: cubit.toggleSymbols,
+                  child: const Icon(CupertinoIcons.textformat),
+                ),
+              ],
             ),
-            _ToolButton(
-              keyName: 'symbols',
-              label: l10n.editorSymbols,
-              selected: state.showSymbols,
-              onTap: cubit.toggleSymbols,
-              child: const Icon(CupertinoIcons.textformat),
-            ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
+  }
+
+  Future<void> _pickBead(BuildContext context) async {
+    final EditorCubit cubit = context.read<EditorCubit>();
+    final ColorSheetResult? result = await showColorSheet(context, catalog: widget.catalog);
+    if (result is ColorChosen) cubit.selectBead(result.color.components.first, result.color.rgb);
+  }
+
+  /// Подсказка к выбранному инструменту вышивки: что делает касание.
+  String? _hint(AppLocalizations l10n) {
+    if (!state.isStitch) return null;
+    return switch (state.tool) {
+      EditorTool.halfStitch ||
+      EditorTool.quarterStitch ||
+      EditorTool.threeQuarterStitch ||
+      EditorTool.petit => l10n.editorHintPartial,
+      EditorTool.backstitch => state.lineAnchor == null ? l10n.editorHintBackstitch : l10n.editorHintBackstitchStart,
+      EditorTool.knot => l10n.editorHintKnot,
+      EditorTool.bead => l10n.editorHintBead,
+      EditorTool.eraser => l10n.editorHintEraserStitch,
+      _ => null,
+    };
   }
 
   Future<void> _mirrorMenu(BuildContext context, EditorState state) {
@@ -497,7 +617,13 @@ class _ToolButton extends StatelessWidget {
     required this.selected,
     required this.onTap,
     required this.child,
+    this.onShowLabel,
+    this.onHideLabel,
   });
+
+  /// Показать и скрыть подпись кнопки (наведение, долгое нажатие).
+  final VoidCallback? onShowLabel;
+  final VoidCallback? onHideLabel;
 
   final String keyName;
   final String label;
@@ -512,24 +638,32 @@ class _ToolButton extends StatelessWidget {
       button: true,
       selected: selected,
       label: label,
-      child: GestureDetector(
-        key: ValueKey<String>('tool-$keyName'),
-        behavior: HitTestBehavior.opaque,
-        onTap: onTap,
-        child: SizedBox(
-          width: 52,
-          height: 52,
-          child: IconTheme(
-            data: IconThemeData(
-              size: 24,
-              color: selected ? accent : CupertinoColors.label.resolveFrom(context),
-            ),
-            child: DecoratedBox(
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(context.tokens.radius.m),
-                color: selected ? accent.withValues(alpha: 0.15) : null,
+      tooltip: label,
+      child: MouseRegion(
+        // Подпись при наведении (Mac) и при долгом нажатии (iOS): значок один не всегда понятен.
+        onEnter: (_) => onShowLabel?.call(),
+        onExit: (_) => onHideLabel?.call(),
+        child: GestureDetector(
+          key: ValueKey<String>('tool-$keyName'),
+          behavior: HitTestBehavior.opaque,
+          onTap: onTap,
+          onLongPress: onShowLabel,
+          onLongPressEnd: (_) => onHideLabel?.call(),
+          child: SizedBox(
+            width: 52,
+            height: 52,
+            child: IconTheme(
+              data: IconThemeData(
+                size: 24,
+                color: selected ? accent : CupertinoColors.label.resolveFrom(context),
               ),
-              child: Center(child: child),
+              child: DecoratedBox(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(context.tokens.radius.m),
+                  color: selected ? accent.withValues(alpha: 0.15) : null,
+                ),
+                child: Center(child: child),
+              ),
             ),
           ),
         ),

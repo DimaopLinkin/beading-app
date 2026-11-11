@@ -2940,6 +2940,180 @@ abstract class AppLocalizations {
   /// In ru, this message translates to:
   /// **'Мотки указаны с запасом {percent}%.'**
   String flossShareReserve(int percent);
+
+  /// Инструмент редактора вышивки: одна диагональ клетки
+  ///
+  /// In ru, this message translates to:
+  /// **'Полукрестик'**
+  String get editorToolHalfStitch;
+
+  /// Инструмент редактора вышивки
+  ///
+  /// In ru, this message translates to:
+  /// **'Четверть крестика'**
+  String get editorToolQuarterStitch;
+
+  /// Инструмент редактора вышивки
+  ///
+  /// In ru, this message translates to:
+  /// **'¾ крестика'**
+  String get editorToolThreeQuarterStitch;
+
+  /// Инструмент редактора вышивки: маленький крестик в четверти клетки
+  ///
+  /// In ru, this message translates to:
+  /// **'Петит'**
+  String get editorToolPetit;
+
+  /// Инструмент редактора вышивки: линия по узлам
+  ///
+  /// In ru, this message translates to:
+  /// **'Бэкстич'**
+  String get editorToolBackstitch;
+
+  /// Инструмент редактора вышивки
+  ///
+  /// In ru, this message translates to:
+  /// **'Французский узелок'**
+  String get editorToolKnot;
+
+  /// Подсказка под панелью инструментов вышивки
+  ///
+  /// In ru, this message translates to:
+  /// **'Коснитесь клетки у нужного угла или диагонали. Повторное касание убирает стежок.'**
+  String get editorHintPartial;
+
+  /// Подсказка под панелью инструментов вышивки
+  ///
+  /// In ru, this message translates to:
+  /// **'Коснитесь двух узлов подряд или проведите пальцем: между ними ляжет стежок. Узлы — углы, середины сторон и центры клеток.'**
+  String get editorHintBackstitch;
+
+  /// Подсказка бэкстича после первого касания
+  ///
+  /// In ru, this message translates to:
+  /// **'Начало отмечено. Коснитесь следующего узла, повторное касание узла закончит линию.'**
+  String get editorHintBackstitchStart;
+
+  /// Подсказка под панелью инструментов вышивки
+  ///
+  /// In ru, this message translates to:
+  /// **'Коснитесь узла: угла, середины стороны или центра клетки. Повторное касание убирает узелок.'**
+  String get editorHintKnot;
+
+  /// Подсказка ластика в редакторе вышивки
+  ///
+  /// In ru, this message translates to:
+  /// **'Коснитесь линии или узелка, чтобы убрать их; клетку очищает касание внутри неё, мазок стирает несколько клеток.'**
+  String get editorHintEraserStitch;
+
+  /// Заголовок листа создания схемы вышивки
+  ///
+  /// In ru, this message translates to:
+  /// **'Новая вышивка'**
+  String get newStitchTitle;
+
+  /// Название вышивки, если ничего не введено
+  ///
+  /// In ru, this message translates to:
+  /// **'Новая вышивка'**
+  String get newStitchDefaultName;
+
+  /// Размер вышивки вводится в крестиках
+  ///
+  /// In ru, this message translates to:
+  /// **'Крестики'**
+  String get newStitchUnitCells;
+
+  /// Размер вышивки вводится в сантиметрах
+  ///
+  /// In ru, this message translates to:
+  /// **'Сантиметры'**
+  String get newStitchUnitCm;
+
+  /// Подпись ширины вышивки
+  ///
+  /// In ru, this message translates to:
+  /// **'Ширина, крестиков'**
+  String get newStitchWidthCells;
+
+  /// Подпись высоты вышивки
+  ///
+  /// In ru, this message translates to:
+  /// **'Высота, крестиков'**
+  String get newStitchHeightCells;
+
+  /// Подпись ширины вышивки в сантиметрах
+  ///
+  /// In ru, this message translates to:
+  /// **'Ширина, см'**
+  String get newStitchWidthCm;
+
+  /// Подпись высоты вышивки в сантиметрах
+  ///
+  /// In ru, this message translates to:
+  /// **'Высота, см'**
+  String get newStitchHeightCm;
+
+  /// Итог размера вышивки на канве
+  ///
+  /// In ru, this message translates to:
+  /// **'{width} × {height} крестиков, на этой канве {widthCm} × {heightCm} см'**
+  String newStitchSizeSummary(String width, String height, String widthCm, String heightCm);
+
+  /// Подсказка о допустимом размере вышивки
+  ///
+  /// In ru, this message translates to:
+  /// **'Размер: от 1 до {max} крестиков по каждой стороне'**
+  String newStitchSizeInvalid(int max);
+
+  /// Пункт «Новый проект»: редактор схемы вышивки
+  ///
+  /// In ru, this message translates to:
+  /// **'Нарисовать схему вышивки'**
+  String get libraryDrawStitchPattern;
+
+  /// Фильтр производителей ниток: все
+  ///
+  /// In ru, this message translates to:
+  /// **'Все'**
+  String get colorSheetAllBrands;
+
+  /// Переключатель смешанной нити в листе цвета
+  ///
+  /// In ru, this message translates to:
+  /// **'Смесь двух ниток'**
+  String get colorSheetBlend;
+
+  /// Пояснение к смешанной нити
+  ///
+  /// In ru, this message translates to:
+  /// **'В иголку идут две нитки. Выберите каждую из каталога, цвет на схеме будет средним.'**
+  String get colorSheetBlendHint;
+
+  /// Выбор слота смешанной нити
+  ///
+  /// In ru, this message translates to:
+  /// **'Нитка {number}: {code}'**
+  String colorSheetThread(int number, String code);
+
+  /// Инструмент редактора вышивки: бусина поверх вышивки
+  ///
+  /// In ru, this message translates to:
+  /// **'Бусина'**
+  String get editorToolBead;
+
+  /// Подсказка инструмента «Бусина»
+  ///
+  /// In ru, this message translates to:
+  /// **'Коснитесь узла, чтобы поставить бусину. Повторное касание значка инструмента выбирает другую бусину из каталога.'**
+  String get editorHintBead;
+
+  /// Подсказка: у инструмента «Бусина» нет выбранной бусины
+  ///
+  /// In ru, this message translates to:
+  /// **'Сначала выберите бусину из каталога.'**
+  String get editorProblemNoBead;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

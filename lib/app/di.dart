@@ -106,6 +106,7 @@ import 'package:beading/presentation/catalog/catalog_cubit.dart';
 import 'package:beading/presentation/easter_eggs/compliment_banner_cubit.dart';
 import 'package:beading/presentation/editor/editor_cubit.dart';
 import 'package:beading/presentation/editor/new_grid_cubit.dart';
+import 'package:beading/presentation/editor/new_stitch_cubit.dart';
 import 'package:beading/presentation/floss/floss_cubit.dart';
 import 'package:beading/presentation/image_to_grid/image_wizard_cubit.dart';
 import 'package:beading/presentation/import_book/import_book_cubit.dart';
@@ -340,10 +341,14 @@ Future<void> configureDependencies({GetIt? locator, AppDatabase? database, Catal
         patterns: container<GridPatternRepository>(),
         savePattern: container<SaveGridPattern>(),
         touchProject: container<TouchProject>(),
+        catalog: container<CatalogRepository>(),
       ),
     )
     ..registerFactoryParam<NewGridCubit, String, void>(
       (defaultName, _) => NewGridCubit(createPattern: container<CreateGridPattern>(), defaultName: defaultName),
+    )
+    ..registerFactoryParam<NewStitchCubit, String, void>(
+      (defaultName, _) => NewStitchCubit(createPattern: container<CreateGridPattern>(), defaultName: defaultName),
     )
     ..registerFactoryParam<BookWorkCubit, String, void>(
       (projectId, _) => BookWorkCubit(
