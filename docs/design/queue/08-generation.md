@@ -1,7 +1,7 @@
 ---
 id: 08-generation
 title: Генерация (MUST-E1–E2)
-status: delivered
+status: accepted
 depends: 01-ui-kit
 ---
 
