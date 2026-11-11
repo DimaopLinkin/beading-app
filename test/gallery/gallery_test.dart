@@ -24,10 +24,10 @@ void main() {
     await tester.runAsync(() async {
       final catalog = loadBeadCatalog();
       final List<GalleryPhoto> photos = await loadPhotos(privateDir: privateDir);
-      final List<GalleryRun> runs = runGallery(photos, catalog);
+      final List<GalleryRun> runs = runGallery(photos, catalog, includeLarge: true);
 
       for (final GalleryPhoto photo in photos) {
-        for (final GalleryTarget target in galleryTargets) {
+        for (final GalleryTarget target in <GalleryTarget>[...galleryTargets, ...galleryLargeTargets]) {
           final List<GalleryRun> own = <GalleryRun>[
             for (final GalleryRun r in runs)
               if (r.photo == photo && r.target == target) r,
@@ -45,7 +45,7 @@ void main() {
         writeBaseline(
           baselineOf(<GalleryRun>[
             for (final GalleryRun r in runs)
-              if (!r.photo.name.startsWith('private-')) r,
+              if (!r.photo.name.startsWith('private-') && !r.target.large) r,
           ]),
         );
       }
