@@ -9,6 +9,7 @@ import 'package:beading/domain/image_to_grid/generated_pattern.dart';
 import 'package:beading/domain/image_to_grid/image_prefilter.dart';
 import 'package:beading/domain/image_to_grid/image_to_grid_pipeline.dart';
 import 'package:beading/domain/image_to_grid/image_to_grid_request.dart';
+import 'package:beading/domain/image_to_grid/palette_builder.dart';
 import 'package:beading/domain/image_to_grid/palette_constraint.dart';
 import 'package:beading/domain/image_to_grid/palette_entry.dart';
 import 'package:beading/domain/image_to_grid/pattern_step.dart';
@@ -47,6 +48,18 @@ ImageToGridRequest request(
   steps: steps,
   prefilter: prefilter,
 );
+
+/// Подготовка, которая стирает светлоту: проверяет, что метрики берутся по фото, а не по отфильтрованной картинке.
+class _FlatLightnessPrefilter implements ImagePrefilter {
+  const _FlatLightnessPrefilter();
+
+  @override
+  WorkImage apply(WorkImage image) => image.withColors(
+    lightness: Float32List(image.lightness.length)..fillRange(0, image.lightness.length, 50),
+    a: Float32List(image.a.length),
+    b: Float32List(image.b.length),
+  );
+}
 
 class _CaptureImportance implements PatternStep {
   _CaptureImportance(this.onImportance);
@@ -97,6 +110,85 @@ void main() {
   const ImageToGridPipeline pipeline = ImageToGridPipeline();
 
   group('ImageToGridPipeline', () {
+    group('структура светлоты (T65)', () {
+      test('чёрно-белая шахматка в двух цветах: контраст 1, корреляция 1', () {
+        final SourceImage image = blockImage(<List<int>>[
+          <int>[0x000000, 0xFFFFFF],
+          <int>[0xFFFFFF, 0x000000],
+        ], block: 6);
+        final GeneratedPattern result = pipeline.run(request(image, columns: 2, rows: 2, maxColors: 2));
+        expect(result.stats!.contrast, closeTo(1, 0.02));
+        expect(result.stats!.lightnessCorrelation, closeTo(1, 0.01));
+      });
+
+      test('одна палитра из серого на чёрно-белом фото: контраст ниже 1, корреляция остаётся высокой', () {
+        final SourceImage image = blockImage(<List<int>>[
+          <int>[0x000000, 0xFFFFFF],
+          <int>[0xFFFFFF, 0x000000],
+        ], block: 6);
+        final GeneratedPattern result = pipeline.run(
+          request(
+            image,
+            columns: 2,
+            rows: 2,
+            maxColors: 2,
+            constraint: PaletteConstraint.list(const <PaletteEntry>[
+              PaletteEntry(rgb: Rgb(80, 80, 80)),
+              PaletteEntry(rgb: Rgb(180, 180, 180)),
+            ]),
+          ),
+        );
+        expect(result.stats!.contrast, lessThan(0.5));
+        expect(result.stats!.lightnessCorrelation, closeTo(1, 0.01));
+      });
+
+      test('пиксельный путь с фильтром считает метрики по неотфильтрованному фото', () {
+        final SourceImage image = blockImage(<List<int>>[
+          <int>[0x000000, 0xFFFFFF],
+          <int>[0xFFFFFF, 0x000000],
+        ], block: 6);
+        final ImageToGridRequest pixels = ImageToGridRequest(
+          image: image,
+          geometry: const GridGeometry.rectangular(),
+          metrics: const FakeCellMetrics(1, 1),
+          columns: 2,
+          rows: 2,
+          maxColors: 2,
+          prefilter: const _FlatLightnessPrefilter(),
+          paletteBuilder: const AccentPaletteBuilder(),
+        );
+        final GeneratedPattern result = pipeline.run(pixels);
+        // Фильтр выравнивает светлоту: у отфильтрованной картинки метрик бы не было (нет разброса), а у фото они есть.
+        expect(result.stats!.contrast, isNotNull);
+        expect(result.stats!.lightnessCorrelation, isNotNull);
+      });
+
+      test('у однотонной картинки метрик нет: разброса светлоты нет', () {
+        final GeneratedPattern result = pipeline.run(
+          request(SourceImage.solid(width: 40, height: 40, r: 12, g: 200, b: 99), columns: 8, rows: 8),
+        );
+        expect(result.stats!.contrast, isNull);
+        expect(result.stats!.lightnessCorrelation, isNull);
+      });
+
+      test('в черновике метрики не считаются', () {
+        final SourceImage image = blockImage(<List<int>>[
+          <int>[0x000000, 0xFFFFFF],
+        ], block: 6);
+        final ImageToGridRequest draft = ImageToGridRequest(
+          image: image,
+          geometry: const GridGeometry.rectangular(),
+          metrics: const FakeCellMetrics(1, 1),
+          columns: 2,
+          rows: 1,
+          maxColors: 2,
+          paletteBuilder: const AccentPaletteBuilder(),
+          draft: true,
+        );
+        expect(pipeline.run(draft).stats!.contrast, isNull);
+      });
+    });
+
     test('однотонная картинка — один цвет', () {
       final GeneratedPattern result = pipeline.run(
         request(SourceImage.solid(width: 40, height: 40, r: 12, g: 200, b: 99), columns: 8, rows: 8),

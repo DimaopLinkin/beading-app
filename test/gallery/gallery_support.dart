@@ -69,6 +69,7 @@ final class GalleryTarget {
     required this.metrics,
     required this.columns,
     required this.maxColors,
+    this.large = false,
   });
 
   final String id;
@@ -76,6 +77,9 @@ final class GalleryTarget {
   final CellMetrics metrics;
   final int columns;
   final int maxColors;
+
+  /// Второй, крупный размер (T65): только со свободной палитрой и только под тегом `gallery`, в базу метрик не входит.
+  final bool large;
 
   bool get isBeads => technique.craft == Craft.beading;
   GridGeometry get geometry => ImageToGridSettings(technique: technique).geometry;
@@ -99,19 +103,48 @@ const List<GalleryTarget> galleryTargets = <GalleryTarget>[
   GalleryTarget(id: 'stitch', technique: Technique.crossStitch, metrics: _StitchCell(), columns: 60, maxColors: 16),
 ];
 
+/// Крупный размер (T65): станок 100 столбцов и 20 цветов, вышивка 150 и 30, как их видит Настя на готовой работе.
+const List<GalleryTarget> galleryLargeTargets = <GalleryTarget>[
+  GalleryTarget(
+    id: 'loom-l',
+    technique: Technique.loom,
+    metrics: BeadSize.delica11,
+    columns: 100,
+    maxColors: 20,
+    large: true,
+  ),
+  GalleryTarget(
+    id: 'stitch-l',
+    technique: Technique.crossStitch,
+    metrics: _StitchCell(),
+    columns: 150,
+    maxColors: 30,
+    large: true,
+  ),
+];
+
 /// Вариант конвейера. Новая стадия генератора добавляет сюда свой вариант: листы и метрики «до / после» получаются сами.
 final class GalleryVariant {
-  const GalleryVariant({required this.id, required this.title, required this.build, this.beadsOnly = false});
+  const GalleryVariant({
+    required this.id,
+    required this.title,
+    required this.build,
+    this.beadsOnly = false,
+    this.catalog = false,
+  });
 
   final String id;
   final String title;
+
+  /// Берёт цвета из каталога бисера: на крупном размере (свободная палитра) не строится.
+  final bool catalog;
 
   /// Только для бисера: нужен каталог бисера.
   final bool beadsOnly;
 
   final ImageToGridRequest Function(SourceImage image, GalleryTarget target, List<CatalogColor> catalog) build;
 
-  bool appliesTo(GalleryTarget target) => !beadsOnly || target.isBeads;
+  bool appliesTo(GalleryTarget target) => (!beadsOnly || target.isBeads) && !(catalog && target.large);
 }
 
 ImageToGridRequest _request(
@@ -234,6 +267,7 @@ final List<GalleryVariant> galleryVariants = <GalleryVariant>[
     id: 't24-catalog',
     title: 'T24 + каталог Toho/Delica',
     beadsOnly: true,
+    catalog: true,
     build: (image, target, catalog) => _request(image, target, catalog, useCatalog: true),
   ),
   GalleryVariant(
@@ -256,6 +290,7 @@ final List<GalleryVariant> galleryVariants = <GalleryVariant>[
     id: 't53-catalog',
     title: 'T53 + каталог Toho/Delica',
     beadsOnly: true,
+    catalog: true,
     build: (image, target, catalog) => _request(
       image,
       target,
@@ -290,6 +325,7 @@ final List<GalleryVariant> galleryVariants = <GalleryVariant>[
     id: 't47-catalog',
     title: 'T47: сбалансированно + каталог Toho/Delica',
     beadsOnly: true,
+    catalog: true,
     build: (image, target, catalog) =>
         _request(image, target, catalog, useCatalog: true, preset: GenerationPreset.balanced),
   ),
@@ -303,6 +339,7 @@ final List<GalleryVariant> galleryVariants = <GalleryVariant>[
     id: 't57-dither-catalog',
     title: 'T57: плавные переходы + каталог Toho/Delica',
     beadsOnly: true,
+    catalog: true,
     build: (image, target, catalog) =>
         _request(image, target, catalog, useCatalog: true, preset: GenerationPreset.balanced, dither: true),
   ),
@@ -514,11 +551,13 @@ final class GalleryRun {
 }
 
 /// Прогоняет все фото через все виды и варианты.
-List<GalleryRun> runGallery(List<GalleryPhoto> photos, List<CatalogColor> catalog) {
+///
+/// С [includeLarge] добавляются крупные размеры [galleryLargeTargets] (только свободная палитра).
+List<GalleryRun> runGallery(List<GalleryPhoto> photos, List<CatalogColor> catalog, {bool includeLarge = false}) {
   const ImageToGridPipeline pipeline = ImageToGridPipeline();
   return <GalleryRun>[
     for (final GalleryPhoto photo in photos)
-      for (final GalleryTarget target in galleryTargets)
+      for (final GalleryTarget target in <GalleryTarget>[...galleryTargets, if (includeLarge) ...galleryLargeTargets])
         for (final GalleryVariant variant in galleryVariants)
           if (variant.appliesTo(target))
             GalleryRun(
@@ -561,6 +600,9 @@ Map<String, Map<String, num>> baselineOf(List<GalleryRun> runs) => <String, Map<
       'singles': run.stats.singleCells,
       'colors': run.stats.colorCount,
       'deltaE': double.parse(run.stats.meanDeltaE.toStringAsFixed(2)),
+      if (run.stats.contrast != null) 'contrast': double.parse(run.stats.contrast!.toStringAsFixed(3)),
+      if (run.stats.lightnessCorrelation != null)
+        'corr': double.parse(run.stats.lightnessCorrelation!.toStringAsFixed(3)),
     },
 };
 
@@ -588,15 +630,17 @@ Map<String, Map<String, num>> readBaseline() {
 String metricsTable(List<GalleryRun> runs) {
   final StringBuffer out = StringBuffer()
     ..writeln(
-      '| Фото | Вид | Вариант | Цветов | Одиночных клеток | Средняя ΔE2000 | Время, мс (выборка / палитра / привязка / шаги) |',
+      '| Фото | Вид | Вариант | Цветов | Одиночных клеток | Одиночных, % | Средняя ΔE2000 | Контраст | Корреляция | Время, мс (выборка / палитра / привязка / шаги) |',
     )
-    ..writeln('|---|---|---|---|---|---|---|');
+    ..writeln('|---|---|---|---|---|---|---|---|---|---|');
   for (final GalleryRun run in runs) {
     final GenerationStats s = run.stats;
     String ms(String stage) => (s.stageTimes[stage]!.inMicroseconds / 1000).toStringAsFixed(1);
     out.writeln(
       '| ${run.photo.name} | ${run.target.id} | ${run.variant.title} | ${s.colorCount} | ${s.singleCells}${s.singleCellsBefore == null ? '' : ' (было ${s.singleCellsBefore})'} | '
-      '${s.meanDeltaE.toStringAsFixed(1)} | ${ms('sample')} / ${ms('palette')} / ${ms('assign')} / ${ms('steps')} |',
+      '${(100 * s.singleCells / (run.pattern.grid.width * run.pattern.grid.height)).toStringAsFixed(1)} | '
+      '${s.meanDeltaE.toStringAsFixed(1)} | ${s.contrast?.toStringAsFixed(2) ?? '—'} | '
+      '${s.lightnessCorrelation?.toStringAsFixed(3) ?? '—'} | ${ms('sample')} / ${ms('palette')} / ${ms('assign')} / ${ms('steps')} |',
     );
   }
   return out.toString();

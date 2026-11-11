@@ -108,8 +108,39 @@ final class ImageToGridPipeline {
     return GeneratedPattern(
       grid: pattern.grid,
       palette: pattern.palette,
-      stats: _stats(pattern, cells, request.geometry, times),
+      stats: _stats(pattern, cells, request.geometry, times, structure: _structureOf(request, pattern)),
       blendSuggestions: blends,
+    );
+  }
+
+  /// Контраст и корреляция светлоты (T65) по рабочим пикселям без подготовки фото; в черновике не считаются.
+  LightnessStructure? _structureOf(ImageToGridRequest request, GeneratedPattern pattern, {_Prepared? prepared}) {
+    if (request.draft) return null;
+    final WorkImage work =
+        prepared?.rawWork ??
+        WorkImage.fromSource(
+          image: request.image,
+          geometry: request.geometry,
+          metrics: request.metrics,
+          columns: request.columns,
+          rows: request.rows,
+        );
+    final CellRegions regions =
+        prepared?.regions ??
+        CellRegions.forGrid(
+          geometry: request.geometry,
+          metrics: request.metrics,
+          columns: request.columns,
+          rows: request.rows,
+          imageWidth: work.width,
+          imageHeight: work.height,
+        );
+    return lightnessStructure(
+      lightness: work.lightness,
+      workWidth: work.width,
+      regions: regions,
+      grid: pattern.grid,
+      palette: pattern.palette,
     );
   }
 
@@ -252,6 +283,7 @@ final class ImageToGridPipeline {
         request.geometry,
         times,
         singlesBefore: request.steps.isEmpty && smoother == null ? null : singlesBefore,
+        structure: _structureOf(request, pattern, prepared: prepared),
       ),
     );
   }
@@ -267,6 +299,7 @@ final class ImageToGridPipeline {
       rows: request.rows,
       scale: request.draft ? WorkImage.draftScale : null,
     );
+    final WorkImage rawWork = work;
     final ImagePrefilter? prefilter = request.prefilter;
     if (prefilter != null) work = prefilter.apply(work);
     // Цвета клеток нужны только для важности клеток и метрики ΔE: средние по рабочей картинке, как в пути T24.
@@ -291,6 +324,7 @@ final class ImageToGridPipeline {
       skin: faces?.skinPixels(work.width, work.height),
       faceCells: faces?.cells(regions, workWidth: work.width, workHeight: work.height),
       work: work,
+      rawWork: rawWork,
       cells: cells,
       regions: regions,
       neighbors: CellNeighbors.of(geometry: request.geometry, columns: cells.columns, rows: cells.rows),
@@ -332,6 +366,7 @@ final class ImageToGridPipeline {
     GridGeometry geometry,
     Map<String, Duration> times, {
     int? singlesBefore,
+    LightnessStructure? structure,
   }) {
     final List<Lab> paletteLab = <Lab>[for (final PaletteEntry e in pattern.palette) Lab.fromRgb(e.rgb)];
     final Set<int> used = <int>{};
@@ -350,6 +385,8 @@ final class ImageToGridPipeline {
       singleCellsBefore: singlesBefore,
       colorCount: used.length,
       meanDeltaE: counted == 0 ? 0 : sum / counted,
+      contrast: structure?.contrast,
+      lightnessCorrelation: structure?.correlation,
       stageTimes: times,
     );
   }
@@ -466,6 +503,7 @@ final class _Prepared {
     required this.skin,
     required this.faceCells,
     required this.work,
+    required this.rawWork,
     required this.cells,
     required this.regions,
     required this.neighbors,
@@ -476,6 +514,9 @@ final class _Prepared {
   final Uint8List? skin;
   final FaceCells? faceCells;
   final WorkImage work;
+
+  /// Рабочая картинка до подготовки фото: с ней сравнивают метрики структуры (T65).
+  final WorkImage rawWork;
   final SampledCells cells;
   final CellRegions regions;
   final CellNeighbors neighbors;

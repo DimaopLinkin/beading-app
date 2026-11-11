@@ -15,7 +15,7 @@ void main() {
   });
 
   testWidgets(
-    'метрики не хуже базы: одиночных клеток не больше +20 % (и не больше +2 клеток), ΔE не выше +1,0',
+    'метрики не хуже базы: одиночных клеток не больше +20 % (и не больше +2 клеток), ΔE не выше +1,0, корреляция светлоты не ниже −0,02, контраст в пределах ±0,05',
     timeout: const Timeout(Duration(minutes: 3)),
     (tester) async {
       runs = (await tester.runAsync(() async => runGallery(await loadPhotos(), loadBeadCatalog())))!;
@@ -30,6 +30,18 @@ void main() {
         }
         if (run.stats.singleCells > math.max(base['singles']! * 1.2, base['singles']! + 2)) {
           problems.add('${run.key}: одиночных клеток ${run.stats.singleCells}, в базе ${base['singles']}');
+        }
+        // T65: структура светлоты не хуже базы: корреляция не падает больше чем на 0,02, контраст уходит не больше чем на 0,05.
+        final double? corr = run.stats.lightnessCorrelation;
+        if (base['corr'] != null && (corr == null || run.stats.contrast == null)) {
+          problems.add('${run.key}: метрики структуры не посчитаны, а в базе есть');
+        }
+        if (corr != null && base['corr'] != null && corr < base['corr']! - 0.02) {
+          problems.add('${run.key}: корреляция ${corr.toStringAsFixed(3)}, в базе ${base['corr']}');
+        }
+        final double? contrast = run.stats.contrast;
+        if (contrast != null && base['contrast'] != null && (contrast - base['contrast']!).abs() > 0.05) {
+          problems.add('${run.key}: контраст ${contrast.toStringAsFixed(3)}, в базе ${base['contrast']}');
         }
         if (run.stats.meanDeltaE > base['deltaE']! + 1.0) {
           problems.add(
