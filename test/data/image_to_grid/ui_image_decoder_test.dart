@@ -1,4 +1,5 @@
 import 'dart:typed_data';
+import 'dart:ui' as ui;
 
 import 'package:beading/core/result.dart';
 import 'package:beading/data/image_to_grid/ui_image_decoder.dart';
@@ -20,6 +21,26 @@ void main() {
     expect((image.width, image.height), (4, 2));
     expect(image.rgba.sublist(0, 4), <int>[255, 0, 0, 255]);
     expect(image.rgba.sublist(12, 16), <int>[0, 0, 255, 255]);
+  });
+
+  testWidgets('полупрозрачный пиксель сохраняет свой цвет: красный остаётся красным, а не темнеет', (tester) async {
+    final Result<SourceImage>? result = await tester.runAsync(() async {
+      final ui.PictureRecorder recorder = ui.PictureRecorder();
+      ui.Canvas(recorder).drawRect(
+        const ui.Rect.fromLTWH(0, 0, 2, 2),
+        ui.Paint()
+          ..color = const ui.Color(0x80FF0000)
+          ..blendMode = ui.BlendMode.src,
+      );
+      final ui.Image drawn = await recorder.endRecording().toImage(2, 2);
+      final ByteData png = (await drawn.toByteData(format: ui.ImageByteFormat.png))!;
+      drawn.dispose();
+      return _decode(png.buffer.asUint8List);
+    });
+    final SourceImage image = result!.valueOrNull!;
+    expect(image.rgba[3], closeTo(128, 1));
+    expect(image.rgba[0], greaterThan(250));
+    expect(image.rgba.sublist(1, 3), <int>[0, 0]);
   });
 
   testWidgets('уменьшает длинную сторону до maxSide', (tester) async {

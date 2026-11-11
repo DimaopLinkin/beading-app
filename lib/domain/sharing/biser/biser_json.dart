@@ -13,6 +13,7 @@ import 'package:beading/domain/grid_pattern/grid_pattern.dart';
 import 'package:beading/domain/grid_pattern/grid_progress.dart';
 import 'package:beading/domain/image_pattern/book_work/page_viewport.dart';
 import 'package:beading/domain/image_pattern/book_work/page_work.dart';
+import 'package:beading/domain/image_pattern/book_work/pattern_zone.dart';
 import 'package:beading/domain/image_pattern/book_work/ruler_state.dart';
 import 'package:beading/domain/palette/catalog_ref.dart';
 import 'package:beading/domain/palette/palette_snapshot.dart';
@@ -112,6 +113,8 @@ abstract final class BiserJson {
                   'highlight': page.work!.ruler.highlight.name,
                   'row': page.work!.ruler.row,
                   'direction': page.work!.ruler.direction.name,
+                  'zone': _zone(page.work!.ruler.zone),
+                  'rowCount': page.work!.ruler.rowCount,
                   'scale': page.work!.viewport.scale,
                   'dx': page.work!.viewport.dx,
                   'dy': page.work!.viewport.dy,
@@ -339,6 +342,8 @@ abstract final class BiserJson {
             highlight: _enum(RulerHighlight.values, w['highlight'], 'подсветка'),
             row: _int(w['row'], 'ряд линейки'),
             direction: _enum(RowDirection.values, w['direction'], 'направление рядов'),
+            zone: _readZone(w['zone']),
+            rowCount: _readRowCount(w['rowCount']),
           ),
           viewport: PageViewport(
             scale: _double(w['scale'], 'масштаб'),
@@ -360,6 +365,39 @@ abstract final class BiserJson {
     Success<T>(:final T value) => value,
     Err<T>(:final Failure failure) => throw _BadBiser(failure.message),
   };
+
+  static Map<String, Object?>? _zone(PatternZone? zone) => zone == null
+      ? null
+      : <String, Object?>{'top': zone.top, 'bottom': zone.bottom, 'left': zone.left, 'right': zone.right};
+
+  /// Зона схемы на странице. В файлах без неё (`null` или ключа нет) схема занимает всю страницу.
+  static PatternZone? _readZone(Object? v) {
+    if (v == null) {
+      return null;
+    }
+    final Map<String, Object?> z = _map(v, 'зона схемы');
+    final PatternZone zone = PatternZone(
+      top: _double(z['top'], 'зона схемы'),
+      bottom: _double(z['bottom'], 'зона схемы'),
+      left: _double(z['left'], 'зона схемы'),
+      right: _double(z['right'], 'зона схемы'),
+    );
+    if (zone.top < 0 || zone.left < 0 || zone.height <= 0 || zone.width <= 0) {
+      throw const _BadBiser('Файл повреждён: зона схемы записана неверно');
+    }
+    return zone;
+  }
+
+  static int? _readRowCount(Object? v) {
+    if (v == null) {
+      return null;
+    }
+    final int count = _int(v, 'число рядов');
+    if (count < 1) {
+      throw const _BadBiser('Файл повреждён: число рядов записано неверно');
+    }
+    return count;
+  }
 
   static Map<String, Object?> _map(Object? v, String what) =>
       v is Map<String, Object?> ? v : throw _BadBiser('Файл повреждён: $what записан неверно');

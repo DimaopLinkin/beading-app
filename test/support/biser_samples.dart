@@ -8,6 +8,7 @@ import 'package:beading/domain/grid_pattern/grid_pattern.dart';
 import 'package:beading/domain/grid_pattern/grid_progress.dart';
 import 'package:beading/domain/image_pattern/book_work/page_viewport.dart';
 import 'package:beading/domain/image_pattern/book_work/page_work.dart';
+import 'package:beading/domain/image_pattern/book_work/pattern_zone.dart';
 import 'package:beading/domain/image_pattern/book_work/ruler_state.dart';
 import 'package:beading/domain/projects/craft.dart';
 import 'package:beading/domain/projects/project.dart';
@@ -93,6 +94,11 @@ BiserBundle randomBundle(int seed, {int projects = 4}) {
                       highlight: RulerHighlight.values[random.nextInt(RulerHighlight.values.length)],
                       row: 1 + random.nextInt(30),
                       direction: RowDirection.values[random.nextInt(RowDirection.values.length)],
+                      // Зона и число рядов — по зерну, без генератора: остальные значения наборов не сдвигаются.
+                      zone: (seed + p).isEven
+                          ? PatternZone(top: 2.5 + p, bottom: 80.5 + seed, left: 1.25, right: 90 + p.toDouble())
+                          : null,
+                      rowCount: (seed + p) % 3 == 0 ? 10 + seed : null,
                     ),
                     viewport: PageViewport(
                       scale: 1 + random.nextDouble() * 3,

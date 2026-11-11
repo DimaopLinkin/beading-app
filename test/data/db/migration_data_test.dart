@@ -109,4 +109,41 @@ void main() {
     expect(row.zoneRight, isNull);
     expect(row.rowCount, isNull);
   });
+
+  test('обновление 0.1.0 → 0.2.0 (v8→v10) сохраняет проект, страницу и линейку, сессий работы ещё нет', () async {
+    final SchemaVerifier verifier = SchemaVerifier(GeneratedHelper());
+    final InitializedSchema old = await verifier.schemaAt(8);
+    old.rawDatabase
+      ..execute(
+        'INSERT INTO projects (id, name, technique, content_kind, last_worked_at, created_at, updated_at, device_id) '
+        "VALUES ('proj', 'Браслет', 'loom', 'image', 5, 1, 1, 'd')",
+      )
+      ..execute(
+        "INSERT INTO image_patterns (id, project_id, created_at, updated_at, device_id) VALUES ('pat', 'proj', 1, 1, 'd')",
+      )
+      ..execute(
+        'INSERT INTO image_pattern_pages (id, pattern_id, position, path, width, height, created_at, updated_at, device_id) '
+        "VALUES ('pg', 'pat', 0, 'a.png', 10, 20, 1, 1, 'd')",
+      )
+      ..execute(
+        'INSERT INTO page_work_states (id, ruler_top, ruler_height, ruler_step, ruler_row, highlight, row_direction, '
+        "view_scale, view_dx, view_dy, created_at, updated_at, device_id) VALUES ('pg', 1, 2, 2, 7, 'pink', 'bottomUp', "
+        "1.5, 3, 4, 1, 1, 'd')",
+      )
+      ..execute(
+        'INSERT INTO book_work_states (id, current_page_id, created_at, updated_at, device_id) '
+        "VALUES ('pat', 'pg', 1, 1, 'd')",
+      );
+
+    final AppDatabase db = AppDatabase(old.newConnection());
+    addTearDown(db.close);
+    await verifier.migrateAndValidate(db, 10);
+
+    expect((await db.select(db.projects).get()).single.name, 'Браслет');
+    final PageWorkStateRow row = (await db.select(db.pageWorkStates).get()).single;
+    expect((row.rulerRow, row.highlight, row.rowDirection, row.viewScale), (7, 'pink', 'bottomUp', 1.5));
+    expect((row.zoneTop, row.rowCount), (null, null));
+    expect((await db.select(db.bookWorkStates).get()).single.currentPageId, 'pg');
+    expect(await db.select(db.workSessions).get(), isEmpty);
+  });
 }

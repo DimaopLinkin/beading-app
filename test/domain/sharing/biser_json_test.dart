@@ -3,6 +3,8 @@ import 'dart:typed_data';
 
 import 'package:beading/core/failure.dart';
 import 'package:beading/core/result.dart';
+import 'package:beading/domain/image_pattern/book_work/page_work.dart';
+import 'package:beading/domain/image_pattern/book_work/ruler_state.dart';
 import 'package:beading/domain/sharing/biser/biser_json.dart';
 import 'package:beading/domain/sharing/biser/biser_models.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -126,6 +128,58 @@ void main() {
         isA<ValidationFailure>(),
       );
       expect(mutate(grids, (p) => p['id'] = 'a b').failureOrNull, isA<ValidationFailure>());
+    });
+
+    group('зона схемы и число рядов линейки', () {
+      BiserBundle withWork() {
+        for (int seed = 0; seed < 200; seed++) {
+          final BiserBundle bundle = randomBundle(seed, projects: 1);
+          final PageWork? work = bundle.projects.first.book?.pages.first.work;
+          if (work != null && work.ruler.zone != null && work.ruler.rowCount != null) {
+            return bundle;
+          }
+        }
+        throw StateError('нет подходящего набора');
+      }
+
+      Map<String, Object?> workOf(Map<String, Object?> project) =>
+          (((project['book']! as Map<String, Object?>)['pages']! as List<Object?>).first!
+                  as Map<String, Object?>)['work']!
+              as Map<String, Object?>;
+
+      test('переживают экспорт и импорт', () {
+        final BiserBundle source = withWork();
+        final Result<BiserBundle> result = mutate(source, (_) {});
+        final RulerState ruler = result.valueOrNull!.projects.first.book!.pages.first.work!.ruler;
+        expect(ruler.zone, source.projects.first.book!.pages.first.work!.ruler.zone);
+        expect(ruler.rowCount, source.projects.first.book!.pages.first.work!.ruler.rowCount);
+      });
+
+      test('файл без них читается: схема на всю страницу, шаг ручной', () {
+        final Result<BiserBundle> result = mutate(withWork(), (p) {
+          workOf(p)
+            ..remove('zone')
+            ..remove('rowCount');
+        });
+        final RulerState ruler = result.valueOrNull!.projects.first.book!.pages.first.work!.ruler;
+        expect(ruler.zone, isNull);
+        expect(ruler.rowCount, isNull);
+      });
+
+      test('вывернутая зона, зона не словарём и нулевое число рядов отвергаются', () {
+        final BiserBundle source = withWork();
+        expect(
+          mutate(source, (p) => (workOf(p)['zone']! as Map<String, Object?>)['bottom'] = 0).failureOrNull,
+          isA<ValidationFailure>(),
+        );
+        expect(
+          mutate(source, (p) => (workOf(p)['zone']! as Map<String, Object?>)['left'] = -1).failureOrNull,
+          isA<ValidationFailure>(),
+        );
+        expect(mutate(source, (p) => workOf(p)['zone'] = 5).failureOrNull, isA<ValidationFailure>());
+        expect(mutate(source, (p) => workOf(p)['rowCount'] = 0).failureOrNull, isA<ValidationFailure>());
+        expect(mutate(source, (p) => workOf(p)['rowCount'] = 'много').failureOrNull, isA<ValidationFailure>());
+      });
     });
 
     test('пустой id и нечисловое время', () {
