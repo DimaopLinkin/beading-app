@@ -25,6 +25,9 @@ final class IsolateImageToGridRunner implements ImageToGridRunner {
   final Map<int, Completer<GeneratedPattern>> _pending = <int, Completer<GeneratedPattern>>{};
   int _nextId = 0;
 
+  /// Номер сессии: растёт при [release], чтобы изолят, поднимавшийся во время release, не остался жить.
+  int _epoch = 0;
+
   SourceImage? _sentImage;
   Float32List? _sentImportance;
 
@@ -48,7 +51,7 @@ final class IsolateImageToGridRunner implements ImageToGridRunner {
 
   @override
   Future<void> release() async {
-    final Future<SendPort>? worker = _worker;
+    _epoch++;
     _worker = null;
     _sentImage = null;
     _sentImportance = null;
@@ -56,24 +59,33 @@ final class IsolateImageToGridRunner implements ImageToGridRunner {
     _replies = null;
     _isolate?.kill(priority: Isolate.immediate);
     _isolate = null;
-    if (worker != null) {
-      final StateError cancelled = StateError('Сессия расчёта закрыта');
-      for (final Completer<GeneratedPattern> pending in _pending.values) {
-        if (!pending.isCompleted) pending.completeError(cancelled);
-      }
-      _pending.clear();
+    _failPending('Сессия расчёта закрыта');
+  }
+
+  void _failPending(String reason) {
+    final StateError error = StateError(reason);
+    for (final Completer<GeneratedPattern> pending in _pending.values) {
+      if (!pending.isCompleted) pending.completeError(error);
     }
+    _pending.clear();
   }
 
   Future<SendPort> _start() => _worker ??= _spawn();
 
   Future<SendPort> _spawn() async {
+    final int epoch = _epoch;
     final ReceivePort replies = ReceivePort();
     _replies = replies;
     final Completer<SendPort> ready = Completer<SendPort>();
     replies.listen((message) {
       if (message is SendPort) {
         ready.complete(message);
+      } else if (message == null || message is List) {
+        // Изолят завершился или упал вне задания: ждать ответов не от кого, следующий запуск поднимет новый.
+        if (epoch == _epoch) {
+          _worker = null;
+          _failPending('Расчёт прерван');
+        }
       } else if (message is _Done) {
         final Completer<GeneratedPattern>? pending = _pending.remove(message.id);
         if (pending == null || pending.isCompleted) return;
@@ -86,7 +98,18 @@ final class IsolateImageToGridRunner implements ImageToGridRunner {
       }
     });
     final ImageToGridPipeline pipeline = _pipeline;
-    _isolate = await Isolate.spawn(_serve, (replies.sendPort, pipeline));
+    final Isolate isolate = await Isolate.spawn(
+      _serve,
+      (replies.sendPort, pipeline),
+      onError: replies.sendPort,
+      onExit: replies.sendPort,
+    );
+    if (epoch != _epoch) {
+      // Сессию закрыли, пока изолят поднимался.
+      isolate.kill(priority: Isolate.immediate);
+      throw StateError('Сессия расчёта закрыта');
+    }
+    _isolate = isolate;
     return ready.future;
   }
 }

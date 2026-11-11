@@ -95,5 +95,16 @@ void main() {
       final GeneratedPattern restarted = await runner.run(pixelRequest(image));
       expect(restarted.grid, const ImageToGridPipeline().run(pixelRequest(image)).grid);
     });
+
+    test('release во время запуска не зависает: запрос получает ошибку, следующий работает', () async {
+      final IsolateImageToGridRunner runner = IsolateImageToGridRunner();
+      addTearDown(runner.release);
+      final Future<GeneratedPattern> pending = runner.run(pixelRequest(image));
+      final Future<void> expectation = expectLater(pending, throwsStateError);
+      await runner.release();
+      await expectation;
+      final GeneratedPattern next = await runner.run(pixelRequest(image));
+      expect(next.grid, const ImageToGridPipeline().run(pixelRequest(image)).grid);
+    });
   });
 }
