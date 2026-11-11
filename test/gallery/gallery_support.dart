@@ -159,6 +159,7 @@ ImageToGridRequest _request(
   bool pixelStages = false,
   GenerationPreset? preset,
   ImageMaskSet? masks,
+  bool detailVoting = false,
 }) {
   final ImageToGridSettings settings = ImageToGridSettings(
     technique: target.technique,
@@ -168,6 +169,7 @@ ImageToGridRequest _request(
     paletteSource: useCatalog ? PaletteSource.catalog : PaletteSource.free,
     dither: dither,
     preset: preset,
+    detailVoting: detailVoting,
   );
   final ImageToGridRequest request = settings.toRequest(
     image: image,
@@ -316,6 +318,12 @@ final List<GalleryVariant> galleryVariants = <GalleryVariant>[
     id: 't47-detailed',
     title: 'T47: детально',
     build: (image, target, catalog) => _request(image, target, catalog, preset: GenerationPreset.detailed),
+  ),
+  GalleryVariant(
+    id: 't64-detail',
+    title: 'T64: сбалансированно + вес заметности',
+    build: (image, target, catalog) =>
+        _request(image, target, catalog, preset: GenerationPreset.balanced, detailVoting: true),
   ),
   GalleryVariant(
     id: 't54-faces',

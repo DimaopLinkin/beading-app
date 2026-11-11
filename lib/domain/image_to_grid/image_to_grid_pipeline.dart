@@ -253,6 +253,7 @@ final class ImageToGridPipeline {
       cellImportance: cells.importance,
       costs: labeled.costs.select(order),
       cellEdges: edges,
+      cellDetail: labeled.detail,
       cellColors: cells.colors,
       faces: prepared.faceCells,
     );
