@@ -79,6 +79,14 @@ void main() {
       for (final GalleryRun run in runs.where((r) => r.variant.id.startsWith('t47-'))) {
         expect(run.stats.colorCount, lessThanOrEqualTo(run.target.maxColors), reason: run.key);
       }
+      // T54: на фото без размеченных лиц результат такой же, как у «сбалансированно».
+      for (final GalleryRun run in runs.where((r) => r.variant.id == 't54-faces')) {
+        if (galleryFaces[run.photo.image] != null) continue;
+        final GalleryRun balanced = runs.firstWhere(
+          (r) => r.variant.id == 't47-balanced' && r.photo == run.photo && r.target == run.target,
+        );
+        expect(run.pattern.grid, balanced.pattern.grid, reason: '${run.key}: без лиц результат не меняется');
+      }
       expect(
         baseline.keys.toSet().difference(runs.map((r) => r.key).toSet()),
         isEmpty,

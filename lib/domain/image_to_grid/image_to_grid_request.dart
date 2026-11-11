@@ -5,6 +5,7 @@ import 'package:beading/domain/grid/grid.dart';
 import 'package:beading/domain/grid/grid_geometry.dart';
 import 'package:beading/domain/image_to_grid/background_stage.dart';
 import 'package:beading/domain/image_to_grid/cell_labeler.dart';
+import 'package:beading/domain/image_to_grid/face_guide.dart';
 import 'package:beading/domain/image_to_grid/image_prefilter.dart';
 import 'package:beading/domain/image_to_grid/label_smoother.dart';
 import 'package:beading/domain/image_to_grid/palette_builder.dart';
@@ -32,6 +33,7 @@ final class ImageToGridRequest {
     this.labeler,
     this.smoother,
     this.refillFreedColors = false,
+    this.faces,
     this.draft = false,
     this.steps = const <PatternStep>[],
     this.subjectMask,
@@ -99,34 +101,44 @@ final class ImageToGridRequest {
   /// «Детально»: цвета, освободившиеся при слиянии и очистке, достаются следующему акценту (число цветов — верхняя граница).
   final bool refillFreedColors;
 
+  /// Лица на фото (T54): отдельные цвета кожи, защита черт, зрачки и губы. Работает только на пиксельном пути; нужны
+  /// `FaceAwarePaletteBuilder` и `FaceFeatureStep`. `null` — лиц нет или они не нужны.
+  final FaceGuide? faces;
+
   /// Черновик для предпросмотра при движении ползунка (T58): рабочая картинка в [WorkImage.draftScale] пикселя на клетку.
   /// Такой результат показывают, но не сохраняют: после паузы мастер считает полный. Путь T24 черновик не знает.
   final bool draft;
 
-  /// Тот же запрос на другой картинке (и маске): так изолят сессии подставляет картинку, которую уже получил.
-  ImageToGridRequest withSource({required SourceImage image, Float32List? importance, Uint8List? subjectMask}) =>
-      ImageToGridRequest(
-        image: image,
-        geometry: geometry,
-        metrics: metrics,
-        columns: columns,
-        rows: rows,
-        maxColors: maxColors,
-        constraint: constraint,
-        importance: importance,
-        dither: dither,
-        seed: seed,
-        prefilter: prefilter,
-        paletteBuilder: paletteBuilder,
-        labeler: labeler,
-        smoother: smoother,
-        refillFreedColors: refillFreedColors,
-        draft: draft,
-        steps: steps,
-        subjectMask: subjectMask,
-        background: background,
-        outline: outline,
-      );
+  /// Тот же запрос на другой картинке, маске важности, маске объекта и лицах: так изолят сессии подставляет то, что уже
+  /// получил. Лица [faces] и маска объекта заменяются, `null` — без них.
+  ImageToGridRequest withSource({
+    required SourceImage image,
+    Float32List? importance,
+    FaceGuide? faces,
+    Uint8List? subjectMask,
+  }) => ImageToGridRequest(
+    image: image,
+    geometry: geometry,
+    metrics: metrics,
+    columns: columns,
+    rows: rows,
+    maxColors: maxColors,
+    constraint: constraint,
+    importance: importance,
+    dither: dither,
+    seed: seed,
+    prefilter: prefilter,
+    paletteBuilder: paletteBuilder,
+    labeler: labeler,
+    smoother: smoother,
+    refillFreedColors: refillFreedColors,
+    faces: faces,
+    draft: draft,
+    steps: steps,
+    subjectMask: subjectMask,
+    background: background,
+    outline: outline,
+  );
 
   /// Маска объекта (T55): значение на пиксель картинки, ряды сверху вниз; `0` — фон, остальное — объект. `null` — маски
   /// нет, и [background] с [outline] не действуют.
@@ -159,6 +171,7 @@ final class ImageToGridRequest {
     labeler: labeler,
     smoother: smoother,
     refillFreedColors: refillFreedColors,
+    faces: faces,
     draft: draft,
     steps: steps,
     subjectMask: mask,

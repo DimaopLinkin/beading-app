@@ -249,6 +249,33 @@ class ImageWizardCubit extends Cubit<ImageWizardState> {
   /// «Выделять главное»: учитывать ли лица и объект, найденные на фото.
   void setUseMasks({required bool value}) => _change(state.settings.copyWith(useMasks: value));
 
+  /// «Обрезать по лицу»: рамка вокруг самого крупного лица из совета, в осях уже обрезанной картинки.
+  Future<void> cropToFace() async {
+    final NormalizedRect? face = state.faceAdvice?.cropRect;
+    // Пока картинка пересчитывается, маски лежат в осях прежней обрезки: совет устарел.
+    if (face == null || state.calculating) {
+      return;
+    }
+    final CropRect now = state.crop;
+    double clamp(double v) => v.clamp(0.0, 1.0);
+    await setCrop(
+      CropRect(
+        left: clamp(now.left + face.left * now.width),
+        top: clamp(now.top + face.top * now.height),
+        right: clamp(now.left + face.right * now.width),
+        bottom: clamp(now.top + face.bottom * now.height),
+      ),
+    );
+  }
+
+  /// «Схема шире»: ширина, при которой лицо занимает нужное число бусин.
+  void widenForFace() {
+    final int? columns = state.faceAdvice?.neededColumns;
+    if (columns != null && !state.calculating) {
+      setColumns(columns);
+    }
+  }
+
   /// Фон: оставить, упростить или убрать (нужна маска объекта).
   void setBackground(BackgroundMode mode) => _change(state.settings.copyWith(background: mode));
 
@@ -325,6 +352,7 @@ class ImageWizardCubit extends Cubit<ImageWizardState> {
           catalog: _catalogColors,
           brand: _brand,
           importance: settings.useMasks ? _importance : null,
+          masks: settings.useMasks ? state.masks : null,
           subjectMask: _subjectMask,
           draft: draft,
         ),

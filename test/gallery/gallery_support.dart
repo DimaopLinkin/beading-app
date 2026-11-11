@@ -15,16 +15,20 @@ import 'package:beading/domain/grid/grid_geometry.dart';
 import 'package:beading/domain/grid/mm.dart';
 import 'package:beading/domain/image_to_grid/background_stage.dart';
 import 'package:beading/domain/image_to_grid/cell_labeler.dart';
+import 'package:beading/domain/image_to_grid/cell_regions.dart';
 import 'package:beading/domain/image_to_grid/cell_sampler.dart';
+import 'package:beading/domain/image_to_grid/face_guide.dart';
 import 'package:beading/domain/image_to_grid/generated_pattern.dart';
 import 'package:beading/domain/image_to_grid/generation_preset.dart';
 import 'package:beading/domain/image_to_grid/generation_stats.dart';
+import 'package:beading/domain/image_to_grid/image_mask_set.dart';
 import 'package:beading/domain/image_to_grid/image_prefilter.dart';
 import 'package:beading/domain/image_to_grid/image_to_grid_pipeline.dart';
 import 'package:beading/domain/image_to_grid/image_to_grid_request.dart';
 import 'package:beading/domain/image_to_grid/image_to_grid_settings.dart';
 import 'package:beading/domain/image_to_grid/palette_builder.dart';
 import 'package:beading/domain/image_to_grid/source_image.dart';
+import 'package:beading/domain/image_to_grid/work_image.dart';
 import 'package:beading/domain/palette/lab.dart';
 import 'package:beading/domain/palette/rgb.dart';
 import 'package:beading/domain/projects/craft.dart';
@@ -114,6 +118,7 @@ ImageToGridRequest _request(
   ImagePrefilter? prefilter,
   bool pixelStages = false,
   GenerationPreset? preset,
+  ImageMaskSet? masks,
 }) {
   final ImageToGridSettings settings = ImageToGridSettings(
     technique: target.technique,
@@ -127,6 +132,7 @@ ImageToGridRequest _request(
   final ImageToGridRequest request = settings.toRequest(
     image: image,
     catalog: useCatalog ? catalog : const <CatalogColor>[],
+    masks: masks,
   );
   final PaletteBuilder? paletteBuilder = pixelStages ? const AccentPaletteBuilder() : null;
   final CellLabeler? labeler = pixelStages ? const VotingCellLabeler() : null;
@@ -166,7 +172,43 @@ ImageToGridRequest _request(
     labeler: labeler ?? request.labeler,
     smoother: request.smoother,
     refillFreedColors: request.refillFreedColors,
+    faces: request.faces,
     steps: request.steps,
+  );
+}
+
+/// Лица фикстур, размеченные вручную (на Linux нет Apple Vision): ключ — картинка, загруженная [loadPhotos].
+final Expando<ImageMaskSet> galleryFaces = Expando<ImageMaskSet>('galleryFaces');
+
+/// Рамка и ориентиры лица на `portrait.png` (320 × 320), размечены по снимку вручную.
+ImageMaskSet _portraitFaces() {
+  const double side = 320;
+  NormalizedPoint p(double x, double y) => NormalizedPoint(x / side, y / side);
+  List<NormalizedPoint> ring(double cx, double cy, double rx, double ry) => <NormalizedPoint>[
+    p(cx - rx, cy),
+    p(cx, cy - ry),
+    p(cx + rx, cy),
+    p(cx, cy + ry),
+  ];
+  return ImageMaskSet(
+    width: 320,
+    height: 320,
+    faces: <DetectedFace>[
+      DetectedFace(
+        bounds: const NormalizedRect(left: 112 / side, top: 46 / side, right: 169 / side, bottom: 114 / side),
+        landmarks: FaceLandmarks(
+          leftEye: ring(126, 66, 6, 3),
+          rightEye: ring(154, 66, 7, 3.5),
+          leftPupil: <NormalizedPoint>[p(126.5, 66.5)],
+          rightPupil: <NormalizedPoint>[p(154, 66)],
+          leftEyebrow: <NormalizedPoint>[p(120, 58), p(132, 57)],
+          rightEyebrow: <NormalizedPoint>[p(148, 57), p(160, 59)],
+          nose: <NormalizedPoint>[p(134, 80), p(140, 83), p(145, 80)],
+          outerLips: ring(139.5, 90, 13, 5),
+          innerLips: <NormalizedPoint>[p(130, 89.5), p(149, 89.5)],
+        ),
+      ),
+    ],
   );
 }
 
@@ -231,6 +273,12 @@ final List<GalleryVariant> galleryVariants = <GalleryVariant>[
     id: 't47-detailed',
     title: 'T47: детально',
     build: (image, target, catalog) => _request(image, target, catalog, preset: GenerationPreset.detailed),
+  ),
+  GalleryVariant(
+    id: 't54-faces',
+    title: 'T54: лица (цвета кожи, зрачки, губы)',
+    build: (image, target, catalog) =>
+        _request(image, target, catalog, preset: GenerationPreset.balanced, masks: galleryFaces[image]),
   ),
   GalleryVariant(
     id: 't47-catalog',
@@ -417,7 +465,9 @@ Future<List<GalleryPhoto>> loadPhotos({String? privateDir}) async {
       final SourceImage? image = (await decoder.decode(file.readAsBytesSync(), maxSide: maxSide)).valueOrNull;
       if (image == null) continue;
       final String base = file.uri.pathSegments.last;
-      photos.add(GalleryPhoto('$prefix${base.substring(0, base.lastIndexOf('.'))}', image));
+      final String name = '$prefix${base.substring(0, base.lastIndexOf('.'))}';
+      if (name == 'portrait') galleryFaces[image] = _portraitFaces();
+      photos.add(GalleryPhoto(name, image));
     }
   }
 
@@ -459,6 +509,30 @@ List<GalleryRun> runGallery(List<GalleryPhoto> photos, List<CatalogColor> catalo
               pattern: pipeline.run(variant.build(photo.image, target, catalog)),
             ),
   ];
+}
+
+/// Лица в клетках схемы прогона [run] или `null`, если у фото нет размеченных лиц.
+FaceCells? faceCellsOf(GalleryRun run) {
+  final ImageMaskSet? masks = galleryFaces[run.photo.image];
+  if (masks == null) return null;
+  final int columns = run.pattern.grid.width;
+  final int rows = run.pattern.grid.height;
+  final WorkImage work = WorkImage.fromSource(
+    image: run.photo.image,
+    geometry: run.target.geometry,
+    metrics: run.target.metrics,
+    columns: columns,
+    rows: rows,
+  );
+  final CellRegions regions = CellRegions.forGrid(
+    geometry: run.target.geometry,
+    metrics: run.target.metrics,
+    columns: columns,
+    rows: rows,
+    imageWidth: work.width,
+    imageHeight: work.height,
+  );
+  return FaceGuide(masks).cells(regions, workWidth: work.width, workHeight: work.height);
 }
 
 /// Метрики прогонов в виде, в котором они лежат в `baseline.json`.
