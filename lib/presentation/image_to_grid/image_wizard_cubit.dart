@@ -10,9 +10,12 @@ import 'package:beading/domain/grid/bead_size.dart';
 import 'package:beading/domain/image_pattern/crop_rect.dart';
 import 'package:beading/domain/image_pattern/image_processor.dart';
 import 'package:beading/domain/image_pattern/picked_book_file.dart';
+import 'package:beading/domain/image_to_grid/background_stage.dart';
 import 'package:beading/domain/image_to_grid/generated_pattern.dart';
 import 'package:beading/domain/image_to_grid/generation_preset.dart';
 import 'package:beading/domain/image_to_grid/image_decoder.dart';
+import 'package:beading/domain/image_to_grid/image_mask_set.dart';
+import 'package:beading/domain/image_to_grid/image_masks.dart';
 import 'package:beading/domain/image_to_grid/image_to_grid_runner.dart';
 import 'package:beading/domain/image_to_grid/image_to_grid_settings.dart';
 import 'package:beading/domain/image_to_grid/palette_from_generated.dart';
@@ -36,6 +39,7 @@ class ImageWizardCubit extends Cubit<ImageWizardState> {
     required ImageProcessor processor,
     required ImageDecoder decoder,
     required ImageToGridRunner runner,
+    required ImageMasks masks,
     required CatalogRepository catalog,
     required SettingsRepository settings,
     required CreatePatternFromImage createPattern,
@@ -44,6 +48,7 @@ class ImageWizardCubit extends Cubit<ImageWizardState> {
        _processor = processor,
        _decoder = decoder,
        _runner = runner,
+       _masks = masks,
        _catalog = catalog,
        _settings = settings,
        _create = createPattern,
@@ -54,6 +59,7 @@ class ImageWizardCubit extends Cubit<ImageWizardState> {
   final ImageProcessor _processor;
   final ImageDecoder _decoder;
   final ImageToGridRunner _runner;
+  final ImageMasks _masks;
   final CatalogRepository _catalog;
   final SettingsRepository _settings;
   final CreatePatternFromImage _create;
@@ -64,6 +70,10 @@ class ImageWizardCubit extends Cubit<ImageWizardState> {
 
   /// Картинка после поворота и обрезки, в пикселях для конвейера.
   SourceImage? _image;
+
+  /// Маска важности по пикселям [_image]: из масок Vision; `null` — масок нет и всё одинаково важно.
+  Float32List? _importance;
+  Uint8List? _subjectMask;
   Timer? _timer;
 
   /// Номер последнего запрошенного расчёта: результаты с другим номером устарели.
@@ -140,10 +150,18 @@ class ImageWizardCubit extends Cubit<ImageWizardState> {
       emit(state.copyWith(opening: false, problem: ImageWizardProblem.unreadable));
       return;
     }
+    final ImageMaskSet? maskSet = await _findMasks(prepared.png, prepared.image);
+    if (isClosed || preparation != _preparation) {
+      return;
+    }
+    _importance = maskSet?.importance();
+    _subjectMask = maskSet?.subjectOrPerson;
     emit(
       state.copyWith(
         step: ImageWizardStep.edit,
         opening: false,
+        masks: maskSet,
+        clearMasks: maskSet == null,
         source: file.bytes,
         prepared: prepared.png,
         quarterTurns: 0,
@@ -179,9 +197,25 @@ class ImageWizardCubit extends Cubit<ImageWizardState> {
       emit(state.copyWith(calculating: false, problem: ImageWizardProblem.unreadable));
       return;
     }
+    final ImageMaskSet? maskSet = await _findMasks(prepared.png, prepared.image);
+    if (isClosed || preparation != _preparation) {
+      return;
+    }
     _image = prepared.image;
-    emit(state.copyWith(prepared: prepared.png));
+    _importance = maskSet?.importance();
+    _subjectMask = maskSet?.subjectOrPerson;
+    emit(state.copyWith(prepared: prepared.png, masks: maskSet, clearMasks: maskSet == null));
     _schedule(immediate: true);
+  }
+
+  /// Ищет на картинке лица, объект и значимые области. Любая ошибка (нет Vision, симулятор, сбой) — `null`:
+  /// мастер работает без масок, как раньше.
+  Future<ImageMaskSet?> _findMasks(Uint8List png, SourceImage image) async {
+    try {
+      return (await _masks.analyze(png, width: image.width, height: image.height)).valueOrNull;
+    } on Object {
+      return null;
+    }
   }
 
   /// Поворачивает и обрезает картинку, декодирует её для конвейера. Результат применяет вызывающий, если подготовка
@@ -211,6 +245,15 @@ class ImageWizardCubit extends Cubit<ImageWizardState> {
   void setPaletteSource(PaletteSource source) => _change(state.settings.copyWith(paletteSource: source));
 
   void setPreset(GenerationPreset preset) => _change(state.settings.copyWith(preset: preset));
+
+  /// «Выделять главное»: учитывать ли лица и объект, найденные на фото.
+  void setUseMasks({required bool value}) => _change(state.settings.copyWith(useMasks: value));
+
+  /// Фон: оставить, упростить или убрать (нужна маска объекта).
+  void setBackground(BackgroundMode mode) => _change(state.settings.copyWith(background: mode));
+
+  /// Обводка объекта одной тёмной бусиной (нужна маска объекта).
+  void setOutline({required bool value}) => _change(state.settings.copyWith(outline: value));
 
   void setDither({required bool value}) => _change(state.settings.copyWith(dither: value));
 
@@ -277,7 +320,14 @@ class ImageWizardCubit extends Cubit<ImageWizardState> {
     GeneratedPattern? pattern;
     try {
       pattern = await _runner.run(
-        settings.toRequest(image: image, catalog: _catalogColors, brand: _brand, draft: draft),
+        settings.toRequest(
+          image: image,
+          catalog: _catalogColors,
+          brand: _brand,
+          importance: settings.useMasks ? _importance : null,
+          subjectMask: _subjectMask,
+          draft: draft,
+        ),
       );
     } on Object {
       pattern = null;

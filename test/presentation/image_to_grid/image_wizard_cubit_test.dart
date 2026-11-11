@@ -9,8 +9,10 @@ import 'package:beading/domain/grid/grid.dart';
 import 'package:beading/domain/grid_pattern/use_cases/create_grid_pattern.dart';
 import 'package:beading/domain/image_pattern/crop_rect.dart';
 import 'package:beading/domain/image_pattern/picked_book_file.dart';
+import 'package:beading/domain/image_to_grid/background_stage.dart';
 import 'package:beading/domain/image_to_grid/generated_pattern.dart';
 import 'package:beading/domain/image_to_grid/image_decoder.dart';
+import 'package:beading/domain/image_to_grid/image_mask_set.dart';
 import 'package:beading/domain/image_to_grid/image_to_grid_request.dart';
 import 'package:beading/domain/image_to_grid/image_to_grid_runner.dart';
 import 'package:beading/domain/image_to_grid/image_to_grid_settings.dart';
@@ -30,6 +32,7 @@ import 'package:flutter_test/flutter_test.dart';
 import '../../support/fake_catalog_repository.dart';
 import '../../support/fake_clock.dart';
 import '../../support/fake_grid_pattern.dart';
+import '../../support/fake_image_masks.dart';
 import '../../support/fake_image_pattern.dart';
 import '../../support/fake_project_repository.dart';
 import '../../support/fake_settings_repository.dart';
@@ -75,6 +78,7 @@ void main() {
   late FakeImageProcessor processor;
   late _FakeDecoder decoder;
   late _ControlledRunner runner;
+  late FakeImageMasks masks;
   late FakeProjectRepository projects;
   late FakeGridPatternRepository patterns;
   late FakeSettingsRepository settings;
@@ -88,6 +92,7 @@ void main() {
       processor: processor,
       decoder: decoder,
       runner: runner,
+      masks: masks,
       catalog: catalog,
       settings: settings,
       createPattern: CreatePatternFromImage(
@@ -110,6 +115,7 @@ void main() {
     processor = FakeImageProcessor();
     decoder = _FakeDecoder();
     runner = _ControlledRunner();
+    masks = FakeImageMasks();
     projects = FakeProjectRepository();
     patterns = FakeGridPatternRepository();
     settings = FakeSettingsRepository();
@@ -124,6 +130,111 @@ void main() {
     runner.completers.last.complete(_pattern(1));
     await Future<void>.delayed(Duration.zero);
   }
+
+  group('маски (T48)', () {
+    setUp(() => cubit = build(debounce: Duration.zero));
+    tearDown(() => cubit.close());
+
+    Future<void> pick() async {
+      source.next = Success<List<PickedBookFile>>(<PickedBookFile>[photo()]);
+      await cubit.pickPhotos();
+      await Future<void>.delayed(Duration.zero);
+    }
+
+    ImageMaskSet withFace() => ImageMaskSet(
+      width: 20,
+      height: 40,
+      faces: const <DetectedFace>[
+        DetectedFace(bounds: NormalizedRect(left: 0.25, top: 0.25, right: 0.75, bottom: 0.5)),
+      ],
+    );
+
+    test('запрашивает маски у размера картинки конвейера и кладёт маску важности в запрос', () async {
+      masks.result = withFace();
+      await pick();
+      expect(masks.calls, <({int width, int height})>[(width: 20, height: 40)]);
+      expect(cubit.state.hasMasks, isTrue);
+      final Float32List importance = runner.requests.single.importance!;
+      expect(importance, hasLength(20 * 40));
+      expect(importance[12 * 20 + 10], 4); // середина лица
+      expect(importance[0], 0.5); // фон
+    });
+
+    test('«Выделять главное» выключено — запрос без маски важности', () async {
+      masks.result = withFace();
+      await pick();
+      runner.completers.last.complete(_pattern(1));
+      await Future<void>.delayed(Duration.zero);
+      cubit.setUseMasks(value: false);
+      await Future<void>.delayed(Duration.zero);
+      expect(runner.requests.last.importance, isNull);
+      cubit.setUseMasks(value: true);
+      await Future<void>.delayed(Duration.zero);
+      expect(runner.requests.last.importance, isNotNull);
+    });
+
+    test('маска объекта и настройки фона и обводки попадают в запрос', () async {
+      masks.result = ImageMaskSet(width: 20, height: 40, subject: Uint8List(20 * 40)..fillRange(0, 200, 255));
+      await pick();
+      expect(cubit.state.hasSubject, isTrue);
+      expect(runner.requests.single.subjectMask, hasLength(20 * 40));
+      runner.completers.last.complete(_pattern(1));
+      await Future<void>.delayed(Duration.zero);
+      cubit.setBackground(BackgroundMode.remove);
+      cubit.setOutline(value: true);
+      await Future<void>.delayed(Duration.zero);
+      expect(runner.requests.last.background, BackgroundMode.remove);
+      expect(runner.requests.last.outline, isTrue);
+    });
+
+    test('без маски объекта настройка фона не показывается', () async {
+      masks.result = withFace();
+      await pick();
+      expect(cubit.state.hasSubject, isFalse);
+    });
+
+    test('ошибка Vision — мастер работает без масок', () async {
+      masks.failure = const UnexpectedFailure('нет Vision');
+      await pick();
+      expect(cubit.state.step, ImageWizardStep.edit);
+      expect(cubit.state.hasMasks, isFalse);
+      expect(runner.requests.single.importance, isNull);
+    });
+
+    test('исключение из платформы не ломает мастер', () async {
+      masks.throwing = StateError('сбой');
+      await pick();
+      expect(cubit.state.step, ImageWizardStep.edit);
+      expect(runner.requests.single.importance, isNull);
+    });
+
+    test('поздний ответ масок для прошлой обрезки не попадает в запрос', () async {
+      await pick();
+      final Completer<void> gate = Completer<void>();
+      masks
+        ..result = withFace()
+        ..gate = gate.future;
+      final Future<void> first = cubit.rotate();
+      await Future<void>.delayed(Duration.zero);
+      masks
+        ..gate = null
+        ..result = ImageMaskSet.empty(width: 20, height: 40);
+      await cubit.rotate();
+      await Future<void>.delayed(Duration.zero);
+      gate.complete();
+      await first;
+      await Future<void>.delayed(Duration.zero);
+      expect(cubit.state.quarterTurns, 2);
+      expect(cubit.state.hasMasks, isFalse);
+      expect(runner.requests.last.importance, isNull);
+    });
+
+    test('пустой набор масок: переключатель не нужен, всё одинаково важно', () async {
+      await pick();
+      expect(cubit.state.hasMasks, isFalse);
+      expect(runner.requests.single.importance, isNull);
+    });
+  });
 
   group('выбор картинки', () {
     setUp(() => cubit = build(debounce: Duration.zero));

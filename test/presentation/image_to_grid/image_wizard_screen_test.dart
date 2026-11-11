@@ -8,6 +8,7 @@ import 'package:beading/domain/grid_pattern/use_cases/create_grid_pattern.dart';
 import 'package:beading/domain/image_pattern/picked_book_file.dart';
 import 'package:beading/domain/image_to_grid/generated_pattern.dart';
 import 'package:beading/domain/image_to_grid/image_decoder.dart';
+import 'package:beading/domain/image_to_grid/image_mask_set.dart';
 import 'package:beading/domain/image_to_grid/image_to_grid_request.dart';
 import 'package:beading/domain/image_to_grid/image_to_grid_runner.dart';
 import 'package:beading/domain/image_to_grid/palette_entry.dart';
@@ -26,6 +27,7 @@ import 'package:flutter_test/flutter_test.dart';
 import '../../support/fake_catalog_repository.dart';
 import '../../support/fake_clock.dart';
 import '../../support/fake_grid_pattern.dart';
+import '../../support/fake_image_masks.dart';
 import '../../support/fake_image_pattern.dart';
 import '../../support/fake_project_repository.dart';
 import '../../support/fake_settings_repository.dart';
@@ -54,10 +56,12 @@ class _Decoder implements ImageDecoder {
 void main() {
   late FakeBookImageSource source;
   late FakeProjectRepository projects;
+  late FakeImageMasks masks;
   late ImageWizardCubit cubit;
 
   setUp(() {
     source = FakeBookImageSource();
+    masks = FakeImageMasks();
     projects = FakeProjectRepository();
     final FakeIdGenerator ids = FakeIdGenerator();
     cubit = ImageWizardCubit(
@@ -65,6 +69,7 @@ void main() {
       processor: FakeImageProcessor(),
       decoder: _Decoder(),
       runner: _InstantRunner(),
+      masks: masks,
       catalog: FakeCatalogRepository(<CatalogColor>[]),
       settings: FakeSettingsRepository(),
       createPattern: CreatePatternFromImage(
@@ -123,6 +128,46 @@ void main() {
       expect(cubit.state.settings.technique.name, 'peyote');
     });
   }
+
+  testWidgets('переключатель «Выделять главное» виден, только когда на фото нашлись лица или объект', (tester) async {
+    await openPhoto(tester, AppTheme.light);
+    expect(find.text('Выделять главное', skipOffstage: false), findsNothing);
+  });
+
+  testWidgets('нашлось лицо — переключатель выделения главного меняет настройку', (tester) async {
+    masks.result = ImageMaskSet(
+      width: 10,
+      height: 10,
+      faces: const <DetectedFace>[
+        DetectedFace(bounds: NormalizedRect(left: 0.2, top: 0.2, right: 0.6, bottom: 0.6)),
+      ],
+    );
+    await openPhoto(tester, AppTheme.light);
+    final Finder toggle = find.byKey(const ValueKey<String>('wizard-use-masks'));
+    await tester.scrollUntilVisible(toggle, 200, scrollable: find.byType(Scrollable).last);
+    expect(cubit.state.settings.useMasks, isTrue);
+    await tester.tap(toggle);
+    await tester.pumpAndSettle();
+    expect(cubit.state.settings.useMasks, isFalse);
+  });
+
+  testWidgets('нашёлся предмет — настройки «Фон» и «Обводка» видны и меняют настройки', (tester) async {
+    masks.result = ImageMaskSet(width: 10, height: 10, subject: Uint8List(100)..fillRange(0, 50, 255));
+    await openPhoto(tester, AppTheme.light);
+    final Finder outline = find.byKey(const ValueKey<String>('wizard-outline'));
+    await tester.scrollUntilVisible(outline, 200, scrollable: find.byType(Scrollable).last);
+    await tester.tap(outline);
+    await tester.pumpAndSettle();
+    expect(cubit.state.settings.outline, isTrue);
+    await tester.tap(find.text('Убрать'));
+    await tester.pumpAndSettle();
+    expect(cubit.state.settings.background.name, 'remove');
+  });
+
+  testWidgets('без предмета настроек фона нет', (tester) async {
+    await openPhoto(tester, AppTheme.light);
+    expect(find.byKey(const ValueKey<String>('wizard-outline'), skipOffstage: false), findsNothing);
+  });
 
   testWidgets('на Mac кнопки камеры нет', (tester) async {
     await tester.pumpWidget(wrap(AppTheme.light, camera: false));
