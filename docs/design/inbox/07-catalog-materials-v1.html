@@ -1,0 +1,170 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Бисер — Каталог и материалы (07-catalog-materials v1)</title>
+<style>
+:root{--font:-apple-system,BlinkMacSystemFont,"SF Pro Text","SF Pro",system-ui,sans-serif}
+*{box-sizing:border-box}
+body{margin:0;font-family:var(--font);background:#CFC8BC;color:#1C1A1F}
+body.dp{background:#0B0A0C;color:#F4F0EA}
+.top{position:sticky;top:0;z-index:50;display:flex;gap:12px;align-items:center;flex-wrap:wrap;padding:12px 24px;background:rgba(247,244,239,.92);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-bottom:1px solid rgba(0,0,0,.12)}
+body.dp .top{background:rgba(21,19,22,.92);border-color:rgba(255,255,255,.14)}
+.top h1{margin:0;font-size:18px;flex:1;min-width:220px}
+.seg{display:flex;padding:3px;border-radius:22px;background:rgba(120,110,100,.25)}
+.seg button{border:0;background:transparent;color:inherit;font:600 14px var(--font);padding:9px 16px;border-radius:19px;cursor:pointer;min-height:44px}
+.seg button[aria-pressed="true"]{background:#fff;color:#1C1A1F;box-shadow:0 1px 3px rgba(0,0,0,.2)}
+.stage{padding:28px 24px 40px;display:flex;flex-direction:column;gap:44px}
+.row{display:flex;flex-wrap:wrap;gap:28px;justify-content:center}
+.cell{display:flex;flex-direction:column;gap:10px;align-items:center}
+.cap{font-size:14px;font-weight:600;max-width:428px;text-align:center;opacity:.9}
+.note{max-width:920px;margin:0 auto;font-size:15px;line-height:1.55;padding:0 24px 60px}
+.note h2{font-size:20px;margin:0 0 8px}.note ul{margin:6px 0 12px;padding-left:20px}
+
+.phone{--bg:#F7F4EF;--surf:#FFF;--surf2:#EFEBE4;--ink:#1C1A1F;--ink2:#5F5954;--sep:#E0DAD1;--acc:#B5541C;--onacc:#fff;--acct:#9A4513;--accg:rgba(181,84,28,.16);--danger:#C0362C;
+ --glass:rgba(255,255,255,.55);--dense:rgba(255,255,255,.86);--gb:1px solid rgba(255,255,255,.85);--shadow:0 10px 28px rgba(0,0,0,.18);--scrim:rgba(20,16,12,.38);
+ position:relative;width:428px;height:926px;border-radius:52px;overflow:hidden;background:var(--bg);color:var(--ink);border:1px solid rgba(0,0,0,.25);box-shadow:0 18px 40px rgba(0,0,0,.28);flex:none;font-family:var(--font)}
+.phone[data-theme="dark"]{--bg:#151316;--surf:#201D22;--surf2:#2A262D;--ink:#F4F0EA;--ink2:#A9A29B;--sep:#3A353D;--acc:#F0955A;--onacc:#1C1A1F;--acct:#F0955A;--accg:rgba(240,149,90,.2);--danger:#FF7A6E;
+ --glass:rgba(40,38,44,.5);--dense:rgba(28,26,32,.86);--gb:1px solid rgba(255,255,255,.26);--shadow:0 10px 28px rgba(0,0,0,.45);--scrim:rgba(0,0,0,.55);border-color:rgba(255,255,255,.18)}
+.glass{background:var(--glass);border:var(--gb);box-shadow:var(--shadow);backdrop-filter:blur(24px) saturate(1.6);-webkit-backdrop-filter:blur(24px) saturate(1.6)}
+.dense{background:var(--dense);border:var(--gb);box-shadow:var(--shadow);backdrop-filter:blur(32px) saturate(1.4);-webkit-backdrop-filter:blur(32px) saturate(1.4)}
+.home{position:absolute;left:50%;bottom:8px;margin-left:-67px;width:134px;height:5px;border-radius:3px;background:var(--ink);opacity:.5;z-index:12}
+.mono{font-family:ui-monospace,"SF Mono",Menlo,monospace}
+/* верхняя панель каталога */
+.head{position:absolute;left:12px;right:12px;top:54px;border-radius:34px;padding:10px 12px 12px;display:flex;flex-direction:column;gap:8px;z-index:6}
+.ht{display:flex;align-items:center;justify-content:space-between;padding:0 4px 0 8px}
+.ht b{font-size:30px;letter-spacing:-.4px}
+.pick{height:44px;padding:0 14px;border-radius:22px;display:flex;align-items:center;gap:6px;font-size:15px;font-weight:700;color:var(--ink);background:var(--surf2)}
+.pick.on{background:var(--accg);color:var(--acct)}
+.tabs{display:flex;padding:3px;border-radius:22px;background:var(--surf2)}
+.tabs div{flex:1;min-height:42px;display:flex;align-items:center;justify-content:center;border-radius:19px;font-size:15px;font-weight:600;text-align:center;line-height:1.1}
+.tabs .s{background:var(--bg);font-weight:700;box-shadow:0 0 0 1px var(--sep)}
+.srch{height:44px;border-radius:22px;background:var(--surf2);display:flex;align-items:center;gap:10px;padding:0 14px;font-size:17px;color:var(--ink2)}
+.srch b{color:var(--ink);font-weight:400;flex:1}
+.srch .x{width:22px;height:22px;border-radius:11px;background:var(--ink2);color:var(--bg);display:flex;align-items:center;justify-content:center}
+/* сетка */
+.grid{position:absolute;left:12px;right:12px;top:236px;bottom:0;display:grid;grid-template-columns:repeat(3,1fr);gap:10px;align-content:start;padding-bottom:140px;overflow:hidden}
+.sw{background:var(--surf);border:1px solid var(--sep);border-radius:20px;padding:12px 8px 10px;display:flex;flex-direction:column;align-items:center;gap:4px;text-align:center;min-height:152px}
+.sw .c{width:56px;height:56px;border-radius:50%;border:1px solid rgba(0,0,0,.25);margin-bottom:2px;position:relative}
+.sw .c::after{content:"";position:absolute;left:12px;top:9px;width:14px;height:8px;border-radius:50%;background:rgba(255,255,255,.35);transform:rotate(-30deg)}
+.sw .k{font-size:14px;font-weight:700}
+.sw .n{font-size:13px;color:var(--ink2);line-height:1.25;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.sw.sel{box-shadow:0 0 0 2px #151316,0 0 0 4.5px #fff,0 0 0 5.5px #151316;z-index:2}
+mark{background:var(--accg);color:var(--acct);border-radius:3px;padding:0 1px}
+.cnt{position:absolute;left:16px;top:230px;font-size:13px;font-weight:600;color:var(--ink2);z-index:2}
+/* таббар */
+.tabbar{position:absolute;left:16px;bottom:26px;display:flex;gap:2px;padding:6px;border-radius:36px;z-index:7}
+.tab{padding:0 18px;height:52px;border-radius:30px;display:flex;align-items:center;gap:7px;font-size:14px;font-weight:600}
+.tab.sel{background:var(--accg);color:var(--acct)}
+.banner{position:absolute;left:24px;right:24px;top:232px;height:52px;border-radius:26px;display:flex;align-items:center;gap:10px;padding:0 18px;font-size:15px;font-weight:600;z-index:6}
+/* листы */
+.scrim{position:absolute;inset:0;background:var(--scrim);z-index:8}
+.sheet{position:absolute;left:8px;right:8px;bottom:8px;border-radius:44px;padding:10px 16px 28px;display:flex;flex-direction:column;gap:10px;z-index:9}
+.grab{width:40px;height:5px;border-radius:3px;background:var(--ink2);opacity:.55;align-self:center}
+.sh{display:flex;align-items:center;justify-content:space-between;padding:0 4px}.sh b{font-size:22px}
+.tb{min-width:44px;height:44px;border-radius:22px;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:600;color:var(--acct);padding:0 10px}
+.cur{display:flex;gap:14px;align-items:center;padding:12px;border-radius:22px;background:var(--surf)}
+.cur .c{width:64px;height:64px;border-radius:50%;border:1px solid rgba(0,0,0,.25);flex:none}
+.cur b{font-size:19px;display:block}.cur span{font-size:14px;color:var(--ink2)}
+.fl{font-size:13px;font-weight:700;color:var(--ink2);text-transform:uppercase;letter-spacing:.6px;padding:0 4px}
+.sim{display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:18px;background:var(--surf);min-height:68px}
+.sim .c{width:44px;height:44px;border-radius:50%;border:1px solid rgba(0,0,0,.25);flex:none}
+.sim .m{flex:1;min-width:0}.sim .m b{font-size:15px;display:block}.sim .m span{font-size:13px;color:var(--ink2);display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sim .r{width:96px;text-align:right;flex:none}.sim .r b{font-size:15px;display:block;font-variant-numeric:tabular-nums}.sim .r span{font-size:13px;color:var(--ink2)}
+.bar{height:5px;border-radius:3px;background:var(--surf2);margin-top:4px}.bar i{display:block;height:5px;border-radius:3px;background:var(--acc)}
+.help{font-size:13px;color:var(--ink2);padding:0 4px}
+/* материалы */
+.mh{position:absolute;left:12px;right:12px;top:54px;height:60px;border-radius:30px;display:flex;align-items:center;justify-content:space-between;padding:0 8px;z-index:6}
+.mh .t{text-align:center;line-height:1.2}.mh .t b{display:block;font-size:17px}.mh .t span{font-size:13px;color:var(--ink2)}
+.mat{position:absolute;left:12px;right:12px;top:128px;bottom:0;display:flex;flex-direction:column;gap:8px;padding-bottom:130px;overflow:hidden}
+.mth{display:flex;padding:0 14px;font-size:13px;font-weight:700;color:var(--ink2);text-transform:uppercase;letter-spacing:.5px}
+.mr{display:flex;align-items:center;gap:12px;padding:10px 14px;border-radius:20px;background:var(--surf);border:1px solid var(--sep);min-height:68px}
+.mr .c{width:44px;height:44px;border-radius:50%;border:1px solid rgba(0,0,0,.25);display:flex;align-items:center;justify-content:center;font-size:17px;font-weight:800;flex:none}
+.mr .m{flex:1;min-width:0}.mr .m b{font-size:15px;display:block}.mr .m span{font-size:13px;color:var(--ink2);display:block;line-height:1.25}
+.mr .q{text-align:right;flex:none;width:92px;font-variant-numeric:tabular-nums}.mr .q b{font-size:17px;display:block}.mr .q span{font-size:14px;color:var(--ink2)}
+.tot{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-radius:20px;background:var(--accg);color:var(--ink);font-weight:700;font-size:17px}
+.tot span{font-variant-numeric:tabular-nums}
+.bot{position:absolute;left:12px;right:12px;bottom:28px;border-radius:38px;padding:10px;z-index:7}
+.pbtn{height:60px;border-radius:30px;background:var(--acc);color:var(--onacc);display:flex;align-items:center;justify-content:center;gap:8px;font-size:19px;font-weight:700}
+.pre{background:var(--surf);border-radius:18px;padding:12px 14px;font-size:13px;line-height:1.55;color:var(--ink)}
+.b1{flex:1;height:56px;border-radius:28px;background:var(--surf2);display:flex;align-items:center;justify-content:center;font-size:17px;font-weight:700}
+.empty{position:absolute;left:0;right:0;top:340px;display:flex;flex-direction:column;align-items:center;gap:12px;text-align:center;padding:0 40px;z-index:2}
+.empty h3{margin:0;font-size:22px}.empty p{margin:0;font-size:16px;color:var(--ink2)}
+.txt{height:48px;padding:0 18px;display:flex;align-items:center;font-size:17px;font-weight:600;color:var(--acct)}
+</style>
+</head>
+<body>
+<div class="top"><h1>Бисер · Каталог и материалы · 07-catalog-materials v1</h1>
+<div class="seg" role="group" aria-label="Тема"><button data-m="light" aria-pressed="true">Светлая</button><button data-m="dark" aria-pressed="false">Тёмная</button><button data-m="both" aria-pressed="false">Обе рядом</button></div></div>
+<div class="stage" id="stage"></div>
+<div class="note"><h2>Решения и оговорки</h2>
+<ul>
+<li><b>Данные настоящие.</b> Образцы, артикулы, названия и RGB взяты из стартового набора приложения (<span class="mono">assets/catalog</span>: Miyuki Delica 11/0, 42 цвета, и Toho Round 11/0, 34 цвета), а не придуманы. README каталога честно оговаривает: набор неполный, RGB приблизительный, артикулы между магазинами не сверены. Поэтому в листе «Похожие» стоит строка «Цвета в каталоге приблизительные», а вкладка Miyuki Rocailles показана пустой («каталог пока не загружен»), потому что файла с данными нет.</li>
+<li><b>Мера похожести — ΔE (CIE76 в Lab), считается на этой странице по RGB из каталога.</b> Метки: до 2 «почти неотличим», до 5 «очень близко», до 10 «близко», дальше «похож». Полоска — отдельный индикатор: длина = 1 − ΔE/30. Ищется среди всех каталогов, не только текущего (рядом указан производитель).</li>
+<li><b>Режим «Подобрать похожий»:</b> кнопка в верхней панели; в режиме тап по образцу не открывает карточку, а выбирает цвет (двойное кольцо из 01b), результат — нижний лист с пятью ближайшими.</li>
+<li><b>Верхняя панель каталога стеклянная целиком</b> (заголовок, вкладки производителей, поиск), кнопки и поля внутри плоские. Сетка, образцы, таблица материалов и лист «Поделиться» (содержимое) непрозрачные, цвета бусин не тонируются; блик на образце это декоративный белый блик 35% только на круге-образце.</li>
+<li><b>Материалы:</b> количество бусин по схеме, вес ≈ = количество / бусин в грамме. Для Delica 11/0 это 200 бусин/г (по таблице из README каталога), для Toho Round 11/0 в README данных нет, я принял оценку по рокайлю 11/0, 110 бусин/г, и помечаю это в макете как оценку. Реальные значения нужно заменить на данные `BeadSize` из приложения.</li>
+<li>Текст ≥ 13 pt, зоны нажатия ≥ 44 pt, Dynamic Type и Mac в этом промпте не показаны; цвета бусин в строках различаются символом-буквой, а не только цветом.</li>
+</ul></div>
+<script>
+const DELICA=[["DB0306","Matte Dark Grey","#5a5a5c","matte"],["DB1479","Transparent Pale Peach Luster","#f3d9c8","luster"],["DB1480","Transparent Peach Luster","#f0c4a8","luster"],["DB1481","Transparent Salmon Luster","#ee9f8a","luster"],["DB1482","Transparent Light Rose Luster","#f0b5bf","luster"],["DB2382","Inside Dyed Aqua","#4fc3d0","inside_dyed"],["DB2383","Inside Dyed Dusk","#6a5f8f","inside_dyed"],["DB2384","Inside Dyed Stormy","#5d7080","inside_dyed"],["DB2385","Inside Dyed Pacific","#1f7fa8","inside_dyed"],["DB2386","Inside Dyed Night Sky","#1c2a55","inside_dyed"],["DB2387","Inside Dyed Tidal","#2f8f9a","inside_dyed"],["DB2388","Inside Dyed Lavender","#a590c8","inside_dyed"],["DB2389","Inside Dyed Magenta","#b0307e","inside_dyed"],["DB2390","Inside Dyed Brandy","#a8603a","inside_dyed"],["DB2391","Inside Dyed Moonstone","#c9c4d0","inside_dyed"],["DB2392","Inside Dyed Pewter","#7d7f86","inside_dyed"],["DB2393","Inside Dyed Silver","#b8bcc2","inside_dyed"],["DB2394","Inside Dyed Steel","#6e8294","inside_dyed"],["DB2395","Inside Dyed Sand","#d4c0a0","inside_dyed"],["DB2396","Inside Dyed Moth","#a89a88","inside_dyed"],["DB2501","Duracoat Galvanized Pale Gold","#d9c37a","galvanized"],["DB2502","Duracoat Galvanized Yellow","#e6c84a","galvanized"],["DB2503","Duracoat Galvanized Bright Copper","#c8703c","galvanized"],["DB2504","Duracoat Galvanized Rose Champagne","#d9a893","galvanized"],["DB2505","Duracoat Galvanized Dark Mint","#5fa58a","galvanized"],["DB2506","Duracoat Galvanized Dark Aqua Green","#2f8a80","galvanized"],["DB2507","Duracoat Galvanized Black Moss","#3a4a3a","galvanized"],["DB2508","Duracoat Galvanized Purple Orchid","#8a5aa0","galvanized"],["DB2509","Duracoat Galvanized Dark Lilac","#6e5a8a","galvanized"],["DB2510","Duracoat Galvanized Lilac Night","#4a3a6a","galvanized"],["DB2511","Duracoat Galvanized Navy","#1f2c55","galvanized"],["DB2512","Duracoat Galvanized Dark Steel Green","#3f5f58","galvanized"],["DB2513","Duracoat Galvanized Capri Blue","#3a8fc0","galvanized"],["DB2514","Duracoat Galvanized Dark Capri Blue","#2a6a9a","galvanized"],["DB2515","Duracoat Galvanized Poseidon Blue","#1f5a8a","galvanized"],["DB2516","Duracoat Galvanized Deep Aqua Blue","#1f7a90","galvanized"],["DB2517","Duracoat Galvanized Mermaid Blue","#3aa0a8","galvanized"],["DB2521","24KT Gold Lined Crystal","#e8e2c8","gold_lined"],["DB2522","24KT Gold Lined Light Aqua","#b8e0d8","gold_lined"],["DB2523","24KT Gold Lined Light Blue","#b0cce8","gold_lined"],["DB2524","24KT Gold Lined Pale Rose","#ecc8cc","gold_lined"],["DB2525","24KT Gold Lined Pale Gray","#d2d0c8","gold_lined"]];
+const TOHO=[["8","Transparent Cobalt","#1f3f9a","transparent"],["19","Sugar Plum","#8f4f8a","opaque"],["42","Dandelion Opaque","#f0cf2a","opaque"],["43","Blue Turquoise Opaque","#1fa0b8","opaque"],["44","Opaque Sour Apple","#a8c83a","opaque"],["45A","Cherry Opaque","#b02030","opaque"],["47","Green Mint Opaque","#9fd3b0","opaque"],["49","Opaque Jet","#111111","opaque"],["51","Opaque Lt. Beige","#e3d3b8","opaque"],["118","Green Emerald Luster","#2a8f5a","luster"],["123D","Dark Beige Opaque Luster","#b89a78","luster"],["128","Dandelion Luster","#e8c85a","luster"],["130","Mint Green Luster","#a8d8c0","luster"],["133","Lavender Luster","#c0aad8","luster"],["145L","Soft Pink Ceylon","#f0d0d8","ceylon"],["150","Smoke Ceylon","#a09aa0","ceylon"],["161","Crystal Rainbow","#e8e8ee","rainbow"],["246","Luster Black Diamond/Opaque Yellow Lined","#8a7a30","lined"],["262","Crystal Gold Lined","#e0d090","gold_lined"],["612","Gun Metal Matte","#4a4a50","matte"],["706","Matte Iris Teal","#3a6f7a","matte"],["904","Apricot Ceylon","#f0c8a8","ceylon"],["905","Peach Blush Ceylon","#f0b8a8","ceylon"],["7B","Green Grass","#3f9a4a","transparent"],["21F","Silver Lined Frosted Crystal","#d8dadc","frosted"],["27BD","Teal Silver Lined","#2a8a90","silver_lined"],["45F","Red Pepper Frosted","#c03a30","frosted"],["48F","Navy Blue Frosted","#2a3a6a","frosted"],["148F","Ceylon Frosted Peach Cobbler","#f0c0a0","frosted"],["252","Aqua/Purple Lined","#7a60a8","lined"],["252F","Aqua/Purple Lined Frosted","#8a78b0","frosted"],["999","Black Diamond Rainbow Gold Lined","#7a6a50","rainbow"],["2602F","Honeydew Semi Glazed","#b8d8a0","semi_glazed"],["2611F","Orange Semi Glazed","#e8903a","semi_glazed"]];
+const FIN={matte:'матовый',luster:'люстр',inside_dyed:'окрашен внутри',galvanized:'гальваника',gold_lined:'золотая линия',transparent:'прозрачный',opaque:'непрозрачный',ceylon:'цейлон',rainbow:'радужный',lined:'с линией',frosted:'морозный',silver_lined:'серебряная линия',semi_glazed:'полуглазурь'};
+const I={search:'M11 5a6 6 0 1 0 0 12 6 6 0 0 0 0-12zM20 20l-4-4',x:'M7 7l10 10M17 7L7 17',pip:'M14 4l6 6M13 5l6 6-9 9H4v-6zM4 20l2-2',lib:'M5 5h4v14H5zM11 5h4v14h-4zM17 7l3 1-3 11-3-1z',cat:'M8 9a4 4 0 1 0 0 .01M16 9a4 4 0 1 0 0 .01M12 16a4 4 0 1 0 0 .01',more:'M6 12h.01M12 12h.01M18 12h.01',chevL:'M15 5l-7 7 7 7',share:'M12 15V4M8 8l4-4 4 4M5 12v7h14v-7',copy:'M8 8h11v11H8zM16 8V5H5v11h3',info:'M12 8h.01M11 12h1v5h1',grid:'M4 4h6v6H4zM14 4h6v6h-6zM4 14h6v6H4zM14 14h6v6h-6z'};
+const ic=(n,s=22,w=2.2)=>`<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="${w}" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="${I[n]}"/></svg>`;
+/* ΔE76 */
+const lab=h=>{let r=[1,3,5].map(i=>parseInt(h.slice(i,i+2),16)/255).map(v=>v<=.04045?v/12.92:Math.pow((v+.055)/1.055,2.4));
+ const X=(r[0]*.4124+r[1]*.3576+r[2]*.1805)/.95047,Y=(r[0]*.2126+r[1]*.7152+r[2]*.0722),Z=(r[0]*.0193+r[1]*.1192+r[2]*.9505)/1.08883;
+ const f=t=>t>.008856?Math.cbrt(t):7.787*t+16/116;return [116*f(Y)-16,500*(f(X)-f(Y)),200*(f(Y)-f(Z))]};
+const dE=(a,b)=>{const p=lab(a),q=lab(b);return Math.hypot(p[0]-q[0],p[1]-q[1],p[2]-q[2])};
+const lbl=d=>d<2?'почти неотличим':d<5?'очень близко':d<10?'близко':'похож';
+const ALL=DELICA.map(c=>({code:'DB'+c[0].replace(/^DB/,''),name:c[1],rgb:c[2],fin:c[3],brand:'Miyuki Delica'})).concat(TOHO.map(c=>({code:c[0],name:c[1],rgb:c[2],fin:c[3],brand:'Toho Round'})));
+const D=ALL.filter(c=>c.brand==='Miyuki Delica'),T=ALL.filter(c=>c.brand==='Toho Round');
+const find=code=>ALL.find(c=>c.code===code);
+const ru=n=>String(n).replace('.',',');
+const thin=n=>n.toLocaleString('ru-RU').replace(/ /g,' ');
+const card=(c,sel,q)=>{const code=q?c.code.replace(new RegExp('('+q+')','i'),'<mark>$1</mark>'):c.code;return `<div class="sw ${sel?'sel':''}"><div class="c" style="background:${c.rgb}"></div><div class="k mono">${code}</div><div class="n">${c.name}</div></div>`};
+const head=(tab,q,pickOn)=>`<div class="head glass"><div class="ht"><b>Каталог</b><div class="pick ${pickOn?'on':''}">${ic('pip',20)}Подобрать похожий</div></div>
+ <div class="tabs"><div class="${tab===0?'s':''}">Miyuki Delica</div><div class="${tab===1?'s':''}">Miyuki Rocailles</div><div class="${tab===2?'s':''}">Toho</div></div>
+ <div class="srch">${ic('search',20)}${q?`<b>${q}</b><span class="x">${ic('x',14,3)}</span>`:'Артикул или название'}</div></div>`;
+const tabbar=`<div class="tabbar glass"><div class="tab">${ic('lib',22)}Работы</div><div class="tab sel">${ic('cat',22)}Каталог</div><div class="tab">${ic('more',22)}Ещё</div></div><div class="home"></div>`;
+/* подбор: результат */
+const PICK='DB2385';
+function similar(code){const s=find(code);return ALL.filter(c=>c.code!==code).map(c=>({c,d:dE(s.rgb,c.rgb)})).sort((a,b)=>a.d-b.d).slice(0,5)}
+/* материалы проекта */
+const MAT=[['A','DB2385',1240],['B','DB2501',860],['C','DB1481',540],['D','DB2386',410],['E','DB0306',260],['F','49',170]];
+const perG=c=>c.brand==='Miyuki Delica'?200:110;
+const ink=h=>{const v=[1,3,5].map(i=>parseInt(h.slice(i,i+2),16));return (v[0]*.299+v[1]*.587+v[2]*.114)>150?'#1C1A1F':'#FFFFFF'};
+const matRows=()=>MAT.map(m=>{const c=find(m[1]);const g=m[2]/perG(c);return `<div class="mr"><div class="c" style="background:${c.rgb};color:${ink(c.rgb)}">${m[0]}</div><div class="m"><b class="mono">${c.code}</b><span>${c.name}</span></div><div class="q"><b>${thin(m[2])} шт</b><span>≈ ${ru(g.toFixed(1))} г</span></div></div>`}).join('');
+const totals=()=>{let n=0,g=0;MAT.forEach(m=>{n+=m[2];g+=m[2]/perG(find(m[1]))});return {n,g:ru(g.toFixed(1))}};
+const shareTxt=()=>{const t=totals();return MAT.map(m=>{const c=find(m[1]);return `${m[0]} · ${c.code} ${c.name} — ${thin(m[2])} шт (≈ ${ru((m[2]/perG(c)).toFixed(1))} г)`}).join('<br>')+`<br><b>Итого: ${thin(t.n)} шт, ≈ ${t.g} г</b>`};
+const mh=`<div class="mh glass"><div class="tb">${ic('chevL')}Назад</div><div class="t"><b>Материалы</b><span>Браслет «Рябина»</span></div><div class="tb" aria-label="Ещё">${ic('more',24,3)}</div></div>`;
+const matList=()=>`<div class="mat"><div class="mth"><span style="flex:1">Цвет</span><span style="width:92px;text-align:right">Шт · вес ≈</span></div>${matRows()}<div class="tot"><span>Итого</span><span>${thin(totals().n)} шт · ≈ ${totals().g} г</span></div></div>`;
+const screens=[
+ ['1 · Каталог: Miyuki Delica, сетка образцов',()=>head(0,'',false)+`<div class="grid">${D.slice(0,12).map(c=>card(c)).join('')}</div>`+tabbar],
+ ['2 · Поиск по артикулу («DB25»)',()=>{const r=D.filter(c=>/DB25/i.test(c.code));return head(0,'DB25',false)+`<div class="cnt">Найдено ${r.length}</div><div class="grid" style="top:256px">${r.slice(0,9).map(c=>card(c,false,'DB25')).join('')}</div>`+tabbar}],
+ ['3 · Подбор похожего: выбор цвета',()=>head(0,'',true)+`<div class="banner glass">${ic('pip',20)}Нажмите на цвет, чтобы найти 5 похожих</div><div class="grid" style="top:296px">${D.slice(4,13).map(c=>card(c,c.code===PICK)).join('')}</div>`+tabbar],
+ ['4 · Подбор похожего: 5 ближайших с мерой ΔE',()=>{const s=find(PICK);const rows=similar(PICK).map(x=>`<div class="sim"><div class="c" style="background:${x.c.rgb}"></div><div class="m"><b class="mono">${x.c.code}</b><span>${x.c.name}</span><span>${x.c.brand}</span></div><div class="r"><b>ΔE ${ru(x.d.toFixed(1))}</b><span>${lbl(x.d)}</span><div class="bar"><i style="width:${Math.max(4,Math.round((1-Math.min(x.d,30)/30)*100))}%"></i></div></div></div>`).join('');
+   return head(0,'',true)+`<div class="grid" style="top:296px">${D.slice(4,13).map(c=>card(c,c.code===PICK)).join('')}</div><div class="scrim"></div><div class="sheet dense"><div class="grab"></div><div class="sh"><b>Похожие цвета</b><div class="tb">Готово</div></div>
+   <div class="cur"><div class="c" style="background:${s.rgb}"></div><div><b class="mono">${s.code}</b><span>${s.name}<br>${s.brand} · ${FIN[s.fin]}</span></div></div>
+   <div class="fl">5 ближайших</div>${rows}<div class="help">ΔE — разница цветов, чем меньше, тем ближе. Цвета в каталоге приблизительные, перед покупкой сверяйте с образцом.</div></div><div class="home"></div>`}],
+ ['5 · Вкладка Miyuki Rocailles: каталог пока пуст',()=>head(1,'',false)+`<div class="empty"><svg width="120" height="76" viewBox="0 0 140 84" role="img" aria-label="Нить с бусинами"><path d="M4 64 C40 70 60 20 136 18" fill="none" stroke="var(--ink2)" stroke-width="2.5" stroke-linecap="round" stroke-dasharray="4 5"/><circle cx="24" cy="63" r="10" fill="none" stroke="var(--ink2)" stroke-width="2.5" stroke-dasharray="3 4"/><circle cx="52" cy="50" r="10" fill="none" stroke="var(--ink2)" stroke-width="2.5" stroke-dasharray="3 4"/><circle cx="82" cy="36" r="10" fill="none" stroke="var(--ink2)" stroke-width="2.5" stroke-dasharray="3 4"/></svg><h3>Каталог Rocailles пока пуст</h3><p>Проверенных артикулов в доступных источниках нет. Delica и Toho уже в приложении.</p><div class="txt">Открыть Miyuki Delica</div></div>`+tabbar],
+ ['6 · Материалы проекта',()=>mh+matList()+`<div class="bot dense"><div class="pbtn">${ic('share',24,2.4)}Поделиться списком</div></div><div class="home"></div>`],
+ ['7 · Поделиться списком (предпросмотр)',()=>mh+matList()+`<div class="scrim"></div><div class="sheet dense"><div class="grab"></div><div class="sh"><b>Поделиться списком</b><div class="tb">Закрыть</div></div><div class="pre mono">Браслет «Рябина» — материалы<br>${shareTxt()}</div><div class="help">Список уйдёт текстом. Вес примерный.</div><div style="display:flex;gap:10px"><div class="b1">${ic('copy',20)}&nbsp;Скопировать</div><div class="pbtn" style="flex:1.2;height:56px;border-radius:28px">${ic('share',22,2.4)}Поделиться</div></div></div><div class="home"></div>`]
+];
+let mode='light';
+function render(){
+ const st=document.getElementById('stage');st.innerHTML='';
+ document.body.classList.toggle('dp',mode==='dark');
+ (mode==='both'?['light','dark']:[mode]).forEach(th=>{
+  const row=document.createElement('div');row.className='row';
+  screens.forEach(s=>{const c=document.createElement('div');c.className='cell';
+   c.innerHTML=`<div class="phone" data-theme="${th}">${s[1]()}</div><div class="cap">${s[0]} · ${th==='dark'?'тёмная':'светлая'}</div>`;row.appendChild(c)});
+  st.appendChild(row)});
+}
+document.querySelectorAll('.seg button').forEach(b=>b.onclick=()=>{mode=b.dataset.m;document.querySelectorAll('.seg button').forEach(x=>x.setAttribute('aria-pressed',x===b));render()});
+render();
+</script>
+</body>
+</html>

@@ -1,7 +1,7 @@
 ---
 id: 07-catalog-materials
 title: Каталог цветов и материалы (MUST-D1–D4)
-status: todo
+status: delivered
 depends: 01-ui-kit
 ---
 
