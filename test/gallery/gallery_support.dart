@@ -13,6 +13,7 @@ import 'package:beading/domain/grid/cell_metrics.dart';
 import 'package:beading/domain/grid/cell_position.dart';
 import 'package:beading/domain/grid/grid_geometry.dart';
 import 'package:beading/domain/grid/mm.dart';
+import 'package:beading/domain/image_to_grid/cell_labeler.dart';
 import 'package:beading/domain/image_to_grid/cell_sampler.dart';
 import 'package:beading/domain/image_to_grid/generated_pattern.dart';
 import 'package:beading/domain/image_to_grid/generation_stats.dart';
@@ -20,6 +21,7 @@ import 'package:beading/domain/image_to_grid/image_prefilter.dart';
 import 'package:beading/domain/image_to_grid/image_to_grid_pipeline.dart';
 import 'package:beading/domain/image_to_grid/image_to_grid_request.dart';
 import 'package:beading/domain/image_to_grid/image_to_grid_settings.dart';
+import 'package:beading/domain/image_to_grid/palette_builder.dart';
 import 'package:beading/domain/image_to_grid/source_image.dart';
 import 'package:beading/domain/palette/rgb.dart';
 import 'package:beading/domain/projects/craft.dart';
@@ -107,6 +109,7 @@ ImageToGridRequest _request(
   bool dither = false,
   bool useCatalog = false,
   ImagePrefilter? prefilter,
+  bool pixelStages = false,
 }) {
   final ImageToGridSettings settings = ImageToGridSettings(
     technique: target.technique,
@@ -120,8 +123,10 @@ ImageToGridRequest _request(
     image: image,
     catalog: useCatalog ? catalog : const <CatalogColor>[],
   );
+  final PaletteBuilder? paletteBuilder = pixelStages ? const AccentPaletteBuilder() : null;
+  final CellLabeler? labeler = pixelStages ? const VotingCellLabeler() : null;
   if (target.metrics is BeadSize) {
-    if (prefilter == null) return request;
+    if (prefilter == null && !pixelStages) return request;
     return ImageToGridRequest(
       image: image,
       geometry: request.geometry,
@@ -132,6 +137,8 @@ ImageToGridRequest _request(
       constraint: request.constraint,
       dither: dither,
       prefilter: prefilter,
+      paletteBuilder: paletteBuilder,
+      labeler: labeler,
     );
   }
   // Для вышивки размер ячейки свой: пересобираем запрос с квадратной клеткой.
@@ -150,6 +157,8 @@ ImageToGridRequest _request(
     maxColors: target.maxColors,
     dither: dither,
     prefilter: prefilter,
+    paletteBuilder: paletteBuilder,
+    labeler: labeler,
   );
 }
 
@@ -175,6 +184,30 @@ final List<GalleryVariant> galleryVariants = <GalleryVariant>[
     id: 't52-prefilter',
     title: 'T52: подготовка фото',
     build: (image, target, catalog) => _request(image, target, catalog, prefilter: const EdgePreservingPrefilter()),
+  ),
+  GalleryVariant(
+    id: 't53-pixels',
+    title: 'T53: палитра с акцентами + голосование',
+    build: (image, target, catalog) => _request(
+      image,
+      target,
+      catalog,
+      prefilter: const EdgePreservingPrefilter(),
+      pixelStages: true,
+    ),
+  ),
+  GalleryVariant(
+    id: 't53-catalog',
+    title: 'T53 + каталог Toho/Delica',
+    beadsOnly: true,
+    build: (image, target, catalog) => _request(
+      image,
+      target,
+      catalog,
+      useCatalog: true,
+      prefilter: const EdgePreservingPrefilter(),
+      pixelStages: true,
+    ),
   ),
 ];
 

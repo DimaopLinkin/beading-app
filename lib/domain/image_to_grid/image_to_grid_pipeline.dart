@@ -2,12 +2,15 @@ import 'dart:typed_data';
 
 import 'package:beading/domain/grid/grid.dart';
 import 'package:beading/domain/grid/grid_geometry.dart';
+import 'package:beading/domain/image_to_grid/cell_labeler.dart';
+import 'package:beading/domain/image_to_grid/cell_regions.dart';
 import 'package:beading/domain/image_to_grid/cell_sampler.dart';
 import 'package:beading/domain/image_to_grid/color_assigner.dart';
 import 'package:beading/domain/image_to_grid/generated_pattern.dart';
 import 'package:beading/domain/image_to_grid/generation_stats.dart';
 import 'package:beading/domain/image_to_grid/image_prefilter.dart';
 import 'package:beading/domain/image_to_grid/image_to_grid_request.dart';
+import 'package:beading/domain/image_to_grid/palette_builder.dart';
 import 'package:beading/domain/image_to_grid/palette_entry.dart';
 import 'package:beading/domain/image_to_grid/pattern_metrics.dart';
 import 'package:beading/domain/image_to_grid/pattern_step.dart';
@@ -40,6 +43,8 @@ final class ImageToGridPipeline {
       clock.reset();
       return elapsed;
     }
+
+    if (request.usesPixelStages) return _runPixelStages(request, clock, times, lap);
 
     SourceImage image = request.image;
     Float32List? importance = request.importance;
@@ -82,6 +87,78 @@ final class ImageToGridPipeline {
     final PatternStepContext context = PatternStepContext(
       geometry: request.geometry,
       cellImportance: cells.importance,
+    );
+    for (final PatternStep step in request.steps) {
+      pattern = step.apply(pattern, context);
+    }
+    times['steps'] = lap();
+    return GeneratedPattern(
+      grid: pattern.grid,
+      palette: pattern.palette,
+      stats: _stats(pattern, cells, request.geometry, times),
+    );
+  }
+
+  /// Путь по ADR-0004: рабочее изображение → палитра по пикселям → цвет клетки голосованием → шаги с ценами цветов.
+  GeneratedPattern _runPixelStages(
+    ImageToGridRequest request,
+    Stopwatch clock,
+    Map<String, Duration> times,
+    Duration Function() lap,
+  ) {
+    WorkImage work = WorkImage.fromSource(
+      image: request.image,
+      importance: request.importance,
+      geometry: request.geometry,
+      metrics: request.metrics,
+      columns: request.columns,
+      rows: request.rows,
+    );
+    final ImagePrefilter? prefilter = request.prefilter;
+    if (prefilter != null) {
+      work = prefilter.apply(work);
+      times['prefilter'] = lap();
+    }
+    // Цвета клеток нужны только для важности клеток и метрики ΔE: средние по рабочей картинке, как в пути T24.
+    final SampledCells cells = sampler.sample(
+      image: work.toSourceImage(),
+      importance: work.importance,
+      geometry: request.geometry,
+      metrics: request.metrics,
+      columns: request.columns,
+      rows: request.rows,
+    );
+    final CellRegions regions = CellRegions.forGrid(
+      geometry: request.geometry,
+      metrics: request.metrics,
+      columns: request.columns,
+      rows: request.rows,
+      imageWidth: work.width,
+      imageHeight: work.height,
+    );
+    times['sample'] = lap();
+    final List<PaletteEntry> palette = (request.paletteBuilder ?? const AccentPaletteBuilder()).build(
+      PaletteRequest(
+        work: work,
+        maxColors: request.maxColors,
+        constraint: request.constraint,
+        seed: request.seed,
+        regions: regions,
+      ),
+    );
+    times['palette'] = lap();
+    final LabeledCells labeled = (request.labeler ?? const VotingCellLabeler()).label(
+      work: work,
+      regions: regions,
+      palette: <Lab>[for (final PaletteEntry e in palette) Lab.fromRgb(e.rgb)],
+    );
+    final (GeneratedPattern compact, List<int> order) = _compactOrdered(labeled.values, palette, cells);
+    GeneratedPattern pattern = compact;
+    times['assign'] = lap();
+    final PatternStepContext context = PatternStepContext(
+      geometry: request.geometry,
+      cellImportance: cells.importance,
+      costs: labeled.costs.select(order),
     );
     for (final PatternStep step in request.steps) {
       pattern = step.apply(pattern, context);
@@ -176,7 +253,11 @@ final class ImageToGridPipeline {
   }
 
   /// Убирает цвета, которых нет в сетке, и упорядочивает палитру: чаще встречающиеся первыми.
-  GeneratedPattern _compact(Uint16List values, List<PaletteEntry> palette, SampledCells cells) {
+  GeneratedPattern _compact(Uint16List values, List<PaletteEntry> palette, SampledCells cells) =>
+      _compactOrdered(values, palette, cells).$1;
+
+  /// То же, что [_compact], и ещё порядок: какие цвета исходной палитры остались и в каком порядке.
+  (GeneratedPattern, List<int>) _compactOrdered(Uint16List values, List<PaletteEntry> palette, SampledCells cells) {
     final List<int> counts = List<int>.filled(palette.length, 0);
     for (final int v in values) {
       if (v > 0) counts[v - 1]++;
@@ -189,13 +270,16 @@ final class ImageToGridPipeline {
     for (int n = 0; n < order.length; n++) {
       remap[order[n]] = n + 1;
     }
-    return GeneratedPattern(
-      grid: Grid.fromCells(
-        width: cells.columns,
-        height: cells.rows,
-        cells: <int>[for (final int v in values) v == 0 ? 0 : remap[v - 1]],
+    return (
+      GeneratedPattern(
+        grid: Grid.fromCells(
+          width: cells.columns,
+          height: cells.rows,
+          cells: <int>[for (final int v in values) v == 0 ? 0 : remap[v - 1]],
+        ),
+        palette: <PaletteEntry>[for (final int i in order) palette[i]],
       ),
-      palette: <PaletteEntry>[for (final int i in order) palette[i]],
+      order,
     );
   }
 }

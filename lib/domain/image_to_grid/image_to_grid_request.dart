@@ -3,7 +3,9 @@ import 'dart:typed_data';
 import 'package:beading/domain/grid/cell_metrics.dart';
 import 'package:beading/domain/grid/grid.dart';
 import 'package:beading/domain/grid/grid_geometry.dart';
+import 'package:beading/domain/image_to_grid/cell_labeler.dart';
 import 'package:beading/domain/image_to_grid/image_prefilter.dart';
+import 'package:beading/domain/image_to_grid/palette_builder.dart';
 import 'package:beading/domain/image_to_grid/palette_constraint.dart';
 import 'package:beading/domain/image_to_grid/pattern_step.dart';
 import 'package:beading/domain/image_to_grid/source_image.dart';
@@ -23,6 +25,8 @@ final class ImageToGridRequest {
     this.dither = false,
     this.seed = 0,
     this.prefilter,
+    this.paletteBuilder,
+    this.labeler,
     this.steps = const <PatternStep>[],
   }) {
     if (columns < 1 || columns > Grid.maxSide) throw ArgumentError.value(columns, 'columns', 'от 1 до ${Grid.maxSide}');
@@ -66,6 +70,17 @@ final class ImageToGridRequest {
 
   /// Подготовка фото перед выбором цветов (стадия 1). `null` — без фильтра: цвет ячейки берётся прямо из картинки.
   final ImagePrefilter? prefilter;
+
+  /// Стадия 2: палитра по рабочим пикселям. Вместе с [labeler] включает «пиксельный» путь конвейера (цвет клетки
+  /// голосованием, `CellCosts` для шагов); без обоих работает путь T24 «средний цвет клетки → k-means».
+  final PaletteBuilder? paletteBuilder;
+
+  /// Стадия 3: цены цветов и начальная разметка клеток. См. [paletteBuilder].
+  final CellLabeler? labeler;
+
+  /// Дизеринг пиксельный путь не применяет: цвет клетки там выбирается голосованием пикселей (дизеринг по градиентам —
+  /// отдельная стадия T57).
+  bool get usesPixelStages => paletteBuilder != null || labeler != null;
 
   /// Шаги после привязки к палитре, по порядку.
   final List<PatternStep> steps;
