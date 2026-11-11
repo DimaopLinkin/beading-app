@@ -13,6 +13,7 @@ import 'package:beading/domain/grid/grid_geometry.dart';
 import 'package:beading/domain/image_to_grid/background_stage.dart';
 import 'package:beading/domain/image_to_grid/cell_labeler.dart';
 import 'package:beading/domain/image_to_grid/cell_sampler.dart';
+import 'package:beading/domain/image_to_grid/cleanup_steps.dart';
 import 'package:beading/domain/image_to_grid/face_guide.dart';
 import 'package:beading/domain/image_to_grid/face_palette_builder.dart';
 import 'package:beading/domain/image_to_grid/face_step.dart';
@@ -48,6 +49,7 @@ final class ImageToGridSettings extends Equatable {
     this.paletteSource = PaletteSource.catalog,
     this.beadSeries,
     this.finishGroups = defaultFinishGroups,
+    this.detailVoting = false,
     this.dither = false,
     this.useMasks = true,
     this.preset = GenerationPreset.balanced,
@@ -117,6 +119,10 @@ final class ImageToGridSettings extends Equatable {
   final Set<BeadFinishGroup> finishGroups;
   final bool dither;
 
+  /// Голосование с весом заметности (T64): тонкие линии и блики не растворяются в клетке и защищены от очистки.
+  /// Выключено, пока предустановки не настроены (T66); без предустановки ни на что не влияет.
+  final bool detailVoting;
+
   /// Учитывать лица и объект, найденные на фото (T48), как «важное». Без найденных масок ни на что не влияет.
   final bool useMasks;
 
@@ -148,6 +154,7 @@ final class ImageToGridSettings extends Equatable {
     BeadSeries? beadSeries,
     Set<BeadFinishGroup>? finishGroups,
     bool? dither,
+    bool? detailVoting,
     bool? useMasks,
     GenerationPreset? preset,
     bool clearPreset = false,
@@ -168,6 +175,7 @@ final class ImageToGridSettings extends Equatable {
         ? this.finishGroups
         : (finishGroups.isEmpty ? defaultFinishGroups : Set<BeadFinishGroup>.unmodifiable(finishGroups)),
     dither: dither ?? this.dither,
+    detailVoting: detailVoting ?? this.detailVoting,
     useMasks: useMasks ?? this.useMasks,
     preset: clearPreset ? null : preset ?? this.preset,
     steps: steps ?? this.steps,
@@ -261,13 +269,14 @@ final class ImageToGridSettings extends Equatable {
           : faceGuide == null
           ? (draft ? draftPaletteBuilder : const AccentPaletteBuilder())
           : (draft ? draftFacePaletteBuilder : const FaceAwarePaletteBuilder()),
-      labeler: active == null ? null : const VotingCellLabeler(),
+      labeler: active == null ? null : (detailVoting ? const DetailCellLabeler() : const VotingCellLabeler()),
       smoother: active?.smoother,
       refillFreedColors: active?.refillFreedColors ?? false,
       faces: faceGuide,
       draft: draft,
       steps: <PatternStep>[
-        ...?active?.steps,
+        for (final PatternStep step in active?.steps ?? const <PatternStep>[])
+          if (detailVoting && step is RemoveIslandsStep) step.withDiagonals(value: true) else step,
         if (faceGuide != null) const FaceFeatureStep(),
         ...steps,
         if (dither && active != null) const OrderedDitherStep(),
@@ -293,6 +302,7 @@ final class ImageToGridSettings extends Equatable {
     beadSeries,
     finishGroups,
     dither,
+    detailVoting,
     useMasks,
     preset,
     steps,

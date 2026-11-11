@@ -1,6 +1,7 @@
 import 'dart:typed_data';
 
 import 'package:beading/domain/grid/grid.dart';
+import 'package:beading/domain/grid/grid_geometry.dart';
 import 'package:beading/domain/image_to_grid/cell_costs.dart';
 import 'package:beading/domain/image_to_grid/cell_neighbors.dart';
 import 'package:beading/domain/image_to_grid/generated_pattern.dart';
@@ -14,16 +15,37 @@ import 'package:equatable/equatable.dart';
 /// Не трогает: области, где есть клетка под маской «важное» (вес больше [protectImportance]; рамка лица весит 4 и сама не защищает, чтобы внутри лица одиночные клетки чистились, а черты лица защищены отдельно) или с краем в верхних
 /// [protectEdgeShare] долях клеток (глаза, блики), и тонкие линии — цепочки шириной в одну клетку длиной от трёх.
 final class RemoveIslandsStep extends Equatable implements PatternStep {
-  const RemoveIslandsStep({this.minIsland = 3, this.protectEdgeShare = 0.05, this.protectImportance = 4})
-    : assert(minIsland >= 2, 'minIsland не меньше 2'),
-      assert(protectEdgeShare >= 0 && protectEdgeShare <= 1, 'protectEdgeShare от 0 до 1');
+  const RemoveIslandsStep({
+    this.minIsland = 3,
+    this.protectEdgeShare = 0.05,
+    this.protectImportance = 4,
+    this.protectDetail = 0.5,
+    this.protectDiagonals = false,
+  }) : assert(minIsland >= 2, 'minIsland не меньше 2'),
+       assert(protectEdgeShare >= 0 && protectEdgeShare <= 1, 'protectEdgeShare от 0 до 1');
 
   final int minIsland;
   final double protectEdgeShare;
   final double protectImportance;
 
+  /// Доля заметных пикселей в клетке (`PatternStepContext.cellDetail`), от которой область защищена: так линия, найденная
+  /// весом заметности (T64), не стирается очисткой.
+  final double protectDetail;
+
+  /// Беречь и диагональные линии: клетки, касающиеся углами (T64). Выключено, пока предустановки не настроены (T66).
+  final bool protectDiagonals;
+
   @override
-  List<Object?> get props => <Object?>[minIsland, protectEdgeShare, protectImportance];
+  List<Object?> get props => <Object?>[minIsland, protectEdgeShare, protectImportance, protectDetail, protectDiagonals];
+
+  /// Тот же шаг с другой защитой диагональных линий.
+  RemoveIslandsStep withDiagonals({required bool value}) => RemoveIslandsStep(
+    minIsland: minIsland,
+    protectEdgeShare: protectEdgeShare,
+    protectImportance: protectImportance,
+    protectDetail: protectDetail,
+    protectDiagonals: value,
+  );
 
   @override
   GeneratedPattern apply(GeneratedPattern pattern, PatternStepContext context) {
@@ -37,13 +59,18 @@ final class RemoveIslandsStep extends Equatable implements PatternStep {
     final CellCosts? costs = context.costs;
     final List<Lab> paletteLab = <Lab>[for (final e in pattern.palette) Lab.fromRgb(e.rgb)];
 
+    final bool diagonals = protectDiagonals && context.geometry is RectangularGeometry;
     final Uint8List seen = Uint8List(values.length);
     final List<int> component = <int>[];
     for (int start = 0; start < values.length; start++) {
       if (seen[start] == 1 || values[start] == 0) continue;
       _collect(values, neighbors, start, seen, component);
       if (component.length >= minIsland) continue;
-      if (_isProtected(component, context, edgeLimit) || _isThinLine(component, values, neighbors)) continue;
+      if (_isProtected(component, context, edgeLimit) ||
+          _isThinLine(component, values, neighbors) ||
+          (diagonals && _isDiagonalLine(component.first, values, columns, rows))) {
+        continue;
+      }
       final int? target = _bestNeighbor(component, values, neighbors, costs, paletteLab);
       if (target == null) continue;
       for (final int cell in component) {
@@ -55,10 +82,12 @@ final class RemoveIslandsStep extends Equatable implements PatternStep {
 
   bool _isProtected(List<int> component, PatternStepContext context, double edgeLimit) {
     final Float32List? edges = context.cellEdges;
+    final Float32List? detail = context.cellDetail;
     for (final int cell in component) {
       if (context.cellImportance[cell] > protectImportance) return true;
       if (context.faces?.isFeature(cell) ?? false) return true;
       if (edges != null && edges[cell] >= edgeLimit) return true;
+      if (detail != null && detail[cell] >= protectDetail) return true;
     }
     return false;
   }
@@ -213,4 +242,63 @@ bool _isThinLine(List<int> component, Uint16List values, CellNeighbors neighbors
     links += same;
   }
   return links ~/ 2 == component.length - 1;
+}
+
+const int _maxDiagonalChain = 40;
+
+/// Диагональная линия (T64): клетки одного цвета, касающиеся углами, образуют цепочку от четырёх клеток (три — слишком часто ступенька края) без петель и
+/// «толстых» мест. Связность по восьми соседям; для сетки с прямыми рядами.
+bool _isDiagonalLine(int start, Uint16List values, int columns, int rows) {
+  final int color = values[start];
+  // Быстрый отказ: у клетки линии не больше двух соседей своего цвета (по восьми), иначе проверка ниже всё равно откажет.
+  int own = 0;
+  final int sx = start % columns;
+  final int sy = start ~/ columns;
+  for (int dy = -1; dy <= 1; dy++) {
+    for (int dx = -1; dx <= 1; dx++) {
+      final int nx = sx + dx;
+      final int ny = sy + dy;
+      if ((dx == 0 && dy == 0) || nx < 0 || ny < 0 || nx >= columns || ny >= rows) continue;
+      if (values[ny * columns + nx] == color) own++;
+    }
+  }
+  if (own == 0 || own > 2) return false;
+  final List<int> chain = <int>[start];
+  final Set<int> seen = <int>{start};
+  for (int head = 0; head < chain.length; head++) {
+    final int cell = chain[head];
+    final int x = cell % columns;
+    final int y = cell ~/ columns;
+    for (int dy = -1; dy <= 1; dy++) {
+      for (int dx = -1; dx <= 1; dx++) {
+        if (dx == 0 && dy == 0) continue;
+        final int nx = x + dx;
+        final int ny = y + dy;
+        if (nx < 0 || ny < 0 || nx >= columns || ny >= rows) continue;
+        final int other = ny * columns + nx;
+        if (values[other] == color && seen.add(other)) chain.add(other);
+      }
+    }
+    // Линия не бывает длиннее области, а перебирать всю большую область ради одиночки незачем.
+    if (chain.length > _maxDiagonalChain) return false;
+  }
+  if (chain.length < 4) return false;
+  int links = 0;
+  for (final int cell in chain) {
+    final int x = cell % columns;
+    final int y = cell ~/ columns;
+    int same = 0;
+    for (int dy = -1; dy <= 1; dy++) {
+      for (int dx = -1; dx <= 1; dx++) {
+        if (dx == 0 && dy == 0) continue;
+        final int nx = x + dx;
+        final int ny = y + dy;
+        if (nx < 0 || ny < 0 || nx >= columns || ny >= rows) continue;
+        if (values[ny * columns + nx] == color) same++;
+      }
+    }
+    if (same > 2) return false;
+    links += same;
+  }
+  return links ~/ 2 == chain.length - 1;
 }

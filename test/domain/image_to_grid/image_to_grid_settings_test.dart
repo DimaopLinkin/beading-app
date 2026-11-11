@@ -5,6 +5,8 @@ import 'package:beading/domain/catalog/catalog_material.dart';
 import 'package:beading/domain/grid/bead_size.dart';
 import 'package:beading/domain/grid/fabric.dart';
 import 'package:beading/domain/grid/grid_geometry.dart';
+import 'package:beading/domain/image_to_grid/cell_labeler.dart';
+import 'package:beading/domain/image_to_grid/cleanup_steps.dart';
 import 'package:beading/domain/image_to_grid/image_to_grid_request.dart';
 import 'package:beading/domain/image_to_grid/image_to_grid_settings.dart';
 import 'package:beading/domain/image_to_grid/source_image.dart';
@@ -116,6 +118,15 @@ void main() {
       expect(request.constraint.candidates, hasLength(3));
       expect(request.columns, 40);
       expect(request.rows, const ImageToGridSettings().rowsFor(image));
+    });
+
+    test('вес заметности (T64) подключает DetailCellLabeler и защиту диагональных линий; по умолчанию выключен', () {
+      final ImageToGridRequest plain = const ImageToGridSettings().toRequest(image: image);
+      expect(plain.labeler, isA<VotingCellLabeler>());
+      final ImageToGridRequest detail = const ImageToGridSettings(detailVoting: true).toRequest(image: image);
+      expect(detail.labeler, isA<DetailCellLabeler>());
+      expect(detail.steps.whereType<RemoveIslandsStep>().single.protectDiagonals, isTrue);
+      expect(plain.steps.whereType<RemoveIslandsStep>().single.protectDiagonals, isFalse);
     });
 
     test('свободная палитра — без ограничений', () {

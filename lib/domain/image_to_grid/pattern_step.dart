@@ -13,6 +13,7 @@ final class PatternStepContext {
     required this.cellImportance,
     this.costs,
     this.cellEdges,
+    this.cellDetail,
     this.cellColors,
     this.faces,
   });
@@ -28,6 +29,9 @@ final class PatternStepContext {
 
   /// Сила края в каждой клетке (`cellEdges`) или `null`, если рабочего изображения не было: путь T24.
   final Float32List? cellEdges;
+
+  /// Доля заметных пикселей в каждой клетке (`DetailCellLabeler`, T64) или `null`, если разметчик её не считал.
+  final Float32List? cellDetail;
 
   /// Цвета клеток после ресэмплинга (по рядам, `null` — пустая клетка): по ним шаг видит, какой цвет «хотела» клетка.
   final List<Rgb?>? cellColors;

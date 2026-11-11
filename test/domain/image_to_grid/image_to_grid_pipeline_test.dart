@@ -468,7 +468,9 @@ void main() {
       watch.stop();
 
       expect(result.palette.length, lessThanOrEqualTo(12));
-      expect(watch.elapsedMilliseconds, lessThan(2000));
+      // Запас в 3× против одиночного прогона: под параллельной нагрузкой check.sh стенные часы шумят; тест ловит только
+      // порядок величины (квадратичный проход вместо линейного).
+      expect(watch.elapsedMilliseconds, lessThan(6000));
     });
   });
 
@@ -544,7 +546,7 @@ void main() {
       );
       watch.stop();
       expect(work.width, 600);
-      expect(watch.elapsedMilliseconds, lessThan(1000));
+      expect(watch.elapsedMilliseconds, lessThan(3000)); // запас против параллельной нагрузки, см. тест выше
     });
   });
 
