@@ -150,6 +150,8 @@ void main() {
     await tester.pumpAndSettle();
 
     await tester.dragUntilVisible(find.text('Проверка стекла'), find.byType(ListView), const Offset(0, -200));
+    await tester.drag(find.byType(ListView), const Offset(0, -300));
+    await tester.pumpAndSettle();
     await tester.tap(find.text('Проверка стекла'));
     await tester.pump();
     await tester.pump(const Duration(seconds: 1));
