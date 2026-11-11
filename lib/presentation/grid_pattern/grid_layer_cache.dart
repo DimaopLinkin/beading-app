@@ -97,6 +97,7 @@ final class GridLayerCache {
     if (old == null) return false;
     return identical(old, scene) ||
         (old.geometry == scene.geometry &&
+            old.metrics == scene.metrics &&
             old.columns == scene.columns &&
             old.rows == scene.rows &&
             old.pxPerMm == scene.pxPerMm &&

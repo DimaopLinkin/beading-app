@@ -70,4 +70,51 @@ void main() {
       expect(cache.buildCount, built);
     });
   }
+
+  test('смена вида или цветов подложки сбрасывает слой', () {
+    final GridLayerCache cache = GridLayerCache();
+    addTearDown(cache.dispose);
+    final GridScene scene = GridScene(
+      geometry: const GridGeometry.rectangular(),
+      metrics: BeadSize.delica11,
+      columns: 12,
+      rows: 10,
+    );
+    void configure(GridViewOptions options, GridPaintStyle style) => cache.configure(
+      grid: sampleGrid(),
+      palette: samplePalette(),
+      scene: scene,
+      options: options,
+      style: style,
+    );
+    void paint() {
+      final PictureRecorder recorder = PictureRecorder();
+      cache.paintVisible(Canvas(recorder), Offset.zero & scene.size);
+      recorder.endRecording().dispose();
+    }
+
+    const GridPaintStyle style = GridPaintStyle(
+      line: Color(0x40000000),
+      boldLine: Color(0xCC000000),
+      emptyCell: Color(0x14000000),
+      unknown: Color(0xFFC7C7CC),
+    );
+    configure(const GridViewOptions(), style);
+    paint();
+    expect(cache.cachedBlocks, greaterThan(0));
+    configure(const GridViewOptions(realistic: true), style);
+    expect(cache.cachedBlocks, 0);
+    paint();
+    configure(
+      const GridViewOptions(realistic: true),
+      const GridPaintStyle(
+        line: Color(0x40000000),
+        boldLine: Color(0xCC000000),
+        emptyCell: Color(0x14000000),
+        unknown: Color(0xFFC7C7CC),
+        realistic: RealisticColors(surface: Color(0xFF000000), thread: Color(0xFF111111)),
+      ),
+    );
+    expect(cache.cachedBlocks, 0);
+  });
 }
