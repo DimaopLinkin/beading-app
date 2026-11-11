@@ -45,6 +45,9 @@ class AppLocalizationsRu extends AppLocalizations {
   String get settingsDefaultBrand => 'Производитель бисера';
 
   @override
+  String get settingsDefaultFlossBrand => 'Производитель мулине';
+
+  @override
   String get settingsSectionData => 'Данные';
 
   @override
@@ -112,7 +115,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get aboutCredits =>
-      'Цвета ниток DMC: craft-color-codes, MakeBead (makebead.com), лицензия CC BY 4.0. DMC — торговая марка DMC, приложение с ней не связано. Цвета ниток «Гамма»: карта цветов firma-gamma.ru; «Гамма» — торговая марка своего владельца, приложение с ней не связано.';
+      'Цвета ниток DMC: craft-color-codes, MakeBead (makebead.com), лицензия CC BY 4.0. DMC — торговая марка DMC, приложение с ней не связано. Цвета ниток «Гамма» и Anchor: firma-gamma.ru и crosti.ru. «Гамма» и Anchor — торговые марки своих владельцев, приложение с ними не связано.';
 
   @override
   String aboutVersion(String version) {
@@ -1347,6 +1350,9 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get imageWizardCraftStitch => 'Вышивка';
+
+  @override
+  String get imageWizardFlossBrand => 'Производитель мулине';
 
   @override
   String get imageWizardFabric => 'Канва';

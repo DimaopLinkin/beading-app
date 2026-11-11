@@ -276,6 +276,15 @@ void main() {
       expect(cubit.state.settings.fabric.color, const Rgb(20, 20, 20));
     });
 
+    testWidgets('выбор производителя мулине меняет бренд мастера', (tester) async {
+      await toStitch(tester);
+      await tester.tap(find.byKey(const ValueKey<String>('wizard-floss-brand')));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Anchor'));
+      await tester.pumpAndSettle();
+      expect(cubit.state.flossBrand, 'Anchor');
+    });
+
     testWidgets('обводка бусиной у вышивки не показывается', (tester) async {
       masks.result = ImageMaskSet(width: 10, height: 10, subject: Uint8List(100)..fillRange(0, 50, 255));
       await toStitch(tester);

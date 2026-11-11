@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io' show Platform;
 
 import 'package:beading/domain/grid/bead_size.dart';
@@ -10,6 +11,7 @@ import 'package:beading/domain/image_to_grid/generation_preset.dart';
 import 'package:beading/domain/image_to_grid/image_to_grid_settings.dart';
 import 'package:beading/domain/palette/rgb.dart';
 import 'package:beading/domain/projects/craft.dart';
+import 'package:beading/domain/settings/floss_brands.dart';
 import 'package:beading/presentation/grid_pattern/grid_pattern_view.dart';
 import 'package:beading/presentation/grid_pattern/grid_view_options.dart';
 import 'package:beading/presentation/image_to_grid/image_wizard_cubit.dart';
@@ -337,6 +339,24 @@ class _EditState extends State<_Edit> {
                         );
                         if (chosen != null) {
                           cubit.setFabric(chosen);
+                        }
+                      },
+                    ),
+                    CupertinoListTile.notched(
+                      key: const ValueKey<String>('wizard-floss-brand'),
+                      title: Text(l10n.imageWizardFlossBrand),
+                      additionalInfo: Text(state.flossBrand),
+                      trailing: const CupertinoListTileChevron(),
+                      onTap: () async {
+                        final String? chosen = await _pick<String>(
+                          context,
+                          title: l10n.imageWizardFlossBrand,
+                          values: flossBrandChoices,
+                          label: (brand) => brand,
+                          cancel: l10n.imageWizardCancel,
+                        );
+                        if (chosen != null) {
+                          unawaited(cubit.setFlossBrand(chosen));
                         }
                       },
                     ),

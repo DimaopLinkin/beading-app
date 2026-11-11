@@ -28,6 +28,7 @@ class ImageWizardState extends Equatable {
     this.previewSettings,
     this.calculating = false,
     this.catalogColors = 0,
+    this.flossBrand = '',
     this.comparing = false,
     this.realistic = false,
     this.masks,
@@ -62,6 +63,9 @@ class ImageWizardState extends Equatable {
 
   /// Сколько цветов каталога подходит под размер бусины и бренд.
   final int catalogColors;
+
+  /// Производитель мулине для схемы вышивки (из настроек, можно сменить в мастере).
+  final String flossBrand;
 
   /// Пользовательница держит палец на предпросмотре: показываем исходную картинку.
   final bool comparing;
@@ -111,6 +115,7 @@ class ImageWizardState extends Equatable {
     ImageToGridSettings? previewSettings,
     bool? calculating,
     int? catalogColors,
+    String? flossBrand,
     bool? comparing,
     bool? realistic,
     ImageMaskSet? masks,
@@ -133,6 +138,7 @@ class ImageWizardState extends Equatable {
     previewSettings: clearPreview ? null : (previewSettings ?? this.previewSettings),
     calculating: calculating ?? this.calculating,
     catalogColors: catalogColors ?? this.catalogColors,
+    flossBrand: flossBrand ?? this.flossBrand,
     comparing: comparing ?? this.comparing,
     realistic: realistic ?? this.realistic,
     masks: clearMasks ? null : (masks ?? this.masks),
@@ -155,6 +161,7 @@ class ImageWizardState extends Equatable {
     previewSettings,
     calculating,
     catalogColors,
+    flossBrand,
     comparing,
     realistic,
     masks,

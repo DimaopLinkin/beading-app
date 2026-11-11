@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:beading/domain/settings/app_theme_mode.dart';
 import 'package:beading/domain/settings/bead_brands.dart';
+import 'package:beading/domain/settings/floss_brands.dart';
 import 'package:beading/presentation/l10n/app_localizations.dart';
 import 'package:beading/presentation/settings/settings_cubit.dart';
 import 'package:beading/presentation/settings/settings_state.dart';
@@ -67,6 +68,13 @@ class SettingsScreen extends StatelessWidget {
                       additionalInfo: Text(state.defaultBeadBrand),
                       trailing: const CupertinoListTileChevron(),
                       onTap: () => _pickBrand(context, cubit, state.defaultBeadBrand),
+                    ),
+                    CupertinoListTile.notched(
+                      key: const ValueKey<String>('default-floss-brand'),
+                      title: Text(l10n.settingsDefaultFlossBrand),
+                      additionalInfo: Text(state.defaultFlossBrand),
+                      trailing: const CupertinoListTileChevron(),
+                      onTap: () => _pickFlossBrand(context, cubit, state.defaultFlossBrand),
                     ),
                   ],
                 ),
@@ -144,6 +152,31 @@ class SettingsScreen extends StatelessWidget {
               isDefaultAction: brand == current,
               onPressed: () {
                 cubit.setDefaultBeadBrand(brand);
+                Navigator.of(popupContext).pop();
+              },
+              child: Text(brand),
+            ),
+        ],
+        cancelButton: CupertinoActionSheetAction(
+          onPressed: () => Navigator.of(popupContext).pop(),
+          child: Text(l10n.cancel),
+        ),
+      ),
+    );
+  }
+
+  Future<void> _pickFlossBrand(BuildContext context, SettingsCubit cubit, String current) {
+    final AppLocalizations l10n = AppLocalizations.of(context);
+    return showCupertinoModalPopup<void>(
+      context: context,
+      builder: (popupContext) => CupertinoActionSheet(
+        title: Text(l10n.settingsDefaultFlossBrand),
+        actions: <Widget>[
+          for (final String brand in flossBrandChoices)
+            CupertinoActionSheetAction(
+              isDefaultAction: brand == current,
+              onPressed: () {
+                cubit.setDefaultFlossBrand(brand);
                 Navigator.of(popupContext).pop();
               },
               child: Text(brand),

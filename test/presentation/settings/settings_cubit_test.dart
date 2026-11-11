@@ -55,6 +55,14 @@ void main() {
     expect(repo.values[SettingKeys.defaultBeadBrand.name], 'Preciosa');
   });
 
+  test('мулине по умолчанию сохраняется отдельно от бисера', () async {
+    await cubit.setDefaultFlossBrand('Гамма');
+
+    expect(cubit.state.defaultFlossBrand, 'Гамма');
+    expect(cubit.state.defaultBeadBrand, SettingKeys.defaultBeadBrand.defaultValue);
+    expect(repo.values[SettingKeys.defaultFlossBrand.name], 'Гамма');
+  });
+
   test('имя обрезается, пустое возвращает значение по умолчанию', () async {
     await cubit.setUserName('  Оля ');
     expect(cubit.state.userName, 'Оля');

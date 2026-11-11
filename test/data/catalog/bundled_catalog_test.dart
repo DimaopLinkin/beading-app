@@ -21,7 +21,12 @@ void main() {
     expect(files, isNotEmpty);
   });
 
-  const Map<String, int> minimum = <String, int>{'miyuki_delica_11': 1300, 'toho_round_11': 900, 'dmc_floss': 480, 'gamma_floss': 200};
+  const Map<String, int> minimum = <String, int>{
+    'miyuki_delica_11': 1300,
+    'toho_round_11': 900,
+    'dmc_floss': 480,
+    'gamma_floss': 200,
+  };
 
   for (final File file in files) {
     final String id = catalogFileId(file.path);

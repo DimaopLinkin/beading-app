@@ -131,6 +131,17 @@ void main() {
       expect(find.text('Toho'), findsOneWidget);
     });
 
+    testWidgets('производитель мулине выбирается из списка', (tester) async {
+      await tester.pumpWidget(wrap(SettingsScreen(onOpenAbout: () {})));
+
+      await tester.tap(find.byKey(const ValueKey<String>('default-floss-brand')));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Гамма'));
+      await tester.pumpAndSettle();
+
+      expect(settings.state.defaultFlossBrand, 'Гамма');
+    });
+
     testWidgets('ошибка записи показывает предупреждение', (tester) async {
       repo.failWrites = true;
       await tester.pumpWidget(wrap(SettingsScreen(onOpenAbout: () {})));
