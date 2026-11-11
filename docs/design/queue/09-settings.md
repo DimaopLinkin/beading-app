@@ -1,7 +1,7 @@
 ---
 id: 09-settings
 title: Настройки и «О приложении»
-status: delivered
+status: accepted
 depends: 01-ui-kit
 ---
 
