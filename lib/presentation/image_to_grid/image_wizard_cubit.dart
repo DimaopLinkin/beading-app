@@ -248,7 +248,8 @@ class ImageWizardCubit extends Cubit<ImageWizardState> {
   /// «Обрезать по лицу»: рамка вокруг самого крупного лица из совета, в осях уже обрезанной картинки.
   Future<void> cropToFace() async {
     final NormalizedRect? face = state.faceAdvice?.cropRect;
-    if (face == null) {
+    // Пока картинка пересчитывается, маски лежат в осях прежней обрезки: совет устарел.
+    if (face == null || state.calculating) {
       return;
     }
     final CropRect now = state.crop;
@@ -266,7 +267,7 @@ class ImageWizardCubit extends Cubit<ImageWizardState> {
   /// «Схема шире»: ширина, при которой лицо занимает нужное число бусин.
   void widenForFace() {
     final int? columns = state.faceAdvice?.neededColumns;
-    if (columns != null) {
+    if (columns != null && !state.calculating) {
       setColumns(columns);
     }
   }

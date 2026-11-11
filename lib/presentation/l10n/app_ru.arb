@@ -930,7 +930,7 @@
   "@imageWizardUseMasks": {"description": "Переключатель: учитывать найденные на фото лица и объект"},
   "imageWizardUseMasksHint": "Лица и главный предмет получают больше цветов и деталей, фон — меньше.",
   "@imageWizardUseMasksHint": {"description": "Пояснение к выделению главного"},
-  "imageWizardFaceSmall": "Лицо шириной всего {cells} бусин: глаза и губы могут не получиться. Нужно хотя бы {min}.",
+  "imageWizardFaceSmall": "{cells, plural, one{Лицо шириной всего {cells} бусина} few{Лицо шириной всего {cells} бусины} many{Лицо шириной всего {cells} бусин} other{Лицо шириной всего {cells} бусин}}: глаза и губы могут не получиться. Нужно хотя бы {min}.",
   "@imageWizardFaceSmall": {"description": "Предупреждение: лицо на схеме слишком мелкое", "placeholders": {"cells": {"type": "int"}, "min": {"type": "int"}}},
   "imageWizardFaceCrop": "Обрезать по лицу",
   "@imageWizardFaceCrop": {"description": "Действие: обрезать фото вокруг лица"},

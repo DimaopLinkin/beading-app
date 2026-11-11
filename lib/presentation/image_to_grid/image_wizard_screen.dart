@@ -73,7 +73,6 @@ String _problemText(AppLocalizations l10n, ImageWizardProblem problem) => switch
   ImageWizardProblem.invalidName => l10n.imageWizardProblemName,
 };
 
-/// Ошибка: значок и текст, цвет не единственный признак.
 /// Лицо на схеме слишком мелкое (T54): предупреждение и два действия.
 class _FaceWarning extends StatelessWidget {
   const _FaceWarning({required this.advice, required this.onCrop, required this.onWiden});
@@ -90,10 +89,11 @@ class _FaceWarning extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
         Text(
-          l10n.imageWizardFaceSmall(advice.faceCells.round(), const FaceSizeAdvisor().minFaceCells),
+          l10n.imageWizardFaceSmall(advice.faceCells.floor(), const FaceSizeAdvisor().minFaceCells),
           style: TextStyle(fontSize: 13, color: CupertinoColors.systemOrange.resolveFrom(context)),
         ),
-        Row(
+        Wrap(
+          spacing: 8,
           children: <Widget>[
             if (onCrop != null)
               CupertinoButton.tinted(
@@ -101,7 +101,6 @@ class _FaceWarning extends StatelessWidget {
                 onPressed: onCrop,
                 child: Text(l10n.imageWizardFaceCrop),
               ),
-            if (onCrop != null && onWiden != null) const SizedBox(width: 8),
             if (onWiden != null)
               CupertinoButton.tinted(
                 key: const ValueKey<String>('wizard-face-wider'),
@@ -115,6 +114,7 @@ class _FaceWarning extends StatelessWidget {
   }
 }
 
+/// Ошибка: значок и текст, цвет не единственный признак.
 class _Problem extends StatelessWidget {
   const _Problem(this.problem);
 

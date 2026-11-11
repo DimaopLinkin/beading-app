@@ -452,9 +452,7 @@ bool _sameKey(List<Object?>? a, List<Object?> b) {
   if (a == null || a.length != b.length) return false;
   for (int i = 0; i < a.length; i++) {
     // Картинку и маску сравниваем по тождеству: перебирать мегабайты пикселей незачем.
-    final bool same = a[i] is SourceImage || a[i] is Float32List || a[i] is FaceGuide
-        ? identical(a[i], b[i])
-        : a[i] == b[i];
+    final bool same = a[i] is SourceImage || a[i] is Float32List ? identical(a[i], b[i]) : a[i] == b[i];
     if (!same) return false;
   }
   return true;

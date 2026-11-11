@@ -69,7 +69,6 @@ class ImageWizardState extends Equatable {
   /// Маски и лица, найденные на подготовленной картинке (T48); `null` — Vision недоступен или ничего не нашёл.
   final ImageMaskSet? masks;
 
-  /// Есть что выделять: показываем переключатель «Выделять главное».
   /// Совет, если лицо на схеме слишком мелкое (T54); пока маски не учитываются, лицо не важно и совета нет.
   FaceSizeAdvice? get faceAdvice {
     final ImageMaskSet? found = masks;
@@ -79,6 +78,7 @@ class ImageWizardState extends Equatable {
     return const FaceSizeAdvisor().advise(found, columns: settings.columns);
   }
 
+  /// Есть что выделять: показываем переключатель «Выделять главное».
   bool get hasMasks => masks != null && !masks!.isEmpty;
 
   /// Созданный проект, когда [step] — [ImageWizardStep.done].

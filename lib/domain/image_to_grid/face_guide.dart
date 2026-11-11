@@ -1,4 +1,3 @@
-// ignore_for_file: avoid_equals_and_hash_code_on_mutable_classes, поле final: класс неизменяемый
 import 'dart:math' as math;
 import 'dart:typed_data';
 
@@ -17,9 +16,11 @@ final class FaceGuide {
 
   /// Тот же набор масок (по тождеству, без сравнения пикселей) — то же самое лицо: кеш стадий не промахивается.
   @override
+  // ignore: avoid_equals_and_hash_code_on_mutable_classes, поле final: класс неизменяемый
   bool operator ==(Object other) => other is FaceGuide && identical(other.masks, masks);
 
   @override
+  // ignore: avoid_equals_and_hash_code_on_mutable_classes, см. выше
   int get hashCode => identityHashCode(masks);
 
   List<DetectedFace> get faces => masks.faces;

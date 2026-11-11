@@ -337,6 +337,13 @@ void main() {
       }
     });
 
+    test('FaceGuide равен по тождеству масок: кеш стадий не промахивается', () {
+      final ImageMaskSet masks = _masks();
+      expect(FaceGuide(masks), FaceGuide(masks));
+      expect(FaceGuide(masks).hashCode, FaceGuide(masks).hashCode);
+      expect(FaceGuide(masks), isNot(FaceGuide(_masks())));
+    });
+
     test('цветов не больше заданного, результат детерминирован', () {
       final GeneratedPattern a = _run(_masks());
       expect(a.palette.length, lessThanOrEqualTo(10));

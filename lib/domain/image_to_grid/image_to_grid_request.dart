@@ -101,27 +101,29 @@ final class ImageToGridRequest {
   /// Такой результат показывают, но не сохраняют: после паузы мастер считает полный. Путь T24 черновик не знает.
   final bool draft;
 
-  /// Тот же запрос на другой картинке (и маске): так изолят сессии подставляет картинку, которую уже получил.
-  ImageToGridRequest withSource({required SourceImage image, Float32List? importance}) => ImageToGridRequest(
-    image: image,
-    geometry: geometry,
-    metrics: metrics,
-    columns: columns,
-    rows: rows,
-    maxColors: maxColors,
-    constraint: constraint,
-    importance: importance,
-    dither: dither,
-    seed: seed,
-    prefilter: prefilter,
-    paletteBuilder: paletteBuilder,
-    labeler: labeler,
-    smoother: smoother,
-    refillFreedColors: refillFreedColors,
-    faces: faces,
-    draft: draft,
-    steps: steps,
-  );
+  /// Тот же запрос на другой картинке, маске важности и лицах: так изолят сессии подставляет то, что уже получил.
+  /// Лица [faces] заменяются, `null` — без лиц.
+  ImageToGridRequest withSource({required SourceImage image, Float32List? importance, FaceGuide? faces}) =>
+      ImageToGridRequest(
+        image: image,
+        geometry: geometry,
+        metrics: metrics,
+        columns: columns,
+        rows: rows,
+        maxColors: maxColors,
+        constraint: constraint,
+        importance: importance,
+        dither: dither,
+        seed: seed,
+        prefilter: prefilter,
+        paletteBuilder: paletteBuilder,
+        labeler: labeler,
+        smoother: smoother,
+        refillFreedColors: refillFreedColors,
+        faces: faces,
+        draft: draft,
+        steps: steps,
+      );
 
   bool get usesPixelStages => paletteBuilder != null || labeler != null || smoother != null;
 

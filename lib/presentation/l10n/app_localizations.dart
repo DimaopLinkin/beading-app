@@ -2452,7 +2452,7 @@ abstract class AppLocalizations {
   /// Предупреждение: лицо на схеме слишком мелкое
   ///
   /// In ru, this message translates to:
-  /// **'Лицо шириной всего {cells} бусин: глаза и губы могут не получиться. Нужно хотя бы {min}.'**
+  /// **'{cells, plural, one{Лицо шириной всего {cells} бусина} few{Лицо шириной всего {cells} бусины} many{Лицо шириной всего {cells} бусин} other{Лицо шириной всего {cells} бусин}}: глаза и губы могут не получиться. Нужно хотя бы {min}.'**
   String imageWizardFaceSmall(int cells, int min);
 
   /// Действие: обрезать фото вокруг лица

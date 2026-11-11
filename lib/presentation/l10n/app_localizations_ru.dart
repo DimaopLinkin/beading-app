@@ -1294,7 +1294,15 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String imageWizardFaceSmall(int cells, int min) {
-    return 'Лицо шириной всего $cells бусин: глаза и губы могут не получиться. Нужно хотя бы $min.';
+    String _temp0 = intl.Intl.pluralLogic(
+      cells,
+      locale: localeName,
+      other: 'Лицо шириной всего $cells бусин',
+      many: 'Лицо шириной всего $cells бусин',
+      few: 'Лицо шириной всего $cells бусины',
+      one: 'Лицо шириной всего $cells бусина',
+    );
+    return '$_temp0: глаза и губы могут не получиться. Нужно хотя бы $min.';
   }
 
   @override

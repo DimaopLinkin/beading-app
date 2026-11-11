@@ -1,11 +1,16 @@
 import 'package:beading/data/image_to_grid/isolate_image_to_grid_runner.dart';
 import 'package:beading/domain/grid/grid_geometry.dart';
 import 'package:beading/domain/image_to_grid/cell_labeler.dart';
+import 'package:beading/domain/image_to_grid/face_guide.dart';
+import 'package:beading/domain/image_to_grid/face_palette_builder.dart';
+import 'package:beading/domain/image_to_grid/face_step.dart';
 import 'package:beading/domain/image_to_grid/generated_pattern.dart';
+import 'package:beading/domain/image_to_grid/image_mask_set.dart';
 import 'package:beading/domain/image_to_grid/image_to_grid_pipeline.dart';
 import 'package:beading/domain/image_to_grid/image_to_grid_request.dart';
 import 'package:beading/domain/image_to_grid/palette_builder.dart';
 import 'package:beading/domain/image_to_grid/palette_entry.dart';
+import 'package:beading/domain/image_to_grid/pattern_step.dart';
 import 'package:beading/domain/image_to_grid/source_image.dart';
 import 'package:beading/domain/palette/rgb.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -68,6 +73,36 @@ void main() {
       expect(again.stats!.stageTimes['palette'], Duration.zero);
       final GeneratedPattern fewer = await runner.run(pixelRequest(image, maxColors: 2));
       expect(fewer.grid, const ImageToGridPipeline().run(pixelRequest(image, maxColors: 2)).grid);
+    });
+
+    test('лица передаются один раз: новый FaceGuide с теми же масками берёт стадии из кеша', () async {
+      final ImageMaskSet masks = ImageMaskSet(
+        width: 4,
+        height: 4,
+        faces: const <DetectedFace>[
+          DetectedFace(bounds: NormalizedRect(left: 0.1, top: 0.1, right: 0.9, bottom: 0.9)),
+        ],
+      );
+      ImageToGridRequest withFaces({int maxColors = 4}) => ImageToGridRequest(
+        image: image,
+        geometry: const GridGeometry.rectangular(),
+        metrics: const FakeCellMetrics(1, 1),
+        columns: 4,
+        rows: 4,
+        maxColors: maxColors,
+        paletteBuilder: const FaceAwarePaletteBuilder(),
+        labeler: const VotingCellLabeler(),
+        faces: FaceGuide(masks),
+        steps: const <PatternStep>[FaceFeatureStep()],
+      );
+      final IsolateImageToGridRunner runner = IsolateImageToGridRunner();
+      addTearDown(runner.release);
+      final GeneratedPattern first = await runner.run(withFaces());
+      final GeneratedPattern again = await runner.run(withFaces());
+      expect(again.grid, first.grid);
+      expect(again.stats!.stageTimes['sample'], Duration.zero);
+      expect(again.stats!.stageTimes['palette'], Duration.zero);
+      expect(first.grid, const ImageToGridPipeline().run(withFaces()).grid);
     });
 
     test('черновик считается и отдаёт схему того же размера', () async {
