@@ -91,5 +91,27 @@ void main() {
       expect(b.grid.width, a.grid.width);
       expect(b.grid.cells, a.grid.cells); // ровный край без тонких деталей: те же клетки
     });
+    test('контур вырезанного объекта (прозрачный фон) не считается деталью', () {
+      // Левая половина прозрачная, правая светлая: в клетках у границы нет заметных пикселей.
+      final Uint8List bytes = Uint8List(30 * 30 * 4);
+      for (int y = 0; y < 30; y++) {
+        for (int x = 15; x < 30; x++) {
+          final int o = (y * 30 + x) * 4;
+          bytes[o] = bytes[o + 1] = bytes[o + 2] = 245;
+          bytes[o + 3] = 255;
+        }
+      }
+      final GeneratedPattern result = _run(
+        SourceImage(width: 30, height: 30, rgba: bytes),
+        5,
+        5,
+        const DetailCellLabeler(),
+      );
+      final Set<int> colors = <int>{
+        for (int y = 0; y < 5; y++)
+          for (int x = 3; x < 5; x++) result.grid.at(x, y),
+      };
+      expect(colors, hasLength(1)); // светлая сторона одного цвета, без тёмного кольца по контуру
+    });
   });
 }

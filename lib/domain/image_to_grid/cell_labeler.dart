@@ -115,9 +115,24 @@ final class DetailCellLabeler extends Equatable implements CellLabeler {
     final int w = work.width;
     final int h = work.height;
     final int r = math.max(1, work.scale);
-    final Float32List ml = boxBlur(work.lightness, w, h, r);
-    final Float32List ma = boxBlur(work.a, w, h, r);
-    final Float32List mb = boxBlur(work.b, w, h, r);
+    // Средняя окрестность считается с весом непрозрачности: прозрачные пиксели (Lab 0,0,0) не должны делать контур
+    // вырезанного объекта «деталью».
+    final Float32List alphaMean = boxBlur(work.alpha, w, h, r);
+    Float32List weightedMean(Float32List channel) {
+      final Float32List premultiplied = Float32List(channel.length);
+      for (int i = 0; i < channel.length; i++) {
+        premultiplied[i] = channel[i] * work.alpha[i];
+      }
+      final Float32List blurred = boxBlur(premultiplied, w, h, r);
+      for (int i = 0; i < blurred.length; i++) {
+        blurred[i] = alphaMean[i] > 1e-6 ? blurred[i] / alphaMean[i] : channel[i];
+      }
+      return blurred;
+    }
+
+    final Float32List ml = weightedMean(work.lightness);
+    final Float32List ma = weightedMean(work.a);
+    final Float32List mb = weightedMean(work.b);
     final int cells = regions.columns * regions.rows;
     final int k = palette.length;
     final Float32List costs = Float32List(cells * k);

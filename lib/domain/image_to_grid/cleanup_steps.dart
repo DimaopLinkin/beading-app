@@ -244,12 +244,25 @@ bool _isThinLine(List<int> component, Uint16List values, CellNeighbors neighbors
   return links ~/ 2 == component.length - 1;
 }
 
-const int _maxDiagonalChain = 120;
+const int _maxDiagonalChain = 40;
 
 /// Диагональная линия (T64): клетки одного цвета, касающиеся углами, образуют цепочку от четырёх клеток (три — слишком часто ступенька края) без петель и
 /// «толстых» мест. Связность по восьми соседям; для сетки с прямыми рядами.
 bool _isDiagonalLine(int start, Uint16List values, int columns, int rows) {
   final int color = values[start];
+  // Быстрый отказ: у клетки линии не больше двух соседей своего цвета (по восьми), иначе проверка ниже всё равно откажет.
+  int own = 0;
+  final int sx = start % columns;
+  final int sy = start ~/ columns;
+  for (int dy = -1; dy <= 1; dy++) {
+    for (int dx = -1; dx <= 1; dx++) {
+      final int nx = sx + dx;
+      final int ny = sy + dy;
+      if ((dx == 0 && dy == 0) || nx < 0 || ny < 0 || nx >= columns || ny >= rows) continue;
+      if (values[ny * columns + nx] == color) own++;
+    }
+  }
+  if (own == 0 || own > 2) return false;
   final List<int> chain = <int>[start];
   final Set<int> seen = <int>{start};
   for (int head = 0; head < chain.length; head++) {
