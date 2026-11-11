@@ -104,7 +104,7 @@ final class ImageToGridPipeline {
     pattern = _compactPattern(_backgroundStage(request, pattern, cells), cells);
     times['steps'] = lap();
     final List<BlendSuggestion> blends = _blends(request, pattern, cells);
-    if (request.suggestBlends) times['blends'] = lap();
+    if (request.suggestBlends && !request.draft) times['blends'] = lap();
     return GeneratedPattern(
       grid: pattern.grid,
       palette: pattern.palette,
@@ -241,7 +241,7 @@ final class ImageToGridPipeline {
     pattern = _compactPattern(_backgroundStage(request, pattern, cells), cells);
     times['steps'] = lap();
     final List<BlendSuggestion> blends = _blends(request, pattern, cells);
-    if (request.suggestBlends) times['blends'] = lap();
+    if (request.suggestBlends && !request.draft) times['blends'] = lap();
     return GeneratedPattern(
       grid: pattern.grid,
       palette: pattern.palette,
@@ -298,9 +298,9 @@ final class ImageToGridPipeline {
     );
   }
 
-  /// Бленды двух ниток (T57): только если запрос просил; по цветам клеток после ресэмплинга.
+  /// Бленды двух ниток (T57): только если запрос просил и это не черновик (его не сохраняют); по цветам клеток после ресэмплинга.
   List<BlendSuggestion> _blends(ImageToGridRequest request, GeneratedPattern pattern, SampledCells cells) =>
-      request.suggestBlends ? suggestBlends(pattern, cells.colors) : const <BlendSuggestion>[];
+      request.suggestBlends && !request.draft ? suggestBlends(pattern, cells.colors) : const <BlendSuggestion>[];
 
   /// Фон и обводка (T55): после всех шагов, по маске объекта на уровне клеток.
   GeneratedPattern _backgroundStage(ImageToGridRequest request, GeneratedPattern pattern, SampledCells cells) {

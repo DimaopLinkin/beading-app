@@ -513,4 +513,34 @@ void main() {
       expect(pattern.stats!.colorCount, 0);
     });
   });
+
+  group('бленды (T57)', () {
+    // Слева красный, справа жёлтый, посередине оранжевый: оранжевый ближе к бленду двух ниток, чем к любому из двух.
+    final SourceImage photo = blockImage(<List<int>>[
+      <int>[for (int i = 0; i < 12; i++) i < 4 ? 0xC82828 : (i < 8 ? 0xE48C30 : 0xE6C832)],
+    ], block: 3);
+
+    ImageToGridRequest build({required bool blends, bool draft = false}) => ImageToGridRequest(
+      image: photo,
+      geometry: const GridGeometry.rectangular(),
+      metrics: const FakeCellMetrics(1, 1),
+      columns: 12,
+      rows: 1,
+      maxColors: 2,
+      suggestBlends: blends,
+      draft: draft,
+    );
+
+    test('без запроса предложений нет и время стадии не пишется', () {
+      final GeneratedPattern result = pipeline.run(build(blends: false));
+      expect(result.blendSuggestions, isEmpty);
+      expect(result.stats!.stageTimes.containsKey('blends'), isFalse);
+    });
+
+    test('с запросом результат содержит поле, стадия учтена; черновик бленды не ищет', () {
+      final GeneratedPattern result = pipeline.run(build(blends: true));
+      expect(result.stats!.stageTimes.containsKey('blends'), isTrue);
+      expect(pipeline.run(build(blends: true, draft: true)).stats!.stageTimes.containsKey('blends'), isFalse);
+    });
+  });
 }
