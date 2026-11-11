@@ -496,6 +496,8 @@ class _EditState extends State<_Edit> {
                     ),
                     if (settings.paletteSource == PaletteSource.catalog && settings.craft == Craft.beading) ...<Widget>[
                       SizedBox(height: tokens.spacing.s),
+                      Text(l10n.imageWizardBeadSeries, style: caption),
+                      SizedBox(height: tokens.spacing.xs),
                       CupertinoSlidingSegmentedControl<BeadSeries>(
                         key: const ValueKey<String>('wizard-bead-series'),
                         groupValue: cubit.beadSeries,

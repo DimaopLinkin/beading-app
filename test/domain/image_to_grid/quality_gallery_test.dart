@@ -106,6 +106,7 @@ void main() {
         final Set<String?> series = <String?>{for (final entry in run.pattern.palette) entry.catalog?.series};
         final Set<String?> finishes = <String?>{for (final entry in run.pattern.palette) entry.catalog?.finish};
         expect(series, hasLength(1), reason: '${run.key}: серий в палитре $series');
+        expect(series.contains(null), isFalse, reason: '${run.key}: палитра не из каталога');
         expect(finishes.difference(<String?>{'opaque', 'matte'}), isEmpty, reason: '${run.key}: отделки $finishes');
       }
       // T62: отбор по серии (≈ +0,8) и по отделке (≈ +0,8) вместе стоит в среднем по галерее около 1,8 ΔE2000 против всего

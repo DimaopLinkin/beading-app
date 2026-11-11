@@ -1297,7 +1297,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String imageWizardCatalogFew(int available, int wanted) {
-    return 'В выбранной серии и отделках всего $available цветов, а в схеме их до $wanted: добавь отделки или выбери «Любые».';
+    return 'В выбранной серии и отделках всего $available цветов, а в схеме их до $wanted: попробуй другую серию или отделки, либо выбери «Любые».';
   }
 
   @override
