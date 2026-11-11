@@ -39,6 +39,8 @@ final class WorkImage {
 
   /// Уменьшает [image] по площади до рабочего разрешения схемы [columns] × [rows].
   ///
+  /// [scale] — рабочих пикселей на сторону ячейки; по умолчанию [scaleFor] (черновик берёт меньше, см. [draftScale]).
+  ///
   /// Усреднение идёт в линейном свете, с весом непрозрачности: смесь чёрного и белого 50/50 даёт sRGB ≈ 188, а не 128.
   /// Размер рабочей картинки повторяет габариты схемы в миллиметрах, поэтому сдвиг рядов пейота и кирпичного стежка
   /// остаётся тем же, что в CellSampler.
@@ -49,17 +51,21 @@ final class WorkImage {
     required int columns,
     required int rows,
     Float32List? importance,
+    int? scale,
   }) {
     if (columns < 1 || rows < 1) throw ArgumentError('Размер сетки не меньше 1×1');
     if (importance != null && importance.length != image.width * image.height) {
       throw ArgumentError.value(importance.length, 'importance', 'ожидалось ${image.width * image.height} весов');
     }
-    final int s = scaleFor(columns: columns, rows: rows);
+    final int s = scale ?? scaleFor(columns: columns, rows: rows);
     final MmSize extent = geometry.extent(metrics, columns: columns, rows: rows);
     final int width = columns * s;
     final int height = math.max(1, (width * extent.height / extent.width).round());
     return WorkImage._downscale(image, importance, width, height, s);
   }
+
+  /// Рабочих пикселей на сторону ячейки в черновике предпросмотра (T58): расчёт в разы быстрее, цвета и границы грубее.
+  static const int draftScale = 2;
 
   /// Сколько рабочих пикселей на сторону ячейки: 6 для мелких схем, 3 для крупных.
   static int scaleFor({required int columns, required int rows}) {

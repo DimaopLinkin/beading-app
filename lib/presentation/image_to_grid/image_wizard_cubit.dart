@@ -69,6 +69,13 @@ class ImageWizardCubit extends Cubit<ImageWizardState> {
   /// Номер последнего запрошенного расчёта: результаты с другим номером устарели.
   int _calculation = 0;
 
+  /// Идёт черновой расчёт; пока он не закончен, следующий черновик ждёт ([_draftWaiting]), а не копится в очереди.
+  bool _draftRunning = false;
+  bool _draftWaiting = false;
+
+  /// Номер расчёта, чья полная схема уже показана: опоздавший черновик её не затирает.
+  int _fullShown = -1;
+
   /// То же для подготовки картинки (поворот, обрезка, декодирование).
   int _preparation = 0;
 
@@ -228,7 +235,11 @@ class ImageWizardCubit extends Cubit<ImageWizardState> {
 
   int _countCatalog(ImageToGridSettings settings) => settings.catalogFor(_catalogColors, brand: _brand).length;
 
-  /// Запрашивает расчёт; быстрые правки подряд сливаются в один.
+  /// Запрашивает расчёт; быстрые правки подряд сливаются в один полный расчёт после паузы.
+  ///
+  /// Пока параметры меняются (ползунок в движении), между правками считается быстрый черновик (T58): предпросмотр
+  /// отзывается сразу, а полная схема появляется после паузы. Черновик показывают, но сохранить нельзя: кнопка
+  /// доступна только для полного расчёта.
   void _schedule({bool immediate = false}) {
     final int calculation = ++_calculation;
     _timer?.cancel();
@@ -236,27 +247,68 @@ class ImageWizardCubit extends Cubit<ImageWizardState> {
     if (immediate || _debounce == Duration.zero) {
       unawaited(_calculate(calculation));
     } else {
+      if (_hasDraft) {
+        _requestDraft();
+      }
       _timer = Timer(_debounce, () => unawaited(_calculate(calculation)));
     }
   }
 
-  Future<void> _calculate(int calculation) async {
+  /// Черновик есть только у пиксельного пути конвейера: путь T24 (без предустановки или с дизерингом) его не знает.
+  bool get _hasDraft => state.settings.preset != null && !state.settings.dither;
+
+  void _requestDraft() {
+    if (_draftRunning) {
+      _draftWaiting = true;
+      return;
+    }
+    unawaited(_calculate(_calculation, draft: true));
+  }
+
+  Future<void> _calculate(int calculation, {bool draft = false}) async {
     final SourceImage? image = _image;
     if (image == null) {
       return;
     }
     final ImageToGridSettings settings = state.settings;
+    if (draft) {
+      _draftRunning = true;
+    }
     GeneratedPattern? pattern;
     try {
-      pattern = await _runner.run(settings.toRequest(image: image, catalog: _catalogColors, brand: _brand));
+      pattern = await _runner.run(
+        settings.toRequest(image: image, catalog: _catalogColors, brand: _brand, draft: draft),
+      );
     } on Object {
       pattern = null;
+    }
+    if (draft) {
+      _draftRunning = false;
+      if (_draftWaiting && !isClosed) {
+        // Пока считался черновик, параметры менялись: считаем свежий, если полный расчёт ещё не начался.
+        _draftWaiting = false;
+        if (calculation != _calculation && (_timer?.isActive ?? false)) {
+          _requestDraft();
+        }
+      }
     }
     if (isClosed || calculation != _calculation) {
       // Параметры успели измениться: этот результат уже никому не нужен.
       return;
     }
+    if (draft) {
+      if (_fullShown == calculation) {
+        return;
+      }
+      final PaletteSnapshot? draftPalette = pattern == null ? null : paletteFromGenerated(pattern).valueOrNull;
+      if (draftPalette != null && pattern != null) {
+        // Расчёт ещё идёт: полная схема придёт после паузы.
+        emit(state.copyWith(preview: pattern, previewPalette: draftPalette, previewSettings: settings));
+      }
+      return;
+    }
     final PaletteSnapshot? palette = pattern == null ? null : paletteFromGenerated(pattern).valueOrNull;
+    _fullShown = calculation;
     emit(
       palette == null
           ? state.copyWith(calculating: false, problem: ImageWizardProblem.calculationFailed)
@@ -311,6 +363,7 @@ class ImageWizardCubit extends Cubit<ImageWizardState> {
   @override
   Future<void> close() {
     _timer?.cancel();
+    unawaited(_runner.release());
     return super.close();
   }
 }
