@@ -23,6 +23,7 @@ import '../../support/fake_clock.dart';
 import '../../support/fake_grid_pattern.dart';
 import '../../support/fake_image_pattern.dart';
 import '../../support/fake_project_repository.dart';
+import '../../support/fake_work_sessions.dart';
 
 class _Incoming implements IncomingBiserFiles {
   // ignore: close_sinks, закрывается в tearDown теста.
@@ -60,6 +61,7 @@ void main() {
     final FakeGridProgressStore progress = FakeGridProgressStore();
     final FakeImagePatternRepository images = FakeImagePatternRepository();
     final FakeBookWorkRepository bookWork = FakeBookWorkRepository();
+    final FakeWorkSessionRepository workSessions = FakeWorkSessionRepository();
     final FakeFileStore files = FakeFileStore();
     cubit = DataTransferCubit(
       export: ExportProjects(
@@ -68,6 +70,7 @@ void main() {
         progress: progress,
         images: images,
         bookWork: bookWork,
+        workSessions: workSessions,
         files: files,
         codec: const ZipBiserCodec(),
         clock: FakeClock(DateTime.utc(2026, 11, 10)),
@@ -80,6 +83,7 @@ void main() {
         progress: progress,
         images: images,
         bookWork: bookWork,
+        workSessions: workSessions,
         files: files,
         ids: FakeIdGenerator(),
         unitOfWork: PassThroughUnitOfWork(),

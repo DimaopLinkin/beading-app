@@ -13,6 +13,9 @@ abstract interface class WorkSessionRepository {
   /// Все сессии проекта по порядку начала.
   Future<Result<List<WorkSession>>> byProject(String projectId);
 
+  /// Добавляет проекту готовые сессии (импорт `.biser`): id им выдаются новые, времена сохраняются как есть.
+  Future<Result<void>> addAll(String projectId, List<WorkSession> sessions);
+
   /// Сколько всего времени ушло на проект.
   Future<Result<Duration>> totalFor(String projectId);
 

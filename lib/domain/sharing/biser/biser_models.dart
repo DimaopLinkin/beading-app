@@ -4,6 +4,7 @@ import 'package:beading/domain/grid_pattern/grid_pattern.dart';
 import 'package:beading/domain/grid_pattern/grid_progress.dart';
 import 'package:beading/domain/image_pattern/book_work/page_work.dart';
 import 'package:beading/domain/projects/project.dart';
+import 'package:beading/domain/weaving/work_session.dart';
 import 'package:equatable/equatable.dart';
 
 /// Версия формата `.biser`, которую пишет это приложение. Файл новее — понятная ошибка, а не порча данных.
@@ -43,7 +44,14 @@ final class BiserBook extends Equatable {
 
 /// Проект со всем содержимым. `coverPath` проекта в файле не хранится: обложкой служит страница [coverPageId].
 final class BiserProject extends Equatable {
-  const BiserProject({required this.project, this.grid, this.progress, this.book, this.coverPageId});
+  const BiserProject({
+    required this.project,
+    this.grid,
+    this.progress,
+    this.book,
+    this.coverPageId,
+    this.workSessions = const <WorkSession>[],
+  });
 
   final Project project;
   final GridPattern? grid;
@@ -51,8 +59,20 @@ final class BiserProject extends Equatable {
   final BiserBook? book;
   final String? coverPageId;
 
+  /// Сессии работы над проектом: из них складывается учтённое время. Ключи id и projectId в файле не хранятся.
+  final List<WorkSession> workSessions;
+
+  BiserProject withWorkSessions(List<WorkSession> sessions) => BiserProject(
+    project: project,
+    grid: grid,
+    progress: progress,
+    book: book,
+    coverPageId: coverPageId,
+    workSessions: List<WorkSession>.unmodifiable(sessions),
+  );
+
   @override
-  List<Object?> get props => <Object?>[project, grid, progress, book, coverPageId];
+  List<Object?> get props => <Object?>[project, grid, progress, book, coverPageId, workSessions];
 }
 
 /// Всё содержимое файла `.biser`: манифест и файлы (картинки страниц) по путям внутри архива.

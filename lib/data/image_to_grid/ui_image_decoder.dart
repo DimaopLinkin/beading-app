@@ -34,7 +34,9 @@ class UiImageDecoder implements ImageDecoder {
         scaled = await picture.toImage(width, height);
         picture.dispose();
       }
-      final ByteData? raw = await scaled.toByteData();
+      // Конвейер ждёт цвет без умножения на прозрачность: с форматом по умолчанию (premultiplied) полупрозрачные
+      // края рисунка на прозрачном фоне темнели бы.
+      final ByteData? raw = await scaled.toByteData(format: ui.ImageByteFormat.rawStraightRgba);
       if (raw == null) {
         return const Err<SourceImage>(UnexpectedFailure('Не удалось получить пиксели'));
       }
