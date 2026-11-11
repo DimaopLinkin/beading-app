@@ -1556,4 +1556,97 @@ class AppLocalizationsRu extends AppLocalizations {
   @override
   String get startupFailedBody =>
       'Приложение не смогло открыть свои данные. Ничего не удалено: закройте приложение и откройте его снова. Если это повторяется, покажите разработчику текст ниже.';
+
+  @override
+  String get flossTitle => 'Мулине';
+
+  @override
+  String flossFabricLine(String fabric) {
+    return 'Канва: $fabric';
+  }
+
+  @override
+  String flossFabricNeed(String width, String height, String stitchedWidth, String stitchedHeight, String margin) {
+    return 'Кусок канвы: $width × $height см (вышивка $stitchedWidth × $stitchedHeight см и поля по $margin см)';
+  }
+
+  @override
+  String get flossShoppingTitle => 'Что купить';
+
+  @override
+  String get flossColorsTitle => 'По цветам схемы';
+
+  @override
+  String flossSkeins(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count мотка',
+      many: '$count мотков',
+      few: '$count мотка',
+      one: '$count моток',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String flossStitches(String count) {
+    return '$count крестиков';
+  }
+
+  @override
+  String flossPartials(String count) {
+    return 'неполных: $count';
+  }
+
+  @override
+  String flossBackstitch(String cells) {
+    return 'бэкстич: $cells кл.';
+  }
+
+  @override
+  String flossKnots(String count) {
+    return 'узелков: $count';
+  }
+
+  @override
+  String get flossBlendHint => 'Смешанная нить: в иголку идут обе нитки, мотки берут по каждой.';
+
+  @override
+  String flossTotal(String skeins) {
+    return 'Итого: $skeins';
+  }
+
+  @override
+  String get flossEstimateHint =>
+      'Расход примерный, до мотка. Моток — 8 м из 6 сложений; одинаковые нитки разных цветов схемы складываются.';
+
+  @override
+  String get flossEmptyTitle => 'В схеме пока нет крестиков';
+
+  @override
+  String get flossEmptyMessage => 'Когда в схеме появятся цвета, здесь будет список ниток.';
+
+  @override
+  String get flossUnsupported => 'Расход мулине считается только для схемы на канве.';
+
+  @override
+  String flossShareHeader(String name) {
+    return 'Мулине: $name';
+  }
+
+  @override
+  String flossShareLine(int number, String thread, String skeins) {
+    return '$number. $thread — $skeins';
+  }
+
+  @override
+  String flossShareFabric(String fabric, String width, String height) {
+    return 'Канва $fabric, кусок $width × $height см';
+  }
+
+  @override
+  String flossShareReserve(int percent) {
+    return 'Мотки указаны с запасом $percent%.';
+  }
 }

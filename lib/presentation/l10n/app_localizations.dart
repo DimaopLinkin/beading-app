@@ -2766,6 +2766,126 @@ abstract class AppLocalizations {
   /// In ru, this message translates to:
   /// **'Приложение не смогло открыть свои данные. Ничего не удалено: закройте приложение и откройте его снова. Если это повторяется, покажите разработчику текст ниже.'**
   String get startupFailedBody;
+
+  /// Заголовок экрана расхода мулине
+  ///
+  /// In ru, this message translates to:
+  /// **'Мулине'**
+  String get flossTitle;
+
+  /// Строка с канвой под заголовком расхода мулине
+  ///
+  /// In ru, this message translates to:
+  /// **'Канва: {fabric}'**
+  String flossFabricLine(String fabric);
+
+  /// Размер куска канвы под схему
+  ///
+  /// In ru, this message translates to:
+  /// **'Кусок канвы: {width} × {height} см (вышивка {stitchedWidth} × {stitchedHeight} см и поля по {margin} см)'**
+  String flossFabricNeed(String width, String height, String stitchedWidth, String stitchedHeight, String margin);
+
+  /// Заголовок списка покупок мулине
+  ///
+  /// In ru, this message translates to:
+  /// **'Что купить'**
+  String get flossShoppingTitle;
+
+  /// Заголовок таблицы цветов расхода мулине
+  ///
+  /// In ru, this message translates to:
+  /// **'По цветам схемы'**
+  String get flossColorsTitle;
+
+  /// Число мотков мулине
+  ///
+  /// In ru, this message translates to:
+  /// **'{count, plural, one{{count} моток} few{{count} мотка} many{{count} мотков} other{{count} мотка}}'**
+  String flossSkeins(int count);
+
+  /// Число полных крестиков цвета
+  ///
+  /// In ru, this message translates to:
+  /// **'{count} крестиков'**
+  String flossStitches(String count);
+
+  /// Число неполных крестиков цвета
+  ///
+  /// In ru, this message translates to:
+  /// **'неполных: {count}'**
+  String flossPartials(String count);
+
+  /// Длина бэкстича цвета в клетках
+  ///
+  /// In ru, this message translates to:
+  /// **'бэкстич: {cells} кл.'**
+  String flossBackstitch(String cells);
+
+  /// Число узелков цвета
+  ///
+  /// In ru, this message translates to:
+  /// **'узелков: {count}'**
+  String flossKnots(String count);
+
+  /// Пояснение к смешанной нити в расходе мулине
+  ///
+  /// In ru, this message translates to:
+  /// **'Смешанная нить: в иголку идут обе нитки, мотки берут по каждой.'**
+  String get flossBlendHint;
+
+  /// Строка итога расхода мулине
+  ///
+  /// In ru, this message translates to:
+  /// **'Итого: {skeins}'**
+  String flossTotal(String skeins);
+
+  /// Пояснение под итогом расхода мулине
+  ///
+  /// In ru, this message translates to:
+  /// **'Расход примерный, до мотка. Моток — 8 м из 6 сложений; одинаковые нитки разных цветов схемы складываются.'**
+  String get flossEstimateHint;
+
+  /// Заголовок пустого экрана мулине
+  ///
+  /// In ru, this message translates to:
+  /// **'В схеме пока нет крестиков'**
+  String get flossEmptyTitle;
+
+  /// Подсказка пустого экрана мулине
+  ///
+  /// In ru, this message translates to:
+  /// **'Когда в схеме появятся цвета, здесь будет список ниток.'**
+  String get flossEmptyMessage;
+
+  /// Ошибка экрана мулине: схема не на канве
+  ///
+  /// In ru, this message translates to:
+  /// **'Расход мулине считается только для схемы на канве.'**
+  String get flossUnsupported;
+
+  /// Первая строка текста списка мулине
+  ///
+  /// In ru, this message translates to:
+  /// **'Мулине: {name}'**
+  String flossShareHeader(String name);
+
+  /// Строка нитки в тексте списка мулине
+  ///
+  /// In ru, this message translates to:
+  /// **'{number}. {thread} — {skeins}'**
+  String flossShareLine(int number, String thread, String skeins);
+
+  /// Строка о канве в тексте списка мулине
+  ///
+  /// In ru, this message translates to:
+  /// **'Канва {fabric}, кусок {width} × {height} см'**
+  String flossShareFabric(String fabric, String width, String height);
+
+  /// Пояснение в тексте списка мулине, если выбран запас
+  ///
+  /// In ru, this message translates to:
+  /// **'Мотки указаны с запасом {percent}%.'**
+  String flossShareReserve(int percent);
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {
