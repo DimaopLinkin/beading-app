@@ -49,6 +49,18 @@ ImageToGridRequest request(
   prefilter: prefilter,
 );
 
+/// Подготовка, которая стирает светлоту: проверяет, что метрики берутся по фото, а не по отфильтрованной картинке.
+class _FlatLightnessPrefilter implements ImagePrefilter {
+  const _FlatLightnessPrefilter();
+
+  @override
+  WorkImage apply(WorkImage image) => image.withColors(
+    lightness: Float32List(image.lightness.length)..fillRange(0, image.lightness.length, 50),
+    a: Float32List(image.a.length),
+    b: Float32List(image.b.length),
+  );
+}
+
 class _CaptureImportance implements PatternStep {
   _CaptureImportance(this.onImportance);
 
@@ -142,11 +154,13 @@ void main() {
           columns: 2,
           rows: 2,
           maxColors: 2,
-          prefilter: const EdgePreservingPrefilter(),
+          prefilter: const _FlatLightnessPrefilter(),
           paletteBuilder: const AccentPaletteBuilder(),
         );
         final GeneratedPattern result = pipeline.run(pixels);
-        expect(result.stats!.lightnessCorrelation, closeTo(1, 0.05));
+        // Фильтр выравнивает светлоту: у отфильтрованной картинки метрик бы не было (нет разброса), а у фото они есть.
+        expect(result.stats!.contrast, isNotNull);
+        expect(result.stats!.lightnessCorrelation, isNotNull);
       });
 
       test('у однотонной картинки метрик нет: разброса светлоты нет', () {

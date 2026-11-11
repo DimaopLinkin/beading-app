@@ -33,6 +33,9 @@ void main() {
         }
         // T65: структура светлоты не хуже базы: корреляция не падает больше чем на 0,02, контраст уходит не больше чем на 0,05.
         final double? corr = run.stats.lightnessCorrelation;
+        if (base['corr'] != null && (corr == null || run.stats.contrast == null)) {
+          problems.add('${run.key}: метрики структуры не посчитаны, а в базе есть');
+        }
         if (corr != null && base['corr'] != null && corr < base['corr']! - 0.02) {
           problems.add('${run.key}: корреляция ${corr.toStringAsFixed(3)}, в базе ${base['corr']}');
         }
