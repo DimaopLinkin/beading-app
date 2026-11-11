@@ -15,6 +15,7 @@ CatalogColor catalogColor(
   String brand = 'Miyuki',
   String series = 'Delica',
   CatalogMaterial material = CatalogMaterial.bead,
+  String? finish,
 }) => CatalogColor(
   material: material,
   brand: brand,
@@ -22,6 +23,7 @@ CatalogColor catalogColor(
   code: code,
   name: name,
   rgb: Rgb.fromHex(hex),
+  finish: finish,
   sizeCode: material == CatalogMaterial.bead ? '11/0' : null,
 );
 

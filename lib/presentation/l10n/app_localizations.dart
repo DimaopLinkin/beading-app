@@ -967,6 +967,54 @@ abstract class AppLocalizations {
   /// **'Ряд {row}'**
   String gridRowMarker(int row);
 
+  /// Легенда вышивки: сколько полных крестиков этим цветом
+  ///
+  /// In ru, this message translates to:
+  /// **'{count, plural, one{{count} крестик} few{{count} крестика} many{{count} крестиков} other{{count} крестика}}'**
+  String stitchLegendCrosses(int count);
+
+  /// Легенда вышивки: сколько неполных крестиков (½, ¼, ¾, петит) этим цветом
+  ///
+  /// In ru, this message translates to:
+  /// **'{count, plural, one{{count} неполный} few{{count} неполных} many{{count} неполных} other{{count} неполных}}'**
+  String stitchLegendPartials(int count);
+
+  /// Легенда вышивки: общая длина бэкстича и прямых стежков этим цветом, в клетках
+  ///
+  /// In ru, this message translates to:
+  /// **'бэкстич {length} кл.'**
+  String stitchLegendBackstitch(String length);
+
+  /// Легенда вышивки: сколько узелков этим цветом
+  ///
+  /// In ru, this message translates to:
+  /// **'{count, plural, one{{count} узелок} few{{count} узелка} many{{count} узелков} other{{count} узелка}}'**
+  String stitchLegendKnots(int count);
+
+  /// Легенда вышивки: сколько ниток мулине в иголке для крестика
+  ///
+  /// In ru, this message translates to:
+  /// **'крестик в {count, plural, one{{count} нитку} few{{count} нитки} many{{count} ниток} other{{count} нитки}}'**
+  String stitchLegendCrossStrands(int count);
+
+  /// Легенда вышивки: сколько ниток мулине в иголке для бэкстича
+  ///
+  /// In ru, this message translates to:
+  /// **'бэкстич в {count, plural, one{{count} нитку} few{{count} нитки} many{{count} ниток} other{{count} нитки}}'**
+  String stitchLegendBackStrands(int count);
+
+  /// Легенда вышивки: пометка для голосового чтения у подсвеченного цвета
+  ///
+  /// In ru, this message translates to:
+  /// **'подсвечен'**
+  String get stitchLegendHighlighted;
+
+  /// Легенда вышивки, когда в палитре нет цветов
+  ///
+  /// In ru, this message translates to:
+  /// **'В схеме пока нет ни одной нитки.'**
+  String get stitchLegendEmpty;
+
   /// No description provided for @bookWorkImageFailed.
   ///
   /// In ru, this message translates to:
@@ -2424,6 +2472,48 @@ abstract class AppLocalizations {
   /// In ru, this message translates to:
   /// **'В каталоге нет бисера такого размера, поэтому цвета подобраны свободно.'**
   String get imageWizardCatalogMissing;
+
+  /// Подпись выбора серии бисера в палитре
+  ///
+  /// In ru, this message translates to:
+  /// **'Серия бисера'**
+  String get imageWizardBeadSeries;
+
+  /// Серия Miyuki Delica
+  ///
+  /// In ru, this message translates to:
+  /// **'Delica'**
+  String get imageWizardSeriesDelica;
+
+  /// Серия Toho Round
+  ///
+  /// In ru, this message translates to:
+  /// **'Круглый Toho'**
+  String get imageWizardSeriesRound;
+
+  /// Группа отделок бисера: непрозрачный и матовый
+  ///
+  /// In ru, this message translates to:
+  /// **'Непрозрачный и матовый'**
+  String get imageWizardFinishSolid;
+
+  /// Группа отделок бисера: блестящий
+  ///
+  /// In ru, this message translates to:
+  /// **'Блестящий'**
+  String get imageWizardFinishLuster;
+
+  /// Группа отделок бисера: прозрачный и с линией
+  ///
+  /// In ru, this message translates to:
+  /// **'Прозрачный и с линией'**
+  String get imageWizardFinishTransparent;
+
+  /// Пояснение, когда каталог после отбора беднее числа цветов
+  ///
+  /// In ru, this message translates to:
+  /// **'В выбранной серии и отделках всего {available} цветов, а в схеме их до {wanted}: попробуй другую серию или отделки, либо выбери «Любые».'**
+  String imageWizardCatalogFew(int available, int wanted);
 
   /// Заголовок выбора предустановки генератора
   ///

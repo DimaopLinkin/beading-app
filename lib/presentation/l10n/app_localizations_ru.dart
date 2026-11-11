@@ -487,6 +487,91 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
+  String stitchLegendCrosses(int count) {
+    final intl.NumberFormat countNumberFormat = intl.NumberFormat.decimalPattern(localeName);
+    final String countString = countNumberFormat.format(count);
+
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$countString крестика',
+      many: '$countString крестиков',
+      few: '$countString крестика',
+      one: '$countString крестик',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String stitchLegendPartials(int count) {
+    final intl.NumberFormat countNumberFormat = intl.NumberFormat.decimalPattern(localeName);
+    final String countString = countNumberFormat.format(count);
+
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$countString неполных',
+      many: '$countString неполных',
+      few: '$countString неполных',
+      one: '$countString неполный',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String stitchLegendBackstitch(String length) {
+    return 'бэкстич $length кл.';
+  }
+
+  @override
+  String stitchLegendKnots(int count) {
+    final intl.NumberFormat countNumberFormat = intl.NumberFormat.decimalPattern(localeName);
+    final String countString = countNumberFormat.format(count);
+
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$countString узелка',
+      many: '$countString узелков',
+      few: '$countString узелка',
+      one: '$countString узелок',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String stitchLegendCrossStrands(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count нитки',
+      many: '$count ниток',
+      few: '$count нитки',
+      one: '$count нитку',
+    );
+    return 'крестик в $_temp0';
+  }
+
+  @override
+  String stitchLegendBackStrands(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count нитки',
+      many: '$count ниток',
+      few: '$count нитки',
+      one: '$count нитку',
+    );
+    return 'бэкстич в $_temp0';
+  }
+
+  @override
+  String get stitchLegendHighlighted => 'подсвечен';
+
+  @override
+  String get stitchLegendEmpty => 'В схеме пока нет ни одной нитки.';
+
+  @override
   String get bookWorkImageFailed => 'Не получилось показать эту страницу. Попробуй открыть её ещё раз.';
 
   @override
@@ -1279,6 +1364,29 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get imageWizardCatalogMissing => 'В каталоге нет бисера такого размера, поэтому цвета подобраны свободно.';
+
+  @override
+  String get imageWizardBeadSeries => 'Серия бисера';
+
+  @override
+  String get imageWizardSeriesDelica => 'Delica';
+
+  @override
+  String get imageWizardSeriesRound => 'Круглый Toho';
+
+  @override
+  String get imageWizardFinishSolid => 'Непрозрачный и матовый';
+
+  @override
+  String get imageWizardFinishLuster => 'Блестящий';
+
+  @override
+  String get imageWizardFinishTransparent => 'Прозрачный и с линией';
+
+  @override
+  String imageWizardCatalogFew(int available, int wanted) {
+    return 'В выбранной серии и отделках всего $available цветов, а в схеме их до $wanted: попробуй другую серию или отделки, либо выбери «Любые».';
+  }
 
   @override
   String get imageWizardPreset => 'Детальность';

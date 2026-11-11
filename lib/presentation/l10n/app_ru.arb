@@ -426,6 +426,40 @@
     "description": "Маркер текущего ряда сеточной схемы у левого края (номер с единицы)",
     "placeholders": {"row": {"type": "int"}}
   },
+  "stitchLegendCrosses": "{count, plural, one{{count} крестик} few{{count} крестика} many{{count} крестиков} other{{count} крестика}}",
+  "@stitchLegendCrosses": {
+    "description": "Легенда вышивки: сколько полных крестиков этим цветом",
+    "placeholders": {"count": {"type": "int", "format": "decimalPattern"}}
+  },
+  "stitchLegendPartials": "{count, plural, one{{count} неполный} few{{count} неполных} many{{count} неполных} other{{count} неполных}}",
+  "@stitchLegendPartials": {
+    "description": "Легенда вышивки: сколько неполных крестиков (½, ¼, ¾, петит) этим цветом",
+    "placeholders": {"count": {"type": "int", "format": "decimalPattern"}}
+  },
+  "stitchLegendBackstitch": "бэкстич {length} кл.",
+  "@stitchLegendBackstitch": {
+    "description": "Легенда вышивки: общая длина бэкстича и прямых стежков этим цветом, в клетках",
+    "placeholders": {"length": {"type": "String"}}
+  },
+  "stitchLegendKnots": "{count, plural, one{{count} узелок} few{{count} узелка} many{{count} узелков} other{{count} узелка}}",
+  "@stitchLegendKnots": {
+    "description": "Легенда вышивки: сколько узелков этим цветом",
+    "placeholders": {"count": {"type": "int", "format": "decimalPattern"}}
+  },
+  "stitchLegendCrossStrands": "крестик в {count, plural, one{{count} нитку} few{{count} нитки} many{{count} ниток} other{{count} нитки}}",
+  "@stitchLegendCrossStrands": {
+    "description": "Легенда вышивки: сколько ниток мулине в иголке для крестика",
+    "placeholders": {"count": {"type": "int"}}
+  },
+  "stitchLegendBackStrands": "бэкстич в {count, plural, one{{count} нитку} few{{count} нитки} many{{count} ниток} other{{count} нитки}}",
+  "@stitchLegendBackStrands": {
+    "description": "Легенда вышивки: сколько ниток мулине в иголке для бэкстича",
+    "placeholders": {"count": {"type": "int"}}
+  },
+  "stitchLegendHighlighted": "подсвечен",
+  "@stitchLegendHighlighted": {"description": "Легенда вышивки: пометка для голосового чтения у подсвеченного цвета"},
+  "stitchLegendEmpty": "В схеме пока нет ни одной нитки.",
+  "@stitchLegendEmpty": {"description": "Легенда вышивки, когда в палитре нет цветов"},
   "bookWorkImageFailed": "Не получилось показать эту страницу. Попробуй открыть её ещё раз.",
   "librarySearchPlaceholder": "Поиск",
   "@librarySearchPlaceholder": {"description": "Подсказка в поле поиска по проектам"},
@@ -920,6 +954,20 @@
   "@imageWizardPaletteFree": {"description": "Цвета подбираются по картинке свободно"},
   "imageWizardCatalogMissing": "В каталоге нет бисера такого размера, поэтому цвета подобраны свободно.",
   "@imageWizardCatalogMissing": {"description": "Пояснение, когда каталог пуст под выбранный размер"},
+  "imageWizardBeadSeries": "Серия бисера",
+  "@imageWizardBeadSeries": {"description": "Подпись выбора серии бисера в палитре"},
+  "imageWizardSeriesDelica": "Delica",
+  "@imageWizardSeriesDelica": {"description": "Серия Miyuki Delica"},
+  "imageWizardSeriesRound": "Круглый Toho",
+  "@imageWizardSeriesRound": {"description": "Серия Toho Round"},
+  "imageWizardFinishSolid": "Непрозрачный и матовый",
+  "@imageWizardFinishSolid": {"description": "Группа отделок бисера: непрозрачный и матовый"},
+  "imageWizardFinishLuster": "Блестящий",
+  "@imageWizardFinishLuster": {"description": "Группа отделок бисера: блестящий"},
+  "imageWizardFinishTransparent": "Прозрачный и с линией",
+  "@imageWizardFinishTransparent": {"description": "Группа отделок бисера: прозрачный и с линией"},
+  "imageWizardCatalogFew": "В выбранной серии и отделках всего {available} цветов, а в схеме их до {wanted}: попробуй другую серию или отделки, либо выбери «Любые».",
+  "@imageWizardCatalogFew": {"description": "Пояснение, когда каталог после отбора беднее числа цветов", "placeholders": {"available": {"type": "int"}, "wanted": {"type": "int"}}},
   "imageWizardPreset": "Детальность",
   "@imageWizardPreset": {"description": "Заголовок выбора предустановки генератора"},
   "imageWizardPresetSimpler": "Проще",

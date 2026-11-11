@@ -7,11 +7,14 @@ import 'package:beading/domain/grid/cell_range.dart';
 import 'package:beading/domain/grid/grid.dart';
 import 'package:beading/domain/palette/palette_snapshot.dart';
 import 'package:beading/domain/palette/pattern_color.dart';
+import 'package:beading/domain/stitch/stitch_layers.dart';
+import 'package:beading/domain/stitch/stitch_spec.dart';
 import 'package:beading/presentation/grid_pattern/bead_finish.dart';
 import 'package:beading/presentation/grid_pattern/grid_colors.dart';
 import 'package:beading/presentation/grid_pattern/grid_scene.dart';
 import 'package:beading/presentation/grid_pattern/grid_view_options.dart';
 import 'package:beading/presentation/grid_pattern/realistic_cells.dart';
+import 'package:beading/presentation/grid_pattern/stitch_cells.dart';
 import 'package:flutter/painting.dart';
 
 /// Цвета слоя ячеек, уже приведённые к яркости темы. Часть ключа кеша: сменилась тема — слой строится заново.
@@ -56,13 +59,15 @@ final class GridLayerCache {
   static const int blockSize = 32;
 
   final Map<int, Picture> _blocks = <int, Picture>{};
-  final Map<(String, bool), TextPainter> _symbols = <(String, bool), TextPainter>{};
+  final Map<(String, Color), TextPainter> _symbols = <(String, Color), TextPainter>{};
 
   Grid? _grid;
   PaletteSnapshot? _palette;
   GridScene? _scene;
   GridViewOptions? _options;
   GridPaintStyle? _style;
+  StitchSpec _defaultSpec = const StitchSpec();
+  Map<int, StitchSpec> _colorSpecs = const <int, StitchSpec>{};
 
   /// Сколько блоков построено за всё время (для тестов и профилирования).
   int buildCount = 0;
@@ -77,13 +82,21 @@ final class GridLayerCache {
     required GridScene scene,
     required GridViewOptions options,
     required GridPaintStyle style,
+    StitchLayers? layers,
   }) {
+    // От слоёв слой ячеек зависит только толщиной крестика: она берётся из сложений, а не из стежков слоёв.
+    final StitchSpec defaultSpec = layers?.defaultSpec ?? const StitchSpec();
+    final Map<int, StitchSpec> colorSpecs = layers?.colorSpecs ?? const <int, StitchSpec>{};
     final bool same =
+        defaultSpec.crossStrands == _defaultSpec.crossStrands &&
+        _sameCrossStrands(colorSpecs, _colorSpecs) &&
         (identical(_grid, grid) || _grid == grid) &&
         (identical(_palette, palette) || _palette == palette) &&
         _sameScene(scene) &&
         (_options?.sameBaseLayer(options) ?? false) &&
         _style == style;
+    _defaultSpec = defaultSpec;
+    _colorSpecs = colorSpecs;
     _grid = grid;
     _palette = palette;
     _scene = scene;
@@ -91,6 +104,10 @@ final class GridLayerCache {
     _style = style;
     if (!same) invalidate();
   }
+
+  /// Клетки зависят только от числа ниток крестика, бэкстич их не перестраивает.
+  static bool _sameCrossStrands(Map<int, StitchSpec> a, Map<int, StitchSpec> b) =>
+      a.length == b.length && a.entries.every((e) => b[e.key]?.crossStrands == e.value.crossStrands);
 
   bool _sameScene(GridScene scene) {
     final GridScene? old = _scene;
@@ -128,7 +145,7 @@ final class GridLayerCache {
     if (scene == null) return;
     final CellRange range = scene.visibleCells(visible);
     if (range.isEmpty) return;
-    if (_options?.realistic ?? false) {
+    if ((_options?.realistic ?? false) || _isStitch(scene)) {
       RealisticCells.paintSurface(canvas, visible.intersect(Offset.zero & scene.size), _style!.realistic);
     }
     final int blocksPerRow = _blocksAcross(scene);
@@ -139,6 +156,12 @@ final class GridLayerCache {
       }
     }
   }
+
+  static bool _isStitch(GridScene scene) =>
+      RealisticMaterial.forMetrics(scene.metrics) == RealisticMaterial.crossStitch;
+
+  /// Сколько ниток в иголке для крестика цвета [color] (значение сетки).
+  int _strandsFor(int color) => (_colorSpecs[color] ?? _defaultSpec).crossStrands;
 
   int _blocksAcross(GridScene scene) => (scene.columns + blockSize - 1) ~/ blockSize;
 
@@ -165,11 +188,17 @@ final class GridLayerCache {
         palette: palette,
         colors: style.realistic,
         material: RealisticMaterial.forMetrics(scene.metrics),
+        strandsFor: _strandsFor,
+        highlight: options.highlightColor,
         c0: c0,
         c1: c1,
         r0: r0,
         r1: r1,
       );
+      return recorder.endRecording();
+    }
+    if (_isStitch(scene)) {
+      _paintStitchBlock(canvas, c0, c1, r0, r1);
       return recorder.endRecording();
     }
     final Paint linePaint = Paint()
@@ -201,7 +230,10 @@ final class GridLayerCache {
         final int value = grid.at(column, row);
         if (value == 0) continue;
         final PatternColor? color = palette.colorAt(value);
-        final Color base = color == null ? style.unknown : Color.fromARGB(255, color.rgb.r, color.rgb.g, color.rgb.b);
+        Color base = color == null ? style.unknown : Color.fromARGB(255, color.rgb.r, color.rgb.g, color.rgb.b);
+        if (options.highlightColor != null && options.highlightColor != value) {
+          base = StitchCells.dim(base, style.realistic.surface);
+        }
         final RRect bead = RRect.fromRectAndRadius(
           scene.cellRect(CellPosition(column, row)).deflate(shortSide * 0.07),
           radius,
@@ -214,26 +246,89 @@ final class GridLayerCache {
       }
     }
 
-    // 3. Жирные линии «каждая N-я».
-    final int every = options.boldEvery;
-    if (every > 0) {
-      final Paint bold = Paint()
+    _paintBoldLines(canvas, style.boldLine, c0, c1, r0, r1);
+    return recorder.endRecording();
+  }
+
+  /// Жирные линии «каждая N-я» блока.
+  void _paintBoldLines(Canvas canvas, Color color, int c0, int c1, int r0, int r1) {
+    final int every = _options!.boldEvery;
+    if (every <= 0) return;
+    final GridScene scene = _scene!;
+    final double shortSide = math.min(scene.cellSize.width, scene.cellSize.height);
+    final Paint bold = Paint()
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = math.max(1.5, shortSide * 0.09)
+      ..color = color;
+    for (int row = r0; row < r1; row++) {
+      for (int column = c0; column < c1; column++) {
+        final Rect cell = scene.cellRect(CellPosition(column, row));
+        if (column % every == 0) canvas.drawLine(cell.topLeft, cell.bottomLeft, bold);
+        if (row % every == 0) canvas.drawLine(cell.topLeft, cell.topRight, bold);
+        if (column == scene.columns - 1 && (column + 1) % every == 0) {
+          canvas.drawLine(cell.topRight, cell.bottomRight, bold);
+        }
+        if (row == scene.rows - 1 && (row + 1) % every == 0) canvas.drawLine(cell.bottomLeft, cell.bottomRight, bold);
+      }
+    }
+  }
+
+  /// Клетки вышивки в плоском виде: заливка, знак или крестик по [StitchStyle], на цвете канвы.
+  void _paintStitchBlock(Canvas canvas, int c0, int c1, int r0, int r1) {
+    final GridScene scene = _scene!;
+    final Grid grid = _grid!;
+    final PaletteSnapshot palette = _palette!;
+    final GridViewOptions options = _options!;
+    final Color surface = _style!.realistic.surface;
+    // Чернила линий и знаков берутся по яркости канвы, а не темы: канва любого цвета остаётся читаемой.
+    final Color ink = GridColors.symbolOn(surface);
+    final StitchStyle look = options.effectiveStitchStyle;
+    final double s = math.min(scene.cellSize.width, scene.cellSize.height);
+    final Paint paint = Paint();
+
+    if (options.showGridLines) {
+      final Paint lines = Paint()
         ..style = PaintingStyle.stroke
-        ..strokeWidth = math.max(1.5, shortSide * 0.09)
-        ..color = style.boldLine;
+        ..strokeWidth = 0
+        ..color = ink.withValues(alpha: 0.22);
       for (int row = r0; row < r1; row++) {
         for (int column = c0; column < c1; column++) {
-          final Rect cell = scene.cellRect(CellPosition(column, row));
-          if (column % every == 0) canvas.drawLine(cell.topLeft, cell.bottomLeft, bold);
-          if (row % every == 0) canvas.drawLine(cell.topLeft, cell.topRight, bold);
-          if (column == scene.columns - 1 && (column + 1) % every == 0) {
-            canvas.drawLine(cell.topRight, cell.bottomRight, bold);
-          }
-          if (row == scene.rows - 1 && (row + 1) % every == 0) canvas.drawLine(cell.bottomLeft, cell.bottomRight, bold);
+          canvas.drawRect(scene.cellRect(CellPosition(column, row)), lines);
         }
       }
     }
-    return recorder.endRecording();
+    for (int row = r0; row < r1; row++) {
+      for (int column = c0; column < c1; column++) {
+        final int value = grid.at(column, row);
+        if (value == 0) continue;
+        final PatternColor? color = palette.colorAt(value);
+        final bool dimmed = options.highlightColor != null && options.highlightColor != value;
+        Color base = color == null ? _style!.unknown : Color.fromARGB(255, color.rgb.r, color.rgb.g, color.rgb.b);
+        if (dimmed) base = StitchCells.dim(base, surface);
+        final Rect cell = scene.cellRect(CellPosition(column, row));
+        final String? symbol = color?.symbol;
+        // Цвет без знака не остаётся пустым даже в режиме «знаки».
+        final StitchStyle effective = look == StitchStyle.symbol && symbol == null ? StitchStyle.color : look;
+        switch (effective) {
+          case StitchStyle.color:
+          case StitchStyle.colorAndSymbol:
+            paint.color = base;
+            canvas.drawRect(cell.deflate(s * 0.03), paint);
+          case StitchStyle.crosses:
+            StitchCells.paintFlatCross(canvas, paint, cell, base, _strandsFor(value));
+          case StitchStyle.symbol:
+            break;
+        }
+        if (symbol != null && (effective == StitchStyle.colorAndSymbol || effective == StitchStyle.symbol)) {
+          final Color symbolInk = effective == StitchStyle.symbol
+              ? (dimmed ? ink.withValues(alpha: 0.25) : ink)
+              : GridColors.symbolOn(base);
+          final TextPainter text = _symbolInk(symbol, s, symbolInk);
+          text.paint(canvas, cell.center - Offset(text.width / 2, text.height / 2));
+        }
+      }
+    }
+    _paintBoldLines(canvas, ink.withValues(alpha: 0.8), c0, c1, r0, r1);
   }
 
   void _paintBead(Canvas canvas, Paint paint, RRect bead, Color base, BeadFinish? finish) {
@@ -279,10 +374,11 @@ final class GridLayerCache {
     }
   }
 
-  TextPainter _symbol(String symbol, double shortSide, Color fill) {
-    final Color ink = GridColors.symbolOn(fill);
-    final bool darkInk = ink == const Color(0xFF151316);
-    return _symbols[(symbol, darkInk)] ??= TextPainter(
+  TextPainter _symbol(String symbol, double shortSide, Color fill) =>
+      _symbolInk(symbol, shortSide, GridColors.symbolOn(fill));
+
+  TextPainter _symbolInk(String symbol, double shortSide, Color ink) {
+    return _symbols[(symbol, ink)] ??= TextPainter(
       text: TextSpan(
         text: symbol,
         style: TextStyle(
