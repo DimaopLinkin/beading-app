@@ -59,12 +59,26 @@ void main() {
       );
     });
 
+    test('старые виды bead и custom читаются по-прежнему', () {
+      expect(
+        CellMetricsCodec.decode('{"kind":"bead","shape":"delica","size":"11/0"}').valueOrNull,
+        BeadSize.delica11,
+      );
+      expect(
+        CellMetricsCodec.decode('{"kind":"custom","widthMm":2,"heightMm":3}').valueOrNull,
+        const CustomCellMetrics(widthMm: 2, heightMm: 3),
+      );
+    });
+
     test('неверная канва — ValidationFailure', () {
       for (final String bad in <String>[
         '{"kind":"fabric","fabric":"silk","count":14,"over":1,"color":"#ffffff"}',
         '{"kind":"fabric","fabric":"aida","count":99,"over":1,"color":"#ffffff"}',
         '{"kind":"fabric","fabric":"aida","count":14,"over":1,"color":"белый"}',
         '{"kind":"fabric","fabric":"aida","count":"14","over":1,"color":"#ffffff"}',
+        '{"kind":"fabric","fabric":"aida","count":14,"over":2,"color":"#ffffff"}',
+        '{"kind":"fabric","fabric":"aida","count":14.5,"over":1,"color":"#ffffff"}',
+        '{"kind":"fabric","fabric":"aida","count":14}',
       ]) {
         expect(CellMetricsCodec.decode(bad).failureOrNull, isA<ValidationFailure>(), reason: bad);
       }

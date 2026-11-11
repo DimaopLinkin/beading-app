@@ -5,8 +5,6 @@ import 'package:beading/domain/palette/rgb.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
-  Fabric ok(Fabric? Function() build) => build()!;
-
   group('Fabric.create', () {
     test('Аида 14: клетка 25,4 / 14 мм, квадратная', () {
       final Fabric f = Fabric.create(kind: FabricKind.aida, count: 14).valueOrNull!;
@@ -56,7 +54,7 @@ void main() {
   });
 
   group('размер в сантиметрах и клетках', () {
-    final Fabric aida14 = ok(() => Fabric.create(kind: FabricKind.aida, count: 14).valueOrNull);
+    final Fabric aida14 = Fabric.create(kind: FabricKind.aida, count: 14).valueOrNull!;
 
     test('10 см на Аида 14 — 55 клеток (14 на дюйм = 5,51 на см)', () {
       expect(aida14.cellsForCm(10), 55);
@@ -67,7 +65,7 @@ void main() {
     });
 
     test('на более плотной канве то же число клеток занимает меньше места', () {
-      final Fabric aida18 = ok(() => Fabric.create(kind: FabricKind.aida, count: 18).valueOrNull);
+      final Fabric aida18 = Fabric.create(kind: FabricKind.aida, count: 18).valueOrNull!;
       expect(aida18.cmForCells(100), lessThan(aida14.cmForCells(100)));
       expect(aida18.cellsForCm(20), greaterThan(aida14.cellsForCm(20)));
     });
@@ -77,6 +75,8 @@ void main() {
       expect(() => aida14.cellsForCm(0), throwsArgumentError);
       expect(() => aida14.cellsForCm(double.nan), throwsArgumentError);
       expect(() => aida14.cmForCells(0), throwsArgumentError);
+      expect(() => aida14.cmForCells(-5), throwsArgumentError);
+      expect(() => aida14.cellsForCm(-1), throwsArgumentError);
     });
   });
 
@@ -95,6 +95,15 @@ void main() {
     test('считаем по стежкам на дюйм: равномерка 28 через 2 — как Аида 14', () {
       expect(cross(28, kind: FabricKind.evenweave, over: 2), 2);
       expect(cross(32, kind: FabricKind.linen), 1);
+    });
+
+    test('границы: 12 и 18 — две нити, 19 — одна; равномерка 25 через 2 — 12,5 стежка на дюйм, две нити', () {
+      expect(cross(12), 2);
+      expect(cross(18), 2);
+      expect(cross(19), 1);
+      final Fabric f = Fabric.create(kind: FabricKind.evenweave, count: 25).valueOrNull!;
+      expect(f.stitchesPerInch, 12.5);
+      expect(f.defaultCrossStrands, 2);
     });
 
     test('бэкстич: на крупной канве две нити, иначе одна', () {

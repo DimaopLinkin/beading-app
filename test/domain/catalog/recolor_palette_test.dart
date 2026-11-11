@@ -80,6 +80,48 @@ void main() {
     expect(result.palette.colors.single.components.single, anchorRed.ref);
   });
 
+  test('смесь из двух ниток, ушедших в одну позицию, остаётся смесью двух одинаковых ссылок', () async {
+    final PatternColor blend = PatternColor.blend(
+      name: 'mix',
+      parts: <BlendPart>[
+        BlendPart(ref: dmcRed.ref, rgb: dmcRed.rgb),
+        BlendPart(ref: anchorFarRed.ref, rgb: anchorFarRed.rgb),
+      ],
+    );
+    final FakeCatalogRepository only = FakeCatalogRepository(<CatalogColor>[dmcRed, anchorRed, anchorFarRed]);
+
+    final RecolorResult result = (await RecolorPalette(only)(
+      PaletteSnapshot(<PatternColor>[blend]),
+      brand: 'Anchor',
+    )).valueOrNull!;
+
+    expect(result.palette.colors.single.components, hasLength(2));
+    expect(result.matches.single.to, <CatalogRef>[anchorRed.ref, anchorFarRed.ref]);
+  });
+
+  test('бисер пересчитывается только среди выбранного материала; нет такого бренда в материале — ошибка', () async {
+    final PaletteSnapshot palette = PaletteSnapshot(<PatternColor>[of(dmcRed)]);
+
+    final result = await RecolorPalette(catalog, material: CatalogMaterial.bead)(palette, brand: 'Anchor');
+
+    expect(result.failureOrNull, isA<ValidationFailure>());
+  });
+
+  test('ссылка на позицию, которой нет в каталоге, подбирается по RGB цвета палитры', () async {
+    final PatternColor orphan = PatternColor(
+      rgb: anchorBlue.rgb,
+      name: 'сирота',
+      components: const <CatalogRef>[CatalogRef(brand: 'DMC', code: 'снят')],
+    );
+
+    final RecolorResult result = (await RecolorPalette(catalog)(
+      PaletteSnapshot(<PatternColor>[orphan]),
+      brand: 'Anchor',
+    )).valueOrNull!;
+
+    expect(result.palette.colors.single.components.single, anchorBlue.ref);
+  });
+
   test('пересчёт в тот же бренд ничего не меняет, ΔE = 0', () async {
     final PaletteSnapshot palette = PaletteSnapshot(<PatternColor>[of(dmcRed, symbol: 'A')]);
 
