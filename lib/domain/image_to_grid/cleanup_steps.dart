@@ -19,7 +19,7 @@ final class RemoveIslandsStep extends Equatable implements PatternStep {
     this.minIsland = 3,
     this.protectEdgeShare = 0.05,
     this.protectImportance = 4,
-    this.protectDetail = 0.12,
+    this.protectDetail = 0.5,
     this.protectDiagonals = false,
   }) : assert(minIsland >= 2, 'minIsland не меньше 2'),
        assert(protectEdgeShare >= 0 && protectEdgeShare <= 1, 'protectEdgeShare от 0 до 1');
@@ -246,7 +246,7 @@ bool _isThinLine(List<int> component, Uint16List values, CellNeighbors neighbors
 
 const int _maxDiagonalChain = 120;
 
-/// Диагональная линия (T64): клетки одного цвета, касающиеся углами, образуют цепочку от трёх клеток без петель и
+/// Диагональная линия (T64): клетки одного цвета, касающиеся углами, образуют цепочку от четырёх клеток (три — слишком часто ступенька края) без петель и
 /// «толстых» мест. Связность по восьми соседям; для сетки с прямыми рядами.
 bool _isDiagonalLine(int start, Uint16List values, int columns, int rows) {
   final int color = values[start];
@@ -269,7 +269,7 @@ bool _isDiagonalLine(int start, Uint16List values, int columns, int rows) {
     // Линия не бывает длиннее области, а перебирать всю большую область ради одиночки незачем.
     if (chain.length > _maxDiagonalChain) return false;
   }
-  if (chain.length < 3) return false;
+  if (chain.length < 4) return false;
   int links = 0;
   for (final int cell in chain) {
     final int x = cell % columns;

@@ -198,8 +198,8 @@ void main() {
         cellImportance: Float32List(9)..fillRange(0, 9, 1),
         cellDetail: Float32List(9)..[4] = v,
       );
-      expect(const RemoveIslandsStep().apply(p, withDetail(0.3)).grid.at(1, 1), 2);
-      expect(const RemoveIslandsStep().apply(p, withDetail(0.05)).grid.at(1, 1), 1);
+      expect(const RemoveIslandsStep().apply(p, withDetail(0.6)).grid.at(1, 1), 2);
+      expect(const RemoveIslandsStep().apply(p, withDetail(0.3)).grid.at(1, 1), 1);
     });
 
     test('диагональная линия из клеток, касающихся углами, сохраняется (T64)', () {

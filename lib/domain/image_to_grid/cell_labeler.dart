@@ -100,7 +100,7 @@ final class VotingCellLabeler extends Equatable implements CellLabeler {
 /// сглаживания T52 это зерно, а не деталь) пиксели весят одинаково, сверху вес ограничен [cap], чтобы один яркий
 /// пиксель не перетянул клетку. Заметными ([LabeledCells.detail]) считаются пиксели с `s` от [lineDeltaE].
 final class DetailCellLabeler extends Equatable implements CellLabeler {
-  const DetailCellLabeler({this.floor = 4, this.cap = 30, this.noise = 6, this.lineDeltaE = 12});
+  const DetailCellLabeler({this.floor = 4, this.cap = 30, this.noise = 8, this.lineDeltaE = 30});
 
   final double floor;
   final double cap;
