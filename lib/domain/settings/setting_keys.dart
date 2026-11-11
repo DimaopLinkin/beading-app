@@ -47,7 +47,7 @@ abstract final class SettingKeys {
   /// Совпадает с брендом из `assets/catalog` (проверяет `bundled_catalog_test`).
   static const SettingKey<String> defaultFlossBrand = SettingKey<String>(
     name: 'defaultFlossBrand',
-    defaultValue: 'DMC',
+    defaultValue: 'Гамма',
     encode: _identity,
     decode: _identity,
   );

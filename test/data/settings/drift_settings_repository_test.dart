@@ -45,7 +45,7 @@ void main() {
       expect(await read(SettingKeys.keepScreenAwake), isTrue);
       expect(await read(SettingKeys.symbolMode), isFalse);
       expect(await read(SettingKeys.defaultBeadBrand), 'Miyuki');
-      expect(await read(SettingKeys.defaultFlossBrand), 'DMC');
+      expect(await read(SettingKeys.defaultFlossBrand), 'Гамма');
       expect(await read(SettingKeys.userName), 'Настя');
       expect(await read(SettingKeys.specialDates), isEmpty);
     });
@@ -81,7 +81,7 @@ void main() {
     test('бренд бисера и бренд мулине хранятся независимо', () async {
       await repository.write(SettingKeys.defaultBeadBrand, 'Preciosa');
 
-      expect(await read(SettingKeys.defaultFlossBrand), 'DMC');
+      expect(await read(SettingKeys.defaultFlossBrand), 'Гамма');
     });
 
     test('ставит created_at, updated_at и device_id', () async {

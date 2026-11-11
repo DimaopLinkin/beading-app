@@ -136,10 +136,10 @@ void main() {
 
       await tester.tap(find.byKey(const ValueKey<String>('default-floss-brand')));
       await tester.pumpAndSettle();
-      await tester.tap(find.text('Гамма'));
+      await tester.tap(find.text('DMC'));
       await tester.pumpAndSettle();
 
-      expect(settings.state.defaultFlossBrand, 'Гамма');
+      expect(settings.state.defaultFlossBrand, 'DMC');
     });
 
     testWidgets('ошибка записи показывает предупреждение', (tester) async {

@@ -56,11 +56,11 @@ void main() {
   });
 
   test('мулине по умолчанию сохраняется отдельно от бисера', () async {
-    await cubit.setDefaultFlossBrand('Гамма');
+    await cubit.setDefaultFlossBrand('DMC');
 
-    expect(cubit.state.defaultFlossBrand, 'Гамма');
+    expect(cubit.state.defaultFlossBrand, 'DMC');
     expect(cubit.state.defaultBeadBrand, SettingKeys.defaultBeadBrand.defaultValue);
-    expect(repo.values[SettingKeys.defaultFlossBrand.name], 'Гамма');
+    expect(repo.values[SettingKeys.defaultFlossBrand.name], 'DMC');
   });
 
   test('имя обрезается, пустое возвращает значение по умолчанию', () async {

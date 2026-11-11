@@ -8,7 +8,7 @@ final class SettingsState extends Equatable {
     this.keepScreenAwake = true,
     this.symbolMode = false,
     this.defaultBeadBrand = 'Miyuki',
-    this.defaultFlossBrand = 'DMC',
+    this.defaultFlossBrand = 'Гамма',
     this.userName = 'Настя',
     this.specialDates = const <SpecialDate>[],
     this.loaded = false,
