@@ -1,7 +1,7 @@
-import 'package:beading/domain/grid/grid.dart';
-import 'package:beading/domain/grid/grid_geometry.dart';
 import 'dart:typed_data';
 
+import 'package:beading/domain/grid/grid.dart';
+import 'package:beading/domain/grid/grid_geometry.dart';
 import 'package:beading/domain/image_to_grid/cell_regions.dart';
 import 'package:beading/domain/image_to_grid/palette_entry.dart';
 import 'package:beading/domain/image_to_grid/pattern_metrics.dart';
