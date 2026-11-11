@@ -1,7 +1,7 @@
 ---
 id: 05b-peyote-columns
 title: Плетение пейота по столбцам (доработка 05-weaving)
-status: delivered
+status: accepted
 depends: 07-catalog-materials
 ---
 
