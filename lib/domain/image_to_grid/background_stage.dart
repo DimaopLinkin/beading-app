@@ -47,6 +47,7 @@ Uint8List subjectCellsFrom({
 /// Стадия фона и контура объекта (T55). Работает по готовой схеме и маске объекта на уровне клеток.
 abstract final class BackgroundStage {
   static const int maxBackgroundColors = 3;
+  static const double _maxOutlineLightness = 45;
 
   /// Применяет [mode] к фону и, если [outline], обводит объект одной клеткой тёмного цвета.
   static GeneratedPattern apply({
@@ -115,13 +116,12 @@ abstract final class BackgroundStage {
     final int k = palette.length;
     final List<Lab> paletteLab = <Lab>[for (final PaletteEntry e in palette) Lab.fromRgb(e.rgb)];
     // Цена цвета палитры для каждой клетки фона: ΔE2000 до среднего цвета фото под клеткой.
-    final List<List<double>> cost = <List<double>>[
-      for (final int cell in bg)
-        <double>[
-          for (int c = 0; c < k; c++)
-            cellColors[cell] == null ? 0 : deltaE2000(Lab.fromRgb(cellColors[cell]!), paletteLab[c]),
-        ],
-    ];
+    final List<List<double>> cost = <List<double>>[];
+    for (final int cell in bg) {
+      final Rgb? color = cellColors[cell];
+      final Lab? lab = color == null ? null : Lab.fromRgb(color);
+      cost.add(<double>[for (int c = 0; c < k; c++) lab == null ? 0 : deltaE2000(lab, paletteLab[c])]);
+    }
     final List<double> best = List<double>.filled(bg.length, double.infinity);
     final List<int> chosen = <int>[];
     double total = double.infinity;
@@ -218,7 +218,8 @@ abstract final class BackgroundStage {
         if (index >= 0 && Lab.fromRgb(out[index].rgb).l < darkestL) darkest = index;
       }
     }
-    if (darkest < 0) return palette;
+    // Светлую «обводку» не рисуем: без тёмного цвета в палитре (нет места или в каталоге нет тёмных) обводки не будет.
+    if (darkest < 0 || Lab.fromRgb(out[darkest].rgb).l > _maxOutlineLightness) return palette;
     for (final int cell in border) {
       values[cell] = darkest + 1;
     }

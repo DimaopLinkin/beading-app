@@ -1,6 +1,5 @@
 import 'dart:typed_data';
 
-import 'package:beading/domain/grid/grid.dart';
 import 'package:beading/domain/grid/grid_geometry.dart';
 import 'package:beading/domain/image_to_grid/background_stage.dart';
 import 'package:beading/domain/image_to_grid/cell_labeler.dart';
@@ -168,6 +167,59 @@ void main() {
     expect(request.background, BackgroundMode.remove);
     expect(request.outline, isTrue);
     expect(request.usesBackgroundStage, isTrue);
-    expect(Grid.maxSide, greaterThan(0));
+  });
+
+  test('результат детерминирован, фон на пейоте упрощается и убирается', () {
+    for (final BackgroundMode mode in <BackgroundMode>[BackgroundMode.simplify, BackgroundMode.remove]) {
+      final ImageToGridRequest r = _request(mask: _discMask(), background: mode, geometry: const GridGeometry.peyote());
+      expect(_values(pipeline.run(r)), _values(pipeline.run(r)));
+    }
+    final GeneratedPattern removed = pipeline.run(
+      _request(mask: _discMask(), background: BackgroundMode.remove, geometry: const GridGeometry.peyote()),
+    );
+    final Uint8List subject = _subjectCells(const GridGeometry.peyote());
+    final List<int> v = _values(removed);
+    expect(<int>[
+      for (int i = 0; i < v.length; i++)
+        if (subject[i] == 0 && v[i] != 0) i,
+    ], isEmpty);
+  });
+
+  test('маска целиком объект: фон нечего менять, обводки нет', () {
+    final Uint8List all = Uint8List(_size * _size)..fillRange(0, _size * _size, 255);
+    final List<int> plain = _values(pipeline.run(_request()));
+    final List<int> treated = _values(
+      pipeline.run(_request(mask: all, background: BackgroundMode.remove, outline: true)),
+    );
+    expect(treated, plain);
+  });
+
+  test('пустая маска и «убрать»: все клетки пустые, не падает', () {
+    final GeneratedPattern p = pipeline.run(
+      _request(mask: Uint8List(_size * _size), background: BackgroundMode.remove),
+    );
+    expect(_values(p).every((v) => v == 0), isTrue);
+  });
+
+  test('effectiveImportance снижает вес фона', () {
+    final Float32List keep = _request(mask: _discMask()).effectiveImportance ?? Float32List(0);
+    expect(keep, isEmpty);
+    final Float32List simplify = _request(mask: _discMask(), background: BackgroundMode.simplify).effectiveImportance!;
+    final Float32List remove = _request(mask: _discMask(), background: BackgroundMode.remove).effectiveImportance!;
+    expect(simplify[0], 0.5);
+    expect(remove[0], closeTo(0.05, 1e-6));
+    expect(simplify[_size * _size ~/ 2 + _size ~/ 2], 1);
+  });
+
+  test('обводки нет, если в палитре нет места и нет тёмного цвета', () {
+    // Все цвета сцены светлее 45 по L, палитра заполнена: обводку не рисуем.
+    final GeneratedPattern plain = pipeline.run(_request(mask: _discMask(), maxColors: 6));
+    final GeneratedPattern outlined = pipeline.run(_request(mask: _discMask(), maxColors: 6, outline: true));
+    final bool hasDark = plain.palette.any((e) => Lab.fromRgb(e.rgb).l <= 45);
+    if (!hasDark && plain.palette.length >= 6) {
+      expect(_values(outlined), _values(plain));
+    } else {
+      expect(outlined.palette.any((e) => Lab.fromRgb(e.rgb).l <= 45), isTrue);
+    }
   });
 }
