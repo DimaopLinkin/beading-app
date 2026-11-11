@@ -2,6 +2,7 @@ import 'dart:typed_data';
 
 import 'package:beading/domain/grid/grid_geometry.dart';
 import 'package:beading/domain/image_to_grid/cell_costs.dart';
+import 'package:beading/domain/image_to_grid/face_guide.dart';
 import 'package:beading/domain/image_to_grid/generated_pattern.dart';
 import 'package:beading/domain/palette/rgb.dart';
 
@@ -13,6 +14,7 @@ final class PatternStepContext {
     this.costs,
     this.cellEdges,
     this.cellColors,
+    this.faces,
   });
 
   final GridGeometry geometry;
@@ -29,6 +31,9 @@ final class PatternStepContext {
 
   /// Цвета клеток после ресэмплинга (по рядам, `null` — пустая клетка): по ним шаг видит, какой цвет «хотела» клетка.
   final List<Rgb?>? cellColors;
+
+  /// Кожа и черты лиц в клетках (T54) или `null`, если на фото лиц нет.
+  final FaceCells? faces;
 }
 
 /// Шаг конвейера после привязки к палитре: очистка «конфетти» (T47), слои и им подобное.

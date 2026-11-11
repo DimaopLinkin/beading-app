@@ -11,6 +11,7 @@ import 'package:beading/domain/image_to_grid/cell_neighbors.dart';
 import 'package:beading/domain/image_to_grid/cell_regions.dart';
 import 'package:beading/domain/image_to_grid/cell_sampler.dart';
 import 'package:beading/domain/image_to_grid/color_assigner.dart';
+import 'package:beading/domain/image_to_grid/face_guide.dart';
 import 'package:beading/domain/image_to_grid/generated_pattern.dart';
 import 'package:beading/domain/image_to_grid/generation_stats.dart';
 import 'package:beading/domain/image_to_grid/image_prefilter.dart';
@@ -136,6 +137,7 @@ final class ImageToGridPipeline {
       request.rows,
       request.draft,
       request.prefilter,
+      request.faces,
     ];
     _Prepared? prepared = cache._prepared;
     if (prepared == null || !_sameKey(cache._prepareKey, prepareKey)) {
@@ -167,6 +169,7 @@ final class ImageToGridPipeline {
           constraint: request.constraint,
           seed: request.seed,
           regions: regions,
+          skinPixels: prepared.skin,
         ),
       );
       cache
@@ -216,6 +219,7 @@ final class ImageToGridPipeline {
       costs: labeled.costs.select(order),
       cellEdges: edges,
       cellColors: cells.colors,
+      faces: prepared.faceCells,
     );
     for (final PatternStep step in request.steps) {
       pattern = step.apply(pattern, context);
@@ -282,7 +286,10 @@ final class ImageToGridPipeline {
       imageWidth: work.width,
       imageHeight: work.height,
     );
+    final FaceGuide? faces = (request.faces?.isEmpty ?? true) ? null : request.faces;
     return _Prepared(
+      skin: faces?.skinPixels(work.width, work.height),
+      faceCells: faces?.cells(regions, workWidth: work.width, workHeight: work.height),
       work: work,
       cells: cells,
       regions: regions,
@@ -456,6 +463,8 @@ final class PixelStageCache {
 
 final class _Prepared {
   const _Prepared({
+    required this.skin,
+    required this.faceCells,
     required this.work,
     required this.cells,
     required this.regions,
@@ -463,6 +472,9 @@ final class _Prepared {
     required this.edges,
   });
 
+  /// Пиксели кожи и клетки лиц (T54) или `null`, если лиц нет.
+  final Uint8List? skin;
+  final FaceCells? faceCells;
   final WorkImage work;
   final SampledCells cells;
   final CellRegions regions;

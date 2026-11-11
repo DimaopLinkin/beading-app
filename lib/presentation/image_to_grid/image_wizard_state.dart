@@ -1,6 +1,7 @@
 import 'dart:typed_data';
 
 import 'package:beading/domain/image_pattern/crop_rect.dart';
+import 'package:beading/domain/image_to_grid/face_size_advisor.dart';
 import 'package:beading/domain/image_to_grid/generated_pattern.dart';
 import 'package:beading/domain/image_to_grid/image_mask_set.dart';
 import 'package:beading/domain/image_to_grid/image_to_grid_settings.dart';
@@ -67,6 +68,15 @@ class ImageWizardState extends Equatable {
 
   /// Маски и лица, найденные на подготовленной картинке (T48); `null` — Vision недоступен или ничего не нашёл.
   final ImageMaskSet? masks;
+
+  /// Совет, если лицо на схеме слишком мелкое (T54); пока маски не учитываются, лицо не важно и совета нет.
+  FaceSizeAdvice? get faceAdvice {
+    final ImageMaskSet? found = masks;
+    if (found == null || !settings.useMasks) {
+      return null;
+    }
+    return const FaceSizeAdvisor().advise(found, columns: settings.columns);
+  }
 
   /// Есть что выделять: показываем переключатель «Выделять главное».
   bool get hasMasks => masks != null && !masks!.isEmpty;

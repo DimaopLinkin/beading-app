@@ -4,6 +4,7 @@ import 'package:beading/domain/grid/bead_size.dart';
 import 'package:beading/domain/grid/grid.dart';
 import 'package:beading/domain/image_pattern/crop_rect.dart';
 import 'package:beading/domain/image_to_grid/background_stage.dart';
+import 'package:beading/domain/image_to_grid/face_size_advisor.dart';
 import 'package:beading/domain/image_to_grid/generation_preset.dart';
 import 'package:beading/domain/image_to_grid/image_to_grid_settings.dart';
 import 'package:beading/domain/projects/craft.dart';
@@ -72,6 +73,47 @@ String _problemText(AppLocalizations l10n, ImageWizardProblem problem) => switch
   ImageWizardProblem.saveFailed => l10n.imageWizardProblemSave,
   ImageWizardProblem.invalidName => l10n.imageWizardProblemName,
 };
+
+/// Лицо на схеме слишком мелкое (T54): предупреждение и два действия.
+class _FaceWarning extends StatelessWidget {
+  const _FaceWarning({required this.advice, required this.onCrop, required this.onWiden});
+
+  final FaceSizeAdvice advice;
+  final VoidCallback? onCrop;
+  final VoidCallback? onWiden;
+
+  @override
+  Widget build(BuildContext context) {
+    final AppLocalizations l10n = AppLocalizations.of(context);
+    return Column(
+      key: const ValueKey<String>('wizard-face-warning'),
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: <Widget>[
+        Text(
+          l10n.imageWizardFaceSmall(advice.faceCells.floor(), const FaceSizeAdvisor().minFaceCells),
+          style: TextStyle(fontSize: 13, color: CupertinoColors.systemOrange.resolveFrom(context)),
+        ),
+        Wrap(
+          spacing: 8,
+          children: <Widget>[
+            if (onCrop != null)
+              CupertinoButton.tinted(
+                key: const ValueKey<String>('wizard-face-crop'),
+                onPressed: onCrop,
+                child: Text(l10n.imageWizardFaceCrop),
+              ),
+            if (onWiden != null)
+              CupertinoButton.tinted(
+                key: const ValueKey<String>('wizard-face-wider'),
+                onPressed: onWiden,
+                child: Text(l10n.imageWizardFaceWider),
+              ),
+          ],
+        ),
+      ],
+    );
+  }
+}
 
 /// Ошибка: значок и текст, цвет не единственный признак.
 class _Problem extends StatelessWidget {
@@ -417,6 +459,14 @@ class _EditState extends State<_Edit> {
                       ),
                     ],
                   ),
+                ),
+              ],
+              if (state.faceAdvice case final FaceSizeAdvice advice) ...<Widget>[
+                SizedBox(height: gap),
+                _FaceWarning(
+                  advice: advice,
+                  onCrop: advice.cropRect == null ? null : cubit.cropToFace,
+                  onWiden: advice.neededColumns == null ? null : cubit.widenForFace,
                 ),
               ],
               SizedBox(height: gap),

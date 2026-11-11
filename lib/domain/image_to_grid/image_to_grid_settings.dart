@@ -9,7 +9,11 @@ import 'package:beading/domain/grid/grid_geometry.dart';
 import 'package:beading/domain/image_to_grid/background_stage.dart';
 import 'package:beading/domain/image_to_grid/cell_labeler.dart';
 import 'package:beading/domain/image_to_grid/cell_sampler.dart';
+import 'package:beading/domain/image_to_grid/face_guide.dart';
+import 'package:beading/domain/image_to_grid/face_palette_builder.dart';
+import 'package:beading/domain/image_to_grid/face_step.dart';
 import 'package:beading/domain/image_to_grid/generation_preset.dart';
+import 'package:beading/domain/image_to_grid/image_mask_set.dart';
 import 'package:beading/domain/image_to_grid/image_to_grid_request.dart';
 import 'package:beading/domain/image_to_grid/ordered_dither_step.dart';
 import 'package:beading/domain/image_to_grid/palette_builder.dart';
@@ -78,6 +82,7 @@ final class ImageToGridSettings extends Equatable {
 
   /// Палитра для черновика: выборка пикселей и итераций вдвое-вчетверо меньше, цвета чуть грубее, расчёт быстрее.
   static const AccentPaletteBuilder draftPaletteBuilder = AccentPaletteBuilder(sampleSize: 5000, iterations: 10);
+  static const FaceAwarePaletteBuilder draftFacePaletteBuilder = FaceAwarePaletteBuilder(inner: draftPaletteBuilder);
 
   /// Что делать с фоном: действует, только если у мастера есть маска объекта (T48); без неё настройку не показывают.
   final BackgroundMode background;
@@ -141,6 +146,7 @@ final class ImageToGridSettings extends Equatable {
     List<CatalogColor> catalog = const <CatalogColor>[],
     String brand = '',
     Float32List? importance,
+    ImageMaskSet? masks,
     int seed = 0,
     bool draft = false,
     Uint8List? subjectMask,
@@ -150,6 +156,8 @@ final class ImageToGridSettings extends Equatable {
     // «Плавные переходы» с предустановкой — упорядоченный дизеринг только в градиентах последним шагом (T57); без
     // предустановки остаётся путь T24 с Флойдом — Стейнбергом.
     final GenerationPreset? active = preset;
+    // Лица (T54): отдельные цвета кожи и защита черт; без лиц на фото поведение прежнее.
+    final FaceGuide? faceGuide = active == null || masks == null || masks.faces.isEmpty ? null : FaceGuide(masks);
     return ImageToGridRequest(
       image: image,
       geometry: geometry,
@@ -164,13 +172,19 @@ final class ImageToGridSettings extends Equatable {
       dither: dither && active == null,
       seed: seed,
       prefilter: active?.prefilter,
-      paletteBuilder: active == null ? null : (draft ? draftPaletteBuilder : const AccentPaletteBuilder()),
+      paletteBuilder: active == null
+          ? null
+          : faceGuide == null
+          ? (draft ? draftPaletteBuilder : const AccentPaletteBuilder())
+          : (draft ? draftFacePaletteBuilder : const FaceAwarePaletteBuilder()),
       labeler: active == null ? null : const VotingCellLabeler(),
       smoother: active?.smoother,
       refillFreedColors: active?.refillFreedColors ?? false,
+      faces: faceGuide,
       draft: draft,
       steps: <PatternStep>[
         ...?active?.steps,
+        if (faceGuide != null) const FaceFeatureStep(),
         ...steps,
         if (dither && active != null) const OrderedDitherStep(),
       ],
