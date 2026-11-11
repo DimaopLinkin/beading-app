@@ -42,6 +42,9 @@ class _InstantRunner implements ImageToGridRunner {
       PaletteEntry(rgb: Rgb(10, 10, 200)),
     ],
   );
+
+  @override
+  Future<void> release() async {}
 }
 
 class _Decoder implements ImageDecoder {

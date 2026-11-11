@@ -2,6 +2,7 @@ import 'dart:math' as math;
 import 'dart:typed_data';
 
 import 'package:beading/domain/image_to_grid/work_image.dart';
+import 'package:equatable/equatable.dart';
 
 /// Стадия 1 конвейера (ADR-0004): подготовка фото до выбора цветов.
 ///
@@ -14,7 +15,7 @@ abstract interface class ImagePrefilter {
 ///
 /// Двусторонний фильтр в Lab (два прохода, радиус 2) для схем до 100×100 ячеек и управляемый фильтр (O(N)) для
 /// больших. Светлота не растягивается: первая версия прототипа растягивала её и «выбеливала» кожу и шерсть.
-final class EdgePreservingPrefilter implements ImagePrefilter {
+final class EdgePreservingPrefilter extends Equatable implements ImagePrefilter {
   const EdgePreservingPrefilter({this.sigmaRange = 9, this.saturation = 1.05, this.guidedAboveCells = 100 * 100})
     : assert(sigmaRange > 0, 'sigmaRange > 0'),
       assert(saturation >= 1 && saturation <= 1.1, 'saturation от 1 до 1,1');
@@ -30,6 +31,9 @@ final class EdgePreservingPrefilter implements ImagePrefilter {
 
   /// Радиус окна обоих фильтров в рабочих пикселях.
   static const int radius = 2;
+
+  @override
+  List<Object?> get props => <Object?>[sigmaRange, saturation, guidedAboveCells];
 
   @override
   WorkImage apply(WorkImage image) {

@@ -72,6 +72,9 @@ final class ImageToGridSettings extends Equatable {
   /// Дополнительные шаги после очистки предустановки (контуры, слои): расширение для T49 и дальше.
   final List<PatternStep> steps;
 
+  /// Палитра для черновика: выборка пикселей и итераций вдвое-вчетверо меньше, цвета чуть грубее, расчёт быстрее.
+  static const AccentPaletteBuilder draftPaletteBuilder = AccentPaletteBuilder(sampleSize: 5000, iterations: 10);
+
   GridGeometry get geometry => geometryForTechnique(technique);
 
   ImageToGridSettings copyWith({
@@ -125,6 +128,7 @@ final class ImageToGridSettings extends Equatable {
     String brand = '',
     Float32List? importance,
     int seed = 0,
+    bool draft = false,
   }) {
     final List<CatalogColor> allowed = catalogFor(catalog, brand: brand);
     final bool useCatalog = paletteSource == PaletteSource.catalog && allowed.isNotEmpty;
@@ -144,10 +148,11 @@ final class ImageToGridSettings extends Equatable {
       dither: dither,
       seed: seed,
       prefilter: active?.prefilter,
-      paletteBuilder: active == null ? null : const AccentPaletteBuilder(),
+      paletteBuilder: active == null ? null : (draft ? draftPaletteBuilder : const AccentPaletteBuilder()),
       labeler: active == null ? null : const VotingCellLabeler(),
       smoother: active?.smoother,
       refillFreedColors: active?.refillFreedColors ?? false,
+      draft: draft,
       steps: <PatternStep>[...?active?.steps, ...steps],
     );
   }
