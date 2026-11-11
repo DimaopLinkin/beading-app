@@ -40,6 +40,8 @@ final class ImageToGridRequest {
     this.background = BackgroundMode.keep,
     this.outline = false,
     this.suggestBlends = false,
+    this.applyBlends = false,
+    this.backstitch = false,
   }) {
     if (columns < 1 || columns > Grid.maxSide) throw ArgumentError.value(columns, 'columns', 'от 1 до ${Grid.maxSide}');
     if (rows < 1 || rows > Grid.maxSide) throw ArgumentError.value(rows, 'rows', 'от 1 до ${Grid.maxSide}');
@@ -140,6 +142,8 @@ final class ImageToGridRequest {
     background: background,
     outline: outline,
     suggestBlends: suggestBlends,
+    applyBlends: applyBlends,
+    backstitch: backstitch,
   );
 
   /// Маска объекта (T55): значение на пиксель картинки, ряды сверху вниз; `0` — фон, остальное — объект. `null` — маски
@@ -154,6 +158,12 @@ final class ImageToGridRequest {
 
   /// Искать бленды двух ниток (вышивка, T57): результат в `GeneratedPattern.blendSuggestions`.
   final bool suggestBlends;
+
+  /// Применить найденные бленды к схеме (T46): нужен [suggestBlends], цвета только из каталога мулине.
+  final bool applyBlends;
+
+  /// Контуры-бэкстич из картинки (T49, T46) в `GeneratedPattern.lines`: только пиксельный путь и не черновик.
+  final bool backstitch;
 
   /// Тот же запрос с маской объекта, режимом фона и обводкой (маска, фон и обводка заменяются целиком).
   ImageToGridRequest withBackground({
@@ -183,6 +193,8 @@ final class ImageToGridRequest {
     background: mode,
     outline: outline,
     suggestBlends: suggestBlends,
+    applyBlends: applyBlends,
+    backstitch: backstitch,
   );
 
   bool get usesBackgroundStage => subjectMask != null && (background != BackgroundMode.keep || outline);

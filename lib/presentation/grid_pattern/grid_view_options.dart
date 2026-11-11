@@ -1,3 +1,5 @@
+import 'dart:ui' show Color;
+
 import 'package:beading/domain/grid/cell_position.dart';
 import 'package:beading/domain/grid/reading_order.dart';
 import 'package:equatable/equatable.dart';
@@ -16,6 +18,7 @@ final class GridViewOptions extends Equatable {
     this.markCurrentRowBeads = true,
     this.order,
     this.pendingCells = const <CellPosition>[],
+    this.canvasColor,
   }) : assert(boldEvery >= 0, 'boldEvery не может быть отрицательным');
 
   /// Знак палитры на каждой бусине.
@@ -53,13 +56,17 @@ final class GridViewOptions extends Equatable {
   /// Ещё не выложенные бусины текущего ряда («по бусине»): рисуются пустыми.
   final List<CellPosition> pendingCells;
 
+  /// Цвет канвы вышивки (T46): им закрашены пустые клетки и фон вида «как будет выглядеть». `null` — цвет темы.
+  final Color? canvasColor;
+
   /// Влияет ли разница на кеш слоя ячеек (остальное рисуется поверх, без пересборки).
   bool sameBaseLayer(GridViewOptions other) =>
       showSymbols == other.showSymbols &&
       showGridLines == other.showGridLines &&
       boldEvery == other.boldEvery &&
       showFinish == other.showFinish &&
-      realistic == other.realistic;
+      realistic == other.realistic &&
+      canvasColor == other.canvasColor;
 
   @override
   List<Object?> get props => <Object?>[
@@ -74,5 +81,6 @@ final class GridViewOptions extends Equatable {
     markCurrentRowBeads,
     order,
     pendingCells,
+    canvasColor,
   ];
 }

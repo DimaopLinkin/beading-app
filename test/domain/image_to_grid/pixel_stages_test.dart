@@ -88,6 +88,7 @@ class _CaptureCosts implements PatternStep {
 }
 
 void main() {
+  backstitchPipelineTests();
   group('AccentPaletteBuilder', () {
     test('маленькое яркое пятно (0,5 % площади) получает свой цвет при 8 цветах', () {
       // Фон — плавный градиент оттенков серого и бежевого, пятно 6×8 px из 240×240: 0,08 %... берём 17×17 ≈ 0,5 %.
@@ -325,6 +326,46 @@ void main() {
       );
       expect(pattern.stats!.singleCells, 0);
       expect(pattern.stats!.colorCount, 2);
+    });
+  });
+}
+
+void backstitchPipelineTests() {
+  group('контуры-бэкстич в конвейере (T46)', () {
+    // Тёмный квадрат на светлом фоне: контраст на границе обязательно выберется.
+    final SourceImage image = painted(80, 80, 0xF0F0F0, <(int, int, int, int, int)>[(20, 20, 60, 60, 0x202020)]);
+
+    ImageToGridRequest build({required bool backstitch, bool draft = false}) => ImageToGridRequest(
+      image: image,
+      geometry: const GridGeometry.rectangular(),
+      metrics: _metrics,
+      columns: 20,
+      rows: 20,
+      maxColors: 4,
+      paletteBuilder: const AccentPaletteBuilder(),
+      labeler: const VotingCellLabeler(),
+      backstitch: backstitch,
+      draft: draft,
+    );
+
+    test('без запроса линий нет', () {
+      expect(const ImageToGridPipeline().run(build(backstitch: false)).lines, isEmpty);
+    });
+
+    test('с запросом линии идут тёмным цветом палитры по границе квадрата', () {
+      final GeneratedPattern result = const ImageToGridPipeline().run(build(backstitch: true));
+      expect(result.lines, isNotEmpty);
+      final int darkest = result.palette
+          .asMap()
+          .entries
+          .reduce((a, b) => Lab.fromRgb(a.value.rgb).l <= Lab.fromRgb(b.value.rgb).l ? a : b)
+          .key;
+      expect(result.lines.every((l) => l.color == darkest + 1), isTrue);
+      expect(result.stats!.stageTimes.containsKey('backstitch'), isTrue);
+    });
+
+    test('черновик контуры не считает', () {
+      expect(const ImageToGridPipeline().run(build(backstitch: true, draft: true)).lines, isEmpty);
     });
   });
 }

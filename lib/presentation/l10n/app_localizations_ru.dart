@@ -1340,6 +1340,106 @@ class AppLocalizationsRu extends AppLocalizations {
   String get imageWizardOutlineHint => 'Тёмная линия в одну бусину вокруг главного: силуэт виден сразу.';
 
   @override
+  String get imageWizardCraft => 'Что делаем';
+
+  @override
+  String get imageWizardCraftBeading => 'Бисер';
+
+  @override
+  String get imageWizardCraftStitch => 'Вышивка';
+
+  @override
+  String get imageWizardFabric => 'Канва';
+
+  @override
+  String imageWizardFabricAida(int count) {
+    return 'Аида $count';
+  }
+
+  @override
+  String imageWizardFabricEvenweave(int count, int over) {
+    return 'Равномерка $count, через $over';
+  }
+
+  @override
+  String imageWizardFabricLinen(int count, int over) {
+    return 'Лён $count, через $over';
+  }
+
+  @override
+  String get imageWizardFabricColor => 'Цвет канвы';
+
+  @override
+  String get imageWizardCanvasWhite => 'Белая';
+
+  @override
+  String get imageWizardCanvasCream => 'Молочная';
+
+  @override
+  String get imageWizardCanvasLinen => 'Под лён';
+
+  @override
+  String get imageWizardCanvasGray => 'Серая';
+
+  @override
+  String get imageWizardCanvasBlack => 'Чёрная';
+
+  @override
+  String get imageWizardWidthCm => 'Ширина вышивки';
+
+  @override
+  String imageWizardCm(String cm) {
+    return '$cm см';
+  }
+
+  @override
+  String imageWizardSizeStitch(int columns, int rows, String width, String height) {
+    return '$columns × $rows крестиков, $width × $height см';
+  }
+
+  @override
+  String get imageWizardFlossPalette => 'Цвета мулине';
+
+  @override
+  String get imageWizardFlossMissing => 'В каталоге нет мулине этого бренда, поэтому цвета подобраны свободно.';
+
+  @override
+  String get imageWizardBackstitch => 'Контуры';
+
+  @override
+  String get imageWizardBackstitchHint =>
+      'Тёмная линия бэкстичем по краям предмета и резким границам: форма читается чётче.';
+
+  @override
+  String imageWizardBackstitchCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count стежков контура',
+      many: '$count стежков контура',
+      few: '$count стежка контура',
+      one: '$count стежок контура',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get imageWizardBlends => 'Бленды из двух ниток';
+
+  @override
+  String imageWizardBlendsHint(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count мест',
+      many: '$count мест',
+      few: '$count места',
+      one: 'Одно место',
+    );
+    return '$_temp0 лучше выходит, если взять две нитки в иголку. Включите, и они заменят одиночные цвета.';
+  }
+
+  @override
   String get imageWizardName => 'Название';
 
   @override

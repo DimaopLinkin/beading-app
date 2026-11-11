@@ -7,6 +7,7 @@ import 'package:beading/domain/catalog/catalog_color.dart';
 import 'package:beading/domain/catalog/catalog_material.dart';
 import 'package:beading/domain/catalog/catalog_repository.dart';
 import 'package:beading/domain/grid/bead_size.dart';
+import 'package:beading/domain/grid/fabric.dart';
 import 'package:beading/domain/image_pattern/crop_rect.dart';
 import 'package:beading/domain/image_pattern/image_processor.dart';
 import 'package:beading/domain/image_pattern/picked_book_file.dart';
@@ -22,6 +23,7 @@ import 'package:beading/domain/image_to_grid/palette_from_generated.dart';
 import 'package:beading/domain/image_to_grid/source_image.dart';
 import 'package:beading/domain/image_to_grid/use_cases/create_pattern_from_image.dart';
 import 'package:beading/domain/palette/palette_snapshot.dart';
+import 'package:beading/domain/palette/rgb.dart';
 import 'package:beading/domain/projects/craft.dart';
 import 'package:beading/domain/projects/project.dart';
 import 'package:beading/domain/settings/setting_keys.dart';
@@ -67,6 +69,7 @@ class ImageWizardCubit extends Cubit<ImageWizardState> {
 
   List<CatalogColor> _catalogColors = const <CatalogColor>[];
   String _brand = '';
+  String _flossBrand = '';
 
   /// Картинка после поворота и обрезки, в пикселях для конвейера.
   SourceImage? _image;
@@ -92,12 +95,18 @@ class ImageWizardCubit extends Cubit<ImageWizardState> {
   /// Загружает каталог и бренд по умолчанию: от них зависит режим «цвета каталога».
   Future<void> start() async {
     final Result<List<CatalogColor>> colors = await _catalog.search(material: CatalogMaterial.bead);
+    final Result<List<CatalogColor>> floss = await _catalog.search(material: CatalogMaterial.floss);
     final Result<String> brand = await _settings.read(SettingKeys.defaultBeadBrand);
+    final Result<String> flossBrand = await _settings.read(SettingKeys.defaultFlossBrand);
     if (isClosed) {
       return;
     }
-    _catalogColors = colors.valueOrNull ?? const <CatalogColor>[];
+    _catalogColors = <CatalogColor>[
+      ...?colors.valueOrNull,
+      ...?floss.valueOrNull,
+    ];
     _brand = brand.valueOrNull ?? '';
+    _flossBrand = flossBrand.valueOrNull ?? '';
     emit(state.copyWith(catalogColors: _countCatalog(state.settings)));
     if (_image != null) {
       _schedule(immediate: true);
@@ -236,6 +245,47 @@ class ImageWizardCubit extends Cubit<ImageWizardState> {
 
   void setTechnique(Technique technique) => _change(state.settings.copyWith(technique: technique));
 
+  /// Бисер или вышивка. Ширина, число цветов и контуры возвращаются к значениям по умолчанию ремесла: вышивка крупнее
+  /// бисера (ориентир A09 — около 150 крестиков и 30 цветов), и контуры-бэкстич для неё хорошо работают с самого начала.
+  void setCraft(Craft craft) {
+    final ImageToGridSettings now = state.settings;
+    if (now.craft == craft) {
+      return;
+    }
+    _change(
+      craft == Craft.crossStitch
+          ? now.copyWith(
+              technique: Technique.defaultFor(craft),
+              columns: ImageToGridSettings.defaultStitchColumns,
+              maxColors: ImageToGridSettings.defaultStitchColors,
+              backstitch: true,
+            )
+          : now.copyWith(
+              technique: Technique.defaultFor(craft),
+              columns: ImageToGridSettings.defaultColumns,
+              maxColors: ImageToGridSettings.defaultMaxColors,
+            ),
+    );
+  }
+
+  /// Другая канва: ширина работы в сантиметрах остаётся прежней, клетки пересчитываются.
+  void setFabric(Fabric fabric) {
+    final ImageToGridSettings now = state.settings;
+    _change(now.copyWith(fabric: fabric, columns: fabric.cellsForCm(now.widthCm)));
+  }
+
+  /// Цвет канвы: фон схемы (невышитые места).
+  void setFabricColor(Rgb color) => _change(state.settings.copyWith(fabric: state.settings.fabric.withColor(color)));
+
+  /// Ширина готовой вышивки в сантиметрах: клетки считаются по канве.
+  void setWidthCm(double cm) => _change(state.settings.copyWith(columns: state.settings.fabric.cellsForCm(cm)));
+
+  /// Контуры-бэкстич из картинки (T49).
+  void setBackstitch({required bool value}) => _change(state.settings.copyWith(backstitch: value));
+
+  /// Заменить области «посередине» двух ниток блендом (T57).
+  void setBlends({required bool value}) => _change(state.settings.copyWith(blends: value));
+
   void setBeadSize(BeadSize size) => _change(state.settings.copyWith(beadSize: size));
 
   void setColumns(int columns) => _change(state.settings.copyWith(columns: columns));
@@ -308,7 +358,10 @@ class ImageWizardCubit extends Cubit<ImageWizardState> {
     }
   }
 
-  int _countCatalog(ImageToGridSettings settings) => settings.catalogFor(_catalogColors, brand: _brand).length;
+  String _brandFor(ImageToGridSettings settings) => settings.craft == Craft.crossStitch ? _flossBrand : _brand;
+
+  int _countCatalog(ImageToGridSettings settings) =>
+      settings.catalogFor(_catalogColors, brand: _brandFor(settings)).length;
 
   /// Запрашивает расчёт; быстрые правки подряд сливаются в один полный расчёт после паузы.
   ///
@@ -355,7 +408,7 @@ class ImageWizardCubit extends Cubit<ImageWizardState> {
         settings.toRequest(
           image: image,
           catalog: _catalogColors,
-          brand: _brand,
+          brand: _brandFor(settings),
           importance: settings.useMasks ? _importance : null,
           masks: settings.useMasks ? state.masks : null,
           subjectMask: _subjectMask,
@@ -419,7 +472,7 @@ class ImageWizardCubit extends Cubit<ImageWizardState> {
     final Result<Project> created = await _create(
       name: state.name,
       technique: state.settings.technique,
-      metrics: state.settings.beadSize,
+      metrics: state.settings.metrics,
       pattern: pattern,
     );
     if (isClosed) {

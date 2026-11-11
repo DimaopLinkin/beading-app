@@ -55,6 +55,7 @@ class CreateGridPattern {
     Grid? grid,
     PaletteSnapshot? palette,
     String notes = '',
+    GridLayersBlob? layers,
   }) async {
     final Grid cells;
     try {
@@ -91,6 +92,7 @@ class CreateGridPattern {
       metrics: metrics,
       grid: cells,
       palette: colors,
+      layers: layers,
     );
     final Result<void> saved = await _patterns.save(pattern);
     if (saved case Err<void>(:final Failure failure)) {

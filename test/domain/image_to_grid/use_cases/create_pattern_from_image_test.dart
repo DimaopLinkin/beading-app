@@ -1,6 +1,7 @@
 import 'package:beading/core/failure.dart';
 import 'package:beading/core/result.dart';
 import 'package:beading/domain/grid/bead_size.dart';
+import 'package:beading/domain/grid/fabric.dart';
 import 'package:beading/domain/grid/grid.dart';
 import 'package:beading/domain/grid/grid_geometry.dart';
 import 'package:beading/domain/grid_pattern/grid_pattern.dart';
@@ -12,6 +13,10 @@ import 'package:beading/domain/palette/rgb.dart';
 import 'package:beading/domain/projects/craft.dart';
 import 'package:beading/domain/projects/project.dart';
 import 'package:beading/domain/projects/use_cases/create_project.dart';
+import 'package:beading/domain/stitch/lattice_node.dart';
+import 'package:beading/domain/stitch/line_stitch.dart';
+import 'package:beading/domain/stitch/stitch_layers.dart';
+import 'package:beading/domain/stitch/stitch_layers_codec.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import '../../../support/fake_clock.dart';
@@ -62,6 +67,43 @@ void main() {
     expect(saved.palette.length, 2);
     expect(saved.geometry, isA<PeyoteGeometry>());
     expect(saved.metrics, BeadSize.delica11);
+  });
+
+  test('бисерная схема сохраняется без слоёв и в ремесле «бисер»', () async {
+    final Project project = (await useCase(
+      name: 'Розы',
+      technique: Technique.loom,
+      metrics: BeadSize.delica11,
+      pattern: generated,
+    )).valueOrNull!;
+    expect(project.craft, Craft.beading);
+    expect(patterns.byProject[project.id]!.layers, isNull);
+  });
+
+  test('вышивка: ремесло, канва как размер клетки, контуры слоем и сложения по плотности канвы', () async {
+    final GeneratedPattern withLines = GeneratedPattern(
+      grid: generated.grid,
+      palette: generated.palette,
+      lines: <LineStitch>[
+        LineStitch(a: const LatticeNode(0, 0), b: const LatticeNode(2, 0), kind: LineKind.backstitch, color: 2),
+      ],
+    );
+    final Fabric aida18 = Fabric.create(kind: FabricKind.aida, count: 18).valueOrNull!;
+    final Project project = (await useCase(
+      name: 'Котик',
+      technique: Technique.crossStitch,
+      metrics: aida18,
+      pattern: withLines,
+    )).valueOrNull!;
+    expect(project.craft, Craft.crossStitch);
+    expect(project.technique, Technique.crossStitch);
+    final GridPattern saved = patterns.byProject[project.id]!;
+    expect(saved.metrics, aida18);
+    final StitchLayers layers = StitchLayersCodec.fromBlob(saved.layers!).valueOrNull!;
+    expect(layers.lines, withLines.lines);
+    expect(layers.defaultSpec.crossStrands, aida18.defaultCrossStrands);
+    expect(layers.columns, 3);
+    expect(layers.rows, 2);
   });
 
   test('пустое название — ошибка, проект не создаётся', () async {

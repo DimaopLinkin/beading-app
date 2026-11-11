@@ -2521,6 +2521,144 @@ abstract class AppLocalizations {
   /// **'Тёмная линия в одну бусину вокруг главного: силуэт виден сразу.'**
   String get imageWizardOutlineHint;
 
+  /// Заголовок выбора ремесла в мастере схемы по картинке
+  ///
+  /// In ru, this message translates to:
+  /// **'Что делаем'**
+  String get imageWizardCraft;
+
+  /// Ремесло в мастере: бисероплетение
+  ///
+  /// In ru, this message translates to:
+  /// **'Бисер'**
+  String get imageWizardCraftBeading;
+
+  /// Ремесло в мастере: вышивка крестиком
+  ///
+  /// In ru, this message translates to:
+  /// **'Вышивка'**
+  String get imageWizardCraftStitch;
+
+  /// Заголовок выбора канвы для вышивки
+  ///
+  /// In ru, this message translates to:
+  /// **'Канва'**
+  String get imageWizardFabric;
+
+  /// Канва Аида: плотность в клетках на дюйм
+  ///
+  /// In ru, this message translates to:
+  /// **'Аида {count}'**
+  String imageWizardFabricAida(int count);
+
+  /// Канва равномерка: нитей на дюйм и через сколько нитей крестик
+  ///
+  /// In ru, this message translates to:
+  /// **'Равномерка {count}, через {over}'**
+  String imageWizardFabricEvenweave(int count, int over);
+
+  /// Канва лён: нитей на дюйм и через сколько нитей крестик
+  ///
+  /// In ru, this message translates to:
+  /// **'Лён {count}, через {over}'**
+  String imageWizardFabricLinen(int count, int over);
+
+  /// Заголовок выбора цвета канвы
+  ///
+  /// In ru, this message translates to:
+  /// **'Цвет канвы'**
+  String get imageWizardFabricColor;
+
+  /// Цвет канвы
+  ///
+  /// In ru, this message translates to:
+  /// **'Белая'**
+  String get imageWizardCanvasWhite;
+
+  /// Цвет канвы
+  ///
+  /// In ru, this message translates to:
+  /// **'Молочная'**
+  String get imageWizardCanvasCream;
+
+  /// Цвет канвы
+  ///
+  /// In ru, this message translates to:
+  /// **'Под лён'**
+  String get imageWizardCanvasLinen;
+
+  /// Цвет канвы
+  ///
+  /// In ru, this message translates to:
+  /// **'Серая'**
+  String get imageWizardCanvasGray;
+
+  /// Цвет канвы
+  ///
+  /// In ru, this message translates to:
+  /// **'Чёрная'**
+  String get imageWizardCanvasBlack;
+
+  /// Заголовок ползунка ширины вышивки в сантиметрах
+  ///
+  /// In ru, this message translates to:
+  /// **'Ширина вышивки'**
+  String get imageWizardWidthCm;
+
+  /// Длина в сантиметрах
+  ///
+  /// In ru, this message translates to:
+  /// **'{cm} см'**
+  String imageWizardCm(String cm);
+
+  /// Размер схемы вышивки: клетки и сантиметры
+  ///
+  /// In ru, this message translates to:
+  /// **'{columns} × {rows} крестиков, {width} × {height} см'**
+  String imageWizardSizeStitch(int columns, int rows, String width, String height);
+
+  /// Заголовок выбора источника цветов для вышивки
+  ///
+  /// In ru, this message translates to:
+  /// **'Цвета мулине'**
+  String get imageWizardFlossPalette;
+
+  /// Пояснение, когда каталог мулине пуст
+  ///
+  /// In ru, this message translates to:
+  /// **'В каталоге нет мулине этого бренда, поэтому цвета подобраны свободно.'**
+  String get imageWizardFlossMissing;
+
+  /// Переключатель контуров-бэкстича
+  ///
+  /// In ru, this message translates to:
+  /// **'Контуры'**
+  String get imageWizardBackstitch;
+
+  /// Пояснение к контурам
+  ///
+  /// In ru, this message translates to:
+  /// **'Тёмная линия бэкстичем по краям предмета и резким границам: форма читается чётче.'**
+  String get imageWizardBackstitchHint;
+
+  /// Сколько стежков бэкстича получилось
+  ///
+  /// In ru, this message translates to:
+  /// **'{count, plural, one{{count} стежок контура} few{{count} стежка контура} many{{count} стежков контура} other{{count} стежков контура}}'**
+  String imageWizardBackstitchCount(int count);
+
+  /// Переключатель бленда мулине
+  ///
+  /// In ru, this message translates to:
+  /// **'Бленды из двух ниток'**
+  String get imageWizardBlends;
+
+  /// Пояснение к блендам: сколько предложений нашлось
+  ///
+  /// In ru, this message translates to:
+  /// **'{count, plural, one{Одно место} few{{count} места} many{{count} мест} other{{count} мест}} лучше выходит, если взять две нитки в иголку. Включите, и они заменят одиночные цвета.'**
+  String imageWizardBlendsHint(int count);
+
   /// Подсказка в поле названия схемы
   ///
   /// In ru, this message translates to:

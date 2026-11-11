@@ -15,6 +15,13 @@ Result<PaletteSnapshot> paletteFromGenerated(GeneratedPattern pattern) {
   PaletteSnapshot palette = PaletteSnapshot.empty();
   for (final PaletteEntry entry in pattern.palette) {
     final PatternColor color = switch (entry.catalog) {
+      final catalog? when entry.blendPartner != null => PatternColor.blend(
+        name: '${catalog.name} + ${entry.blendPartner!.name}',
+        parts: <BlendPart>[
+          BlendPart(ref: catalog.ref, rgb: catalog.rgb),
+          BlendPart(ref: entry.blendPartner!.ref, rgb: entry.blendPartner!.rgb),
+        ],
+      ),
       final catalog? => PatternColor(
         rgb: catalog.rgb,
         name: catalog.name,
