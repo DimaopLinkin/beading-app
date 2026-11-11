@@ -1,7 +1,7 @@
 ---
 id: 06-editor
 title: Редактор сеточной схемы (MUST-C1–C6)
-status: delivered
+status: accepted
 depends: 07-catalog-materials
 # порядок: сначала 07 (нужен T20), затем 06
 ---
