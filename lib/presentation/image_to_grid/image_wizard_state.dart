@@ -2,6 +2,7 @@ import 'dart:typed_data';
 
 import 'package:beading/domain/image_pattern/crop_rect.dart';
 import 'package:beading/domain/image_to_grid/generated_pattern.dart';
+import 'package:beading/domain/image_to_grid/image_mask_set.dart';
 import 'package:beading/domain/image_to_grid/image_to_grid_settings.dart';
 import 'package:beading/domain/palette/palette_snapshot.dart';
 import 'package:equatable/equatable.dart';
@@ -27,6 +28,7 @@ class ImageWizardState extends Equatable {
     this.calculating = false,
     this.catalogColors = 0,
     this.comparing = false,
+    this.masks,
     this.problem,
     this.projectId,
   });
@@ -63,6 +65,12 @@ class ImageWizardState extends Equatable {
   final bool comparing;
   final ImageWizardProblem? problem;
 
+  /// Маски и лица, найденные на подготовленной картинке (T48); `null` — Vision недоступен или ничего не нашёл.
+  final ImageMaskSet? masks;
+
+  /// Есть что выделять: показываем переключатель «Выделять главное».
+  bool get hasMasks => masks != null && !masks!.isEmpty;
+
   /// Созданный проект, когда [step] — [ImageWizardStep.done].
   final String? projectId;
 
@@ -87,10 +95,12 @@ class ImageWizardState extends Equatable {
     bool? calculating,
     int? catalogColors,
     bool? comparing,
+    ImageMaskSet? masks,
     ImageWizardProblem? problem,
     String? projectId,
     bool clearProblem = false,
     bool clearPreview = false,
+    bool clearMasks = false,
   }) => ImageWizardState(
     step: step ?? this.step,
     opening: opening ?? this.opening,
@@ -106,6 +116,7 @@ class ImageWizardState extends Equatable {
     calculating: calculating ?? this.calculating,
     catalogColors: catalogColors ?? this.catalogColors,
     comparing: comparing ?? this.comparing,
+    masks: clearMasks ? null : (masks ?? this.masks),
     problem: clearProblem ? null : (problem ?? this.problem),
     projectId: projectId ?? this.projectId,
   );
@@ -126,6 +137,7 @@ class ImageWizardState extends Equatable {
     calculating,
     catalogColors,
     comparing,
+    masks,
     problem,
     projectId,
   ];

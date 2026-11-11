@@ -35,6 +35,7 @@ final class AccessibilityChannel {
 @main
 @objc class AppDelegate: FlutterAppDelegate, FlutterImplicitEngineDelegate {
   private var accessibilityChannel: AccessibilityChannel?
+  private var imageMasksChannel: ImageMasksChannel?
 
   override func application(
     _ application: UIApplication,
@@ -47,6 +48,9 @@ final class AccessibilityChannel {
     GeneratedPluginRegistrant.register(with: engineBridge.pluginRegistry)
     if let registrar = engineBridge.pluginRegistry.registrar(forPlugin: "AccessibilityChannel") {
       accessibilityChannel = AccessibilityChannel(messenger: registrar.messenger())
+    }
+    if let registrar = engineBridge.pluginRegistry.registrar(forPlugin: "ImageMasksChannel") {
+      imageMasksChannel = ImageMasksChannel(messenger: registrar.messenger())
     }
   }
 }

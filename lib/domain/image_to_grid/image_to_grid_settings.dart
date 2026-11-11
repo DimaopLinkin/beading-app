@@ -40,6 +40,7 @@ final class ImageToGridSettings extends Equatable {
     this.maxColors = defaultMaxColors,
     this.paletteSource = PaletteSource.catalog,
     this.dither = false,
+    this.useMasks = true,
     this.preset = GenerationPreset.balanced,
     this.steps = const <PatternStep>[],
   });
@@ -65,6 +66,9 @@ final class ImageToGridSettings extends Equatable {
   final PaletteSource paletteSource;
   final bool dither;
 
+  /// Учитывать лица и объект, найденные на фото (T48), как «важное». Без найденных масок ни на что не влияет.
+  final bool useMasks;
+
   /// Предустановка стадий генератора: подготовка фото, палитра с акцентами, голосование, сглаживание и очистка.
   /// `null` — путь T24 без новых стадий (для сравнения и тестов).
   final GenerationPreset? preset;
@@ -85,6 +89,7 @@ final class ImageToGridSettings extends Equatable {
     int? maxColors,
     PaletteSource? paletteSource,
     bool? dither,
+    bool? useMasks,
     GenerationPreset? preset,
     bool clearPreset = false,
     List<PatternStep>? steps,
@@ -95,6 +100,7 @@ final class ImageToGridSettings extends Equatable {
     maxColors: (maxColors ?? this.maxColors).clamp(minColors, maxColorsLimit),
     paletteSource: paletteSource ?? this.paletteSource,
     dither: dither ?? this.dither,
+    useMasks: useMasks ?? this.useMasks,
     preset: clearPreset ? null : preset ?? this.preset,
     steps: steps ?? this.steps,
   );
@@ -165,5 +171,15 @@ final class ImageToGridSettings extends Equatable {
   }
 
   @override
-  List<Object?> get props => <Object?>[technique, beadSize, columns, maxColors, paletteSource, dither, preset, steps];
+  List<Object?> get props => <Object?>[
+    technique,
+    beadSize,
+    columns,
+    maxColors,
+    paletteSource,
+    dither,
+    useMasks,
+    preset,
+    steps,
+  ];
 }
