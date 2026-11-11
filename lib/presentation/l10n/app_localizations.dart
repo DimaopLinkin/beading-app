@@ -286,7 +286,7 @@ abstract class AppLocalizations {
   /// No description provided for @aboutCredits.
   ///
   /// In ru, this message translates to:
-  /// **'Цвета ниток DMC: craft-color-codes, MakeBead (makebead.com), лицензия CC BY 4.0. DMC — торговая марка DMC, приложение с ней не связано.'**
+  /// **'Цвета ниток DMC: craft-color-codes, MakeBead (makebead.com), лицензия CC BY 4.0. DMC — торговая марка DMC, приложение с ней не связано. Цвета ниток «Гамма»: карта цветов firma-gamma.ru; «Гамма» — торговая марка своего владельца, приложение с ней не связано.'**
   String get aboutCredits;
 
   /// No description provided for @aboutVersion.

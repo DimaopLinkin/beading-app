@@ -112,7 +112,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get aboutCredits =>
-      'Цвета ниток DMC: craft-color-codes, MakeBead (makebead.com), лицензия CC BY 4.0. DMC — торговая марка DMC, приложение с ней не связано.';
+      'Цвета ниток DMC: craft-color-codes, MakeBead (makebead.com), лицензия CC BY 4.0. DMC — торговая марка DMC, приложение с ней не связано. Цвета ниток «Гамма»: карта цветов firma-gamma.ru; «Гамма» — торговая марка своего владельца, приложение с ней не связано.';
 
   @override
   String aboutVersion(String version) {
