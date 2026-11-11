@@ -50,6 +50,15 @@ void main() {
         }
       }
       expect(worse, isEmpty);
+
+      // С каталогом Toho + Delica по всей галерее одиночных клеток у T53 меньше, чем у T24 (по отдельным фото бывает шум).
+      int t24Catalog = 0;
+      int t53Catalog = 0;
+      for (final GalleryRun run in runs) {
+        if (run.variant.id == 't24-catalog') t24Catalog += run.stats.singleCells;
+        if (run.variant.id == 't53-catalog') t53Catalog += run.stats.singleCells;
+      }
+      expect(t53Catalog, lessThan(t24Catalog));
       expect(
         baseline.keys.toSet().difference(runs.map((r) => r.key).toSet()),
         isEmpty,

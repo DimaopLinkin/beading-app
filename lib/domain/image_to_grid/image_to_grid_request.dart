@@ -78,6 +78,8 @@ final class ImageToGridRequest {
   /// Стадия 3: цены цветов и начальная разметка клеток. См. [paletteBuilder].
   final CellLabeler? labeler;
 
+  /// Дизеринг пиксельный путь не применяет: цвет клетки там выбирается голосованием пикселей (дизеринг по градиентам —
+  /// отдельная стадия T57).
   bool get usesPixelStages => paletteBuilder != null || labeler != null;
 
   /// Шаги после привязки к палитре, по порядку.
