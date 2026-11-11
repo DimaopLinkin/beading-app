@@ -2,6 +2,7 @@ import 'dart:typed_data';
 
 import 'package:beading/domain/image_to_grid/cell_costs.dart';
 import 'package:beading/domain/image_to_grid/cell_neighbors.dart';
+import 'package:equatable/equatable.dart';
 
 /// Стадия 4 конвейера (ADR-0004): сглаживание разметки по ценам цветов.
 abstract interface class LabelSmoother {
@@ -21,7 +22,7 @@ abstract interface class LabelSmoother {
 ///
 /// λ адаптивна: на однотонных местах больше (шум убирается), на сильных краях и под маской важности меньше (детали
 /// остаются). [detail] от 0 («гладко») до 1 («детально») двигает λ целиком: это ползунок «детальность ↔ гладкость».
-final class PottsLabelSmoother implements LabelSmoother {
+final class PottsLabelSmoother extends Equatable implements LabelSmoother {
   const PottsLabelSmoother({this.detail = 0.5, this.iterations = 4, this.edgeScale = 12})
     : assert(detail >= 0 && detail <= 1, 'detail от 0 до 1'),
       assert(iterations >= 1, 'iterations не меньше 1'),
@@ -32,6 +33,9 @@ final class PottsLabelSmoother implements LabelSmoother {
 
   /// Перепад Lab, при котором λ падает вдвое.
   final double edgeScale;
+
+  @override
+  List<Object?> get props => <Object?>[detail, iterations, edgeScale];
 
   /// λ клетки: базовая по детальности, делённая на важность и ослабленная краем.
   double lambdaFor({required double edge, required double importance}) {

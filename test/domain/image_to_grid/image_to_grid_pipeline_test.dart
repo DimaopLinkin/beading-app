@@ -201,9 +201,9 @@ void main() {
 
     test('дизеринг добавляет промежуточные тона на градиенте с двумя цветами', () {
       final SourceImage image = grayRamp(width: 100, height: 100);
-      final PaletteConstraint blackWhite = PaletteConstraint.list(<PaletteEntry>[
-        const PaletteEntry(rgb: Rgb(0, 0, 0)),
-        const PaletteEntry(rgb: Rgb(255, 255, 255)),
+      final PaletteConstraint blackWhite = PaletteConstraint.list(const <PaletteEntry>[
+        PaletteEntry(rgb: Rgb(0, 0, 0)),
+        PaletteEntry(rgb: Rgb(255, 255, 255)),
       ]);
 
       final GeneratedPattern plain = pipeline.run(
@@ -299,7 +299,7 @@ void main() {
 
       test('пустой список отклоняется', () {
         expect(
-          () => request(image, columns: 2, rows: 2, constraint: PaletteConstraint.list(<PaletteEntry>[])),
+          () => request(image, columns: 2, rows: 2, constraint: PaletteConstraint.list(const <PaletteEntry>[])),
           throwsArgumentError,
         );
       });

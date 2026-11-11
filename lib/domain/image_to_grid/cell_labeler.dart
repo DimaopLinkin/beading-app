@@ -5,6 +5,7 @@ import 'package:beading/domain/image_to_grid/cell_costs.dart';
 import 'package:beading/domain/image_to_grid/cell_regions.dart';
 import 'package:beading/domain/image_to_grid/work_image.dart';
 import 'package:beading/domain/palette/lab.dart';
+import 'package:equatable/equatable.dart';
 
 /// Результат разметки: номера цветов клеток (`1..`, `0` — пустая клетка) и цены всех цветов.
 final class LabeledCells {
@@ -23,8 +24,11 @@ abstract interface class CellLabeler {
 /// клетка берёт цвет с минимальной ценой.
 ///
 /// На границе двух областей 60/40 это цвет большей части, а не «грязная» смесь, которой нет в палитре.
-final class VotingCellLabeler implements CellLabeler {
+final class VotingCellLabeler extends Equatable implements CellLabeler {
   const VotingCellLabeler();
+
+  @override
+  List<Object?> get props => const <Object?>[];
 
   /// Клетка с долей непрозрачности ниже этой пуста (как в CellSampler).
   static const double emptyBelowAlpha = 0.5;

@@ -6,13 +6,14 @@ import 'package:beading/domain/image_to_grid/cell_neighbors.dart';
 import 'package:beading/domain/image_to_grid/generated_pattern.dart';
 import 'package:beading/domain/image_to_grid/pattern_step.dart';
 import 'package:beading/domain/palette/lab.dart';
+import 'package:equatable/equatable.dart';
 
 /// Шаг «острова» (стадия 5): связные области цвета меньше [minIsland] клеток перекрашиваются в соседний цвет с
 /// наименьшей ценой для этих клеток.
 ///
 /// Не трогает: области, где есть клетка под маской «важное» (вес больше [protectImportance]) или с краем в верхних
 /// [protectEdgeShare] долях клеток (глаза, блики), и тонкие линии — цепочки шириной в одну клетку длиной от трёх.
-final class RemoveIslandsStep implements PatternStep {
+final class RemoveIslandsStep extends Equatable implements PatternStep {
   const RemoveIslandsStep({this.minIsland = 3, this.protectEdgeShare = 0.05, this.protectImportance = 3})
     : assert(minIsland >= 2, 'minIsland не меньше 2'),
       assert(protectEdgeShare >= 0 && protectEdgeShare <= 1, 'protectEdgeShare от 0 до 1');
@@ -20,6 +21,9 @@ final class RemoveIslandsStep implements PatternStep {
   final int minIsland;
   final double protectEdgeShare;
   final double protectImportance;
+
+  @override
+  List<Object?> get props => <Object?>[minIsland, protectEdgeShare, protectImportance];
 
   @override
   GeneratedPattern apply(GeneratedPattern pattern, PatternStepContext context) {
@@ -109,11 +113,14 @@ final class RemoveIslandsStep implements PatternStep {
 
 /// Шаг «слияние»: два цвета с ΔE2000 меньше [maxDeltaE] сливаются, если площадь меньшего — меньше [maxArea] доли
 /// непустых клеток. Меньший цвет становится большим; палитру шаг не меняет, пустые записи убирает конвейер.
-final class MergeColorsStep implements PatternStep {
+final class MergeColorsStep extends Equatable implements PatternStep {
   const MergeColorsStep({this.maxDeltaE = 5, this.maxArea = 0.02});
 
   final double maxDeltaE;
   final double maxArea;
+
+  @override
+  List<Object?> get props => <Object?>[maxDeltaE, maxArea];
 
   @override
   GeneratedPattern apply(GeneratedPattern pattern, PatternStepContext context) {
