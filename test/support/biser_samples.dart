@@ -8,10 +8,12 @@ import 'package:beading/domain/grid_pattern/grid_pattern.dart';
 import 'package:beading/domain/grid_pattern/grid_progress.dart';
 import 'package:beading/domain/image_pattern/book_work/page_viewport.dart';
 import 'package:beading/domain/image_pattern/book_work/page_work.dart';
+import 'package:beading/domain/image_pattern/book_work/pattern_zone.dart';
 import 'package:beading/domain/image_pattern/book_work/ruler_state.dart';
 import 'package:beading/domain/projects/craft.dart';
 import 'package:beading/domain/projects/project.dart';
 import 'package:beading/domain/sharing/biser/biser_models.dart';
+import 'package:beading/domain/weaving/work_session.dart';
 
 import 'fake_grid_pattern.dart';
 
@@ -67,6 +69,7 @@ BiserBundle randomBundle(int seed, {int projects = 4}) {
             completedRows: rows,
             currentRow: random.nextBool() ? currentRow : null,
           ),
+          workSessions: sampleWorkSessions(id, i),
         ),
       );
     } else {
@@ -93,6 +96,11 @@ BiserBundle randomBundle(int seed, {int projects = 4}) {
                       highlight: RulerHighlight.values[random.nextInt(RulerHighlight.values.length)],
                       row: 1 + random.nextInt(30),
                       direction: RowDirection.values[random.nextInt(RowDirection.values.length)],
+                      // Зона и число рядов — по зерну, без генератора: остальные значения наборов не сдвигаются.
+                      zone: (seed + p).isEven
+                          ? PatternZone(top: 2.5 + p, bottom: 80.5 + seed, left: 1.25, right: 90 + p.toDouble())
+                          : null,
+                      rowCount: (seed + p) % 3 == 0 ? 10 + seed : null,
                     ),
                     viewport: PageViewport(
                       scale: 1 + random.nextDouble() * 3,
@@ -108,6 +116,7 @@ BiserBundle randomBundle(int seed, {int projects = 4}) {
           project: project,
           book: BiserBook(patternId: 'book-$id', pages: pages, currentPageId: random.nextBool() ? pages.last.id : null),
           coverPageId: random.nextBool() ? pages.first.id : null,
+          workSessions: sampleWorkSessions(id, i),
         ),
       );
     }
@@ -119,4 +128,18 @@ BiserBundle randomBundle(int seed, {int projects = 4}) {
     projects: items,
     files: files,
   );
+}
+
+/// Две сессии работы: законченная на 20 минут и вторая, которую ни разу не обновили. Без генератора: наборы не сдвигаются.
+List<WorkSession> sampleWorkSessions(String projectId, int index) {
+  final DateTime start = DateTime.utc(2026, 11, 1, 10 + index);
+  return <WorkSession>[
+    WorkSession(
+      id: 'imported-0',
+      projectId: projectId,
+      startedAt: start,
+      endedAt: start.add(const Duration(minutes: 20)),
+    ),
+    WorkSession(id: 'imported-1', projectId: projectId, startedAt: start.add(const Duration(days: 1))),
+  ];
 }

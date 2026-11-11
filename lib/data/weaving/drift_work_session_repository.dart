@@ -64,6 +64,25 @@ class DriftWorkSessionRepository implements WorkSessionRepository {
   });
 
   @override
+  Future<Result<void>> addAll(String projectId, List<WorkSession> sessions) => _withDevice<void>((deviceId) async {
+    final int now = _nowMs();
+    for (final WorkSession s in sessions) {
+      await _dao.insertRow(
+        WorkSessionsCompanion.insert(
+          id: _ids.next(),
+          projectId: projectId,
+          startedAt: s.startedAt.millisecondsSinceEpoch,
+          endedAt: Value<int?>(s.endedAt?.millisecondsSinceEpoch),
+          createdAt: now,
+          updatedAt: now,
+          deviceId: deviceId,
+        ),
+      );
+    }
+    return const Success<void>(null);
+  });
+
+  @override
   Future<Result<List<WorkSession>>> byProject(String projectId) => guardStorage<List<WorkSession>>(
     () async => <WorkSession>[for (final WorkSessionRow row in await _dao.aliveByProject(projectId)) _toDomain(row)],
   );

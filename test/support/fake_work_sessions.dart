@@ -38,6 +38,20 @@ class FakeWorkSessionRepository implements WorkSessionRepository {
   }
 
   @override
+  Future<Result<void>> addAll(String projectId, List<WorkSession> added) async {
+    for (final WorkSession s in added) {
+      final WorkSession session = WorkSession(
+        id: 'ws-${++_next}',
+        projectId: projectId,
+        startedAt: s.startedAt,
+        endedAt: s.endedAt,
+      );
+      sessions[session.id] = session;
+    }
+    return const Success<void>(null);
+  }
+
+  @override
   Future<Result<List<WorkSession>>> byProject(String projectId) async =>
       Success<List<WorkSession>>(sessions.values.where((s) => s.projectId == projectId).toList());
 
