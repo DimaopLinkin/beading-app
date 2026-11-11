@@ -969,5 +969,13 @@
   "imageWizardProblemSave": "Не удалось сохранить схему. Попробуйте ещё раз.",
   "@imageWizardProblemSave": {"description": "Ошибка сохранения"},
   "imageWizardProblemName": "Дайте схеме название (до 120 символов).",
-  "@imageWizardProblemName": {"description": "Ошибка названия"}
+  "@imageWizardProblemName": {"description": "Ошибка названия"},
+  "startupFailedTitle": "Не удалось открыть данные",
+  "@startupFailedTitle": {
+    "description": "Заголовок экрана, если при запуске не открылась база данных"
+  },
+  "startupFailedBody": "Приложение не смогло открыть свои данные. Ничего не удалено: закройте приложение и откройте его снова. Если это повторяется, покажите разработчику текст ниже.",
+  "@startupFailedBody": {
+    "description": "Пояснение на экране ошибки запуска"
+  }
 }

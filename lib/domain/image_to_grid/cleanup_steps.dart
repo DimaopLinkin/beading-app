@@ -11,10 +11,10 @@ import 'package:equatable/equatable.dart';
 /// Шаг «острова» (стадия 5): связные области цвета меньше [minIsland] клеток перекрашиваются в соседний цвет с
 /// наименьшей ценой для этих клеток.
 ///
-/// Не трогает: области, где есть клетка под маской «важное» (вес больше [protectImportance]) или с краем в верхних
+/// Не трогает: области, где есть клетка под маской «важное» (вес больше [protectImportance]; рамка лица весит 4 и сама не защищает, чтобы внутри лица одиночные клетки чистились, а черты лица защищены отдельно) или с краем в верхних
 /// [protectEdgeShare] долях клеток (глаза, блики), и тонкие линии — цепочки шириной в одну клетку длиной от трёх.
 final class RemoveIslandsStep extends Equatable implements PatternStep {
-  const RemoveIslandsStep({this.minIsland = 3, this.protectEdgeShare = 0.05, this.protectImportance = 3})
+  const RemoveIslandsStep({this.minIsland = 3, this.protectEdgeShare = 0.05, this.protectImportance = 4})
     : assert(minIsland >= 2, 'minIsland не меньше 2'),
       assert(protectEdgeShare >= 0 && protectEdgeShare <= 1, 'protectEdgeShare от 0 до 1');
 

@@ -2568,6 +2568,18 @@ abstract class AppLocalizations {
   /// In ru, this message translates to:
   /// **'Дайте схеме название (до 120 символов).'**
   String get imageWizardProblemName;
+
+  /// Заголовок экрана, если при запуске не открылась база данных
+  ///
+  /// In ru, this message translates to:
+  /// **'Не удалось открыть данные'**
+  String get startupFailedTitle;
+
+  /// Пояснение на экране ошибки запуска
+  ///
+  /// In ru, this message translates to:
+  /// **'Приложение не смогло открыть свои данные. Ничего не удалено: закройте приложение и откройте его снова. Если это повторяется, покажите разработчику текст ниже.'**
+  String get startupFailedBody;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

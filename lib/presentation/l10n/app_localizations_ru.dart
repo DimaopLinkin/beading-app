@@ -1364,4 +1364,11 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get imageWizardProblemName => 'Дайте схеме название (до 120 символов).';
+
+  @override
+  String get startupFailedTitle => 'Не удалось открыть данные';
+
+  @override
+  String get startupFailedBody =>
+      'Приложение не смогло открыть свои данные. Ничего не удалено: закройте приложение и откройте его снова. Если это повторяется, покажите разработчику текст ниже.';
 }
