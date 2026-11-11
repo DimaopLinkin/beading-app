@@ -11,6 +11,7 @@ import 'package:beading/domain/image_to_grid/palette_builder.dart';
 import 'package:beading/domain/image_to_grid/palette_constraint.dart';
 import 'package:beading/domain/image_to_grid/pattern_step.dart';
 import 'package:beading/domain/image_to_grid/source_image.dart';
+import 'package:beading/domain/image_to_grid/work_image.dart';
 import 'package:beading/domain/palette/palette_snapshot.dart';
 
 /// Все входные данные конвейера «картинка → схема».
@@ -32,6 +33,7 @@ final class ImageToGridRequest {
     this.smoother,
     this.refillFreedColors = false,
     this.faces,
+    this.draft = false,
     this.steps = const <PatternStep>[],
   }) {
     if (columns < 1 || columns > Grid.maxSide) throw ArgumentError.value(columns, 'columns', 'от 1 до ${Grid.maxSide}');
@@ -94,6 +96,32 @@ final class ImageToGridRequest {
   /// Лица на фото (T54): отдельные цвета кожи, защита черт, зрачки и губы. Работает только на пиксельном пути; нужны
   /// `FaceAwarePaletteBuilder` и `FaceFeatureStep`. `null` — лиц нет или они не нужны.
   final FaceGuide? faces;
+
+  /// Черновик для предпросмотра при движении ползунка (T58): рабочая картинка в [WorkImage.draftScale] пикселя на клетку.
+  /// Такой результат показывают, но не сохраняют: после паузы мастер считает полный. Путь T24 черновик не знает.
+  final bool draft;
+
+  /// Тот же запрос на другой картинке (и маске): так изолят сессии подставляет картинку, которую уже получил.
+  ImageToGridRequest withSource({required SourceImage image, Float32List? importance}) => ImageToGridRequest(
+    image: image,
+    geometry: geometry,
+    metrics: metrics,
+    columns: columns,
+    rows: rows,
+    maxColors: maxColors,
+    constraint: constraint,
+    importance: importance,
+    dither: dither,
+    seed: seed,
+    prefilter: prefilter,
+    paletteBuilder: paletteBuilder,
+    labeler: labeler,
+    smoother: smoother,
+    refillFreedColors: refillFreedColors,
+    faces: faces,
+    draft: draft,
+    steps: steps,
+  );
 
   bool get usesPixelStages => paletteBuilder != null || labeler != null || smoother != null;
 

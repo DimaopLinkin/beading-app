@@ -1,12 +1,15 @@
 import 'package:beading/domain/catalog/catalog_color.dart';
 import 'package:beading/domain/catalog/catalog_material.dart';
 import 'package:beading/domain/image_to_grid/palette_entry.dart';
+import 'package:equatable/equatable.dart';
 
 /// Из каких цветов можно собирать схему.
 ///
+/// Равенство по значению: два запроса с одним списком допустимых цветов дают один ключ кеша стадий (T58).
+///
 /// Три режима: свободно ([PaletteConstraint.free]), только каталог выбранного материала и бренда
 /// ([PaletteConstraint.catalog]) и заданный список ([PaletteConstraint.list]), например запасы бисера.
-final class PaletteConstraint {
+final class PaletteConstraint extends Equatable {
   /// Любые цвета: палитра берётся из самой картинки.
   const PaletteConstraint.free() : candidates = null;
 
@@ -35,4 +38,7 @@ final class PaletteConstraint {
   final List<PaletteEntry>? candidates;
 
   bool get isFree => candidates == null;
+
+  @override
+  List<Object?> get props => <Object?>[candidates];
 }

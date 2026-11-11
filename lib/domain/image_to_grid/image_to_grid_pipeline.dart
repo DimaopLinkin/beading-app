@@ -40,7 +40,9 @@ final class ImageToGridPipeline {
   final LabQuantizer quantizer;
   final ColorAssigner assigner;
 
-  GeneratedPattern run(ImageToGridRequest request) {
+  /// Один расчёт. С [cache] стадии, чьи входные данные не изменились с прошлого запуска, не пересчитываются
+  /// (T58, [ImageToGridSession]); результат тот же, что без кеша. Кеш работает только на пиксельном пути.
+  GeneratedPattern run(ImageToGridRequest request, {PixelStageCache? cache}) {
     final Stopwatch clock = Stopwatch()..start();
     final Map<String, Duration> times = <String, Duration>{};
     Duration lap() {
@@ -49,7 +51,7 @@ final class ImageToGridPipeline {
       return elapsed;
     }
 
-    if (request.usesPixelStages) return _runPixelStages(request, clock, times, lap);
+    if (request.usesPixelStages) return _runPixelStages(request, clock, times, lap, cache ?? PixelStageCache());
 
     SourceImage image = request.image;
     Float32List? importance = request.importance;
@@ -105,75 +107,95 @@ final class ImageToGridPipeline {
   }
 
   /// Путь по ADR-0004: рабочее изображение → палитра по пикселям → цвет клетки голосованием → шаги с ценами цветов.
+  ///
+  /// Три группы стадий кешируются по значениям, от которых зависят: подготовка (картинка, размер схемы, фильтр),
+  /// палитра (+ число цветов, ограничение, зерно) и разметка (+ разметчик). Сглаживание и очистка считаются каждый раз.
   GeneratedPattern _runPixelStages(
     ImageToGridRequest request,
     Stopwatch clock,
     Map<String, Duration> times,
     Duration Function() lap,
+    PixelStageCache cache,
   ) {
-    WorkImage work = WorkImage.fromSource(
-      image: request.image,
-      importance: request.importance,
-      geometry: request.geometry,
-      metrics: request.metrics,
-      columns: request.columns,
-      rows: request.rows,
-    );
-    final ImagePrefilter? prefilter = request.prefilter;
-    if (prefilter != null) {
-      work = prefilter.apply(work);
-      times['prefilter'] = lap();
-    }
-    // Цвета клеток нужны только для важности клеток и метрики ΔE: средние по рабочей картинке, как в пути T24.
-    final SampledCells cells = sampler.sample(
-      image: work.toSourceImage(),
-      importance: work.importance,
-      geometry: request.geometry,
-      metrics: request.metrics,
-      columns: request.columns,
-      rows: request.rows,
-    );
-    final CellRegions regions = CellRegions.forGrid(
-      geometry: request.geometry,
-      metrics: request.metrics,
-      columns: request.columns,
-      rows: request.rows,
-      imageWidth: work.width,
-      imageHeight: work.height,
-    );
-    final FaceGuide? faceGuide = (request.faces?.isEmpty ?? true) ? null : request.faces;
-    times['sample'] = lap();
-    final List<PaletteEntry> palette = (request.paletteBuilder ?? const AccentPaletteBuilder()).build(
-      PaletteRequest(
-        work: work,
-        maxColors: request.maxColors,
-        constraint: request.constraint,
-        seed: request.seed,
-        regions: regions,
-        skinPixels: faceGuide?.skinPixels(work.width, work.height),
-      ),
-    );
-    times['palette'] = lap();
-    final LabeledCells labeled = (request.labeler ?? const VotingCellLabeler()).label(
-      work: work,
-      regions: regions,
-      palette: <Lab>[for (final PaletteEntry e in palette) Lab.fromRgb(e.rgb)],
-    );
-    final int singlesBefore = countSingleCells(
-      Grid.fromCells(width: cells.columns, height: cells.rows, cells: labeled.values.toList()),
+    // Стадии, взятые из кеша, стоят ноль: набор ключей не зависит от кеша.
+    times['sample'] = times['palette'] = Duration.zero;
+    final List<Object?> prepareKey = <Object?>[
+      request.image,
+      request.importance,
       request.geometry,
-    );
-    final CellNeighbors neighbors = CellNeighbors.of(
-      geometry: request.geometry,
-      columns: cells.columns,
-      rows: cells.rows,
-    );
-    final Float32List edges = cellEdges(work, regions);
+      request.metrics,
+      request.columns,
+      request.rows,
+      request.draft,
+      request.prefilter,
+      request.faces,
+    ];
+    _Prepared? prepared = cache._prepared;
+    if (prepared == null || !_sameKey(cache._prepareKey, prepareKey)) {
+      cache
+        .._prepared = null
+        .._palette = null
+        .._labeled = null;
+      prepared = _prepare(request);
+      cache
+        .._prepareKey = prepareKey
+        .._prepared = prepared;
+      times['sample'] = lap();
+    }
+    final SampledCells cells = prepared.cells;
+    final CellRegions regions = prepared.regions;
+    final WorkImage work = prepared.work;
+
+    final PaletteBuilder paletteBuilder = request.paletteBuilder ?? const AccentPaletteBuilder();
+    final List<Object?> paletteKey = <Object?>[request.maxColors, request.constraint, request.seed, paletteBuilder];
+    List<PaletteEntry>? palette = cache._palette;
+    if (palette == null || !_sameKey(cache._paletteKey, paletteKey)) {
+      cache
+        .._labeled = null
+        .._palette = null;
+      palette = paletteBuilder.build(
+        PaletteRequest(
+          work: work,
+          maxColors: request.maxColors,
+          constraint: request.constraint,
+          seed: request.seed,
+          regions: regions,
+          skinPixels: prepared.skin,
+        ),
+      );
+      cache
+        .._paletteKey = paletteKey
+        .._palette = palette;
+      times['palette'] = lap();
+    }
+
+    final CellLabeler labeler = request.labeler ?? const VotingCellLabeler();
+    _Labeled? labeledStage = cache._labeled;
+    if (labeledStage == null || labeledStage.labeler != labeler) {
+      final LabeledCells labeled = labeler.label(
+        work: work,
+        regions: regions,
+        palette: <Lab>[for (final PaletteEntry e in palette) Lab.fromRgb(e.rgb)],
+      );
+      labeledStage = _Labeled(
+        labeler: labeler,
+        labeled: labeled,
+        singlesBefore: countSingleCells(
+          Grid.fromCells(width: cells.columns, height: cells.rows, cells: labeled.values.toList()),
+          request.geometry,
+        ),
+      );
+      cache._labeled = labeledStage;
+    }
+    final LabeledCells labeled = labeledStage.labeled;
+    final int singlesBefore = labeledStage.singlesBefore;
+    final CellNeighbors neighbors = prepared.neighbors;
+    final Float32List edges = prepared.edges;
     final LabelSmoother? smoother = request.smoother;
     final Uint16List values = smoother == null
         ? labeled.values
         : smoother.smooth(
-            values: labeled.values,
+            values: Uint16List.fromList(labeled.values),
             costs: labeled.costs,
             neighbors: neighbors,
             importance: cells.importance,
@@ -187,7 +209,7 @@ final class ImageToGridPipeline {
       cellImportance: cells.importance,
       costs: labeled.costs.select(order),
       cellEdges: edges,
-      faces: faceGuide?.cells(regions, workWidth: work.width, workHeight: work.height),
+      faces: prepared.faceCells,
     );
     for (final PatternStep step in request.steps) {
       pattern = step.apply(pattern, context);
@@ -217,6 +239,48 @@ final class ImageToGridPipeline {
         times,
         singlesBefore: request.steps.isEmpty && smoother == null ? null : singlesBefore,
       ),
+    );
+  }
+
+  /// Первая группа стадий пиксельного пути: рабочая картинка, фильтр, цвета клеток, области, соседи и края.
+  _Prepared _prepare(ImageToGridRequest request) {
+    WorkImage work = WorkImage.fromSource(
+      image: request.image,
+      importance: request.importance,
+      geometry: request.geometry,
+      metrics: request.metrics,
+      columns: request.columns,
+      rows: request.rows,
+      scale: request.draft ? WorkImage.draftScale : null,
+    );
+    final ImagePrefilter? prefilter = request.prefilter;
+    if (prefilter != null) work = prefilter.apply(work);
+    // Цвета клеток нужны только для важности клеток и метрики ΔE: средние по рабочей картинке, как в пути T24.
+    final SampledCells cells = sampler.sample(
+      image: work.toSourceImage(),
+      importance: work.importance,
+      geometry: request.geometry,
+      metrics: request.metrics,
+      columns: request.columns,
+      rows: request.rows,
+    );
+    final CellRegions regions = CellRegions.forGrid(
+      geometry: request.geometry,
+      metrics: request.metrics,
+      columns: request.columns,
+      rows: request.rows,
+      imageWidth: work.width,
+      imageHeight: work.height,
+    );
+    final FaceGuide? faces = (request.faces?.isEmpty ?? true) ? null : request.faces;
+    return _Prepared(
+      skin: faces?.skinPixels(work.width, work.height),
+      faceCells: faces?.cells(regions, workWidth: work.width, workHeight: work.height),
+      work: work,
+      cells: cells,
+      regions: regions,
+      neighbors: CellNeighbors.of(geometry: request.geometry, columns: cells.columns, rows: cells.rows),
+      edges: cellEdges(work, regions),
     );
   }
 
@@ -341,4 +405,57 @@ final class ImageToGridPipeline {
       order,
     );
   }
+}
+
+/// Результаты стадий пиксельного пути между запусками одной сессии (T58).
+///
+/// Хранит только последние результаты; ключ каждой группы — значения, от которых она зависит. Совпал ключ — стадия
+/// не считается заново, изменился — пересчитывается она и все после неё.
+final class PixelStageCache {
+  List<Object?>? _prepareKey;
+  _Prepared? _prepared;
+  List<Object?>? _paletteKey;
+  List<PaletteEntry>? _palette;
+  _Labeled? _labeled;
+}
+
+final class _Prepared {
+  const _Prepared({
+    required this.skin,
+    required this.faceCells,
+    required this.work,
+    required this.cells,
+    required this.regions,
+    required this.neighbors,
+    required this.edges,
+  });
+
+  /// Пиксели кожи и клетки лиц (T54) или `null`, если лиц нет.
+  final Uint8List? skin;
+  final FaceCells? faceCells;
+  final WorkImage work;
+  final SampledCells cells;
+  final CellRegions regions;
+  final CellNeighbors neighbors;
+  final Float32List edges;
+}
+
+final class _Labeled {
+  const _Labeled({required this.labeler, required this.labeled, required this.singlesBefore});
+
+  final CellLabeler labeler;
+  final LabeledCells labeled;
+  final int singlesBefore;
+}
+
+bool _sameKey(List<Object?>? a, List<Object?> b) {
+  if (a == null || a.length != b.length) return false;
+  for (int i = 0; i < a.length; i++) {
+    // Картинку и маску сравниваем по тождеству: перебирать мегабайты пикселей незачем.
+    final bool same = a[i] is SourceImage || a[i] is Float32List || a[i] is FaceGuide
+        ? identical(a[i], b[i])
+        : a[i] == b[i];
+    if (!same) return false;
+  }
+  return true;
 }
