@@ -87,8 +87,8 @@ Float32List boxBlur(Float32List data, int w, int h, int r) {
   return out;
 }
 
-/// Палитра с настоящими крайними тонами: самый тёмный и самый светлый цвет палитры сдвигаются к 1-му и 99-му
-/// перцентилю светлоты рабочих пикселей (k-means даёт средние, поэтому чёрного и белого в схеме нет).
+/// Палитра с настоящими крайними тонами: самый тёмный и самый светлый цвет палитры сдвигаются к 2-му и 98-му
+/// перцентилю светлоты рабочих пикселей (если палитра до них не дотягивает).
 final class RangePaletteBuilder implements PaletteBuilder {
   const RangePaletteBuilder({this.inner = const AccentPaletteBuilder(), this.low = 0.02, this.high = 0.98});
 
@@ -125,8 +125,8 @@ final class RangePaletteBuilder implements PaletteBuilder {
       if (labs[i].l > labs[light].l) light = i;
     }
     log.add(
-      'палитра L ${labs[dark].l.toStringAsFixed(0)}..${labs[light].l.toStringAsFixed(0)}, '
-      'фото 1–99 % L ${pLow.toStringAsFixed(0)}..${pHigh.toStringAsFixed(0)}',
+      'палитра до сдвига L ${labs[dark].l.toStringAsFixed(0)}..${labs[light].l.toStringAsFixed(0)}, '
+      'фото 2–98 % L ${pLow.toStringAsFixed(0)}..${pHigh.toStringAsFixed(0)}',
     );
     if (pLow < labs[dark].l) labs[dark] = Lab(pLow, labs[dark].a, labs[dark].b);
     if (pHigh > labs[light].l) labs[light] = Lab(pHigh, labs[light].a, labs[light].b);
