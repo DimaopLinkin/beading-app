@@ -3,6 +3,7 @@ import 'package:beading/domain/grid/cell_position.dart';
 import 'package:beading/domain/grid/fabric.dart';
 import 'package:beading/domain/grid/grid.dart';
 import 'package:beading/domain/grid/grid_geometry.dart';
+import 'package:beading/domain/materials/floss_estimate.dart';
 import 'package:beading/domain/stitch/stitch_layers.dart';
 import 'package:beading/domain/stitch/stitch_legend.dart';
 import 'package:beading/presentation/grid_pattern/grid_layer_cache.dart';
@@ -143,6 +144,25 @@ void main() {
       expect(find.textContaining('крестик в 3 нитки'), findsOneWidget);
       expect(find.textContaining('бэкстич'), findsWidgets);
       expect(find.textContaining('крестик'), findsWidgets);
+    });
+
+    testWidgets('мотки показаны, когда легенда построена с расчётом мулине', (tester) async {
+      final FlossEstimate floss = FlossEstimator(
+        fabric: Fabric.standard,
+        layers: stitchLayers(),
+      ).estimate(stitchGrid(), stitchPalette());
+      await pumpGlass(
+        tester,
+        StitchLegendView(
+          entries: StitchLegend.build(
+            grid: stitchGrid(),
+            palette: stitchPalette(),
+            layers: stitchLayers(),
+            floss: floss,
+          ),
+        ),
+      );
+      expect(find.textContaining('1 моток'), findsWidgets);
     });
 
     testWidgets('касание подсвечивает цвет, повторное снимает', (tester) async {
