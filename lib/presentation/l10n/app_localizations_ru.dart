@@ -1293,6 +1293,24 @@ class AppLocalizationsRu extends AppLocalizations {
   String get imageWizardUseMasksHint => 'Лица и главный предмет получают больше цветов и деталей, фон — меньше.';
 
   @override
+  String get imageWizardBackground => 'Фон';
+
+  @override
+  String get imageWizardBackgroundKeep => 'Оставить';
+
+  @override
+  String get imageWizardBackgroundSimplify => 'Упростить';
+
+  @override
+  String get imageWizardBackgroundRemove => 'Убрать';
+
+  @override
+  String get imageWizardOutline => 'Обводка';
+
+  @override
+  String get imageWizardOutlineHint => 'Тёмная линия в одну бусину вокруг главного: силуэт виден сразу.';
+
+  @override
   String get imageWizardName => 'Название';
 
   @override

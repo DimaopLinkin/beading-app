@@ -9,6 +9,7 @@ import 'package:beading/domain/grid/grid.dart';
 import 'package:beading/domain/grid_pattern/use_cases/create_grid_pattern.dart';
 import 'package:beading/domain/image_pattern/crop_rect.dart';
 import 'package:beading/domain/image_pattern/picked_book_file.dart';
+import 'package:beading/domain/image_to_grid/background_stage.dart';
 import 'package:beading/domain/image_to_grid/generated_pattern.dart';
 import 'package:beading/domain/image_to_grid/image_decoder.dart';
 import 'package:beading/domain/image_to_grid/image_mask_set.dart';
@@ -170,6 +171,26 @@ void main() {
       cubit.setUseMasks(value: true);
       await Future<void>.delayed(Duration.zero);
       expect(runner.requests.last.importance, isNotNull);
+    });
+
+    test('маска объекта и настройки фона и обводки попадают в запрос', () async {
+      masks.result = ImageMaskSet(width: 20, height: 40, subject: Uint8List(20 * 40)..fillRange(0, 200, 255));
+      await pick();
+      expect(cubit.state.hasSubject, isTrue);
+      expect(runner.requests.single.subjectMask, hasLength(20 * 40));
+      runner.completers.last.complete(_pattern(1));
+      await Future<void>.delayed(Duration.zero);
+      cubit.setBackground(BackgroundMode.remove);
+      cubit.setOutline(value: true);
+      await Future<void>.delayed(Duration.zero);
+      expect(runner.requests.last.background, BackgroundMode.remove);
+      expect(runner.requests.last.outline, isTrue);
+    });
+
+    test('без маски объекта настройка фона не показывается', () async {
+      masks.result = withFace();
+      await pick();
+      expect(cubit.state.hasSubject, isFalse);
     });
 
     test('ошибка Vision — мастер работает без масок', () async {

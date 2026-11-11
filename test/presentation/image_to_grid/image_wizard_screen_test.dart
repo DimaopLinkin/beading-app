@@ -151,6 +151,24 @@ void main() {
     expect(cubit.state.settings.useMasks, isFalse);
   });
 
+  testWidgets('нашёлся предмет — настройки «Фон» и «Обводка» видны и меняют настройки', (tester) async {
+    masks.result = ImageMaskSet(width: 10, height: 10, subject: Uint8List(100)..fillRange(0, 50, 255));
+    await openPhoto(tester, AppTheme.light);
+    final Finder outline = find.byKey(const ValueKey<String>('wizard-outline'));
+    await tester.scrollUntilVisible(outline, 200, scrollable: find.byType(Scrollable).last);
+    await tester.tap(outline);
+    await tester.pumpAndSettle();
+    expect(cubit.state.settings.outline, isTrue);
+    await tester.tap(find.text('Убрать'));
+    await tester.pumpAndSettle();
+    expect(cubit.state.settings.background.name, 'remove');
+  });
+
+  testWidgets('без предмета настроек фона нет', (tester) async {
+    await openPhoto(tester, AppTheme.light);
+    expect(find.byKey(const ValueKey<String>('wizard-outline'), skipOffstage: false), findsNothing);
+  });
+
   testWidgets('на Mac кнопки камеры нет', (tester) async {
     await tester.pumpWidget(wrap(AppTheme.light, camera: false));
     expect(find.text('Сделать снимок'), findsNothing);

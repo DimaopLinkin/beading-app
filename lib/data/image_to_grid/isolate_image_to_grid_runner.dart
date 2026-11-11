@@ -30,6 +30,7 @@ final class IsolateImageToGridRunner implements ImageToGridRunner {
 
   SourceImage? _sentImage;
   Float32List? _sentImportance;
+  Uint8List? _sentMask;
 
   /// Картинка-заглушка в запросах без пикселей.
   static final SourceImage _placeholder = SourceImage(width: 1, height: 1, rgba: Uint8List(4));
@@ -37,9 +38,13 @@ final class IsolateImageToGridRunner implements ImageToGridRunner {
   @override
   Future<GeneratedPattern> run(ImageToGridRequest request) async {
     final SendPort worker = await _start();
-    final bool carriesImage = !identical(request.image, _sentImage) || !identical(request.importance, _sentImportance);
+    final bool carriesImage =
+        !identical(request.image, _sentImage) ||
+        !identical(request.importance, _sentImportance) ||
+        !identical(request.subjectMask, _sentMask);
     _sentImage = request.image;
     _sentImportance = request.importance;
+    _sentMask = request.subjectMask;
     final int id = _nextId++;
     final Completer<GeneratedPattern> completer = Completer<GeneratedPattern>();
     _pending[id] = completer;
@@ -55,6 +60,7 @@ final class IsolateImageToGridRunner implements ImageToGridRunner {
     _worker = null;
     _sentImage = null;
     _sentImportance = null;
+    _sentMask = null;
     _replies?.close();
     _replies = null;
     _isolate?.kill(priority: Isolate.immediate);
@@ -138,17 +144,19 @@ void _serve((SendPort, ImageToGridPipeline) args) {
   final ImageToGridSession session = ImageToGridSession(pipeline: pipeline);
   SourceImage? image;
   Float32List? importance;
+  Uint8List? subjectMask;
   jobs.listen((message) {
     if (message is! _Job) return;
     try {
       if (message.carriesImage) {
         image = message.request.image;
         importance = message.request.importance;
+        subjectMask = message.request.subjectMask;
       }
       final SourceImage? held = image;
       final ImageToGridRequest request = held == null
           ? message.request
-          : message.request.withSource(image: held, importance: importance);
+          : message.request.withSource(image: held, importance: importance, subjectMask: subjectMask);
       reply.send(_Done(message.id, pattern: session.run(request)));
     } on Object catch (error) {
       reply.send(_Done(message.id, error: error.toString()));

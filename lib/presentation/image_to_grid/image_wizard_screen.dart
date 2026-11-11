@@ -3,6 +3,7 @@ import 'dart:io' show Platform;
 import 'package:beading/domain/grid/bead_size.dart';
 import 'package:beading/domain/grid/grid.dart';
 import 'package:beading/domain/image_pattern/crop_rect.dart';
+import 'package:beading/domain/image_to_grid/background_stage.dart';
 import 'package:beading/domain/image_to_grid/generation_preset.dart';
 import 'package:beading/domain/image_to_grid/image_to_grid_settings.dart';
 import 'package:beading/domain/projects/craft.dart';
@@ -311,6 +312,46 @@ class _EditState extends State<_Edit> {
                   },
                 ),
               ),
+              if (state.hasSubject) ...<Widget>[
+                _Section(
+                  title: l10n.imageWizardBackground,
+                  child: CupertinoSlidingSegmentedControl<BackgroundMode>(
+                    key: const ValueKey<String>('wizard-background'),
+                    groupValue: settings.background,
+                    children: <BackgroundMode, Widget>{
+                      BackgroundMode.keep: _SegmentLabel(l10n.imageWizardBackgroundKeep),
+                      BackgroundMode.simplify: _SegmentLabel(l10n.imageWizardBackgroundSimplify),
+                      BackgroundMode.remove: _SegmentLabel(l10n.imageWizardBackgroundRemove),
+                    },
+                    onValueChanged: (value) {
+                      if (value != null) {
+                        cubit.setBackground(value);
+                      }
+                    },
+                  ),
+                ),
+                MergeSemantics(
+                  child: Row(
+                    children: <Widget>[
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: <Widget>[
+                            Text(l10n.imageWizardOutline),
+                            Text(l10n.imageWizardOutlineHint, style: caption),
+                          ],
+                        ),
+                      ),
+                      CupertinoSwitch(
+                        key: const ValueKey<String>('wizard-outline'),
+                        value: settings.outline,
+                        onChanged: (value) => cubit.setOutline(value: value),
+                      ),
+                    ],
+                  ),
+                ),
+                SizedBox(height: gap),
+              ],
               _Section(
                 title: l10n.imageWizardPalette,
                 child: Column(

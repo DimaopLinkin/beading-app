@@ -3,6 +3,7 @@ import 'dart:typed_data';
 import 'package:beading/domain/grid/cell_metrics.dart';
 import 'package:beading/domain/grid/grid.dart';
 import 'package:beading/domain/grid/grid_geometry.dart';
+import 'package:beading/domain/image_to_grid/background_stage.dart';
 import 'package:beading/domain/image_to_grid/cell_labeler.dart';
 import 'package:beading/domain/image_to_grid/image_prefilter.dart';
 import 'package:beading/domain/image_to_grid/label_smoother.dart';
@@ -33,6 +34,9 @@ final class ImageToGridRequest {
     this.refillFreedColors = false,
     this.draft = false,
     this.steps = const <PatternStep>[],
+    this.subjectMask,
+    this.background = BackgroundMode.keep,
+    this.outline = false,
   }) {
     if (columns < 1 || columns > Grid.maxSide) throw ArgumentError.value(columns, 'columns', 'от 1 до ${Grid.maxSide}');
     if (rows < 1 || rows > Grid.maxSide) throw ArgumentError.value(rows, 'rows', 'от 1 до ${Grid.maxSide}');
@@ -47,6 +51,10 @@ final class ImageToGridRequest {
       for (final double w in weights) {
         if (!w.isFinite || w < 0) throw ArgumentError.value(w, 'importance', 'вес — конечное число не меньше нуля');
       }
+    }
+    final Uint8List? mask = subjectMask;
+    if (mask != null && mask.length != image.width * image.height) {
+      throw ArgumentError.value(mask.length, 'subjectMask', 'ожидалось ${image.width * image.height} значений');
     }
     final List<Object?>? candidates = constraint.candidates;
     if (candidates != null && candidates.isEmpty) {
@@ -96,7 +104,46 @@ final class ImageToGridRequest {
   final bool draft;
 
   /// Тот же запрос на другой картинке (и маске): так изолят сессии подставляет картинку, которую уже получил.
-  ImageToGridRequest withSource({required SourceImage image, Float32List? importance}) => ImageToGridRequest(
+  ImageToGridRequest withSource({required SourceImage image, Float32List? importance, Uint8List? subjectMask}) =>
+      ImageToGridRequest(
+        image: image,
+        geometry: geometry,
+        metrics: metrics,
+        columns: columns,
+        rows: rows,
+        maxColors: maxColors,
+        constraint: constraint,
+        importance: importance,
+        dither: dither,
+        seed: seed,
+        prefilter: prefilter,
+        paletteBuilder: paletteBuilder,
+        labeler: labeler,
+        smoother: smoother,
+        refillFreedColors: refillFreedColors,
+        draft: draft,
+        steps: steps,
+        subjectMask: subjectMask,
+        background: background,
+        outline: outline,
+      );
+
+  /// Маска объекта (T55): значение на пиксель картинки, ряды сверху вниз; `0` — фон, остальное — объект. `null` — маски
+  /// нет, и [background] с [outline] не действуют.
+  final Uint8List? subjectMask;
+
+  /// Что делать с фоном; действует только при [subjectMask].
+  final BackgroundMode background;
+
+  /// Обводка объекта одной клеткой тёмного цвета (бисер); действует только при [subjectMask].
+  final bool outline;
+
+  /// Тот же запрос с маской объекта, режимом фона и обводкой (маска, фон и обводка заменяются целиком).
+  ImageToGridRequest withBackground({
+    required Uint8List? mask,
+    BackgroundMode mode = BackgroundMode.keep,
+    bool outline = false,
+  }) => ImageToGridRequest(
     image: image,
     geometry: geometry,
     metrics: metrics,
@@ -114,7 +161,23 @@ final class ImageToGridRequest {
     refillFreedColors: refillFreedColors,
     draft: draft,
     steps: steps,
+    subjectMask: mask,
+    background: mode,
+    outline: outline,
   );
+
+  bool get usesBackgroundStage => subjectMask != null && (background != BackgroundMode.keep || outline);
+
+  /// Важность пикселей с учётом фона: «убрать» почти не тратит цвета палитры на фон, «упростить» вдвое снижает его вес.
+  Float32List? get effectiveImportance {
+    final Uint8List? mask = subjectMask;
+    if (mask == null || background == BackgroundMode.keep) return importance;
+    final double factor = background == BackgroundMode.remove ? 0.05 : 0.5;
+    final Float32List? base = importance;
+    return Float32List.fromList(<double>[
+      for (int i = 0; i < mask.length; i++) (base == null ? 1.0 : base[i]) * (mask[i] == 0 ? factor : 1),
+    ]);
+  }
 
   bool get usesPixelStages => paletteBuilder != null || labeler != null || smoother != null;
 
