@@ -47,6 +47,7 @@
   "settingsSaveFailed": "Не удалось сохранить настройку. Попробуй ещё раз.",
   "aboutTitle": "О приложении",
   "aboutTagline": "Каждая бусинка на своём месте. Плети с удовольствием!",
+  "aboutCredits": "Цвета ниток DMC: craft-color-codes, MakeBead (makebead.com), лицензия CC BY 4.0. DMC — торговая марка DMC, приложение с ней не связано.",
   "aboutVersion": "Версия {version}",
   "@aboutVersion": {
     "placeholders": {

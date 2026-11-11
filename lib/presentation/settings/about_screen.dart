@@ -81,6 +81,14 @@ class _AboutScreenState extends State<AboutScreen> {
                 ),
                 SizedBox(height: tokens.spacing.xl),
                 Text(l10n.aboutTagline, textAlign: TextAlign.center),
+                SizedBox(height: tokens.spacing.xl),
+                Text(
+                  l10n.aboutCredits,
+                  textAlign: TextAlign.center,
+                  style: CupertinoTheme.of(
+                    context,
+                  ).textTheme.tabLabelTextStyle.copyWith(color: CupertinoColors.secondaryLabel.resolveFrom(context)),
+                ),
               ],
             ),
           ),
