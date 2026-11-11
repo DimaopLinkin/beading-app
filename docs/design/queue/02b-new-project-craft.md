@@ -1,7 +1,7 @@
 ---
 id: 02b-new-project-craft
 title: Лист «Новый проект» с выбором ремесла и фильтры библиотеки (доработка 02-library)
-status: todo
+status: delivered
 depends: 02-library
 ---
 
