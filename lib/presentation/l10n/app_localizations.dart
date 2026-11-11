@@ -2419,6 +2419,48 @@ abstract class AppLocalizations {
   /// **'В каталоге нет бисера такого размера, поэтому цвета подобраны свободно.'**
   String get imageWizardCatalogMissing;
 
+  /// Подпись выбора серии бисера в палитре
+  ///
+  /// In ru, this message translates to:
+  /// **'Серия бисера'**
+  String get imageWizardBeadSeries;
+
+  /// Серия Miyuki Delica
+  ///
+  /// In ru, this message translates to:
+  /// **'Delica'**
+  String get imageWizardSeriesDelica;
+
+  /// Серия Toho Round
+  ///
+  /// In ru, this message translates to:
+  /// **'Круглый Toho'**
+  String get imageWizardSeriesRound;
+
+  /// Группа отделок бисера: непрозрачный и матовый
+  ///
+  /// In ru, this message translates to:
+  /// **'Непрозрачный и матовый'**
+  String get imageWizardFinishSolid;
+
+  /// Группа отделок бисера: блестящий
+  ///
+  /// In ru, this message translates to:
+  /// **'Блестящий'**
+  String get imageWizardFinishLuster;
+
+  /// Группа отделок бисера: прозрачный и с линией
+  ///
+  /// In ru, this message translates to:
+  /// **'Прозрачный и с линией'**
+  String get imageWizardFinishTransparent;
+
+  /// Пояснение, когда каталог после отбора беднее числа цветов
+  ///
+  /// In ru, this message translates to:
+  /// **'В выбранной серии и отделках всего {available} цветов, а в схеме их до {wanted}: добавь отделки или выбери «Любые».'**
+  String imageWizardCatalogFew(int available, int wanted);
+
   /// Заголовок выбора предустановки генератора
   ///
   /// In ru, this message translates to:

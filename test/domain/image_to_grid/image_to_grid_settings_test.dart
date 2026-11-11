@@ -1,3 +1,5 @@
+import 'package:beading/domain/catalog/bead_finish_group.dart';
+import 'package:beading/domain/catalog/bead_series.dart';
 import 'package:beading/domain/catalog/catalog_color.dart';
 import 'package:beading/domain/catalog/catalog_material.dart';
 import 'package:beading/domain/grid/bead_size.dart';
@@ -16,9 +18,11 @@ import '../../support/fake_catalog_repository.dart';
 void main() {
   final SourceImage image = SourceImage.solid(width: 100, height: 200, r: 10, g: 20, b: 30);
   final List<CatalogColor> catalog = <CatalogColor>[
-    catalogColor('DB0010', 'Красный', '#C80A14'),
-    catalogColor('DB0011', 'Синий', '#0A14C8'),
-    catalogColor('T-1', 'Toho', '#00FF00', brand: 'Toho', series: 'Round'),
+    catalogColor('DB0010', 'Красный', '#C80A14', finish: 'opaque'),
+    catalogColor('DB0011', 'Синий', '#0A14C8', finish: 'matte'),
+    catalogColor('DB0012', 'Блестящий', '#C8C80A', finish: 'luster'),
+    catalogColor('DB0013', 'Прозрачный', '#0AC8C8', finish: 'transparent'),
+    catalogColor('T-1', 'Toho', '#00FF00', brand: 'Toho', series: 'Round', finish: 'opaque'),
     catalogColor('M-1', 'Нитка', '#111111', material: CatalogMaterial.floss),
   ];
 
@@ -64,11 +68,42 @@ void main() {
       expect(rows, lessThan(100));
     });
 
-    test('каталожные цвета отбираются по бисеру, размеру и бренду', () {
+    test('каталожные цвета отбираются по бисеру, размеру, одной серии и отделкам', () {
       const ImageToGridSettings s = ImageToGridSettings();
-      expect(s.catalogFor(catalog).map((c) => c.code), <String>['DB0010', 'DB0011', 'T-1']);
-      expect(s.catalogFor(catalog, brand: 'Miyuki').map((c) => c.code), <String>['DB0010', 'DB0011']);
+      // По умолчанию: серия Delica (бренд не задан) и «непрозрачный и матовый».
+      expect(s.catalogFor(catalog).map((c) => c.code), <String>['DB0010', 'DB0011']);
+      expect(s.catalogFor(catalog, brand: 'Toho').map((c) => c.code), <String>['T-1']);
       expect(s.copyWith(beadSize: BeadSize.delica15).catalogFor(catalog), isEmpty);
+    });
+
+    test('выбор серии в мастере сильнее бренда по умолчанию', () {
+      const ImageToGridSettings s = ImageToGridSettings(beadSeries: BeadSeries.round);
+      expect(s.catalogFor(catalog, brand: 'Miyuki').map((c) => c.code), <String>['T-1']);
+      expect(
+        const ImageToGridSettings(beadSeries: BeadSeries.delica).catalogFor(catalog, brand: 'Toho').map((c) => c.code),
+        <String>['DB0010', 'DB0011'],
+      );
+    });
+
+    test('включённая группа отделок добавляет свои позиции', () {
+      final ImageToGridSettings s = const ImageToGridSettings().copyWith(
+        finishGroups: <BeadFinishGroup>{BeadFinishGroup.solid, BeadFinishGroup.luster},
+      );
+      expect(s.catalogFor(catalog).map((c) => c.code), <String>['DB0010', 'DB0011', 'DB0012']);
+      expect(
+        s.copyWith(finishGroups: <BeadFinishGroup>{BeadFinishGroup.transparent}).catalogFor(catalog).map((c) => c.code),
+        <String>['DB0013'],
+      );
+    });
+
+    test('позиции с неизвестной отделкой остаются в каталоге', () {
+      final List<CatalogColor> unknown = <CatalogColor>[catalogColor('DB0099', 'Без отделки', '#101010')];
+      expect(const ImageToGridSettings().catalogFor(unknown), hasLength(1));
+    });
+
+    test('все группы выключить нельзя: остаётся хотя бы одна', () {
+      final ImageToGridSettings s = const ImageToGridSettings().copyWith(finishGroups: const <BeadFinishGroup>{});
+      expect(s.finishGroups, <BeadFinishGroup>{BeadFinishGroup.solid});
     });
 
     test('запрос с каталогом ограничивает палитру каталогом', () {
@@ -79,6 +114,7 @@ void main() {
       );
       expect(request.constraint.isFree, isFalse);
       expect(request.constraint.candidates, hasLength(2));
+      expect(request.constraint.candidates!.map((e) => e.catalog?.code), <String?>['DB0010', 'DB0011']);
       expect(request.columns, 40);
       expect(request.rows, const ImageToGridSettings().rowsFor(image));
     });

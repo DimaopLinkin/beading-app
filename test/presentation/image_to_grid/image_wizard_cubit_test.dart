@@ -3,6 +3,8 @@ import 'dart:typed_data';
 
 import 'package:beading/core/failure.dart';
 import 'package:beading/core/result.dart';
+import 'package:beading/domain/catalog/bead_finish_group.dart';
+import 'package:beading/domain/catalog/bead_series.dart';
 import 'package:beading/domain/catalog/catalog_color.dart';
 import 'package:beading/domain/catalog/catalog_material.dart';
 import 'package:beading/domain/grid/bead_size.dart';
@@ -503,6 +505,50 @@ void main() {
       await cubit.start();
       await openPhoto();
       expect(runner.requests.last.constraint.candidates, hasLength(1));
+    });
+  });
+
+  group('серия и отделки (T62)', () {
+    setUp(() async {
+      catalog = FakeCatalogRepository(<CatalogColor>[
+        catalogColor('DB0010', 'Красный', '#C80A14', finish: 'opaque'),
+        catalogColor('DB0011', 'Блестящий', '#C8C80A', finish: 'luster'),
+        catalogColor('T-1', 'Toho', '#00FF00', brand: 'Toho', series: 'Round', finish: 'matte'),
+      ]);
+      cubit = build(debounce: Duration.zero);
+      await cubit.start();
+    });
+    tearDown(() => cubit.close());
+
+    test('по умолчанию Delica и только непрозрачный и матовый', () {
+      expect(cubit.beadSeries, BeadSeries.delica);
+      expect(cubit.state.settings.finishGroups, <BeadFinishGroup>{BeadFinishGroup.solid});
+      expect(cubit.state.catalogColors, 1);
+    });
+
+    test('смена серии и группы отделок пересчитывает число цветов каталога', () {
+      cubit.setBeadSeries(BeadSeries.round);
+      expect(cubit.state.catalogColors, 1);
+      cubit
+        ..setBeadSeries(BeadSeries.delica)
+        ..setFinishGroup(BeadFinishGroup.luster, value: true);
+      expect(cubit.state.catalogColors, 2);
+    });
+
+    test('последнюю группу отделок выключить нельзя', () {
+      cubit.setFinishGroup(BeadFinishGroup.solid, value: false);
+      expect(cubit.state.settings.finishGroups, <BeadFinishGroup>{BeadFinishGroup.solid});
+    });
+
+    test('цветов в каталоге меньше, чем в схеме: мастер предупреждает', () {
+      expect(cubit.state.catalogShort, isTrue); // 1 цвет при 8 в схеме
+      cubit
+        ..setFinishGroup(BeadFinishGroup.luster, value: true)
+        ..setMaxColors(2);
+      expect(cubit.state.catalogShort, isFalse); // 2 цвета при 2 в схеме
+      cubit.setPaletteSource(PaletteSource.free);
+      cubit.setMaxColors(8);
+      expect(cubit.state.catalogShort, isFalse);
     });
   });
 

@@ -1278,6 +1278,29 @@ class AppLocalizationsRu extends AppLocalizations {
   String get imageWizardCatalogMissing => 'В каталоге нет бисера такого размера, поэтому цвета подобраны свободно.';
 
   @override
+  String get imageWizardBeadSeries => 'Серия бисера';
+
+  @override
+  String get imageWizardSeriesDelica => 'Delica';
+
+  @override
+  String get imageWizardSeriesRound => 'Круглый Toho';
+
+  @override
+  String get imageWizardFinishSolid => 'Непрозрачный и матовый';
+
+  @override
+  String get imageWizardFinishLuster => 'Блестящий';
+
+  @override
+  String get imageWizardFinishTransparent => 'Прозрачный и с линией';
+
+  @override
+  String imageWizardCatalogFew(int available, int wanted) {
+    return 'В выбранной серии и отделках всего $available цветов, а в схеме их до $wanted: добавь отделки или выбери «Любые».';
+  }
+
+  @override
   String get imageWizardPreset => 'Детальность';
 
   @override

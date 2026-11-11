@@ -15,19 +15,21 @@ final class PaletteConstraint extends Equatable {
 
   /// Только позиции каталога, подходящие по материалу, брендам, сериям и размеру бисера.
   ///
-  /// Пустой [brands], [series] или [sizeCodes] не ограничивает.
+  /// Пустой [brands], [series], [sizeCodes] или [finishes] не ограничивает; позиция с неизвестной отделкой проходит.
   factory PaletteConstraint.catalog(
     Iterable<CatalogColor> colors, {
     required CatalogMaterial material,
     Set<String> brands = const <String>{},
     Set<String> series = const <String>{},
     Set<String> sizeCodes = const <String>{},
+    Set<String> finishes = const <String>{},
   }) => PaletteConstraint.list(<PaletteEntry>[
     for (final CatalogColor color in colors)
       if (color.material == material &&
           (brands.isEmpty || brands.contains(color.brand)) &&
           (series.isEmpty || series.contains(color.series)) &&
-          (sizeCodes.isEmpty || (color.sizeCode != null && sizeCodes.contains(color.sizeCode))))
+          (sizeCodes.isEmpty || (color.sizeCode != null && sizeCodes.contains(color.sizeCode))) &&
+          (finishes.isEmpty || color.finish == null || finishes.contains(color.finish)))
         PaletteEntry.fromCatalog(color),
   ]);
 

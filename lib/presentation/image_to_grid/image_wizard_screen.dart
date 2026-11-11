@@ -1,5 +1,7 @@
 import 'dart:io' show Platform;
 
+import 'package:beading/domain/catalog/bead_finish_group.dart';
+import 'package:beading/domain/catalog/bead_series.dart';
 import 'package:beading/domain/grid/bead_size.dart';
 import 'package:beading/domain/grid/fabric.dart';
 import 'package:beading/domain/grid/grid.dart';
@@ -492,6 +494,35 @@ class _EditState extends State<_Edit> {
                         }
                       },
                     ),
+                    if (settings.paletteSource == PaletteSource.catalog && settings.craft == Craft.beading) ...<Widget>[
+                      SizedBox(height: tokens.spacing.s),
+                      CupertinoSlidingSegmentedControl<BeadSeries>(
+                        key: const ValueKey<String>('wizard-bead-series'),
+                        groupValue: cubit.beadSeries,
+                        children: <BeadSeries, Widget>{
+                          BeadSeries.delica: _SegmentLabel(l10n.imageWizardSeriesDelica),
+                          BeadSeries.round: _SegmentLabel(l10n.imageWizardSeriesRound),
+                        },
+                        onValueChanged: (value) {
+                          if (value != null) {
+                            cubit.setBeadSeries(value);
+                          }
+                        },
+                      ),
+                      for (final BeadFinishGroup group in BeadFinishGroup.values)
+                        MergeSemantics(
+                          child: Row(
+                            children: <Widget>[
+                              Expanded(child: Text(_finishTitle(l10n, group))),
+                              CupertinoSwitch(
+                                key: ValueKey<String>('wizard-finish-${group.name}'),
+                                value: settings.finishGroups.contains(group),
+                                onChanged: (value) => cubit.setFinishGroup(group, value: value),
+                              ),
+                            ],
+                          ),
+                        ),
+                    ],
                     if (state.catalogMissing)
                       Padding(
                         padding: EdgeInsets.only(top: tokens.spacing.s),
@@ -499,6 +530,15 @@ class _EditState extends State<_Edit> {
                           settings.craft == Craft.crossStitch
                               ? l10n.imageWizardFlossMissing
                               : l10n.imageWizardCatalogMissing,
+                          style: caption,
+                        ),
+                      )
+                    else if (state.catalogShort)
+                      Padding(
+                        padding: EdgeInsets.only(top: tokens.spacing.s),
+                        child: Text(
+                          l10n.imageWizardCatalogFew(state.catalogColors, settings.maxColors),
+                          key: const ValueKey<String>('wizard-catalog-few'),
                           style: caption,
                         ),
                       ),
@@ -622,6 +662,12 @@ class _SegmentLabel extends StatelessWidget {
     child: Center(child: Text(text)),
   );
 }
+
+String _finishTitle(AppLocalizations l10n, BeadFinishGroup group) => switch (group) {
+  BeadFinishGroup.solid => l10n.imageWizardFinishSolid,
+  BeadFinishGroup.luster => l10n.imageWizardFinishLuster,
+  BeadFinishGroup.transparent => l10n.imageWizardFinishTransparent,
+};
 
 class _Section extends StatelessWidget {
   const _Section({required this.title, required this.child});
