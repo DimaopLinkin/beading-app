@@ -101,6 +101,27 @@ void main() {
         );
         expect(run.pattern.grid, balanced.pattern.grid, reason: '${run.key}: без лиц результат не меняется');
       }
+      // T63: местный контраст поднимает средний контраст в 0,90…1,05, корреляция не хуже базы −0,005, одиночных ≤ ×1,2.
+      double contrastSum = 0;
+      double contrastCorr = 0;
+      double refCorr = 0;
+      int contrastSingles = 0;
+      int refSingles = 0;
+      int contrastRuns = 0;
+      for (final GalleryRun run in runs.where((r) => r.variant.id == 't63-contrast')) {
+        final GalleryRun balanced = runs.firstWhere(
+          (r) => r.variant.id == 't47-balanced' && r.photo == run.photo && r.target == run.target,
+        );
+        contrastSum += run.stats.contrast ?? 0;
+        contrastCorr += run.stats.lightnessCorrelation ?? 0;
+        refCorr += balanced.stats.lightnessCorrelation ?? 0;
+        contrastSingles += run.stats.singleCells;
+        refSingles += balanced.stats.singleCells;
+        contrastRuns++;
+      }
+      expect(contrastSum / contrastRuns, inInclusiveRange(0.90, 1.05));
+      expect(contrastCorr / contrastRuns, greaterThanOrEqualTo(refCorr / contrastRuns - 0.005));
+      expect(contrastSingles, lessThanOrEqualTo(refSingles * 1.2));
       // T64: вес заметности не ухудшает корреляцию светлоты в среднем по галерее; одиночных клеток больше (в основном
       // настоящие тонкие линии рисунка и надписи), но не больше ×1,6 от «сбалансированно» (цель задачи ×1,3 не достигнута).
       int balancedSingles = 0;

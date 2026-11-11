@@ -220,6 +220,33 @@ ImageToGridRequest _request(
   );
 }
 
+/// Тот же запрос с другой подготовкой фото и палитрой (T63): для вариантов галереи.
+ImageToGridRequest _restaged(ImageToGridRequest r, {ImagePrefilter? prefilter, PaletteBuilder? paletteBuilder}) =>
+    ImageToGridRequest(
+      image: r.image,
+      geometry: r.geometry,
+      metrics: r.metrics,
+      columns: r.columns,
+      rows: r.rows,
+      maxColors: r.maxColors,
+      constraint: r.constraint,
+      importance: r.importance,
+      dither: r.dither,
+      seed: r.seed,
+      prefilter: prefilter ?? r.prefilter,
+      paletteBuilder: paletteBuilder ?? r.paletteBuilder,
+      labeler: r.labeler,
+      smoother: r.smoother,
+      refillFreedColors: r.refillFreedColors,
+      faces: r.faces,
+      draft: r.draft,
+      steps: r.steps,
+      subjectMask: r.subjectMask,
+      background: r.background,
+      outline: r.outline,
+      suggestBlends: r.suggestBlends,
+    );
+
 /// Лица фикстур, размеченные вручную (на Linux нет Apple Vision): ключ — картинка, загруженная [loadPhotos].
 final Expando<ImageMaskSet> galleryFaces = Expando<ImageMaskSet>('galleryFaces');
 
@@ -324,6 +351,22 @@ final List<GalleryVariant> galleryVariants = <GalleryVariant>[
     title: 'T64: сбалансированно + вес заметности',
     build: (image, target, catalog) =>
         _request(image, target, catalog, preset: GenerationPreset.balanced, detailVoting: true),
+  ),
+  GalleryVariant(
+    id: 't63-contrast',
+    title: 'T63: сбалансированно + местный контраст',
+    build: (image, target, catalog) => _restaged(
+      _request(image, target, catalog, preset: GenerationPreset.balanced),
+      prefilter: const EdgePreservingPrefilter(localContrast: 0.35),
+    ),
+  ),
+  GalleryVariant(
+    id: 't63-tones',
+    title: 'T63: сбалансированно + крайние тона',
+    build: (image, target, catalog) => _restaged(
+      _request(image, target, catalog, preset: GenerationPreset.balanced),
+      paletteBuilder: const AccentPaletteBuilder(extremeTones: true),
+    ),
   ),
   GalleryVariant(
     id: 't54-faces',

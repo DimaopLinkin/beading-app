@@ -185,4 +185,51 @@ void main() {
       expect(at(out, 0, 0).a, closeTo(3, 1e-3));
     });
   });
+
+  group('местный контраст (T63)', () {
+    // Мягкий светлый пятно на сером фоне: перепад 12 L.
+    WorkImage spot() => build(60, 60, (x, y) {
+      final double d = math.sqrt(math.pow(x - 30, 2) + math.pow(y - 30, 2));
+      return Lab(d < 10 ? 62 : 50, 0, 0);
+    });
+
+    test('по умолчанию выключен: applyProtected без маски равен apply', () {
+      final WorkImage image = spot();
+      final WorkImage a = const EdgePreservingPrefilter().apply(image);
+      final WorkImage b = const EdgePreservingPrefilter().applyProtected(image, null);
+      expect(b.lightness, a.lightness);
+    });
+
+    test('усиливает перепад светлоты у края пятна, поправка ограничена limit', () {
+      final WorkImage image = spot();
+      final WorkImage plain = const EdgePreservingPrefilter().apply(image);
+      final WorkImage boosted = const EdgePreservingPrefilter(localContrast: 0.5, localContrastLimit: 4).apply(image);
+      final double contrastPlain = at(plain, 30, 30).l - at(plain, 5, 5).l;
+      final double contrastBoosted = at(boosted, 30, 30).l - at(boosted, 5, 5).l;
+      expect(contrastBoosted, greaterThan(contrastPlain));
+      for (int i = 0; i < plain.lightness.length; i++) {
+        expect((boosted.lightness[i] - plain.lightness[i]).abs(), lessThanOrEqualTo(4 + 1e-3));
+      }
+      expect(boosted.lightness.every((v) => v >= 0 && v <= 100), isTrue);
+    });
+
+    test('на защищённых пикселях (кожа) поправка ослаблена', () {
+      final WorkImage image = spot();
+      const EdgePreservingPrefilter filter = EdgePreservingPrefilter(localContrast: 0.5);
+      final WorkImage open = filter.apply(image);
+      final Uint8List skin = Uint8List(60 * 60)..fillRange(0, 60 * 60, 255);
+      final WorkImage guarded = filter.applyProtected(image, skin);
+      final WorkImage plain = const EdgePreservingPrefilter().apply(image);
+      final double openShift = (at(open, 39, 30).l - at(plain, 39, 30).l).abs();
+      final double guardedShift = (at(guarded, 39, 30).l - at(plain, 39, 30).l).abs();
+      expect(openShift, greaterThan(0.5));
+      expect(guardedShift, lessThan(openShift * 0.5));
+    });
+
+    test('на ровной картинке поправки нет', () {
+      final WorkImage image = build(40, 40, (x, y) => const Lab(55, 5, 5));
+      final WorkImage out = const EdgePreservingPrefilter(localContrast: 0.5).apply(image);
+      expect(at(out, 20, 20).l, closeTo(55, 1e-3));
+    });
+  });
 }

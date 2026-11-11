@@ -1,6 +1,7 @@
 import 'dart:math' as math;
 import 'dart:typed_data';
 
+import 'package:beading/domain/image_to_grid/box_blur.dart';
 import 'package:beading/domain/image_to_grid/work_image.dart';
 import 'package:equatable/equatable.dart';
 
@@ -16,9 +17,18 @@ abstract interface class ImagePrefilter {
 /// Двусторонний фильтр в Lab (два прохода, радиус 2) для схем до 100×100 ячеек и управляемый фильтр (O(N)) для
 /// больших. Светлота не растягивается: первая версия прототипа растягивала её и «выбеливала» кожу и шерсть.
 final class EdgePreservingPrefilter extends Equatable implements ImagePrefilter {
-  const EdgePreservingPrefilter({this.sigmaRange = 9, this.saturation = 1.05, this.guidedAboveCells = 100 * 100})
-    : assert(sigmaRange > 0, 'sigmaRange > 0'),
-      assert(saturation >= 1 && saturation <= 1.1, 'saturation от 1 до 1,1');
+  const EdgePreservingPrefilter({
+    this.sigmaRange = 9,
+    this.saturation = 1.05,
+    this.guidedAboveCells = 100 * 100,
+    this.localContrast = 0,
+    this.localContrastRadiusCells = 2,
+    this.localContrastLimit = 10,
+  }) : assert(sigmaRange > 0, 'sigmaRange > 0'),
+       assert(saturation >= 1 && saturation <= 1.1, 'saturation от 1 до 1,1'),
+       assert(localContrast >= 0 && localContrast <= 1, 'localContrast от 0 до 1'),
+       assert(localContrastRadiusCells > 0, 'localContrastRadiusCells > 0'),
+       assert(localContrastLimit >= 0, 'localContrastLimit >= 0');
 
   /// Насколько различные цвета ещё усредняются, в единицах Lab: больше — глаже, меньше — резче.
   final double sigmaRange;
@@ -29,14 +39,34 @@ final class EdgePreservingPrefilter extends Equatable implements ImagePrefilter 
   /// Размер схемы в ячейках, больше которого вместо двустороннего берётся управляемый фильтр.
   final int guidedAboveCells;
 
+  /// Местный контраст (T63): к светлоте добавляется эта доля разницы с размытой копией (радиус
+  /// [localContrastRadiusCells] клеток), поправка не больше [localContrastLimit] L. `0` — выключено.
+  final double localContrast;
+  final double localContrastRadiusCells;
+  final double localContrastLimit;
+
+  /// Во сколько раз местный контраст слабее на защищённых пикселях (кожа под маской лица, T54).
+  static const double protectedFactor = 0.2;
+
   /// Радиус окна обоих фильтров в рабочих пикселях.
   static const int radius = 2;
 
   @override
-  List<Object?> get props => <Object?>[sigmaRange, saturation, guidedAboveCells];
+  List<Object?> get props => <Object?>[
+    sigmaRange,
+    saturation,
+    guidedAboveCells,
+    localContrast,
+    localContrastRadiusCells,
+    localContrastLimit,
+  ];
 
   @override
-  WorkImage apply(WorkImage image) {
+  WorkImage apply(WorkImage image) => applyProtected(image, null);
+
+  /// То же, но на пикселях [protectedPixels] (ненулевое значение, например кожа на лице) местный контраст слабее в
+  /// [protectedFactor] раз: на коже он выделяет поры и пятна, а не форму.
+  WorkImage applyProtected(WorkImage image, Uint8List? protectedPixels) {
     final int pixels = image.width * image.height;
     final int cells = pixels ~/ (image.scale * image.scale);
     final ({Float32List l, Float32List a, Float32List b}) filtered = cells > guidedAboveCells
@@ -48,7 +78,21 @@ final class EdgePreservingPrefilter extends Equatable implements ImagePrefilter 
         filtered.b[i] *= saturation;
       }
     }
+    if (localContrast > 0) _boost(image, filtered.l, protectedPixels);
     return image.withColors(lightness: filtered.l, a: filtered.a, b: filtered.b);
+  }
+
+  /// Добавляет к светлоте [l] долю разницы с её размытой копией, поправка ограничена, результат в 0…100.
+  void _boost(WorkImage image, Float32List l, Uint8List? protectedPixels) {
+    final int r = math.max(1, (localContrastRadiusCells * image.scale).round());
+    final Float32List blur = boxBlur(boxBlur(l, image.width, image.height, r), image.width, image.height, r);
+    for (int i = 0; i < l.length; i++) {
+      final double amount = protectedPixels != null && protectedPixels[i] != 0
+          ? localContrast * protectedFactor
+          : localContrast;
+      final double delta = (amount * (l[i] - blur[i])).clamp(-localContrastLimit, localContrastLimit);
+      l[i] = (l[i] + delta).clamp(0, 100);
+    }
   }
 
   ({Float32List l, Float32List a, Float32List b}) _bilateral(WorkImage image) {

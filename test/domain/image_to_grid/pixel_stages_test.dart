@@ -89,6 +89,45 @@ class _CaptureCosts implements PatternStep {
 
 void main() {
   backstitchPipelineTests();
+  group('AccentPaletteBuilder: крайние тона (T63)', () {
+    // Серый кружок 0x8C8C8C и светлее/темнее края: палитра из двух-трёх цветов обычно усредняет края.
+    SourceImage whiteCircle() => painted(120, 120, 0x808080, <(int, int, int, int, int)>[
+      (30, 30, 90, 90, 0xFFFFFF),
+      (0, 0, 10, 120, 0x1A1A1A),
+    ]);
+
+    double lightest(List<PaletteEntry> p) => p.map((e) => Lab.fromRgb(e.rgb).l).reduce(math.max);
+    double darkest(List<PaletteEntry> p) => p.map((e) => Lab.fromRgb(e.rgb).l).reduce(math.min);
+
+    test('светлый цвет палитры «белого круга на сером» не темнее L 95, тёмный не светлее L 15', () {
+      final List<PaletteEntry> palette = const AccentPaletteBuilder(extremeTones: true).build(
+        PaletteRequest(work: workOf(whiteCircle(), 20, 20), maxColors: 3, constraint: const PaletteConstraint.free()),
+      );
+      expect(lightest(palette), greaterThanOrEqualTo(95));
+      expect(darkest(palette), lessThanOrEqualTo(15));
+    });
+
+    test('по умолчанию стадия выключена: палитра как раньше', () {
+      final PaletteRequest request = PaletteRequest(
+        work: workOf(whiteCircle(), 20, 20),
+        maxColors: 3,
+        constraint: const PaletteConstraint.free(),
+      );
+      final List<PaletteEntry> off = const AccentPaletteBuilder().build(request);
+      final List<PaletteEntry> on = const AccentPaletteBuilder(extremeTones: true).build(request);
+      expect(lightest(on), greaterThanOrEqualTo(lightest(off)));
+      expect(darkest(on), lessThanOrEqualTo(darkest(off)));
+    });
+
+    test('единичные светлые пиксели не тянут светлый цвет к себе (мало пикселей за порогом)', () {
+      final SourceImage image = painted(120, 120, 0x808080, <(int, int, int, int, int)>[(5, 5, 6, 6, 0xFFFFFF)]);
+      final List<PaletteEntry> palette = const AccentPaletteBuilder(extremeTones: true).build(
+        PaletteRequest(work: workOf(image, 20, 20), maxColors: 3, constraint: const PaletteConstraint.free()),
+      );
+      expect(lightest(palette), lessThan(80));
+    });
+  });
+
   group('AccentPaletteBuilder', () {
     test('маленькое яркое пятно (0,5 % площади) получает свой цвет при 8 цветах', () {
       // Фон — плавный градиент оттенков серого и бежевого, пятно 6×8 px из 240×240: 0,08 %... берём 17×17 ≈ 0,5 %.
