@@ -21,7 +21,7 @@
 
 ### Слои
 
-- `domain/sync/`: `SyncRecord` (сущность, id, натуральный ключ, `updatedAt`, `deletedAt`, `deviceId`, нагрузка), `MergePolicy` (чистые функции, 100% покрытие), `SyncRemote` (интерфейс: `push`, `pullSince`, `changes`), `SyncEngine` (оркестрация: что отправить, что принять). Знают ничего о Supabase и drift.
+- `domain/sync/`: `SyncRecord` (сущность, id, натуральный ключ, `updatedAt`, `deletedAt`, `deviceId`, нагрузка), `MergePolicy` (чистые функции, 100% покрытие), `SyncRemote` (интерфейс: `push`, `pullSince`, `changes`), `SyncEngine` (оркестрация: что отправить, что принять). Ничего не знают о Supabase и drift.
 - `data/sync/`: `DriftSyncStore` (чтение изменённых записей, применение слитых в одной транзакции, мапперы строка ↔ `SyncRecord`), `SupabaseSyncRemote`, `SupabaseAuthRepository` (интерфейс `AuthRepository` в домене).
 - `presentation/settings/`: раздел «Синхронизация»: вход, выход, статус, «Синхронизировать сейчас». Нативные Cupertino-виджеты (ADR-0001).
 
