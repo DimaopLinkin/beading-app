@@ -37,6 +37,7 @@ import 'package:beading/data/sharing/file_picker_biser_picker.dart';
 import 'package:beading/data/sharing/platform_incoming_biser_files.dart';
 import 'package:beading/data/sharing/share_plus_file_sharer.dart';
 import 'package:beading/data/sharing/zip_biser_codec.dart';
+import 'package:beading/data/stitch_import/xml_oxs_decoder.dart';
 import 'package:beading/data/weaving/drift_work_session_repository.dart';
 import 'package:beading/domain/catalog/catalog_repository.dart';
 import 'package:beading/domain/catalog/use_cases/find_similar_colors.dart';
@@ -97,6 +98,8 @@ import 'package:beading/domain/sharing/biser/import_biser.dart';
 import 'package:beading/domain/sharing/file_sharer.dart';
 import 'package:beading/domain/sharing/text_sharer.dart';
 import 'package:beading/domain/sharing/unit_of_work.dart';
+import 'package:beading/domain/stitch_import/import_oxs.dart';
+import 'package:beading/domain/stitch_import/oxs_pattern.dart';
 import 'package:beading/domain/weaving/rows_counter.dart';
 import 'package:beading/domain/weaving/work_session_content_cleaner.dart';
 import 'package:beading/domain/weaving/work_session_repository.dart';
@@ -518,12 +521,17 @@ Future<void> configureDependencies({GetIt? locator, AppDatabase? database, Catal
         unitOfWork: container<UnitOfWork>(),
       ),
     )
+    ..registerLazySingleton<OxsDecoder>(() => const XmlOxsDecoder())
+    ..registerFactory<ImportOxs>(
+      () => ImportOxs(decoder: container<OxsDecoder>(), createPattern: container<CreateGridPattern>()),
+    )
     ..registerLazySingleton<DataTransferCubit>(
       () => DataTransferCubit(
         export: container<ExportProjects>(),
         import: container<ImportBiser>(),
         sharer: container<FileSharer>(),
         picker: container<BiserFilePicker>(),
+        importOxs: container<ImportOxs>(),
       ),
       dispose: (cubit) => cubit.close(),
     )

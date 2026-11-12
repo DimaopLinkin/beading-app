@@ -1,10 +1,16 @@
+import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:beading/core/failure.dart';
 import 'package:beading/core/result.dart';
+import 'package:beading/data/stitch_import/xml_oxs_decoder.dart';
+import 'package:beading/domain/grid_pattern/use_cases/create_grid_pattern.dart';
+import 'package:beading/domain/projects/craft.dart';
+import 'package:beading/domain/projects/use_cases/create_project.dart';
 import 'package:beading/domain/sharing/biser/biser_file_source.dart';
 import 'package:beading/domain/sharing/biser/import_biser.dart';
 import 'package:beading/domain/sharing/text_sharer.dart';
+import 'package:beading/domain/stitch_import/import_oxs.dart';
 import 'package:beading/presentation/sharing/data_transfer_cubit.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -73,6 +79,29 @@ void main() {
     expect(await device.allProjects(), hasLength(2));
     cubit.dismiss();
     expect(cubit.state, const DataTransferState());
+  });
+
+  test('файл .oxs (T42): создаётся вышивка сразу, без обзора', () async {
+    final DataTransferCubit withOxs = DataTransferCubit(
+      export: device.export,
+      import: device.import,
+      sharer: sharer,
+      picker: picker,
+      importOxs: ImportOxs(
+        decoder: const XmlOxsDecoder(),
+        createPattern: CreateGridPattern(
+          createProject: CreateProject(repository: device.projects, ids: device.ids, clock: device.clock),
+          projects: device.projects,
+          patterns: device.grids,
+          ids: device.ids,
+        ),
+      ),
+    );
+    addTearDown(withOxs.close);
+    await withOxs.openFile(BiserFile(name: 'Rose.OXS', bytes: File('test/fixtures/oxs/sample.oxs').readAsBytesSync()));
+    expect(withOxs.state.imported!.importedIds, hasLength(1));
+    expect(withOxs.state.pending, isNull);
+    expect((await device.allProjects()).single.craft, Craft.crossStitch);
   });
 
   test('выбор файла отменили — ничего не происходит', () async {

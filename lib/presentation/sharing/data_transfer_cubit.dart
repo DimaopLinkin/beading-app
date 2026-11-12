@@ -8,6 +8,7 @@ import 'package:beading/domain/sharing/biser/export_projects.dart';
 import 'package:beading/domain/sharing/biser/import_biser.dart';
 import 'package:beading/domain/sharing/file_sharer.dart';
 import 'package:beading/domain/sharing/text_sharer.dart';
+import 'package:beading/domain/stitch_import/import_oxs.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -49,7 +50,9 @@ class DataTransferCubit extends Cubit<DataTransferState> {
     required ImportBiser import,
     required FileSharer sharer,
     required BiserFilePicker picker,
+    ImportOxs? importOxs,
   }) : _export = export,
+       _importOxs = importOxs,
        _import = import,
        _sharer = sharer,
        _picker = picker,
@@ -59,6 +62,7 @@ class DataTransferCubit extends Cubit<DataTransferState> {
   final ImportBiser _import;
   final FileSharer _sharer;
   final BiserFilePicker _picker;
+  final ImportOxs? _importOxs;
 
   /// «Поделиться файлом проекта».
   Future<void> shareProject(String projectId, {ShareOrigin? origin}) =>
@@ -99,7 +103,7 @@ class DataTransferCubit extends Cubit<DataTransferState> {
       emit(const DataTransferState());
       return;
     }
-    await _preview(file.bytes);
+    await _route(file);
   }
 
   /// Файл, который система открыла в приложении.
@@ -108,11 +112,29 @@ class DataTransferCubit extends Cubit<DataTransferState> {
       return;
     }
     emit(const DataTransferState(busy: true));
-    await _preview(file.bytes);
+    await _route(file);
   }
 
   /// Файл не удалось прочитать ещё до разбора.
   void reportFailure(Failure failure) => emit(DataTransferState(failure: failure));
+
+  /// Схемы `.oxs` (T42) создаются сразу, без обзора: в файле одна схема и конфликтов id нет; остальное — `.biser`.
+  Future<void> _route(BiserFile file) async {
+    final ImportOxs? oxs = _importOxs;
+    if (oxs == null || !file.name.toLowerCase().endsWith('.oxs')) {
+      return _preview(file.bytes);
+    }
+    final Result<ImportResult> result = await oxs(file.bytes, fileName: file.name);
+    if (isClosed) {
+      return;
+    }
+    emit(
+      switch (result) {
+        Err<ImportResult>(:final Failure failure) => DataTransferState(failure: failure),
+        Success<ImportResult>(:final ImportResult value) => DataTransferState(imported: value),
+      },
+    );
+  }
 
   Future<void> _preview(Uint8List bytes) async {
     final Result<BiserPreview> preview = await _import.preview(bytes);

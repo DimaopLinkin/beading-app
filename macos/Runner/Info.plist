@@ -54,6 +54,22 @@
 				<string>com.dimaoplinkin.beading.biser</string>
 			</array>
 		</dict>
+		<dict>
+			<key>CFBundleTypeName</key>
+			<string>Схема вышивки OXS</string>
+			<key>CFBundleTypeRole</key>
+			<string>Viewer</string>
+			<key>CFBundleTypeExtensions</key>
+			<array>
+				<string>oxs</string>
+			</array>
+			<key>LSHandlerRank</key>
+			<string>Alternate</string>
+			<key>LSItemContentTypes</key>
+			<array>
+				<string>com.dimaoplinkin.beading.oxs</string>
+			</array>
+		</dict>
 	</array>
 	<key>UTExportedTypeDeclarations</key>
 	<array>
@@ -75,6 +91,26 @@
 				</array>
 				<key>public.mime-type</key>
 				<string>application/x-biser</string>
+			</dict>
+		</dict>
+	</array>
+	<key>UTImportedTypeDeclarations</key>
+	<array>
+		<dict>
+			<key>UTTypeConformsTo</key>
+			<array>
+				<string>public.xml</string>
+			</array>
+			<key>UTTypeDescription</key>
+			<string>Схема вышивки OXS</string>
+			<key>UTTypeIdentifier</key>
+			<string>com.dimaoplinkin.beading.oxs</string>
+			<key>UTTypeTagSpecification</key>
+			<dict>
+				<key>public.filename-extension</key>
+				<array>
+					<string>oxs</string>
+				</array>
 			</dict>
 		</dict>
 	</array>
