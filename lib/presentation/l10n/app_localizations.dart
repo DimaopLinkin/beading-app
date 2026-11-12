@@ -94,7 +94,7 @@ abstract class AppLocalizations {
   /// Название приложения
   ///
   /// In ru, this message translates to:
-  /// **'Бисер'**
+  /// **'Канитель'**
   String get appTitle;
 
   /// Заголовок главного экрана со списком проектов
@@ -286,7 +286,7 @@ abstract class AppLocalizations {
   /// No description provided for @aboutTagline.
   ///
   /// In ru, this message translates to:
-  /// **'Каждая бусинка на своём месте. Плети с удовольствием!'**
+  /// **'Каждая бусина и каждый крестик на своём месте.'**
   String get aboutTagline;
 
   /// No description provided for @aboutCredits.

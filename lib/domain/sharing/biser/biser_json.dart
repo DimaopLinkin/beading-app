@@ -157,12 +157,12 @@ abstract final class BiserJson {
     }
     final Map<String, Object?> root = _map(parsed, 'манифест');
     if (root['format'] != formatName) {
-      throw const _BadBiser('Это не файл «Бисера»');
+      throw const _BadBiser('Это не файл «Канители»');
     }
     final int version = _int(root['version'], 'версия формата');
     if (version > biserFormatVersion) {
       throw _BadBiser(
-        'Файл создан более новой версией приложения (формат $version). Обновите «Бисер» и откройте файл снова.',
+        'Файл создан более новой версией приложения (формат $version). Обновите «Канитель» и откройте файл снова.',
       );
     }
     if (version < 1) {

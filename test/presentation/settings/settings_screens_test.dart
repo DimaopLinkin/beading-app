@@ -222,10 +222,10 @@ void main() {
         await tester.pumpWidget(about(themeData: themeData));
         await tester.pump();
 
-        expect(find.text('Бисер'), findsOneWidget);
+        expect(find.text('Канитель'), findsOneWidget);
         expect(find.text('Версия 0.1.0 (3)'), findsOneWidget);
         expect(find.textContaining('CC BY 4.0'), findsOneWidget);
-        expect(find.text('Каждая бусинка на своём месте. Плети с удовольствием!'), findsOneWidget);
+        expect(find.text('Каждая бусина и каждый крестик на своём месте.'), findsOneWidget);
       });
     }
 

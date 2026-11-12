@@ -28,8 +28,8 @@ void main() {
         });
       }
 
-      test('$platform: имя под значком — «Бисер»', () {
-        expect(stringValue(plist, 'CFBundleDisplayName'), 'Бисер');
+      test('$platform: имя под значком — «Канитель»', () {
+        expect(stringValue(plist, 'CFBundleDisplayName'), 'Канитель');
       });
     }
 

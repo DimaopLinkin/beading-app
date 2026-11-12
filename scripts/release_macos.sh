@@ -58,7 +58,7 @@ stage="$out/dmg"
 mkdir -p "$stage"
 run ditto "$app" "$stage/beading.app"
 run ln -s /Applications "$stage/Applications"
-run hdiutil create -volname "Бисер" -srcfolder "$stage" -ov -format UDZO "build/release/$dmg_name"
+run hdiutil create -volname "Канитель" -srcfolder "$stage" -ov -format UDZO "build/release/$dmg_name"
 run codesign --sign "$identity" --timestamp "build/release/$dmg_name"
 run xcrun notarytool submit "build/release/$dmg_name" --keychain-profile "$notary" --wait
 run xcrun stapler staple "build/release/$dmg_name"
