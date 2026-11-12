@@ -2881,6 +2881,150 @@ abstract class AppLocalizations {
   /// **'Приложение не смогло открыть свои данные. Ничего не удалено: закройте приложение и откройте его снова. Если это повторяется, покажите разработчику текст ниже.'**
   String get startupFailedBody;
 
+  /// Экран вышивания: схема не открылась
+  ///
+  /// In ru, this message translates to:
+  /// **'Не получилось открыть вышивку. Попробуй ещё раз.'**
+  String get stitchLoadFailed;
+
+  /// Закрыть экран вышивания
+  ///
+  /// In ru, this message translates to:
+  /// **'Закрыть'**
+  String get stitchClose;
+
+  /// Сколько процентов вышивки сделано
+  ///
+  /// In ru, this message translates to:
+  /// **'{percent}%'**
+  String stitchPercent(int percent);
+
+  /// Переключатель способа отметки: по одной клетке
+  ///
+  /// In ru, this message translates to:
+  /// **'Касание'**
+  String get stitchToolTap;
+
+  /// Переключатель способа отметки: проводить пальцем
+  ///
+  /// In ru, this message translates to:
+  /// **'Мазок'**
+  String get stitchToolStroke;
+
+  /// Переключатель способа отметки: рамкой
+  ///
+  /// In ru, this message translates to:
+  /// **'Область'**
+  String get stitchToolArea;
+
+  /// Сколько клеток вышивки сделано
+  ///
+  /// In ru, this message translates to:
+  /// **'Сделано {done} из {total}'**
+  String stitchCounter(int done, int total);
+
+  /// Сколько клеток осталось
+  ///
+  /// In ru, this message translates to:
+  /// **'Осталось {count}'**
+  String stitchRemaining(int count);
+
+  /// Кнопка: список цветов с остатком
+  ///
+  /// In ru, this message translates to:
+  /// **'Цвета'**
+  String get stitchColors;
+
+  /// Заголовок списка цветов в режиме вышивания
+  ///
+  /// In ru, this message translates to:
+  /// **'Что осталось по цветам'**
+  String get stitchColorsTitle;
+
+  /// Сколько клеток цвета сделано
+  ///
+  /// In ru, this message translates to:
+  /// **'{done} из {total}'**
+  String stitchColorProgress(int done, int total);
+
+  /// Все клетки цвета сделаны
+  ///
+  /// In ru, this message translates to:
+  /// **'Цвет готов'**
+  String get stitchColorFinished;
+
+  /// Действие: отметить все клетки цвета сделанными
+  ///
+  /// In ru, this message translates to:
+  /// **'Отметить весь цвет'**
+  String get stitchMarkColor;
+
+  /// Действие: снять отметки со всех клеток цвета
+  ///
+  /// In ru, this message translates to:
+  /// **'Снять отметки с цвета'**
+  String get stitchUnmarkColor;
+
+  /// Действие: подсветить цвет на схеме
+  ///
+  /// In ru, this message translates to:
+  /// **'Подсветить на схеме'**
+  String get stitchHighlightColor;
+
+  /// Кнопка: показать клетку, на которой остановились
+  ///
+  /// In ru, this message translates to:
+  /// **'К месту остановки'**
+  String get stitchGoToParked;
+
+  /// Подсказка про парковку
+  ///
+  /// In ru, this message translates to:
+  /// **'Долгое касание запоминает место, где остановилась.'**
+  String get stitchParkHint;
+
+  /// Переключатель: показывать прогресс по блокам 10×10
+  ///
+  /// In ru, this message translates to:
+  /// **'Блоки 10×10'**
+  String get stitchBlocks;
+
+  /// Переключатель символов на клетках (VoiceOver)
+  ///
+  /// In ru, this message translates to:
+  /// **'Показать символы'**
+  String get stitchSymbols;
+
+  /// Вопрос, когда отмечена последняя клетка
+  ///
+  /// In ru, this message translates to:
+  /// **'Вся вышивка сделана. Отметить работу законченной?'**
+  String get stitchFinishTitle;
+
+  /// Кнопка: отметить проект готовым
+  ///
+  /// In ru, this message translates to:
+  /// **'Готово'**
+  String get stitchFinishYes;
+
+  /// Кнопка: не отмечать сейчас
+  ///
+  /// In ru, this message translates to:
+  /// **'Позже'**
+  String get stitchFinishLater;
+
+  /// Предупреждение: прогресс не записался
+  ///
+  /// In ru, this message translates to:
+  /// **'Не получилось сохранить прогресс. Попробую ещё раз.'**
+  String get stitchSaveFailed;
+
+  /// Подпись метки места остановки (VoiceOver)
+  ///
+  /// In ru, this message translates to:
+  /// **'Место запомнено'**
+  String get stitchParked;
+
   /// Заголовок экрана расхода мулине
   ///
   /// In ru, this message translates to:

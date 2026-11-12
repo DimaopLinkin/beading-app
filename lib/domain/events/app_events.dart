@@ -24,6 +24,21 @@ final class RowsCompleted extends AppEvent {
   final int total;
 }
 
+/// В вышивке закрыт блок 10×10: все его клетки сделаны. [total] — сколько блоков закрыто в этом проекте сейчас.
+final class StitchBlockCompleted extends AppEvent {
+  const StitchBlockCompleted({required this.projectId, required this.total});
+
+  final String projectId;
+  final int total;
+}
+
+/// В вышивке сделаны все клетки одного цвета.
+final class StitchColorCompleted extends AppEvent {
+  const StitchColorCompleted(this.projectId);
+
+  final String projectId;
+}
+
 /// Сессия идёт дольше порога (`EasterEggPolicy.longSession`).
 final class LongSession extends AppEvent {
   const LongSession();

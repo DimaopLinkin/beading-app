@@ -96,6 +96,8 @@ void main() {
     test('группа комплимента совпадает с триггером', () {
       expect(_decide(luckyPolicy(), const ProjectCompleted('p1'))!.group, EggGroup.completed);
       expect(_decide(luckyPolicy(), const RowsCompleted(100))!.group, EggGroup.rows);
+      expect(_decide(luckyPolicy(), const StitchBlockCompleted(projectId: 'p1', total: 3))!.group, EggGroup.rows);
+      expect(_decide(luckyPolicy(), const StitchColorCompleted('p1'))!.group, EggGroup.rows);
       expect(_decide(luckyPolicy(), const AppStarted())!.group, EggGroup.appStart);
       expect(_decide(luckyPolicy(), const LongSession())!.group, EggGroup.longSession);
     });

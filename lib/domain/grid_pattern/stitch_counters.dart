@@ -59,3 +59,56 @@ abstract final class StitchCounters {
     return (total: total, done: done);
   }
 }
+
+/// Прогресс одного блока крупной сетки схемы (по умолчанию 10×10, как жирные линии вышивки).
+final class BlockCount extends Equatable {
+  const BlockCount({required this.blockColumn, required this.blockRow, required this.total, required this.done});
+
+  final int blockColumn;
+  final int blockRow;
+
+  /// Клеток с цветом в блоке; у блока без единой клетки `0`.
+  final int total;
+  final int done;
+
+  bool get isComplete => total > 0 && done >= total;
+
+  /// Доля сделанного, от нуля до единицы; пустой блок считается готовым.
+  double get fraction => total == 0 ? 1 : done / total;
+
+  @override
+  List<Object?> get props => <Object?>[blockColumn, blockRow, total, done];
+}
+
+/// Блоки схемы с прогрессом.
+abstract final class StitchBlocks {
+  static const int side = 10;
+
+  /// Блоки по рядам слева направо; крайние блоки могут быть неполными. Блоки без клеток с цветом пропускаются.
+  static List<BlockCount> compute(Grid grid, CellProgress progress, {int blockSide = side}) {
+    final int columns = (grid.width + blockSide - 1) ~/ blockSide;
+    final int rows = (grid.height + blockSide - 1) ~/ blockSide;
+    final List<BlockCount> result = <BlockCount>[];
+    for (int by = 0; by < rows; by++) {
+      for (int bx = 0; bx < columns; bx++) {
+        int total = 0;
+        int done = 0;
+        for (int r = by * blockSide; r < (by + 1) * blockSide && r < grid.height; r++) {
+          for (int c = bx * blockSide; c < (bx + 1) * blockSide && c < grid.width; c++) {
+            if (grid.at(c, r) == 0) {
+              continue;
+            }
+            total++;
+            if (progress.isDone(c, r)) {
+              done++;
+            }
+          }
+        }
+        if (total > 0) {
+          result.add(BlockCount(blockColumn: bx, blockRow: by, total: total, done: done));
+        }
+      }
+    }
+    return result;
+  }
+}

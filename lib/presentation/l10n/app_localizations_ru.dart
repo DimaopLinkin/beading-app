@@ -1624,6 +1624,86 @@ class AppLocalizationsRu extends AppLocalizations {
       'Приложение не смогло открыть свои данные. Ничего не удалено: закройте приложение и откройте его снова. Если это повторяется, покажите разработчику текст ниже.';
 
   @override
+  String get stitchLoadFailed => 'Не получилось открыть вышивку. Попробуй ещё раз.';
+
+  @override
+  String get stitchClose => 'Закрыть';
+
+  @override
+  String stitchPercent(int percent) {
+    return '$percent%';
+  }
+
+  @override
+  String get stitchToolTap => 'Касание';
+
+  @override
+  String get stitchToolStroke => 'Мазок';
+
+  @override
+  String get stitchToolArea => 'Область';
+
+  @override
+  String stitchCounter(int done, int total) {
+    return 'Сделано $done из $total';
+  }
+
+  @override
+  String stitchRemaining(int count) {
+    return 'Осталось $count';
+  }
+
+  @override
+  String get stitchColors => 'Цвета';
+
+  @override
+  String get stitchColorsTitle => 'Что осталось по цветам';
+
+  @override
+  String stitchColorProgress(int done, int total) {
+    return '$done из $total';
+  }
+
+  @override
+  String get stitchColorFinished => 'Цвет готов';
+
+  @override
+  String get stitchMarkColor => 'Отметить весь цвет';
+
+  @override
+  String get stitchUnmarkColor => 'Снять отметки с цвета';
+
+  @override
+  String get stitchHighlightColor => 'Подсветить на схеме';
+
+  @override
+  String get stitchGoToParked => 'К месту остановки';
+
+  @override
+  String get stitchParkHint => 'Долгое касание запоминает место, где остановилась.';
+
+  @override
+  String get stitchBlocks => 'Блоки 10×10';
+
+  @override
+  String get stitchSymbols => 'Показать символы';
+
+  @override
+  String get stitchFinishTitle => 'Вся вышивка сделана. Отметить работу законченной?';
+
+  @override
+  String get stitchFinishYes => 'Готово';
+
+  @override
+  String get stitchFinishLater => 'Позже';
+
+  @override
+  String get stitchSaveFailed => 'Не получилось сохранить прогресс. Попробую ещё раз.';
+
+  @override
+  String get stitchParked => 'Место запомнено';
+
+  @override
   String get flossTitle => 'Мулине';
 
   @override

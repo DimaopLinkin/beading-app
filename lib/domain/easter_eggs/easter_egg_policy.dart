@@ -63,6 +63,8 @@ class EasterEggPolicy {
             ? pick(EggGroup.specialDate)
             : chance(EggGroup.appStart, appStartChance),
       RowsCompleted() => canTrigger(event) ? chance(EggGroup.rows, rowsChance) : null,
+      // Закрытый блок или цвет вышивки — как отмеченный ряд: редко и не чаще общего интервала между пасхалками.
+      StitchBlockCompleted() || StitchColorCompleted() => chance(EggGroup.rows, rowsChance),
       LongSession() => chance(EggGroup.longSession, longSessionChance),
     };
   }
