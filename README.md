@@ -9,5 +9,5 @@ flutter run                   # или flutter run --release на подключ
 scripts/internal/check.sh     # формат, анализатор, правила слоёв, тесты с покрытием (то же гоняет CI)
 ```
 
-Релиз (Ad Hoc для iPhone, Developer ID для Mac): `scripts/release_ios.sh`, `scripts/release_macos.sh`, подробности в [docs/release.md](docs/release.md).
+Сборка и установка: `flutter run --release` (iPhone) и `flutter build macos --release`, см. [docs/release.md](docs/release.md).
 Остальное в `scripts/internal/` — рабочие скрипты проверок и процесса команды, руками их гонять не нужно.

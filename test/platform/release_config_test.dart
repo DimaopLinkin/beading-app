@@ -95,23 +95,6 @@ void main() {
     });
   });
 
-  group('ExportOptions', () {
-    test('ios Ad Hoc', () {
-      final String plist = read('ios/ExportOptions-AdHoc.plist');
-      expect(stringValue(plist, 'method'), 'ad-hoc');
-      expect(plist, contains('__TEAM_ID__'));
-      expect(stringValue(plist, 'signingStyle'), 'automatic');
-      expect(hasTrue(plist, 'compileBitcode'), isFalse);
-    });
-
-    test('macos Developer ID', () {
-      final String plist = read('macos/ExportOptions-DeveloperID.plist');
-      expect(stringValue(plist, 'method'), 'developer-id');
-      expect(plist, contains('__TEAM_ID__'));
-      expect(stringValue(plist, 'signingStyle'), 'automatic');
-    });
-  });
-
   group('иконки-заглушки', () {
     test('iOS: 1024×1024 без прозрачности по всем размерам из Contents.json есть файлы', () {
       final String contents = read('ios/Runner/Assets.xcassets/AppIcon.appiconset/Contents.json');

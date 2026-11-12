@@ -10,3 +10,4 @@
 | [0004](0004-generator-stages.md) | Стадии генератора «фото → схема» до и после привязки к палитре (A08, [research/photo-to-pattern.md](../research/photo-to-pattern.md)) | принято |
 | [0005](0005-full-bead-catalog.md) | Полный каталог бисера: данные beadloo-assets (MIT) и RGB, измеренный по фото (T59) | принято |
 | [0006](0006-sync-supabase.md) | Синхронизация устройств через Supabase (вместо iCloud/CloudKit): `sync_records`, Auth по почте, RLS, realtime (A03) | предложено |
+| [0007](0007-composition-without-get-it.md) | Внедрение зависимостей без get_it: модули фич на чистом Dart, корень `AppDependencies` (A14) | принято |

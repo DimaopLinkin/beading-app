@@ -8,6 +8,7 @@ import 'package:beading/data/db/daos/image_patterns_dao.dart';
 import 'package:beading/data/db/daos/projects_dao.dart';
 import 'package:beading/data/db/daos/settings_dao.dart';
 import 'package:beading/data/db/daos/work_sessions_dao.dart';
+import 'package:beading/data/db/sync_triggers.dart';
 import 'package:beading/data/db/tables/book_work_tables.dart';
 import 'package:beading/data/db/tables/catalog_tables.dart';
 import 'package:beading/data/db/tables/easter_egg_log_table.dart';
@@ -16,6 +17,7 @@ import 'package:beading/data/db/tables/grid_pattern_tables.dart';
 import 'package:beading/data/db/tables/image_pattern_tables.dart';
 import 'package:beading/data/db/tables/projects_table.dart';
 import 'package:beading/data/db/tables/settings_table.dart';
+import 'package:beading/data/db/tables/sync_tables.dart';
 import 'package:beading/data/db/tables/work_sessions_table.dart';
 import 'package:drift/drift.dart';
 
@@ -39,6 +41,9 @@ part 'app_database.g.dart';
     BookWorkStates,
     WorkSessions,
     FlossStock,
+    SyncOutbox,
+    SyncShadow,
+    SyncApplying,
   ],
   daos: <Type>[
     SettingsDao,
@@ -56,10 +61,14 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase(super.e);
 
   @override
-  int get schemaVersion => 13;
+  int get schemaVersion => 14;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
+    onCreate: (m) async {
+      await m.createAll();
+      await _createSyncTriggers();
+    },
     onUpgrade: stepByStep(
       from1To2: (m, schema) async {
         await m.createTable(schema.projects);
@@ -107,7 +116,20 @@ class AppDatabase extends _$AppDatabase {
       from11To12: (m, schema) => m.addColumn(schema.pageWorkStates, schema.pageWorkStates.markup),
 
       from12To13: (m, schema) => m.createTable(schema.flossStock),
+      // v14 (T26б): очередь изменений, теневая копия и флаг применения для синхронизации, триггеры очереди.
+      from13To14: (m, schema) async {
+        await m.createTable(schema.syncOutbox);
+        await m.createTable(schema.syncShadow);
+        await m.createTable(schema.syncApplying);
+        await _createSyncTriggers();
+      },
     ),
     beforeOpen: (details) => customStatement('PRAGMA foreign_keys = ON'),
   );
+
+  Future<void> _createSyncTriggers() async {
+    for (final String sql in SyncTriggers.statements) {
+      await customStatement(sql);
+    }
+  }
 }
