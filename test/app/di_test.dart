@@ -1,3 +1,5 @@
+import 'package:beading/app/composition/app_dependencies.dart';
+import 'package:beading/app/composition/core_module.dart';
 import 'package:beading/app/di.dart';
 import 'package:beading/app/platform/desktop_window.dart';
 import 'package:beading/app/platform/orientation_lock.dart';
@@ -55,7 +57,10 @@ void main() {
   test('configureDependencies регистрирует базовые сервисы', () async {
     final GetIt locator = GetIt.asNewInstance();
 
-    await configureDependencies(locator: locator, database: createInMemoryDatabase());
+    await configureDependencies(
+      AppDependencies(core: CoreModule(database: createInMemoryDatabase())),
+      locator: locator,
+    );
 
     expect(locator<Clock>(), isA<SystemClock>());
     expect(locator<IdGenerator>(), isA<UuidV7IdGenerator>());
@@ -94,8 +99,14 @@ void main() {
   test('повторная настройка не падает и пересоздаёт регистрации', () async {
     final GetIt locator = GetIt.asNewInstance();
 
-    await configureDependencies(locator: locator, database: createInMemoryDatabase());
-    await configureDependencies(locator: locator, database: createInMemoryDatabase());
+    await configureDependencies(
+      AppDependencies(core: CoreModule(database: createInMemoryDatabase())),
+      locator: locator,
+    );
+    await configureDependencies(
+      AppDependencies(core: CoreModule(database: createInMemoryDatabase())),
+      locator: locator,
+    );
 
     expect(locator.isRegistered<Clock>(), isTrue);
   });
