@@ -3241,6 +3241,12 @@ abstract class AppLocalizations {
   /// **'Подсветить на схеме'**
   String get stitchHighlightColor;
 
+  /// Кнопка на плашке выбранного цвета: снять подсветку цвета
+  ///
+  /// In ru, this message translates to:
+  /// **'Сбросить выбор цвета'**
+  String get stitchResetHighlight;
+
   /// Кнопка: показать клетку, на которой остановились
   ///
   /// In ru, this message translates to:

@@ -1217,6 +1217,8 @@
   "@stitchUnmarkColor": {"description": "Действие: снять отметки со всех клеток цвета"},
   "stitchHighlightColor": "Подсветить на схеме",
   "@stitchHighlightColor": {"description": "Действие: подсветить цвет на схеме"},
+  "stitchResetHighlight": "Сбросить выбор цвета",
+  "@stitchResetHighlight": {"description": "Кнопка на плашке выбранного цвета: снять подсветку цвета"},
   "stitchGoToParked": "К месту остановки",
   "@stitchGoToParked": {"description": "Кнопка: показать клетку, на которой остановились"},
   "stitchClearParked": "Снять метку",
