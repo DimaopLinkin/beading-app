@@ -2123,6 +2123,14 @@ class AppLocalizationsRu extends AppLocalizations {
   String get flossStockMore => 'Больше';
 
   @override
+  String beadStockAmount(String amount) {
+    return '$amount г';
+  }
+
+  @override
+  String get beadStockWriteFailed => 'Не удалось сохранить запас бисера';
+
+  @override
   String get flossStockClear => 'Нет в запасе';
 
   @override

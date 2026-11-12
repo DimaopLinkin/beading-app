@@ -1,4 +1,5 @@
 import 'package:beading/data/db/app_database.steps.dart';
+import 'package:beading/data/db/daos/bead_stock_dao.dart';
 import 'package:beading/data/db/daos/book_work_dao.dart';
 import 'package:beading/data/db/daos/catalog_dao.dart';
 import 'package:beading/data/db/daos/easter_egg_log_dao.dart';
@@ -9,6 +10,7 @@ import 'package:beading/data/db/daos/projects_dao.dart';
 import 'package:beading/data/db/daos/settings_dao.dart';
 import 'package:beading/data/db/daos/work_sessions_dao.dart';
 import 'package:beading/data/db/sync_triggers.dart';
+import 'package:beading/data/db/tables/bead_stock_table.dart';
 import 'package:beading/data/db/tables/book_work_tables.dart';
 import 'package:beading/data/db/tables/catalog_tables.dart';
 import 'package:beading/data/db/tables/easter_egg_log_table.dart';
@@ -41,6 +43,7 @@ part 'app_database.g.dart';
     BookWorkStates,
     WorkSessions,
     FlossStock,
+    BeadStock,
     SyncOutbox,
     SyncShadow,
     SyncApplying,
@@ -55,13 +58,14 @@ part 'app_database.g.dart';
     BookWorkDao,
     WorkSessionsDao,
     FlossStockDao,
+    BeadStockDao,
   ],
 )
 class AppDatabase extends _$AppDatabase {
   AppDatabase(super.e);
 
   @override
-  int get schemaVersion => 15;
+  int get schemaVersion => 16;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -121,19 +125,24 @@ class AppDatabase extends _$AppDatabase {
         await m.createTable(schema.syncOutbox);
         await m.createTable(schema.syncShadow);
         await m.createTable(schema.syncApplying);
-        await _createSyncTriggers();
+        await _createSyncTriggers(SyncTriggers.statementsBeforeBeadStock);
       },
       // v15 (T26б): время и устройство позиции «остановилась здесь» отдельно от записи сетки.
       from14To15: (m, schema) async {
         await m.addColumn(schema.gridPatterns, schema.gridPatterns.cursorUpdatedAt);
         await m.addColumn(schema.gridPatterns, schema.gridPatterns.cursorDeviceId);
       },
+      // v16 (A-bead-stock): запас бисера; триггеры очереди пересоздаются, чтобы охватить новую таблицу.
+      from15To16: (m, schema) async {
+        await m.createTable(schema.beadStock);
+        await _createSyncTriggers();
+      },
     ),
     beforeOpen: (details) => customStatement('PRAGMA foreign_keys = ON'),
   );
 
-  Future<void> _createSyncTriggers() async {
-    for (final String sql in SyncTriggers.statements) {
+  Future<void> _createSyncTriggers([List<String>? statements]) async {
+    for (final String sql in statements ?? SyncTriggers.statements) {
       await customStatement(sql);
     }
   }

@@ -3643,6 +3643,18 @@ abstract class AppLocalizations {
   /// **'Больше'**
   String get flossStockMore;
 
+  /// Число граммов бисера в запасе
+  ///
+  /// In ru, this message translates to:
+  /// **'{amount} г'**
+  String beadStockAmount(String amount);
+
+  /// Ошибка записи запаса бисера
+  ///
+  /// In ru, this message translates to:
+  /// **'Не удалось сохранить запас бисера'**
+  String get beadStockWriteFailed;
+
   /// Кнопка листа запаса: убрать нитку из запаса
   ///
   /// In ru, this message translates to:

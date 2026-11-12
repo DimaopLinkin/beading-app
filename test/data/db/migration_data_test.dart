@@ -226,4 +226,30 @@ void main() {
     final SyncOutboxRow queued = (await db.select(db.syncOutbox).get()).single;
     expect((queued.entity, queued.syncId), ('floss_stock', 'dmc:310'));
   });
+
+  test(
+    'миграция v15→v16 создаёт пустой запас бисера, не трогает запас ниток и ставит запас бисера в очередь',
+    () async {
+      final SchemaVerifier verifier = SchemaVerifier(GeneratedHelper());
+      final InitializedSchema old = await verifier.schemaAt(15);
+      old.rawDatabase.execute(
+        'INSERT INTO floss_stock (id, created_at, updated_at, device_id, brand, code, skeins) '
+        "VALUES ('f1', 1, 1, 'd', 'dmc', '310', 2.0)",
+      );
+
+      final AppDatabase db = AppDatabase(old.newConnection());
+      addTearDown(db.close);
+      await verifier.migrateAndValidate(db, 16);
+
+      expect(await db.select(db.flossStock).get(), hasLength(1));
+      expect(await db.select(db.beadStock).get(), isEmpty);
+
+      await db.customStatement(
+        'INSERT INTO bead_stock (id, created_at, updated_at, device_id, brand, code, grams) '
+        "VALUES ('b1', 1, 1, 'd', 'Miyuki', 'DB0010', 5.0)",
+      );
+      final SyncOutboxRow queued = (await db.select(db.syncOutbox).get()).single;
+      expect((queued.entity, queued.syncId), ('bead_stock', 'Miyuki:DB0010'));
+    },
+  );
 }

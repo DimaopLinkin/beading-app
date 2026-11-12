@@ -18,6 +18,13 @@ abstract final class SyncTriggers {
       'CREATE TRIGGER IF NOT EXISTS $name AFTER $event ON $table WHEN $_muted AND ($when) BEGIN '
       "INSERT INTO sync_outbox (entity, sync_id) VALUES ('$entity', $syncId) ON CONFLICT DO NOTHING; END";
 
+  /// Триггеры, существовавшие до появления запаса бисера (схема v14–v15): шаг миграции v13→v14 ещё не знает
+  /// таблицу `bead_stock`.
+  static List<String> get statementsBeforeBeadStock => <String>[
+    for (final String sql in statements)
+      if (!sql.contains(' ON bead_stock ')) sql,
+  ];
+
   /// Все выражения для создания (и пересоздания) триггеров.
   static List<String> get statements {
     final List<String> out = <String>[];
@@ -31,6 +38,7 @@ abstract final class SyncTriggers {
     both('projects', 'project', 'NEW.id');
     both('work_sessions', 'work_session', 'NEW.id');
     both('floss_stock', 'floss_stock', "NEW.brand || ':' || NEW.code");
+    both('bead_stock', 'bead_stock', "NEW.brand || ':' || NEW.code");
     const String notLocal = "NEW.\"key\" NOT LIKE 'local.%'";
     out
       ..add(_trigger('sync_settings_ins', 'settings', 'INSERT', 'setting', 'NEW."key"', when: notLocal))

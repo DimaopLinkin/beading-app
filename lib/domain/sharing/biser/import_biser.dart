@@ -3,6 +3,7 @@ import 'dart:typed_data';
 import 'package:beading/core/failure.dart';
 import 'package:beading/core/id_generator.dart';
 import 'package:beading/core/result.dart';
+import 'package:beading/domain/bead_stock/bead_stock_repository.dart';
 import 'package:beading/domain/floss_stock/floss_stock_repository.dart';
 import 'package:beading/domain/grid_pattern/cell_progress.dart';
 import 'package:beading/domain/grid_pattern/cell_progress_store.dart';
@@ -97,7 +98,9 @@ class ImportBiser {
     required IdGenerator ids,
     required UnitOfWork unitOfWork,
     FlossStockRepository? flossStock,
+    BeadStockRepository? beadStock,
   }) : _flossStock = flossStock,
+       _beadStock = beadStock,
        _codec = codec,
        _projects = projects,
        _grids = grids,
@@ -122,6 +125,7 @@ class ImportBiser {
   final IdGenerator _ids;
   final UnitOfWork _unitOfWork;
   final FlossStockRepository? _flossStock;
+  final BeadStockRepository? _beadStock;
 
   /// Читает файл и показывает, что в нём, ничего не записывая.
   Future<Result<BiserPreview>> preview(Uint8List bytes) async {
@@ -181,6 +185,12 @@ class ImportBiser {
         // Запас ниток сливается по более свежей записи на нитку; пропуск проекта его не касается.
         if (_flossStock != null && bundle.flossStock.isNotEmpty) {
           final Result<void> merged = await _flossStock.merge(bundle.flossStock);
+          if (merged case Err<void>(:final Failure failure)) {
+            return Err<ImportResult>(failure);
+          }
+        }
+        if (_beadStock != null && bundle.beadStock.isNotEmpty) {
+          final Result<void> merged = await _beadStock.merge(bundle.beadStock);
           if (merged case Err<void>(:final Failure failure)) {
             return Err<ImportResult>(failure);
           }
