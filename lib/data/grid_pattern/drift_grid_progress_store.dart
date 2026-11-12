@@ -112,8 +112,8 @@ class DriftGridProgressStore implements GridProgressStore {
           GridPatternsCompanion(
             currentRow: Value<int?>(row),
             currentBead: Value<int?>(bead),
-            updatedAt: Value<int>(now),
-            deviceId: Value<String>(deviceId),
+            cursorUpdatedAt: Value<int?>(now),
+            cursorDeviceId: Value<String?>(deviceId),
           ),
         );
       });
@@ -124,8 +124,8 @@ class DriftGridProgressStore implements GridProgressStore {
       GridPatternsCompanion(
         currentRow: const Value<int?>(null),
         currentBead: const Value<int?>(null),
-        updatedAt: Value<int>(now),
-        deviceId: Value<String>(deviceId),
+        cursorUpdatedAt: Value<int?>(now),
+        cursorDeviceId: Value<String?>(deviceId),
       ),
     );
   });

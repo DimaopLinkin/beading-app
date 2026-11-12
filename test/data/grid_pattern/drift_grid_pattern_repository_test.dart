@@ -516,7 +516,8 @@ void main() {
       expect((await progress.load('pat-1')).valueOrNull, GridProgress(completedRows: const <int>{0}, currentRow: 1));
     });
 
-    test('служебные колонки отметок и сдвиг updated_at у схемы при «остановилась здесь»', () async {
+    test('служебные колонки отметок; «остановилась здесь» ставит своё время и не трогает updated_at схемы', () async {
+      final int patternUpdatedAt = (await db.select(db.gridPatterns).getSingle()).updatedAt;
       clock.advance(const Duration(minutes: 1));
       await progress.markRow('pat-1', 0);
       await progress.setCurrent('pat-1', row: 0, bead: 1);
@@ -524,7 +525,14 @@ void main() {
       final GridProgressRowRecord row = await db.select(db.gridProgressRows).getSingle();
       expect(row.createdAt, clock.now().millisecondsSinceEpoch);
       expect(row.deviceId, isNotEmpty);
-      expect((await db.select(db.gridPatterns).getSingle()).updatedAt, clock.now().millisecondsSinceEpoch);
+      final GridPatternRow pattern = await db.select(db.gridPatterns).getSingle();
+      expect(
+        pattern.updatedAt,
+        patternUpdatedAt,
+        reason: 'запись сетки не «обновляется» движением по ряду (ADR-0006, R-09)',
+      );
+      expect(pattern.cursorUpdatedAt, clock.now().millisecondsSinceEpoch);
+      expect(pattern.cursorDeviceId, isNotEmpty);
     });
 
     test('несуществующая и удалённая схема — NotFoundFailure', () async {

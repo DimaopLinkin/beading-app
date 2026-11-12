@@ -4178,6 +4178,454 @@ i1.GeneratedColumn<int> _column_76(String aliasedName) =>
       type: i1.DriftSqlType.int,
       $customConstraints: 'NOT NULL',
     );
+
+final class Schema15 extends i0.VersionedSchema {
+  Schema15({required super.database}) : super(version: 15);
+  @override
+  late final List<i1.DatabaseSchemaEntity> entities = [
+    settings,
+    projects,
+    easterEggLog,
+    imagePatterns,
+    imagePatternPages,
+    gridPatterns,
+    patternColors,
+    gridProgressRows,
+    gridProgressCells,
+    catalogColors,
+    catalogSources,
+    pageWorkStates,
+    bookWorkStates,
+    workSessions,
+    flossStock,
+    syncOutbox,
+    syncShadow,
+    syncApplying,
+  ];
+  late final Shape0 settings = Shape0(
+    source: i0.VersionedTable(
+      entityName: 'settings',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: ['PRIMARY KEY("key")'],
+      columns: [
+        _column_0,
+        _column_1,
+        _column_2,
+        _column_3,
+        _column_4,
+        _column_5,
+      ],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final Shape1 projects = Shape1(
+    source: i0.VersionedTable(
+      entityName: 'projects',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: ['PRIMARY KEY(id)'],
+      columns: [
+        _column_6,
+        _column_0,
+        _column_1,
+        _column_2,
+        _column_3,
+        _column_7,
+        _column_8,
+        _column_9,
+        _column_10,
+        _column_11,
+        _column_12,
+        _column_13,
+        _column_14,
+      ],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final Shape2 easterEggLog = Shape2(
+    source: i0.VersionedTable(
+      entityName: 'easter_egg_log',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: [],
+      columns: [_column_15, _column_16, _column_17, _column_18],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final Shape3 imagePatterns = Shape3(
+    source: i0.VersionedTable(
+      entityName: 'image_patterns',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: ['PRIMARY KEY(id)', 'UNIQUE(project_id)'],
+      columns: [
+        _column_6,
+        _column_0,
+        _column_1,
+        _column_2,
+        _column_3,
+        _column_19,
+      ],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final Shape4 imagePatternPages = Shape4(
+    source: i0.VersionedTable(
+      entityName: 'image_pattern_pages',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: ['PRIMARY KEY(id)', 'UNIQUE(pattern_id, position)'],
+      columns: [
+        _column_6,
+        _column_0,
+        _column_1,
+        _column_2,
+        _column_3,
+        _column_20,
+        _column_21,
+        _column_22,
+        _column_23,
+        _column_24,
+      ],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final Shape21 gridPatterns = Shape21(
+    source: i0.VersionedTable(
+      entityName: 'grid_patterns',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: ['PRIMARY KEY(id)', 'UNIQUE(project_id)'],
+      columns: [
+        _column_6,
+        _column_0,
+        _column_1,
+        _column_2,
+        _column_3,
+        _column_19,
+        _column_46,
+        _column_47,
+        _column_23,
+        _column_24,
+        _column_48,
+        _column_49,
+        _column_50,
+        _column_77,
+        _column_78,
+        _column_51,
+        _column_52,
+        _column_53,
+        _column_54,
+      ],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final Shape10 patternColors = Shape10(
+    source: i0.VersionedTable(
+      entityName: 'pattern_colors',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: [
+        'PRIMARY KEY(id)',
+        'UNIQUE(grid_pattern_id, position)',
+      ],
+      columns: [
+        _column_6,
+        _column_0,
+        _column_1,
+        _column_2,
+        _column_3,
+        _column_55,
+        _column_21,
+        _column_30,
+        _column_7,
+        _column_56,
+        _column_31,
+        _column_57,
+      ],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final Shape11 gridProgressRows = Shape11(
+    source: i0.VersionedTable(
+      entityName: 'grid_progress_rows',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: [
+        'PRIMARY KEY(id)',
+        'UNIQUE(grid_pattern_id, row_index)',
+      ],
+      columns: [
+        _column_6,
+        _column_0,
+        _column_1,
+        _column_2,
+        _column_3,
+        _column_55,
+        _column_58,
+        _column_59,
+      ],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final Shape15 gridProgressCells = Shape15(
+    source: i0.VersionedTable(
+      entityName: 'grid_progress_cells',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: [
+        'PRIMARY KEY(id)',
+        'UNIQUE(grid_pattern_id, block_index)',
+      ],
+      columns: [
+        _column_6,
+        _column_0,
+        _column_1,
+        _column_2,
+        _column_3,
+        _column_55,
+        _column_68,
+        _column_69,
+      ],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final Shape5 catalogColors = Shape5(
+    source: i0.VersionedTable(
+      entityName: 'catalog_colors',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: ['PRIMARY KEY(id)'],
+      columns: [
+        _column_6,
+        _column_25,
+        _column_26,
+        _column_27,
+        _column_28,
+        _column_29,
+        _column_7,
+        _column_30,
+        _column_31,
+        _column_32,
+        _column_33,
+        _column_21,
+      ],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final Shape6 catalogSources = Shape6(
+    source: i0.VersionedTable(
+      entityName: 'catalog_sources',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: ['PRIMARY KEY(id)'],
+      columns: [_column_6, _column_34],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final Shape16 pageWorkStates = Shape16(
+    source: i0.VersionedTable(
+      entityName: 'page_work_states',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: ['PRIMARY KEY(id)'],
+      columns: [
+        _column_35,
+        _column_0,
+        _column_1,
+        _column_2,
+        _column_3,
+        _column_36,
+        _column_37,
+        _column_38,
+        _column_39,
+        _column_40,
+        _column_60,
+        _column_63,
+        _column_64,
+        _column_65,
+        _column_66,
+        _column_67,
+        _column_70,
+        _column_41,
+        _column_42,
+        _column_43,
+      ],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final Shape8 bookWorkStates = Shape8(
+    source: i0.VersionedTable(
+      entityName: 'book_work_states',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: ['PRIMARY KEY(id)'],
+      columns: [
+        _column_44,
+        _column_0,
+        _column_1,
+        _column_2,
+        _column_3,
+        _column_45,
+      ],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final Shape13 workSessions = Shape13(
+    source: i0.VersionedTable(
+      entityName: 'work_sessions',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: ['PRIMARY KEY(id)'],
+      columns: [
+        _column_6,
+        _column_0,
+        _column_1,
+        _column_2,
+        _column_3,
+        _column_19,
+        _column_61,
+        _column_62,
+      ],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final Shape17 flossStock = Shape17(
+    source: i0.VersionedTable(
+      entityName: 'floss_stock',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: ['PRIMARY KEY(id)'],
+      columns: [
+        _column_6,
+        _column_0,
+        _column_1,
+        _column_2,
+        _column_3,
+        _column_27,
+        _column_29,
+        _column_71,
+      ],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final Shape18 syncOutbox = Shape18(
+    source: i0.VersionedTable(
+      entityName: 'sync_outbox',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: ['PRIMARY KEY(entity, sync_id)'],
+      columns: [_column_72, _column_73],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final Shape19 syncShadow = Shape19(
+    source: i0.VersionedTable(
+      entityName: 'sync_shadow',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: ['PRIMARY KEY(entity, sync_id)'],
+      columns: [
+        _column_72,
+        _column_73,
+        _column_1,
+        _column_2,
+        _column_3,
+        _column_74,
+        _column_75,
+      ],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final Shape20 syncApplying = Shape20(
+    source: i0.VersionedTable(
+      entityName: 'sync_applying',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: ['PRIMARY KEY(flag)'],
+      columns: [_column_76],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+}
+
+class Shape21 extends i0.VersionedTable {
+  Shape21({required super.source, required super.alias}) : super.aliased();
+  i1.GeneratedColumn<String> get id =>
+      columnsByName['id']! as i1.GeneratedColumn<String>;
+  i1.GeneratedColumn<int> get createdAt =>
+      columnsByName['created_at']! as i1.GeneratedColumn<int>;
+  i1.GeneratedColumn<int> get updatedAt =>
+      columnsByName['updated_at']! as i1.GeneratedColumn<int>;
+  i1.GeneratedColumn<int> get deletedAt =>
+      columnsByName['deleted_at']! as i1.GeneratedColumn<int>;
+  i1.GeneratedColumn<String> get deviceId =>
+      columnsByName['device_id']! as i1.GeneratedColumn<String>;
+  i1.GeneratedColumn<String> get projectId =>
+      columnsByName['project_id']! as i1.GeneratedColumn<String>;
+  i1.GeneratedColumn<String> get geometry =>
+      columnsByName['geometry']! as i1.GeneratedColumn<String>;
+  i1.GeneratedColumn<int> get geometryDrop =>
+      columnsByName['geometry_drop']! as i1.GeneratedColumn<int>;
+  i1.GeneratedColumn<int> get width =>
+      columnsByName['width']! as i1.GeneratedColumn<int>;
+  i1.GeneratedColumn<int> get height =>
+      columnsByName['height']! as i1.GeneratedColumn<int>;
+  i1.GeneratedColumn<String> get cellMetrics =>
+      columnsByName['cell_metrics']! as i1.GeneratedColumn<String>;
+  i1.GeneratedColumn<int> get currentRow =>
+      columnsByName['current_row']! as i1.GeneratedColumn<int>;
+  i1.GeneratedColumn<int> get currentBead =>
+      columnsByName['current_bead']! as i1.GeneratedColumn<int>;
+  i1.GeneratedColumn<int> get cursorUpdatedAt =>
+      columnsByName['cursor_updated_at']! as i1.GeneratedColumn<int>;
+  i1.GeneratedColumn<String> get cursorDeviceId =>
+      columnsByName['cursor_device_id']! as i1.GeneratedColumn<String>;
+  i1.GeneratedColumn<i2.Uint8List> get cells =>
+      columnsByName['cells']! as i1.GeneratedColumn<i2.Uint8List>;
+  i1.GeneratedColumn<int> get cellsCodecVersion =>
+      columnsByName['cells_codec_version']! as i1.GeneratedColumn<int>;
+  i1.GeneratedColumn<i2.Uint8List> get layers =>
+      columnsByName['layers']! as i1.GeneratedColumn<i2.Uint8List>;
+  i1.GeneratedColumn<int> get layersCodecVersion =>
+      columnsByName['layers_codec_version']! as i1.GeneratedColumn<int>;
+}
+
+i1.GeneratedColumn<int> _column_77(String aliasedName) =>
+    i1.GeneratedColumn<int>(
+      'cursor_updated_at',
+      aliasedName,
+      true,
+      type: i1.DriftSqlType.int,
+      $customConstraints: 'NULL',
+    );
+i1.GeneratedColumn<String> _column_78(String aliasedName) =>
+    i1.GeneratedColumn<String>(
+      'cursor_device_id',
+      aliasedName,
+      true,
+      type: i1.DriftSqlType.string,
+      $customConstraints: 'NULL',
+    );
 i0.MigrationStepWithVersion migrationSteps({
   required Future<void> Function(i1.Migrator m, Schema2 schema) from1To2,
   required Future<void> Function(i1.Migrator m, Schema3 schema) from2To3,
@@ -4192,6 +4640,7 @@ i0.MigrationStepWithVersion migrationSteps({
   required Future<void> Function(i1.Migrator m, Schema12 schema) from11To12,
   required Future<void> Function(i1.Migrator m, Schema13 schema) from12To13,
   required Future<void> Function(i1.Migrator m, Schema14 schema) from13To14,
+  required Future<void> Function(i1.Migrator m, Schema15 schema) from14To15,
 }) {
   return (currentVersion, database) async {
     switch (currentVersion) {
@@ -4260,6 +4709,11 @@ i0.MigrationStepWithVersion migrationSteps({
         final migrator = i1.Migrator(database, schema);
         await from13To14(migrator, schema);
         return 14;
+      case 14:
+        final schema = Schema15(database: database);
+        final migrator = i1.Migrator(database, schema);
+        await from14To15(migrator, schema);
+        return 15;
       default:
         throw ArgumentError.value('Unknown migration from $currentVersion');
     }
@@ -4280,6 +4734,7 @@ i1.OnUpgrade stepByStep({
   required Future<void> Function(i1.Migrator m, Schema12 schema) from11To12,
   required Future<void> Function(i1.Migrator m, Schema13 schema) from12To13,
   required Future<void> Function(i1.Migrator m, Schema14 schema) from13To14,
+  required Future<void> Function(i1.Migrator m, Schema15 schema) from14To15,
 }) => i0.VersionedSchema.stepByStepHelper(
   step: migrationSteps(
     from1To2: from1To2,
@@ -4295,5 +4750,6 @@ i1.OnUpgrade stepByStep({
     from11To12: from11To12,
     from12To13: from12To13,
     from13To14: from13To14,
+    from14To15: from14To15,
   ),
 );
