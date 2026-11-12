@@ -172,7 +172,7 @@ void main() {
     await Future<void>.delayed(Duration.zero);
   }
 
-  test('фото декодируется в 2048 пикселей по длинной стороне, а не в 1024 по умолчанию (T69)', () async {
+  test('фото декодируется в 2048 пикселей по длинной стороне, а не в 1024 по умолчанию (T70)', () async {
     cubit = build(debounce: Duration.zero);
     await openPhoto();
     expect(decoder.lastMaxSide, wizardImageMaxSide);

@@ -221,7 +221,7 @@ final class ImageToGridSettings extends Equatable {
   );
 
   /// Сколько цветов берёт расчёт для схемы в [rows] рядов: сколько задано, [maxColors]. У огромных схем таблица цен
-  /// разреженная (`CellCosts.denseBudget`, T69), поэтому цвета больше не урезаются.
+  /// разреженная (`CellCosts.denseBudget`, T70), поэтому цвета больше не урезаются.
   int colorsFor(int rows) => maxColors;
 
   /// Материал каталога под ремесло: бисер или мулине.

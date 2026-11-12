@@ -96,7 +96,7 @@ final class PottsLabelSmoother extends Equatable implements LabelSmoother {
     return current;
   }
 
-  /// Разреженные цены (T69): клетка перебирает только кандидатов и цвета соседей (цвет, которого нет ни у тех, ни у
+  /// Разреженные цены (T70): клетка перебирает только кандидатов и цвета соседей (цвет, которого нет ни у тех, ни у
   /// других, не выигрывает: его цена оценена сверху, а голосов у него нет). Формула и правило ничьей те же.
   Uint16List _smoothSparse(Uint16List current, CellCosts costs, CellNeighbors neighbors, Float64List lambda) {
     final int cells = current.length;

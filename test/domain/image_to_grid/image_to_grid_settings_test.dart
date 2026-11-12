@@ -216,7 +216,7 @@ void main() {
       }
     });
 
-    test('огромная схема не теряет цвета: сколько задано, столько и в расчёте (T69)', () {
+    test('огромная схема не теряет цвета: сколько задано, столько и в расчёте (T70)', () {
       final Fabric aida20 = Fabric.create(kind: FabricKind.aida, count: 20).valueOrNull!;
       final ImageToGridSettings s = stitch.copyWith(
         fabric: aida20,

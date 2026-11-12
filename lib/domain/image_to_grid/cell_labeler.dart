@@ -30,7 +30,7 @@ abstract interface class CellLabeler {
 ///
 /// На границе двух областей 60/40 это цвет большей части, а не «грязная» смесь, которой нет в палитре.
 ///
-/// Когда таблица «клетка × цвет» не помещается в [denseBudget] (T69), считаются точные цены только нескольких
+/// Когда таблица «клетка × цвет» не помещается в [denseBudget] (T70), считаются точные цены только нескольких
 /// цветов-кандидатов клетки, см. [CellCosts.sparse]; для небольших схем путь прежний, точный.
 final class VotingCellLabeler extends Equatable implements CellLabeler {
   const VotingCellLabeler({this.denseBudget = CellCosts.denseBudget});
@@ -117,7 +117,7 @@ final class DetailCellLabeler extends Equatable implements CellLabeler {
     this.denseBudget = CellCosts.denseBudget,
   });
 
-  /// Сколько чисел «клетка × цвет» считается плотно; больше — разреженная таблица (T69), как у [VotingCellLabeler].
+  /// Сколько чисел «клетка × цвет» считается плотно; больше — разреженная таблица (T70), как у [VotingCellLabeler].
   final int denseBudget;
 
   final double floor;
@@ -240,7 +240,7 @@ final class DetailCellLabeler extends Equatable implements CellLabeler {
   }
 }
 
-/// Разметка для схем, чья плотная таблица цен не помещается в [denseBudget] (T69).
+/// Разметка для схем, чья плотная таблица цен не помещается в [denseBudget] (T70).
 ///
 /// Для клетки: средний Lab и разброс (с теми же весами, что у цен), затем кандидаты — `K − 1` цветов палитры,
 /// ближайших к среднему, и цвет, ближайший к самому далёкому от среднего пикселю (граница 60/40 всё же может взять цвет

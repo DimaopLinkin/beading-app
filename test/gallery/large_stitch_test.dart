@@ -49,7 +49,7 @@ void main() {
     });
   }, timeout: const Timeout(Duration(minutes: 15)));
 
-  testWidgets('вышивка 1575 × 2677 крестиков, 120 цветов, фото 603 × 1024 (T69)', (tester) async {
+  testWidgets('вышивка 1575 × 2677 крестиков, 120 цветов, фото 603 × 1024 (T70)', (tester) async {
     await tester.runAsync(() async {
       final List<CatalogColor> catalog = loadBeadCatalog();
       // Мягкие цветные пятна и градиент: «кожа» с плавными переходами, на которых плотная таблица теряла цвета.

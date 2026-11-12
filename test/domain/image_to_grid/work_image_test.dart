@@ -32,13 +32,15 @@ void main() {
       expect(image.height, 18);
     });
 
-    test('масштаб не больше, чем пикселей исходника на ячейку (T69)', () {
+    test('у крупной схемы масштаб не больше, чем пикселей исходника на ячейку (T70)', () {
       final SourceImage narrow = SourceImage.solid(width: 600, height: 400, r: 10, g: 20, b: 30);
       final WorkImage low = work(narrow, columns: 1500, rows: 1000);
       expect(low.scale, 1);
       expect(low.width, 1500);
-      final WorkImage half = work(narrow, columns: 200, rows: 100);
-      expect(half.scale, 3);
+      final WorkImage half = work(narrow, columns: 300, rows: 200);
+      expect(half.scale, 2);
+      // Мелкая схема считается как раньше, даже если исходник растягивается.
+      expect(work(narrow, columns: 200, rows: 100).scale, 4);
       final WorkImage draft = WorkImage.fromSource(
         image: narrow,
         geometry: const GridGeometry.rectangular(),
@@ -153,7 +155,7 @@ void main() {
       );
     });
 
-    test('исходник меньше схемы растягивается до ячейки без пустот', () {
+    test('исходник меньше рабочей картинки растягивается без пустот', () {
       final WorkImage image = work(
         blockImage(<List<int>>[
           <int>[0x336699],
@@ -161,8 +163,7 @@ void main() {
         columns: 3,
         rows: 3,
       );
-      // Исходник в один пиксель: масштаб 1 (T69), по пикселю на ячейку.
-      expect(image.width, 3);
+      expect(image.width, 18);
       final SourceImage back = image.toSourceImage();
       for (int i = 0; i < image.width * image.height; i++) {
         expect(back.rgba[i * 4 + 3], 255);
