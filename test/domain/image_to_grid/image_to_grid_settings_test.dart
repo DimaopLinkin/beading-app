@@ -216,11 +216,17 @@ void main() {
       }
     });
 
-    test('огромная схема берёт меньше цветов, чтобы поместиться в память', () {
-      final ImageToGridSettings s = stitch.copyWith(columns: stitch.fabric.cellsForCm(200), maxColors: 120);
-      final int rows = stitch.fabric.cellsForCm(80);
-      expect(s.colorsFor(rows), lessThan(120));
-      expect(s.columns * rows * s.colorsFor(rows), lessThanOrEqualTo(ImageToGridSettings.costBudget));
+    test('огромная схема не теряет цвета: сколько задано, столько и в расчёте (T69)', () {
+      final Fabric aida20 = Fabric.create(kind: FabricKind.aida, count: 20).valueOrNull!;
+      final ImageToGridSettings s = stitch.copyWith(
+        fabric: aida20,
+        columns: aida20.cellsForCm(200),
+        maxColors: 120,
+      );
+      final SourceImage photo = SourceImage.solid(width: 603, height: 1024, r: 10, g: 20, b: 30);
+      expect(s.columns, 1575);
+      expect(s.toRequest(image: photo).maxColors, 120);
+      expect(s.colorsFor(s.rowsFor(photo)), 120);
       expect(stitch.copyWith(columns: 150, maxColors: 30).colorsFor(100), 30);
     });
 

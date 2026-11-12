@@ -288,7 +288,7 @@ class ImageWizardCubit extends Cubit<ImageWizardState> {
       if (png == null) {
         return null;
       }
-      final SourceImage? image = (await _decoder.decode(png.png)).valueOrNull;
+      final SourceImage? image = (await _decoder.decode(png.png, maxSide: wizardImageMaxSide)).valueOrNull;
       return image == null ? null : (png: png.png, image: image);
     } on Object {
       return null;

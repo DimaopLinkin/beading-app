@@ -110,8 +110,6 @@ final GetIt getIt = GetIt.instance;
 /// повторный вызов сначала сбрасывает прежние регистрации.
 ///
 /// [database] — готовая база (в тестах — в памяти); без неё открывается файл в Application Support.
-/// Длинная сторона картинки в мастере «картинка → схема», пикселей.
-const int _wizardImageMaxSide = 2048;
 
 Future<void> configureDependencies(
   AppDependencies dependencies, {
@@ -199,7 +197,7 @@ Future<void> configureDependencies(
       () => ImageWizardCubit(
         source: container<BookImageSource>(),
         // Генератору хватает 2048: поворот и обрезка отзываются быстрее, пик памяти и маска Vision меньше. Книги — 4096.
-        processor: const UiImageProcessor(maxSide: _wizardImageMaxSide),
+        processor: const UiImageProcessor(maxSide: wizardImageMaxSide),
         decoder: container<ImageDecoder>(),
         runner: container<ImageToGridRunner>(),
         masks: container<ImageMasks>(),

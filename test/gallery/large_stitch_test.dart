@@ -2,6 +2,7 @@
 library;
 
 import 'dart:io';
+import 'dart:math' as math;
 import 'dart:typed_data';
 
 import 'package:beading/domain/catalog/catalog_color.dart';
@@ -45,6 +46,42 @@ void main() {
       expect(pattern.grid.width, settings.columns);
       expect(pattern.grid.height, rows);
       expect(pattern.palette.length, lessThanOrEqualTo(colors));
+    });
+  }, timeout: const Timeout(Duration(minutes: 15)));
+
+  testWidgets('вышивка 1575 × 2677 крестиков, 120 цветов, фото 603 × 1024 (T69)', (tester) async {
+    await tester.runAsync(() async {
+      final List<CatalogColor> catalog = loadBeadCatalog();
+      // Мягкие цветные пятна и градиент: «кожа» с плавными переходами, на которых плотная таблица теряла цвета.
+      final Uint8List rgba = Uint8List(603 * 1024 * 4);
+      for (int y = 0; y < 1024; y++) {
+        for (int x = 0; x < 603; x++) {
+          final int o = (y * 603 + x) * 4;
+          final double u = x / 603;
+          final double v = y / 1024;
+          rgba[o] = (200 + 40 * math.sin(u * 6 + v * 3)).round().clamp(0, 255);
+          rgba[o + 1] = (150 + 50 * math.sin(v * 9 - u * 2)).round().clamp(0, 255);
+          rgba[o + 2] = (120 + 60 * math.cos(u * 4 + v * 7)).round().clamp(0, 255);
+          rgba[o + 3] = 255;
+        }
+      }
+      final SourceImage image = SourceImage(width: 603, height: 1024, rgba: rgba);
+      final Fabric aida20 = Fabric.create(kind: FabricKind.aida, count: 20).valueOrNull!;
+      final ImageToGridSettings settings = const ImageToGridSettings(
+        technique: Technique.crossStitch,
+      ).copyWith(fabric: aida20, columns: 1575, maxColors: ImageToGridSettings.maxColorsLimit);
+      final int rows = settings.rowsFor(image);
+      final Stopwatch watch = Stopwatch()..start();
+      final GeneratedPattern pattern = const ImageToGridPipeline().run(
+        settings.toRequest(image: image, catalog: catalog, measure: true),
+      );
+      watch.stop();
+      stdout.writeln(
+        '${settings.columns}×$rows клеток, цветов в схеме ${pattern.palette.length}, ${watch.elapsedMilliseconds} мс, '
+        'пиковая память ${(ProcessInfo.maxRss / 1048576).toStringAsFixed(0)} МБ',
+      );
+      expect(pattern.grid.width, settings.columns);
+      expect(pattern.palette.length, greaterThan(30));
     });
   }, timeout: const Timeout(Duration(minutes: 15)));
 }

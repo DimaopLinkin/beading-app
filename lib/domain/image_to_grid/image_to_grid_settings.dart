@@ -74,9 +74,6 @@ final class ImageToGridSettings extends Equatable {
   /// Вышивка большая: 200 см на самой мелкой канве (Аида 20) — около 1575 крестиков; выше потолок не нужен.
   static const int maxStitchColumns = 1600;
 
-  /// Бюджет таблицы цен «клетка × цвет» (4 байта на число): больше схема — меньше цветов в расчёте, иначе вышивка
-  /// 200 × 80 см не поместится в память телефона.
-  static const int costBudget = 32 * 1000 * 1000;
   static const int defaultStitchColumns = 150;
   static const int defaultStitchColors = 30;
   static const int defaultMaxColors = 8;
@@ -223,9 +220,9 @@ final class ImageToGridSettings extends Equatable {
     ),
   );
 
-  /// Сколько цветов реально берёт расчёт для схемы в [rows] рядов: не больше [maxColors] и не больше, чем влезает в
-  /// [costBudget].
-  int colorsFor(int rows) => math.max(minColors, math.min(maxColors, costBudget ~/ (columns * rows)));
+  /// Сколько цветов берёт расчёт для схемы в [rows] рядов: сколько задано, [maxColors]. У огромных схем таблица цен
+  /// разреженная (`CellCosts.denseBudget`, T69), поэтому цвета больше не урезаются.
+  int colorsFor(int rows) => maxColors;
 
   /// Материал каталога под ремесло: бисер или мулине.
   CatalogMaterial get material => craft == Craft.crossStitch ? CatalogMaterial.floss : CatalogMaterial.bead;
