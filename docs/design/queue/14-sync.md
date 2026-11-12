@@ -1,7 +1,7 @@
 ---
 id: 14-sync
 title: Синхронизация между устройствами: вход, статус, ошибки (ADR-0006)
-status: delivered
+status: accepted
 depends: 09-settings
 ---
 
