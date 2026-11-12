@@ -1,18 +1,25 @@
 import 'package:beading/app/composition/app_dependencies.dart';
+import 'package:beading/app/composition/app_routes.dart';
 import 'package:beading/app/composition/core_module.dart';
 import 'package:beading/core/clock.dart';
 import 'package:beading/core/id_generator.dart';
+import 'package:beading/data/catalog/catalog_asset_source.dart';
+import 'package:beading/data/catalog/drift_catalog_repository.dart';
 import 'package:beading/data/easter_eggs/asset_compliment_source.dart';
 import 'package:beading/data/easter_eggs/drift_easter_egg_log.dart';
+import 'package:beading/data/floss_stock/drift_floss_stock_repository.dart';
 import 'package:beading/data/settings/drift_device_id_provider.dart';
 import 'package:beading/data/settings/drift_settings_repository.dart';
 import 'package:beading/data/settings/package_info_app_info_provider.dart';
+import 'package:beading/domain/catalog/use_cases/find_similar_colors.dart';
 import 'package:beading/domain/events/app_events.dart';
 import 'package:beading/domain/settings/app_events_secret_tap_handler.dart';
+import 'package:beading/presentation/catalog/catalog_cubit.dart';
 import 'package:beading/presentation/easter_eggs/compliment_banner_cubit.dart';
 import 'package:beading/presentation/settings/settings_cubit.dart';
 import 'package:beading/presentation/theme/theme_mode_cubit.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../support/fake_clock.dart';
 import '../../support/in_memory_database.dart';
@@ -123,4 +130,57 @@ void main() {
       expect(settings, isNot(same(dependencies.settings.settingsCubit())));
     });
   });
+
+  group('CatalogModule', () {
+    test('отдаёт репозиторий каталога и запас ниток один раз', () {
+      final AppDependencies dependencies = AppDependencies(core: CoreModule(database: createInMemoryDatabase()));
+      addTearDown(dependencies.dispose);
+
+      expect(dependencies.catalog.repository, isA<DriftCatalogRepository>());
+      expect(dependencies.catalog.repository, same(dependencies.catalog.repository));
+      expect(dependencies.catalog.flossStock, isA<DriftFlossStockRepository>());
+      expect(dependencies.catalog.findSimilarColors(), isA<FindSimilarColors>());
+    });
+
+    test('каталоги бисера и ниток — разные кубиты, новые на каждый вызов', () {
+      final AppDependencies dependencies = AppDependencies(core: CoreModule(database: createInMemoryDatabase()));
+      addTearDown(dependencies.dispose);
+
+      final CatalogCubit beads = dependencies.catalog.beadCatalogCubit();
+      final CatalogCubit floss = dependencies.catalog.flossCatalogCubit();
+      addTearDown(beads.close);
+      addTearDown(floss.close);
+
+      expect(beads, isNot(same(floss)));
+      expect(beads, isNot(same(dependencies.catalog.beadCatalogCubit())));
+    });
+
+    test('подменяет файлы каталога', () {
+      final AppDependencies dependencies = AppDependencies(
+        core: CoreModule(database: createInMemoryDatabase()),
+        catalogAssets: _EmptyAssets(),
+      );
+      addTearDown(dependencies.dispose);
+
+      expect(dependencies.catalog.assetSource, isA<_EmptyAssets>());
+    });
+
+    test('маршруты: бисер и мулине', () {
+      final AppDependencies dependencies = AppDependencies(core: CoreModule(database: createInMemoryDatabase()));
+      addTearDown(dependencies.dispose);
+
+      expect(
+        dependencies.catalog.routes().whereType<GoRoute>().map((r) => r.path),
+        <String>[AppRoutes.flossCatalog, AppRoutes.catalog],
+      );
+    });
+  });
+}
+
+class _EmptyAssets implements CatalogAssetSource {
+  @override
+  Future<List<String>> listFiles() async => <String>[];
+
+  @override
+  Future<String> read(String path) async => '';
 }
