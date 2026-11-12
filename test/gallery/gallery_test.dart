@@ -24,7 +24,12 @@ void main() {
     await tester.runAsync(() async {
       final catalog = loadBeadCatalog();
       final List<GalleryPhoto> photos = await loadPhotos(privateDir: privateDir);
-      final List<GalleryRun> runs = runGallery(photos, catalog, includeLarge: true);
+      // GALLERY_VARIANTS=t24,v2-balanced: листы только этих вариантов (в базу метрик такой прогон не пишется).
+      final Set<String>? only = Platform.environment['GALLERY_VARIANTS']?.split(',').toSet();
+      final List<GalleryRun> runs = <GalleryRun>[
+        for (final GalleryRun r in runGallery(photos, catalog, includeLarge: true))
+          if (only == null || only.contains(r.variant.id)) r,
+      ];
 
       for (final GalleryPhoto photo in photos) {
         for (final GalleryTarget target in <GalleryTarget>[...galleryTargets, ...galleryLargeTargets]) {
@@ -41,7 +46,7 @@ void main() {
       }
       File('$out/metrics.md').writeAsStringSync(metricsTable(runs));
 
-      if (updateBaseline) {
+      if (updateBaseline && only == null) {
         writeBaseline(
           baselineOf(<GalleryRun>[
             for (final GalleryRun r in runs)

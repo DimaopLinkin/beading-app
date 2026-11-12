@@ -20,7 +20,9 @@ import 'package:beading/domain/image_to_grid/background_stage.dart';
 import 'package:beading/domain/image_to_grid/cell_labeler.dart';
 import 'package:beading/domain/image_to_grid/cell_regions.dart';
 import 'package:beading/domain/image_to_grid/cell_sampler.dart';
+import 'package:beading/domain/image_to_grid/cleanup_steps.dart';
 import 'package:beading/domain/image_to_grid/face_guide.dart';
+import 'package:beading/domain/image_to_grid/face_step.dart';
 import 'package:beading/domain/image_to_grid/generated_pattern.dart';
 import 'package:beading/domain/image_to_grid/generation_preset.dart';
 import 'package:beading/domain/image_to_grid/generation_stats.dart';
@@ -29,9 +31,12 @@ import 'package:beading/domain/image_to_grid/image_prefilter.dart';
 import 'package:beading/domain/image_to_grid/image_to_grid_pipeline.dart';
 import 'package:beading/domain/image_to_grid/image_to_grid_request.dart';
 import 'package:beading/domain/image_to_grid/image_to_grid_settings.dart';
+import 'package:beading/domain/image_to_grid/label_smoother.dart';
+import 'package:beading/domain/image_to_grid/ordered_dither_step.dart';
 import 'package:beading/domain/image_to_grid/palette_builder.dart';
 import 'package:beading/domain/image_to_grid/palette_constraint.dart';
 import 'package:beading/domain/image_to_grid/palette_from_generated.dart';
+import 'package:beading/domain/image_to_grid/pattern_step.dart';
 import 'package:beading/domain/image_to_grid/source_image.dart';
 import 'package:beading/domain/image_to_grid/work_image.dart';
 import 'package:beading/domain/palette/lab.dart';
@@ -160,6 +165,7 @@ ImageToGridRequest _request(
   GenerationPreset? preset,
   ImageMaskSet? masks,
   bool detailVoting = false,
+  bool v2 = false,
 }) {
   final ImageToGridSettings settings = ImageToGridSettings(
     technique: target.technique,
@@ -171,11 +177,13 @@ ImageToGridRequest _request(
     preset: preset,
     detailVoting: detailVoting,
   );
-  final ImageToGridRequest request = settings.toRequest(
+  final ImageToGridRequest built = settings.toRequest(
     image: image,
     catalog: useCatalog ? catalog : const <CatalogColor>[],
     masks: masks,
   );
+  // Варианты первой версии предустановок (до T66) остаются на листах и в базе метрик как точка сравнения.
+  final ImageToGridRequest request = preset == null || v2 ? built : _legacy(built, preset, voting: detailVoting);
   final PaletteBuilder? paletteBuilder = pixelStages ? const AccentPaletteBuilder() : null;
   final CellLabeler? labeler = pixelStages ? const VotingCellLabeler() : null;
   if (target.metrics is BeadSize) {
@@ -220,32 +228,61 @@ ImageToGridRequest _request(
   );
 }
 
-/// Тот же запрос с другой подготовкой фото и палитрой (T63): для вариантов галереи.
-ImageToGridRequest _restaged(ImageToGridRequest r, {ImagePrefilter? prefilter, PaletteBuilder? paletteBuilder}) =>
-    ImageToGridRequest(
-      image: r.image,
-      geometry: r.geometry,
-      metrics: r.metrics,
-      columns: r.columns,
-      rows: r.rows,
-      maxColors: r.maxColors,
-      constraint: r.constraint,
-      importance: r.importance,
-      dither: r.dither,
-      seed: r.seed,
-      prefilter: prefilter ?? r.prefilter,
-      paletteBuilder: paletteBuilder ?? r.paletteBuilder,
-      labeler: r.labeler,
-      smoother: r.smoother,
-      refillFreedColors: r.refillFreedColors,
-      faces: r.faces,
-      draft: r.draft,
-      steps: r.steps,
-      subjectMask: r.subjectMask,
-      background: r.background,
-      outline: r.outline,
-      suggestBlends: r.suggestBlends,
-    );
+/// Тот же запрос с другой подготовкой фото, палитрой, разметчиком, сглаживанием и шагами (T63, T66): для вариантов галереи.
+ImageToGridRequest _restaged(
+  ImageToGridRequest r, {
+  ImagePrefilter? prefilter,
+  PaletteBuilder? paletteBuilder,
+  CellLabeler? labeler,
+  LabelSmoother? smoother,
+  List<PatternStep>? steps,
+  bool? refillFreedColors,
+}) => ImageToGridRequest(
+  image: r.image,
+  geometry: r.geometry,
+  metrics: r.metrics,
+  columns: r.columns,
+  rows: r.rows,
+  maxColors: r.maxColors,
+  constraint: r.constraint,
+  importance: r.importance,
+  dither: r.dither,
+  seed: r.seed,
+  prefilter: prefilter ?? r.prefilter,
+  paletteBuilder: paletteBuilder ?? r.paletteBuilder,
+  labeler: labeler ?? r.labeler,
+  smoother: smoother ?? r.smoother,
+  refillFreedColors: refillFreedColors ?? r.refillFreedColors,
+  faces: r.faces,
+  draft: r.draft,
+  steps: steps ?? r.steps,
+  subjectMask: r.subjectMask,
+  background: r.background,
+  outline: r.outline,
+  suggestBlends: r.suggestBlends,
+);
+
+/// Предустановки первой версии (до T66): значения T47, чтобы сравнивать с ними вторую версию.
+ImageToGridRequest _legacy(ImageToGridRequest r, GenerationPreset preset, {required bool voting}) {
+  final (double, double, int, double, double, bool) v = switch (preset) {
+    GenerationPreset.simpler => (12, 0.15, 4, 7, 0.03, false),
+    GenerationPreset.balanced => (9, 0.5, 3, 5, 0.02, false),
+    GenerationPreset.detailed => (7, 0.85, 2, 5, 0.02, true),
+  };
+  return _restaged(
+    r,
+    prefilter: EdgePreservingPrefilter(sigmaRange: v.$1),
+    smoother: PottsLabelSmoother(detail: v.$2),
+    refillFreedColors: v.$6,
+    labeler: voting ? const DetailCellLabeler() : const VotingCellLabeler(),
+    steps: <PatternStep>[
+      RemoveIslandsStep(minIsland: v.$3).withDiagonals(value: voting),
+      MergeColorsStep(maxDeltaE: v.$4, maxArea: v.$5),
+      if (r.faces != null) const FaceFeatureStep(),
+      ...r.steps.whereType<OrderedDitherStep>(),
+    ],
+  );
+}
 
 /// Лица фикстур, размеченные вручную (на Linux нет Apple Vision): ключ — картинка, загруженная [loadPhotos].
 final Expando<ImageMaskSet> galleryFaces = Expando<ImageMaskSet>('galleryFaces');
@@ -374,6 +411,18 @@ final List<GalleryVariant> galleryVariants = <GalleryVariant>[
     build: (image, target, catalog) =>
         _request(image, target, catalog, preset: GenerationPreset.balanced, masks: galleryFaces[image]),
   ),
+  for (final GenerationPreset preset in GenerationPreset.values)
+    GalleryVariant(
+      id: 'v2-${preset.name}',
+      title:
+          'T66: ${switch (preset) {
+            GenerationPreset.simpler => 'проще',
+            GenerationPreset.balanced => 'сбалансированно',
+            GenerationPreset.detailed => 'детально',
+          }}',
+      build: (image, target, catalog) =>
+          _request(image, target, catalog, preset: preset, masks: galleryFaces[image], v2: true),
+    ),
   GalleryVariant(
     id: 't62-catalog-all',
     title: 'T47 + весь каталог 11/0 (обе серии, все отделки; как до T62)',

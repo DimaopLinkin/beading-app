@@ -2611,18 +2611,6 @@ abstract class AppLocalizations {
   /// **'Детально'**
   String get imageWizardPresetDetailed;
 
-  /// Переключатель дизеринга
-  ///
-  /// In ru, this message translates to:
-  /// **'Плавные переходы'**
-  String get imageWizardDither;
-
-  /// Пояснение к плавным переходам
-  ///
-  /// In ru, this message translates to:
-  /// **'Плавные переходы цвета (небо, тени) выкладываются узором из соседних цветов. Остальное в схеме не меняется.'**
-  String get imageWizardDitherHint;
-
   /// Переключатель: учитывать найденные на фото лица и объект
   ///
   /// In ru, this message translates to:

@@ -21,6 +21,7 @@ final class RemoveIslandsStep extends Equatable implements PatternStep {
     this.protectImportance = 4,
     this.protectDetail = 0.5,
     this.protectDiagonals = false,
+    this.keepToneDeltaE = 0,
   }) : assert(minIsland >= 2, 'minIsland не меньше 2'),
        assert(protectEdgeShare >= 0 && protectEdgeShare <= 1, 'protectEdgeShare от 0 до 1');
 
@@ -35,8 +36,19 @@ final class RemoveIslandsStep extends Equatable implements PatternStep {
   /// Беречь и диагональные линии: клетки, касающиеся углами (T64). Выключено, пока предустановки не настроены (T66).
   final bool protectDiagonals;
 
+  /// Оттенковая фактура (T66): остров остаётся, если цвет, в который его пришлось бы перекрасить, ближе этого ΔE2000, то
+  /// есть это близкий оттенок, а не чужой цвет. Одиночки далёких оттенков убираются; `0` — убираются все.
+  final double keepToneDeltaE;
+
   @override
-  List<Object?> get props => <Object?>[minIsland, protectEdgeShare, protectImportance, protectDetail, protectDiagonals];
+  List<Object?> get props => <Object?>[
+    minIsland,
+    protectEdgeShare,
+    protectImportance,
+    protectDetail,
+    protectDiagonals,
+    keepToneDeltaE,
+  ];
 
   /// Тот же шаг с другой защитой диагональных линий.
   RemoveIslandsStep withDiagonals({required bool value}) => RemoveIslandsStep(
@@ -45,6 +57,7 @@ final class RemoveIslandsStep extends Equatable implements PatternStep {
     protectImportance: protectImportance,
     protectDetail: protectDetail,
     protectDiagonals: value,
+    keepToneDeltaE: keepToneDeltaE,
   );
 
   @override
@@ -73,6 +86,10 @@ final class RemoveIslandsStep extends Equatable implements PatternStep {
       }
       final int? target = _bestNeighbor(component, values, neighbors, costs, paletteLab);
       if (target == null) continue;
+      if (keepToneDeltaE > 0 &&
+          deltaE2000(paletteLab[values[component.first] - 1], paletteLab[target - 1]) <= keepToneDeltaE) {
+        continue;
+      }
       for (final int cell in component) {
         out[cell] = target;
       }

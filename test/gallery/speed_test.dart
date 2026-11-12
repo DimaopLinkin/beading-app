@@ -150,6 +150,6 @@ ImageToGridRequest _with(
     smoother: detail == null ? r.smoother : PottsLabelSmoother(detail: detail),
     refillFreedColors: p?.refillFreedColors ?? r.refillFreedColors,
     draft: draft ?? r.draft,
-    steps: p?.steps ?? r.steps,
+    steps: p?.stepsFor(columns: r.columns) ?? r.steps,
   );
 }

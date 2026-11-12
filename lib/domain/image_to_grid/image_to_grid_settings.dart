@@ -13,7 +13,6 @@ import 'package:beading/domain/grid/grid_geometry.dart';
 import 'package:beading/domain/image_to_grid/background_stage.dart';
 import 'package:beading/domain/image_to_grid/cell_labeler.dart';
 import 'package:beading/domain/image_to_grid/cell_sampler.dart';
-import 'package:beading/domain/image_to_grid/cleanup_steps.dart';
 import 'package:beading/domain/image_to_grid/face_guide.dart';
 import 'package:beading/domain/image_to_grid/face_palette_builder.dart';
 import 'package:beading/domain/image_to_grid/face_step.dart';
@@ -245,6 +244,7 @@ final class ImageToGridSettings extends Equatable {
     // предустановки остаётся путь T24 с Флойдом — Стейнбергом.
     final GenerationPreset? active = preset;
     // Лица (T54): отдельные цвета кожи и защита черт; без лиц на фото поведение прежнее.
+    final bool voting = detailVoting || (active?.detailVoting ?? false);
     final FaceGuide? faceGuide = active == null || masks == null || masks.faces.isEmpty ? null : FaceGuide(masks);
     return ImageToGridRequest(
       image: image,
@@ -270,15 +270,14 @@ final class ImageToGridSettings extends Equatable {
           : faceGuide == null
           ? (draft ? draftPaletteBuilder : const AccentPaletteBuilder())
           : (draft ? draftFacePaletteBuilder : const FaceAwarePaletteBuilder()),
-      labeler: active == null ? null : (detailVoting ? const DetailCellLabeler() : const VotingCellLabeler()),
+      labeler: active == null ? null : (voting ? const DetailCellLabeler() : const VotingCellLabeler()),
       smoother: active?.smoother,
       refillFreedColors: active?.refillFreedColors ?? false,
       faces: faceGuide,
       draft: draft,
       measure: measure,
       steps: <PatternStep>[
-        for (final PatternStep step in active?.steps ?? const <PatternStep>[])
-          if (detailVoting && step is RemoveIslandsStep) step.withDiagonals(value: true) else step,
+        ...?active?.stepsFor(columns: columns, voting: voting),
         if (faceGuide != null) const FaceFeatureStep(),
         ...steps,
         if (dither && active != null) const OrderedDitherStep(),
