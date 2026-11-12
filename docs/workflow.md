@@ -55,11 +55,9 @@
 | Скрипт | Что делает |
 |---|---|
 | `scripts/setup.sh` | `flutter pub get` (заодно l10n) и `build_runner` (drift `*.g.dart`, в git их нет). Один раз после клона и после смены схемы БД или `.arb`; дальше `flutter run` |
-| `scripts/release_ios.sh`, `scripts/release_macos.sh` | сборка выпуска, см. [release.md](release.md) |
 | `scripts/internal/check.sh [аргументы flutter test]` | всё, что гоняет исполнитель перед пушем и CI: setup, `dart format`, `flutter analyze --fatal-infos`, `check_architecture.sh`, `release_notes.sh --check`, тесты с покрытием и пороги (`lib/domain` ≥ 95%, всё ≥ 85%) |
 | `scripts/internal/check_architecture.sh` | направление зависимостей между слоями, Material только через `material_bridge.dart`, `cupertino_icons` в pubspec |
 | `scripts/internal/release_notes.sh` | фрагменты changelog, см. [changelog.md](changelog.md) |
-| `scripts/internal/release_common.sh` | общие функции release_ios/macos |
 | `scripts/internal/team/` | процесс команды, см. [team.md](team.md) |
 | `tool/make_app_icons.js` | разовая генерация иконок |
 
