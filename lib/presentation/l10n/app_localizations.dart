@@ -3223,6 +3223,12 @@ abstract class AppLocalizations {
   /// **'Блоки 10×10'**
   String get stitchBlocks;
 
+  /// Подсказка, когда касание по мелким клеткам вышивки ничего не отметило
+  ///
+  /// In ru, this message translates to:
+  /// **'Приблизьте, чтобы отметить касанием'**
+  String get stitchZoomHint;
+
   /// Переключатель символов на клетках (VoiceOver)
   ///
   /// In ru, this message translates to:

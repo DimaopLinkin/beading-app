@@ -1816,6 +1816,9 @@ class AppLocalizationsRu extends AppLocalizations {
   String get stitchBlocks => 'Блоки 10×10';
 
   @override
+  String get stitchZoomHint => 'Приблизьте, чтобы отметить касанием';
+
+  @override
   String get stitchSymbols => 'Показать символы';
 
   @override

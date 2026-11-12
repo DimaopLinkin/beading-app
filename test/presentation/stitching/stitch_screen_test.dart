@@ -12,6 +12,7 @@ import 'package:beading/domain/projects/use_cases/create_project.dart';
 import 'package:beading/domain/projects/use_cases/touch_project.dart';
 import 'package:beading/domain/weaving/work_session_tracker.dart';
 import 'package:beading/presentation/l10n/app_localizations.dart';
+import 'package:beading/presentation/stitching/stitch_canvas.dart';
 import 'package:beading/presentation/stitching/stitch_cubit.dart';
 import 'package:beading/presentation/stitching/stitch_screen.dart';
 import 'package:beading/presentation/stitching/stitch_state.dart';
@@ -152,6 +153,35 @@ void main() {
     expect(find.text('1%'), findsOneWidget);
     await closeScreen(tester, cubit);
     expect(cells.calls, isNotEmpty);
+  });
+
+  testWidgets('мелкие клетки: касание не отмечает, показывает подсказку; мазок работает', (tester) async {
+    patterns.byProject[projectId] = GridPattern(
+      id: 'pat-2',
+      projectId: projectId,
+      geometry: const GridGeometry.rectangular(),
+      metrics: BeadSize.delica11,
+      grid: Grid.fromCells(width: 60, height: 60, cells: List<int>.generate(3600, (i) => i % 2 + 1)),
+      palette: samplePalette(),
+    );
+    final StitchCubit cubit = await open(tester);
+    expect(find.byKey(const ValueKey<String>('stitch-zoom-hint')), findsOneWidget);
+    final Offset center = tester.getCenter(find.byKey(const ValueKey<String>('stitch-overlay')));
+    await tester.tapAt(center);
+    await tester.pump();
+    expect(find.text('Сделано 1 из 3600'), findsNothing);
+    expect(find.text('Приблизьте, чтобы отметить касанием'), findsOneWidget);
+    expect(
+      tester
+          .widget<AnimatedOpacity>(
+            find.descendant(of: find.byType(StitchCanvas), matching: find.byType(AnimatedOpacity)),
+          )
+          .opacity,
+      1,
+    );
+    await tester.pump(const Duration(seconds: 3));
+    await closeScreen(tester, cubit);
+    expect(cells.calls, isEmpty);
   });
 
   testWidgets('инструменты переключаются; мазок пальцем отмечает несколько клеток', (tester) async {

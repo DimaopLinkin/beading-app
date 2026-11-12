@@ -1211,6 +1211,8 @@
   "@stitchParkHint": {"description": "Подсказка про парковку"},
   "stitchBlocks": "Блоки 10×10",
   "@stitchBlocks": {"description": "Переключатель: показывать прогресс по блокам 10×10"},
+  "stitchZoomHint": "Приблизьте, чтобы отметить касанием",
+  "@stitchZoomHint": {"description": "Подсказка, когда касание по мелким клеткам вышивки ничего не отметило"},
   "stitchSymbols": "Показать символы",
   "@stitchSymbols": {"description": "Переключатель символов на клетках (VoiceOver)"},
   "stitchFinishTitle": "Вся вышивка сделана. Отметить работу законченной?",
