@@ -1419,6 +1419,18 @@ class AppLocalizationsRu extends AppLocalizations {
   String get imageWizardLookRealistic => 'Как будет';
 
   @override
+  String get imageWizardFullPreviewOpen => 'Во весь экран';
+
+  @override
+  String get imageWizardFullPreviewTitle => 'Предпросмотр';
+
+  @override
+  String get imageWizardFullPreviewBack => 'Параметры';
+
+  @override
+  String get imageWizardFullPreviewHint => 'Щипком меняйте масштаб, пальцем двигайте схему';
+
+  @override
   String get imageWizardCompareHint => 'Удерживайте схему, чтобы увидеть исходную картинку';
 
   @override

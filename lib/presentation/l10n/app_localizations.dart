@@ -2551,6 +2551,30 @@ abstract class AppLocalizations {
   /// **'Как будет'**
   String get imageWizardLookRealistic;
 
+  /// Кнопка под предпросмотром мастера: открыть схему на весь экран
+  ///
+  /// In ru, this message translates to:
+  /// **'Во весь экран'**
+  String get imageWizardFullPreviewOpen;
+
+  /// Заголовок полноэкранного предпросмотра схемы
+  ///
+  /// In ru, this message translates to:
+  /// **'Предпросмотр'**
+  String get imageWizardFullPreviewTitle;
+
+  /// Кнопка возврата из полноэкранного предпросмотра к параметрам мастера
+  ///
+  /// In ru, this message translates to:
+  /// **'Параметры'**
+  String get imageWizardFullPreviewBack;
+
+  /// Подсказка в полноэкранном предпросмотре
+  ///
+  /// In ru, this message translates to:
+  /// **'Щипком меняйте масштаб, пальцем двигайте схему'**
+  String get imageWizardFullPreviewHint;
+
   /// Подсказка про сравнение до/после
   ///
   /// In ru, this message translates to:
