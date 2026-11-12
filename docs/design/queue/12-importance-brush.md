@@ -1,7 +1,7 @@
 ---
 id: 12-importance-brush
 title: Кисть «важное» в мастере «Схема из картинки» (T60)
-status: delivered
+status: accepted
 depends: 08-generation
 ---
 
