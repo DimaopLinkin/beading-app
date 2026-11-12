@@ -26,7 +26,7 @@ class FlossState extends Equatable {
   /// Показывать мотки с запасом (в списках, итоге и тексте «Поделиться»).
   final bool withReserve;
 
-  bool get isEmpty => estimate != null && estimate!.lines.isEmpty;
+  bool get isEmpty => estimate != null && estimate!.lines.isEmpty && estimate!.beads.isEmpty;
 
   FlossState copyWith({bool? withReserve}) => FlossState(
     status: status,

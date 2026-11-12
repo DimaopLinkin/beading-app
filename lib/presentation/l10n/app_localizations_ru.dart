@@ -1723,6 +1723,27 @@ class AppLocalizationsRu extends AppLocalizations {
   String get flossShoppingTitle => 'Что купить';
 
   @override
+  String get flossBeadsTitle => 'Бисер на вышивке';
+
+  @override
+  String flossBeadPieces(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count бусины',
+      many: '$count бусин',
+      few: '$count бусины',
+      one: '$count бусина',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String flossShareBeadLine(String bead, String pieces) {
+    return '$bead — $pieces';
+  }
+
+  @override
   String get flossColorsTitle => 'По цветам схемы';
 
   @override

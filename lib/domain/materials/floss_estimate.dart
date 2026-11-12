@@ -137,6 +137,18 @@ final class FabricNeed extends Equatable {
   List<Object?> get props => <Object?>[stitchedWidthCm, stitchedHeightCm, marginCm];
 }
 
+/// Бусины поверх вышивки (слой «бусины» редактора): сколько штук нужно из каталога.
+final class BeadPurchaseLine extends Equatable {
+  const BeadPurchaseLine({required this.ref, required this.pieces, required this.piecesWithReserve});
+
+  final CatalogRef ref;
+  final int pieces;
+  final int piecesWithReserve;
+
+  @override
+  List<Object?> get props => <Object?>[ref, pieces, piecesWithReserve];
+}
+
 /// Расход мулине на схему: по цветам, список покупок по ниткам и канва.
 final class FlossEstimate extends Equatable implements MaterialEstimate {
   FlossEstimate({
@@ -145,8 +157,10 @@ final class FlossEstimate extends Equatable implements MaterialEstimate {
     required this.reserve,
     required List<FlossMaterialLine> lines,
     required List<FlossPurchaseLine> purchases,
+    List<BeadPurchaseLine> beads = const <BeadPurchaseLine>[],
   }) : lines = List<FlossMaterialLine>.unmodifiable(lines),
-       purchases = List<FlossPurchaseLine>.unmodifiable(purchases);
+       purchases = List<FlossPurchaseLine>.unmodifiable(purchases),
+       beads = List<BeadPurchaseLine>.unmodifiable(beads);
 
   final Fabric fabric;
   final FabricNeed fabricNeed;
@@ -160,6 +174,9 @@ final class FlossEstimate extends Equatable implements MaterialEstimate {
   /// Нитки каталога по возрастанию бренда и номера (номера как строки, числа по значению).
   final List<FlossPurchaseLine> purchases;
 
+  /// Бусины слоя «бусины» по каталогу: бренд и номер по возрастанию.
+  final List<BeadPurchaseLine> beads;
+
   int get totalCrossStitches => lines.fold(0, (sum, l) => sum + l.crossStitches);
 
   /// Всего мотков в списке покупок.
@@ -169,7 +186,7 @@ final class FlossEstimate extends Equatable implements MaterialEstimate {
   int get totalSkeinsWithReserve => purchases.fold(0, (sum, l) => sum + l.skeinsWithReserve);
 
   @override
-  List<Object?> get props => <Object?>[fabric, fabricNeed, reserve, lines, purchases];
+  List<Object?> get props => <Object?>[fabric, fabricNeed, reserve, lines, purchases, beads];
 }
 
 /// Расход мулине: крестики, неполные крестики, бэкстич и узелки по сложениям, запас, мотки и канва.
@@ -275,8 +292,12 @@ final class FlossEstimator implements MaterialEstimator {
       // Узлы решётки стоят через полклетки.
       backCells[l.color] += math.sqrt((dx * dx + dy * dy).toDouble()) / 2;
     }
+    final Map<CatalogRef, int> beadCounts = <CatalogRef, int>{};
     for (final PointStitch p in layers.points) {
-      if (p.kind == PointKind.bead) continue;
+      if (p.kind == PointKind.bead) {
+        beadCounts.update(p.bead!, (n) => n + 1, ifAbsent: () => 1);
+        continue;
+      }
       requireColor(p.color);
       knots[p.color]++;
       knotCellSums[p.color] += knotCells(p.wraps);
@@ -330,6 +351,14 @@ final class FlossEstimator implements MaterialEstimator {
       ),
       reserve: reserve,
       lines: lines,
+      beads: <BeadPurchaseLine>[
+        for (final CatalogRef ref in (beadCounts.keys.toList()..sort(_compareRefs)))
+          BeadPurchaseLine(
+            ref: ref,
+            pieces: beadCounts[ref]!,
+            piecesWithReserve: ((beadCounts[ref]! * (1 + reserve)) - beadCounts[ref]! * (1 + reserve) * 1e-12).ceil(),
+          ),
+      ],
       purchases: <FlossPurchaseLine>[
         for (final CatalogRef ref in refs)
           FlossPurchaseLine(

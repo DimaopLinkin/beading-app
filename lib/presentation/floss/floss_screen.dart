@@ -195,6 +195,17 @@ class _FlossScreenState extends State<FlossScreen> {
             ),
           ),
           section(_TotalRow(format: format), top: tokens.spacing.m),
+          if (estimate.beads.isNotEmpty) ...<Widget>[
+            section(heading(l10n.flossBeadsTitle), top: tokens.spacing.l),
+            SliverPadding(
+              padding: inset.copyWith(top: tokens.spacing.s),
+              sliver: SliverList.separated(
+                itemCount: estimate.beads.length,
+                separatorBuilder: (_, _) => SizedBox(height: tokens.spacing.s),
+                itemBuilder: (context, index) => _BeadRow(line: estimate.beads[index], format: format),
+              ),
+            ),
+          ],
           section(heading(l10n.flossColorsTitle), top: tokens.spacing.l),
           SliverPadding(
             padding: inset.copyWith(top: tokens.spacing.s),
@@ -293,6 +304,40 @@ class _Card extends StatelessWidget {
           borderRadius: BorderRadius.circular(tokens.radius.m),
         ),
         child: Padding(padding: EdgeInsets.all(tokens.spacing.m), child: child),
+      ),
+    );
+  }
+}
+
+class _BeadRow extends StatelessWidget {
+  const _BeadRow({required this.line, required this.format});
+
+  final BeadPurchaseLine line;
+  final FlossFormat format;
+
+  @override
+  Widget build(BuildContext context) {
+    final AppLocalizations l10n = AppLocalizations.of(context);
+    final TextStyle base = CupertinoTheme.of(context).textTheme.textStyle;
+    final String article = line.ref.toString();
+    final String pieces = l10n.flossBeadPieces(format.beadPieces(line));
+    return _Card(
+      label: '$article, $pieces',
+      child: Row(
+        children: <Widget>[
+          Expanded(
+            child: Text(
+              article,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: base.copyWith(fontSize: 15, fontWeight: FontWeight.w600),
+            ),
+          ),
+          Text(
+            pieces,
+            style: base.merge(context.tokens.counterTextStyle).copyWith(fontSize: 17, fontWeight: FontWeight.w600),
+          ),
+        ],
       ),
     );
   }

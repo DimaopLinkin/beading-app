@@ -135,6 +135,34 @@ void main() {
       expect(line.strandMeters, closeTo(expected / 1000, 1e-9));
     });
 
+    test('бусины слоя: штуки по каталогу, запас округляется вверх, порядок по бренду и номеру', () {
+      PointStitch bead(int x, String brand, String code) => PointStitch.bead(
+        node: LatticeNode(x, 1),
+        bead: CatalogRef(brand: brand, code: code),
+      );
+      final StitchLayers layers = StitchLayers(
+        columns: 6,
+        rows: 1,
+        points: <PointStitch>[
+          bead(1, 'Toho', '10'),
+          bead(3, 'Toho', '2'),
+          bead(5, 'Toho', '2'),
+          bead(7, 'Miyuki', 'DB0001'),
+        ],
+      );
+      final FlossEstimate estimate = FlossEstimator(
+        fabric: _aida14,
+        layers: layers,
+      ).estimate(_grid(6, 1, List<int>.filled(6, 0)), PaletteSnapshot(<PatternColor>[_red]));
+
+      expect(estimate.beads.map((b) => '${b.ref}: ${b.pieces}/${b.piecesWithReserve}'), <String>[
+        'Miyuki DB0001: 1/2',
+        'Toho 2: 2/3',
+        'Toho 10: 1/2',
+      ]);
+      expect(estimate.lines, isEmpty);
+    });
+
     test('сложения цвета переопределяют сложения схемы', () {
       final StitchLayers layers = StitchLayers(
         columns: 1,
