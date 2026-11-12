@@ -9,3 +9,4 @@
 | [0003](0003-crafts-in-domain.md) | Бисер и вышивка крестиком в одной доменной модели (A04, [cross-stitch.md](../cross-stitch.md)) | принято |
 | [0004](0004-generator-stages.md) | Стадии генератора «фото → схема» до и после привязки к палитре (A08, [research/photo-to-pattern.md](../research/photo-to-pattern.md)) | принято |
 | [0005](0005-full-bead-catalog.md) | Полный каталог бисера: данные beadloo-assets (MIT) и RGB, измеренный по фото (T59) | принято |
+| [0006](0006-sync-supabase.md) | Синхронизация устройств через Supabase (вместо iCloud/CloudKit): `sync_records`, Auth по почте, RLS, realtime (A03) | предложено |
