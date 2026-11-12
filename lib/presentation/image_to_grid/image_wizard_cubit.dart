@@ -767,12 +767,18 @@ class ImageWizardCubit extends Cubit<ImageWizardState> {
       return;
     }
     emit(state.copyWith(step: ImageWizardStep.saving, clearProblem: true));
-    final Result<Project> created = await _create(
-      name: state.name,
-      technique: state.settings.technique,
-      metrics: state.settings.metrics,
-      pattern: pattern,
-    );
+    Result<Project> created;
+    try {
+      created = await _create(
+        name: state.name,
+        technique: state.settings.technique,
+        metrics: state.settings.metrics,
+        pattern: pattern,
+      );
+    } on Object {
+      // Сбой драйвера или нехватка памяти на огромной схеме: без этого мастер навсегда остался бы в «Сохраняю…».
+      created = const Err<Project>(StorageFailure('Не удалось записать схему'));
+    }
     if (isClosed) {
       return;
     }

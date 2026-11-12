@@ -732,6 +732,16 @@ void main() {
       expect(cubit.state.problem, ImageWizardProblem.saveFailed);
       expect(cubit.state.canSave, isTrue);
     });
+
+    test('исключение при записи не оставляет мастер в «Сохраняю…»: возврат к правке с сообщением', () async {
+      await openPhoto();
+      patterns.throwNextSave = StateError('sqlite');
+      await cubit.save();
+      expect(cubit.state.step, ImageWizardStep.edit);
+      expect(cubit.state.problem, ImageWizardProblem.saveFailed);
+      expect(cubit.state.canSave, isTrue);
+      expect(projects.projects.keys.toSet().difference(projects.deleted), isEmpty);
+    });
   });
 
   group('вышивка (T46)', () {
