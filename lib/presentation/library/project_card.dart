@@ -35,7 +35,7 @@ class ProjectCard extends StatelessWidget {
       // Готовность и картинка читаются заново, когда над проектом поработали (меняется lastWorkedAt).
       key: ValueKey<String>('${project.id}-${project.lastWorkedAt.microsecondsSinceEpoch}'),
       project: project,
-      loader: loadPreview,
+      loader: provider == null ? loadPreview : null,
       builder: (context, preview) => _card(context, provider, preview),
     );
   }
@@ -149,6 +149,10 @@ class _PreviewBuilderState extends State<_PreviewBuilder> {
   @override
   void initState() {
     super.initState();
+    _load();
+  }
+
+  void _load() {
     final LoadProjectPreview? loader = widget.loader;
     if (loader != null) {
       loader(widget.project).then((preview) {
@@ -156,6 +160,14 @@ class _PreviewBuilderState extends State<_PreviewBuilder> {
           setState(() => _preview = preview);
         }
       });
+    }
+  }
+
+  @override
+  void didUpdateWidget(_PreviewBuilder old) {
+    super.didUpdateWidget(old);
+    if (old.project != widget.project || old.loader != widget.loader) {
+      _load();
     }
   }
 
