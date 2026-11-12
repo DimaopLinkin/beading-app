@@ -26,6 +26,7 @@ import 'package:beading/presentation/l10n/app_localizations.dart';
 import 'package:beading/presentation/library/project_labels.dart';
 import 'package:beading/presentation/theme/app_icons.dart';
 import 'package:beading/presentation/theme/tokens.dart';
+import 'package:beading/presentation/widgets/app_list_section.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -418,7 +419,7 @@ class _EditState extends State<_Edit> {
                   },
                 ),
               ),
-              CupertinoListSection.insetGrouped(
+              AppListSection(
                 margin: EdgeInsets.zero,
                 children: <Widget>[
                   CupertinoListTile.notched(
@@ -695,7 +696,7 @@ class _EditState extends State<_Edit> {
                 ),
               ),
               SizedBox(height: gap),
-              CupertinoListSection.insetGrouped(
+              AppListSection(
                 margin: EdgeInsets.zero,
                 children: <Widget>[
                   CupertinoListTile.notched(

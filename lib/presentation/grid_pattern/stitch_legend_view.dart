@@ -4,6 +4,7 @@ import 'package:beading/domain/stitch/stitch_legend.dart';
 import 'package:beading/presentation/grid_pattern/grid_colors.dart';
 import 'package:beading/presentation/l10n/app_localizations.dart';
 import 'package:beading/presentation/theme/tokens.dart';
+import 'package:beading/presentation/widgets/app_list_section.dart';
 import 'package:beading/presentation/widgets/color_swatch.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:intl/intl.dart';
@@ -52,7 +53,7 @@ class StitchLegendView extends StatelessWidget {
         child: Center(child: Text(l10n.stitchLegendEmpty)),
       );
     }
-    return CupertinoListSection.insetGrouped(
+    return AppListSection(
       children: <Widget>[
         for (final StitchLegendEntry entry in shown)
           _LegendRow(

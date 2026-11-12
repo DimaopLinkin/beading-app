@@ -10,6 +10,7 @@ import 'package:beading/presentation/sharing/data_transfer_cubit.dart';
 import 'package:beading/presentation/sharing/share_origin.dart';
 import 'package:beading/presentation/theme/theme_mode_cubit.dart';
 import 'package:beading/presentation/theme/tokens.dart';
+import 'package:beading/presentation/widgets/app_list_section.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -32,110 +33,108 @@ class SettingsScreen extends StatelessWidget {
     final AppLocalizations l10n = AppLocalizations.of(context);
     return CupertinoPageScaffold(
       navigationBar: CupertinoNavigationBar(middle: Text(l10n.settingsTitle)),
-      child: SafeArea(
-        child: BlocBuilder<SettingsCubit, SettingsState>(
-          builder: (context, state) {
-            final SettingsCubit cubit = context.read<SettingsCubit>();
-            return ListView(
-              children: <Widget>[
-                if (state.saveFailed) _SaveFailedBanner(text: l10n.settingsSaveFailed),
-                CupertinoListSection.insetGrouped(
-                  header: Text(l10n.settingsSectionAppearance),
-                  children: <Widget>[_ThemeTile(label: l10n.settingsThemeLabel)],
-                ),
-                CupertinoListSection.insetGrouped(
-                  header: Text(l10n.settingsSectionWork),
-                  children: <Widget>[
-                    CupertinoListTile.notched(
-                      title: Text(l10n.settingsKeepScreenAwake),
-                      trailing: CupertinoSwitch(
-                        key: const ValueKey<String>('keep-screen-awake'),
-                        value: state.keepScreenAwake,
-                        onChanged: (value) => cubit.setKeepScreenAwake(value: value),
-                      ),
+      child: BlocBuilder<SettingsCubit, SettingsState>(
+        builder: (context, state) {
+          final SettingsCubit cubit = context.read<SettingsCubit>();
+          return ListView(
+            children: <Widget>[
+              if (state.saveFailed) _SaveFailedBanner(text: l10n.settingsSaveFailed),
+              AppListSection(
+                header: Text(l10n.settingsSectionAppearance),
+                children: <Widget>[_ThemeTile(label: l10n.settingsThemeLabel)],
+              ),
+              AppListSection(
+                header: Text(l10n.settingsSectionWork),
+                children: <Widget>[
+                  CupertinoListTile.notched(
+                    title: Text(l10n.settingsKeepScreenAwake),
+                    trailing: CupertinoSwitch(
+                      key: const ValueKey<String>('keep-screen-awake'),
+                      value: state.keepScreenAwake,
+                      onChanged: (value) => cubit.setKeepScreenAwake(value: value),
                     ),
-                    CupertinoListTile.notched(
-                      title: Text(l10n.settingsSymbolMode),
-                      trailing: CupertinoSwitch(
-                        key: const ValueKey<String>('symbol-mode'),
-                        value: state.symbolMode,
-                        onChanged: (value) => cubit.setSymbolMode(value: value),
-                      ),
-                    ),
-                    CupertinoListTile.notched(
-                      key: const ValueKey<String>('default-brand'),
-                      title: Text(l10n.settingsDefaultBrand),
-                      additionalInfo: Text(state.defaultBeadBrand),
-                      trailing: const CupertinoListTileChevron(),
-                      onTap: () => _pickBrand(context, cubit, state.defaultBeadBrand),
-                    ),
-                    CupertinoListTile.notched(
-                      key: const ValueKey<String>('default-floss-brand'),
-                      title: Text(l10n.settingsDefaultFlossBrand),
-                      additionalInfo: Text(state.defaultFlossBrand),
-                      trailing: const CupertinoListTileChevron(),
-                      onTap: () => _pickFlossBrand(context, cubit, state.defaultFlossBrand),
-                    ),
-                  ],
-                ),
-                CupertinoListSection.insetGrouped(
-                  header: Text(l10n.settingsSectionData),
-                  children: <Widget>[
-                    if (dataTransfer == null)
-                      CupertinoListTile.notched(
-                        key: const ValueKey<String>('settings-backup'),
-                        title: Text(l10n.settingsBackup),
-                        additionalInfo: Text(l10n.settingsSoon),
-                      )
-                    else ...<Widget>[
-                      Builder(
-                        builder: (tileContext) => CupertinoListTile.notched(
-                          key: const ValueKey<String>('settings-backup'),
-                          title: Text(l10n.settingsBackupCreate),
-                          trailing: const CupertinoListTileChevron(),
-                          onTap: () => unawaited(dataTransfer!.backup(origin: shareOriginOf(tileContext))),
-                        ),
-                      ),
-                      CupertinoListTile.notched(
-                        key: const ValueKey<String>('settings-restore'),
-                        title: Text(l10n.settingsRestore),
-                        trailing: const CupertinoListTileChevron(),
-                        onTap: () => unawaited(dataTransfer!.pickAndPreview()),
-                      ),
-                    ],
-                    CupertinoListTile.notched(
-                      key: const ValueKey<String>('settings-sync'),
-                      title: Text(l10n.settingsSync),
-                      additionalInfo: Text(l10n.settingsSoon),
-                    ),
-                  ],
-                ),
-                CupertinoListSection.insetGrouped(
-                  children: <Widget>[
-                    CupertinoListTile.notched(
-                      key: const ValueKey<String>('settings-about'),
-                      title: Text(l10n.settingsAbout),
-                      trailing: const CupertinoListTileChevron(),
-                      onTap: onOpenAbout,
-                    ),
-                  ],
-                ),
-                if (onOpenGlassCheck != null)
-                  CupertinoListSection.insetGrouped(
-                    header: Text(l10n.settingsSectionDev),
-                    children: <Widget>[
-                      CupertinoListTile.notched(
-                        key: const ValueKey<String>('settings-glass-check'),
-                        title: Text(l10n.settingsGlassCheck),
-                        trailing: const CupertinoListTileChevron(),
-                        onTap: onOpenGlassCheck,
-                      ),
-                    ],
                   ),
-              ],
-            );
-          },
-        ),
+                  CupertinoListTile.notched(
+                    title: Text(l10n.settingsSymbolMode),
+                    trailing: CupertinoSwitch(
+                      key: const ValueKey<String>('symbol-mode'),
+                      value: state.symbolMode,
+                      onChanged: (value) => cubit.setSymbolMode(value: value),
+                    ),
+                  ),
+                  CupertinoListTile.notched(
+                    key: const ValueKey<String>('default-brand'),
+                    title: Text(l10n.settingsDefaultBrand),
+                    additionalInfo: Text(state.defaultBeadBrand),
+                    trailing: const CupertinoListTileChevron(),
+                    onTap: () => _pickBrand(context, cubit, state.defaultBeadBrand),
+                  ),
+                  CupertinoListTile.notched(
+                    key: const ValueKey<String>('default-floss-brand'),
+                    title: Text(l10n.settingsDefaultFlossBrand),
+                    additionalInfo: Text(state.defaultFlossBrand),
+                    trailing: const CupertinoListTileChevron(),
+                    onTap: () => _pickFlossBrand(context, cubit, state.defaultFlossBrand),
+                  ),
+                ],
+              ),
+              AppListSection(
+                header: Text(l10n.settingsSectionData),
+                children: <Widget>[
+                  if (dataTransfer == null)
+                    CupertinoListTile.notched(
+                      key: const ValueKey<String>('settings-backup'),
+                      title: Text(l10n.settingsBackup),
+                      additionalInfo: Text(l10n.settingsSoon),
+                    )
+                  else ...<Widget>[
+                    Builder(
+                      builder: (tileContext) => CupertinoListTile.notched(
+                        key: const ValueKey<String>('settings-backup'),
+                        title: Text(l10n.settingsBackupCreate),
+                        trailing: const CupertinoListTileChevron(),
+                        onTap: () => unawaited(dataTransfer!.backup(origin: shareOriginOf(tileContext))),
+                      ),
+                    ),
+                    CupertinoListTile.notched(
+                      key: const ValueKey<String>('settings-restore'),
+                      title: Text(l10n.settingsRestore),
+                      trailing: const CupertinoListTileChevron(),
+                      onTap: () => unawaited(dataTransfer!.pickAndPreview()),
+                    ),
+                  ],
+                  CupertinoListTile.notched(
+                    key: const ValueKey<String>('settings-sync'),
+                    title: Text(l10n.settingsSync),
+                    additionalInfo: Text(l10n.settingsSoon),
+                  ),
+                ],
+              ),
+              AppListSection(
+                children: <Widget>[
+                  CupertinoListTile.notched(
+                    key: const ValueKey<String>('settings-about'),
+                    title: Text(l10n.settingsAbout),
+                    trailing: const CupertinoListTileChevron(),
+                    onTap: onOpenAbout,
+                  ),
+                ],
+              ),
+              if (onOpenGlassCheck != null)
+                AppListSection(
+                  header: Text(l10n.settingsSectionDev),
+                  children: <Widget>[
+                    CupertinoListTile.notched(
+                      key: const ValueKey<String>('settings-glass-check'),
+                      title: Text(l10n.settingsGlassCheck),
+                      trailing: const CupertinoListTileChevron(),
+                      onTap: onOpenGlassCheck,
+                    ),
+                  ],
+                ),
+            ],
+          );
+        },
       ),
     );
   }

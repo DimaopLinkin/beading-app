@@ -18,6 +18,7 @@ import 'package:beading/presentation/theme/tokens.dart';
 import 'package:beading/presentation/widgets/glass/glass_bar.dart';
 import 'package:beading/presentation/widgets/glass/glass_panel.dart';
 import 'package:beading/presentation/widgets/glass/glass_surface.dart';
+import 'package:beading/presentation/widgets/measured_size.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -101,6 +102,11 @@ class _Workspace extends StatefulWidget {
 }
 
 class _WorkspaceState extends State<_Workspace> {
+  /// Фактическая высота нижней панели вместе с нижним отступом; до первой раскладки берётся оценка.
+  double? _measuredPanel;
+
+  double _panelOf(BookWorkState state) =>
+      _measuredPanel == null ? _panelHeight(state) : _measuredPanel! - MediaQuery.paddingOf(context).bottom;
   final TransformationController _controller = TransformationController();
   String? _shownPageId;
   Size? _shownSize;
@@ -231,7 +237,7 @@ class _WorkspaceState extends State<_Workspace> {
       viewHeight: view.height,
       contentHeight: state.page.height * k,
       topInset: safe.top + _topBarHeight + _markRoom,
-      bottomInset: safe.bottom + _panelHeight(state) + _markRoom,
+      bottomInset: safe.bottom + _panelOf(state) + _markRoom,
     );
   }
 
@@ -348,7 +354,7 @@ class _WorkspaceState extends State<_Workspace> {
                               0,
                               safe.top + _topBarHeight + _markRoom,
                               0,
-                              safe.bottom + _panelHeight(state) + _markRoom,
+                              safe.bottom + _panelOf(state) + _markRoom,
                             ),
                             onInteractionEnd: (_) => cubit.setViewport(_viewportNow),
                             child: PageCanvas(
@@ -373,7 +379,7 @@ class _WorkspaceState extends State<_Workspace> {
                           final double k = view.width / state.page.width;
                           final RulerState ruler = state.work.ruler;
                           final double minY = safe.top + _topBarHeight;
-                          final double maxY = view.height - safe.bottom - _panelHeight(state);
+                          final double maxY = view.height - safe.bottom - _panelOf(state);
                           final double pagePerScreen = 1 / (k * now.scale);
                           final PatternZone? zone = ruler.zone;
                           if (state.markerEditing) {
@@ -428,7 +434,7 @@ class _WorkspaceState extends State<_Workspace> {
                       Positioned(
                         left: 0,
                         right: 0,
-                        bottom: safe.bottom + _panelHeight(state) + context.tokens.spacing.s,
+                        bottom: safe.bottom + _panelOf(state) + context.tokens.spacing.s,
                         child: _PanelFrame(
                           child: Center(
                             heightFactor: 1,
@@ -456,12 +462,19 @@ class _WorkspaceState extends State<_Workspace> {
                         left: 0,
                         right: 0,
                         bottom: 0,
-                        child: _PanelFrame(
-                          child: state.zoneEditing
-                              ? const _ZoneEditPanel()
-                              : state.markerEditing
-                              ? MarkerPanel(state: state)
-                              : _BottomPanel(state: state),
+                        child: MeasuredHeight(
+                          onChange: (height) {
+                            if (mounted && _measuredPanel != height) {
+                              setState(() => _measuredPanel = height);
+                            }
+                          },
+                          child: _PanelFrame(
+                            child: state.zoneEditing
+                                ? const _ZoneEditPanel()
+                                : state.markerEditing
+                                ? MarkerPanel(state: state)
+                                : _BottomPanel(state: state),
+                          ),
                         ),
                       ),
                     ],
