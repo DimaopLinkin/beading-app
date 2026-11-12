@@ -567,25 +567,6 @@ class _EditState extends State<_Edit> {
                   ],
                 ),
               ),
-              MergeSemantics(
-                child: Row(
-                  children: <Widget>[
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: <Widget>[
-                          Text(l10n.imageWizardDither),
-                          Text(l10n.imageWizardDitherHint, style: caption),
-                        ],
-                      ),
-                    ),
-                    CupertinoSwitch(
-                      value: settings.dither,
-                      onChanged: (value) => cubit.setDither(value: value),
-                    ),
-                  ],
-                ),
-              ),
               if (state.hasMasks) ...<Widget>[
                 SizedBox(height: gap),
                 MergeSemantics(

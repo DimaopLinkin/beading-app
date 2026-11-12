@@ -181,6 +181,8 @@ void main() {
     await tester.scrollUntilVisible(warning, 200, scrollable: find.byType(Scrollable).last);
     expect(find.textContaining('Лицо шириной всего'), findsOneWidget);
 
+    await tester.ensureVisible(find.byKey(const ValueKey<String>('wizard-face-wider')));
+    await tester.pumpAndSettle();
     await tester.tap(find.byKey(const ValueKey<String>('wizard-face-wider')));
     await tester.pumpAndSettle();
     expect(cubit.state.settings.columns, 100);
@@ -193,6 +195,8 @@ void main() {
     final Finder warning = find.byKey(const ValueKey<String>('wizard-face-warning'));
     await tester.scrollUntilVisible(warning, 200, scrollable: find.byType(Scrollable).last);
 
+    await tester.ensureVisible(find.byKey(const ValueKey<String>('wizard-face-crop')));
+    await tester.pumpAndSettle();
     await tester.tap(find.byKey(const ValueKey<String>('wizard-face-crop')));
     await tester.pumpAndSettle();
     expect(cubit.state.crop.isFull, isFalse);

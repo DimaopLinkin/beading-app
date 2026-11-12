@@ -1401,13 +1401,6 @@ class AppLocalizationsRu extends AppLocalizations {
   String get imageWizardPresetDetailed => 'Детально';
 
   @override
-  String get imageWizardDither => 'Плавные переходы';
-
-  @override
-  String get imageWizardDitherHint =>
-      'Плавные переходы цвета (небо, тени) выкладываются узором из соседних цветов. Остальное в схеме не меняется.';
-
-  @override
   String get imageWizardUseMasks => 'Выделять главное';
 
   @override
