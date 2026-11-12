@@ -31,6 +31,8 @@ class StitchState extends Equatable {
     this.projectDone = false,
     this.saveFailed = false,
     this.marks = 0,
+    this.canUndo = false,
+    this.undoNotice,
   });
 
   final StitchStatus status;
@@ -72,6 +74,12 @@ class StitchState extends Equatable {
   /// Сколько раз отметка менялась на этом экране: по росту числа экран отзывается вибрацией.
   final int marks;
 
+  /// Есть что откатывать.
+  final bool canUndo;
+
+  /// Тост после мазка, области или цвета целиком: сколько клеток отмечено (`done`) или снято. `null` — тоста нет.
+  final ({int count, bool done})? undoNotice;
+
   bool get isReady => status == StitchStatus.ready;
 
   int get remaining => total - done;
@@ -103,6 +111,9 @@ class StitchState extends Equatable {
     bool? projectDone,
     bool? saveFailed,
     int? marks,
+    bool? canUndo,
+    ({int count, bool done})? undoNotice,
+    bool clearUndoNotice = false,
   }) => StitchState(
     status: status ?? this.status,
     projectName: projectName ?? this.projectName,
@@ -122,6 +133,8 @@ class StitchState extends Equatable {
     projectDone: projectDone ?? this.projectDone,
     saveFailed: saveFailed ?? this.saveFailed,
     marks: marks ?? this.marks,
+    canUndo: canUndo ?? this.canUndo,
+    undoNotice: clearUndoNotice ? null : (undoNotice ?? this.undoNotice),
   );
 
   @override
@@ -144,5 +157,7 @@ class StitchState extends Equatable {
     projectDone,
     saveFailed,
     marks,
+    canUndo,
+    undoNotice,
   ];
 }

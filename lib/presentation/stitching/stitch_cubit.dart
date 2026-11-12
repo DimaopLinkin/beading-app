@@ -74,10 +74,17 @@ class StitchCubit extends Cubit<StitchState> {
   String? _patternId;
   Future<void> _writes = Future<void>.value();
 
+  // Откат: последние действия с клетками, которые они реально изменили.
+  static const int _historyLimit = 30;
+  static const Duration _noticeTime = Duration(seconds: 5);
+  final List<({List<CellPosition> cells, bool done})> _history = <({List<CellPosition> cells, bool done})>[];
+  Timer? _noticeTimer;
+
   // Мазок.
   bool _stroking = false;
   bool _strokeDone = true;
   final List<CellPosition> _strokeCells = <CellPosition>[];
+  final List<CellPosition> _strokeChanged = <CellPosition>[];
 
   Future<void> load() async {
     final Result<Project> project = await _projects.get(_projectId);
@@ -190,6 +197,7 @@ class StitchCubit extends Cubit<StitchState> {
   void strokeStart() {
     _stroking = true;
     _strokeCells.clear();
+    _strokeChanged.clear();
   }
 
   void strokeCell(CellPosition cell) {
@@ -198,6 +206,9 @@ class StitchCubit extends Cubit<StitchState> {
     }
     if (_strokeCells.isEmpty) {
       _strokeDone = !state.progress.isDone(cell.column, cell.row);
+    }
+    if (state.progress.isDone(cell.column, cell.row) != _strokeDone) {
+      _strokeChanged.add(cell);
     }
     _strokeCells.add(cell);
     // Во время мазка обновляем только отметки: счётчики пересчитаем, когда палец оторвётся.
@@ -216,6 +227,7 @@ class StitchCubit extends Cubit<StitchState> {
     final bool done = _strokeDone;
     _strokeCells.clear();
     _afterChange(done: done, touched: cells);
+    _record(List<CellPosition>.of(_strokeChanged), done: done);
     _enqueue(() async => (await _markCells(projectId: _projectId, cells: cells, done: done)).isFailure);
   }
 
@@ -287,8 +299,57 @@ class StitchCubit extends Cubit<StitchState> {
 
   /// Применяет отметку на экране, пересчитывает счётчики и сообщает пасхалкам о закрытых блоках и цветах.
   void _apply(List<CellPosition> cells, {required bool done}) {
+    final List<CellPosition> changed = <CellPosition>[
+      for (final CellPosition c in cells)
+        if (state.progress.isDone(c.column, c.row) != done) c,
+    ];
     emit(state.copyWith(progress: state.progress.withCells(cells, done: done)));
     _afterChange(done: done, touched: cells);
+    _record(changed, done: done);
+  }
+
+  /// Запоминает действие для отката. После мазка, области и цвета целиком (больше одной клетки) показывается тост.
+  void _record(List<CellPosition> changed, {required bool done}) {
+    if (changed.isEmpty) {
+      return;
+    }
+    _history.add((cells: changed, done: done));
+    if (_history.length > _historyLimit) {
+      _history.removeAt(0);
+    }
+    _noticeTimer?.cancel();
+    if (changed.length > 1) {
+      emit(state.copyWith(canUndo: true, undoNotice: (count: changed.length, done: done)));
+      _noticeTimer = Timer(_noticeTime, () {
+        if (!isClosed) {
+          emit(state.copyWith(clearUndoNotice: true));
+        }
+      });
+    } else {
+      emit(state.copyWith(canUndo: true, clearUndoNotice: true));
+    }
+  }
+
+  /// Откатывает последнее действие целиком: мазок, область, цвет или касание.
+  void undo() {
+    if (!state.isReady || _stroking || _history.isEmpty) {
+      return;
+    }
+    _noticeTimer?.cancel();
+    final ({List<CellPosition> cells, bool done}) last = _history.removeLast();
+    final bool done = !last.done;
+    emit(state.copyWith(progress: state.progress.withCells(last.cells, done: done)));
+    _afterChange(done: done, touched: last.cells);
+    emit(state.copyWith(canUndo: _history.isNotEmpty, clearUndoNotice: true));
+    _enqueue(() async => (await _markCells(projectId: _projectId, cells: last.cells, done: done)).isFailure);
+  }
+
+  /// Скрывает тост, не откатывая.
+  void dismissUndoNotice() {
+    if (state.undoNotice != null) {
+      _noticeTimer?.cancel();
+      emit(state.copyWith(clearUndoNotice: true));
+    }
   }
 
   void _afterChange({required bool done, required List<CellPosition> touched}) {
@@ -360,6 +421,7 @@ class StitchCubit extends Cubit<StitchState> {
 
   @override
   Future<void> close() async {
+    _noticeTimer?.cancel();
     try {
       await _writes;
       await _tracker.stop();
