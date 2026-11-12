@@ -21,6 +21,7 @@ import 'package:beading/domain/image_to_grid/image_mask_set.dart';
 import 'package:beading/domain/image_to_grid/image_masks.dart';
 import 'package:beading/domain/image_to_grid/image_to_grid_runner.dart';
 import 'package:beading/domain/image_to_grid/image_to_grid_settings.dart';
+import 'package:beading/domain/image_to_grid/importance_brush.dart';
 import 'package:beading/domain/image_to_grid/palette_from_generated.dart';
 import 'package:beading/domain/image_to_grid/size_purpose.dart';
 import 'package:beading/domain/image_to_grid/size_suggester.dart';
@@ -85,6 +86,11 @@ class ImageWizardCubit extends Cubit<ImageWizardState> {
 
   /// Маска важности по пикселям [_image]: из масок Vision; `null` — масок нет и всё одинаково важно.
   Float32List? _importance;
+
+  /// Маска важности только из масок Vision, без мазков: [_importance] строится из неё и мазков заново.
+  Float32List? _autoImportance;
+  final List<ImportanceBrush> _brushUndo = <ImportanceBrush>[];
+  ImportanceBrush? _brushAtStart;
   Uint8List? _subjectMask;
   Timer? _timer;
 
@@ -179,10 +185,16 @@ class ImageWizardCubit extends Cubit<ImageWizardState> {
     if (isClosed || preparation != _preparation) {
       return;
     }
-    _importance = maskSet?.importance();
+    _autoImportance = maskSet?.importance();
     _subjectMask = maskSet?.subjectOrPerson;
+    _brushUndo.clear();
     emit(
       state.copyWith(
+        brush: ImportanceBrush.empty,
+        brushing: false,
+        brushUndoDepth: 0,
+        preparedWidth: prepared.image.width,
+        preparedHeight: prepared.image.height,
         step: ImageWizardStep.edit,
         opening: false,
         masks: maskSet,
@@ -200,6 +212,7 @@ class ImageWizardCubit extends Cubit<ImageWizardState> {
     _hintKey = null;
     _sizeTouched = false;
     _image = prepared.image;
+    _rebuildImportance();
     _schedule(immediate: true);
   }
 
@@ -239,9 +252,18 @@ class ImageWizardCubit extends Cubit<ImageWizardState> {
       return;
     }
     _image = prepared.image;
-    _importance = maskSet?.importance();
+    _autoImportance = maskSet?.importance();
     _subjectMask = maskSet?.subjectOrPerson;
-    emit(state.copyWith(prepared: prepared.png, masks: maskSet, clearMasks: maskSet == null));
+    emit(
+      state.copyWith(
+        prepared: prepared.png,
+        masks: maskSet,
+        clearMasks: maskSet == null,
+        preparedWidth: prepared.image.width,
+        preparedHeight: prepared.image.height,
+      ),
+    );
+    _rebuildImportance();
     _schedule(immediate: true);
   }
 
@@ -367,7 +389,132 @@ class ImageWizardCubit extends Cubit<ImageWizardState> {
       _change(preset == null ? state.settings.copyWith(clearPreset: true) : state.settings.copyWith(preset: preset));
 
   /// «Выделять главное»: учитывать ли лица и объект, найденные на фото.
-  void setUseMasks({required bool value}) => _change(state.settings.copyWith(useMasks: value));
+  void setUseMasks({required bool value}) {
+    _rebuildImportance(useMasks: value);
+    _change(state.settings.copyWith(useMasks: value));
+  }
+
+  PreparedFrame? get _frame {
+    final SourceImage? image = _image;
+    return image == null
+        ? null
+        : PreparedFrame(width: image.width, height: image.height, quarterTurns: state.quarterTurns, crop: state.crop);
+  }
+
+  /// Итоговая маска важности: найденное Vision (если включено) и поверх него мазки пользователя.
+  void _rebuildImportance({bool? useMasks}) {
+    final PreparedFrame? frame = _frame;
+    final Float32List? auto = (useMasks ?? state.settings.useMasks) ? _autoImportance : null;
+    _importance = frame == null ? auto : state.brush.applyTo(auto, frame);
+  }
+
+  /// «Выделить важное»: открывает режим кисти; «Отмена» вернёт мазки, какими они были.
+  void startBrush() {
+    if (state.brushing || state.prepared == null) {
+      return;
+    }
+    _brushAtStart = state.brush;
+    _brushUndo.clear();
+    emit(state.copyWith(brushing: true, brushEraser: false, brushShowAuto: false, brushUndoDepth: 0));
+  }
+
+  /// «Готово»: мазки применяются, схема пересчитывается.
+  void finishBrush() {
+    if (!state.brushing) {
+      return;
+    }
+    final bool changed = state.brush != _brushAtStart;
+    _brushAtStart = null;
+    _brushUndo.clear();
+    emit(state.copyWith(brushing: false, brushUndoDepth: 0));
+    if (changed) {
+      _rebuildImportance();
+      _schedule(immediate: true);
+    }
+  }
+
+  void cancelBrush() {
+    if (!state.brushing) {
+      return;
+    }
+    final ImportanceBrush before = _brushAtStart ?? state.brush;
+    _brushAtStart = null;
+    _brushUndo.clear();
+    emit(state.copyWith(brushing: false, brush: before, brushUndoDepth: 0));
+  }
+
+  void setBrushEraser({required bool eraser}) =>
+      emit(state.copyWith(brushEraser: eraser, brushShowAuto: !eraser && state.brushShowAuto));
+
+  void setBrushSize(int index) {
+    if (index >= 0 && index < ImageWizardState.brushSizes.length) {
+      emit(state.copyWith(brushSize: index));
+    }
+  }
+
+  void setBrushShowAuto({required bool value}) => emit(state.copyWith(brushShowAuto: value));
+
+  /// Мазок закончен: [points] — пары `x, y` в долях подготовленной картинки.
+  void addBrushStroke(List<double> points) {
+    final PreparedFrame? frame = _frame;
+    if (frame == null || points.length < 2) {
+      return;
+    }
+    final List<double> source = <double>[];
+    for (int i = 0; i + 1 < points.length; i += 2) {
+      final (double, double) p = frame.toSource(points[i], points[i + 1]);
+      source
+        ..add(p.$1)
+        ..add(p.$2);
+    }
+    _changeBrush(
+      state.brush.withStroke(BrushStroke(points: source, radius: ImageWizardState.brushSizes[state.brushSize])),
+    );
+  }
+
+  /// Ластик прошёл по [points] (доли подготовленной картинки): задетые мазки стёрты.
+  void eraseBrush(List<double> points) {
+    final PreparedFrame? frame = _frame;
+    if (frame == null) {
+      return;
+    }
+    final ImportanceBrush next = state.brush.erasing(points, ImageWizardState.brushSizes[state.brushSize], frame);
+    if (!identical(next, state.brush)) {
+      _changeBrush(next);
+    }
+  }
+
+  void clearBrush() {
+    if (!state.brush.isEmpty) {
+      _changeBrush(ImportanceBrush.empty);
+    }
+  }
+
+  void undoBrush() {
+    if (_brushUndo.isNotEmpty) {
+      final ImportanceBrush previous = _brushUndo.removeLast();
+      emit(state.copyWith(brush: previous, brushUndoDepth: _brushUndo.length));
+    }
+  }
+
+  /// «Сбросить выделение» в параметрах: все мазки убраны, схема пересчитана.
+  void resetBrush() {
+    if (state.brush.isEmpty) {
+      return;
+    }
+    emit(state.copyWith(brush: ImportanceBrush.empty, brushUndoDepth: 0));
+    _brushUndo.clear();
+    _rebuildImportance();
+    _schedule(immediate: true);
+  }
+
+  void _changeBrush(ImportanceBrush next) {
+    _brushUndo.add(state.brush);
+    if (_brushUndo.length > 50) {
+      _brushUndo.removeAt(0);
+    }
+    emit(state.copyWith(brush: next, brushUndoDepth: _brushUndo.length));
+  }
 
   /// «Обрезать по лицу»: рамка вокруг самого крупного лица из совета, в осях уже обрезанной картинки.
   Future<void> cropToFace() async {
@@ -557,7 +704,7 @@ class ImageWizardCubit extends Cubit<ImageWizardState> {
           image: image,
           catalog: _catalogColors,
           brand: _brandFor(settings),
-          importance: settings.useMasks ? _importance : null,
+          importance: _importance,
           masks: settings.useMasks ? state.masks : null,
           subjectMask: _subjectMask,
           draft: draft,

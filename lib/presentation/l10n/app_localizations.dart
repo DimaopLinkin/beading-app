@@ -2737,6 +2737,114 @@ abstract class AppLocalizations {
   /// **'Детально'**
   String get imageWizardPresetDetailed;
 
+  /// Строка параметров и заголовок режима кисти
+  ///
+  /// In ru, this message translates to:
+  /// **'Выделить важное'**
+  String get imageWizardBrushTitle;
+
+  /// Бейдж строки, когда есть мазки
+  ///
+  /// In ru, this message translates to:
+  /// **'Выделено вручную'**
+  String get imageWizardBrushManual;
+
+  /// Кнопка: убрать все мазки
+  ///
+  /// In ru, this message translates to:
+  /// **'Сбросить выделение'**
+  String get imageWizardBrushReset;
+
+  /// Кнопка режима кисти
+  ///
+  /// In ru, this message translates to:
+  /// **'Готово'**
+  String get imageWizardBrushDone;
+
+  /// Подсказка режима кисти
+  ///
+  /// In ru, this message translates to:
+  /// **'Один палец рисует, два масштабируют.'**
+  String get imageWizardBrushHint;
+
+  /// Переключатель показа найденной маски
+  ///
+  /// In ru, this message translates to:
+  /// **'Показать, что генератор считает важным'**
+  String get imageWizardBrushShowAuto;
+
+  /// Кнопка: добавлять важное
+  ///
+  /// In ru, this message translates to:
+  /// **'Кисть'**
+  String get imageWizardBrushBrush;
+
+  /// Кнопка: стирать ваши мазки
+  ///
+  /// In ru, this message translates to:
+  /// **'Ластик'**
+  String get imageWizardBrushEraser;
+
+  /// Размер кисти
+  ///
+  /// In ru, this message translates to:
+  /// **'Малый'**
+  String get imageWizardBrushSmall;
+
+  /// Размер кисти
+  ///
+  /// In ru, this message translates to:
+  /// **'Средний'**
+  String get imageWizardBrushMedium;
+
+  /// Размер кисти
+  ///
+  /// In ru, this message translates to:
+  /// **'Крупный'**
+  String get imageWizardBrushLarge;
+
+  /// Кнопка: убрать все ваши мазки
+  ///
+  /// In ru, this message translates to:
+  /// **'Очистить'**
+  String get imageWizardBrushClear;
+
+  /// Подтверждение очистки
+  ///
+  /// In ru, this message translates to:
+  /// **'Убрать все ваши мазки? Найденное генератором останется. Это можно отменить.'**
+  String get imageWizardBrushClearMessage;
+
+  /// Кнопка: отменить последний мазок
+  ///
+  /// In ru, this message translates to:
+  /// **'Отменить'**
+  String get imageWizardBrushUndo;
+
+  /// Пустое состояние: масок нет
+  ///
+  /// In ru, this message translates to:
+  /// **'Генератор сам ничего не выделил. Проведите кистью по самому важному.'**
+  String get imageWizardBrushEmpty;
+
+  /// Легенда предпросмотра
+  ///
+  /// In ru, this message translates to:
+  /// **'Нашёл генератор'**
+  String get imageWizardBrushLegendFound;
+
+  /// Легенда предпросмотра
+  ///
+  /// In ru, this message translates to:
+  /// **'Ваши мазки'**
+  String get imageWizardBrushLegendMine;
+
+  /// Подпись области рисования для VoiceOver
+  ///
+  /// In ru, this message translates to:
+  /// **'Картинка: проведите пальцем по важному'**
+  String get imageWizardBrushCanvas;
+
   /// Переключатель: учитывать найденные на фото лица и объект
   ///
   /// In ru, this message translates to:

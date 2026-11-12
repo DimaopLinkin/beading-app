@@ -164,6 +164,36 @@ void main() {
     expect(cubit.state.settings.useMasks, isFalse);
   });
 
+  for (final Brightness b in Brightness.values) {
+    testWidgets('кисть «важное» в теме $b: мазок, «Готово», бейдж и сброс', (tester) async {
+      await openPhoto(tester, b == Brightness.dark ? AppTheme.dark : AppTheme.light);
+      final Finder row = find.byKey(const ValueKey<String>('wizard-brush'));
+      await tester.scrollUntilVisible(row, 200, scrollable: find.byType(Scrollable).last);
+      await tester.tap(row);
+      await tester.pump();
+      expect(cubit.state.brushing, isTrue);
+
+      final Offset canvas = tester.getCenter(find.byKey(const ValueKey<String>('brush-canvas')));
+      final TestGesture finger = await tester.startGesture(canvas);
+      await finger.moveBy(const Offset(20, 5));
+      await finger.up();
+      await tester.pump();
+      expect(cubit.state.brush.strokes, hasLength(1));
+
+      await tester.tap(find.byKey(const ValueKey<String>('brush-done')));
+      await tester.pumpAndSettle();
+      expect(cubit.state.brushing, isFalse);
+      await tester.scrollUntilVisible(row, 200, scrollable: find.byType(Scrollable).last);
+      expect(find.text('Выделено вручную'), findsOneWidget);
+
+      final Finder reset = find.byKey(const ValueKey<String>('wizard-brush-reset'));
+      await tester.scrollUntilVisible(reset, 200, scrollable: find.byType(Scrollable).last);
+      await tester.tap(reset);
+      await tester.pumpAndSettle();
+      expect(cubit.state.brush.isEmpty, isTrue);
+    });
+  }
+
   ImageMaskSet faceOfWidth(double width) => ImageMaskSet(
     width: 10,
     height: 10,

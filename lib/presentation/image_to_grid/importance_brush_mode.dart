@@ -1,0 +1,524 @@
+import 'dart:math' as math;
+import 'dart:typed_data';
+
+import 'package:beading/domain/image_to_grid/image_mask_set.dart';
+import 'package:beading/domain/image_to_grid/importance_brush.dart';
+import 'package:beading/presentation/image_to_grid/image_wizard_cubit.dart';
+import 'package:beading/presentation/image_to_grid/image_wizard_state.dart';
+import 'package:beading/presentation/l10n/app_localizations.dart';
+import 'package:beading/presentation/theme/tokens.dart';
+import 'package:flutter/cupertino.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+
+/// Янтарь подсветки «важного»: не цвет бисера, поэтому читается поверх любой картинки (макет 12).
+const Color _amber = Color(0xFFFFA000);
+
+/// Режим «Выделить важное» (T60): предпросмотр целиком, мазок пальцем рисует «важное», внизу панель кисти.
+/// Один палец рисует, два масштабируют и двигают картинку.
+class ImportanceBrushMode extends StatefulWidget {
+  const ImportanceBrushMode({required this.state, super.key});
+
+  final ImageWizardState state;
+
+  @override
+  State<ImportanceBrushMode> createState() => _ImportanceBrushModeState();
+}
+
+class _ImportanceBrushModeState extends State<ImportanceBrushMode> {
+  final TransformationController _controller = TransformationController();
+  final ValueNotifier<List<double>?> _live = ValueNotifier<List<double>?>(null);
+  final Set<int> _pointers = <int>{};
+  int? _drawing;
+  List<double> _points = <double>[];
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    _live.dispose();
+    super.dispose();
+  }
+
+  Offset _fraction(Offset local, Size size) {
+    final Offset scene = _controller.toScene(local);
+    return Offset(scene.dx / size.width, scene.dy / size.height);
+  }
+
+  void _down(PointerDownEvent e, Size size) {
+    _pointers.add(e.pointer);
+    if (_pointers.length > 1) {
+      _drawing = null;
+      _points = <double>[];
+      _live.value = null;
+      setState(() {});
+      return;
+    }
+    final Offset f = _fraction(e.localPosition, size);
+    _drawing = e.pointer;
+    _points = <double>[f.dx, f.dy];
+    if (widget.state.brushEraser) {
+      context.read<ImageWizardCubit>().eraseBrush(_points);
+    } else {
+      _live.value = _points;
+    }
+  }
+
+  void _move(PointerMoveEvent e, Size size) {
+    if (_drawing != e.pointer) {
+      return;
+    }
+    final Offset f = _fraction(e.localPosition, size);
+    if (widget.state.brushEraser) {
+      context.read<ImageWizardCubit>().eraseBrush(<double>[f.dx, f.dy]);
+      return;
+    }
+    _points = <double>[..._points, f.dx, f.dy];
+    _live.value = _points;
+  }
+
+  void _up(PointerEvent e, {required bool commit}) {
+    final bool wasPair = _pointers.length > 1;
+    _pointers.remove(e.pointer);
+    if (wasPair && _pointers.length == 1) {
+      setState(() {});
+    }
+    if (_drawing != e.pointer) {
+      return;
+    }
+    _drawing = null;
+    if (commit && !widget.state.brushEraser) {
+      context.read<ImageWizardCubit>().addBrushStroke(_points);
+    }
+    _points = <double>[];
+    _live.value = null;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final AppLocalizations l10n = AppLocalizations.of(context);
+    final ImageWizardCubit cubit = context.read<ImageWizardCubit>();
+    final ImageWizardState state = widget.state;
+    final AppTokensData tokens = context.tokens;
+    final TextStyle caption = TextStyle(fontSize: 13, color: CupertinoColors.secondaryLabel.resolveFrom(context));
+    final bool pinching = _pointers.length > 1;
+    return Column(
+      children: <Widget>[
+        Padding(
+          padding: EdgeInsets.symmetric(horizontal: tokens.spacing.s),
+          child: Row(
+            children: <Widget>[
+              CupertinoButton(
+                key: const ValueKey<String>('brush-cancel'),
+                padding: EdgeInsets.zero,
+                minimumSize: Size.square(tokens.minTapTarget),
+                onPressed: cubit.cancelBrush,
+                child: Text(l10n.imageWizardCancel),
+              ),
+              Expanded(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: <Widget>[
+                    Text(
+                      l10n.imageWizardBrushTitle,
+                      style: CupertinoTheme.of(context).textTheme.navTitleTextStyle,
+                    ),
+                    Text(l10n.imageWizardBrushHint, style: caption, textAlign: TextAlign.center),
+                  ],
+                ),
+              ),
+              SizedBox(width: tokens.minTapTarget + 16),
+            ],
+          ),
+        ),
+        Expanded(
+          child: LayoutBuilder(
+            builder: (context, box) {
+              final int pw = math.max(1, state.preparedWidth);
+              final int ph = math.max(1, state.preparedHeight);
+              final double k = math.min(
+                (box.maxWidth - 2 * tokens.spacing.m) / pw,
+                (box.maxHeight - 2 * tokens.spacing.s) / ph,
+              );
+              final Size size = Size(pw * k, ph * k);
+              final PreparedFrame frame = PreparedFrame(
+                width: pw,
+                height: ph,
+                quarterTurns: state.quarterTurns,
+                crop: state.crop,
+              );
+              return Center(
+                child: Semantics(
+                  label: l10n.imageWizardBrushCanvas,
+                  child: SizedBox(
+                    width: size.width,
+                    height: size.height,
+                    child: ClipRect(
+                      child: Listener(
+                        key: const ValueKey<String>('brush-canvas'),
+                        behavior: HitTestBehavior.opaque,
+                        onPointerDown: (e) => _down(e, size),
+                        onPointerMove: (e) => _move(e, size),
+                        onPointerUp: (e) => _up(e, commit: true),
+                        onPointerCancel: (e) => _up(e, commit: false),
+                        child: InteractiveViewer(
+                          transformationController: _controller,
+                          constrained: false,
+                          minScale: 1,
+                          maxScale: 6,
+                          panEnabled: pinching,
+                          scaleEnabled: pinching,
+                          child: SizedBox(
+                            width: size.width,
+                            height: size.height,
+                            child: Stack(
+                              children: <Widget>[
+                                Positioned.fill(
+                                  child: Image.memory(
+                                    state.prepared!,
+                                    fit: BoxFit.fill,
+                                    gaplessPlayback: true,
+                                    excludeFromSemantics: true,
+                                    errorBuilder: (context, error, stack) => const SizedBox.shrink(),
+                                  ),
+                                ),
+                                Positioned.fill(
+                                  child: CustomPaint(
+                                    painter: _BrushPainter(
+                                      brush: state.brush,
+                                      frame: frame,
+                                      masks: state.brushShowAuto ? state.masks : null,
+                                      live: _live,
+                                      liveRadius: ImageWizardState.brushSizes[state.brushSize],
+                                      liveVisible: !state.brushEraser,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              );
+            },
+          ),
+        ),
+        if (!state.hasMasks && state.brush.isEmpty)
+          Padding(
+            padding: EdgeInsets.symmetric(horizontal: tokens.spacing.l, vertical: tokens.spacing.xs),
+            child: Text(l10n.imageWizardBrushEmpty, style: caption, textAlign: TextAlign.center),
+          ),
+        _BrushPanel(state: state),
+      ],
+    );
+  }
+}
+
+class _BrushPanel extends StatelessWidget {
+  const _BrushPanel({required this.state});
+
+  final ImageWizardState state;
+
+  @override
+  Widget build(BuildContext context) {
+    final AppLocalizations l10n = AppLocalizations.of(context);
+    final ImageWizardCubit cubit = context.read<ImageWizardCubit>();
+    final AppTokensData tokens = context.tokens;
+    final List<String> sizeNames = <String>[
+      l10n.imageWizardBrushSmall,
+      l10n.imageWizardBrushMedium,
+      l10n.imageWizardBrushLarge,
+    ];
+    return Container(
+      padding: EdgeInsets.all(tokens.spacing.s),
+      decoration: BoxDecoration(
+        color: CupertinoColors.secondarySystemBackground.resolveFrom(context),
+        border: Border(top: BorderSide(color: CupertinoColors.separator.resolveFrom(context), width: 0.5)),
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: <Widget>[
+          if (state.hasMasks)
+            MergeSemantics(
+              child: Row(
+                children: <Widget>[
+                  Expanded(
+                    child: Text(l10n.imageWizardBrushShowAuto, style: const TextStyle(fontSize: 13)),
+                  ),
+                  CupertinoSwitch(
+                    key: const ValueKey<String>('brush-show-auto'),
+                    value: state.brushShowAuto,
+                    onChanged: (v) => cubit.setBrushShowAuto(value: v),
+                  ),
+                ],
+              ),
+            ),
+          Wrap(
+            alignment: WrapAlignment.spaceEvenly,
+            spacing: tokens.spacing.xs,
+            children: <Widget>[
+              _BrushButton(
+                key: const ValueKey<String>('brush-draw'),
+                icon: CupertinoIcons.paintbrush,
+                label: l10n.imageWizardBrushBrush,
+                selected: !state.brushEraser,
+                onPressed: () => cubit.setBrushEraser(eraser: false),
+              ),
+              _BrushButton(
+                key: const ValueKey<String>('brush-eraser'),
+                icon: CupertinoIcons.delete_left,
+                label: l10n.imageWizardBrushEraser,
+                selected: state.brushEraser,
+                onPressed: () => cubit.setBrushEraser(eraser: true),
+              ),
+              for (final (int i, String name) in sizeNames.indexed)
+                _BrushButton(
+                  key: ValueKey<String>('brush-size-$i'),
+                  iconWidget: Container(
+                    width: 8 + ImageWizardState.brushSizes[i] * 200,
+                    height: 8 + ImageWizardState.brushSizes[i] * 200,
+                    decoration: const BoxDecoration(shape: BoxShape.circle, color: _amber),
+                  ),
+                  label: name,
+                  selected: state.brushSize == i,
+                  onPressed: () => cubit.setBrushSize(i),
+                ),
+            ],
+          ),
+          SizedBox(height: tokens.spacing.xs),
+          Wrap(
+            alignment: WrapAlignment.spaceEvenly,
+            spacing: tokens.spacing.xs,
+            children: <Widget>[
+              _BrushButton(
+                key: const ValueKey<String>('brush-clear'),
+                icon: CupertinoIcons.trash,
+                label: l10n.imageWizardBrushClear,
+                onPressed: state.brush.isEmpty ? null : () => _confirmClear(context, cubit),
+              ),
+              _BrushButton(
+                key: const ValueKey<String>('brush-undo'),
+                icon: CupertinoIcons.arrow_uturn_left,
+                label: l10n.imageWizardBrushUndo,
+                onPressed: state.canUndoBrush ? cubit.undoBrush : null,
+              ),
+              CupertinoButton.filled(
+                key: const ValueKey<String>('brush-done'),
+                minimumSize: Size(96, tokens.minTapTarget),
+                onPressed: cubit.finishBrush,
+                child: Text(l10n.imageWizardBrushDone),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Future<void> _confirmClear(BuildContext context, ImageWizardCubit cubit) {
+    final AppLocalizations l10n = AppLocalizations.of(context);
+    return showCupertinoModalPopup<void>(
+      context: context,
+      builder: (sheet) => CupertinoActionSheet(
+        message: Text(l10n.imageWizardBrushClearMessage),
+        actions: <Widget>[
+          CupertinoActionSheetAction(
+            key: const ValueKey<String>('brush-clear-confirm'),
+            isDestructiveAction: true,
+            onPressed: () {
+              cubit.clearBrush();
+              Navigator.of(sheet).pop();
+            },
+            child: Text(l10n.imageWizardBrushClear),
+          ),
+        ],
+        cancelButton: CupertinoActionSheetAction(
+          onPressed: () => Navigator.of(sheet).pop(),
+          child: Text(l10n.imageWizardCancel),
+        ),
+      ),
+    );
+  }
+}
+
+class _BrushButton extends StatelessWidget {
+  const _BrushButton({
+    required this.label,
+    required this.onPressed,
+    this.icon,
+    this.iconWidget,
+    this.selected = false,
+    super.key,
+  });
+
+  final String label;
+  final VoidCallback? onPressed;
+  final IconData? icon;
+  final Widget? iconWidget;
+  final bool selected;
+
+  @override
+  Widget build(BuildContext context) {
+    final AppTokensData tokens = context.tokens;
+    final Color accent = tokens.accent.resolveFrom(context);
+    final bool enabled = onPressed != null;
+    final Color color = enabled
+        ? CupertinoColors.label.resolveFrom(context)
+        : CupertinoColors.tertiaryLabel.resolveFrom(context);
+    return Semantics(
+      button: true,
+      enabled: enabled,
+      selected: selected,
+      label: label,
+      excludeSemantics: true,
+      onTap: onPressed,
+      child: GestureDetector(
+        behavior: HitTestBehavior.opaque,
+        onTap: onPressed,
+        child: ConstrainedBox(
+          constraints: BoxConstraints(minWidth: tokens.minTapTarget, minHeight: tokens.minTapTarget),
+          child: DecoratedBox(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(tokens.radius.s),
+              border: Border.all(color: selected ? accent : const Color(0x00000000), width: 2),
+            ),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: <Widget>[
+                  SizedBox(
+                    height: 24,
+                    child: Center(child: iconWidget ?? Icon(icon, size: 22, color: selected ? accent : color)),
+                  ),
+                  Text(
+                    label,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(fontSize: 13, color: selected ? accent : color),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// Рисует поверх картинки найденное генератором (по желанию), мазки пользователя и мазок под пальцем.
+class _BrushPainter extends CustomPainter {
+  _BrushPainter({
+    required this.brush,
+    required this.frame,
+    required this.masks,
+    required this.live,
+    required this.liveRadius,
+    required this.liveVisible,
+  }) : super(repaint: live);
+
+  final ImportanceBrush brush;
+  final PreparedFrame frame;
+  final ImageMaskSet? masks;
+  final ValueNotifier<List<double>?> live;
+  final double liveRadius;
+  final bool liveVisible;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final double perPx = size.width / frame.width;
+    final double short = frame.shortSide * perPx;
+    final ImageMaskSet? found = masks;
+    if (found != null) {
+      _paintFound(canvas, size, found);
+    }
+    for (final BrushStroke s in brush.strokes) {
+      final List<Offset> pts = <Offset>[
+        for (int i = 0; i + 1 < s.points.length; i += 2) _toCanvas(s.points[i], s.points[i + 1], size),
+      ];
+      _paintStroke(canvas, pts, s.radius * short * 2);
+    }
+    final List<double>? now = live.value;
+    if (liveVisible && now != null && now.length >= 2) {
+      _paintStroke(canvas, <Offset>[
+        for (int i = 0; i + 1 < now.length; i += 2) Offset(now[i] * size.width, now[i + 1] * size.height),
+      ], liveRadius * short * 2);
+    }
+  }
+
+  Offset _toCanvas(double x, double y, Size size) {
+    final (double, double) p = frame.toPrepared(x, y);
+    return Offset(p.$1 * size.width, p.$2 * size.height);
+  }
+
+  /// Двойной контур (тёмный и белый) и полупрозрачная янтарная заливка: подсветка не путается с цветами бисера.
+  void _paintStroke(Canvas canvas, List<Offset> pts, double width) {
+    if (pts.isEmpty) {
+      return;
+    }
+    final Path path = Path()..moveTo(pts.first.dx, pts.first.dy);
+    if (pts.length == 1) {
+      path.lineTo(pts.first.dx + 0.01, pts.first.dy);
+    }
+    for (final Offset p in pts.skip(1)) {
+      path.lineTo(p.dx, p.dy);
+    }
+    Paint line(Color color, double w) => Paint()
+      ..style = PaintingStyle.stroke
+      ..strokeCap = StrokeCap.round
+      ..strokeJoin = StrokeJoin.round
+      ..strokeWidth = w
+      ..color = color;
+    canvas
+      ..drawPath(path, line(const Color(0xCC000000), width + 4))
+      ..drawPath(path, line(const Color(0xFFFFFFFF), width + 2))
+      ..drawPath(path, line(_amber.withValues(alpha: 0.45), width));
+  }
+
+  /// Найденное генератором: объект сеткой ячеек и рамки лиц, пунктиром не рисуем, а тоньше и бледнее ваших мазков.
+  void _paintFound(Canvas canvas, Size size, ImageMaskSet found) {
+    final Paint fill = Paint()..color = _amber.withValues(alpha: 0.25);
+    final Uint8List? object = found.subjectOrPerson;
+    if (object != null) {
+      const int steps = 48;
+      final double cw = size.width / steps;
+      final double ch = size.height / steps;
+      for (int gy = 0; gy < steps; gy++) {
+        for (int gx = 0; gx < steps; gx++) {
+          final int x = ((gx + 0.5) / steps * found.width).floor().clamp(0, found.width - 1);
+          final int y = ((gy + 0.5) / steps * found.height).floor().clamp(0, found.height - 1);
+          if (object[y * found.width + x] != 0) {
+            canvas.drawRect(Rect.fromLTWH(gx * cw, gy * ch, cw + 0.5, ch + 0.5), fill);
+          }
+        }
+      }
+    }
+    final Paint edge = Paint()
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 2
+      ..color = _amber;
+    for (final DetectedFace face in found.faces) {
+      final NormalizedRect b = face.bounds;
+      final Rect r = Rect.fromLTRB(
+        b.left * size.width,
+        b.top * size.height,
+        b.right * size.width,
+        b.bottom * size.height,
+      );
+      canvas
+        ..drawRect(r, fill)
+        ..drawRect(r, edge);
+    }
+  }
+
+  @override
+  bool shouldRepaint(_BrushPainter old) =>
+      old.brush != brush ||
+      old.frame != frame ||
+      old.masks != masks ||
+      old.liveRadius != liveRadius ||
+      old.liveVisible != liveVisible;
+}
