@@ -26,6 +26,7 @@ import 'package:beading/data/sharing/share_plus_file_sharer.dart';
 import 'package:beading/data/sharing/zip_biser_codec.dart';
 import 'package:beading/data/stitch_import/xml_oxs_decoder.dart';
 import 'package:beading/data/weaving/drift_work_session_repository.dart';
+import 'package:beading/domain/bead_stock/bead_stock_repository.dart';
 import 'package:beading/domain/catalog/catalog_repository.dart';
 import 'package:beading/domain/events/app_events.dart';
 import 'package:beading/domain/floss_stock/floss_stock_repository.dart';
@@ -399,6 +400,7 @@ Future<void> configureDependencies(
     ..registerLazySingleton<TextSharer>(SharePlusTextSharer.new)
     ..registerFactory<LoadProjectMaterials>(() => LoadProjectMaterials(container<GridPatternRepository>()))
     ..registerLazySingleton<FlossStockRepository>(() => dependencies.catalog.flossStock)
+    ..registerLazySingleton<BeadStockRepository>(() => dependencies.catalog.beadStock)
     ..registerFactory<LoadProjectFloss>(
       () => LoadProjectFloss(container<GridPatternRepository>(), progress: container<CellProgressStore>()),
     )
@@ -437,6 +439,7 @@ Future<void> configureDependencies(
         clock: container<Clock>(),
         appInfo: container<AppInfoProvider>(),
         flossStock: container<FlossStockRepository>(),
+        beadStock: container<BeadStockRepository>(),
       ),
     )
     ..registerFactory<ImportBiser>(
@@ -453,6 +456,7 @@ Future<void> configureDependencies(
         ids: container<IdGenerator>(),
         unitOfWork: container<UnitOfWork>(),
         flossStock: container<FlossStockRepository>(),
+        beadStock: container<BeadStockRepository>(),
       ),
     )
     ..registerLazySingleton<OxsDecoder>(() => const XmlOxsDecoder())

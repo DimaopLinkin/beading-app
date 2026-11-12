@@ -51,7 +51,7 @@ class ColorDetailSheet extends StatelessWidget {
             return ListView(
               children: <Widget>[
                 _Header(color: selection.source),
-                if (cubit.hasStock) _StockSection(color: selection.source),
+                if (cubit.stockUnit case final StockUnit unit) _StockSection(color: selection.source, unit: unit),
                 _SimilarSection(selection: selection),
               ],
             );
@@ -103,9 +103,10 @@ class _Header extends StatelessWidget {
 /// «Мой запас»: сколько мотков этой нитки есть. Число меняется сразу, запись идёт следом; ошибка записи видна
 /// под счётчиком, а число возвращается к тому, что реально сохранено.
 class _StockSection extends StatelessWidget {
-  const _StockSection({required this.color});
+  const _StockSection({required this.color, required this.unit});
 
   final CatalogColor color;
+  final StockUnit unit;
 
   @override
   Widget build(BuildContext context) {
@@ -120,13 +121,14 @@ class _StockSection extends StatelessWidget {
         footer: state.stockWriteFailure == null
             ? null
             : Text(
-                l10n.flossStockWriteFailed,
+                unit == StockUnit.grams ? l10n.beadStockWriteFailed : l10n.flossStockWriteFailed,
                 style: TextStyle(color: CupertinoColors.systemRed.resolveFrom(context)),
               ),
         children: <Widget>[
           _StockRow(
             key: ValueKey<String>('stock-${color.id}'),
             saved: state.stock[ref] ?? 0,
+            unit: unit,
             failed: state.stockWriteFailure != null,
             onChanged: (value) => unawaited(cubit.setStock(color, value)),
           ),
@@ -138,9 +140,10 @@ class _StockSection extends StatelessWidget {
 
 /// Строка со счётчиком мотков. Хранит показанное число сама, чтобы нажатие было видно сразу, не дожидаясь базы.
 class _StockRow extends StatefulWidget {
-  const _StockRow({required this.saved, required this.failed, required this.onChanged, super.key});
+  const _StockRow({required this.saved, required this.unit, required this.failed, required this.onChanged, super.key});
 
   final double saved;
+  final StockUnit unit;
   final bool failed;
   final ValueChanged<double> onChanged;
 
@@ -162,6 +165,7 @@ class _StockRowState extends State<_StockRow> {
   Widget build(BuildContext context) => CupertinoListTile(
     title: StockStepper(
       value: _shown,
+      unit: widget.unit,
       onChanged: (value) {
         setState(() => _shown = value);
         widget.onChanged(value);

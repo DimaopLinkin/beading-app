@@ -87,6 +87,7 @@ create index on public.sync_records (user_id, server_seq);
 | `grid_progress_cells` | `{project_id}:{block_index}` | LWW блока (R-09) |
 | `work_sessions` | `id` | |
 | `floss_stock` | `{brand}:{code}` | в drift добавляется unique «одна живая запись на нитку»; два офлайн-добавления сливаются как LWW количества, принято |
+| `bead_stock` | `{brand}:{code}` | запас бисера в граммах, как `floss_stock` (добавлено в схеме v16) |
 | `settings` | `key` (без `local.*`) | |
 
 Ссылки детей в `data` указывают на **`sync_id` родителя**, а не на локальный id; `DriftSyncStore` переводит их обратно. Чтобы переводов не было, локальные id 1:1-детей (`grid_patterns`, `image_patterns`) миграцией делаются детерминированными (UUID v5 от `project_id`). Какой из двух приёмов выбран, фиксируется в T26 после проверки миграции на существующих данных.

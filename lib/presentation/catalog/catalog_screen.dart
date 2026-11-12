@@ -170,7 +170,8 @@ class _CatalogScreenState extends State<CatalogScreen> {
                   key: ValueKey<String>('color-${color.id}'),
                   color: color,
                   onTap: () => onPick(color),
-                  haveSkeins: state.stock[CatalogRef(brand: color.brand, code: color.code)],
+                  have: state.stock[CatalogRef(brand: color.brand, code: color.code)],
+                  unit: context.read<CatalogCubit>().stockUnit ?? StockUnit.skeins,
                 );
               },
             ),
@@ -182,12 +183,13 @@ class _CatalogScreenState extends State<CatalogScreen> {
 
 /// Образец с артикулом и названием. Непрозрачная плитка: стекло только на слое управления.
 class _ColorTile extends StatelessWidget {
-  const _ColorTile({required this.color, required this.onTap, this.haveSkeins, super.key});
+  const _ColorTile({required this.color, required this.onTap, this.have, this.unit = StockUnit.skeins, super.key});
 
   final CatalogColor color;
 
-  /// Мотков в запасе; `null` — нитки в запасе нет.
-  final double? haveSkeins;
+  /// Сколько в запасе (мотков или граммов по [unit]); `null` — этого цвета в запасе нет.
+  final double? have;
+  final StockUnit unit;
   final VoidCallback onTap;
 
   @override
@@ -197,9 +199,9 @@ class _ColorTile extends StatelessWidget {
     final TextStyle base = CupertinoTheme.of(context).textTheme.textStyle;
     return Semantics(
       button: true,
-      label: haveSkeins == null
+      label: have == null
           ? l10n.catalogItemSemantic(color.code, color.name)
-          : '${l10n.catalogItemSemantic(color.code, color.name)}, ${l10n.catalogStockBadgeSemantic(StockStepper.amountText(l10n, haveSkeins!))}',
+          : '${l10n.catalogItemSemantic(color.code, color.name)}, ${l10n.catalogStockBadgeSemantic(StockStepper.amountText(l10n, have!, unit: unit))}',
       excludeSemantics: true,
       onTap: onTap,
       child: GestureDetector(
@@ -219,7 +221,7 @@ class _ColorTile extends StatelessWidget {
                   child: Stack(
                     children: <Widget>[
                       Center(child: ColorSwatchView(rgb: color.rgb, size: 56)),
-                      if (haveSkeins != null)
+                      if (have != null)
                         Positioned(
                           top: 0,
                           right: 0,
@@ -231,7 +233,7 @@ class _ColorTile extends StatelessWidget {
                             child: Padding(
                               padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                               child: Text(
-                                StockStepper.amountText(l10n, haveSkeins!),
+                                StockStepper.amountText(l10n, have!, unit: unit),
                                 style: base.copyWith(
                                   fontSize: 12,
                                   fontWeight: FontWeight.w600,

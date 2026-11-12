@@ -3,6 +3,7 @@ import 'dart:typed_data';
 import 'package:beading/core/failure.dart';
 import 'package:beading/core/result.dart';
 import 'package:beading/data/sharing/zip_biser_codec.dart';
+import 'package:beading/domain/bead_stock/bead_stock_entry.dart';
 import 'package:beading/domain/floss_stock/floss_stock_entry.dart';
 import 'package:beading/domain/grid_pattern/grid_pattern.dart';
 import 'package:beading/domain/grid_pattern/grid_progress.dart';
@@ -163,6 +164,43 @@ void main() {
       final Uint8List single = (await a.export.project(id)).valueOrNull!.bytes;
 
       expect(contentOf(single).flossStock, isEmpty);
+    });
+  });
+
+  group('запас бисера в резервной копии', () {
+    const CatalogRef delica10 = CatalogRef(brand: 'Miyuki', code: 'DB0010');
+    const CatalogRef toho5 = CatalogRef(brand: 'Toho', code: '5');
+
+    Map<CatalogRef, double> gramsOf(List<BeadStockEntry> all) => <CatalogRef, double>{
+      for (final BeadStockEntry e in all) e.ref: e.grams,
+    };
+
+    test('переезжает на пустое устройство, версия формата 4', () async {
+      final BiserDevice a = BiserDevice();
+      final BiserDevice b = BiserDevice();
+      await a.beadStock.setGrams(delica10, 15);
+      await a.beadStock.setGrams(toho5, 5);
+      final Uint8List bytes = await a.backupBytes();
+
+      expect(contentOf(bytes).formatVersion, 4);
+      expect((await b.import(bytes)).failureOrNull, isNull);
+
+      expect(gramsOf((await b.beadStock.all()).valueOrNull!), <CatalogRef, double>{delica10: 15, toho5: 5});
+    });
+
+    test('слияние: побеждает более свежая запись, экспорт одного проекта запас бисера не берёт', () async {
+      final BiserDevice a = BiserDevice();
+      final BiserDevice b = BiserDevice();
+      await populate(a, randomBundle(5, projects: 1));
+      await b.beadStock.setGrams(delica10, 50);
+      a.clock.advance(const Duration(days: 1));
+      await a.beadStock.setGrams(delica10, 10);
+
+      expect((await b.import(await a.backupBytes())).failureOrNull, isNull);
+      expect(gramsOf((await b.beadStock.all()).valueOrNull!), <CatalogRef, double>{delica10: 10});
+
+      final String id = (await a.allProjects()).single.id;
+      expect(contentOf((await a.export.project(id)).valueOrNull!.bytes).beadStock, isEmpty);
     });
   });
 

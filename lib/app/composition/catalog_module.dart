@@ -1,9 +1,11 @@
 import 'package:beading/app/composition/app_routes.dart';
 import 'package:beading/app/composition/core_module.dart';
+import 'package:beading/data/bead_stock/drift_bead_stock_repository.dart';
 import 'package:beading/data/catalog/catalog_asset_source.dart';
 import 'package:beading/data/catalog/catalog_seeder.dart';
 import 'package:beading/data/catalog/drift_catalog_repository.dart';
 import 'package:beading/data/floss_stock/drift_floss_stock_repository.dart';
+import 'package:beading/domain/bead_stock/bead_stock_repository.dart';
 import 'package:beading/domain/catalog/catalog_material.dart';
 import 'package:beading/domain/catalog/catalog_repository.dart';
 import 'package:beading/domain/catalog/use_cases/find_similar_colors.dart';
@@ -14,7 +16,7 @@ import 'package:beading/presentation/catalog/catalog_screen.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
-/// Каталог бисера и мулине и запас ниток «есть у меня» (ADR-0007).
+/// Каталог бисера и мулине, запас ниток и бисера «есть у меня» (ADR-0007).
 final class CatalogModule {
   CatalogModule({required CoreModule core, CatalogAssetSource? assets}) : _core = core, _assets = assets;
 
@@ -34,15 +36,23 @@ final class CatalogModule {
     ids: _core.ids,
   );
 
+  late final BeadStockRepository beadStock = DriftBeadStockRepository(
+    dao: _core.database.beadStockDao,
+    deviceIds: _core.deviceIds,
+    clock: _core.clock,
+    ids: _core.ids,
+  );
+
   /// Новый на каждый вызов.
   FindSimilarColors findSimilarColors() => FindSimilarColors(repository);
 
-  /// Каталог бисера; владелец закрывает сам.
+  /// Каталог бисера с запасом «есть у меня» в граммах; владелец закрывает сам.
   CatalogCubit beadCatalogCubit() => CatalogCubit(
     catalog: repository,
     findSimilar: findSimilarColors(),
     settings: _core.settings,
     brandSetting: SettingKeys.defaultBeadBrand,
+    beadStock: beadStock,
   );
 
   /// Каталог ниток мулине с запасом «есть у меня».

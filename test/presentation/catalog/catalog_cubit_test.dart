@@ -6,8 +6,10 @@ import 'package:beading/domain/catalog/catalog_material.dart';
 import 'package:beading/domain/catalog/use_cases/find_similar_colors.dart';
 import 'package:beading/domain/settings/setting_keys.dart';
 import 'package:beading/presentation/catalog/catalog_cubit.dart';
+import 'package:beading/presentation/widgets/stock_stepper.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import '../../support/fake_bead_stock.dart';
 import '../../support/fake_catalog_repository.dart';
 import '../../support/fake_floss_stock.dart';
 import '../../support/fake_settings_repository.dart';
@@ -235,6 +237,49 @@ void main() {
     await cubit.close();
     gate.complete();
     await pending;
+  });
+
+  group('запас бисера', () {
+    test('граммы пишутся в запас бисера и приходят обратно в состояние', () async {
+      final FakeBeadStockRepository stock = FakeBeadStockRepository();
+      final CatalogCubit cubit = CatalogCubit(
+        catalog: catalog,
+        findSimilar: FindSimilarColors(catalog),
+        settings: settings,
+        beadStock: stock,
+      );
+      addTearDown(cubit.close);
+
+      expect(cubit.hasStock, isTrue);
+      expect(cubit.stockUnit, StockUnit.grams);
+      await cubit.setStock(red, 15);
+      await pumpEventQueue();
+
+      expect(stock.snapshot[red.ref], 15);
+      expect(cubit.state.stock[red.ref], 15);
+      expect(cubit.state.stockWriteFailure, isNull);
+    });
+
+    test('без запаса его нет: ни ниток, ни бисера', () {
+      final CatalogCubit cubit = make();
+      expect(cubit.hasStock, isFalse);
+      expect(cubit.stockUnit, isNull);
+    });
+
+    test('ошибка записи запаса бисера попадает в состояние', () async {
+      final FakeBeadStockRepository stock = FakeBeadStockRepository()..failNextWrite = const StorageFailure('disk');
+      final CatalogCubit cubit = CatalogCubit(
+        catalog: catalog,
+        findSimilar: FindSimilarColors(catalog),
+        settings: settings,
+        beadStock: stock,
+      );
+      addTearDown(cubit.close);
+
+      await cubit.setStock(red, 5);
+
+      expect(cubit.state.stockWriteFailure, isNotNull);
+    });
   });
 
   group('запас ниток', () {
