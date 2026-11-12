@@ -210,23 +210,18 @@ final class ImageToGridSettings extends Equatable {
   static double snapCm(double cm) =>
       ((cm / stitchCmStep).round() * stitchCmStep).clamp(minStitchWidthCm, maxStitchWidthCm);
 
-  /// Число рядов, при котором схема повторяет пропорции [image]. У вышивки высота в сантиметрах округляется до
-  /// шага [stitchCmStep] (50 × 35 см, а не 50 × 37): картинка чуть растягивается, не больше чем на полшага.
-  int rowsFor(SourceImage image) {
-    final int natural = GridSizing.rowsForColumns(
+  /// Число рядов, при котором схема повторяет пропорции [image]. Высота не округляется до шага [stitchCmStep]:
+  /// округление искажало пропорции (на узкой вышивке 10 × 3 см превращалась в 10 × 5), а меняется должен только масштаб.
+  int rowsFor(SourceImage image) => math.min(
+    Grid.maxSide,
+    GridSizing.rowsForColumns(
       imageWidth: image.width,
       imageHeight: image.height,
       geometry: geometry,
       metrics: metrics,
       columns: columns,
-    );
-    if (craft != Craft.crossStitch) {
-      return math.min(Grid.maxSide, natural);
-    }
-    final double cm = fabric.cmForCells(natural);
-    final double snapped = ((cm / stitchCmStep).round() * stitchCmStep).clamp(stitchCmStep, double.infinity);
-    return math.min(Grid.maxSide, fabric.cellsForCm(snapped));
-  }
+    ),
+  );
 
   /// Сколько цветов реально берёт расчёт для схемы в [rows] рядов: не больше [maxColors] и не больше, чем влезает в
   /// [costBudget].
