@@ -1,7 +1,9 @@
+import 'dart:async';
 import 'dart:math' as math;
 
 import 'package:beading/domain/catalog/catalog_color.dart';
 import 'package:beading/domain/catalog/use_cases/find_similar_colors.dart';
+import 'package:beading/domain/palette/catalog_ref.dart';
 import 'package:beading/presentation/catalog/catalog_cubit.dart';
 import 'package:beading/presentation/catalog/catalog_labels.dart';
 import 'package:beading/presentation/l10n/app_localizations.dart';
@@ -11,6 +13,7 @@ import 'package:beading/presentation/widgets/glass/glass_sheet.dart';
 import 'package:beading/presentation/widgets/glass/glass_surface.dart';
 import 'package:beading/presentation/widgets/min_tap_target.dart';
 import 'package:beading/presentation/widgets/pill_chip.dart';
+import 'package:beading/presentation/widgets/stock_stepper.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -61,7 +64,8 @@ class _CatalogScreenState extends State<CatalogScreen> {
             previous.status != current.status ||
             previous.tabs != current.tabs ||
             previous.tab != current.tab ||
-            previous.colors != current.colors,
+            previous.colors != current.colors ||
+            previous.stock != current.stock,
         builder: (context, state) {
           final double width = MediaQuery.sizeOf(context).width;
           final double side = math.max(tokens.spacing.l, (width - CatalogScreen.maxContentWidth) / 2);
@@ -168,7 +172,12 @@ class _CatalogScreenState extends State<CatalogScreen> {
               itemCount: state.colors.length,
               itemBuilder: (context, index) {
                 final CatalogColor color = state.colors[index];
-                return _ColorTile(key: ValueKey<String>('color-${color.id}'), color: color, onTap: () => onPick(color));
+                return _ColorTile(
+                  key: ValueKey<String>('color-${color.id}'),
+                  color: color,
+                  onTap: () => onPick(color),
+                  haveSkeins: state.stock[CatalogRef(brand: color.brand, code: color.code)],
+                );
               },
             ),
           ),
@@ -179,9 +188,12 @@ class _CatalogScreenState extends State<CatalogScreen> {
 
 /// Образец с артикулом и названием. Непрозрачная плитка: стекло только на слое управления.
 class _ColorTile extends StatelessWidget {
-  const _ColorTile({required this.color, required this.onTap, super.key});
+  const _ColorTile({required this.color, required this.onTap, this.haveSkeins, super.key});
 
   final CatalogColor color;
+
+  /// Мотков в запасе; `null` — нитки в запасе нет.
+  final double? haveSkeins;
   final VoidCallback onTap;
 
   @override
@@ -191,7 +203,9 @@ class _ColorTile extends StatelessWidget {
     final TextStyle base = CupertinoTheme.of(context).textTheme.textStyle;
     return Semantics(
       button: true,
-      label: l10n.catalogItemSemantic(color.code, color.name),
+      label: haveSkeins == null
+          ? l10n.catalogItemSemantic(color.code, color.name)
+          : '${l10n.catalogItemSemantic(color.code, color.name)}, ${l10n.catalogStockBadgeSemantic(StockStepper.amountText(l10n, haveSkeins!))}',
       excludeSemantics: true,
       onTap: onTap,
       child: GestureDetector(
@@ -208,7 +222,33 @@ class _ColorTile extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
                 Expanded(
-                  child: Center(child: ColorSwatchView(rgb: color.rgb, size: 56)),
+                  child: Stack(
+                    children: <Widget>[
+                      Center(child: ColorSwatchView(rgb: color.rgb, size: 56)),
+                      if (haveSkeins != null)
+                        Positioned(
+                          top: 0,
+                          right: 0,
+                          child: DecoratedBox(
+                            decoration: BoxDecoration(
+                              color: CupertinoColors.systemGreen.resolveFrom(context),
+                              borderRadius: BorderRadius.circular(tokens.radius.s),
+                            ),
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                              child: Text(
+                                StockStepper.amountText(l10n, haveSkeins!),
+                                style: base.copyWith(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w600,
+                                  color: CupertinoColors.white,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                    ],
+                  ),
                 ),
                 SizedBox(height: tokens.spacing.xs),
                 Text(
@@ -259,6 +299,10 @@ class _ColorSheet extends StatelessWidget {
                     children: <Widget>[
                       _SheetHeader(color: selection.source),
                       SizedBox(height: tokens.spacing.l),
+                      if (context.read<CatalogCubit>().hasStock) ...<Widget>[
+                        _StockEditor(color: selection.source),
+                        SizedBox(height: tokens.spacing.l),
+                      ],
                       _SimilarList(selection: selection),
                       SizedBox(height: tokens.spacing.m),
                       Text(
@@ -280,6 +324,33 @@ class _ColorSheet extends StatelessWidget {
           ),
         ),
       ),
+    );
+  }
+}
+
+/// «Мой запас» в листе цвета: сколько мотков этой нитки есть.
+class _StockEditor extends StatelessWidget {
+  const _StockEditor({required this.color});
+
+  final CatalogColor color;
+
+  @override
+  Widget build(BuildContext context) {
+    final AppLocalizations l10n = AppLocalizations.of(context);
+    final CatalogCubit cubit = context.read<CatalogCubit>();
+    final TextStyle base = CupertinoTheme.of(context).textTheme.textStyle;
+    return BlocBuilder<CatalogCubit, CatalogState>(
+      buildWhen: (previous, current) => previous.stock != current.stock,
+      builder: (context, state) {
+        final double have = state.stock[CatalogRef(brand: color.brand, code: color.code)] ?? 0;
+        return Column(
+          mainAxisSize: MainAxisSize.min,
+          children: <Widget>[
+            Text(l10n.catalogStockTitle, style: base.copyWith(fontSize: 15, fontWeight: FontWeight.w600)),
+            StockStepper(value: have, onChanged: (value) => unawaited(cubit.setStock(color, value))),
+          ],
+        );
+      },
     );
   }
 }

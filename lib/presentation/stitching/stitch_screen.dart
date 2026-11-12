@@ -29,7 +29,10 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 /// Режим вышивания: схема на весь экран, отметка клеток касанием, мазком или областью, остаток по цветам, процент
 /// по блокам 10×10 и парковка. [StitchCubit] берётся из контекста.
 class StitchScreen extends StatelessWidget {
-  const StitchScreen({super.key});
+  const StitchScreen({this.onOpenFloss, super.key});
+
+  /// Открывает расход и запас ниток проекта; `null` — кнопки нет.
+  final VoidCallback? onOpenFloss;
 
   static const String routePath = '/stitch/:projectId';
 
@@ -43,10 +46,22 @@ class StitchScreen extends StatelessWidget {
       builder: (context, state) => switch (state.status) {
         StitchStatus.loading => const Center(child: CupertinoActivityIndicator()),
         StitchStatus.failed => const _LoadFailed(),
-        StitchStatus.ready => const _Workspace(),
+        StitchStatus.ready => _FlossLink(onOpen: onOpenFloss, child: const _Workspace()),
       },
     ),
   );
+}
+
+/// Передаёт вниз по дереву «открыть расход ниток», чтобы не тянуть колбэк через все панели.
+class _FlossLink extends InheritedWidget {
+  const _FlossLink({required this.onOpen, required super.child});
+
+  final VoidCallback? onOpen;
+
+  static VoidCallback? of(BuildContext context) => context.dependOnInheritedWidgetOfExactType<_FlossLink>()?.onOpen;
+
+  @override
+  bool updateShouldNotify(_FlossLink oldWidget) => onOpen != oldWidget.onOpen;
 }
 
 class _LoadFailed extends StatelessWidget {
@@ -463,6 +478,7 @@ List<_Action> _extras(BuildContext context, StitchState state, VoidCallback goTo
   final AppLocalizations l10n = AppLocalizations.of(context);
   final StitchCubit cubit = context.read<StitchCubit>();
   final bool parked = state.parked != null;
+  final VoidCallback? openFloss = _FlossLink.of(context);
   return <_Action>[
     _Action(
       id: 'stitch-undo',
@@ -491,6 +507,8 @@ List<_Action> _extras(BuildContext context, StitchState state, VoidCallback goTo
       onPressed: parked ? goToParked : () => _showParkHint(context),
       onLongPress: parked ? cubit.clearParked : null,
     ),
+    if (openFloss != null)
+      _Action(id: 'stitch-floss', icon: AppIcons.thread, label: l10n.stitchActionFloss, onPressed: openFloss),
   ];
 }
 

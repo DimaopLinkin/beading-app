@@ -91,19 +91,22 @@ void main() {
     );
   }
 
-  Widget app(StitchCubit cubit, CupertinoThemeData theme) => CupertinoApp(
+  Widget app(StitchCubit cubit, CupertinoThemeData theme, {VoidCallback? onOpenFloss}) => CupertinoApp(
     theme: theme,
     builder: AppTheme.builder,
     localizationsDelegates: AppLocalizations.localizationsDelegates,
     supportedLocales: AppLocalizations.supportedLocales,
-    home: BlocProvider<StitchCubit>.value(value: cubit, child: const StitchScreen()),
+    home: BlocProvider<StitchCubit>.value(
+      value: cubit,
+      child: StitchScreen(onOpenFloss: onOpenFloss),
+    ),
   );
 
-  Future<StitchCubit> open(WidgetTester tester, {CupertinoThemeData? theme}) async {
+  Future<StitchCubit> open(WidgetTester tester, {CupertinoThemeData? theme, VoidCallback? onOpenFloss}) async {
     await tester.binding.setSurfaceSize(const Size(430, 932));
     addTearDown(() => tester.binding.setSurfaceSize(null));
     final StitchCubit cubit = newCubit();
-    await tester.pumpWidget(app(cubit, theme ?? AppTheme.light));
+    await tester.pumpWidget(app(cubit, theme ?? AppTheme.light, onOpenFloss: onOpenFloss));
     await tester.runAsync(cubit.load);
     await tester.pump();
     await tester.pump();
@@ -114,6 +117,21 @@ void main() {
     await tester.pumpWidget(const SizedBox.shrink());
     await tester.runAsync(cubit.close);
   }
+
+  testWidgets('кнопка «Нитки» открывает расход; без колбэка её нет', (tester) async {
+    int opened = 0;
+    StitchCubit cubit = await open(tester, onOpenFloss: () => opened++);
+
+    await tester.tap(find.byKey(const ValueKey<String>('stitch-floss')));
+    await tester.pump();
+
+    expect(opened, 1);
+    await closeScreen(tester, cubit);
+
+    cubit = await open(tester);
+    expect(find.byKey(const ValueKey<String>('stitch-floss')), findsNothing);
+    await closeScreen(tester, cubit);
+  });
 
   testWidgets('выбранный цвет показан плашкой, крестик на ней сбрасывает выбор', (tester) async {
     final StitchCubit cubit = await open(tester);

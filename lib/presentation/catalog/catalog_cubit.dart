@@ -6,6 +6,9 @@ import 'package:beading/domain/catalog/catalog_color.dart';
 import 'package:beading/domain/catalog/catalog_material.dart';
 import 'package:beading/domain/catalog/catalog_repository.dart';
 import 'package:beading/domain/catalog/use_cases/find_similar_colors.dart';
+import 'package:beading/domain/floss_stock/floss_stock_entry.dart';
+import 'package:beading/domain/floss_stock/floss_stock_repository.dart';
+import 'package:beading/domain/palette/catalog_ref.dart';
 import 'package:beading/domain/settings/setting_key.dart';
 import 'package:beading/domain/settings/settings_repository.dart';
 import 'package:equatable/equatable.dart';
@@ -51,9 +54,13 @@ class CatalogState extends Equatable {
     this.query = '',
     this.colors = const <CatalogColor>[],
     this.selection,
+    this.stock = const <CatalogRef, double>{},
   });
 
   final CatalogStatus status;
+
+  /// Запас мулине: мотков по ниткам; пусто, если запас не ведётся (каталог бисера).
+  final Map<CatalogRef, double> stock;
 
   /// Вкладки материала: серии брендов.
   final List<CatalogTab> tabs;
@@ -75,7 +82,9 @@ class CatalogState extends Equatable {
     String? query,
     List<CatalogColor>? colors,
     SimilarSelection? Function()? selection,
+    Map<CatalogRef, double>? stock,
   }) => CatalogState(
+    stock: stock ?? this.stock,
     status: status ?? this.status,
     tabs: tabs ?? this.tabs,
     tab: tab == null ? this.tab : tab(),
@@ -85,7 +94,7 @@ class CatalogState extends Equatable {
   );
 
   @override
-  List<Object?> get props => <Object?>[status, tabs, tab, query, colors, selection];
+  List<Object?> get props => <Object?>[status, tabs, tab, query, colors, selection, stock];
 }
 
 /// Каталог цветов: вкладки брендов, поиск по артикулу и названию, «подобрать похожий».
@@ -96,11 +105,35 @@ class CatalogCubit extends Cubit<CatalogState> {
     required SettingsRepository settings,
     this.material = CatalogMaterial.bead,
     SettingKey<String>? brandSetting,
+    FlossStockRepository? stock,
   }) : _catalog = catalog,
+       _stock = stock,
        _findSimilar = findSimilar,
        _settings = settings,
        _brandSetting = brandSetting,
-       super(const CatalogState());
+       super(const CatalogState()) {
+    _stockSub = stock?.watchAll().listen((entries) {
+      if (isClosed) return;
+      emit(state.copyWith(stock: <CatalogRef, double>{for (final FlossStockEntry e in entries) e.ref: e.skeins}));
+    });
+  }
+
+  final FlossStockRepository? _stock;
+  StreamSubscription<List<FlossStockEntry>>? _stockSub;
+
+  /// Ведётся ли запас ниток: в каталоге есть «мой запас».
+  bool get hasStock => _stock != null;
+
+  /// Записывает, сколько мотков [color] осталось ([skeins] ≤ 0 — убрать из запаса).
+  Future<void> setStock(CatalogColor color, double skeins) async {
+    await _stock?.setSkeins(CatalogRef(brand: color.brand, code: color.code), skeins);
+  }
+
+  @override
+  Future<void> close() {
+    unawaited(_stockSub?.cancel());
+    return super.close();
+  }
 
   final CatalogMaterial material;
   final CatalogRepository _catalog;

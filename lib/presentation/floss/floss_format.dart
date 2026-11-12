@@ -1,3 +1,4 @@
+import 'package:beading/domain/floss_stock/floss_shortage.dart';
 import 'package:beading/domain/grid/fabric.dart';
 import 'package:beading/domain/materials/floss_estimate.dart';
 import 'package:beading/domain/palette/pattern_color.dart';
@@ -6,11 +7,19 @@ import 'package:intl/intl.dart';
 
 /// Строки экрана мулине и текст для «Поделиться»: одно место, чтобы цифры на экране и в сообщении совпадали.
 class FlossFormat {
-  FlossFormat(this.l10n, this.estimate, {required this.withReserve});
+  FlossFormat(this.l10n, this.estimate, {required this.withReserve, this.shortage, this.hasStock = false});
 
   final AppLocalizations l10n;
   final FlossEstimate estimate;
   final bool withReserve;
+
+  /// Сверка с запасом; `null` — запас не учитывается.
+  final FlossShortage? shortage;
+
+  /// В запасе есть хотя бы одна нитка: только тогда «Поделиться» добавляет блок «Докупить».
+  final bool hasStock;
+
+  static final NumberFormat _amounts = NumberFormat('#,##0.#', 'ru');
 
   static final NumberFormat _integers = NumberFormat('#,##0', 'ru');
   static final NumberFormat _cm = NumberFormat('#,##0.#', 'ru');
@@ -26,6 +35,9 @@ class FlossFormat {
   int get totalSkeins => withReserve ? estimate.totalSkeinsWithReserve : estimate.totalSkeins;
 
   String skeinsText(int count) => l10n.flossSkeins(count);
+
+  /// «1,5 мот.»: число мотков с одним знаком после запятой.
+  String amountText(double skeins) => l10n.flossStockAmount(_amounts.format(skeins));
 
   String count(int value) => _integers.format(value);
 
@@ -90,6 +102,20 @@ class FlossFormat {
     text
       ..writeln()
       ..writeln(l10n.flossTotal(skeinsText(totalSkeins)));
+    final FlossShortage? short = shortage;
+    if (short != null && hasStock) {
+      text.writeln();
+      if (short.isCovered) {
+        text.writeln(l10n.flossShareAllCovered);
+      } else {
+        text.writeln(l10n.flossShareToBuy);
+        int n = 1;
+        for (final FlossShortageLine line in short.shoppingLines) {
+          final String name = line.purchase.name == null ? '' : ' ${line.purchase.name}';
+          text.writeln(l10n.flossShareLine(n++, '${line.purchase.ref}$name', skeinsText(line.toBuy)));
+        }
+      }
+    }
     if (withReserve) text.writeln(l10n.flossShareReserve(reservePercent));
     text.write(l10n.flossEstimateHint);
     return text.toString();
