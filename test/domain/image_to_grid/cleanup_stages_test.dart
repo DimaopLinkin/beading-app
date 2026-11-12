@@ -368,7 +368,6 @@ void _extra() {
       columns: 20,
       maxColors: 3,
       paletteSource: PaletteSource.free,
-      preset: GenerationPreset.detailed,
     ).toRequest(image: image);
     expect(request.refillFreedColors, isTrue);
     final GeneratedPattern out = const ImageToGridPipeline().run(request);

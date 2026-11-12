@@ -7,6 +7,7 @@ import 'package:beading/domain/grid/fabric.dart';
 import 'package:beading/domain/grid/grid_geometry.dart';
 import 'package:beading/domain/image_to_grid/cell_labeler.dart';
 import 'package:beading/domain/image_to_grid/cleanup_steps.dart';
+import 'package:beading/domain/image_to_grid/generation_preset.dart';
 import 'package:beading/domain/image_to_grid/image_to_grid_request.dart';
 import 'package:beading/domain/image_to_grid/image_to_grid_settings.dart';
 import 'package:beading/domain/image_to_grid/source_image.dart';
@@ -121,12 +122,20 @@ void main() {
     });
 
     test('вес заметности (T64) подключает DetailCellLabeler и защиту диагональных линий; по умолчанию выключен', () {
-      final ImageToGridRequest plain = const ImageToGridSettings().toRequest(image: image);
+      final ImageToGridRequest plain = const ImageToGridSettings(
+        preset: GenerationPreset.balanced,
+      ).toRequest(image: image);
       expect(plain.labeler, isA<VotingCellLabeler>());
       final ImageToGridRequest detail = const ImageToGridSettings(detailVoting: true).toRequest(image: image);
       expect(detail.labeler, isA<DetailCellLabeler>());
       expect(detail.steps.whereType<RemoveIslandsStep>().single.protectDiagonals, isTrue);
       expect(plain.steps.whereType<RemoveIslandsStep>().single.protectDiagonals, isFalse);
+    });
+
+    test('по умолчанию предустановка «детально» (выбор Дмитрия на листах T66): вес заметности входит в неё', () {
+      expect(const ImageToGridSettings().preset, GenerationPreset.detailed);
+      final ImageToGridRequest request = const ImageToGridSettings().toRequest(image: image);
+      expect(request.labeler, isA<DetailCellLabeler>());
     });
 
     test('свободная палитра — без ограничений', () {
