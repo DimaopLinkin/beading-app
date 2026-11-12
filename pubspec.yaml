@@ -36,7 +36,6 @@ dependencies:
   xml: ^7.0.1
 
 flutter:
-  uses-material-design: true
   generate: true
   assets:
     - assets/compliments/
