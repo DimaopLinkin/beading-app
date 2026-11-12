@@ -18,6 +18,8 @@ import 'package:beading/presentation/catalog/catalog_cubit.dart';
 import 'package:beading/presentation/easter_eggs/compliment_banner_cubit.dart';
 import 'package:beading/presentation/settings/settings_cubit.dart';
 import 'package:beading/presentation/theme/theme_mode_cubit.dart';
+import 'package:beading/presentation/weaving/weave_screen.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 
@@ -173,6 +175,61 @@ void main() {
         dependencies.catalog.routes().whereType<GoRoute>().map((r) => r.path),
         <String>[AppRoutes.flossCatalog, AppRoutes.catalog],
       );
+    });
+  });
+
+  group('модули проектов, сеток, плетения и вышивки', () {
+    late AppDependencies dependencies;
+
+    setUp(() {
+      dependencies = AppDependencies(core: CoreModule(database: createInMemoryDatabase()));
+    });
+
+    tearDown(() => dependencies.dispose());
+
+    test('хранилища создаются один раз и общие для фич', () {
+      expect(dependencies.projects.repository, same(dependencies.projects.repository));
+      expect(dependencies.grid.patterns, same(dependencies.grid.patterns));
+      expect(dependencies.grid.progress, same(dependencies.grid.progress));
+      expect(dependencies.grid.cellProgress, same(dependencies.grid.cellProgress));
+      expect(dependencies.weaving.sessions, same(dependencies.weaving.sessions));
+      expect(dependencies.core.textSharer, same(dependencies.core.textSharer));
+    });
+
+    test('сценарии и счётчики создаются заново на каждый вызов', () {
+      expect(dependencies.projects.createProject(), isNot(same(dependencies.projects.createProject())));
+      expect(dependencies.grid.createGridPattern(), isNot(same(dependencies.grid.createGridPattern())));
+      expect(dependencies.weaving.workSessionTracker(), isNot(same(dependencies.weaving.workSessionTracker())));
+      expect(dependencies.weaving.rowsCounter(), isNot(same(dependencies.weaving.rowsCounter())));
+    });
+
+    test('кубиты экранов собираются для проекта и закрываются владельцем', () async {
+      final List<Cubit<Object?>> cubits = <Cubit<Object?>>[
+        dependencies.grid.editorCubit('p'),
+        dependencies.grid.newGridCubit('Схема'),
+        dependencies.grid.newStitchCubit('Вышивка'),
+        dependencies.grid.patternTemplateCubit(),
+        dependencies.weaving.weaveCubit('p'),
+        dependencies.weaving.materialsCubit('p'),
+        dependencies.stitching.stitchCubit('p'),
+        dependencies.stitching.flossCubit('p'),
+      ];
+
+      expect(cubits, hasLength(8));
+      await Future.wait(cubits.map((c) => c.close()));
+    });
+
+    test('маршруты фич не пересекаются по путям', () {
+      final List<String> paths = <RouteBase>[
+        ...dependencies.grid.routes(),
+        ...dependencies.weaving.routes(),
+        ...dependencies.stitching.routes(),
+        ...dependencies.catalog.routes(),
+        ...dependencies.settings.routes(showDeveloperTools: true, dataTransfer: () => throw UnimplementedError()),
+      ].whereType<GoRoute>().map((r) => r.path).toList();
+
+      expect(paths.toSet(), hasLength(paths.length));
+      expect(paths, containsAll(<String>[AppRoutes.newGrid, AppRoutes.patternTemplate, WeaveScreen.routePath]));
     });
   });
 }

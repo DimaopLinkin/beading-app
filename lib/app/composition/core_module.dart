@@ -5,6 +5,7 @@ import 'package:beading/core/id_generator.dart';
 import 'package:beading/data/db/app_database.dart';
 import 'package:beading/data/image_pattern/local_file_store.dart';
 import 'package:beading/data/platform/method_channel_reduce_transparency_source.dart';
+import 'package:beading/data/platform/share_plus_text_sharer.dart';
 import 'package:beading/data/platform/wakelock_plus_screen_wake_lock.dart';
 import 'package:beading/data/settings/drift_device_id_provider.dart';
 import 'package:beading/data/settings/drift_settings_repository.dart';
@@ -17,6 +18,7 @@ import 'package:beading/domain/settings/reduce_transparency_source.dart';
 import 'package:beading/domain/settings/screen_wake_lock.dart';
 import 'package:beading/domain/settings/settings_repository.dart';
 import 'package:beading/domain/settings/wakelock_controller.dart';
+import 'package:beading/domain/sharing/text_sharer.dart';
 
 /// Ядро графа зависимостей (ADR-0007): база, время, идентификаторы, настройки, события, файлы и платформенные адаптеры.
 ///
@@ -31,12 +33,14 @@ final class CoreModule {
     DesktopWindow? desktopWindow,
     ScreenWakeLock? screenWakeLock,
     ReduceTransparencySource? reduceTransparency,
+    TextSharer? textSharer,
   }) : _clock = clock,
        _fileStore = fileStore,
        _orientationLock = orientationLock,
        _desktopWindow = desktopWindow,
        _screenWakeLock = screenWakeLock,
-       _reduceTransparency = reduceTransparency;
+       _reduceTransparency = reduceTransparency,
+       _textSharer = textSharer;
 
   final AppDatabase database;
   final Clock? _clock;
@@ -45,6 +49,7 @@ final class CoreModule {
   final DesktopWindow? _desktopWindow;
   final ScreenWakeLock? _screenWakeLock;
   final ReduceTransparencySource? _reduceTransparency;
+  final TextSharer? _textSharer;
 
   late final Clock clock = _clock ?? const SystemClock();
 
@@ -70,6 +75,8 @@ final class CoreModule {
 
   late final ReduceTransparencySource reduceTransparency =
       _reduceTransparency ?? MethodChannelReduceTransparencySource();
+
+  late final TextSharer textSharer = _textSharer ?? SharePlusTextSharer();
 
   late final KeepScreenAwakeSetting keepScreenAwake = RepositoryKeepScreenAwakeSetting(settings);
 
