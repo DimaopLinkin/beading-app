@@ -1116,6 +1116,15 @@ class _WidthCmRow extends StatelessWidget {
             max: max,
             onChanged: onChanged,
           ),
+          Text(
+            l10n.imageWizardWidthCrosses(
+              settings.columns,
+              _fabricLabel(l10n, fabric),
+              fabric.stitchesPerCm.toStringAsFixed(1).replaceAll('.', ','),
+            ),
+            key: const ValueKey<String>('wizard-width-crosses'),
+            style: TextStyle(fontSize: 13, color: CupertinoColors.secondaryLabel.resolveFrom(context)),
+          ),
         ],
       ),
     );

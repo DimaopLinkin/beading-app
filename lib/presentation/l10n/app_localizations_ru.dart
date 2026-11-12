@@ -1695,6 +1695,16 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
+  String imageWizardWidthCrosses(int columns, String fabric, String perCm) {
+    return '$columns крестиков в ширину. На канве $fabric их $perCm на сантиметр.';
+  }
+
+  @override
+  String imageWizardStitchOnFabric(String fabric, String width, String height) {
+    return 'На канве $fabric. Отрез берите с запасом по 5 см с каждой стороны: около $width × $height см.';
+  }
+
+  @override
   String get imageWizardFlossPalette => 'Цвета мулине';
 
   @override

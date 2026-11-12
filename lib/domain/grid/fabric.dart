@@ -80,6 +80,15 @@ final class Fabric extends Equatable implements CellMetrics {
   @override
   double get heightMm => widthMm;
 
+  /// Крестиков на сантиметр: на Аиде 14 их 5,51, на Аиде 18 — 7,09.
+  double get stitchesPerCm => stitchesPerInch / mmPerInch * 10;
+
+  /// Запас ткани с каждой стороны вышивки, см: под рамку, оправку и подгиб.
+  static const double allowanceCm = 5;
+
+  /// Какой длины нужен отрез ткани под [cells] клеток: сама вышивка и запас с двух сторон.
+  double fabricCmFor(int cells) => cmForCells(cells) + 2 * allowanceCm;
+
   /// Сколько клеток помещается на [cm] сантиметров (не меньше одной).
   int cellsForCm(double cm) {
     _requirePositive(cm, 'cm');
