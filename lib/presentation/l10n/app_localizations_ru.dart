@@ -472,6 +472,9 @@ class AppLocalizationsRu extends AppLocalizations {
   String get bookWorkNotesHint => 'Что важно не забыть: цвета, где остановилась, что поменять';
 
   @override
+  String get bookWorkPageHasMarkup => 'Пометки';
+
+  @override
   String get bookWorkMarker => 'Маркер';
 
   @override
@@ -534,9 +537,6 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get bookWorkMarkerEmpty => 'Пометок пока нет';
-
-  @override
-  String get bookWorkPageHasMarkup => 'Пометки';
 
   @override
   String bookWorkPageItemMarked(int number) {
