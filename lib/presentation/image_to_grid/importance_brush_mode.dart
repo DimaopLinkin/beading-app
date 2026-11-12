@@ -8,6 +8,7 @@ import 'package:beading/presentation/image_to_grid/image_wizard_state.dart';
 import 'package:beading/presentation/l10n/app_localizations.dart';
 import 'package:beading/presentation/theme/tokens.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 /// Янтарь подсветки «важного»: не цвет бисера, поэтому читается поверх любой картинки (макет 12).
@@ -66,6 +67,15 @@ class _ImportanceBrushModeState extends State<ImportanceBrushMode> {
     } else {
       _live.value = _points;
     }
+  }
+
+  /// Мышь над картинкой без нажатия: кружок размера кисти идёт за курсором.
+  void _hover(PointerHoverEvent e, Size size) {
+    if (_pointers.isNotEmpty || e.kind == PointerDeviceKind.touch) {
+      return;
+    }
+    final Offset f = _fraction(e.localPosition, size);
+    _cursor.value = Offset(f.dx * size.width, f.dy * size.height);
   }
 
   void _move(PointerMoveEvent e, Size size) {
@@ -187,48 +197,57 @@ class _ImportanceBrushModeState extends State<ImportanceBrushMode> {
                           width: size.width,
                           height: size.height,
                           child: ClipRect(
-                            child: Listener(
-                              key: const ValueKey<String>('brush-canvas'),
-                              behavior: HitTestBehavior.opaque,
-                              onPointerDown: (e) => _down(e, size),
-                              onPointerMove: (e) => _move(e, size),
-                              onPointerUp: (e) => _up(e, commit: true),
-                              onPointerCancel: (e) => _up(e, commit: false),
-                              child: InteractiveViewer(
-                                transformationController: _controller,
-                                constrained: false,
-                                minScale: 1,
-                                maxScale: 6,
-                                panEnabled: pinching,
-                                scaleEnabled: pinching,
-                                child: SizedBox(
-                                  width: size.width,
-                                  height: size.height,
-                                  child: Stack(
-                                    children: <Widget>[
-                                      Positioned.fill(
-                                        child: Image.memory(
-                                          state.prepared!,
-                                          fit: BoxFit.fill,
-                                          gaplessPlayback: true,
-                                          excludeFromSemantics: true,
-                                          errorBuilder: (context, error, stack) => const SizedBox.shrink(),
-                                        ),
-                                      ),
-                                      Positioned.fill(
-                                        child: CustomPaint(
-                                          painter: _BrushPainter(
-                                            brush: state.brush,
-                                            frame: frame,
-                                            masks: state.brushShowAuto ? state.masks : null,
-                                            live: _live,
-                                            cursor: _cursor,
-                                            liveRadius: ImageWizardState.brushSizes[state.brushSize],
-                                            liveVisible: !state.brushEraser,
+                            child: MouseRegion(
+                              cursor: SystemMouseCursors.precise,
+                              onExit: (_) {
+                                if (_drawing == null) {
+                                  _cursor.value = null;
+                                }
+                              },
+                              child: Listener(
+                                key: const ValueKey<String>('brush-canvas'),
+                                behavior: HitTestBehavior.opaque,
+                                onPointerHover: (e) => _hover(e, size),
+                                onPointerDown: (e) => _down(e, size),
+                                onPointerMove: (e) => _move(e, size),
+                                onPointerUp: (e) => _up(e, commit: true),
+                                onPointerCancel: (e) => _up(e, commit: false),
+                                child: InteractiveViewer(
+                                  transformationController: _controller,
+                                  constrained: false,
+                                  minScale: 1,
+                                  maxScale: 6,
+                                  panEnabled: pinching,
+                                  scaleEnabled: pinching,
+                                  child: SizedBox(
+                                    width: size.width,
+                                    height: size.height,
+                                    child: Stack(
+                                      children: <Widget>[
+                                        Positioned.fill(
+                                          child: Image.memory(
+                                            state.prepared!,
+                                            fit: BoxFit.fill,
+                                            gaplessPlayback: true,
+                                            excludeFromSemantics: true,
+                                            errorBuilder: (context, error, stack) => const SizedBox.shrink(),
                                           ),
                                         ),
-                                      ),
-                                    ],
+                                        Positioned.fill(
+                                          child: CustomPaint(
+                                            painter: _BrushPainter(
+                                              brush: state.brush,
+                                              frame: frame,
+                                              masks: state.brushShowAuto ? state.masks : null,
+                                              live: _live,
+                                              cursor: _cursor,
+                                              liveRadius: ImageWizardState.brushSizes[state.brushSize],
+                                              liveVisible: !state.brushEraser,
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
                                   ),
                                 ),
                               ),

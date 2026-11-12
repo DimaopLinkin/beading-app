@@ -26,6 +26,7 @@ import 'package:beading/presentation/image_to_grid/image_wizard_screen.dart';
 import 'package:beading/presentation/l10n/app_localizations.dart';
 import 'package:beading/presentation/theme/app_theme.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -185,14 +186,46 @@ void main() {
       expect(cubit.state.brushing, isFalse);
       await tester.scrollUntilVisible(row, 200, scrollable: find.byType(Scrollable).last);
       expect(find.text('Выделено вручную'), findsOneWidget);
+      final Finder hint = find.byKey(const ValueKey<String>('wizard-brush-crop-hint'));
+      await tester.drag(find.byType(Scrollable).last, const Offset(0, 3000));
+      await tester.pumpAndSettle();
+      expect(hint, findsOneWidget);
 
       final Finder reset = find.byKey(const ValueKey<String>('wizard-brush-reset'));
       await tester.scrollUntilVisible(reset, 200, scrollable: find.byType(Scrollable).last);
       await tester.tap(reset);
       await tester.pumpAndSettle();
       expect(cubit.state.brush.isEmpty, isTrue);
+      expect(hint, findsNothing);
     });
   }
+
+  testWidgets('кисть: мышь без нажатия показывает кружок, уход мыши убирает', (tester) async {
+    await openPhoto(tester, AppTheme.light);
+    final Finder row = find.byKey(const ValueKey<String>('wizard-brush'));
+    await tester.scrollUntilVisible(row, 200, scrollable: find.byType(Scrollable).last);
+    await tester.tap(row);
+    await tester.pump();
+    final Finder canvas = find.byKey(const ValueKey<String>('brush-canvas'));
+    final TestGesture mouse = await tester.createGesture(kind: PointerDeviceKind.mouse);
+    await mouse.addPointer(location: Offset.zero);
+    addTearDown(mouse.removePointer);
+    await mouse.moveTo(tester.getCenter(canvas));
+    await tester.pump();
+    expect(cubit.state.brush.isEmpty, isTrue);
+    final CustomPaint paint = tester.widget<CustomPaint>(
+      find.descendant(of: canvas, matching: find.byType(CustomPaint)).first,
+    );
+    final dynamic painter = paint.painter;
+    // Painter приватный, кружок читаем через его поле.
+    // ignore: avoid_dynamic_calls
+    expect((painter.cursor as ValueNotifier<Offset?>).value, isNotNull);
+    await mouse.moveTo(const Offset(1, 1));
+    await tester.pump();
+    // Painter приватный, кружок читаем через его поле.
+    // ignore: avoid_dynamic_calls
+    expect((painter.cursor as ValueNotifier<Offset?>).value, isNull);
+  });
 
   testWidgets('кисть: на широком экране панель слева, при крупном шрифте размеры уходят в меню', (tester) async {
     await tester.binding.setSurfaceSize(const Size(1200, 800));
