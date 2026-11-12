@@ -3037,6 +3037,18 @@ abstract class AppLocalizations {
   /// **'{columns} × {rows} крестиков, {width} × {height} см'**
   String imageWizardSizeStitch(int columns, int rows, String width, String height);
 
+  /// Пояснение под ползунком ширины вышивки: сколько крестиков и какая плотность канвы
+  ///
+  /// In ru, this message translates to:
+  /// **'{columns} крестиков в ширину. На канве {fabric} их {perCm} на сантиметр.'**
+  String imageWizardWidthCrosses(int columns, String fabric, String perCm);
+
+  /// Пояснение под размером вышивки: канва и размер отреза ткани
+  ///
+  /// In ru, this message translates to:
+  /// **'На канве {fabric}. Отрез берите с запасом по 5 см с каждой стороны: около {width} × {height} см.'**
+  String imageWizardStitchOnFabric(String fabric, String width, String height);
+
   /// Заголовок выбора источника цветов для вышивки
   ///
   /// In ru, this message translates to:

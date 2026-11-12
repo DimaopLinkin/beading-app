@@ -381,6 +381,12 @@ void main() {
       expect(find.text('Аида 14', skipOffstage: false), findsOneWidget);
       expect(find.byKey(const ValueKey<String>('wizard-width-cm'), skipOffstage: false), findsOneWidget);
       expect(find.text('Цвета мулине', skipOffstage: false), findsOneWidget);
+      final String crosses = tester
+          .widget<Text>(find.byKey(const ValueKey<String>('wizard-width-crosses'), skipOffstage: false))
+          .data!;
+      expect(crosses, contains('Аида 14'));
+      expect(crosses, contains('5,5 на сантиметр'));
+      expect(crosses, contains('${cubit.state.settings.columns} крестиков'));
       final Finder backstitch = find.byKey(const ValueKey<String>('wizard-backstitch'));
       await tester.scrollUntilVisible(backstitch, 200, scrollable: find.byType(Scrollable).last);
       expect(tester.widget<CupertinoSwitch>(backstitch).value, isTrue);
