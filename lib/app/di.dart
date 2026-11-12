@@ -110,7 +110,6 @@ final GetIt getIt = GetIt.instance;
 /// повторный вызов сначала сбрасывает прежние регистрации.
 ///
 /// [database] — готовая база (в тестах — в памяти); без неё открывается файл в Application Support.
-
 Future<void> configureDependencies(
   AppDependencies dependencies, {
   GetIt? locator,
