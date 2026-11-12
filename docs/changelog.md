@@ -63,4 +63,4 @@ type: added
   2. `scripts/internal/release_notes.sh 0.1.0` — обновит `CHANGELOG.md`, создаст `docs/release-notes/0.1.0.md`, удалит фрагменты.
   3. Поднять `version:` в `pubspec.yaml`.
   4. PR `release/0.1.0` → `main` (merge commit, не squash). Claude только предлагает его: аппрув и мёрж делает Дмитрий. После мёржа — тег `v0.1.0` на коммит в `main` (Дмитрий или GitHub Release при мёрже) и PR `main` → `dev`, чтобы `dev` получил собранный `CHANGELOG.md`; этот PR Claude может влить сам.
-  5. Сборки — из тега в `main` по [release.md](release.md): `.ipa` (Ad Hoc) для iPhone и подписанный Developer ID и нотаризованный `.app`/`.dmg` для Mac. Текст из `docs/release-notes/0.1.0.md` Дмитрий передаёт ей вместе со сборкой.
+  5. Сборки — из тега в `main` по [release.md](release.md): `flutter run --release` на iPhone и `flutter build macos --release` для Mac. Текст из `docs/release-notes/0.1.0.md` Дмитрий передаёт ей вместе со сборкой.
