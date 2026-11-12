@@ -1,7 +1,7 @@
 ---
 id: 13-app-icon
 title: Иконка приложения «Канитель» (iOS и macOS) (T68)
-status: todo
+status: delivered
 depends: 01-ui-kit
 ---
 
