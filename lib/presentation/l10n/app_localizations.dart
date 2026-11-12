@@ -1891,6 +1891,18 @@ abstract class AppLocalizations {
   /// **'Каталог ниток'**
   String get catalogTitleFloss;
 
+  /// Заголовок правки запаса нитки в листе цвета каталога
+  ///
+  /// In ru, this message translates to:
+  /// **'Мой запас'**
+  String get catalogStockTitle;
+
+  /// Подпись плитки нитки из запаса для VoiceOver
+  ///
+  /// In ru, this message translates to:
+  /// **'в запасе {amount}'**
+  String catalogStockBadgeSemantic(String amount);
+
   /// Подсказка в поле поиска по каталогу
   ///
   /// In ru, this message translates to:
@@ -3265,6 +3277,12 @@ abstract class AppLocalizations {
   /// **'Блоки 10×10'**
   String get stitchBlocks;
 
+  /// Кнопка нижней панели вышивания: расход и запас ниток проекта
+  ///
+  /// In ru, this message translates to:
+  /// **'Нитки'**
+  String get stitchActionFloss;
+
   /// Кнопка нижней панели вышивания: блоки 10×10
   ///
   /// In ru, this message translates to:
@@ -3486,6 +3504,138 @@ abstract class AppLocalizations {
   /// In ru, this message translates to:
   /// **'Мотки указаны с запасом {percent}%.'**
   String flossShareReserve(int percent);
+
+  /// Переключатель расхода мулине: на всю схему
+  ///
+  /// In ru, this message translates to:
+  /// **'Вся схема'**
+  String get flossScopeAll;
+
+  /// Переключатель расхода мулине: только на невышитые клетки
+  ///
+  /// In ru, this message translates to:
+  /// **'Осталось вышить'**
+  String get flossScopeRemaining;
+
+  /// Пояснение к расходу на оставшуюся работу
+  ///
+  /// In ru, this message translates to:
+  /// **'Считаются невышитые крестики. Бэкстич, неполные крестики и узелки считаются целиком: их выполнение не отмечается.'**
+  String get flossScopeRemainingHint;
+
+  /// Заголовок пустого списка ниток, когда вся схема вышита
+  ///
+  /// In ru, this message translates to:
+  /// **'Все крестики вышиты'**
+  String get flossRemainingDone;
+
+  /// Пояснение пустого списка ниток, когда вся схема вышита
+  ///
+  /// In ru, this message translates to:
+  /// **'На оставшуюся работу ниток больше не нужно.'**
+  String get flossRemainingDoneMessage;
+
+  /// Итог сверки с запасом: всё есть
+  ///
+  /// In ru, this message translates to:
+  /// **'Запаса ниток хватает на всю работу'**
+  String get flossStockCovered;
+
+  /// Итог сверки с запасом на оставшуюся работу: всё есть
+  ///
+  /// In ru, this message translates to:
+  /// **'Запаса ниток хватает на оставшуюся работу'**
+  String get flossStockCoveredRemaining;
+
+  /// Итог сверки с запасом: что докупить
+  ///
+  /// In ru, this message translates to:
+  /// **'Докупить: {skeins}'**
+  String flossStockShort(String skeins);
+
+  /// Сколько разных ниток не хватает
+  ///
+  /// In ru, this message translates to:
+  /// **'{count, plural, one{не хватает {count} нитки} few{не хватает {count} ниток} many{не хватает {count} ниток} other{не хватает {count} ниток}}'**
+  String flossStockShortThreads(int count);
+
+  /// Строка нитки: нужно и есть мотков
+  ///
+  /// In ru, this message translates to:
+  /// **'Нужно {need} · есть {have}'**
+  String flossStockNeedHave(String need, String have);
+
+  /// Число мотков, в том числе дробное
+  ///
+  /// In ru, this message translates to:
+  /// **'{amount} мот.'**
+  String flossStockAmount(String amount);
+
+  /// У нитки в запасе достаточно
+  ///
+  /// In ru, this message translates to:
+  /// **'Хватает'**
+  String get flossStockEnough;
+
+  /// У нитки не хватает; сколько докупить
+  ///
+  /// In ru, this message translates to:
+  /// **'Докупить: {skeins}'**
+  String flossStockBuy(String skeins);
+
+  /// Подпись действия: правка запаса нитки
+  ///
+  /// In ru, this message translates to:
+  /// **'Изменить запас ниток'**
+  String get flossStockEdit;
+
+  /// Заголовок листа правки запаса нитки
+  ///
+  /// In ru, this message translates to:
+  /// **'Запас: {thread}'**
+  String flossStockSheetTitle(String thread);
+
+  /// Подсказка листа правки запаса нитки
+  ///
+  /// In ru, this message translates to:
+  /// **'Сколько мотков осталось. Начатый моток — доля: 0,5 — половина.'**
+  String get flossStockSheetHint;
+
+  /// Подпись кнопки «минус» запаса
+  ///
+  /// In ru, this message translates to:
+  /// **'Меньше'**
+  String get flossStockLess;
+
+  /// Подпись кнопки «плюс» запаса
+  ///
+  /// In ru, this message translates to:
+  /// **'Больше'**
+  String get flossStockMore;
+
+  /// Кнопка листа запаса: убрать нитку из запаса
+  ///
+  /// In ru, this message translates to:
+  /// **'Нет в запасе'**
+  String get flossStockClear;
+
+  /// Ошибка записи запаса ниток
+  ///
+  /// In ru, this message translates to:
+  /// **'Не удалось сохранить запас ниток'**
+  String get flossStockWriteFailed;
+
+  /// Заголовок блока «докупить» в тексте списка мулине
+  ///
+  /// In ru, this message translates to:
+  /// **'Докупить:'**
+  String get flossShareToBuy;
+
+  /// В тексте списка мулине: запаса хватает
+  ///
+  /// In ru, this message translates to:
+  /// **'Весь запас на месте: докупать ничего не нужно.'**
+  String get flossShareAllCovered;
 
   /// Инструмент редактора вышивки: одна диагональ клетки
   ///

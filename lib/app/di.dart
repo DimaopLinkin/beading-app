@@ -12,6 +12,7 @@ import 'package:beading/data/db/app_database.dart';
 import 'package:beading/data/db/open_database.dart';
 import 'package:beading/data/easter_eggs/asset_compliment_source.dart';
 import 'package:beading/data/easter_eggs/drift_easter_egg_log.dart';
+import 'package:beading/data/floss_stock/drift_floss_stock_repository.dart';
 import 'package:beading/data/grid_pattern/drift_cell_progress_store.dart';
 import 'package:beading/data/grid_pattern/drift_grid_pattern_repository.dart';
 import 'package:beading/data/grid_pattern/drift_grid_progress_store.dart';
@@ -39,6 +40,7 @@ import 'package:beading/data/sharing/share_plus_file_sharer.dart';
 import 'package:beading/data/sharing/zip_biser_codec.dart';
 import 'package:beading/data/stitch_import/xml_oxs_decoder.dart';
 import 'package:beading/data/weaving/drift_work_session_repository.dart';
+import 'package:beading/domain/catalog/catalog_material.dart';
 import 'package:beading/domain/catalog/catalog_repository.dart';
 import 'package:beading/domain/catalog/use_cases/find_similar_colors.dart';
 import 'package:beading/domain/easter_eggs/compliment_source.dart';
@@ -47,6 +49,7 @@ import 'package:beading/domain/easter_eggs/easter_egg_policy.dart';
 import 'package:beading/domain/easter_eggs/easter_egg_service.dart';
 import 'package:beading/domain/easter_eggs/long_session_watcher.dart';
 import 'package:beading/domain/events/app_events.dart';
+import 'package:beading/domain/floss_stock/floss_stock_repository.dart';
 import 'package:beading/domain/grid_pattern/cell_progress_store.dart';
 import 'package:beading/domain/grid_pattern/grid_pattern_content.dart';
 import 'package:beading/domain/grid_pattern/grid_pattern_repository.dart';
@@ -136,6 +139,9 @@ final GetIt getIt = GetIt.instance;
 /// [database] — готовая база (в тестах — в памяти); без неё открывается файл в Application Support.
 /// [catalogAssets] подменяет файлы каталога (в тестах).
 /// Длинная сторона картинки в мастере «картинка → схема», пикселей.
+/// Имя регистрации каталога ниток: каталог бисера — безымянная регистрация.
+const String flossCatalogInstance = 'floss-catalog';
+
 const int _wizardImageMaxSide = 2048;
 
 Future<void> configureDependencies({GetIt? locator, AppDatabase? database, CatalogAssetSource? catalogAssets}) async {
@@ -463,6 +469,17 @@ Future<void> configureDependencies({GetIt? locator, AppDatabase? database, Catal
         brandSetting: SettingKeys.defaultBeadBrand,
       ),
     )
+    ..registerFactory<CatalogCubit>(
+      () => CatalogCubit(
+        catalog: container<CatalogRepository>(),
+        findSimilar: container<FindSimilarColors>(),
+        settings: container<SettingsRepository>(),
+        material: CatalogMaterial.floss,
+        brandSetting: SettingKeys.defaultFlossBrand,
+        stock: container<FlossStockRepository>(),
+      ),
+      instanceName: flossCatalogInstance,
+    )
     ..registerFactory<PatternTemplateCubit>(
       () => PatternTemplateCubit(
         catalog: container<CatalogRepository>(),
@@ -473,12 +490,23 @@ Future<void> configureDependencies({GetIt? locator, AppDatabase? database, Catal
     )
     ..registerLazySingleton<TextSharer>(SharePlusTextSharer.new)
     ..registerFactory<LoadProjectMaterials>(() => LoadProjectMaterials(container<GridPatternRepository>()))
-    ..registerFactory<LoadProjectFloss>(() => LoadProjectFloss(container<GridPatternRepository>()))
+    ..registerLazySingleton<FlossStockRepository>(
+      () => DriftFlossStockRepository(
+        dao: db.flossStockDao,
+        deviceIds: container<DeviceIdProvider>(),
+        clock: container<Clock>(),
+        ids: container<IdGenerator>(),
+      ),
+    )
+    ..registerFactory<LoadProjectFloss>(
+      () => LoadProjectFloss(container<GridPatternRepository>(), progress: container<CellProgressStore>()),
+    )
     ..registerFactoryParam<FlossCubit, String, void>(
       (projectId, _) => FlossCubit(
         projectId: projectId,
         loadFloss: container<LoadProjectFloss>(),
         projects: container<ProjectRepository>(),
+        stock: container<FlossStockRepository>(),
       ),
     )
     ..registerFactoryParam<MaterialsCubit, String, void>(

@@ -46,6 +46,7 @@ import 'package:beading/presentation/stitching/stitch_cubit.dart';
 import 'package:beading/presentation/stitching/stitch_screen.dart';
 import 'package:beading/presentation/weaving/weave_cubit.dart';
 import 'package:beading/presentation/weaving/weave_screen.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
@@ -74,6 +75,9 @@ abstract final class AppRoutes {
   /// Каталог цветов бисера (T20).
   static const String catalog = CatalogScreen.routePath;
 
+  /// Каталог ниток мулине и запас «есть у меня».
+  static const String flossCatalog = '/catalog/floss';
+
   /// Материалы проекта: расход бисера по цветам схемы (T20).
   static String materials(String projectId) => MaterialsScreen.locationFor(projectId);
   static String floss(String projectId) => FlossScreen.locationFor(projectId);
@@ -87,6 +91,31 @@ abstract final class AppRoutes {
   static String editor(String projectId) => EditorScreen.locationFor(projectId);
 
   static String bookWork(String projectId) => BookWorkScreen.locationFor(projectId);
+}
+
+/// Какой каталог открыть: бисер или нитки. Выбор — родной лист действий.
+Future<void> _chooseCatalog(BuildContext context) async {
+  final AppLocalizations l10n = AppLocalizations.of(context);
+  final String? route = await showCupertinoModalPopup<String>(
+    context: context,
+    builder: (sheetContext) => CupertinoActionSheet(
+      actions: <Widget>[
+        CupertinoActionSheetAction(
+          onPressed: () => Navigator.of(sheetContext).pop(AppRoutes.catalog),
+          child: Text(l10n.catalogTitleBead),
+        ),
+        CupertinoActionSheetAction(
+          onPressed: () => Navigator.of(sheetContext).pop(AppRoutes.flossCatalog),
+          child: Text(l10n.catalogTitleFloss),
+        ),
+      ],
+      cancelButton: CupertinoActionSheetAction(
+        onPressed: () => Navigator.of(sheetContext).pop(),
+        child: Text(l10n.cancel),
+      ),
+    ),
+  );
+  if (route != null && context.mounted) unawaited(context.push<void>(route));
 }
 
 /// Все страницы настроек делят [SettingsCubit] из корня приложения ([BeadingApp]).
@@ -103,7 +132,7 @@ GoRouter createRouter({bool showDeveloperTools = !kReleaseMode}) => GoRouter(
           thumbnails: getIt<ProjectThumbnailRegistry>(),
           loadPreview: getIt<LoadProjectPreview>(),
           onOpenSettings: () => context.push(AppRoutes.settings),
-          onOpenCatalog: () => context.push(AppRoutes.catalog),
+          onOpenCatalog: () => unawaited(_chooseCatalog(context)),
           onOpenMaterials: (context, project) => context.push(
             project.craft == Craft.crossStitch ? AppRoutes.floss(project.id) : AppRoutes.materials(project.id),
           ),
@@ -157,7 +186,7 @@ GoRouter createRouter({bool showDeveloperTools = !kReleaseMode}) => GoRouter(
       path: StitchScreen.routePath,
       builder: (context, state) => BlocProvider<StitchCubit>(
         create: (_) => getIt<StitchCubit>(param1: state.pathParameters['projectId'])..load(),
-        child: const StitchScreen(),
+        child: StitchScreen(onOpenFloss: () => context.push(AppRoutes.floss(state.pathParameters['projectId']!))),
       ),
     ),
     GoRoute(
@@ -203,6 +232,13 @@ GoRouter createRouter({bool showDeveloperTools = !kReleaseMode}) => GoRouter(
       builder: (_, _) => BlocProvider<PatternTemplateCubit>(
         create: (_) => getIt<PatternTemplateCubit>()..start(),
         child: const PatternTemplateScreen(),
+      ),
+    ),
+    GoRoute(
+      path: AppRoutes.flossCatalog,
+      builder: (_, _) => BlocProvider<CatalogCubit>(
+        create: (_) => getIt<CatalogCubit>(instanceName: flossCatalogInstance)..start(),
+        child: const CatalogScreen(),
       ),
     ),
     GoRoute(

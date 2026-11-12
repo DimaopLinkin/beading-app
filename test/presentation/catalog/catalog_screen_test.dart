@@ -1,5 +1,7 @@
 import 'package:beading/domain/catalog/catalog_color.dart';
+import 'package:beading/domain/catalog/catalog_material.dart';
 import 'package:beading/domain/catalog/use_cases/find_similar_colors.dart';
+import 'package:beading/domain/palette/catalog_ref.dart';
 import 'package:beading/domain/settings/setting_keys.dart';
 import 'package:beading/presentation/catalog/catalog_cubit.dart';
 import 'package:beading/presentation/catalog/catalog_screen.dart';
@@ -10,6 +12,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import '../../support/fake_catalog_repository.dart';
+import '../../support/fake_floss_stock.dart';
 import '../../support/fake_settings_repository.dart';
 
 void main() {
@@ -204,5 +207,92 @@ void main() {
     expect(find.text('DB0010'), findsOneWidget);
     expect(tester.getTopLeft(find.byKey(ValueKey<String>('color-${red.id}'))).dx, greaterThan(200));
     expect(tester.takeException(), isNull);
+  });
+
+  group('каталог ниток с запасом', () {
+    final CatalogColor dmc310 = catalogColor(
+      '310',
+      'Black',
+      '#000000',
+      brand: 'DMC',
+      series: 'Mouliné',
+      material: CatalogMaterial.floss,
+    );
+    final CatalogColor dmc666 = catalogColor(
+      '666',
+      'Red',
+      '#e31d42',
+      brand: 'DMC',
+      series: 'Mouliné',
+      material: CatalogMaterial.floss,
+    );
+    const CatalogRef ref310 = CatalogRef(brand: 'DMC', code: '310');
+
+    Future<(CatalogCubit, FakeFlossStockRepository)> pumpFloss(
+      WidgetTester tester, {
+      Map<CatalogRef, double> initial = const <CatalogRef, double>{},
+    }) async {
+      tester.view
+        ..physicalSize = const Size(430, 932)
+        ..devicePixelRatio = 1;
+      addTearDown(tester.view.reset);
+      catalog = FakeCatalogRepository(<CatalogColor>[dmc310, dmc666]);
+      final FakeFlossStockRepository stock = FakeFlossStockRepository(initial: initial);
+      final CatalogCubit cubit = CatalogCubit(
+        catalog: catalog,
+        findSimilar: FindSimilarColors(catalog),
+        settings: settings,
+        material: CatalogMaterial.floss,
+        stock: stock,
+      );
+      addTearDown(cubit.close);
+      await tester.pumpWidget(
+        CupertinoApp(
+          theme: AppTheme.light,
+          builder: AppTheme.builder,
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          locale: const Locale('ru'),
+          home: BlocProvider<CatalogCubit>.value(value: cubit, child: const CatalogScreen()),
+        ),
+      );
+      await cubit.start();
+      await tester.pump();
+      await tester.pump();
+      return (cubit, stock);
+    }
+
+    testWidgets('заголовок «Каталог ниток», у нитки из запаса — значок с числом мотков', (tester) async {
+      await pumpFloss(tester, initial: <CatalogRef, double>{ref310: 1.5});
+
+      expect(find.text('Каталог ниток'), findsWidgets);
+      expect(find.text('1,5 мот.'), findsOneWidget);
+      expect(tester.takeException(), isNull);
+    });
+
+    testWidgets('в листе цвета можно записать запас', (tester) async {
+      final (CatalogCubit cubit, FakeFlossStockRepository stock) = await pumpFloss(tester);
+
+      await tester.tap(find.text('310'));
+      await tester.pumpAndSettle();
+      expect(find.text('Мой запас'), findsOneWidget);
+      await tester.tap(find.byKey(const ValueKey<String>('stock-more')));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const ValueKey<String>('stock-more')));
+      await tester.pumpAndSettle();
+
+      expect(stock.snapshot[ref310], 1);
+      expect(cubit.state.stock[ref310], 1);
+      expect(find.text('1 мот.'), findsWidgets);
+    });
+
+    testWidgets('каталог бисера без запаса: нет «Мой запас»', (tester) async {
+      await pumpScreen(tester);
+
+      await tester.tap(find.text('DB0010'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Мой запас'), findsNothing);
+    });
   });
 }
