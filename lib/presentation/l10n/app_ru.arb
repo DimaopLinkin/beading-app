@@ -1,6 +1,6 @@
 {
   "@@locale": "ru",
-  "appTitle": "Бисер",
+  "appTitle": "Канитель",
   "@appTitle": {
     "description": "Название приложения"
   },
@@ -47,7 +47,7 @@
   "settingsAbout": "О приложении",
   "settingsSaveFailed": "Не удалось сохранить настройку. Попробуй ещё раз.",
   "aboutTitle": "О приложении",
-  "aboutTagline": "Каждая бусинка на своём месте. Плети с удовольствием!",
+  "aboutTagline": "Каждая бусина и каждый крестик на своём месте.",
   "aboutCredits": "Цвета ниток DMC: craft-color-codes, MakeBead (makebead.com), лицензия CC BY 4.0. DMC — торговая марка DMC, приложение с ней не связано. Цвета ниток «Гамма» и Anchor: firma-gamma.ru и crosti.ru. «Гамма» и Anchor — торговые марки своих владельцев, приложение с ними не связано.",
   "aboutVersion": "Версия {version}",
   "@aboutVersion": {

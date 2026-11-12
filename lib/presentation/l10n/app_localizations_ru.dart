@@ -9,7 +9,7 @@ class AppLocalizationsRu extends AppLocalizations {
   AppLocalizationsRu([String locale = 'ru']) : super(locale);
 
   @override
-  String get appTitle => 'Бисер';
+  String get appTitle => 'Канитель';
 
   @override
   String get libraryTitle => 'Мои работы';
@@ -111,7 +111,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get aboutTitle => 'О приложении';
 
   @override
-  String get aboutTagline => 'Каждая бусинка на своём месте. Плети с удовольствием!';
+  String get aboutTagline => 'Каждая бусина и каждый крестик на своём месте.';
 
   @override
   String get aboutCredits =>

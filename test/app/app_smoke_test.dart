@@ -36,7 +36,7 @@ Future<void> settle(WidgetTester tester) async {
 void main() {
   setUp(() async {
     PackageInfo.setMockInitialValues(
-      appName: 'Бисер',
+      appName: 'Канитель',
       packageName: 'app.beading',
       version: '0.1.0',
       buildNumber: '1',
@@ -112,7 +112,7 @@ void main() {
     await tester.dragUntilVisible(find.text('О приложении'), find.byType(ListView), const Offset(0, -200));
     await tester.tap(find.text('О приложении'));
     await tester.pumpAndSettle();
-    expect(find.text('Каждая бусинка на своём месте. Плети с удовольствием!'), findsOneWidget);
+    expect(find.text('Каждая бусина и каждый крестик на своём месте.'), findsOneWidget);
     await unmountApp(tester);
   });
 
