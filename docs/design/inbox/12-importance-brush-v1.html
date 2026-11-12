@@ -1,0 +1,382 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Бисер — Кисть «важное» в мастере «Схема из картинки» (12-importance-brush v1)</title>
+<style>
+
+
+:root{--font:-apple-system,BlinkMacSystemFont,"SF Pro Text","SF Pro",system-ui,sans-serif}
+*{box-sizing:border-box}
+body{margin:0;font-family:var(--font);background:#CFC8BC;color:#1C1A1F}
+body.dp{background:#0B0A0C;color:#F4F0EA}
+.top{position:sticky;top:0;z-index:50;display:flex;gap:12px;align-items:center;flex-wrap:wrap;padding:12px 24px;background:rgba(247,244,239,.92);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-bottom:1px solid rgba(0,0,0,.12)}
+body.dp .top{background:rgba(21,19,22,.92);border-color:rgba(255,255,255,.14)}
+.top h1{margin:0;font-size:18px;flex:1;min-width:220px}
+.seg{display:flex;padding:3px;border-radius:22px;background:rgba(120,110,100,.25)}
+.seg button{border:0;background:transparent;color:inherit;font:600 14px var(--font);padding:9px 16px;border-radius:19px;cursor:pointer;min-height:44px}
+.seg button[aria-pressed="true"]{background:#fff;color:#1C1A1F;box-shadow:0 1px 3px rgba(0,0,0,.2)}
+.stage{padding:28px 24px 40px;display:flex;flex-direction:column;gap:44px}
+.row{display:flex;flex-wrap:wrap;gap:28px;justify-content:center}
+.cell{display:flex;flex-direction:column;gap:10px;align-items:center}
+.cap{font-size:14px;font-weight:600;max-width:428px;text-align:center;opacity:.9}
+.note{max-width:920px;margin:0 auto;font-size:15px;line-height:1.55;padding:0 24px 60px}
+.note h2{font-size:20px;margin:0 0 8px}.note ul{margin:6px 0 12px;padding-left:20px}
+
+.phone{--bg:#F7F4EF;--surf:#FFF;--surf2:#EFEBE4;--ink:#1C1A1F;--ink2:#5F5954;--sep:#E0DAD1;--acc:#B5541C;--onacc:#fff;--acct:#9A4513;--accg:rgba(181,84,28,.16);--danger:#C0362C;
+ --glass:rgba(255,255,255,.55);--dense:rgba(255,255,255,.86);--gb:1px solid rgba(255,255,255,.85);--shadow:0 10px 28px rgba(0,0,0,.18);--scrim:rgba(20,16,12,.38);
+ --sheet:rgba(247,244,239,.84);--sheetsolid:#F7F4EF;--row:#FFFFFF;--rowsep:#E4DED5;
+ --idea:#4A52A6;--ideab:rgba(91,99,183,.14);--prog:#8A5300;--progb:rgba(168,106,0,.16);--done:#27704A;--doneb:rgba(46,125,79,.15);
+ position:relative;width:428px;height:926px;border-radius:52px;overflow:hidden;background:var(--bg);color:var(--ink);border:1px solid rgba(0,0,0,.25);box-shadow:0 18px 40px rgba(0,0,0,.28);flex:none;font-family:var(--font)}
+.phone[data-theme="dark"]{--bg:#151316;--surf:#201D22;--surf2:#2A262D;--ink:#F4F0EA;--ink2:#A9A29B;--sep:#3A353D;--acc:#F0955A;--onacc:#1C1A1F;--acct:#F0955A;--accg:rgba(240,149,90,.22);--danger:#FF7A6E;
+ --glass:rgba(40,38,44,.5);--dense:rgba(28,26,32,.86);--gb:1px solid rgba(255,255,255,.26);--shadow:0 10px 28px rgba(0,0,0,.45);--scrim:rgba(0,0,0,.55);
+ --sheet:rgba(44,40,48,.86);--sheetsolid:#2C2830;--row:#3A353F;--rowsep:#4A4550;
+ --idea:#9BA3EE;--ideab:rgba(155,163,238,.18);--prog:#F2B84B;--progb:rgba(242,184,75,.18);--done:#6FCF97;--doneb:rgba(111,207,151,.18);border-color:rgba(255,255,255,.18)}
+.glass{background:var(--glass);border:var(--gb);box-shadow:var(--shadow);backdrop-filter:blur(24px) saturate(1.6);-webkit-backdrop-filter:blur(24px) saturate(1.6)}
+.home{position:absolute;left:50%;bottom:8px;margin-left:-67px;width:134px;height:5px;border-radius:3px;background:var(--ink);opacity:.5;z-index:30}
+
+/* библиотека (подложка) */
+.lib{--s:1;position:absolute;inset:0;padding:64px 16px 140px;display:flex;flex-direction:column;gap:12px;overflow:hidden}
+.large{flex:none;font-size:calc(34px * var(--s));font-weight:700;letter-spacing:-.4px;padding:0 4px;line-height:1.1}
+.search{flex:none;min-height:44px;border-radius:calc(22px * var(--s));background:var(--surf2);display:flex;align-items:center;gap:10px;padding:calc(8px * var(--s)) 16px;font-size:calc(17px * var(--s));color:var(--ink2)}
+.fr{flex:none;display:flex;flex-wrap:wrap;gap:8px}
+.fl{flex:none;font-size:calc(13px * var(--s));font-weight:700;color:var(--ink2);letter-spacing:.5px;text-transform:uppercase;padding:0 4px;margin-bottom:-4px}
+.chip{display:inline-flex;align-items:center;gap:6px;min-height:44px;padding:calc(8px * var(--s)) calc(16px * var(--s));border-radius:999px;font-size:calc(15px * var(--s));font-weight:600;background:var(--surf2);border:1px solid var(--sep);color:var(--ink);line-height:1.15}
+.chip.sel{background:var(--acc);border-color:var(--acc);color:var(--onacc)}
+.list{display:flex;flex-direction:column;gap:10px}
+.card{display:flex;gap:12px;padding:10px;border-radius:22px;background:var(--surf);border:1px solid var(--sep);min-height:104px}
+.ax .card{flex-direction:column}
+.pv{width:84px;height:84px;border-radius:14px;flex:none;border:1px solid rgba(0,0,0,.12)}
+.ax .pv{width:100%;height:96px}
+.cbody{flex:1;min-width:0;display:flex;flex-direction:column;gap:3px;padding:2px 0}
+.ct{font-size:calc(17px * var(--s));font-weight:600}
+.cs{font-size:calc(14px * var(--s));color:var(--ink2)}
+.st{align-self:flex-start;display:inline-flex;align-items:center;gap:5px;padding:3px 10px 3px 7px;border-radius:13px;font-size:max(13px,calc(13px * var(--s)));font-weight:600}
+.st.idea{color:var(--idea);background:var(--ideab)}.st.prog{color:var(--prog);background:var(--progb)}.st.done{color:var(--done);background:var(--doneb)}
+.bar{height:6px;border-radius:3px;background:var(--surf2);margin-top:auto}.bar i{display:block;height:6px;border-radius:3px;background:var(--prog)}
+.tabbar{position:absolute;left:16px;bottom:26px;display:flex;gap:2px;padding:6px;border-radius:36px;z-index:5}
+.tab{padding:0 13px;height:52px;border-radius:30px;display:flex;align-items:center;gap:7px;font-size:14px;font-weight:600}
+.tab.sel{background:var(--accg);color:var(--acct);padding:0 14px}
+.fab{position:absolute;right:16px;bottom:26px;width:68px;height:68px;border-radius:34px;display:flex;align-items:center;justify-content:center;background:var(--acc);border:var(--gb);box-shadow:var(--shadow);z-index:5}
+.empty{position:absolute;left:0;right:0;top:300px;display:flex;flex-direction:column;align-items:center;gap:14px;text-align:center;padding:0 40px}
+.empty h2{margin:0;font-size:22px}.empty p{margin:0;font-size:16px;color:var(--ink2)}
+.cta{height:52px;padding:0 28px;border-radius:26px;background:var(--acc);color:var(--onacc);display:flex;align-items:center;font-size:17px;font-weight:700}
+
+/* системный page sheet */
+.scrim{position:absolute;inset:0;background:var(--scrim);z-index:10}
+.pagesheet{position:absolute;left:8px;right:8px;bottom:8px;border-radius:38px;background:var(--sheet);backdrop-filter:blur(40px) saturate(1.5);-webkit-backdrop-filter:blur(40px) saturate(1.5);border:var(--gb);box-shadow:0 -2px 30px rgba(0,0,0,.25);z-index:11;display:flex;flex-direction:column;overflow:hidden}
+.pagesheet.med{height:462px}
+.pagesheet.lg{left:0;right:0;bottom:0;top:62px;border-radius:38px 38px 0 0;background:var(--sheetsolid);backdrop-filter:none}
+.grab{flex:none;align-self:center;width:36px;height:5px;border-radius:3px;background:var(--ink2);opacity:.45;margin:6px 0 2px}
+.nav{flex:none;position:relative;height:52px;display:flex;align-items:center;justify-content:center}
+.nav b{font-size:17px;font-weight:600}
+.nav .cancel{position:absolute;left:8px;min-width:44px;height:44px;padding:0 10px;display:flex;align-items:center;font-size:17px;color:var(--acct)}
+.sc{flex:none;margin:6px 16px 10px;display:flex;padding:3px;border-radius:999px;background:rgba(120,110,100,.22)}
+.sc div{flex:1;min-height:44px;display:flex;align-items:center;justify-content:center;border-radius:999px;font-size:15px;font-weight:600;color:var(--ink)}
+.sc .s{background:var(--surf);box-shadow:0 1px 4px rgba(0,0,0,.25);font-weight:700}
+.phone[data-theme="dark"] .sc .s{background:#5A5560;color:#fff}
+.group{margin:0 16px;border-radius:24px;background:var(--row);overflow:hidden}
+.item{display:flex;align-items:center;gap:14px;padding:10px 16px 10px 14px;min-height:68px;position:relative}
+.item+.item::before{content:"";position:absolute;left:72px;right:0;top:0;height:1px;background:var(--rowsep)}
+.item .ic{width:44px;height:44px;border-radius:22px;background:var(--accg);color:var(--acct);display:flex;align-items:center;justify-content:center;flex:none}
+.item b{display:block;font-size:17px;font-weight:600;line-height:1.2}
+.item span.s{font-size:13px;color:var(--ink2);line-height:1.25}
+.item .ch{margin-left:auto;color:var(--ink2);opacity:.6;flex:none}
+.foot{flex:none;margin:10px 32px 0;font-size:13px;color:var(--ink2)}
+/* AX3 внутри листа */
+.axs .nav{height:auto;flex-direction:column;align-items:flex-start;justify-content:flex-start;padding:0 16px 8px}.axs .nav b{font-size:36px;letter-spacing:-.4px;padding:0 4px}
+.axs .nav .cancel{position:static;font-size:30px;min-height:64px;padding:0 4px;margin-left:-4px}
+.axs .sc div{min-height:68px;font-size:28px}
+.axs .item{min-height:128px;gap:18px;padding:16px}
+.axs .item .ic{width:72px;height:72px;border-radius:36px}
+.axs .item b{font-size:32px}.axs .item span.s{font-size:26px}
+.axs .group{border-radius:34px}
+.axs .item+.item::before{left:106px}
+
+/* ---------- 08: добавки ---------- */
+.dense{background:var(--dense);border:var(--gb);box-shadow:var(--shadow);backdrop-filter:blur(32px) saturate(1.4);-webkit-backdrop-filter:blur(32px) saturate(1.4)}
+.mono{font-family:ui-monospace,"SF Mono",Menlo,monospace}
+.wb{position:absolute;left:12px;right:12px;top:54px;height:60px;border-radius:30px;display:flex;align-items:center;justify-content:space-between;padding:0 6px;z-index:6}
+.wb .t{text-align:center;line-height:1.2}.wb .t b{display:block;font-size:17px}.wb .t span{font-size:13px;color:var(--ink2)}
+.tbx{min-width:44px;height:44px;border-radius:22px;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:600;color:var(--acct);padding:0 10px}
+.tbx.pr{font-weight:700}
+.cvbox{position:absolute;z-index:2;border-radius:22px;overflow:hidden;background:var(--surf);border:1px solid var(--sep)}
+.cvbox canvas{display:block}
+.sp{position:absolute;z-index:4;top:0;bottom:0;width:0;border-left:2px solid #fff;box-shadow:0 0 0 1px rgba(0,0,0,.45)}
+.sp i{position:absolute;left:-17px;top:50%;margin-top:-17px;width:34px;height:34px;border-radius:50%;background:var(--acc);color:var(--onacc);border:2px solid #fff;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 8px rgba(0,0,0,.4)}
+.lb{position:absolute;z-index:4;top:10px;height:28px;padding:0 12px;border-radius:14px;font-size:13px;font-weight:700;display:flex;align-items:center}
+.spin{width:18px;height:18px;border-radius:50%;border:3px solid var(--sep);border-top-color:var(--acc);margin-right:8px}
+.scr{position:absolute;left:8px;right:8px;bottom:8px;border-radius:38px;z-index:8;display:flex;flex-direction:column;overflow:hidden;background:var(--sheet);backdrop-filter:blur(40px) saturate(1.5);-webkit-backdrop-filter:blur(40px) saturate(1.5);border:var(--gb);box-shadow:0 -2px 30px rgba(0,0,0,.25)}
+.scr.lgx{left:0;right:0;bottom:0;top:62px;border-radius:38px 38px 0 0;background:var(--sheetsolid);backdrop-filter:none}
+.scb{flex:1;min-height:0;overflow:hidden;display:flex;flex-direction:column;gap:10px;padding:4px 16px 30px}
+.sc3{display:flex;padding:3px;border-radius:999px;background:rgba(120,110,100,.22)}
+.sc3 div{flex:1;min-height:44px;display:flex;align-items:center;justify-content:center;border-radius:999px;font-size:14px;font-weight:600;color:var(--ink);text-align:center;line-height:1.1;padding:0 4px}
+.sc3 .s{background:var(--surf);box-shadow:0 1px 4px rgba(0,0,0,.25);font-weight:700}
+.phone[data-theme="dark"] .sc3 .s{background:#5A5560;color:#fff}
+.grp{background:var(--row);border-radius:20px;display:flex;flex-direction:column}
+.rwx{display:flex;flex-direction:column;gap:2px;padding:8px 14px;min-height:52px;justify-content:center}
+.rwx+.rwx{border-top:1px solid var(--rowsep)}
+.rwx .l{display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:17px}
+.rwx .v{font-size:15px;color:var(--ink2);font-variant-numeric:tabular-nums;display:flex;align-items:center;gap:4px}
+.rwx .h{font-size:13px;color:var(--ink2)}
+.slr{position:relative;height:30px;display:flex;align-items:center}
+.slr .tr{flex:1;height:6px;border-radius:3px;background:var(--surf2)}
+.slr .fi{position:absolute;left:0;height:6px;border-radius:3px;background:var(--acc)}
+.slr .th{position:absolute;width:28px;height:28px;border-radius:50%;background:#fff;border:2px solid var(--acc);margin-left:-14px}
+.fh{font-size:13px;font-weight:700;color:var(--ink2);text-transform:uppercase;letter-spacing:.6px;margin:2px 16px -4px}
+.hint{display:flex;gap:10px;align-items:flex-start;font-size:15px;line-height:1.35}
+.hint .lk{color:var(--acct);font-weight:700}
+.stp{display:flex;border-radius:10px;background:var(--surf2);align-items:center}
+.stp div{width:44px;height:36px;display:flex;align-items:center;justify-content:center}
+.stp div+div{border-left:1px solid var(--sep)}
+.stp .n{width:52px;font-weight:700;font-size:17px;font-variant-numeric:tabular-nums}
+.cs{display:flex;gap:10px;align-items:center}
+.cs i{width:44px;height:44px;border-radius:50%;border:1px solid rgba(0,0,0,.25);display:flex;align-items:center;justify-content:center;font-style:normal;font-size:16px;font-weight:800}
+.cs i.pl{background:var(--surf2);border:1px dashed var(--ink2);color:var(--ink)}
+.tl2{display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:22px;background:var(--surf);border:1px solid var(--sep);min-height:84px}
+.tl2 .ic{width:56px;height:56px;border-radius:28px;background:var(--accg);color:var(--acct);display:flex;align-items:center;justify-content:center;flex:none}
+.tl2 b{display:block;font-size:19px}.tl2 span.s{font-size:14px;color:var(--ink2)}
+.tl2 .chv{margin-left:auto;color:var(--ink2);opacity:.6}
+.pgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.pgrid .p{position:relative;aspect-ratio:1;border-radius:14px;overflow:hidden;border:1px solid var(--sep)}
+.pgrid .p canvas{width:100%;height:100%;display:block}
+.pgrid .p.sel{box-shadow:0 0 0 2px #151316,0 0 0 4.5px #fff,0 0 0 5.5px #151316}
+.page{position:absolute;inset:0;padding:130px 16px 120px;display:flex;flex-direction:column;gap:12px;overflow:hidden}
+.page h2{margin:0;font-size:28px;letter-spacing:-.3px;line-height:1.15}
+.page .sub{margin:0;font-size:16px;color:var(--ink2)}
+.botb{position:absolute;left:12px;right:12px;bottom:28px;border-radius:38px;padding:10px;display:flex;flex-direction:column;gap:8px;z-index:7}
+.rowb{display:flex;gap:8px}
+.bbtn{flex:1;height:60px;border-radius:30px;background:var(--surf2);display:flex;align-items:center;justify-content:center;gap:6px;font-size:17px;font-weight:700;color:var(--ink)}
+.bbtn.p{background:var(--acc);color:var(--onacc)}
+.chp{display:flex;gap:8px;overflow:hidden}
+.chp div{flex:none;min-height:44px;padding:0 16px;border-radius:22px;display:flex;align-items:center;font-size:15px;font-weight:600;background:var(--surf2);border:1px solid var(--sep)}
+.chp .s{background:var(--acc);border-color:var(--acc);color:var(--onacc)}
+.tcard{position:relative;border-radius:22px;background:var(--surf);border:1px solid var(--sep);padding:8px;display:flex;flex-direction:column;gap:6px;min-height:190px}
+.tcard.sel{box-shadow:0 0 0 2px #151316,0 0 0 4.5px #fff,0 0 0 5.5px #151316}
+.tcard canvas{width:100%;height:auto;border-radius:14px;display:block}
+.tcard b{font-size:17px}.tcard span{font-size:13px;color:var(--ink2);line-height:1.25}
+.clasp{width:14px;height:64px;border-radius:5px;background:linear-gradient(90deg,#b8b2a8,#f2efe8 50%,#a39d92);border:1px solid rgba(0,0,0,.3);flex:none}
+.ax .nav{height:auto;flex-direction:column;align-items:flex-start;justify-content:flex-start;padding:0 16px 8px}
+.ax .nav b{font-size:36px;letter-spacing:-.4px;padding:0 4px}
+.ax .nav .cancel{position:static;font-size:30px;min-height:64px;padding:0 4px;margin-left:-4px}
+.ax .nav .done{position:absolute;top:0;right:8px;font-size:30px;min-height:64px;display:flex;align-items:center;color:var(--acct);font-weight:700}
+.ax .sc3 div{min-height:68px;font-size:26px}
+.ax .rwx .l{font-size:30px;flex-wrap:wrap}.ax .rwx .v{font-size:26px}.ax .rwx .h{font-size:24px}
+.ax .rwx{min-height:84px}
+.ax .fh{font-size:24px}
+.ax .slr{height:52px}.ax .slr .tr{height:10px}.ax .slr .th{width:44px;height:44px;margin-left:-22px}
+
+/* ---------- 12: добавки ---------- */
+.mono{font-family:ui-monospace,"SF Mono",Menlo,monospace}
+.dense{background:var(--dense);border:var(--gb);box-shadow:var(--shadow);backdrop-filter:blur(32px) saturate(1.4);-webkit-backdrop-filter:blur(32px) saturate(1.4)}
+.pv{position:absolute;z-index:2;border-radius:22px;overflow:hidden;background:var(--surf);border:1px solid var(--sep)}
+.pv canvas{display:block}
+.lgd{position:absolute;z-index:5;left:10px;top:10px;display:flex;flex-direction:column;gap:6px}
+.lgd div{height:34px;padding:0 12px;border-radius:17px;display:flex;align-items:center;gap:8px;font-size:13px;font-weight:700;color:var(--ink);white-space:nowrap}
+.lgd i{display:block;width:22px;height:14px;border-radius:3px;flex:none}
+.lgd i.au{border:2px dashed #151316;background:repeating-linear-gradient(45deg,rgba(255,170,40,.6) 0 2px,rgba(255,170,40,.18) 2px 5px);box-shadow:0 0 0 1.5px #fff}
+.lgd i.us{border:2px solid #151316;background:repeating-linear-gradient(45deg,rgba(255,150,0,.75) 0 2px,rgba(255,170,40,.28) 2px 5px);box-shadow:0 0 0 1.5px #fff}
+.bp{position:absolute;left:12px;right:12px;bottom:28px;border-radius:36px;padding:8px;display:flex;flex-direction:column;gap:6px;z-index:7}
+.bw{display:flex;gap:6px}
+.bb{flex:1;min-height:56px;border-radius:18px;background:var(--surf2);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font-size:13px;font-weight:700;color:var(--ink);text-align:center;line-height:1.1;padding:0 2px;white-space:nowrap}
+.bb.sel{background:var(--accg);color:var(--acct)}
+.bb.dis{opacity:.4}
+.bb.p{background:var(--acc);color:var(--onacc);flex:1.3}
+.bb.wide{min-height:44px;flex-direction:row;gap:8px;font-size:14px;border-radius:22px}
+.bb .dot{display:block;border-radius:50%;background:currentColor}
+.fng{position:absolute;z-index:8;width:54px;height:54px;margin:-27px 0 0 -27px;border-radius:50%;background:rgba(40,40,40,.28);border:2px solid rgba(255,255,255,.85)}
+.brush{position:absolute;z-index:8;border-radius:50%;border:2px dashed #151316;box-shadow:0 0 0 2px #fff;pointer-events:none}
+.emp{position:absolute;z-index:6;left:28px;right:28px;top:300px;border-radius:26px;padding:18px 18px 16px;text-align:center;display:flex;flex-direction:column;gap:8px}
+.emp b{font-size:19px}.emp span{font-size:15px;line-height:1.35}
+.emp .bt{height:52px;border-radius:26px;background:var(--acc);color:var(--onacc);display:flex;align-items:center;justify-content:center;font-size:17px;font-weight:700;margin-top:4px}
+.emp .bt2{height:44px;color:var(--acct);font-size:16px;font-weight:600;display:flex;align-items:center;justify-content:center}
+.badge{display:inline-flex;align-items:center;gap:5px;height:26px;padding:0 10px;border-radius:13px;background:var(--accg);color:var(--acct);font-size:13px;font-weight:700}
+.rst{display:flex;align-items:center;gap:6px;color:var(--acct);font-size:15px;font-weight:600;min-height:44px}
+.tipx{position:absolute;z-index:9;border-radius:22px;padding:14px 12px 14px 16px;display:flex;gap:8px;align-items:flex-start;font-size:15px;line-height:1.35}
+.tipx b{display:block;font-size:17px;margin-bottom:2px}
+.tipx .xx{flex:none;width:44px;height:44px;margin:-8px -4px 0 0;border-radius:22px;display:flex;align-items:center;justify-content:center;color:var(--ink2)}
+.tipx::before{content:"";position:absolute;left:var(--ax,60px);top:-9px;width:18px;height:18px;transform:rotate(45deg);background:var(--dense);border-left:var(--gb);border-top:var(--gb)}
+.cfm{position:absolute;left:8px;right:8px;bottom:8px;z-index:12;display:flex;flex-direction:column;gap:8px}
+.cfm .c{border-radius:30px;background:var(--dense);backdrop-filter:blur(40px) saturate(1.5);-webkit-backdrop-filter:blur(40px) saturate(1.5);border:var(--gb);overflow:hidden;text-align:center}
+.cfm .h{padding:14px 20px 10px;font-size:13px;color:var(--ink2);font-weight:600;line-height:1.35}.cfm .h b{display:block;color:var(--ink);font-size:15px}
+.cfm .a{min-height:58px;display:flex;align-items:center;justify-content:center;font-size:20px;color:var(--acct);border-top:1px solid var(--rowsep)}
+.cfm .a.dg{color:var(--danger);font-weight:600}.cfm .a.cn{font-weight:700;border-top:none}
+.ax .wb{height:92px}.ax .wb .t b{font-size:22px;white-space:nowrap}.ax .wb .t span{display:none}.ax .tbx{min-width:56px;height:56px;font-size:22px}
+.ax .bp{padding:10px}.ax .bb{min-height:84px;font-size:24px;border-radius:26px}.ax .bb.wide{min-height:72px;font-size:22px;border-radius:36px;white-space:normal}
+.ax .bw{flex-wrap:wrap}.ax .bw .bb{flex:1 1 44%}
+.ax .rwx .l{font-size:30px;flex-wrap:wrap}.ax .rwx .v{font-size:26px}.ax .rwx .h{font-size:24px}.ax .rwx{min-height:84px}
+.ax .badge{height:40px;font-size:22px;padding:0 14px;border-radius:20px}
+/* mac */
+.mw .phone{width:900px;height:580px;border-radius:14px;box-shadow:none;border:none;background:none;overflow:visible}
+.mac{width:900px;height:580px;border-radius:14px;overflow:hidden;position:relative;background:var(--bg);color:var(--ink);border:1px solid rgba(0,0,0,.3);box-shadow:0 18px 40px rgba(0,0,0,.28);font-family:var(--font)}
+.mac .sb{position:absolute;left:8px;top:8px;bottom:8px;width:248px;border-radius:22px;padding:14px 12px;display:flex;flex-direction:column;gap:8px;z-index:3}
+.mac .sb h4{margin:0 4px;font-size:13px;letter-spacing:.5px;text-transform:uppercase;color:var(--ink2)}
+.mac .sb .bb{min-height:48px;flex-direction:row;justify-content:flex-start;padding:0 14px;gap:10px;font-size:15px}
+.mac .sb .slr2{padding:4px 6px;display:flex;flex-direction:column;gap:2px;font-size:13px;font-weight:700}
+.mac .sb .slr2 .trk{height:6px;border-radius:3px;background:var(--surf2);position:relative;margin:8px 0}.mac .sb .slr2 .trk i{position:absolute;left:0;top:0;height:6px;width:45%;border-radius:3px;background:var(--acc)}.mac .sb .slr2 .trk b{position:absolute;left:45%;top:-8px;width:22px;height:22px;margin-left:-11px;border-radius:50%;background:#fff;border:2px solid var(--acc)}
+.mac .cvm{position:absolute;left:272px;right:12px;top:12px;bottom:12px;border-radius:18px;background:#1c1816;display:flex;align-items:center;justify-content:center;overflow:hidden}
+</style>
+</head>
+<body>
+<div class="top"><h1>Бисер · Кисть «важное» · 12-importance-brush v1</h1>
+<div class="seg" role="group" aria-label="Тема"><button data-m="light" aria-pressed="true">Светлая</button><button data-m="dark" aria-pressed="false">Тёмная</button><button data-m="both" aria-pressed="false">Обе рядом</button></div></div>
+<div class="stage" id="stage"></div>
+<div class="note"><h2>Решения и оговорки</h2>
+<ul>
+<li><b>Фото и маска нарисованы на странице.</b> «Портрет» процедурная иллюстрация (не фотография), «лицо найдено автоматически» её эллипс, а мазки пользователя (глаза, губы) заданы полилиниями. Предпросмотр «до/после» и «Пересчитываю…» из 08 считаются для этих данных по-настоящему: цвета подбираются из каталога Delica (непрозрачные и матовые), и внутри важного области палитра шире (вне важного 8 цветов, найденное автоматически +3, выделенное вручную +6): так видно, что «важное» получает больше цветов и клеток. Это иллюстрация логики T60, а не результат настоящего генератора.</li>
+<li><b>Подсветка «важного»</b> не цветная, а <b>рисунчатая</b>: полупрозрачный тёплый тон (янтарь 30%) с косой штриховкой и двойным контуром (тёмный + белый, как в 01b). Штриховка и контур отличают её от цветов бисера (оранжевые бусины тоже бывают), а фото под ней читается. Найденное генератором обведено пунктиром, ваши мазки сплошным контуром и штриховкой плотнее; в углу предпросмотра легенда («Нашёл генератор», «Ваши мазки»).</li>
+<li><b>Вход.</b> Строка «Выделить важное» в листе параметров (с подписью и шевроном, под ней «Лицо найдено автоматически»). Режим занимает предпросмотр целиком; верхняя панель «Отмена / Выделить важное», нижняя панель (182 pt) с подписями у всех кнопок.</li>
+<li><b>Панель кисти:</b> «Показать, что генератор считает важным» (переключатель с глазом; пока включён, мазки скрыты и видна только автоматическая маска), «Кисть» (добавляет важное), «Ластик» (стирает ваши мазки и возвращает то, что нашёл генератор), размеры «Малый / Средний / Крупный» (кружок-предпросмотр), «Очистить» (убирает только ваши мазки, с подтверждением action sheet), «Отменить», «Готово». Кружок кисти над пальцем показывает размер.</li>
+<li><b>Пустое состояние</b> (экран 6): пейзаж без лиц и объекта, маски нет, переключатель «найденное» недоступен, карточка предлагает «Взять кисть» или «Всё равно считать».</li>
+<li><b>Результат</b> (экраны 7–8): в параметрах строка получает бейдж «Выделено вручную» и кнопку «Сбросить выделение»; предпросмотр пересчитывается (состояние «Пересчитываю…» из 08), затем показан результат с подсветкой ваших мазков контуром. Подсказка про обрезку (экран 9): подсказка в духе TipKit «Выделение сохранится при обрезке и повороте»; маска повёрнута и обрезана вместе с фото.</li>
+<li><b>AX3 и Mac.</b> На AX3 кнопки панели крупнее (84 pt) и перестраиваются в сетку 2 × 2, размеры уходят в меню «Размер: Средний»; на Mac панель кисти в боковой колонке слева, справа предпросмотр с курсором-кружком размера кисти (мышь, Apple Pencil: давление и наклон не рисовались).</li>
+<li>Оговорки: рисование одним пальцем, зум двумя (подсказка в режиме показана на экране 2 строкой под заголовком); тексты кнопок и подсказок предложены мной, их стоит сверить с продуктом; Dynamic Type AX3 показан для панели кисти.</li>
+</ul></div>
+<script>
+const CAT=[["DB0010","Black, Opaque","#232323"],["DB0200","White, Opaque","#e0dde1"],["DB0206-1","Opaque, Glass enamel","#ceada2"],["DB0209-1","Opaque, Glass enamel","#c5c4cb"],["DB0220","White, Alabaster","#e2ddde"],["DB0261-1","Opaque, Glass enamel","#cac4b3"],["DB0301","Gray, Opaque, Frosted (Matte), Luster","#585d6a"],["DB0306","Gray, Opaque, Frosted (Matte), Glazed Luster","#535358"],["DB0307","Gray, Opaque, Frosted (Matte), Luster","#6b6968"],["DB0310","Black, Opaque, Frosted (Matte)","#232221"],["DB0311","Brown, Opaque, Frosted (Matte)","#3c3530"],["DB0351","White, Opaque, Frosted (Matte), Rainbow","#ddd9dc"],["DB0352","White, Opaque, Frosted (Matte), Glazed Luster","#e0cfaf"],["DB0353","Beige, Opaque, Frosted (Matte), Glazed Luster","#dbb292"],["DB0354","Pink, Opaque, Frosted (Matte), Glazed Luster","#d4a798"],["DB0354-1","Opaque, Frosted (Matte), Glass enamel","#d0bbb3"],["DB0355","Pink, Purple, Opaque, Frosted (Matte), Glazed Luster","#af8598"],["DB0356","Purple, Opaque, Frosted (Matte), Glazed Luster","#a596a9"],["DB0356-1","Opaque, Frosted (Matte), Glass enamel","#c1b3b9"],["DB0357","Gray, Opaque, Frosted (Matte), Glazed Luster","#b5b5c1"],["DB0357-1","Opaque, Frosted (Matte), Glass enamel","#c7c6ca"],["DB0361","Blue, Opaque, Frosted (Matte), Luster","#595ba2"],["DB0362","Red, Opaque, Frosted (Matte), Luster","#ad324d"],["DB0371","Green, Opaque, Frosted (Matte), Gold Luster","#8c7c52"],["DB0372","Green, Opaque, Frosted (Matte), Gold Luster, Rainbow","#817d60"],["DB0373","Green, Opaque, Frosted (Matte), Gold Luster, Rainbow","#5e6f67"],["DB0374","Blue, Green, Opaque, Frosted (Matte), Glazed Luster","#718b86"],["DB0375","Blue, Opaque, Frosted (Matte), Glazed Luster","#618e97"],["DB0376","Blue, Opaque, Frosted (Matte), Gold Luster, Rainbow","#5c6c81"],["DB0377","Blue, Opaque, Frosted (Matte), Glazed Luster","#3f446a"],["DB0378","Red, Opaque, Frosted (Matte), Glazed Luster","#7b2b2a"],["DB0379","Purple, Opaque, Frosted (Matte), Gold Luster","#997a7e"],["DB0380","Iridescent, Transparent, Frosted (Matte), Glazed Luster, Rainbow","#6f5b56"],["DB0381","Blue, Transparent, Frosted (Matte), Glazed Luster","#68748a"],["DB0382","Beige, Transparent, Frosted (Matte), Glazed Luster","#b59463"],["DB0383","Gray, Transparent, Frosted (Matte), Glazed Luster","#888477"],["DB0384","Brown, Transparent, Frosted (Matte), Glazed Luster","#473b2c"],["DB0384-1","Transparent, Frosted (Matte), Glass enamel","#9d8d72"],["DB0385","Green, Transparent, Frosted (Matte), Glazed Luster","#5b7976"],["DB0386","Purple, Transparent, Frosted (Matte), Glazed Luster","#48404c"],["DB0387","Blue, Transparent, Frosted (Matte), Glazed Luster","#3e474f"],["DB0387-1","Transparent, Frosted (Matte), Glass enamel","#728188"],["DB0388","Beige, Opaque, Frosted (Matte), Glazed Luster","#b8a98e"],["DB0389","Beige, Opaque, Frosted (Matte), Glazed Luster","#c2936f"],["DB0390","Green, Opaque, Frosted (Matte), Glazed Luster","#7e6e4f"],["DB0391","Green, Opaque, Frosted (Matte), Glazed Luster","#616449"],["DB0391-1","Opaque, Frosted (Matte), Glass enamel","#8a8f68"],["DB0635","White, Silk","#b7b6bf"],["DB0651","Orange, Opaque, Outside-Dyed","#e58718"],["DB0652","Gray, Opaque, Outside-Dyed","#706f6f"],["DB0653","Brown, Opaque, Outside-Dyed","#9d641b"],["DB0654","Red, Opaque, Outside-Dyed","#892d37"],["DB0655","Green, Opaque, Outside-Dyed","#15793b"],["DB0656","Green, Opaque, Outside-Dyed","#0d5a40"],["DB0657","Green, Opaque, Outside-Dyed","#534936"],["DB0658","Blue, Green, Opaque, Outside-Dyed","#109fae"],["DB0659","Blue, Opaque, Outside-Dyed","#107ebd"],["DB0660","Purple, Opaque, Outside-Dyed","#725985"],["DB0661","Purple, Opaque, Outside-Dyed","#5054aa"],["DB0662","Purple, Opaque, Outside-Dyed","#5c5063"],["DB0663","Green, Opaque, Outside-Dyed","#3f4f35"],["DB0665","Opaque, Frosted (Matte), Outside-Dyed","#d78a1a"],["DB0675","Pink, Silk, Glass enamel","#d8b1c7"],["DB0675-1","Silk, Glass enamel","#d6cfd1"],["DB0676","White, Silk, Glass enamel","#bebdca"],["DB0677","Blue, Silk, Glass enamel","#a1aabf"],["DB0679","Gray, Silk, Glass enamel","#948d8e"],["DB0721","Yellow, Opaque","#ecd910"],["DB0722","Orange, Opaque","#ee4d13"],["DB0723","Red, Opaque","#b40f16"],["DB0724","Green, Opaque","#477a3e"],["DB0725","Blue, Opaque","#47a0c5"],["DB0726","Blue, Opaque","#261c84"],["DB0727","Red, Opaque","#db2518"],["DB0728","Purple, Opaque","#9a7d8c"],["DB0729","Green, Opaque","#339999"],["DB0730","Blue, Opaque","#5c6ecb"],["DB0731","Gray, Opaque","#6e6d6c"],["DB0732","Beige, White, Opaque","#e4c7a0"],["DB0733","Green, Opaque","#9bad49"],["DB0734","Brown, Opaque","#371a18"],["DB0735","Brown, Opaque","#584444"],["DB0741","Crystal, Transparent, Frosted (Matte)","#cecdd9"],["DB0742","Brown, Transparent, Frosted (Matte)","#c67a35"],["DB0743","Yellow, Transparent, Frosted (Matte)","#ddbe20"],["DB0744","Orange, Transparent, Frosted (Matte)","#f46b0e"],["DB0745","Red, Transparent, Frosted (Matte)","#b9191c"],["DB0746","Green, Transparent, Frosted (Matte)","#13582c"],["DB0747","Blue, Transparent, Frosted (Matte)","#3587d4"],["DB0748","Blue, Transparent, Frosted (Matte)","#23117e"],["DB0749","Gray, Transparent, Frosted (Matte)","#4e5253"],["DB0750","White, Opaque, Frosted (Matte)","#cdcdcd"],["DB0751","Yellow, Opaque, Frosted (Matte)","#f2db07"],["DB0752","Orange, Opaque, Frosted (Matte)","#ef430f"],["DB0753","Red, Opaque, Frosted (Matte)","#bd1119"],["DB0754","Green, Opaque, Frosted (Matte)","#49803f"],["DB0755","Blue, Opaque, Frosted (Matte)","#38a1d9"],["DB0756","Blue, Opaque, Frosted (Matte)","#1f1b8a"],["DB0757","Red, Opaque, Frosted (Matte)","#cc1111"],["DB0758","Purple, Opaque, Frosted (Matte)","#917384"],["DB0759","Blue, Green, Opaque, Frosted (Matte)","#3d9aa1"],["DB0760","Blue, Opaque, Frosted (Matte)","#6878d5"],["DB0761","Gray, Opaque, Frosted (Matte)","#6f6e6c"],["DB0762","Beige, White, Opaque, Frosted (Matte)","#e2c9a5"],["DB0763","Green, Opaque, Frosted (Matte)","#a8bb58"],["DB0764","Brown, Transparent, Frosted (Matte)","#5b2f1c"],["DB0765","Purple, Transparent, Frosted (Matte)","#6f4e59"],["DB0766","Green, Transparent, Frosted (Matte)","#a0af27"],["DB0767","Green, Transparent, Frosted (Matte)","#173826"],["DB0768","Blue, Transparent, Frosted (Matte)","#0e497f"],["DB0769","Brown, Transparent, Frosted (Matte)","#35251e"],["DB0771","Yellow, Transparent, Frosted (Matte), Outside-Dyed","#7e6e4e"],["DB0772","Brown, Transparent, Frosted (Matte), Outside-Dyed","#5d4a43"],["DB0773","Red, Transparent, Frosted (Matte), Outside-Dyed","#6a3533"],["DB0774","Red, Transparent, Frosted (Matte), Outside-Dyed","#8a1719"],["DB0775","Pink, Transparent, Frosted (Matte), Outside-Dyed","#8d102b"],["DB0776","Green, Transparent, Frosted (Matte), Outside-Dyed","#123f2b"],["DB0777","Brown, Transparent, Frosted (Matte), Outside-Dyed","#a05029"],["DB0778","Pink, Transparent, Frosted (Matte), Outside-Dyed","#954d49"],["DB0779","Pink, Red, Transparent, Frosted (Matte), Outside-Dyed","#a52e28"],["DB0780","Pink, Transparent, Frosted (Matte), Outside-Dyed","#ce3555"],["DB0781","Brown, Orange, Transparent, Frosted (Matte), Outside-Dyed","#ab532d"],["DB0782","Purple, Transparent, Frosted (Matte), Outside-Dyed","#3f2e3d"],["DB0783","Purple, Transparent, Frosted (Matte), Outside-Dyed","#6341b3"],["DB0784","Purple, Transparent, Frosted (Matte), Outside-Dyed","#382631"],["DB0785","Blue, Purple, Transparent, Frosted (Matte), Outside-Dyed","#2b1d57"],["DB0786","Blue, Green, Transparent, Frosted (Matte), Outside-Dyed","#076b6d"],["DB0787","Blue, Transparent, Frosted (Matte), Outside-Dyed","#0c539a"],["DB0788","Blue, Green, Transparent, Frosted (Matte), Outside-Dyed","#153c46"],["DB0791","Red, Opaque, Frosted (Matte), Outside-Dyed","#9f0d1b"],["DB0792","Blue, Opaque, Frosted (Matte), Outside-Dyed","#597581"],["DB0793","Blue, Green, Opaque, Frosted (Matte), Outside-Dyed","#0b979f"],["DB0794","Brown, Opaque, Frosted (Matte), Outside-Dyed","#824423"],["DB0795","Orange, Red, Opaque, Frosted (Matte), Outside-Dyed","#a8361d"],["DB0796","Red, Opaque, Frosted (Matte), Outside-Dyed","#95262b"],["DB0797","Green, Opaque, Frosted (Matte), Outside-Dyed","#3c4f31"],["DB0798","Blue, Opaque, Frosted (Matte), Outside-Dyed","#3c7b93"],["DB0799","Purple, Opaque, Frosted (Matte), Outside-Dyed","#616385"],["DB0800","Pink, Opaque, Frosted (Matte), Outside-Dyed","#a06f88"],["DB0820","Pink, Silk, Glass enamel","#ceabbe"],["DB0821","Beige, Silk, Glass enamel","#efb08b"],["DB0822","Gray, Silk, Glass enamel","#9a8d8d"],["DB0823","Yellow, Silk, Glass enamel","#f3dd84"],["DB0823-1","Silk, Glass enamel","#e4ddcf"],["DB0824","Orange, Silk, Glass enamel","#eaa48c"],["DB0825","Pink, Silk, Glass enamel","#e98c82"],["DB0825-1","Silk, Glass enamel","#e1c8c2"],["DB0826","Purple, Silk, Glass enamel","#a2827c"],["DB0827","Gray, Silk, Glass enamel","#7b6c6c"],["DB0827-1","Silk, Glass enamel","#c4bcbb"],["DB0828","Green, Silk, Glass enamel","#87ad8e"],["DB0828-1","Silk, Glass enamel","#c7ccc8"],["DB0829","Green, Silk, Glass enamel","#8b9a8e"],["DB0830","Blue, Silk, Glass enamel","#aac9e7"],["DB0831","Blue, Silk, Glass enamel","#96a6d4"],["DB0831-1","Silk, Glass enamel","#cacbd0"],["DB0832","Blue, Silk, Glass enamel","#b0b4d6"],["DB0833","Purple, Silk, Glass enamel","#c29db3"],["DB0851","Crystal, Transparent, Frosted (Matte), Rainbow","#c6c5ce"],["DB0852","Brown, Transparent, Frosted (Matte), Rainbow","#d39867"],["DB0853","Brown, Transparent, Frosted (Matte), Rainbow","#795456"],["DB0854","Yellow, Transparent, Frosted (Matte), Rainbow","#d9bd59"],["DB0855","Orange, Transparent, Frosted (Matte), Rainbow","#f27649"],["DB0856","Pink, Red, Transparent, Frosted (Matte), Rainbow","#cf4051"],["DB0857","Purple, Transparent, Frosted (Matte), Rainbow","#876f82"],["DB0858","Green, Transparent, Frosted (Matte), Rainbow","#437d64"],["DB0859","Green, Transparent, Frosted (Matte), Rainbow","#40605c"],["DB0860","Green, Transparent, Frosted (Matte), Rainbow","#a7ba64"],["DB0861","Blue, Transparent, Frosted (Matte), Rainbow","#62a3e2"],["DB0862","Blue, Transparent, Frosted (Matte), Rainbow","#316a9f"],["DB0863","Gray, Transparent, Frosted (Matte), Rainbow","#656e7d"],["DB0864","Blue, Transparent, Frosted (Matte), Rainbow","#5352a5"],["DB0865","Brown, Transparent, Frosted (Matte), Rainbow","#5a545e"],["DB0866","Brown, Transparent, Frosted (Matte), Rainbow","#9f654d"],["DB0867","Red, Transparent, Frosted (Matte), Rainbow","#8a4254"],["DB0868","Pink, Transparent, Frosted (Matte), Rainbow","#e9c3c4"],["DB0869","Purple, Transparent, Frosted (Matte), Rainbow","#6b5667"],["DB0870","Purple, Transparent, Frosted (Matte), Rainbow","#716880"],["DB0871","Blue, Opaque, Frosted (Matte), Rainbow","#4a5167"],["DB0872","Orange, Opaque, Frosted (Matte), Rainbow","#ed5e4a"],["DB0873","Pink, Red, Opaque, Frosted (Matte), Rainbow","#d34457"],["DB0874","Pink, Red, Opaque, Frosted (Matte), Rainbow","#bf3d5c"],["DB0875","Purple, Opaque, Frosted (Matte), Rainbow","#a28c9b"],["DB0876","Green, Opaque, Frosted (Matte), Rainbow","#a9bb6a"],["DB0877","Green, Opaque, Frosted (Matte), Rainbow","#598562"],["DB0878","Green, Opaque, Frosted (Matte), Rainbow","#5aa2a9"],["DB0879","Blue, Opaque, Frosted (Matte), Rainbow","#53a8d3"],["DB0880","Blue, Opaque, Frosted (Matte), Rainbow","#4d4a93"],["DB0881","Blue, Opaque, Frosted (Matte), Rainbow","#7484d5"],["DB0882","Gray, Opaque, Frosted (Matte), Rainbow","#7f7f84"],["DB0883","White, Opaque, Frosted (Matte), Rainbow","#e3caab"],["DB0884","Iridescent, Opaque, Frosted (Matte), Rainbow","#62515f"],["DB1130","Opaque","#fbe8b9"],["DB1131","Beige, Opaque","#d2a774"],["DB1132","Yellow, Opaque","#f9bb09"],["DB1133","Orange, Opaque","#f6860e"],["DB1134","Brown, Opaque","#5e191c"],["DB1135","Green, Opaque","#505b3b"],["DB1136","Blue, Green, Opaque","#4fa59c"],["DB1137","Blue, Opaque","#8fa2e5"],["DB1138","Blue, Opaque","#3d3da0"],["DB1139","Gray, Opaque","#888892"],["DB1140","Opaque","#a4211c"],["DB1261","Brown, Transparent, Frosted (Matte)","#924e1f"],["DB1262","Red, Transparent, Frosted (Matte)","#7c1c22"],["DB1263","Pink, Transparent, Frosted (Matte)","#e1aea6"],["DB1264","Purple, Transparent, Frosted (Matte)","#473138"],["DB1265","Purple, Transparent, Frosted (Matte)","#52435c"],["DB1266","Green, Transparent, Frosted (Matte)","#49822b"],["DB1267","Green, Transparent, Frosted (Matte)","#3e502a"],["DB1268","Green, Transparent, Frosted (Matte)","#095252"],["DB1269","Blue, Transparent, Frosted (Matte)","#087ec8"],["DB1270","Blue, Transparent, Frosted (Matte)","#345abc"],["DB1271","Gray, Transparent, Frosted (Matte)","#8a8682"],["DB1272","Gold, Transparent, Frosted (Matte)","#d8ab65"],["DB1281","Green, Transparent, Frosted (Matte), Rainbow","#73a167"],["DB1282","Green, Transparent, Frosted (Matte), Rainbow","#697c6b"],["DB1283","Green, Transparent, Frosted (Matte), Rainbow","#317782"],["DB1284","Blue, Transparent, Frosted (Matte), Rainbow","#3d99d9"],["DB1285","Blue, Transparent, Frosted (Matte), Rainbow","#4b71c0"],["DB1286","Gray, Transparent, Frosted (Matte), Rainbow","#9b9998"],["DB1287","Gold, Transparent, Frosted (Matte), Rainbow","#dcb682"],["DB1301","Yellow, Transparent, Outside-Dyed","#f3b806"],["DB1302","Orange, Pink, Transparent, Outside-Dyed","#a8422d"],["DB1304","Green, Transparent, Outside-Dyed","#058a7b"],["DB1308","Pink, Transparent, Outside-Dyed","#c32948"],["DB1310","Pink, Transparent, Outside-Dyed","#a00a63"],["DB1312","Pink, Purple, Transparent, Outside-Dyed","#492330"],["DB1315","Purple, Transparent, Outside-Dyed","#613082"],["DB1318","Blue, Transparent, Outside-Dyed","#075487"],["DB1363","Orange, Pink, Opaque, Outside-Dyed","#cf7b6c"],["DB1371","Pink, Opaque, Outside-Dyed","#e56d94"],["DB1376","Pink, Purple, Opaque, Outside-Dyed","#954e68"],["DB1379","Purple, Opaque, Outside-Dyed","#7950ac"],["DB1401","Yellow, Transparent, Glass enamel","#efd453"],["DB1402","Pink, Transparent, Glass enamel","#a17389"],["DB1403","Pink, Transparent, Glass enamel","#9a6378"],["DB1404","Blue, Transparent, Glass enamel","#b2c5a0"],["DB1405","Blue, Transparent, Glass enamel","#5b77bd"],["DB1406","Blue, Gray, Transparent, Glass enamel","#676874"],["DB1407","Blue, Transparent, Glass enamel","#8889ba"],["DB1408","Blue, Gray, Transparent, Glass enamel","#787576"],["DB1409","Crystal, Transparent, Glass enamel","#e1b98e"],["DB1410","Pink, Transparent, Glass enamel","#df987d"],["DB1411","Orange, Transparent, Glass enamel","#d46342"],["DB1412","Red, Transparent, Glass enamel","#c94d3c"],["DB1413","Pink, Transparent, Glass enamel","#814e66"],["DB1414","Green, Transparent, Glass enamel","#537e59"],["DB1415","Green, Transparent, Glass enamel","#4d6354"],["DB1416","Gray, Transparent, Glass enamel","#685955"],["DB1417","Gray, Transparent, Glass enamel","#51433f"],["DB1490","Pink, Opaque, Glass enamel","#e8cdbf"],["DB1490-1","Opaque, Glass enamel","#dfd8cf"],["DB1491","Yellow, Opaque, Glass enamel","#f4e3a0"],["DB1491-1","Opaque, Glass enamel","#cdc6b8"],["DB1492","Beige, Opaque, Glass enamel","#efb89d"],["DB1492-1","Opaque, Glass enamel","#d0beb3"],["DB1493","Pink, Opaque, Glass enamel","#e2a8a5"],["DB1493-1","Opaque, Glass enamel","#ccb8b3"],["DB1494","Pink, Opaque, Glass enamel","#d1b4ca"],["DB1494-1","Opaque, Glass enamel","#c5b9ba"],["DB1495","Pink, Opaque, Glass enamel","#c8a8a3"],["DB1495-1","Opaque, Glass enamel","#c2b7b3"],["DB1496","Green, Opaque, Glass enamel","#a7c4af"],["DB1496-1","Opaque, Glass enamel","#b9bbb7"],["DB1497","Blue, Opaque, Glass enamel","#b2c4ea"],["DB1497-1","Opaque, Glass enamel","#c3c5d0"],["DB1498","Gray, Opaque, Glass enamel","#999699"],["DB1498-1","Opaque, Glass enamel","#ccccd1"],["DB1510","Pink, Opaque, Frosted (Matte), Glass enamel","#e9cac0"],["DB1510-1","Opaque, Frosted (Matte), Glass enamel","#e8dedb"],["DB1511","Yellow, Opaque, Frosted (Matte), Glass enamel","#f8e8a4"],["DB1511-1","Opaque, Frosted (Matte), Glass enamel","#d3cebc"],["DB1512","Orange, Opaque, Frosted (Matte), Glass enamel","#efb598"],["DB1513","Pink, Opaque, Frosted (Matte), Glass enamel","#e5a39f"],["DB1514","Pink, Opaque, Frosted (Matte), Glass enamel","#d4b7cd"],["DB1515","Purple, Opaque, Frosted (Matte), Glass enamel","#caa8a8"],["DB1516","Green, Opaque, Frosted (Matte), Glass enamel","#aecdb9"],["DB1516-1","Opaque, Frosted (Matte), Glass enamel","#c9d6ca"],["DB1517","Blue, Opaque, Frosted (Matte), Glass enamel","#abc1ec"],["DB1517-1","Opaque, Frosted (Matte), Glass enamel","#c1c6d3"],["DB1518","Gray, Opaque, Frosted (Matte), Glass enamel","#9f9c9f"],["DB1518-1","Opaque, Frosted (Matte), Glass enamel","#b6b3b6"],["DB1520","Pink, Opaque, Frosted (Matte), Glass enamel, Rainbow","#e7cbc4"],["DB1521","Yellow, Opaque, Frosted (Matte), Glass enamel, Rainbow","#f6e8a3"],["DB1522","Orange, Opaque, Frosted (Matte), Glass enamel, Rainbow","#edb79d"],["DB1523","Pink, Opaque, Frosted (Matte), Glass enamel, Rainbow","#e1a3a1"],["DB1524","Pink, Opaque, Frosted (Matte), Glass enamel, Rainbow","#d3b6cb"],["DB1525","Purple, Opaque, Frosted (Matte), Glass enamel, Rainbow","#c9a8a7"],["DB1526","Green, Opaque, Frosted (Matte), Glass enamel, Rainbow","#a7cbb7"],["DB1527","Blue, Opaque, Frosted (Matte), Glass enamel, Rainbow","#a5bce5"],["DB1528","Gray, Opaque, Frosted (Matte), Glass enamel, Rainbow","#9f9da1"],["DB1576","Blue, Green, Opaque","#5aabb0"],["DB1581","Beige, Opaque, Frosted (Matte)","#daae7b"],["DB1582","Yellow, Opaque, Frosted (Matte)","#f7b807"],["DB1583","Orange, Opaque, Frosted (Matte)","#f98b07"],["DB1584","Brown, Opaque, Frosted (Matte)","#622124"],["DB1585","Green, Opaque, Frosted (Matte)","#566041"],["DB1586","Blue, Green, Opaque, Frosted (Matte)","#53a9af"],["DB1587","Blue, Opaque, Frosted (Matte)","#8ea2e4"],["DB1588","Blue, Opaque, Frosted (Matte)","#4446ae"],["DB1589","Gray, Opaque, Frosted (Matte)","#8a8a94"],["DB1591","Beige, Opaque, Frosted (Matte), Rainbow","#d5b28d"],["DB1592","Yellow, Opaque, Frosted (Matte), Rainbow","#f0b935"],["DB1593","Orange, Opaque, Frosted (Matte), Rainbow","#f48c44"],["DB1594","Green, Opaque, Frosted (Matte), Rainbow","#6c766c"],["DB1595","Blue, Green, Opaque, Frosted (Matte)","#5eabb5"],["DB1596","Blue, Opaque, Frosted (Matte), Rainbow","#95a7e2"],["DB1597","Blue, Opaque, Frosted (Matte), Rainbow","#676abe"],["DB1598","Gray, Opaque, Frosted (Matte), Rainbow","#9796a2"],["DB1910","Black, Brown, Opaque, Frosted (Matte)","#503334"],["DB2203","Gray, Iridescent, Transparent, Frosted (Matte), Special Coating","#78777a"],["DB2204","Gray, White, Opaque, Frosted (Matte), Special Coating","#96959e"],["DB2261","Brown, Yellow, Opaque","#32312d"],["DB2262","Beige, White, Opaque","#b29d78"],["DB2263","Gray, Red, Opaque","#52322c"],["DB2264","Blue, Brown, Gray, Opaque","#68816f"],["DB2265","Green, Opaque","#8b8649"],["DB2267","Brown, Opaque","#725f48"],["DB2281","Gray, Opaque, Frosted (Matte), Glazed","#969ea1"],["DB2282","Gray, Opaque, Frosted (Matte), Glazed","#938e80"],["DB2283","Yellow, Opaque, Frosted (Matte), Glazed","#c9b931"],["DB2284","Yellow, Opaque, Frosted (Matte), Glazed","#deb33d"],["DB2285","Orange, Opaque, Frosted (Matte), Glazed","#df9b34"],["DB2286","Brown, Opaque, Frosted (Matte), Glazed","#9d6a31"],["DB2287","Brown, Opaque, Frosted (Matte), Glazed","#a45f22"],["DB2288","Red, Opaque, Frosted (Matte), Glazed","#9d4531"],["DB2290","Green, Opaque, Frosted (Matte), Glazed","#a79f59"],["DB2291","Green, Opaque, Frosted (Matte), Glazed","#4f5940"],["DB2292","Purple, Opaque, Frosted (Matte), Glazed","#6d6a7f"],["DB2293","Purple, Opaque, Frosted (Matte), Glazed","#685c7d"],["DB2294","Purple, Opaque, Frosted (Matte), Glazed","#916871"],["DB2295","Purple, Opaque, Frosted (Matte), Glazed","#785566"],["DB2301","Beige, Opaque, Frosted (Matte), Glazed, Rainbow","#bca88a"],["DB2302","Yellow, Opaque, Frosted (Matte), Glazed, Rainbow","#c69741"],["DB2303","Iridescent, Opaque, Frosted (Matte), Glazed, Rainbow","#a68255"],["DB2305","Purple, Opaque, Frosted (Matte), Glazed, Rainbow","#9b7f7b"],["DB2306","Red, Opaque, Frosted (Matte), Glazed, Rainbow","#ad5e5f"],["DB2308","Purple, Opaque, Frosted (Matte), Glazed, Rainbow","#714552"],["DB2309","Green, Opaque, Frosted (Matte), Glazed, Rainbow","#949a5e"],["DB2310","Green, Opaque, Frosted (Matte), Glazed, Rainbow","#7e8b71"],["DB2311","Green, Opaque, Frosted (Matte), Glazed, Rainbow","#597866"],["DB2312","Green, Opaque, Frosted (Matte), Glazed, Rainbow","#5e7360"],["DB2313","Green, Opaque, Frosted (Matte), Glazed, Rainbow","#7e9b96"],["DB2315","Blue, Opaque, Frosted (Matte), Glazed, Rainbow","#5d8594"],["DB2316","Blue, Opaque, Frosted (Matte), Glazed, Rainbow","#5f7383"],["DB2317","Blue, Purple, Opaque, Frosted (Matte), Glazed, Rainbow","#64759a"],["DB2318","Blue, Purple, Opaque, Frosted (Matte), Glazed, Rainbow","#63749d"],["DB2319","Blue, Purple, Opaque, Frosted (Matte), Glazed, Rainbow","#4d5273"],["DB2320","Gray, Opaque, Frosted (Matte), Glazed, Rainbow","#909ba2"],["DB2321","Purple, Opaque, Frosted (Matte), Glazed, Rainbow","#836d71"],["DB2322","Purple, Opaque, Frosted (Matte), Glazed, Rainbow","#77687b"],["DB2401","White, Opaque, Frosted (Matte), Glazed Luster","#d2cdb3"],["DB2402","White, Opaque, Frosted (Matte), Glazed Luster","#d4d2bf"],["DB2403","Brown, Opaque, Frosted (Matte), Glazed Luster","#3c251e"],["DB2404","Green, Opaque, Frosted (Matte), Glazed Luster","#4a4e33"],["DB2405","Purple, Opaque, Frosted (Matte), Glazed Luster","#392b2f"],["DB2406","Gray, Opaque, Frosted (Matte), Glazed Luster","#313131"],["DB2407","Green, Opaque, Frosted (Matte), Glazed Luster","#394e50"],["DB2408","Blue, Opaque, Frosted (Matte), Glazed Luster","#3d3b52"],["DB2409","Gray, Opaque, Frosted (Matte), Glazed Luster","#515151"],["DBC0010","Opaque","#5b504c"]];
+const lab=h=>{let r=[1,3,5].map(i=>parseInt(h.slice(i,i+2),16)/255).map(v=>v<=.04045?v/12.92:Math.pow((v+.055)/1.055,2.4));
+ const X=(r[0]*.4124+r[1]*.3576+r[2]*.1805)/.95047,Y=(r[0]*.2126+r[1]*.7152+r[2]*.0722),Z=(r[0]*.0193+r[1]*.1192+r[2]*.9505)/1.08883;
+ const f=t=>t>.008856?Math.cbrt(t):7.787*t+16/116;return [116*f(Y)-16,500*(f(X)-f(Y)),200*(f(Y)-f(Z))]};
+const hex=a=>'#'+a.map(v=>Math.max(0,Math.min(255,Math.round(v))).toString(16).padStart(2,'0')).join('');
+const rgb=h=>[1,3,5].map(i=>parseInt(h.slice(i,i+2),16));
+const dE=(p,q)=>Math.hypot(p[0]-q[0],p[1]-q[1],p[2]-q[2]);
+const CL=CAT.map(c=>({code:c[0],name:c[1],rgb:c[2],lab:lab(c[2])}));
+const nearest=(h,ex=[])=>{const l=lab(h);let b=null,bd=1e9;for(const c of CL){if(ex.includes(c.code))continue;const d=dE(l,c.lab);if(d<bd){bd=d;b=c}}return b};
+const ink=h=>{const v=rgb(h);return (v[0]*.299+v[1]*.587+v[2]*.114)>150?'#1C1A1F':'#FFFFFF'};
+/* процедурная «фотография»: закат над озером */
+const mix=(a,b,t)=>a.map((v,i)=>v+(b[i]-v)*t);
+const SKY=[[0,[26,16,56]],[.35,[110,44,110]],[.5,[196,72,107]],[.62,[245,154,60]],[.7,[255,214,120]]];
+function skyCol(v){for(let i=0;i<SKY.length-1;i++){if(v<=SKY[i+1][0]){const t=(v-SKY[i][0])/(SKY[i+1][0]-SKY[i][0]);return mix(SKY[i][1],SKY[i+1][1],Math.max(0,t))}}return SKY[SKY.length-1][1]}
+function scene(u,v){const hor=.66;const hill=.62+.05*Math.sin(u*7+1)+.03*Math.sin(u*17);
+ if(v<hor){let c=skyCol(v);const dx=u-.64,dy=(v-.55)*1.25;const d=Math.hypot(dx,dy);
+  if(d<.085)c=[255,238,170];else if(d<.2)c=mix(c,[255,200,110],(1-(d-.085)/.115)*.55);
+  if(v>hill)return [30,20,52];return c}
+ /* вода: отражение неба, темнее */
+ const ref=skyCol(hor-(v-hor)*.9);let c=mix(ref,[18,12,40],.45+.3*(v-hor));
+ const dx=u-.64;if(Math.abs(dx)<.05*(1.1-(v-hor)*1.5)&&v<.9)c=mix(c,[255,210,120],.5);return c}
+function drawPhoto(ctx,w,h,crop){const id=ctx.createImageData(w,h);for(let y=0;y<h;y++)for(let x=0;x<w;x++){const u=crop.x+(x/w)*crop.s,v=crop.y+(y/h)*crop.s*crop.a;const c=scene(Math.min(1,u),Math.min(1,v));const i=(y*w+x)*4;id.data[i]=c[0];id.data[i+1]=c[1];id.data[i+2]=c[2];id.data[i+3]=255}ctx.putImageData(id,0,0)}
+const TG=['#1a1038','#8a3a74','#c4486b','#f59a3c','#ffd36e','#6e2c6e','#e8704a','#ffeeb0','#2a1a50','#10091f','#f2c0a0','#a8508a','#ff8a5a','#3e2060','#ffc080','#d86a8a'];
+const palCache={};
+function palette(k){if(palCache[k])return palCache[k];const used=[],out=[];for(let i=0;i<k;i++){const c=nearest(TG[i%TG.length],used);used.push(c.code);out.push(c)}return palCache[k]=out}
+function beadGrid(w,h,k,crop){const P=palette(k);const g=[];const cnt=P.map(()=>0);for(let y=0;y<h;y++){const row=[];for(let x=0;x<w;x++){const u=crop.x+((x+.5)/w)*crop.s,v=crop.y+((y+.5)/h)*crop.s*crop.a;const sc=scene(Math.min(1,u),Math.min(1,v));const l=lab(hex(sc));let bi=0,bd=1e9;P.forEach((c,i)=>{const d=dE(l,c.lab);if(d<bd){bd=d;bi=i}});row.push(bi);cnt[bi]++}g.push(row)}return {g,cnt,P}}
+function drawBeads(ctx,W,H,w,h,k,crop,bg){ctx.fillStyle=bg;ctx.fillRect(0,0,W,H);const {g,P}=beadGrid(w,h,k,crop);const cs=Math.min(W/w,H/h),ox=(W-cs*w)/2,oy=(H-cs*h)/2;for(let y=0;y<h;y++)for(let x=0;x<w;x++){ctx.fillStyle=P[g[y][x]].rgb;ctx.beginPath();ctx.arc(ox+(x+.5)*cs,oy+(y+.5)*cs,cs*.46,0,7);ctx.fill()}}
+
+const PW=396,PH=560;
+const sm=(a,b,x)=>{const t=Math.max(0,Math.min(1,(x-a)/(b-a)));return t*t*(3-2*t)};
+function portrait(u,v){const A=PW/PH,x=(u-.5)*A,y=v;
+ let c=mix([62,128,138],[22,58,78],Math.min(1,v*.85+Math.abs(u-.5)*.6));
+ const sh=.80+.05*Math.abs(x)*3;if(v>sh-.015*Math.cos(x*8))c=mix([226,112,80],[150,60,44],Math.min(1,(v-.8)*3+Math.abs(x)));
+ const hx=x/.33,hy=(y-.40)/.36;if(hx*hx+hy*hy<1)c=mix([64,40,28],[32,20,14],sm(.2,1,Math.hypot(hx,hy))*.8);
+ if(Math.abs(x)<.095&&y>.58&&y<.84)c=mix([228,172,134],[176,118,92],sm(.6,.84,y));
+ const fx=x/.215,fy=(y-.44)/.265,fd=fx*fx+fy*fy;if(fd<1)c=mix([245,208,178],[212,150,116],sm(-.6,.9,fx*.9+fy*.2));
+ if(fd<1.12&&y<.28+.02*Math.cos(x*14))c=mix([72,44,30],[40,24,16],.4);
+ for(const sx of [-1,1]){const ex=(x-sx*.085)/.042,ey=(y-.425)/.02;if(ex*ex+ey*ey<1){c=[250,248,244];const ix=(x-sx*.085)/.019,iy=(y-.425)/.019;if(ix*ix+iy*iy<1)c=[62,38,26];if(ix*ix+iy*iy<.12)c=[10,8,8]}
+  const by=(y-.385-.008*sx*(x-sx*.085)*10)/.008,bx=(x-sx*.085)/.05;if(bx*bx+by*by<1)c=[54,34,24]}
+ const nx=(x-.012)/.018,ny=(y-.50)/.03;if(nx*nx+ny*ny<1)c=mix(c,[190,130,100],.5);
+ const lx=x/.055,ly=(y-.585)/.016;if(lx*lx+ly*ly<1)c=[198,86,82];const ux=x/.04,uy=(y-.57)/.008;if(ux*ux+uy*uy<1)c=[176,66,66];
+ return c}
+const getPix=(kind,sx,sy)=>kind==='sunset'?scene(Math.min(1,sx/PW),Math.min(1,sy/PH)):portrait(Math.min(1,sx/PW),Math.min(1,sy/PH));
+function paintPhoto(ctx,W,H,kind,crop){const id=ctx.createImageData(W,H);for(let y=0;y<H;y++)for(let x=0;x<W;x++){const c=getPix(kind,crop.x+(x+.5)/W*crop.w,crop.y+(y+.5)/H*crop.h);const i=(y*W+x)*4;id.data[i]=c[0];id.data[i+1]=c[1];id.data[i+2]=c[2];id.data[i+3]=255}ctx.putImageData(id,0,0)}
+/* маска важного */
+const AUTO={cx:PW*.5,cy:PH*.40,rx:.30*PH,ry:.34*PH};
+const U_ALL=[{w:28,p:[[138,238],[165,238]]},{w:28,p:[[227,238],[254,238]]},{w:24,p:[[178,328],[216,328]]}];
+const U_PART=[{w:28,p:[[138,238],[165,238]]},{w:28,p:[[227,238],[246,238]]}];
+const segD=(px,py,a,b)=>{const dx=b[0]-a[0],dy=b[1]-a[1],l=dx*dx+dy*dy||1;let t=((px-a[0])*dx+(py-a[1])*dy)/l;t=Math.max(0,Math.min(1,t));return Math.hypot(px-a[0]-t*dx,py-a[1]-t*dy)};
+const inUser=(sx,sy,us)=>us.some(s=>{for(let i=0;i<s.p.length-1;i++)if(segD(sx,sy,s.p[i],s.p[i+1])<=s.w/2)return true;return s.p.length===1&&Math.hypot(sx-s.p[0][0],sy-s.p[0][1])<=s.w/2});
+const inAuto=(sx,sy)=>{const a=(sx-AUTO.cx)/AUTO.rx,b=(sy-AUTO.cy)/AUTO.ry;return a*a+b*b<1};
+const TGP=['#f0c8a8','#d6986f','#3a2418','#f7f4ee','#c4544f','#2a8394','#e06e4e','#6e3c2a','#1a3c50','#b87a5a','#0c0a0a','#a04838','#4a8a96','#e8b898','#8a5038','#3a5a66'];
+const pcache=[];const usedP=[];TGP.forEach(t=>{const c=nearest(t,usedP);usedP.push(c.code);pcache.push(c)});
+function beadsPortrait(ctx,W,H,cols,crop,st,bg){ctx.fillStyle=bg;ctx.fillRect(0,0,W,H);const rows=Math.round(cols*H/W),cs=W/cols,rs=H/rows;const base=st.K||8;
+ for(let r=0;r<rows;r++)for(let c=0;c<cols;c++){const sx=crop.x+(c+.5)/cols*crop.w,sy=crop.y+(r+.5)/rows*crop.h;const col=getPix(st.kind||'portrait',sx,sy);const l=lab(hex(col));
+  let K=base;if(st.kind!=='sunset'){if(st.user&&inUser(sx,sy,st.user))K=base+6;else if(st.auto&&inAuto(sx,sy))K=base+3}
+  let bi=0,bd=1e9;pcache.slice(0,K).forEach((p,i)=>{const d=dE(l,p.lab);if(d<bd){bd=d;bi=i}});
+  ctx.fillStyle=pcache[bi].rgb;ctx.beginPath();ctx.arc((c+.5)*cs,(r+.5)*rs,Math.min(cs,rs)*.46,0,7);ctx.fill()}}
+function hatch(){const t=document.createElement('canvas');t.width=t.height=9;const c=t.getContext('2d');c.strokeStyle='rgba(255,140,0,.55)';c.lineWidth=1.6;c.beginPath();c.moveTo(0,9);c.lineTo(9,0);c.moveTo(-2,2);c.lineTo(2,-2);c.moveTo(7,11);c.lineTo(11,7);c.stroke();return t}
+function overlay(ctx,W,H,crop,o){const kx=W/crop.w,ky=H/crop.h;const P=p=>[(p[0]-crop.x)*kx,(p[1]-crop.y)*ky];
+ const strokes=o.user||[];
+ /* контуры мазков: тёмный + белый */
+ const drawStrokes=(c2,lwAdd,col)=>{c2.strokeStyle=col;c2.lineCap='round';c2.lineJoin='round';strokes.forEach(s=>{c2.lineWidth=s.w*kx+lwAdd;c2.beginPath();s.p.forEach((q,i)=>{const z=P(q);i?c2.lineTo(z[0],z[1]):c2.moveTo(z[0],z[1])});if(s.p.length===1){const z=P(s.p[0]);c2.lineTo(z[0]+.01,z[1])}c2.stroke()})};
+ if(strokes.length){drawStrokes(ctx,7,'#151316');drawStrokes(ctx,3.5,'#FFFFFF')}
+ /* слой подсветки: объединение (автомаска + мазки) */
+ const L=document.createElement('canvas');L.width=W;L.height=H;const lc=L.getContext('2d');
+ const M=document.createElement('canvas');M.width=W;M.height=H;const mc=M.getContext('2d');mc.fillStyle='#000';
+ if(o.auto){const a=P([AUTO.cx,AUTO.cy]);mc.beginPath();mc.ellipse(a[0],a[1],AUTO.rx*kx,AUTO.ry*ky,0,0,7);mc.fill()}
+ drawStrokes(mc,0,'#000');
+ lc.fillStyle='rgba(255,168,40,.22)';lc.fillRect(0,0,W,H);lc.fillStyle=lc.createPattern(hatch(),'repeat');lc.fillRect(0,0,W,H);
+ lc.globalCompositeOperation='destination-in';lc.drawImage(M,0,0);
+ ctx.drawImage(L,0,0);
+ /* контур автомаски пунктиром */
+ if(o.auto){const a=P([AUTO.cx,AUTO.cy]);ctx.lineWidth=4;ctx.strokeStyle='#fff';ctx.setLineDash([9,6]);ctx.beginPath();ctx.ellipse(a[0],a[1],AUTO.rx*kx,AUTO.ry*ky,0,0,7);ctx.stroke();ctx.lineWidth=2;ctx.strokeStyle='#151316';ctx.beginPath();ctx.ellipse(a[0],a[1],AUTO.rx*kx,AUTO.ry*ky,0,0,7);ctx.stroke();ctx.setLineDash([])}}
+const THEMEBG={light:'#EFEBE4',dark:'#2A262D'};
+function paintAll(){document.querySelectorAll('canvas[data-k]').forEach(cv=>{const p=JSON.parse(cv.dataset.p),dpr=2,W=p.w,H=p.h;cv.width=W*dpr;cv.height=H*dpr;cv.style.width=W+'px';cv.style.height=H+'px';const ctx=cv.getContext('2d');ctx.scale(dpr,dpr);
+ const crop=p.crop||{x:0,y:0,w:PW,h:PH};const kind=p.kind||'portrait';const bg=THEMEBG[p.th||'light'];
+ const photo=document.createElement('canvas');photo.width=W;photo.height=H;paintPhoto(photo.getContext('2d'),W,H,kind,crop);
+ const st={kind,K:p.K||8,auto:p.auto,user:p.user};
+ if(p.mode==='split'){beadsPortrait(ctx,W,H,p.cols||48,crop,{kind,K:p.K||8,auto:p.found?true:false,user:p.found&&p.hand?p.user:null},bg);ctx.save();ctx.beginPath();ctx.rect(0,0,W*p.split,H);ctx.clip();ctx.drawImage(photo,0,0,W,H);ctx.restore();if(p.ov)overlay(ctx,W,H,crop,p.ov)}
+ else if(p.mode==='rot'){ctx.fillStyle='#1a1620';ctx.fillRect(0,0,W,H);ctx.save();ctx.translate(W/2,H/2);ctx.rotate(p.deg*Math.PI/180);ctx.translate(-W/2,-H/2);ctx.drawImage(photo,0,0,W,H);overlay(ctx,W,H,crop,p.ov);ctx.restore()}
+ else{ctx.drawImage(photo,0,0,W,H);if(p.ov)overlay(ctx,W,H,crop,p.ov)}
+})}
+const I={chevL:'M15 5l-7 7 7 7',chevR:'M9 5l7 7-7 7',chevD:'M6 9l6 6 6-6',brush:'M4 20c2 0 3-1 3-3a2 2 0 0 1 2-2l9-9a2 2 0 0 0-3-3l-9 9a2 2 0 0 0-2 2c0 3-1 4-2 6z',eraser:'M8 20h12M5 15l9-9 5 5-6 6H8z',eye:'M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12zM12 9a3 3 0 1 0 0 6 3 3 0 0 0 0-6z',undo:'M4 12h10a5 5 0 0 1 0 8h-3M8 8l-4 4 4 4',trash:'M5 7h14M10 7V5h4v2M7 7l1 12h8l1-12',x:'M7 7l10 10M17 7L7 17',check:'M5 12l5 5 9-10',spark:'M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8zM18 16l.8 2.2L21 19l-2.2.8L18 22l-.8-2.2L15 19l2.2-.8z',reset:'M4 12a8 8 0 1 1 3 6.2M4 6v6h6',arrows:'M9 8l-4 4 4 4M15 8l4 4-4 4',rot:'M20 12a8 8 0 1 0-3 6.2M20 6v6h-6',more:'M5 12h.01M12 12h.01M19 12h.01'};
+const ic=(n,s=22,w=2.2)=>`<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="${w}" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="${I[n]}"/></svg>`;
+const home='<div class="home"></div>';
+const wbar=(l,t,s,r)=>`<div class="wb glass"><div class="tbx">${l}</div><div class="t"><b>${t}</b><span>${s}</span></div><div class="tbx pr">${r||''}</div></div>`;
+const slider=pct=>`<div class="slr"><div class="tr"></div><div class="fi" style="width:${pct}%"></div><div class="th" style="left:${pct}%"></div></div>`;
+const seg=(items,sel)=>`<div class="sc3">${items.map((x,i)=>`<div class="${i===sel?'s':''}">${x}</div>`).join('')}</div>`;
+const cvp=(o)=>`<canvas data-k="p" data-p='${JSON.stringify(o)}'></canvas>`;
+const BRUSH_CROP={x:0,y:0,w:PW,h:PH};
+const PARAM_CROP={x:0,y:60,w:396,h:280};
+/* предпросмотр «до/после» на шаге параметров */
+const split=(th,o)=>`<div class="pv" style="left:16px;top:122px;width:396px;height:280px"><div style="position:relative;width:396px;height:280px">${cvp({w:396,h:280,mode:'split',split:.5,crop:PARAM_CROP,th,K:8,found:o.found,hand:o.hand,user:U_ALL,ov:o.ov||null,cols:48})}</div><div class="sp" style="left:50%"><i>${ic('arrows',20,2.4)}</i></div><div class="lb glass" style="left:10px">До</div><div class="lb glass" style="right:10px">После</div>${o.spin?`<div class="lb glass" style="left:50%;margin-left:-84px;top:126px;width:168px;justify-content:center"><div class="spin"></div>Пересчитываю…</div>`:''}</div>`;
+const paramsSheet=(o={})=>`<div class="scr" style="top:412px"><div class="grab"></div><div class="scb">
+ ${seg(['Проще','Сбалансированно','Детально'],1)}
+ <div class="grp"><div class="rwx"><div class="l"><span>Выделить важное</span><span class="v">${o.hand?`<span class="badge">${ic('brush',14,2.4)}Выделено вручную</span>`:''}${ic('chevR',16,2.6)}</span></div><div class="h">${o.hand?'Лицо найдено автоматически · добавлены ваши мазки':'Лицо найдено автоматически'}</div>${o.hand?`<div class="rst">${ic('reset',18,2.4)}Сбросить выделение</div>`:''}</div></div>
+ <div class="grp"><div class="rwx"><div class="l"><span>Ширина</span><span class="v">48 бусин · 7,7 см</span></div>${slider(42)}</div><div class="rwx"><div class="l"><span>Цвета</span><span class="v">10</span></div>${slider(38)}</div></div></div></div>`;
+const BR=[['Малый',8],['Средний',14],['Крупный',22]];
+const brushPanel=(o={})=>`<div class="bp dense">
+ <div class="bw"><div class="bb wide ${o.show?'sel':''} ${o.noFound?'dis':''}">${ic('eye',20)}${o.noFound?'Генератор ничего не нашёл':'Показать, что генератор считает важным'}</div></div>
+ <div class="bw"><div class="bb ${o.tool==='brush'?'sel':''}">${ic('brush',22)}Кисть</div><div class="bb ${o.tool==='eraser'?'sel':''}">${ic('eraser',22)}Ластик</div>${BR.map((z,i)=>`<div class="bb ${i===(o.size??1)?'sel':''}"><span class="dot" style="width:${z[1]}px;height:${z[1]}px"></span>${z[0]}</div>`).join('')}</div>
+ <div class="bw"><div class="bb ${o.noUser?'dis':''}">${ic('trash',20)}Очистить</div><div class="bb ${o.noUndo?'dis':''}">${ic('undo',20)}Отменить</div><div class="bb p">${ic('check',20,3)}Готово</div></div></div>`;
+const bar=(sub)=>wbar('Отмена','Выделить важное',sub||'Один палец рисует, два масштабируют','');
+const prevBox=(th,o)=>`<div class="pv" style="left:16px;top:${o.top||122}px;width:396px;height:${o.h||560}px">${cvp(Object.assign({w:396,h:o.h||560,th,mode:'plain',crop:o.crop||BRUSH_CROP},o.cv))}${o.legend===false?'':`<div class="lgd">${o.auto===false?'':`<div class="glass"><i class="au"></i>Нашёл генератор</div>`}${o.userLg===false?'':`<div class="glass"><i class="us"></i>Ваши мазки</div>`}</div>`}</div>`;
+const screens=[
+ ['1 · Параметры: строка «Выделить важное» (лицо найдено автоматически)',(th)=>wbar('Назад','Параметры','Шаг 3 из 4','Далее')+split(th,{found:true})+paramsSheet({})+home],
+ ['2 · Режим кисти: найденное пунктиром, подсказка про жесты',(th)=>bar()+prevBox(th,{cv:{ov:{auto:true,user:[]}},userLg:false})+brushPanel({tool:'brush',noUser:true,noUndo:true})+home],
+ ['3 · Мазок в процессе: закрашиваем глаза и губы',(th)=>{const fx=254/PW*396,fy=238/PH*560;return bar()+prevBox(th,{cv:{ov:{auto:true,user:U_PART}}})+`<div class="brush" style="left:${16+fx-14}px;top:${122+fy-14-64}px;width:28px;height:28px"></div><div class="fng" style="left:${16+fx}px;top:${122+fy}px"></div>`+brushPanel({tool:'brush'})+home}],
+ ['4 · Ластик: стирает ваши мазки, возвращает найденное',(th)=>{const ex=216/PW*396,ey=328/PH*560;return bar()+prevBox(th,{cv:{ov:{auto:true,user:U_ALL.slice(0,2)}}})+`<div class="brush" style="left:${16+ex-16}px;top:${122+ey-16}px;width:32px;height:32px"></div><div class="fng" style="left:${16+ex+6}px;top:${122+ey+62}px"></div>`+brushPanel({tool:'eraser',size:1})+home}],
+ ['5 · «Показать, что генератор считает важным»: только автомаска',(th)=>bar()+prevBox(th,{cv:{ov:{auto:true,user:[]}},userLg:false})+`<div class="lgd" style="left:26px;top:560px"><div class="glass" style="white-space:nowrap">${ic('eye',16,2.4)}Ваши мазки скрыты (3)</div></div>`+brushPanel({show:true,tool:'brush'})+home],
+ ['6 · Пустое состояние: пейзаж, маски нет',(th)=>bar('Ничего не найдено')+`<div class="pv" style="left:16px;top:122px;width:396px;height:560px">${cvp({w:396,h:560,th,mode:'plain',kind:'sunset',crop:BRUSH_CROP})}</div>`+`<div class="emp dense"><b>Лиц и объектов не нашлось</b><span>Генератор не видит на этой картинке главного. Можно выделить важное кистью: для него останется больше цветов.</span><div class="bt">Взять кисть</div><div class="bt2">Всё равно считать</div></div>`+brushPanel({noFound:true,tool:'brush',noUser:true,noUndo:true})+home],
+ ['7 · Готово → параметры: пересчёт, бейдж «Выделено вручную»',(th)=>wbar('Назад','Параметры','Шаг 3 из 4','Далее')+`<div class="pv" style="left:16px;top:122px;width:396px;height:280px"><div style="position:relative;width:396px;height:280px">${cvp({w:396,h:280,mode:'split',split:.5,crop:PARAM_CROP,th,K:8,found:true,hand:false,user:U_ALL,cols:48})}</div><div class="sp" style="left:50%"><i>${ic('arrows',20,2.4)}</i></div><div class="lb glass" style="left:10px">До</div><div class="lb glass" style="right:10px">После</div><div class="lb glass" style="left:50%;margin-left:-84px;top:126px;width:168px;justify-content:center"><div class="spin"></div>Пересчитываю…</div></div>`+paramsSheet({hand:true})+home],
+ ['8 · Результат: у глаз и губ больше цветов, «Сбросить выделение»',(th)=>wbar('Назад','Параметры','Шаг 3 из 4','Далее')+split(th,{found:true,hand:true})+paramsSheet({hand:true})+home],
+ ['9 · Обрезка и поворот: выделение сохраняется',(th)=>wbar('Назад','Обрезка','Шаг 2 из 4','Далее')+`<div class="pv" style="left:0;right:0;top:130px;width:428px;height:560px;border-radius:0;border:none">${cvp({w:428,h:560,mode:'rot',deg:-6,th,crop:BRUSH_CROP,ov:{auto:true,user:U_ALL}})}<svg width="428" height="560" viewBox="0 0 428 560" style="position:absolute;left:0;top:0" aria-hidden="true"><path fill-rule="evenodd" fill="rgba(0,0,0,.55)" d="M0 0H428V560H0Z M44 60H384V500H44Z"/><rect x="44" y="60" width="340" height="440" fill="none" stroke="#151316" stroke-width="5.5"/><rect x="44" y="60" width="340" height="440" fill="none" stroke="#fff" stroke-width="2.5"/>${[[44,60],[384,60],[44,500],[384,500]].map(p=>`<circle cx="${p[0]}" cy="${p[1]}" r="13" fill="var(--acc)" stroke="#fff" stroke-width="2.5"/>`).join('')}</svg></div>`+`<div class="tipx dense" style="left:24px;right:24px;top:704px;--ax:300px"><div style="flex:1"><b>Выделение сохранится</b>Оно поворачивается и обрезается вместе с фото, второй раз рисовать не нужно.</div><div class="xx" aria-label="Закрыть подсказку">${ic('x',20,2.6)}</div></div>`+`<div class="botb dense" style="bottom:28px"><div class="rowb"><div class="bbtn">${ic('rot',20)}Повернуть</div><div class="bbtn p">Далее</div></div></div>`+home],
+ ['10 · AX3: панель кисти',(th)=>`<div class="ax">`+bar('Один палец рисует')+prevBox(th,{h:280,top:160,crop:PARAM_CROP,cv:{ov:{auto:true,user:U_ALL}},legend:false})+`<div class="bp dense"><div class="bw"><div class="bb wide">${ic('eye',24)}Показать найденное</div></div><div class="bw"><div class="bb sel">${ic('brush',26)}Кисть</div><div class="bb">${ic('eraser',26)}Ластик</div><div class="bb">Размер: Средний ${ic('chevD',20,2.6)}</div><div class="bb">${ic('trash',24)}Очистить</div><div class="bb">${ic('undo',24)}Отменить</div><div class="bb p">${ic('check',24,3)}Готово</div></div></div></div>`+home]
+];
+function macWin(th){const W=368,H=520;const crop={x:0,y:0,w:PW,h:PH};
+ const kx=W/PW,ky=H/PH;const cx=(254*kx),cy=(238*ky);
+ return `<div class="mw"><div class="phone" data-theme="${th}"><div class="mac" style="--glass:${th==='dark'?'rgba(40,38,44,.5)':'rgba(255,255,255,.55)'};--gb:${th==='dark'?'1px solid rgba(255,255,255,.26)':'1px solid rgba(255,255,255,.85)'};--shadow:0 10px 28px rgba(0,0,0,.18)">
+ <div class="sb glass"><h4>Выделить важное</h4>
+  <div class="bb wide" style="white-space:normal;min-height:56px;font-size:14px">${ic('eye',20)}Показать, что генератор считает важным</div>
+  <div class="bb sel">${ic('brush',22)}Кисть</div><div class="bb">${ic('eraser',22)}Ластик</div>
+  <div class="slr2"><div style="display:flex;justify-content:space-between"><span>Размер</span><span style="color:var(--ink2)">14 pt</span></div><div class="trk"><i></i><b></b></div></div>
+  <div class="bb">${ic('trash',20)}Очистить…</div><div class="bb">${ic('undo',20)}Отменить</div>
+  <div class="bb p" style="margin-top:auto">${ic('check',20,3)}Готово</div></div>
+ <div class="cvm"><div style="position:relative;width:${W}px;height:${H}px">${cvp({w:W,h:H,th,mode:'plain',crop,ov:{auto:true,user:U_PART}})}<div class="brush" style="left:${cx-20}px;top:${cy-20}px;width:40px;height:40px"></div><svg style="position:absolute;left:${cx-28}px;top:${cy-28}px;z-index:9" width="56" height="56"><path d="M28 6v10M28 40v10M6 28h10M40 28h10" stroke="#fff" stroke-width="2"/></svg><div class="lgd"><div class="glass"><i class="au"></i>Нашёл генератор</div><div class="glass"><i class="us"></i>Ваши мазки</div></div></div></div>
+ </div></div></div>`}
+let mode='light';
+function render(){
+ const st=document.getElementById('stage');st.innerHTML='';
+ document.body.classList.toggle('dp',mode==='dark');
+ const ths=mode==='both'?['light','dark']:[mode];
+ ths.forEach(t=>{
+  const row=document.createElement('div');row.className='row';
+  screens.forEach(s=>{const c=document.createElement('div');c.className='cell';
+   c.innerHTML=`<div class="phone" data-theme="${t}">${s[1](t)}</div><div class="cap">${s[0]} · ${t==='dark'?'тёмная':'светлая'}</div>`;row.appendChild(c)});
+  st.appendChild(row)});
+ ths.forEach(t=>{const row=document.createElement('div');row.className='row';row.style.overflowX='auto';row.innerHTML=`<div style="display:flex;flex-direction:column;gap:10px;align-items:center">${macWin(t)}<div class="cap">11 · macOS, окно 900 pt: панель кисти в боковой колонке, курсор-кружок · ${t==='dark'?'тёмная':'светлая'}</div></div>`;st.appendChild(row)});
+ paintAll();
+}
+document.querySelectorAll('.seg button').forEach(b=>b.onclick=()=>{mode=b.dataset.m;document.querySelectorAll('.seg button').forEach(x=>x.setAttribute('aria-pressed',x===b));render()});
+render();
+</script>
+</body>
+</html>
