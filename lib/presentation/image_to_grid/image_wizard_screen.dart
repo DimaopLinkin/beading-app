@@ -243,6 +243,7 @@ class _Problem extends StatelessWidget {
     final Color color = CupertinoColors.systemRed.resolveFrom(context);
     final AppTokensData tokens = context.tokens;
     return Padding(
+      key: const ValueKey<String>('wizard-problem'),
       padding: EdgeInsets.only(bottom: tokens.spacing.m),
       child: Semantics(
         liveRegion: true,
@@ -757,11 +758,15 @@ class _EditState extends State<_Edit> {
                 onChanged: cubit.setName,
                 textInputAction: TextInputAction.done,
               ),
-              SizedBox(height: gap),
-              _Problem(state.problem),
             ],
           ),
         ),
+        // Ошибка стоит рядом с кнопкой: внизу прокручиваемого списка её не видно, и кнопка казалась сломанной.
+        if (state.problem != null)
+          Padding(
+            padding: EdgeInsets.fromLTRB(gap, gap / 2, gap, 0),
+            child: _Problem(state.problem),
+          ),
         Padding(
           padding: EdgeInsets.fromLTRB(gap, gap / 2, gap, gap),
           child: SizedBox(

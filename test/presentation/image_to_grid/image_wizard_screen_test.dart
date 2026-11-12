@@ -64,6 +64,7 @@ class _Decoder implements ImageDecoder {
 void main() {
   late FakeBookImageSource source;
   late FakeProjectRepository projects;
+  late FakeGridPatternRepository patterns;
   late FakeImageMasks masks;
   late ImageWizardCubit cubit;
 
@@ -71,6 +72,7 @@ void main() {
     source = FakeBookImageSource();
     masks = FakeImageMasks();
     projects = FakeProjectRepository();
+    patterns = FakeGridPatternRepository();
     final FakeIdGenerator ids = FakeIdGenerator();
     cubit = ImageWizardCubit(
       source: source,
@@ -84,7 +86,7 @@ void main() {
         CreateGridPattern(
           createProject: CreateProject(repository: projects, ids: ids, clock: FakeClock(DateTime.utc(2026))),
           projects: projects,
-          patterns: FakeGridPatternRepository(),
+          patterns: patterns,
           ids: ids,
         ),
       ),
@@ -504,5 +506,18 @@ void main() {
     await tester.pumpAndSettle();
     expect(cubit.state.projectId, isNotNull);
     expect(projects.projects, hasLength(1));
+  });
+
+  testWidgets('ошибка сохранения видна рядом с кнопкой, а не внизу прокручиваемого списка', (tester) async {
+    await openPhoto(tester, AppTheme.light);
+    patterns.failNextSave = const StorageFailure('диск');
+    await tester.tap(find.byKey(const ValueKey<String>('wizard-save')));
+    await tester.pumpAndSettle();
+    final Finder problem = find.byKey(const ValueKey<String>('wizard-problem'));
+    expect(problem, findsOneWidget);
+    final Rect rect = tester.getRect(problem);
+    final Rect button = tester.getRect(find.byKey(const ValueKey<String>('wizard-save')));
+    expect(rect.bottom, lessThanOrEqualTo(button.top));
+    expect(rect.top, greaterThanOrEqualTo(0));
   });
 }
