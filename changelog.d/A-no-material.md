@@ -1,0 +1,12 @@
+---
+task: A-no-material
+type: changed
+---
+
+## Для пользовательницы
+
+- Ничего не меняется на вид; приложение чуть меньше по размеру.
+
+## Для разработки
+
+- Убран `uses-material-design: true` из `pubspec.yaml`: в приложении нет ни `Icons.*`, ни импортов `material.dart`, шрифт MaterialIcons был не нужен (Cupertino-first, ADR-0001).
