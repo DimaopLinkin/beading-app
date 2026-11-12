@@ -40,6 +40,8 @@ final class WorkImage {
   /// Уменьшает [image] по площади до рабочего разрешения схемы [columns] × [rows].
   ///
   /// [scale] — рабочих пикселей на сторону ячейки; по умолчанию [scaleFor] (черновик берёт меньше, см. [draftScale]).
+  /// У крупной схемы (больше [densityCapCells] ячеек) рабочих пикселей на ячейку не больше, чем пикселей исходника: у узкого
+  /// исходника масштаб уменьшается, вплоть до 1. Мелкие схемы считаются как раньше.
   ///
   /// Усреднение идёт в линейном свете, с весом непрозрачности: смесь чёрного и белого 50/50 даёт sRGB ≈ 188, а не 128.
   /// Размер рабочей картинки повторяет габариты схемы в миллиметрах, поэтому сдвиг рядов пейота и кирпичного стежка
@@ -57,12 +59,19 @@ final class WorkImage {
     if (importance != null && importance.length != image.width * image.height) {
       throw ArgumentError.value(importance.length, 'importance', 'ожидалось ${image.width * image.height} весов');
     }
-    final int s = scale ?? scaleFor(columns: columns, rows: rows);
+    // Растяжка исходника не добавляет информации, а у крупной схемы стоит сотни МБ и минуты расчёта (T70).
+    final int requested = scale ?? scaleFor(columns: columns, rows: rows);
+    final int s = columns * rows > densityCapCells
+        ? math.min(requested, math.max(1, image.width ~/ columns))
+        : requested;
     final MmSize extent = geometry.extent(metrics, columns: columns, rows: rows);
     final int width = columns * s;
     final int height = math.max(1, (width * extent.height / extent.width).round());
     return WorkImage._downscale(image, importance, width, height, s);
   }
+
+  /// С какого числа ячеек масштаб ограничен плотностью исходника (там же, где [scaleFor] берёт 3).
+  static const int densityCapCells = 30000;
 
   /// Рабочих пикселей на сторону ячейки в черновике предпросмотра (T58): расчёт в разы быстрее, цвета и границы грубее.
   static const int draftScale = 2;

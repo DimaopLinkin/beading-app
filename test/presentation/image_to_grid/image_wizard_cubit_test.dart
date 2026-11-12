@@ -97,10 +97,12 @@ class _AutoRunner implements ImageToGridRunner {
 class _FakeDecoder implements ImageDecoder {
   Failure? failure;
   int calls = 0;
+  int? lastMaxSide;
 
   @override
   Future<Result<SourceImage>> decode(Uint8List bytes, {int maxSide = 1024}) async {
     calls++;
+    lastMaxSide = maxSide;
     if (failure != null) return Err<SourceImage>(failure!);
     return Success<SourceImage>(SourceImage.solid(width: 20, height: 40, r: 200, g: 10, b: 10));
   }
@@ -169,6 +171,14 @@ void main() {
     runner.completers.last.complete(_pattern(1));
     await Future<void>.delayed(Duration.zero);
   }
+
+  test('фото декодируется в 2048 пикселей по длинной стороне, а не в 1024 по умолчанию (T70)', () async {
+    cubit = build(debounce: Duration.zero);
+    await openPhoto();
+    expect(decoder.lastMaxSide, wizardImageMaxSide);
+    expect(wizardImageMaxSide, 2048);
+    await cubit.close();
+  });
 
   group('маски (T48)', () {
     setUp(() => cubit = build(debounce: Duration.zero));

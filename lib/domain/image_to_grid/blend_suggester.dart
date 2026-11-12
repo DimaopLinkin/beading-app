@@ -85,19 +85,21 @@ List<BlendSuggestion> suggestBlends(
     singleDe[cell] = deltaE2000(target, palette[bestIndex]);
   }
 
-  // Кандидаты пары: клетка и выигрыш по ΔE2000.
-  final List<Map<int, double>> candidates = <Map<int, double>>[];
-  for (final (int, int, Rgb, Lab) pair in pairs) {
-    final Map<int, double> cells = <int, double>{};
-    for (int cell = 0; cell < targets.length; cell++) {
-      final Lab? target = targets[cell];
-      // Клетка, уже совпавшая с цветом палитры, в бленде не нуждается.
-      if (target == null || single[cell] <= margin + 1) continue;
-      if (_distance(target, pair.$4) + margin >= single[cell]) continue;
-      final double gain = singleDe[cell] - deltaE2000(target, pair.$4);
-      if (gain > 0) cells[cell] = gain;
-    }
-    candidates.add(cells);
+  // Кандидаты пары: клетка и выигрыш по ΔE2000. Пара годится клетке, только если её цвет ближе лучшего одиночного
+  // минимум на margin: цвета пар разложены по кубикам Lab, и клетка смотрит лишь кубики в этом радиусе (T70, без этого
+  // вышивка в миллион клеток и 120 цветов считала бленды минуту). Клетки идут по возрастанию, как раньше.
+  final List<Map<int, double>> candidates = <Map<int, double>>[for (int p = 0; p < pairs.length; p++) <int, double>{}];
+  final _MixGrid grid = _MixGrid(<Lab>[for (final (int, int, Rgb, Lab) pair in pairs) pair.$4]);
+  for (int cell = 0; cell < targets.length; cell++) {
+    final Lab? target = targets[cell];
+    // Клетка, уже совпавшая с цветом палитры, в бленде не нуждается.
+    if (target == null || single[cell] <= margin + 1) continue;
+    grid.near(target, single[cell] - margin, (p) {
+      final Lab mix = pairs[p].$4;
+      if (_distance(target, mix) + margin >= single[cell]) return;
+      final double gain = singleDe[cell] - deltaE2000(target, mix);
+      if (gain > 0) candidates[p][cell] = gain;
+    });
   }
 
   final Set<int> taken = <int>{};
@@ -140,6 +142,65 @@ List<BlendSuggestion> suggestBlends(
     );
   }
   return out;
+}
+
+/// Цвета пар, разложенные по кубикам Lab со стороной [_side]: поиск всех цветов не дальше радиуса без перебора.
+final class _MixGrid {
+  _MixGrid(List<Lab> mixes) {
+    double minL = double.infinity, minA = double.infinity, minB = double.infinity;
+    double maxL = -double.infinity, maxA = -double.infinity, maxB = -double.infinity;
+    for (final Lab m in mixes) {
+      minL = math.min(minL, m.l);
+      minA = math.min(minA, m.a);
+      minB = math.min(minB, m.b);
+      maxL = math.max(maxL, m.l);
+      maxA = math.max(maxA, m.a);
+      maxB = math.max(maxB, m.b);
+    }
+    _origin = Lab(minL, minA, minB);
+    _nl = (maxL - minL) ~/ _side + 1;
+    _na = (maxA - minA) ~/ _side + 1;
+    _nb = (maxB - minB) ~/ _side + 1;
+    _buckets = List<List<int>?>.filled(_nl * _na * _nb, null);
+    for (int p = 0; p < mixes.length; p++) {
+      final Lab m = mixes[p];
+      final int index = (((m.l - minL) ~/ _side) * _na + (m.a - minA) ~/ _side) * _nb + (m.b - minB) ~/ _side;
+      (_buckets[index] ??= <int>[]).add(p);
+    }
+  }
+
+  static const double _side = 6;
+  late final Lab _origin;
+  late final int _nl;
+  late final int _na;
+  late final int _nb;
+  late final List<List<int>?> _buckets;
+
+  /// Вызывает [visit] для каждой пары из кубиков, задетых шаром радиуса [radius] вокруг [center] (и, возможно,
+  /// нескольких пар чуть дальше: точную проверку делает вызывающий).
+  void near(Lab center, double radius, void Function(int pair) visit) {
+    if (radius <= 0) return;
+    final (int, int) l = _range(center.l - _origin.l, radius, _nl);
+    final (int, int) a = _range(center.a - _origin.a, radius, _na);
+    final (int, int) b = _range(center.b - _origin.b, radius, _nb);
+    for (int i = l.$1; i <= l.$2; i++) {
+      for (int j = a.$1; j <= a.$2; j++) {
+        for (int k = b.$1; k <= b.$2; k++) {
+          final List<int>? bucket = _buckets[(i * _na + j) * _nb + k];
+          if (bucket == null) continue;
+          for (final int p in bucket) {
+            visit(p);
+          }
+        }
+      }
+    }
+  }
+
+  static (int, int) _range(double offset, double radius, int count) {
+    final int low = math.max(0, ((offset - radius) / _side).floor());
+    final int high = math.min(count - 1, ((offset + radius) / _side).floor());
+    return (low, high);
+  }
 }
 
 double _distance(Lab x, Lab y) {
