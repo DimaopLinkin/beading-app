@@ -24,6 +24,10 @@ void main() {
   const Map<String, int> minimum = <String, int>{
     'miyuki_delica_11': 1300,
     'toho_round_11': 900,
+    'miyuki_delica_10': 290,
+    'miyuki_delica_15': 230,
+    'miyuki_rocailles_15': 900,
+    'miyuki_rocailles_8': 680,
     'dmc_floss': 480,
     'gamma_floss': 200,
   };

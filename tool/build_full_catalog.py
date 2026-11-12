@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Собирает assets/catalog/{miyuki_delica_11,toho_round_11}.json из пакета beadloo-assets (MIT).
+"""Собирает assets/catalog/{miyuki_delica_*,toho_round_11,miyuki_rocailles_*}.json из пакета beadloo-assets (MIT).
 
 Запуск: python3 tool/build_full_catalog.py <путь к клону adamaszczos/beadloo-assets> <коммит>
 Источник, лицензия и точность — в docs/decisions/0005-full-bead-catalog.md.
@@ -154,7 +154,7 @@ def name_of(meta):
     return ', '.join(p for p in parts if p)
 
 
-def build(src, brand, series, rel, code_of, out_path, commit):
+def build(src, brand, series, rel, code_of, out_path, commit, size='11/0'):
     colors, seen = [], set()
     for meta_path in sorted(glob.glob(os.path.join(src, 'beads', rel, '*.metadata.json'))):
         stem = os.path.basename(meta_path)[: -len('.metadata.json')]
@@ -177,7 +177,7 @@ def build(src, brand, series, rel, code_of, out_path, commit):
         return (m.group(1), int(m.group(2)), m.group(3)) if m else (c['code'], 0, '')
 
     colors.sort(key=key)
-    doc = {'version': 2, 'material': 'bead', 'brand': brand, 'series': series, 'sizeCode': '11/0',
+    doc = {'version': 2, 'material': 'bead', 'brand': brand, 'series': series, 'sizeCode': size,
            'source': 'adamaszczos/beadloo-assets@' + commit, 'colors': colors}
     with open(out_path, 'w', encoding='utf-8') as fh:
         json.dump(doc, fh, ensure_ascii=False, indent=1)
@@ -188,7 +188,21 @@ def build(src, brand, series, rel, code_of, out_path, commit):
 if __name__ == '__main__':
     src, commit = sys.argv[1], sys.argv[2]
     root = os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', 'assets', 'catalog')
-    build(src, 'Miyuki', 'Delica', 'miyuki/delica/11', lambda s: s,
-          os.path.join(root, 'miyuki_delica_11.json'), commit)
+    def delica(size):
+        n = size.split('/')[0]
+        build(src, 'Miyuki', 'Delica', 'miyuki/delica/' + n, lambda s: s,
+              os.path.join(root, 'miyuki_delica_%s.json' % n), commit, size)
+
+    def rocailles(size):
+        n = size.split('/')[0]
+        build(src, 'Miyuki', 'Rocailles', 'miyuki/round_rocailles/' + n, lambda s: s,
+              os.path.join(root, 'miyuki_rocailles_%s.json' % n), commit, size)
+
+    delica('11/0')
     build(src, 'Toho', 'Round', 'toho/round/11', lambda s: re.sub(r'^TR-11-', '', s),
           os.path.join(root, 'toho_round_11.json'), commit)
+    # T50: другие размеры
+    delica('10/0')
+    delica('15/0')
+    rocailles('15/0')
+    rocailles('8/0')
