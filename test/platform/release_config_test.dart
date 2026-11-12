@@ -122,20 +122,26 @@ void main() {
       }
     });
 
+    const List<String> iosIcons = <String>[
+      'AppIcon-1024.png',
+      'AppIcon-1024-dark.png',
+      'AppIcon-1024-tinted.png',
+    ];
+
     test('значок настоящий (из UI kit), а не заглушка', () {
-      final List<int> bytes = File(
-        'ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-1024x1024@1x.png',
-      ).readAsBytesSync();
-      // Заглушку рисовал удалённый скрипт и помечал tEXt-блоком; настоящие иконки делает scripts/make_app_icons.js.
-      expect(String.fromCharCodes(bytes), isNot(contains('beading-placeholder')));
+      for (final String name in iosIcons) {
+        final List<int> bytes = File('ios/Runner/Assets.xcassets/AppIcon.appiconset/$name').readAsBytesSync();
+        // Заглушку рисовал удалённый скрипт и помечал tEXt-блоком; настоящая иконка «Канитель» принята в 13-app-icon.
+        expect(String.fromCharCodes(bytes), isNot(contains('beading-placeholder')), reason: name);
+      }
     });
 
-    test('значок iOS 1024 без альфа-канала (требование App Store и Ad Hoc)', () {
-      final List<int> bytes = File(
-        'ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-1024x1024@1x.png',
-      ).readAsBytesSync();
-      // PNG: 8 байт подписи, 8 байт заголовка IHDR, затем ширина, высота, глубина (1) и тип цвета (1): 2 = RGB без альфы.
-      expect(bytes[25], 2);
+    test('значки iOS 1024 (светлый, тёмный, tinted) без альфа-канала (требование App Store и Ad Hoc)', () {
+      for (final String name in iosIcons) {
+        final List<int> bytes = File('ios/Runner/Assets.xcassets/AppIcon.appiconset/$name').readAsBytesSync();
+        // PNG: 8 байт подписи, 8 байт заголовка IHDR, затем ширина, высота, глубина (1) и тип цвета (1): 2 = RGB без альфы.
+        expect(bytes[25], 2, reason: name);
+      }
     });
   });
 }
