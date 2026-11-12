@@ -243,6 +243,7 @@ Future<void> configureDependencies({GetIt? locator, AppDatabase? database, Catal
         catalog: container<CatalogRepository>(),
         settings: container<SettingsRepository>(),
         createPattern: CreatePatternFromImage(container<CreateGridPattern>()),
+        sizeHints: true,
       ),
     )
     ..registerLazySingleton<GridPatternRepository>(

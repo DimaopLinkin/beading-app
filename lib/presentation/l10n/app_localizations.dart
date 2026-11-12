@@ -2515,6 +2515,78 @@ abstract class AppLocalizations {
   /// **'В выбранной серии и отделках всего {available} цветов, а в схеме их до {wanted}: попробуй другую серию или отделки, либо выбери «Любые».'**
   String imageWizardCatalogFew(int available, int wanted);
 
+  /// Подсказка размера для бисера
+  ///
+  /// In ru, this message translates to:
+  /// **'Для этого фото лучше от {columns} бусин по ширине и {colors} цветов, около {cm} см.'**
+  String imageWizardSizeHintBeads(int columns, int colors, String cm);
+
+  /// Подсказка размера для вышивки в сантиметрах на текущей канве
+  ///
+  /// In ru, this message translates to:
+  /// **'Для этого фото на канве {fabric} лучше от {cm} см ({columns} крестиков) и {colors} цветов.'**
+  String imageWizardSizeHintStitch(String fabric, String cm, int columns, int colors);
+
+  /// Пояснение к подсказке размера, когда порог качества не достигнут
+  ///
+  /// In ru, this message translates to:
+  /// **'Мелкие детали этого фото не получатся даже на самом большом размере.'**
+  String get imageWizardSizeHintLimit;
+
+  /// Кнопка: применить подсказку размера
+  ///
+  /// In ru, this message translates to:
+  /// **'Применить'**
+  String get imageWizardSizeHintApply;
+
+  /// Подсказка размера уже применена
+  ///
+  /// In ru, this message translates to:
+  /// **'Размер подобран по фото'**
+  String get imageWizardSizeHintApplied;
+
+  /// Заголовок выбора размера по назначению
+  ///
+  /// In ru, this message translates to:
+  /// **'Размер по назначению'**
+  String get imageWizardPurpose;
+
+  /// Размер по назначению: узкая полоса браслета
+  ///
+  /// In ru, this message translates to:
+  /// **'Браслет'**
+  String get imageWizardPurposeBracelet;
+
+  /// Размер по назначению: панно
+  ///
+  /// In ru, this message translates to:
+  /// **'Панно'**
+  String get imageWizardPurposePanel;
+
+  /// Размер по назначению: картина
+  ///
+  /// In ru, this message translates to:
+  /// **'Картина'**
+  String get imageWizardPurposePicture;
+
+  /// Расшифровка размера по назначению в бисере
+  ///
+  /// In ru, this message translates to:
+  /// **'{columns} бусин, около {cm} см'**
+  String imageWizardPurposeBeads(int columns, String cm);
+
+  /// Предупреждение: для фото с лицом схема из бисера слишком узкая
+  ///
+  /// In ru, this message translates to:
+  /// **'Бисера на такое лицо не хватает: на {columns} столбцах глаза и губы не получатся. Возьми размер из подсказки или вышивку.'**
+  String imageWizardBeadsFewForFace(int columns);
+
+  /// Действие: перейти с бисера на вышивку
+  ///
+  /// In ru, this message translates to:
+  /// **'Сделать вышивкой'**
+  String get imageWizardToStitch;
+
   /// Заголовок выбора предустановки генератора
   ///
   /// In ru, this message translates to:

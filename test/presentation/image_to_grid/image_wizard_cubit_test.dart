@@ -15,6 +15,7 @@ import 'package:beading/domain/image_pattern/crop_rect.dart';
 import 'package:beading/domain/image_pattern/picked_book_file.dart';
 import 'package:beading/domain/image_to_grid/background_stage.dart';
 import 'package:beading/domain/image_to_grid/generated_pattern.dart';
+import 'package:beading/domain/image_to_grid/generation_stats.dart';
 import 'package:beading/domain/image_to_grid/image_decoder.dart';
 import 'package:beading/domain/image_to_grid/image_mask_set.dart';
 import 'package:beading/domain/image_to_grid/image_to_grid_request.dart';
@@ -22,6 +23,8 @@ import 'package:beading/domain/image_to_grid/image_to_grid_runner.dart';
 import 'package:beading/domain/image_to_grid/image_to_grid_settings.dart';
 import 'package:beading/domain/image_to_grid/ordered_dither_step.dart';
 import 'package:beading/domain/image_to_grid/palette_entry.dart';
+import 'package:beading/domain/image_to_grid/size_purpose.dart';
+import 'package:beading/domain/image_to_grid/size_suggester.dart';
 import 'package:beading/domain/image_to_grid/source_image.dart';
 import 'package:beading/domain/image_to_grid/use_cases/create_pattern_from_image.dart';
 import 'package:beading/domain/palette/rgb.dart';
@@ -61,6 +64,35 @@ class _ControlledRunner implements ImageToGridRunner {
   Future<void> release() async => releases++;
 }
 
+/// Запуск, который сразу отвечает: полные расчёты — схемой без метрик, пробы подсказки — корреляцией от ширины.
+class _AutoRunner implements ImageToGridRunner {
+  final List<ImageToGridRequest> requests = <ImageToGridRequest>[];
+
+  /// Корреляция пробы по ширине; `null` — метрики нет.
+  double? Function(int columns) correlation = (columns) => columns >= 60 ? 0.95 : 0.7;
+
+  @override
+  Future<GeneratedPattern> run(ImageToGridRequest request) async {
+    requests.add(request);
+    final GeneratedPattern base = _pattern(request.columns);
+    if (!request.measure) return base;
+    return GeneratedPattern(
+      grid: base.grid,
+      palette: base.palette,
+      stats: GenerationStats(
+        singleCells: 0,
+        colorCount: 1,
+        meanDeltaE: 0,
+        stageTimes: const <String, Duration>{},
+        lightnessCorrelation: correlation(request.columns),
+      ),
+    );
+  }
+
+  @override
+  Future<void> release() async {}
+}
+
 class _FakeDecoder implements ImageDecoder {
   Failure? failure;
   int calls = 0;
@@ -90,7 +122,7 @@ void main() {
   late FakeCatalogRepository catalog;
   late ImageWizardCubit cubit;
 
-  ImageWizardCubit build({Duration debounce = const Duration(milliseconds: 300)}) {
+  ImageWizardCubit build({Duration debounce = const Duration(milliseconds: 300), bool sizeHints = false}) {
     final FakeIdGenerator ids = FakeIdGenerator();
     return ImageWizardCubit(
       source: source,
@@ -109,6 +141,7 @@ void main() {
         ),
       ),
       debounce: debounce,
+      sizeHints: sizeHints,
     );
   }
 
@@ -664,6 +697,168 @@ void main() {
       expect(project.craft, Craft.crossStitch);
       expect(patterns.byProject[project.id]!.metrics, Fabric.standard);
       expect(patterns.byProject[project.id]!.layers, isNotNull);
+    });
+  });
+
+  group('подсказка размера (T61)', () {
+    late _AutoRunner auto;
+
+    Future<void> settle() async {
+      for (int i = 0; i < 40; i++) {
+        await Future<void>.delayed(Duration.zero);
+      }
+    }
+
+    Future<void> openAuto() async {
+      source.next = Success<List<PickedBookFile>>(<PickedBookFile>[photo()]);
+      await cubit.pickPhotos();
+      await settle();
+    }
+
+    setUp(() {
+      auto = _AutoRunner();
+      runner = _ControlledRunner();
+      cubit = ImageWizardCubit(
+        source: source,
+        processor: processor,
+        decoder: decoder,
+        runner: auto,
+        masks: masks,
+        catalog: catalog,
+        settings: settings,
+        createPattern: CreatePatternFromImage(
+          CreateGridPattern(
+            createProject: CreateProject(
+              repository: projects,
+              ids: FakeIdGenerator(),
+              clock: FakeClock(DateTime.utc(2026)),
+            ),
+            projects: projects,
+            patterns: patterns,
+            ids: FakeIdGenerator(),
+          ),
+        ),
+        debounce: Duration.zero,
+        sizeHints: true,
+      );
+    });
+    tearDown(() => cubit.close());
+
+    test('после полного расчёта считается по пробам: узкая ширина, где корреляция дошла до порога', () async {
+      await openAuto();
+      expect(cubit.state.sizeHint, const SizeSuggestion(columns: 60, colors: 10, reached: true));
+      final Iterable<ImageToGridRequest> probes = auto.requests.where((r) => r.measure);
+      expect(probes.every((r) => r.draft), isTrue);
+      expect(probes.map((r) => r.columns), <int>[30, 40, 60, 80, 100, 120]);
+    });
+
+    test('первый предпросмотр приходит раньше подсказки', () async {
+      source.next = Success<List<PickedBookFile>>(<PickedBookFile>[photo()]);
+      await cubit.pickPhotos();
+      await Future<void>.delayed(Duration.zero);
+      await Future<void>.delayed(Duration.zero);
+      expect(auto.requests.first.measure, isFalse);
+      expect(cubit.state.preview, isNotNull);
+    });
+
+    test('подсказка применяется одним касанием и помечается применённой', () async {
+      await openAuto();
+      cubit.applySizeHint();
+      expect(cubit.state.settings.columns, 60);
+      expect(cubit.state.settings.maxColors, 10);
+      expect(cubit.state.sizeHintApplied, isTrue);
+    });
+
+    test('с лицом на бисере подсказка не уже 80 столбцов', () async {
+      masks.result = ImageMaskSet(
+        width: 20,
+        height: 40,
+        faces: const <DetectedFace>[
+          DetectedFace(bounds: NormalizedRect(left: 0.25, top: 0.25, right: 0.75, bottom: 0.5)),
+        ],
+      );
+      await openAuto();
+      expect(cubit.state.sizeHint?.columns, 80);
+    });
+
+    test('смена кадра и ремесла делает подсказку устаревшей, потом считается заново', () async {
+      await openAuto();
+      expect(cubit.state.sizeHint, isNotNull);
+      final Future<void> crop = cubit.setCrop(const CropRect(left: 0, top: 0, right: 0.5, bottom: 1));
+      expect(cubit.state.sizeHint, isNull);
+      await crop;
+      await settle();
+      expect(cubit.state.sizeHint, isNotNull);
+
+      cubit.setCraft(Craft.crossStitch);
+      expect(cubit.state.sizeHint, isNull);
+      await settle();
+      expect(cubit.state.sizeHint?.columns, 110);
+      expect(cubit.state.sizeHint?.colors, 30);
+    });
+
+    test('новая фотография сбрасывает подсказку', () async {
+      await openAuto();
+      source.next = Success<List<PickedBookFile>>(<PickedBookFile>[photo('Кот.jpg')]);
+      await cubit.pickPhotos();
+      // Новая картинка принята, расчёт её схемы ещё идёт: старая подсказка не должна остаться.
+      expect(cubit.state.sizeHint, isNull);
+    });
+
+    test('у фото без разброса светлоты подсказки нет', () async {
+      auto.correlation = (columns) => null;
+      await openAuto();
+      expect(cubit.state.sizeHint, isNull);
+    });
+
+    test('размер по назначению: бисер — столбцы, вышивка — сантиметры через канву', () async {
+      await openAuto();
+      cubit.setPurpose(SizePurpose.large);
+      expect(cubit.state.settings.columns, 100);
+      cubit.setCraft(Craft.crossStitch);
+      cubit.setPurpose(SizePurpose.medium);
+      expect(cubit.state.settings.columns, Fabric.standard.cellsForCm(25));
+      expect(cubit.state.settings.widthCm, closeTo(25, 0.3));
+    });
+
+    Future<void> widenWith(double faceWidth) async {
+      masks.result = ImageMaskSet(
+        width: 20,
+        height: 40,
+        faces: <DetectedFace>[
+          DetectedFace(bounds: NormalizedRect(left: 0.1, top: 0.1, right: 0.1 + faceWidth, bottom: 0.5)),
+        ],
+      );
+      await openAuto();
+      cubit.setColumns(30);
+      await settle();
+      cubit.widenForFace();
+    }
+
+    test('«Схема шире» берёт ширину подсказки (80), если она не уже нужной лицу', () async {
+      await widenWith(0.3); // лицу нужно 67 столбцов
+      expect(cubit.state.settings.columns, 80);
+      expect(cubit.state.settings.maxColors, cubit.state.sizeHint!.colors);
+    });
+
+    test('«Схема шире» берёт ширину лица, если подсказка уже неё', () async {
+      await widenWith(0.2); // лицу нужно 100 столбцов, подсказка 80
+      expect(cubit.state.settings.columns, 100);
+    });
+
+    test('бисера на лицо не хватает: на узкой схеме с лицом предупреждение, на широкой нет', () async {
+      masks.result = ImageMaskSet(
+        width: 20,
+        height: 40,
+        faces: const <DetectedFace>[
+          DetectedFace(bounds: NormalizedRect(left: 0.25, top: 0.25, right: 0.75, bottom: 0.5)),
+        ],
+      );
+      await openAuto();
+      cubit.setColumns(40);
+      expect(cubit.state.beadsTooSmallForFace, isTrue);
+      cubit.setColumns(80);
+      expect(cubit.state.beadsTooSmallForFace, isFalse);
     });
   });
 

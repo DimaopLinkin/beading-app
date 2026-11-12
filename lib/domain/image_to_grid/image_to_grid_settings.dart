@@ -236,6 +236,7 @@ final class ImageToGridSettings extends Equatable {
     ImageMaskSet? masks,
     int seed = 0,
     bool draft = false,
+    bool measure = false,
     Uint8List? subjectMask,
   }) {
     final List<CatalogColor> allowed = catalogFor(catalog, brand: brand);
@@ -274,6 +275,7 @@ final class ImageToGridSettings extends Equatable {
       refillFreedColors: active?.refillFreedColors ?? false,
       faces: faceGuide,
       draft: draft,
+      measure: measure,
       steps: <PatternStep>[
         for (final PatternStep step in active?.steps ?? const <PatternStep>[])
           if (detailVoting && step is RemoveIslandsStep) step.withDiagonals(value: true) else step,

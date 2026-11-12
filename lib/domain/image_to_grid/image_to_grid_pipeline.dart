@@ -119,7 +119,7 @@ final class ImageToGridPipeline {
 
   /// Контраст и корреляция светлоты (T65) по рабочим пикселям без подготовки фото; в черновике не считаются.
   LightnessStructure? _structureOf(ImageToGridRequest request, GeneratedPattern pattern, {_Prepared? prepared}) {
-    if (request.draft) return null;
+    if (request.draft && !request.measure) return null;
     final WorkImage work =
         prepared?.rawWork ??
         WorkImage.fromSource(
