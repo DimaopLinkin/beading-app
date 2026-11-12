@@ -183,10 +183,43 @@ void main() {
     });
 
     test('у вышивки ширина может быть больше, чем у бисера', () {
-      expect(stitch.copyWith(columns: 99999).columns, ImageToGridSettings.maxStitchColumns);
+      expect(stitch.copyWith(columns: 99999).columns, stitch.fabric.cellsForCm(200));
       expect(const ImageToGridSettings().copyWith(columns: 99999).columns, ImageToGridSettings.maxColumns);
       // Смена техники на бисерную подрезает ширину.
       expect(stitch.copyWith(columns: 200, technique: Technique.loom).columns, ImageToGridSettings.maxColumns);
+    });
+
+    test('вышивка до 200 см шириной на любой канве, до 120 цветов', () {
+      expect(ImageToGridSettings.maxColorsLimit, 120);
+      for (final int count in <int>[11, 14, 20]) {
+        final Fabric f = Fabric.create(kind: FabricKind.aida, count: count).valueOrNull!;
+        final ImageToGridSettings s = stitch.copyWith(fabric: f, columns: 99999);
+        expect(s.widthCm, closeTo(200, 0.5));
+        expect(s.columns, lessThanOrEqualTo(ImageToGridSettings.maxStitchColumns));
+      }
+      expect(stitch.copyWith(maxColors: 999).maxColors, 120);
+    });
+
+    test('сантиметры кратны 5: 32 → 30, 47 → 45, не меньше 5 и не больше 200', () {
+      expect(ImageToGridSettings.snapCm(32), 30);
+      expect(ImageToGridSettings.snapCm(47), 45);
+      expect(ImageToGridSettings.snapCm(0.2), 5);
+      expect(ImageToGridSettings.snapCm(999), 200);
+    });
+
+    test('высота вышивки округляется до 5 см', () {
+      final SourceImage image = SourceImage.solid(width: 300, height: 220, r: 0, g: 0, b: 0);
+      final ImageToGridSettings s = stitch.copyWith(columns: stitch.fabric.cellsForCm(50));
+      final double heightCm = s.fabric.cmForCells(s.rowsFor(image));
+      expect(heightCm % 5, anyOf(closeTo(0, 0.1), closeTo(5, 0.1)));
+    });
+
+    test('огромная схема берёт меньше цветов, чтобы поместиться в память', () {
+      final ImageToGridSettings s = stitch.copyWith(columns: stitch.fabric.cellsForCm(200), maxColors: 120);
+      final int rows = stitch.fabric.cellsForCm(80);
+      expect(s.colorsFor(rows), lessThan(120));
+      expect(s.columns * rows * s.colorsFor(rows), lessThanOrEqualTo(ImageToGridSettings.costBudget));
+      expect(stitch.copyWith(columns: 150, maxColors: 30).colorsFor(100), 30);
     });
 
     test('каталог — мулине выбранного бренда, размер бисера не важен', () {
