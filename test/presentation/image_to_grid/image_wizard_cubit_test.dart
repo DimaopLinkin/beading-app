@@ -275,6 +275,92 @@ void main() {
     });
   });
 
+  group('кисть «важное» (T60)', () {
+    setUp(() => cubit = build(debounce: Duration.zero));
+    tearDown(() => cubit.close());
+
+    Future<void> pick() async {
+      source.next = Success<List<PickedBookFile>>(<PickedBookFile>[photo()]);
+      await cubit.pickPhotos();
+      await Future<void>.delayed(Duration.zero);
+    }
+
+    test('мазок поднимает вес в запросе; ластик и очистка возвращают прежние', () async {
+      masks.result = ImageMaskSet(width: 20, height: 40, subject: Uint8List(20 * 40)..fillRange(0, 200, 255));
+      await pick();
+      runner.completers.last.complete(_pattern(1));
+      await Future<void>.delayed(Duration.zero);
+      final Float32List before = runner.requests.last.importance!;
+      expect(before[30 * 20 + 10], 0.5);
+
+      cubit
+        ..startBrush()
+        ..addBrushStroke(<double>[0.5, 0.75, 0.5, 0.8]);
+      expect(cubit.state.brush.strokes, hasLength(1));
+      expect(cubit.state.canUndoBrush, isTrue);
+      cubit.finishBrush();
+      await Future<void>.delayed(Duration.zero);
+      expect(runner.requests.last.importance![30 * 20 + 10], 4);
+      expect(runner.requests.last.importance![0], before[0]);
+
+      cubit
+        ..startBrush()
+        ..eraseBrush(<double>[0.5, 0.75])
+        ..finishBrush();
+      await Future<void>.delayed(Duration.zero);
+      expect(cubit.state.brush.isEmpty, isTrue);
+      expect(runner.requests.last.importance![30 * 20 + 10], 0.5);
+    });
+
+    test('«Отмена» возвращает мазки, какими были; «Сбросить» убирает все', () async {
+      await pick();
+      cubit
+        ..startBrush()
+        ..addBrushStroke(<double>[0.5, 0.5])
+        ..finishBrush()
+        ..startBrush()
+        ..addBrushStroke(<double>[0.2, 0.2])
+        ..cancelBrush();
+      expect(cubit.state.brush.strokes, hasLength(1));
+      expect(cubit.state.brushing, isFalse);
+      cubit.resetBrush();
+      expect(cubit.state.brush.isEmpty, isTrue);
+    });
+
+    test('без масок мазок даёт вес 1 вокруг и 4 под собой; «Отменить» и очистка', () async {
+      await pick();
+      expect(runner.requests.last.importance, isNull);
+      cubit
+        ..startBrush()
+        ..addBrushStroke(<double>[0.5, 0.5])
+        ..addBrushStroke(<double>[0.1, 0.1]);
+      cubit.undoBrush();
+      expect(cubit.state.brush.strokes, hasLength(1));
+      cubit.clearBrush();
+      expect(cubit.state.brush.isEmpty, isTrue);
+      cubit
+        ..addBrushStroke(<double>[0.5, 0.5])
+        ..finishBrush();
+      await Future<void>.delayed(Duration.zero);
+      final Float32List w = runner.requests.last.importance!;
+      expect(w[0], 1);
+      expect(w[20 * 20 + 10], 4);
+    });
+
+    test('мазок переживает поворот: остаётся на тех же клетках картинки', () async {
+      await pick();
+      cubit
+        ..startBrush()
+        ..addBrushStroke(<double>[0.02, 0.01])
+        ..finishBrush();
+      await cubit.rotate();
+      await Future<void>.delayed(Duration.zero);
+      expect(cubit.state.brush.strokes, hasLength(1));
+      final Float32List w = runner.requests.last.importance!;
+      expect(w.any((v) => v == 4), isTrue);
+    });
+  });
+
   group('выбор картинки', () {
     setUp(() => cubit = build(debounce: Duration.zero));
     tearDown(() => cubit.close());

@@ -1448,6 +1448,61 @@ class AppLocalizationsRu extends AppLocalizations {
   String get imageWizardPresetDetailed => 'Детально';
 
   @override
+  String get imageWizardBrushTitle => 'Выделить важное';
+
+  @override
+  String get imageWizardBrushManual => 'Выделено вручную';
+
+  @override
+  String get imageWizardBrushReset => 'Сбросить выделение';
+
+  @override
+  String get imageWizardBrushDone => 'Готово';
+
+  @override
+  String get imageWizardBrushHint => 'Один палец рисует, два масштабируют.';
+
+  @override
+  String get imageWizardBrushShowAuto => 'Показать, что генератор считает важным';
+
+  @override
+  String get imageWizardBrushBrush => 'Кисть';
+
+  @override
+  String get imageWizardBrushEraser => 'Ластик';
+
+  @override
+  String get imageWizardBrushSmall => 'Малый';
+
+  @override
+  String get imageWizardBrushMedium => 'Средний';
+
+  @override
+  String get imageWizardBrushLarge => 'Крупный';
+
+  @override
+  String get imageWizardBrushClear => 'Очистить';
+
+  @override
+  String get imageWizardBrushClearMessage =>
+      'Убрать все ваши мазки? Найденное генератором останется. Это можно отменить.';
+
+  @override
+  String get imageWizardBrushUndo => 'Отменить';
+
+  @override
+  String get imageWizardBrushEmpty => 'Генератор сам ничего не выделил. Проведите кистью по самому важному.';
+
+  @override
+  String get imageWizardBrushLegendFound => 'Нашёл генератор';
+
+  @override
+  String get imageWizardBrushLegendMine => 'Ваши мазки';
+
+  @override
+  String get imageWizardBrushCanvas => 'Картинка: проведите пальцем по важному';
+
+  @override
   String get imageWizardUseMasks => 'Выделять главное';
 
   @override

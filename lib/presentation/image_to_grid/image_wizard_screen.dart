@@ -20,6 +20,7 @@ import 'package:beading/presentation/grid_pattern/grid_pattern_view.dart';
 import 'package:beading/presentation/grid_pattern/grid_view_options.dart';
 import 'package:beading/presentation/image_to_grid/image_wizard_cubit.dart';
 import 'package:beading/presentation/image_to_grid/image_wizard_state.dart';
+import 'package:beading/presentation/image_to_grid/importance_brush_mode.dart';
 import 'package:beading/presentation/import_book/crop_editor.dart';
 import 'package:beading/presentation/l10n/app_localizations.dart';
 import 'package:beading/presentation/library/project_labels.dart';
@@ -63,7 +64,7 @@ class ImageWizardScreen extends StatelessWidget {
             ),
             ImageWizardStep.edit || ImageWizardStep.saving => Stack(
               children: <Widget>[
-                _Edit(state: state),
+                if (state.brushing) ImportanceBrushMode(state: state) else _Edit(state: state),
                 if (state.step == ImageWizardStep.saving) _Busy(text: l10n.imageWizardSaving),
               ],
             ),
@@ -683,6 +684,28 @@ class _EditState extends State<_Edit> {
                       ),
                   ],
                 ),
+              ),
+              SizedBox(height: gap),
+              CupertinoListSection.insetGrouped(
+                margin: EdgeInsets.zero,
+                children: <Widget>[
+                  CupertinoListTile.notched(
+                    key: const ValueKey<String>('wizard-brush'),
+                    title: Text(l10n.imageWizardBrushTitle),
+                    additionalInfo: state.brush.isEmpty ? null : Text(l10n.imageWizardBrushManual),
+                    trailing: const CupertinoListTileChevron(),
+                    onTap: cubit.startBrush,
+                  ),
+                  if (!state.brush.isEmpty)
+                    CupertinoListTile.notched(
+                      key: const ValueKey<String>('wizard-brush-reset'),
+                      title: Text(
+                        l10n.imageWizardBrushReset,
+                        style: TextStyle(color: CupertinoColors.systemRed.resolveFrom(context)),
+                      ),
+                      onTap: cubit.resetBrush,
+                    ),
+                ],
               ),
               if (state.hasMasks) ...<Widget>[
                 SizedBox(height: gap),

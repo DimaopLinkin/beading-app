@@ -5,6 +5,7 @@ import 'package:beading/domain/image_to_grid/face_size_advisor.dart';
 import 'package:beading/domain/image_to_grid/generated_pattern.dart';
 import 'package:beading/domain/image_to_grid/image_mask_set.dart';
 import 'package:beading/domain/image_to_grid/image_to_grid_settings.dart';
+import 'package:beading/domain/image_to_grid/importance_brush.dart';
 import 'package:beading/domain/image_to_grid/size_suggester.dart';
 import 'package:beading/domain/palette/palette_snapshot.dart';
 import 'package:beading/domain/projects/craft.dart';
@@ -34,6 +35,14 @@ class ImageWizardState extends Equatable {
     this.comparing = false,
     this.realistic = false,
     this.masks,
+    this.brush = ImportanceBrush.empty,
+    this.brushing = false,
+    this.brushEraser = false,
+    this.brushSize = 1,
+    this.brushShowAuto = false,
+    this.brushUndoDepth = 0,
+    this.preparedWidth = 0,
+    this.preparedHeight = 0,
     this.sizeHint,
     this.problem,
     this.projectId,
@@ -79,6 +88,25 @@ class ImageWizardState extends Equatable {
 
   /// Маски и лица, найденные на подготовленной картинке (T48); `null` — Vision недоступен или ничего не нашёл.
   final ImageMaskSet? masks;
+
+  /// Мазки кисти «важное» (T60) в долях исходной картинки; переживают поворот и обрезку.
+  final ImportanceBrush brush;
+
+  /// Открыт режим «Выделить важное»; ластик, размер (номер в [brushSizes]), показ найденного генератором, глубина «Отменить».
+  final bool brushing;
+  final bool brushEraser;
+  final int brushSize;
+  final bool brushShowAuto;
+  final int brushUndoDepth;
+
+  /// Размер подготовленной картинки в пикселях (0, пока её нет).
+  final int preparedWidth;
+  final int preparedHeight;
+
+  /// Толщина кисти в коротких сторонах картинки: малая, средняя, крупная.
+  static const List<double> brushSizes = <double>[0.02, 0.04, 0.08];
+
+  bool get canUndoBrush => brushUndoDepth > 0;
 
   /// Подсказка размера по черновикам (T61); `null` — ещё не посчитана, устарела или фото без разброса светлоты.
   final SizeSuggestion? sizeHint;
@@ -142,6 +170,14 @@ class ImageWizardState extends Equatable {
     bool? comparing,
     bool? realistic,
     ImageMaskSet? masks,
+    ImportanceBrush? brush,
+    bool? brushing,
+    bool? brushEraser,
+    int? brushSize,
+    bool? brushShowAuto,
+    int? brushUndoDepth,
+    int? preparedWidth,
+    int? preparedHeight,
     SizeSuggestion? sizeHint,
     ImageWizardProblem? problem,
     String? projectId,
@@ -167,6 +203,14 @@ class ImageWizardState extends Equatable {
     comparing: comparing ?? this.comparing,
     realistic: realistic ?? this.realistic,
     masks: clearMasks ? null : (masks ?? this.masks),
+    brush: brush ?? this.brush,
+    brushing: brushing ?? this.brushing,
+    brushEraser: brushEraser ?? this.brushEraser,
+    brushSize: brushSize ?? this.brushSize,
+    brushShowAuto: brushShowAuto ?? this.brushShowAuto,
+    brushUndoDepth: brushUndoDepth ?? this.brushUndoDepth,
+    preparedWidth: preparedWidth ?? this.preparedWidth,
+    preparedHeight: preparedHeight ?? this.preparedHeight,
     sizeHint: clearSizeHint ? null : (sizeHint ?? this.sizeHint),
     problem: clearProblem ? null : (problem ?? this.problem),
     projectId: projectId ?? this.projectId,
@@ -191,6 +235,14 @@ class ImageWizardState extends Equatable {
     comparing,
     realistic,
     masks,
+    brush,
+    brushing,
+    brushEraser,
+    brushSize,
+    brushShowAuto,
+    brushUndoDepth,
+    preparedWidth,
+    preparedHeight,
     sizeHint,
     problem,
     projectId,
