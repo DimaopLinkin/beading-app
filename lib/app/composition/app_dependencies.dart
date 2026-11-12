@@ -1,16 +1,20 @@
+import 'package:beading/app/composition/catalog_module.dart';
 import 'package:beading/app/composition/core_module.dart';
 import 'package:beading/app/composition/easter_eggs_module.dart';
 import 'package:beading/app/composition/settings_module.dart';
+import 'package:beading/data/catalog/catalog_asset_source.dart';
 
 /// Корень графа зависимостей (ADR-0007): держит модули фич, создаётся в `bootstrap` и передаётся через конструкторы.
 ///
 /// Пока миграция идёт, ещё не переведённые фичи собирает `di.dart`, беря ядро отсюда.
 final class AppDependencies {
-  AppDependencies({required this.core})
-    : easterEggs = EasterEggsModule(core: core),
+  AppDependencies({required this.core, CatalogAssetSource? catalogAssets})
+    : catalog = CatalogModule(core: core, assets: catalogAssets),
+      easterEggs = EasterEggsModule(core: core),
       settings = SettingsModule(core: core);
 
   final CoreModule core;
+  final CatalogModule catalog;
   final EasterEggsModule easterEggs;
   final SettingsModule settings;
 

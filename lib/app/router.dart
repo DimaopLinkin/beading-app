@@ -3,7 +3,6 @@ import 'dart:async';
 import 'package:beading/app/composition/app_dependencies.dart';
 import 'package:beading/app/composition/app_routes.dart';
 import 'package:beading/app/di.dart';
-import 'package:beading/domain/catalog/catalog_repository.dart';
 import 'package:beading/domain/image_pattern/file_store.dart';
 import 'package:beading/domain/projects/craft.dart';
 import 'package:beading/domain/projects/load_project_preview.dart';
@@ -12,8 +11,6 @@ import 'package:beading/domain/settings/settings_repository.dart';
 import 'package:beading/domain/sharing/text_sharer.dart';
 import 'package:beading/presentation/book_work/book_work_cubit.dart';
 import 'package:beading/presentation/book_work/book_work_screen.dart';
-import 'package:beading/presentation/catalog/catalog_cubit.dart';
-import 'package:beading/presentation/catalog/catalog_screen.dart';
 import 'package:beading/presentation/editor/editor_cubit.dart';
 import 'package:beading/presentation/editor/editor_screen.dart';
 import 'package:beading/presentation/editor/new_grid_cubit.dart';
@@ -154,7 +151,7 @@ GoRouter createRouter(AppDependencies dependencies, {bool showDeveloperTools = !
       path: EditorScreen.routePath,
       builder: (_, state) => BlocProvider<EditorCubit>(
         create: (_) => getIt<EditorCubit>(param1: state.pathParameters['projectId'])..load(),
-        child: EditorScreen(catalog: getIt<CatalogRepository>(), settings: getIt<SettingsRepository>()),
+        child: EditorScreen(catalog: dependencies.catalog.repository, settings: getIt<SettingsRepository>()),
       ),
     ),
     GoRoute(
@@ -174,20 +171,7 @@ GoRouter createRouter(AppDependencies dependencies, {bool showDeveloperTools = !
         child: const PatternTemplateScreen(),
       ),
     ),
-    GoRoute(
-      path: AppRoutes.flossCatalog,
-      builder: (_, _) => BlocProvider<CatalogCubit>(
-        create: (_) => getIt<CatalogCubit>(instanceName: flossCatalogInstance)..start(),
-        child: const CatalogScreen(),
-      ),
-    ),
-    GoRoute(
-      path: AppRoutes.catalog,
-      builder: (_, _) => BlocProvider<CatalogCubit>(
-        create: (_) => getIt<CatalogCubit>()..start(),
-        child: const CatalogScreen(),
-      ),
-    ),
+    ...dependencies.catalog.routes(),
     GoRoute(
       path: MaterialsScreen.routePath,
       builder: (_, state) => BlocProvider<MaterialsCubit>(
