@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<chart>
+  <format comments01="test"/>
+  <properties oxsversion="1.0" software="Test" chartwidth="6" chartheight="4" charttitle="Розочка" stitchesperinch="14" stitchesperinch_y="14" palettecount="3"/>
+  <palette>
+    <palette_item index="0" number="cloth" name="cloth" color="F5F0E1"/>
+    <palette_item index="1" number="DMC    310" name="Black" color="2C3225" strands="3" bsstrands="1"/>
+    <palette_item index="2" number="anchor 47" name="Carmine" color="CC1133"/>
+    <palette_item index="3" number="DMC 158 [+]" name="Blend" color="303065" blendcolor="824596">
+      <blend number="DMC 158" name="Dk" color="303065"/>
+      <blend number="DMC 208" name="Vi" color="824596"/>
+    </palette_item>
+  </palette>
+  <fullstitches>
+    <stitch x="1" y="1" palindex="1"/>
+    <stitch x="2" y="1" palindex="2"/>
+    <stitch x="3" y="3" palindex="0"/>
+    <stitch x="6" y="4" palindex="3"/>
+    <stitch x="9" y="9" palindex="1"/>
+  </fullstitches>
+  <partstitches>
+    <partstitch x="3" y="1" palindex1="2" palindex2="0" direction="3"/>
+    <partstitch x="4" y="1" palindex1="2" palindex2="0" direction="4"/>
+    <partstitch x="5" y="1" palindex1="0" palindex2="2" direction="1"/>
+    <partstitch x="1" y="2" palindex1="1" palindex2="0" direction="2"/>
+  </partstitches>
+  <backstitches>
+    <backstitch x1="1" y1="1" x2="2" y2="1" palindex="1" objecttype="backstitch"/>
+    <backstitch x1="1" y1="1" x2="2" y2="1" palindex="1" objecttype="backstitch"/>
+    <backstitch x1="2" y1="2" x2="2" y2="2" palindex="1" objecttype="backstitch"/>
+    <backstitch x1="3" y1="2" x2="5.5" y2="4" palindex="2" objecttype="straightstitch"/>
+  </backstitches>
+  <ornaments_inc_knots_and_beads>
+    <object x1="1.5" y1="1.5" palindex="2" objecttype="knot"/>
+    <object x1="3.5" y1="1.5" palindex="2" objecttype="bead"/>
+    <object x1="2" y1="3.5" palindex="1" objecttype="quarter" petit="false"/>
+    <object x1="2" y1="3" palindex="1" objecttype="3x3"/>
+    <object x1="5" y1="3" palindex="1" objecttype="tent" direction="1"/>
+  </ornaments_inc_knots_and_beads>
+</chart>

@@ -28,6 +28,7 @@ class PlatformIncomingBiserFiles implements IncomingBiserFiles {
   static const String openMethod = 'openFiles';
   static const String readyMethod = 'ready';
   static const String extension = '.biser';
+  static const String oxsExtension = '.oxs';
 
   final Stream<Uri>? _links;
   final MethodChannel _channel;
@@ -41,7 +42,7 @@ class PlatformIncomingBiserFiles implements IncomingBiserFiles {
     controller = StreamController<Result<BiserFile>>(
       onListen: () {
         Future<void> handle(String path) async {
-          if (!path.toLowerCase().endsWith(extension)) {
+          if (!path.toLowerCase().endsWith(extension) && !path.toLowerCase().endsWith(oxsExtension)) {
             return;
           }
           try {
