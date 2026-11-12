@@ -133,6 +133,22 @@ void main() {
     await closeScreen(tester, cubit);
   });
 
+  testWidgets('выбранный цвет показан плашкой, крестик на ней сбрасывает выбор', (tester) async {
+    final StitchCubit cubit = await open(tester);
+    expect(find.byKey(const ValueKey<String>('stitch-highlight-chip')), findsNothing);
+
+    cubit.highlight(1);
+    await tester.pump();
+    await tester.pump();
+    expect(find.byKey(const ValueKey<String>('stitch-highlight-chip')), findsOneWidget);
+
+    await tester.tap(find.byKey(const ValueKey<String>('stitch-highlight-reset')));
+    await tester.pump();
+    await tester.pump();
+    expect(cubit.state.highlight, isNull);
+    expect(find.byKey(const ValueKey<String>('stitch-highlight-chip')), findsNothing);
+  });
+
   testWidgets('нет схемы — сообщение и «Закрыть»', (tester) async {
     patterns.byProject.clear();
     final StitchCubit cubit = newCubit();
