@@ -1,7 +1,7 @@
 ---
 id: 11-page-markup
 title: Пометки маркером на странице книги (MUST-X2, T45)
-status: delivered
+status: accepted
 depends: 04b-ruler-handle
 ---
 
