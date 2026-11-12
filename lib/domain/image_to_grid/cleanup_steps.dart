@@ -60,8 +60,22 @@ final class RemoveIslandsStep extends Equatable implements PatternStep {
     keepToneDeltaE: keepToneDeltaE,
   );
 
+  /// Сколько раз проход повторяется, пока перекраска порождает новые мелкие острова (остров, перекрашенный в цвет
+  /// соседнего острова, сам перекрашенного дальше).
+  static const int _maxPasses = 3;
+
   @override
   GeneratedPattern apply(GeneratedPattern pattern, PatternStepContext context) {
+    GeneratedPattern current = pattern;
+    for (int pass = 0; pass < _maxPasses; pass++) {
+      final GeneratedPattern next = _pass(current, context);
+      if (next.grid == current.grid) break;
+      current = next;
+    }
+    return current;
+  }
+
+  GeneratedPattern _pass(GeneratedPattern pattern, PatternStepContext context) {
     final Grid grid = pattern.grid;
     final int columns = grid.width;
     final int rows = grid.height;
