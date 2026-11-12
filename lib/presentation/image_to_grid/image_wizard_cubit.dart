@@ -105,6 +105,9 @@ class ImageWizardCubit extends Cubit<ImageWizardState> {
   (int, Craft)? _hintKey;
   bool _hintRunning = false;
 
+  /// Пользовательница сама меняла размер или число цветов для этой фотографии: подсказка сама ничего не применяет (T66).
+  bool _sizeTouched = false;
+
   /// Загружает каталог и бренд по умолчанию: от них зависит режим «цвета каталога».
   Future<void> start() async {
     final Result<List<CatalogColor>> colors = await _catalog.search(material: CatalogMaterial.bead);
@@ -195,6 +198,7 @@ class ImageWizardCubit extends Cubit<ImageWizardState> {
       ),
     );
     _hintKey = null;
+    _sizeTouched = false;
     _image = prepared.image;
     _schedule(immediate: true);
   }
@@ -315,7 +319,10 @@ class ImageWizardCubit extends Cubit<ImageWizardState> {
   }
 
   /// Ширина готовой вышивки в сантиметрах: клетки считаются по канве.
-  void setWidthCm(double cm) => _change(state.settings.copyWith(columns: state.settings.fabric.cellsForCm(cm)));
+  void setWidthCm(double cm) {
+    _sizeTouched = true;
+    _change(state.settings.copyWith(columns: state.settings.fabric.cellsForCm(cm)));
+  }
 
   /// Контуры-бэкстич из картинки (T49).
   void setBackstitch({required bool value}) => _change(state.settings.copyWith(backstitch: value));
@@ -325,9 +332,15 @@ class ImageWizardCubit extends Cubit<ImageWizardState> {
 
   void setBeadSize(BeadSize size) => _change(state.settings.copyWith(beadSize: size));
 
-  void setColumns(int columns) => _change(state.settings.copyWith(columns: columns));
+  void setColumns(int columns) {
+    _sizeTouched = true;
+    _change(state.settings.copyWith(columns: columns));
+  }
 
-  void setMaxColors(int colors) => _change(state.settings.copyWith(maxColors: colors));
+  void setMaxColors(int colors) {
+    _sizeTouched = true;
+    _change(state.settings.copyWith(maxColors: colors));
+  }
 
   void setPaletteSource(PaletteSource source) => _change(state.settings.copyWith(paletteSource: source));
 
@@ -349,7 +362,9 @@ class ImageWizardCubit extends Cubit<ImageWizardState> {
     _change(state.settings.copyWith(finishGroups: groups));
   }
 
-  void setPreset(GenerationPreset preset) => _change(state.settings.copyWith(preset: preset));
+  /// Предустановка; `null` — «как на фото»: простой путь T24 без сглаживания и очистки, больше исходных деталей.
+  void setPreset(GenerationPreset? preset) =>
+      _change(preset == null ? state.settings.copyWith(clearPreset: true) : state.settings.copyWith(preset: preset));
 
   /// «Выделять главное»: учитывать ли лица и объект, найденные на фото.
   void setUseMasks({required bool value}) => _change(state.settings.copyWith(useMasks: value));
@@ -424,6 +439,7 @@ class ImageWizardCubit extends Cubit<ImageWizardState> {
   void applySizeHint() {
     final SizeSuggestion? hint = state.sizeHint;
     if (hint == null) return;
+    _sizeTouched = true;
     _change(
       state.settings.copyWith(
         columns: hint.columns,
@@ -433,7 +449,10 @@ class ImageWizardCubit extends Cubit<ImageWizardState> {
   }
 
   /// Размер по назначению: «браслет», «панно», «картина» (бисер) или сантиметры (вышивка).
-  void setPurpose(SizePurpose purpose) => _change(state.settings.copyWith(columns: purpose.columnsFor(state.settings)));
+  void setPurpose(SizePurpose purpose) {
+    _sizeTouched = true;
+    _change(state.settings.copyWith(columns: purpose.columnsFor(state.settings)));
+  }
 
   /// Считает подсказку размера в фоне по черновикам на нескольких ширинах (T61); стартует после полного расчёта, поэтому
   /// первый предпросмотр не задерживает, и прерывается, как только параметры снова меняются.
@@ -468,6 +487,15 @@ class ImageWizardCubit extends Cubit<ImageWizardState> {
       );
       _hintKey = key;
       emit(state.copyWith(sizeHint: hint, clearSizeHint: hint == null));
+      // Размер по умолчанию берётся из подсказки, пока его никто не менял (T66).
+      if (hint != null && !_sizeTouched) {
+        _change(
+          state.settings.copyWith(
+            columns: hint.columns,
+            maxColors: hint.colors.clamp(ImageToGridSettings.minColors, ImageToGridSettings.maxColorsLimit),
+          ),
+        );
+      }
     } on Object {
       // Подсказка не обязательна: без неё мастер работает как раньше.
     } finally {

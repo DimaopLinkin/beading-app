@@ -2605,6 +2605,12 @@ abstract class AppLocalizations {
   /// **'Средне'**
   String get imageWizardPresetBalanced;
 
+  /// Детальность без предустановки: простой перенос фото в клетки, больше исходных деталей и одиночных клеток
+  ///
+  /// In ru, this message translates to:
+  /// **'Как на фото'**
+  String get imageWizardPresetAsIs;
+
   /// Предустановка: больше мелких деталей
   ///
   /// In ru, this message translates to:

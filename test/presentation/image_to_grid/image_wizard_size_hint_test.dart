@@ -125,8 +125,7 @@ void main() {
       await tester.scrollUntilVisible(hint, 200, scrollable: find.byType(Scrollable).last);
       expect(find.textContaining('от 60 бусин по ширине и 10 цветов'), findsOneWidget);
 
-      await tester.tap(find.byKey(const ValueKey<String>('wizard-size-hint-apply')));
-      await tester.pumpAndSettle();
+      // Размер по умолчанию взят из подсказки, пока его никто не менял (T66).
       expect(cubit.state.settings.columns, 60);
       expect(find.byKey(const ValueKey<String>('wizard-size-hint-applied'), skipOffstage: false), findsOneWidget);
 
@@ -134,6 +133,9 @@ void main() {
       await tester.pumpAndSettle();
       expect(cubit.state.settings.columns, 100);
       expect(find.byKey(const ValueKey<String>('wizard-size-hint-apply'), skipOffstage: false), findsOneWidget);
+      await tester.tap(find.byKey(const ValueKey<String>('wizard-size-hint-apply')));
+      await tester.pumpAndSettle();
+      expect(cubit.state.settings.columns, 60);
     });
   }
 
@@ -159,6 +161,10 @@ void main() {
       ],
     );
     await open(tester, AppTheme.light);
+    // С лицом подсказка даёт 80 столбцов и применяется сама; предупреждение появляется, когда схему сделали уже.
+    expect(cubit.state.settings.columns, 80);
+    cubit.setColumns(40);
+    await tester.pumpAndSettle();
     final Finder warning = find.byKey(const ValueKey<String>('wizard-beads-few'));
     await tester.scrollUntilVisible(warning, 200, scrollable: find.byType(Scrollable).last);
     expect(find.textContaining('Бисера на такое лицо не хватает'), findsOneWidget);
@@ -166,5 +172,14 @@ void main() {
     await tester.pumpAndSettle();
     expect(cubit.state.settings.craft, Craft.crossStitch);
     expect(find.byKey(const ValueKey<String>('wizard-beads-few'), skipOffstage: false), findsNothing);
+  });
+
+  testWidgets('«Как на фото» выбирает путь T24 без предустановки', (tester) async {
+    await open(tester, AppTheme.light);
+    final Finder asIs = find.text('Как на фото');
+    await tester.scrollUntilVisible(asIs, 200, scrollable: find.byType(Scrollable).last);
+    await tester.tap(asIs);
+    await tester.pumpAndSettle();
+    expect(cubit.state.settings.preset, isNull);
   });
 }

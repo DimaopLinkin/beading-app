@@ -1442,6 +1442,9 @@ class AppLocalizationsRu extends AppLocalizations {
   String get imageWizardPresetBalanced => 'Средне';
 
   @override
+  String get imageWizardPresetAsIs => 'Как на фото';
+
+  @override
   String get imageWizardPresetDetailed => 'Детально';
 
   @override

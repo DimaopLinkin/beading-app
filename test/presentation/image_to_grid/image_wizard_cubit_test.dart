@@ -15,6 +15,7 @@ import 'package:beading/domain/image_pattern/crop_rect.dart';
 import 'package:beading/domain/image_pattern/picked_book_file.dart';
 import 'package:beading/domain/image_to_grid/background_stage.dart';
 import 'package:beading/domain/image_to_grid/generated_pattern.dart';
+import 'package:beading/domain/image_to_grid/generation_preset.dart';
 import 'package:beading/domain/image_to_grid/generation_stats.dart';
 import 'package:beading/domain/image_to_grid/image_decoder.dart';
 import 'package:beading/domain/image_to_grid/image_mask_set.dart';
@@ -750,6 +751,33 @@ void main() {
       final Iterable<ImageToGridRequest> probes = auto.requests.where((r) => r.measure);
       expect(probes.every((r) => r.draft), isTrue);
       expect(probes.map((r) => r.columns), <int>[30, 40, 60, 80, 100, 120]);
+    });
+
+    test(
+      'размер по умолчанию берётся из подсказки, пока его никто не менял; ручная правка подсказку не перебивает',
+      () async {
+        await openAuto();
+        expect(cubit.state.settings.columns, 60);
+        expect(cubit.state.settings.maxColors, 10);
+      },
+    );
+
+    test('если размер менялся вручную до прихода подсказки, она ничего не применяет сама', () async {
+      source.next = Success<List<PickedBookFile>>(<PickedBookFile>[photo()]);
+      await cubit.pickPhotos();
+      await Future<void>.delayed(Duration.zero);
+      cubit.setColumns(50);
+      await settle();
+      expect(cubit.state.sizeHint, isNotNull);
+      expect(cubit.state.settings.columns, 50);
+    });
+
+    test('«как на фото» — предустановка снимается, возврат — предустановка на месте', () async {
+      await openAuto();
+      cubit.setPreset(null);
+      expect(cubit.state.settings.preset, isNull);
+      cubit.setPreset(GenerationPreset.balanced);
+      expect(cubit.state.settings.preset, GenerationPreset.balanced);
     });
 
     test('первый предпросмотр приходит раньше подсказки', () async {
