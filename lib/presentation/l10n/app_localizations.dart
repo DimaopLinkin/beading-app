@@ -2515,6 +2515,78 @@ abstract class AppLocalizations {
   /// **'В выбранной серии и отделках всего {available} цветов, а в схеме их до {wanted}: попробуй другую серию или отделки, либо выбери «Любые».'**
   String imageWizardCatalogFew(int available, int wanted);
 
+  /// Подсказка размера для бисера
+  ///
+  /// In ru, this message translates to:
+  /// **'Для этого фото лучше от {columns} бусин по ширине и {colors} цветов, около {cm} см.'**
+  String imageWizardSizeHintBeads(int columns, int colors, String cm);
+
+  /// Подсказка размера для вышивки в сантиметрах на текущей канве
+  ///
+  /// In ru, this message translates to:
+  /// **'Для этого фото на канве {fabric} лучше от {cm} см ({columns} крестиков) и {colors} цветов.'**
+  String imageWizardSizeHintStitch(String fabric, String cm, int columns, int colors);
+
+  /// Пояснение к подсказке размера, когда порог качества не достигнут
+  ///
+  /// In ru, this message translates to:
+  /// **'Мелкие детали этого фото не получатся даже на самом большом размере.'**
+  String get imageWizardSizeHintLimit;
+
+  /// Кнопка: применить подсказку размера
+  ///
+  /// In ru, this message translates to:
+  /// **'Применить'**
+  String get imageWizardSizeHintApply;
+
+  /// Подсказка размера уже применена
+  ///
+  /// In ru, this message translates to:
+  /// **'Размер подобран по фото'**
+  String get imageWizardSizeHintApplied;
+
+  /// Заголовок выбора размера по назначению
+  ///
+  /// In ru, this message translates to:
+  /// **'Размер по назначению'**
+  String get imageWizardPurpose;
+
+  /// Размер по назначению: узкая полоса браслета
+  ///
+  /// In ru, this message translates to:
+  /// **'Браслет'**
+  String get imageWizardPurposeBracelet;
+
+  /// Размер по назначению: панно
+  ///
+  /// In ru, this message translates to:
+  /// **'Панно'**
+  String get imageWizardPurposePanel;
+
+  /// Размер по назначению: картина
+  ///
+  /// In ru, this message translates to:
+  /// **'Картина'**
+  String get imageWizardPurposePicture;
+
+  /// Расшифровка размера по назначению в бисере
+  ///
+  /// In ru, this message translates to:
+  /// **'{columns} бусин, около {cm} см'**
+  String imageWizardPurposeBeads(int columns, String cm);
+
+  /// Предупреждение: для фото с лицом схема из бисера слишком узкая
+  ///
+  /// In ru, this message translates to:
+  /// **'Бисера на такое лицо не хватает: на {columns} столбцах глаза и губы не получатся. Возьми размер из подсказки или вышивку.'**
+  String imageWizardBeadsFewForFace(int columns);
+
+  /// Действие: перейти с бисера на вышивку
+  ///
+  /// In ru, this message translates to:
+  /// **'Сделать вышивкой'**
+  String get imageWizardToStitch;
+
   /// Заголовок выбора предустановки генератора
   ///
   /// In ru, this message translates to:
@@ -2538,18 +2610,6 @@ abstract class AppLocalizations {
   /// In ru, this message translates to:
   /// **'Детально'**
   String get imageWizardPresetDetailed;
-
-  /// Переключатель дизеринга
-  ///
-  /// In ru, this message translates to:
-  /// **'Плавные переходы'**
-  String get imageWizardDither;
-
-  /// Пояснение к плавным переходам
-  ///
-  /// In ru, this message translates to:
-  /// **'Плавные переходы цвета (небо, тени) выкладываются узором из соседних цветов. Остальное в схеме не меняется.'**
-  String get imageWizardDitherHint;
 
   /// Переключатель: учитывать найденные на фото лица и объект
   ///
@@ -2964,6 +3024,300 @@ abstract class AppLocalizations {
   /// In ru, this message translates to:
   /// **'Место запомнено'**
   String get stitchParked;
+
+  /// Заголовок экрана расхода мулине
+  ///
+  /// In ru, this message translates to:
+  /// **'Мулине'**
+  String get flossTitle;
+
+  /// Строка с канвой под заголовком расхода мулине
+  ///
+  /// In ru, this message translates to:
+  /// **'Канва: {fabric}'**
+  String flossFabricLine(String fabric);
+
+  /// Размер куска канвы под схему
+  ///
+  /// In ru, this message translates to:
+  /// **'Кусок канвы: {width} × {height} см (вышивка {stitchedWidth} × {stitchedHeight} см и поля по {margin} см)'**
+  String flossFabricNeed(String width, String height, String stitchedWidth, String stitchedHeight, String margin);
+
+  /// Заголовок списка покупок мулине
+  ///
+  /// In ru, this message translates to:
+  /// **'Что купить'**
+  String get flossShoppingTitle;
+
+  /// Заголовок таблицы цветов расхода мулине
+  ///
+  /// In ru, this message translates to:
+  /// **'По цветам схемы'**
+  String get flossColorsTitle;
+
+  /// Число мотков мулине
+  ///
+  /// In ru, this message translates to:
+  /// **'{count, plural, one{{count} моток} few{{count} мотка} many{{count} мотков} other{{count} мотка}}'**
+  String flossSkeins(int count);
+
+  /// Число полных крестиков цвета
+  ///
+  /// In ru, this message translates to:
+  /// **'{count} крестиков'**
+  String flossStitches(String count);
+
+  /// Число неполных крестиков цвета
+  ///
+  /// In ru, this message translates to:
+  /// **'неполных: {count}'**
+  String flossPartials(String count);
+
+  /// Длина бэкстича цвета в клетках
+  ///
+  /// In ru, this message translates to:
+  /// **'бэкстич: {cells} кл.'**
+  String flossBackstitch(String cells);
+
+  /// Число узелков цвета
+  ///
+  /// In ru, this message translates to:
+  /// **'узелков: {count}'**
+  String flossKnots(String count);
+
+  /// Пояснение к смешанной нити в расходе мулине
+  ///
+  /// In ru, this message translates to:
+  /// **'Смешанная нить: в иголку идут обе нитки, мотки берут по каждой.'**
+  String get flossBlendHint;
+
+  /// Строка итога расхода мулине
+  ///
+  /// In ru, this message translates to:
+  /// **'Итого: {skeins}'**
+  String flossTotal(String skeins);
+
+  /// Пояснение под итогом расхода мулине
+  ///
+  /// In ru, this message translates to:
+  /// **'Расход примерный, до мотка. Моток — 8 м из 6 сложений; одинаковые нитки разных цветов схемы складываются.'**
+  String get flossEstimateHint;
+
+  /// Заголовок пустого экрана мулине
+  ///
+  /// In ru, this message translates to:
+  /// **'В схеме пока нет крестиков'**
+  String get flossEmptyTitle;
+
+  /// Подсказка пустого экрана мулине
+  ///
+  /// In ru, this message translates to:
+  /// **'Когда в схеме появятся цвета, здесь будет список ниток.'**
+  String get flossEmptyMessage;
+
+  /// Ошибка экрана мулине: схема не на канве
+  ///
+  /// In ru, this message translates to:
+  /// **'Расход мулине считается только для схемы на канве.'**
+  String get flossUnsupported;
+
+  /// Первая строка текста списка мулине
+  ///
+  /// In ru, this message translates to:
+  /// **'Мулине: {name}'**
+  String flossShareHeader(String name);
+
+  /// Строка нитки в тексте списка мулине
+  ///
+  /// In ru, this message translates to:
+  /// **'{number}. {thread} — {skeins}'**
+  String flossShareLine(int number, String thread, String skeins);
+
+  /// Строка о канве в тексте списка мулине
+  ///
+  /// In ru, this message translates to:
+  /// **'Канва {fabric}, кусок {width} × {height} см'**
+  String flossShareFabric(String fabric, String width, String height);
+
+  /// Пояснение в тексте списка мулине, если выбран запас
+  ///
+  /// In ru, this message translates to:
+  /// **'Мотки указаны с запасом {percent}%.'**
+  String flossShareReserve(int percent);
+
+  /// Инструмент редактора вышивки: одна диагональ клетки
+  ///
+  /// In ru, this message translates to:
+  /// **'Полукрестик'**
+  String get editorToolHalfStitch;
+
+  /// Инструмент редактора вышивки
+  ///
+  /// In ru, this message translates to:
+  /// **'Четверть крестика'**
+  String get editorToolQuarterStitch;
+
+  /// Инструмент редактора вышивки
+  ///
+  /// In ru, this message translates to:
+  /// **'¾ крестика'**
+  String get editorToolThreeQuarterStitch;
+
+  /// Инструмент редактора вышивки: маленький крестик в четверти клетки
+  ///
+  /// In ru, this message translates to:
+  /// **'Петит'**
+  String get editorToolPetit;
+
+  /// Инструмент редактора вышивки: линия по узлам
+  ///
+  /// In ru, this message translates to:
+  /// **'Бэкстич'**
+  String get editorToolBackstitch;
+
+  /// Инструмент редактора вышивки
+  ///
+  /// In ru, this message translates to:
+  /// **'Французский узелок'**
+  String get editorToolKnot;
+
+  /// Подсказка под панелью инструментов вышивки
+  ///
+  /// In ru, this message translates to:
+  /// **'Коснитесь клетки у нужного угла или диагонали. Повторное касание убирает стежок.'**
+  String get editorHintPartial;
+
+  /// Подсказка под панелью инструментов вышивки
+  ///
+  /// In ru, this message translates to:
+  /// **'Коснитесь двух узлов подряд или проведите пальцем: между ними ляжет стежок. Узлы — углы, середины сторон и центры клеток.'**
+  String get editorHintBackstitch;
+
+  /// Подсказка бэкстича после первого касания
+  ///
+  /// In ru, this message translates to:
+  /// **'Начало отмечено. Коснитесь следующего узла, повторное касание узла закончит линию.'**
+  String get editorHintBackstitchStart;
+
+  /// Подсказка под панелью инструментов вышивки
+  ///
+  /// In ru, this message translates to:
+  /// **'Коснитесь узла: угла, середины стороны или центра клетки. Повторное касание убирает узелок.'**
+  String get editorHintKnot;
+
+  /// Подсказка ластика в редакторе вышивки
+  ///
+  /// In ru, this message translates to:
+  /// **'Коснитесь линии или узелка, чтобы убрать их; клетку очищает касание внутри неё, мазок стирает несколько клеток.'**
+  String get editorHintEraserStitch;
+
+  /// Заголовок листа создания схемы вышивки
+  ///
+  /// In ru, this message translates to:
+  /// **'Новая вышивка'**
+  String get newStitchTitle;
+
+  /// Название вышивки, если ничего не введено
+  ///
+  /// In ru, this message translates to:
+  /// **'Новая вышивка'**
+  String get newStitchDefaultName;
+
+  /// Размер вышивки вводится в крестиках
+  ///
+  /// In ru, this message translates to:
+  /// **'Крестики'**
+  String get newStitchUnitCells;
+
+  /// Размер вышивки вводится в сантиметрах
+  ///
+  /// In ru, this message translates to:
+  /// **'Сантиметры'**
+  String get newStitchUnitCm;
+
+  /// Подпись ширины вышивки
+  ///
+  /// In ru, this message translates to:
+  /// **'Ширина, крестиков'**
+  String get newStitchWidthCells;
+
+  /// Подпись высоты вышивки
+  ///
+  /// In ru, this message translates to:
+  /// **'Высота, крестиков'**
+  String get newStitchHeightCells;
+
+  /// Подпись ширины вышивки в сантиметрах
+  ///
+  /// In ru, this message translates to:
+  /// **'Ширина, см'**
+  String get newStitchWidthCm;
+
+  /// Подпись высоты вышивки в сантиметрах
+  ///
+  /// In ru, this message translates to:
+  /// **'Высота, см'**
+  String get newStitchHeightCm;
+
+  /// Итог размера вышивки на канве
+  ///
+  /// In ru, this message translates to:
+  /// **'{width} × {height} крестиков, на этой канве {widthCm} × {heightCm} см'**
+  String newStitchSizeSummary(String width, String height, String widthCm, String heightCm);
+
+  /// Подсказка о допустимом размере вышивки
+  ///
+  /// In ru, this message translates to:
+  /// **'Размер: от 1 до {max} крестиков по каждой стороне'**
+  String newStitchSizeInvalid(int max);
+
+  /// Пункт «Новый проект»: редактор схемы вышивки
+  ///
+  /// In ru, this message translates to:
+  /// **'Нарисовать схему вышивки'**
+  String get libraryDrawStitchPattern;
+
+  /// Фильтр производителей ниток: все
+  ///
+  /// In ru, this message translates to:
+  /// **'Все'**
+  String get colorSheetAllBrands;
+
+  /// Переключатель смешанной нити в листе цвета
+  ///
+  /// In ru, this message translates to:
+  /// **'Смесь двух ниток'**
+  String get colorSheetBlend;
+
+  /// Пояснение к смешанной нити
+  ///
+  /// In ru, this message translates to:
+  /// **'В иголку идут две нитки. Выберите каждую из каталога, цвет на схеме будет средним.'**
+  String get colorSheetBlendHint;
+
+  /// Выбор слота смешанной нити
+  ///
+  /// In ru, this message translates to:
+  /// **'Нитка {number}: {code}'**
+  String colorSheetThread(int number, String code);
+
+  /// Инструмент редактора вышивки: бусина поверх вышивки
+  ///
+  /// In ru, this message translates to:
+  /// **'Бусина'**
+  String get editorToolBead;
+
+  /// Подсказка инструмента «Бусина»
+  ///
+  /// In ru, this message translates to:
+  /// **'Коснитесь узла, чтобы поставить бусину. Повторное касание значка инструмента выбирает другую бусину из каталога.'**
+  String get editorHintBead;
+
+  /// Подсказка: у инструмента «Бусина» нет выбранной бусины
+  ///
+  /// In ru, this message translates to:
+  /// **'Сначала выберите бусину из каталога.'**
+  String get editorProblemNoBead;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

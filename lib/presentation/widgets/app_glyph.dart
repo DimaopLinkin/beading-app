@@ -2,7 +2,30 @@ import 'package:flutter/cupertino.dart';
 
 /// Иконки, которых нет ни в CupertinoIcons, ни в SF Symbols (01b, п. 6): ластик, выделение, зеркало, режим «по бусине».
 /// Линии толщиной 2 pt на сетке 24 × 24, как в макете; цвет и размер берутся из [IconTheme].
-enum AppGlyphKind { eraser, selection, mirror, beadMode }
+enum AppGlyphKind {
+  eraser,
+  selection,
+  mirror,
+  beadMode,
+
+  /// Клетка с одной диагональю.
+  halfStitch,
+
+  /// Клетка со стежком от угла до центра.
+  quarterStitch,
+
+  /// Клетка с диагональю и четвертью.
+  threeQuarterStitch,
+
+  /// Маленький крестик в углу клетки.
+  petit,
+
+  /// Ломаная по узлам.
+  backstitch,
+
+  /// Французский узелок: кольцо с точкой.
+  knot,
+}
 
 class AppGlyph extends StatelessWidget {
   const AppGlyph(this.kind, {this.size, this.color, super.key});
@@ -50,8 +73,31 @@ class AppGlyphPainter extends CustomPainter {
       (const <Offset>[Offset(8, 7), Offset(3, 12), Offset(8, 17)], true),
       (const <Offset>[Offset(16, 7), Offset(21, 12), Offset(16, 17)], true),
     ],
-    AppGlyphKind.beadMode => const <(List<Offset>, bool)>[],
+    AppGlyphKind.beadMode || AppGlyphKind.knot => const <(List<Offset>, bool)>[],
+    AppGlyphKind.halfStitch => <(List<Offset>, bool)>[
+      (_cellFrame, true),
+      (const <Offset>[Offset(5, 19), Offset(19, 5)], false),
+    ],
+    AppGlyphKind.quarterStitch => <(List<Offset>, bool)>[
+      (_cellFrame, true),
+      (const <Offset>[Offset(5, 19), Offset(12, 12)], false),
+    ],
+    AppGlyphKind.threeQuarterStitch => <(List<Offset>, bool)>[
+      (_cellFrame, true),
+      (const <Offset>[Offset(5, 19), Offset(19, 5)], false),
+      (const <Offset>[Offset(5, 5), Offset(12, 12)], false),
+    ],
+    AppGlyphKind.petit => <(List<Offset>, bool)>[
+      (_cellFrame, true),
+      (const <Offset>[Offset(6, 12), Offset(12, 6)], false),
+      (const <Offset>[Offset(6, 6), Offset(12, 12)], false),
+    ],
+    AppGlyphKind.backstitch => <(List<Offset>, bool)>[
+      (const <Offset>[Offset(4, 18), Offset(10, 18), Offset(10, 8), Offset(20, 8)], false),
+    ],
   };
+
+  static const List<Offset> _cellFrame = <Offset>[Offset(4, 4), Offset(20, 4), Offset(20, 20), Offset(4, 20)];
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -62,6 +108,12 @@ class AppGlyphPainter extends CustomPainter {
       ..strokeCap = StrokeCap.round
       ..strokeJoin = StrokeJoin.round
       ..color = color;
+    if (kind == AppGlyphKind.knot) {
+      canvas
+        ..drawCircle(Offset(12 * k, 12 * k), 7 * k, stroke)
+        ..drawCircle(Offset(12 * k, 12 * k), 2.5 * k, Paint()..color = color);
+      return;
+    }
     if (kind == AppGlyphKind.beadMode) {
       // Контур бусины с точкой.
       canvas

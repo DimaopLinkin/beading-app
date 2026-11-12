@@ -15,9 +15,9 @@ void main() {
     expect(tester.getSize(find.byType(CustomPaint).last), const Size(32, 32));
   });
 
-  test('у каждого глифа есть контуры (кроме режима «по бусине», он рисуется кругом)', () {
+  test('у каждого глифа есть контуры (кроме «по бусине» и узелка: они рисуются кругами)', () {
     for (final AppGlyphKind kind in AppGlyphKind.values) {
-      expect(AppGlyphPainter.outlines(kind).isEmpty, kind == AppGlyphKind.beadMode);
+      expect(AppGlyphPainter.outlines(kind).isEmpty, kind == AppGlyphKind.beadMode || kind == AppGlyphKind.knot);
     }
   });
 

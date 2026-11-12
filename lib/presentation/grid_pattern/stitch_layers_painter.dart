@@ -2,6 +2,7 @@ import 'dart:math' as math;
 import 'dart:ui';
 
 import 'package:beading/domain/grid/cell_position.dart';
+import 'package:beading/domain/palette/catalog_ref.dart';
 import 'package:beading/domain/palette/palette_snapshot.dart';
 import 'package:beading/domain/palette/pattern_color.dart';
 import 'package:beading/domain/stitch/lattice_node.dart';
@@ -13,6 +14,7 @@ import 'package:beading/presentation/grid_pattern/grid_colors.dart';
 import 'package:beading/presentation/grid_pattern/grid_scene.dart';
 import 'package:beading/presentation/grid_pattern/grid_view_options.dart';
 import 'package:beading/presentation/grid_pattern/stitch_cells.dart';
+import 'package:flutter/foundation.dart' show mapEquals;
 import 'package:flutter/rendering.dart';
 
 /// Всё, от чего зависит рисунок слоёв вышивки, кроме самих слоёв: подложка, вид, подсветка, скрытые слои.
@@ -23,6 +25,7 @@ final class StitchLayersStyle {
     this.realistic = false,
     this.hiddenLayers = const <StitchLayerKind>{},
     this.highlightColor,
+    this.beadColors = const <CatalogRef, Color>{},
   });
 
   /// Цвет канвы: от него зависит цвет каймы вокруг стежков и притушение.
@@ -39,6 +42,9 @@ final class StitchLayersStyle {
   /// Значение сетки подсвеченного цвета; остальные стежки притушены.
   final int? highlightColor;
 
+  /// Цвет бусин слоя по позиции каталога бисера; бусина без цвета рисуется нейтральной жемчужной.
+  final Map<CatalogRef, Color> beadColors;
+
   @override
   // ignore: avoid_equals_and_hash_code_on_mutable_classes, поля final
   bool operator ==(Object other) =>
@@ -47,12 +53,20 @@ final class StitchLayersStyle {
       other.unknown == unknown &&
       other.realistic == realistic &&
       other.highlightColor == highlightColor &&
+      mapEquals(other.beadColors, beadColors) &&
       other.hiddenLayers.length == hiddenLayers.length &&
       other.hiddenLayers.containsAll(hiddenLayers);
 
   @override
   // ignore: avoid_equals_and_hash_code_on_mutable_classes, см. выше
-  int get hashCode => Object.hash(surface, unknown, realistic, highlightColor, Object.hashAllUnordered(hiddenLayers));
+  int get hashCode => Object.hash(
+    surface,
+    unknown,
+    realistic,
+    highlightColor,
+    Object.hashAllUnordered(hiddenLayers),
+    Object.hashAllUnordered(beadColors.entries.map((e) => Object.hash(e.key, e.value))),
+  );
 }
 
 /// Рисование слоёв вышивки поверх клеток: неполные крестики, бэкстич и прямые стежки, узелки и бусины.
@@ -98,7 +112,7 @@ abstract final class StitchLayersPaint {
       for (final PointStitch p in layers.points) {
         final Offset center = at(p.node);
         if (p.kind == PointKind.bead) {
-          _bead(canvas, paint, center, s * 0.18, style);
+          _bead(canvas, paint, center, s * 0.18, style, style.beadColors[p.bead]);
         } else {
           _knot(canvas, paint, center, s * (0.13 + 0.035 * p.wraps), colorOf(p.color), style);
         }
@@ -221,14 +235,22 @@ abstract final class StitchLayersPaint {
     canvas.drawCircle(center + Offset(-radius * 0.28, -radius * 0.3), radius * 0.3, paint);
   }
 
-  /// Бусина без цвета: каталог бисера схема не знает, поэтому нейтральная жемчужная бусина с отверстием.
-  static void _bead(Canvas canvas, Paint paint, Offset center, double radius, StitchLayersStyle style) {
+  /// Бусина с отверстием. Цвет берётся у позиции каталога бисера; если он неизвестен (каталог не загружен), бусина
+  /// нейтральная жемчужная.
+  static void _bead(
+    Canvas canvas,
+    Paint paint,
+    Offset center,
+    double radius,
+    StitchLayersStyle style,
+    Color? color,
+  ) {
     paint
       ..shader = null
       ..style = PaintingStyle.fill
       ..color = const Color(0xFF000000).withValues(alpha: 0.3);
     canvas.drawCircle(center + Offset(radius * 0.15, radius * 0.25), radius * 1.1, paint);
-    paint.color = const Color(0xFFEDE8E0);
+    paint.color = color ?? const Color(0xFFEDE8E0);
     canvas.drawCircle(center, radius, paint);
     paint
       ..style = PaintingStyle.stroke

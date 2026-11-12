@@ -48,6 +48,7 @@ final class ImageToGridSettings extends Equatable {
     this.paletteSource = PaletteSource.catalog,
     this.beadSeries,
     this.finishGroups = defaultFinishGroups,
+    this.detailVoting = false,
     this.dither = false,
     this.useMasks = true,
     this.preset = GenerationPreset.balanced,
@@ -117,6 +118,10 @@ final class ImageToGridSettings extends Equatable {
   final Set<BeadFinishGroup> finishGroups;
   final bool dither;
 
+  /// Голосование с весом заметности (T64): тонкие линии и блики не растворяются в клетке и защищены от очистки.
+  /// Выключено, пока предустановки не настроены (T66); без предустановки ни на что не влияет.
+  final bool detailVoting;
+
   /// Учитывать лица и объект, найденные на фото (T48), как «важное». Без найденных масок ни на что не влияет.
   final bool useMasks;
 
@@ -148,6 +153,7 @@ final class ImageToGridSettings extends Equatable {
     BeadSeries? beadSeries,
     Set<BeadFinishGroup>? finishGroups,
     bool? dither,
+    bool? detailVoting,
     bool? useMasks,
     GenerationPreset? preset,
     bool clearPreset = false,
@@ -168,6 +174,7 @@ final class ImageToGridSettings extends Equatable {
         ? this.finishGroups
         : (finishGroups.isEmpty ? defaultFinishGroups : Set<BeadFinishGroup>.unmodifiable(finishGroups)),
     dither: dither ?? this.dither,
+    detailVoting: detailVoting ?? this.detailVoting,
     useMasks: useMasks ?? this.useMasks,
     preset: clearPreset ? null : preset ?? this.preset,
     steps: steps ?? this.steps,
@@ -228,6 +235,7 @@ final class ImageToGridSettings extends Equatable {
     ImageMaskSet? masks,
     int seed = 0,
     bool draft = false,
+    bool measure = false,
     Uint8List? subjectMask,
   }) {
     final List<CatalogColor> allowed = catalogFor(catalog, brand: brand);
@@ -236,6 +244,7 @@ final class ImageToGridSettings extends Equatable {
     // предустановки остаётся путь T24 с Флойдом — Стейнбергом.
     final GenerationPreset? active = preset;
     // Лица (T54): отдельные цвета кожи и защита черт; без лиц на фото поведение прежнее.
+    final bool voting = detailVoting || (active?.detailVoting ?? false);
     final FaceGuide? faceGuide = active == null || masks == null || masks.faces.isEmpty ? null : FaceGuide(masks);
     return ImageToGridRequest(
       image: image,
@@ -261,13 +270,14 @@ final class ImageToGridSettings extends Equatable {
           : faceGuide == null
           ? (draft ? draftPaletteBuilder : const AccentPaletteBuilder())
           : (draft ? draftFacePaletteBuilder : const FaceAwarePaletteBuilder()),
-      labeler: active == null ? null : const VotingCellLabeler(),
+      labeler: active == null ? null : (voting ? const DetailCellLabeler() : const VotingCellLabeler()),
       smoother: active?.smoother,
       refillFreedColors: active?.refillFreedColors ?? false,
       faces: faceGuide,
       draft: draft,
+      measure: measure,
       steps: <PatternStep>[
-        ...?active?.steps,
+        ...?active?.stepsFor(columns: columns, voting: voting),
         if (faceGuide != null) const FaceFeatureStep(),
         ...steps,
         if (dither && active != null) const OrderedDitherStep(),
@@ -293,6 +303,7 @@ final class ImageToGridSettings extends Equatable {
     beadSeries,
     finishGroups,
     dither,
+    detailVoting,
     useMasks,
     preset,
     steps,

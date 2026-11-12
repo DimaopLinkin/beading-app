@@ -118,6 +118,48 @@
     "contrast": 0.834,
     "corr": 0.79
   },
+  "cat/loom/t63-contrast": {
+    "singles": 10,
+    "colors": 9,
+    "deltaE": 5.19,
+    "contrast": 0.971,
+    "corr": 0.786
+  },
+  "cat/loom/t63-tones": {
+    "singles": 5,
+    "colors": 10,
+    "deltaE": 4.42,
+    "contrast": 0.827,
+    "corr": 0.794
+  },
+  "cat/loom/t64-detail": {
+    "singles": 6,
+    "colors": 10,
+    "deltaE": 4.58,
+    "contrast": 0.904,
+    "corr": 0.788
+  },
+  "cat/loom/v2-balanced": {
+    "singles": 9,
+    "colors": 9,
+    "deltaE": 5.23,
+    "contrast": 1.053,
+    "corr": 0.794
+  },
+  "cat/loom/v2-detailed": {
+    "singles": 10,
+    "colors": 10,
+    "deltaE": 5.15,
+    "contrast": 1.116,
+    "corr": 0.798
+  },
+  "cat/loom/v2-simpler": {
+    "singles": 7,
+    "colors": 10,
+    "deltaE": 4.44,
+    "contrast": 0.799,
+    "corr": 0.789
+  },
   "cat/peyote/t24": {
     "singles": 56,
     "colors": 10,
@@ -237,6 +279,48 @@
     "contrast": 0.803,
     "corr": 0.776
   },
+  "cat/peyote/t63-contrast": {
+    "singles": 7,
+    "colors": 9,
+    "deltaE": 4.99,
+    "contrast": 1.005,
+    "corr": 0.792
+  },
+  "cat/peyote/t63-tones": {
+    "singles": 6,
+    "colors": 8,
+    "deltaE": 4.73,
+    "contrast": 0.881,
+    "corr": 0.781
+  },
+  "cat/peyote/t64-detail": {
+    "singles": 6,
+    "colors": 8,
+    "deltaE": 4.65,
+    "contrast": 0.851,
+    "corr": 0.781
+  },
+  "cat/peyote/v2-balanced": {
+    "singles": 7,
+    "colors": 9,
+    "deltaE": 5.12,
+    "contrast": 1.06,
+    "corr": 0.797
+  },
+  "cat/peyote/v2-detailed": {
+    "singles": 14,
+    "colors": 10,
+    "deltaE": 4.89,
+    "contrast": 1.071,
+    "corr": 0.796
+  },
+  "cat/peyote/v2-simpler": {
+    "singles": 5,
+    "colors": 9,
+    "deltaE": 4.52,
+    "contrast": 0.801,
+    "corr": 0.781
+  },
   "cat/stitch/t24": {
     "singles": 312,
     "colors": 16,
@@ -313,6 +397,48 @@
     "deltaE": 4.01,
     "contrast": 0.871,
     "corr": 0.87
+  },
+  "cat/stitch/t63-contrast": {
+    "singles": 38,
+    "colors": 14,
+    "deltaE": 4.28,
+    "contrast": 1.018,
+    "corr": 0.873
+  },
+  "cat/stitch/t63-tones": {
+    "singles": 33,
+    "colors": 14,
+    "deltaE": 3.94,
+    "contrast": 0.871,
+    "corr": 0.872
+  },
+  "cat/stitch/t64-detail": {
+    "singles": 32,
+    "colors": 14,
+    "deltaE": 4.02,
+    "contrast": 0.904,
+    "corr": 0.869
+  },
+  "cat/stitch/v2-balanced": {
+    "singles": 35,
+    "colors": 14,
+    "deltaE": 4.33,
+    "contrast": 1.073,
+    "corr": 0.87
+  },
+  "cat/stitch/v2-detailed": {
+    "singles": 67,
+    "colors": 15,
+    "deltaE": 4.33,
+    "contrast": 1.081,
+    "corr": 0.87
+  },
+  "cat/stitch/v2-simpler": {
+    "singles": 25,
+    "colors": 12,
+    "deltaE": 4.05,
+    "contrast": 0.845,
+    "corr": 0.866
   },
   "coffee/loom/t24": {
     "singles": 92,
@@ -433,6 +559,48 @@
     "contrast": 0.944,
     "corr": 0.881
   },
+  "coffee/loom/t63-contrast": {
+    "singles": 11,
+    "colors": 8,
+    "deltaE": 5.9,
+    "contrast": 1.028,
+    "corr": 0.882
+  },
+  "coffee/loom/t63-tones": {
+    "singles": 10,
+    "colors": 8,
+    "deltaE": 5.89,
+    "contrast": 0.974,
+    "corr": 0.877
+  },
+  "coffee/loom/t64-detail": {
+    "singles": 8,
+    "colors": 8,
+    "deltaE": 5.9,
+    "contrast": 0.982,
+    "corr": 0.879
+  },
+  "coffee/loom/v2-balanced": {
+    "singles": 12,
+    "colors": 9,
+    "deltaE": 5.9,
+    "contrast": 1.048,
+    "corr": 0.884
+  },
+  "coffee/loom/v2-detailed": {
+    "singles": 18,
+    "colors": 10,
+    "deltaE": 5.85,
+    "contrast": 1.077,
+    "corr": 0.881
+  },
+  "coffee/loom/v2-simpler": {
+    "singles": 6,
+    "colors": 8,
+    "deltaE": 5.75,
+    "contrast": 0.945,
+    "corr": 0.878
+  },
   "coffee/peyote/t24": {
     "singles": 65,
     "colors": 10,
@@ -552,6 +720,48 @@
     "contrast": 0.875,
     "corr": 0.887
   },
+  "coffee/peyote/t63-contrast": {
+    "singles": 3,
+    "colors": 8,
+    "deltaE": 6.32,
+    "contrast": 1.039,
+    "corr": 0.877
+  },
+  "coffee/peyote/t63-tones": {
+    "singles": 5,
+    "colors": 9,
+    "deltaE": 5.08,
+    "contrast": 0.944,
+    "corr": 0.89
+  },
+  "coffee/peyote/t64-detail": {
+    "singles": 6,
+    "colors": 9,
+    "deltaE": 5.28,
+    "contrast": 0.968,
+    "corr": 0.887
+  },
+  "coffee/peyote/v2-balanced": {
+    "singles": 3,
+    "colors": 9,
+    "deltaE": 6.3,
+    "contrast": 1.036,
+    "corr": 0.876
+  },
+  "coffee/peyote/v2-detailed": {
+    "singles": 9,
+    "colors": 10,
+    "deltaE": 5.83,
+    "contrast": 1.064,
+    "corr": 0.878
+  },
+  "coffee/peyote/v2-simpler": {
+    "singles": 4,
+    "colors": 8,
+    "deltaE": 5.23,
+    "contrast": 0.942,
+    "corr": 0.887
+  },
   "coffee/stitch/t24": {
     "singles": 342,
     "colors": 16,
@@ -628,6 +838,48 @@
     "deltaE": 4.36,
     "contrast": 0.953,
     "corr": 0.923
+  },
+  "coffee/stitch/t63-contrast": {
+    "singles": 46,
+    "colors": 13,
+    "deltaE": 4.6,
+    "contrast": 1.035,
+    "corr": 0.923
+  },
+  "coffee/stitch/t63-tones": {
+    "singles": 37,
+    "colors": 13,
+    "deltaE": 4.27,
+    "contrast": 0.953,
+    "corr": 0.924
+  },
+  "coffee/stitch/t64-detail": {
+    "singles": 60,
+    "colors": 13,
+    "deltaE": 4.42,
+    "contrast": 0.971,
+    "corr": 0.921
+  },
+  "coffee/stitch/v2-balanced": {
+    "singles": 41,
+    "colors": 13,
+    "deltaE": 4.76,
+    "contrast": 1.05,
+    "corr": 0.921
+  },
+  "coffee/stitch/v2-detailed": {
+    "singles": 76,
+    "colors": 16,
+    "deltaE": 4.96,
+    "contrast": 1.047,
+    "corr": 0.915
+  },
+  "coffee/stitch/v2-simpler": {
+    "singles": 22,
+    "colors": 12,
+    "deltaE": 4.65,
+    "contrast": 0.946,
+    "corr": 0.92
   },
   "drawing/loom/t24": {
     "singles": 19,
@@ -748,6 +1000,48 @@
     "contrast": 0.713,
     "corr": 0.793
   },
+  "drawing/loom/t63-contrast": {
+    "singles": 6,
+    "colors": 9,
+    "deltaE": 3.22,
+    "contrast": 0.927,
+    "corr": 0.819
+  },
+  "drawing/loom/t63-tones": {
+    "singles": 7,
+    "colors": 9,
+    "deltaE": 2.94,
+    "contrast": 0.907,
+    "corr": 0.81
+  },
+  "drawing/loom/t64-detail": {
+    "singles": 15,
+    "colors": 9,
+    "deltaE": 3.01,
+    "contrast": 0.933,
+    "corr": 0.804
+  },
+  "drawing/loom/v2-balanced": {
+    "singles": 6,
+    "colors": 8,
+    "deltaE": 3.52,
+    "contrast": 0.94,
+    "corr": 0.822
+  },
+  "drawing/loom/v2-detailed": {
+    "singles": 15,
+    "colors": 10,
+    "deltaE": 2.95,
+    "contrast": 0.923,
+    "corr": 0.825
+  },
+  "drawing/loom/v2-simpler": {
+    "singles": 6,
+    "colors": 9,
+    "deltaE": 2.74,
+    "contrast": 0.824,
+    "corr": 0.825
+  },
   "drawing/peyote/t24": {
     "singles": 44,
     "colors": 10,
@@ -867,6 +1161,48 @@
     "contrast": 0.739,
     "corr": 0.788
   },
+  "drawing/peyote/t63-contrast": {
+    "singles": 5,
+    "colors": 8,
+    "deltaE": 3.25,
+    "contrast": 0.961,
+    "corr": 0.834
+  },
+  "drawing/peyote/t63-tones": {
+    "singles": 3,
+    "colors": 7,
+    "deltaE": 2.94,
+    "contrast": 0.87,
+    "corr": 0.825
+  },
+  "drawing/peyote/t64-detail": {
+    "singles": 15,
+    "colors": 8,
+    "deltaE": 2.88,
+    "contrast": 0.879,
+    "corr": 0.825
+  },
+  "drawing/peyote/v2-balanced": {
+    "singles": 5,
+    "colors": 8,
+    "deltaE": 3.63,
+    "contrast": 0.99,
+    "corr": 0.823
+  },
+  "drawing/peyote/v2-detailed": {
+    "singles": 20,
+    "colors": 10,
+    "deltaE": 3.4,
+    "contrast": 1.017,
+    "corr": 0.826
+  },
+  "drawing/peyote/v2-simpler": {
+    "singles": 2,
+    "colors": 6,
+    "deltaE": 2.97,
+    "contrast": 0.866,
+    "corr": 0.827
+  },
   "drawing/stitch/t24": {
     "singles": 71,
     "colors": 16,
@@ -943,6 +1279,48 @@
     "deltaE": 2.12,
     "contrast": 0.941,
     "corr": 0.88
+  },
+  "drawing/stitch/t63-contrast": {
+    "singles": 22,
+    "colors": 13,
+    "deltaE": 2.2,
+    "contrast": 0.922,
+    "corr": 0.889
+  },
+  "drawing/stitch/t63-tones": {
+    "singles": 21,
+    "colors": 12,
+    "deltaE": 2.12,
+    "contrast": 0.941,
+    "corr": 0.88
+  },
+  "drawing/stitch/t64-detail": {
+    "singles": 23,
+    "colors": 11,
+    "deltaE": 2.58,
+    "contrast": 1.076,
+    "corr": 0.879
+  },
+  "drawing/stitch/v2-balanced": {
+    "singles": 23,
+    "colors": 13,
+    "deltaE": 2.59,
+    "contrast": 1.011,
+    "corr": 0.883
+  },
+  "drawing/stitch/v2-detailed": {
+    "singles": 32,
+    "colors": 16,
+    "deltaE": 2.25,
+    "contrast": 1.078,
+    "corr": 0.891
+  },
+  "drawing/stitch/v2-simpler": {
+    "singles": 20,
+    "colors": 12,
+    "deltaE": 1.79,
+    "contrast": 0.87,
+    "corr": 0.888
   },
   "galaxy/loom/t24": {
     "singles": 256,
@@ -1063,6 +1441,48 @@
     "contrast": 0.203,
     "corr": 0.236
   },
+  "galaxy/loom/t63-contrast": {
+    "singles": 11,
+    "colors": 6,
+    "deltaE": 2.49,
+    "contrast": 0.246,
+    "corr": 0.265
+  },
+  "galaxy/loom/t63-tones": {
+    "singles": 13,
+    "colors": 7,
+    "deltaE": 2.19,
+    "contrast": 0.245,
+    "corr": 0.284
+  },
+  "galaxy/loom/t64-detail": {
+    "singles": 39,
+    "colors": 9,
+    "deltaE": 2.41,
+    "contrast": 0.794,
+    "corr": 0.389
+  },
+  "galaxy/loom/v2-balanced": {
+    "singles": 12,
+    "colors": 6,
+    "deltaE": 2.52,
+    "contrast": 0.237,
+    "corr": 0.262
+  },
+  "galaxy/loom/v2-detailed": {
+    "singles": 43,
+    "colors": 10,
+    "deltaE": 2.9,
+    "contrast": 1.068,
+    "corr": 0.426
+  },
+  "galaxy/loom/v2-simpler": {
+    "singles": 4,
+    "colors": 5,
+    "deltaE": 2.19,
+    "contrast": 0.188,
+    "corr": 0.209
+  },
   "galaxy/peyote/t24": {
     "singles": 198,
     "colors": 10,
@@ -1182,6 +1602,48 @@
     "contrast": 0.283,
     "corr": 0.276
   },
+  "galaxy/peyote/t63-contrast": {
+    "singles": 8,
+    "colors": 7,
+    "deltaE": 2.52,
+    "contrast": 0.352,
+    "corr": 0.277
+  },
+  "galaxy/peyote/t63-tones": {
+    "singles": 11,
+    "colors": 8,
+    "deltaE": 2.22,
+    "contrast": 0.276,
+    "corr": 0.299
+  },
+  "galaxy/peyote/t64-detail": {
+    "singles": 35,
+    "colors": 8,
+    "deltaE": 2.53,
+    "contrast": 0.867,
+    "corr": 0.412
+  },
+  "galaxy/peyote/v2-balanced": {
+    "singles": 10,
+    "colors": 6,
+    "deltaE": 2.51,
+    "contrast": 0.314,
+    "corr": 0.286
+  },
+  "galaxy/peyote/v2-detailed": {
+    "singles": 42,
+    "colors": 10,
+    "deltaE": 2.58,
+    "contrast": 0.968,
+    "corr": 0.432
+  },
+  "galaxy/peyote/v2-simpler": {
+    "singles": 6,
+    "colors": 6,
+    "deltaE": 2.17,
+    "contrast": 0.289,
+    "corr": 0.27
+  },
   "galaxy/stitch/t24": {
     "singles": 616,
     "colors": 16,
@@ -1258,6 +1720,48 @@
     "deltaE": 2.16,
     "contrast": 0.471,
     "corr": 0.493
+  },
+  "galaxy/stitch/t63-contrast": {
+    "singles": 71,
+    "colors": 12,
+    "deltaE": 2.41,
+    "contrast": 0.599,
+    "corr": 0.523
+  },
+  "galaxy/stitch/t63-tones": {
+    "singles": 51,
+    "colors": 13,
+    "deltaE": 2.16,
+    "contrast": 0.47,
+    "corr": 0.493
+  },
+  "galaxy/stitch/t64-detail": {
+    "singles": 104,
+    "colors": 12,
+    "deltaE": 2.59,
+    "contrast": 1.07,
+    "corr": 0.573
+  },
+  "galaxy/stitch/v2-balanced": {
+    "singles": 64,
+    "colors": 12,
+    "deltaE": 2.46,
+    "contrast": 0.596,
+    "corr": 0.52
+  },
+  "galaxy/stitch/v2-detailed": {
+    "singles": 193,
+    "colors": 16,
+    "deltaE": 2.86,
+    "contrast": 1.264,
+    "corr": 0.59
+  },
+  "galaxy/stitch/v2-simpler": {
+    "singles": 59,
+    "colors": 12,
+    "deltaE": 2.02,
+    "contrast": 0.502,
+    "corr": 0.522
   },
   "handwriting/loom/t24": {
     "singles": 141,
@@ -1378,6 +1882,48 @@
     "contrast": 0.5,
     "corr": 0.533
   },
+  "handwriting/loom/t63-contrast": {
+    "singles": 3,
+    "colors": 6,
+    "deltaE": 2.06,
+    "contrast": 0.596,
+    "corr": 0.547
+  },
+  "handwriting/loom/t63-tones": {
+    "singles": 1,
+    "colors": 5,
+    "deltaE": 1.64,
+    "contrast": 0.498,
+    "corr": 0.544
+  },
+  "handwriting/loom/t64-detail": {
+    "singles": 14,
+    "colors": 6,
+    "deltaE": 1.66,
+    "contrast": 0.66,
+    "corr": 0.527
+  },
+  "handwriting/loom/v2-balanced": {
+    "singles": 5,
+    "colors": 6,
+    "deltaE": 2.23,
+    "contrast": 0.621,
+    "corr": 0.543
+  },
+  "handwriting/loom/v2-detailed": {
+    "singles": 36,
+    "colors": 8,
+    "deltaE": 1.96,
+    "contrast": 0.897,
+    "corr": 0.557
+  },
+  "handwriting/loom/v2-simpler": {
+    "singles": 0,
+    "colors": 6,
+    "deltaE": 1.5,
+    "contrast": 0.55,
+    "corr": 0.551
+  },
   "handwriting/peyote/t24": {
     "singles": 109,
     "colors": 10,
@@ -1497,6 +2043,48 @@
     "contrast": 0.488,
     "corr": 0.509
   },
+  "handwriting/peyote/t63-contrast": {
+    "singles": 2,
+    "colors": 5,
+    "deltaE": 2.16,
+    "contrast": 0.59,
+    "corr": 0.532
+  },
+  "handwriting/peyote/t63-tones": {
+    "singles": 1,
+    "colors": 6,
+    "deltaE": 1.78,
+    "contrast": 0.529,
+    "corr": 0.524
+  },
+  "handwriting/peyote/t64-detail": {
+    "singles": 6,
+    "colors": 7,
+    "deltaE": 1.8,
+    "contrast": 0.692,
+    "corr": 0.52
+  },
+  "handwriting/peyote/v2-balanced": {
+    "singles": 2,
+    "colors": 5,
+    "deltaE": 2.32,
+    "contrast": 0.649,
+    "corr": 0.53
+  },
+  "handwriting/peyote/v2-detailed": {
+    "singles": 36,
+    "colors": 8,
+    "deltaE": 2.05,
+    "contrast": 0.902,
+    "corr": 0.531
+  },
+  "handwriting/peyote/v2-simpler": {
+    "singles": 3,
+    "colors": 5,
+    "deltaE": 1.65,
+    "contrast": 0.491,
+    "corr": 0.533
+  },
   "handwriting/stitch/t24": {
     "singles": 417,
     "colors": 16,
@@ -1573,6 +2161,48 @@
     "deltaE": 1.64,
     "contrast": 0.622,
     "corr": 0.632
+  },
+  "handwriting/stitch/t63-contrast": {
+    "singles": 18,
+    "colors": 9,
+    "deltaE": 2.08,
+    "contrast": 0.669,
+    "corr": 0.635
+  },
+  "handwriting/stitch/t63-tones": {
+    "singles": 13,
+    "colors": 10,
+    "deltaE": 1.64,
+    "contrast": 0.62,
+    "corr": 0.633
+  },
+  "handwriting/stitch/t64-detail": {
+    "singles": 49,
+    "colors": 12,
+    "deltaE": 1.95,
+    "contrast": 0.912,
+    "corr": 0.626
+  },
+  "handwriting/stitch/v2-balanced": {
+    "singles": 23,
+    "colors": 10,
+    "deltaE": 2.19,
+    "contrast": 0.749,
+    "corr": 0.626
+  },
+  "handwriting/stitch/v2-detailed": {
+    "singles": 99,
+    "colors": 13,
+    "deltaE": 1.82,
+    "contrast": 1.04,
+    "corr": 0.648
+  },
+  "handwriting/stitch/v2-simpler": {
+    "singles": 12,
+    "colors": 8,
+    "deltaE": 1.64,
+    "contrast": 0.572,
+    "corr": 0.639
   },
   "landscape/loom/t24": {
     "singles": 19,
@@ -1693,6 +2323,48 @@
     "contrast": 0.996,
     "corr": 0.912
   },
+  "landscape/loom/t63-contrast": {
+    "singles": 0,
+    "colors": 8,
+    "deltaE": 2.81,
+    "contrast": 1.11,
+    "corr": 0.91
+  },
+  "landscape/loom/t63-tones": {
+    "singles": 0,
+    "colors": 8,
+    "deltaE": 2.57,
+    "contrast": 0.958,
+    "corr": 0.914
+  },
+  "landscape/loom/t64-detail": {
+    "singles": 0,
+    "colors": 8,
+    "deltaE": 2.58,
+    "contrast": 0.96,
+    "corr": 0.912
+  },
+  "landscape/loom/v2-balanced": {
+    "singles": 2,
+    "colors": 9,
+    "deltaE": 3.33,
+    "contrast": 1.178,
+    "corr": 0.896
+  },
+  "landscape/loom/v2-detailed": {
+    "singles": 2,
+    "colors": 8,
+    "deltaE": 3.16,
+    "contrast": 1.166,
+    "corr": 0.905
+  },
+  "landscape/loom/v2-simpler": {
+    "singles": 0,
+    "colors": 7,
+    "deltaE": 2.74,
+    "contrast": 0.955,
+    "corr": 0.913
+  },
   "landscape/peyote/t24": {
     "singles": 16,
     "colors": 10,
@@ -1812,6 +2484,48 @@
     "contrast": 1.025,
     "corr": 0.89
   },
+  "landscape/peyote/t63-contrast": {
+    "singles": 0,
+    "colors": 8,
+    "deltaE": 3.05,
+    "contrast": 1.11,
+    "corr": 0.891
+  },
+  "landscape/peyote/t63-tones": {
+    "singles": 0,
+    "colors": 7,
+    "deltaE": 2.91,
+    "contrast": 0.977,
+    "corr": 0.893
+  },
+  "landscape/peyote/t64-detail": {
+    "singles": 0,
+    "colors": 7,
+    "deltaE": 2.98,
+    "contrast": 0.996,
+    "corr": 0.889
+  },
+  "landscape/peyote/v2-balanced": {
+    "singles": 0,
+    "colors": 8,
+    "deltaE": 3.5,
+    "contrast": 1.17,
+    "corr": 0.884
+  },
+  "landscape/peyote/v2-detailed": {
+    "singles": 0,
+    "colors": 9,
+    "deltaE": 3.27,
+    "contrast": 1.151,
+    "corr": 0.887
+  },
+  "landscape/peyote/v2-simpler": {
+    "singles": 0,
+    "colors": 7,
+    "deltaE": 2.89,
+    "contrast": 0.957,
+    "corr": 0.893
+  },
   "landscape/stitch/t24": {
     "singles": 45,
     "colors": 16,
@@ -1888,6 +2602,48 @@
     "deltaE": 1.95,
     "contrast": 0.975,
     "corr": 0.947
+  },
+  "landscape/stitch/t63-contrast": {
+    "singles": 8,
+    "colors": 13,
+    "deltaE": 1.91,
+    "contrast": 1.09,
+    "corr": 0.947
+  },
+  "landscape/stitch/t63-tones": {
+    "singles": 7,
+    "colors": 12,
+    "deltaE": 1.69,
+    "contrast": 0.974,
+    "corr": 0.95
+  },
+  "landscape/stitch/t64-detail": {
+    "singles": 6,
+    "colors": 13,
+    "deltaE": 1.7,
+    "contrast": 0.979,
+    "corr": 0.949
+  },
+  "landscape/stitch/v2-balanced": {
+    "singles": 5,
+    "colors": 12,
+    "deltaE": 2.08,
+    "contrast": 1.131,
+    "corr": 0.941
+  },
+  "landscape/stitch/v2-detailed": {
+    "singles": 8,
+    "colors": 15,
+    "deltaE": 1.77,
+    "contrast": 1.091,
+    "corr": 0.944
+  },
+  "landscape/stitch/v2-simpler": {
+    "singles": 0,
+    "colors": 10,
+    "deltaE": 1.93,
+    "contrast": 0.967,
+    "corr": 0.943
   },
   "logo/loom/t24": {
     "singles": 139,
@@ -2008,6 +2764,48 @@
     "contrast": 0.876,
     "corr": 0.876
   },
+  "logo/loom/t63-contrast": {
+    "singles": 27,
+    "colors": 7,
+    "deltaE": 3.21,
+    "contrast": 0.993,
+    "corr": 0.873
+  },
+  "logo/loom/t63-tones": {
+    "singles": 20,
+    "colors": 8,
+    "deltaE": 2.85,
+    "contrast": 0.935,
+    "corr": 0.881
+  },
+  "logo/loom/t64-detail": {
+    "singles": 25,
+    "colors": 8,
+    "deltaE": 3.25,
+    "contrast": 1.002,
+    "corr": 0.87
+  },
+  "logo/loom/v2-balanced": {
+    "singles": 27,
+    "colors": 7,
+    "deltaE": 3.35,
+    "contrast": 1.014,
+    "corr": 0.873
+  },
+  "logo/loom/v2-detailed": {
+    "singles": 40,
+    "colors": 10,
+    "deltaE": 3.27,
+    "contrast": 1.07,
+    "corr": 0.874
+  },
+  "logo/loom/v2-simpler": {
+    "singles": 26,
+    "colors": 10,
+    "deltaE": 2.86,
+    "contrast": 0.934,
+    "corr": 0.882
+  },
   "logo/peyote/t24": {
     "singles": 98,
     "colors": 10,
@@ -2127,6 +2925,48 @@
     "contrast": 0.903,
     "corr": 0.875
   },
+  "logo/peyote/t63-contrast": {
+    "singles": 19,
+    "colors": 10,
+    "deltaE": 3.0,
+    "contrast": 1.0,
+    "corr": 0.873
+  },
+  "logo/peyote/t63-tones": {
+    "singles": 11,
+    "colors": 8,
+    "deltaE": 3.0,
+    "contrast": 0.936,
+    "corr": 0.869
+  },
+  "logo/peyote/t64-detail": {
+    "singles": 12,
+    "colors": 8,
+    "deltaE": 3.37,
+    "contrast": 1.003,
+    "corr": 0.863
+  },
+  "logo/peyote/v2-balanced": {
+    "singles": 22,
+    "colors": 9,
+    "deltaE": 3.17,
+    "contrast": 1.021,
+    "corr": 0.871
+  },
+  "logo/peyote/v2-detailed": {
+    "singles": 30,
+    "colors": 10,
+    "deltaE": 3.55,
+    "contrast": 1.104,
+    "corr": 0.868
+  },
+  "logo/peyote/v2-simpler": {
+    "singles": 11,
+    "colors": 8,
+    "deltaE": 3.0,
+    "contrast": 0.924,
+    "corr": 0.868
+  },
   "logo/stitch/t24": {
     "singles": 422,
     "colors": 16,
@@ -2203,6 +3043,48 @@
     "deltaE": 2.05,
     "contrast": 0.974,
     "corr": 0.928
+  },
+  "logo/stitch/t63-contrast": {
+    "singles": 54,
+    "colors": 13,
+    "deltaE": 2.19,
+    "contrast": 1.014,
+    "corr": 0.926
+  },
+  "logo/stitch/t63-tones": {
+    "singles": 58,
+    "colors": 13,
+    "deltaE": 2.04,
+    "contrast": 0.973,
+    "corr": 0.928
+  },
+  "logo/stitch/t64-detail": {
+    "singles": 41,
+    "colors": 13,
+    "deltaE": 2.16,
+    "contrast": 1.008,
+    "corr": 0.926
+  },
+  "logo/stitch/v2-balanced": {
+    "singles": 60,
+    "colors": 13,
+    "deltaE": 2.34,
+    "contrast": 1.041,
+    "corr": 0.926
+  },
+  "logo/stitch/v2-detailed": {
+    "singles": 101,
+    "colors": 16,
+    "deltaE": 2.29,
+    "contrast": 1.057,
+    "corr": 0.926
+  },
+  "logo/stitch/v2-simpler": {
+    "singles": 41,
+    "colors": 11,
+    "deltaE": 2.26,
+    "contrast": 0.968,
+    "corr": 0.925
   },
   "portrait/loom/t24": {
     "singles": 110,
@@ -2323,6 +3205,48 @@
     "contrast": 0.889,
     "corr": 0.869
   },
+  "portrait/loom/t63-contrast": {
+    "singles": 20,
+    "colors": 10,
+    "deltaE": 7.8,
+    "contrast": 1.008,
+    "corr": 0.87
+  },
+  "portrait/loom/t63-tones": {
+    "singles": 16,
+    "colors": 10,
+    "deltaE": 8.35,
+    "contrast": 0.98,
+    "corr": 0.864
+  },
+  "portrait/loom/t64-detail": {
+    "singles": 32,
+    "colors": 10,
+    "deltaE": 7.82,
+    "contrast": 0.954,
+    "corr": 0.867
+  },
+  "portrait/loom/v2-balanced": {
+    "singles": 19,
+    "colors": 10,
+    "deltaE": 8.5,
+    "contrast": 1.016,
+    "corr": 0.859
+  },
+  "portrait/loom/v2-detailed": {
+    "singles": 34,
+    "colors": 10,
+    "deltaE": 8.45,
+    "contrast": 1.021,
+    "corr": 0.853
+  },
+  "portrait/loom/v2-simpler": {
+    "singles": 14,
+    "colors": 10,
+    "deltaE": 7.93,
+    "contrast": 0.907,
+    "corr": 0.861
+  },
   "portrait/peyote/t24": {
     "singles": 96,
     "colors": 10,
@@ -2442,6 +3366,48 @@
     "contrast": 0.875,
     "corr": 0.864
   },
+  "portrait/peyote/t63-contrast": {
+    "singles": 12,
+    "colors": 10,
+    "deltaE": 7.8,
+    "contrast": 1.026,
+    "corr": 0.866
+  },
+  "portrait/peyote/t63-tones": {
+    "singles": 5,
+    "colors": 10,
+    "deltaE": 9.46,
+    "contrast": 1.114,
+    "corr": 0.855
+  },
+  "portrait/peyote/t64-detail": {
+    "singles": 18,
+    "colors": 10,
+    "deltaE": 8.15,
+    "contrast": 0.932,
+    "corr": 0.853
+  },
+  "portrait/peyote/v2-balanced": {
+    "singles": 19,
+    "colors": 10,
+    "deltaE": 8.77,
+    "contrast": 1.03,
+    "corr": 0.85
+  },
+  "portrait/peyote/v2-detailed": {
+    "singles": 28,
+    "colors": 10,
+    "deltaE": 9.12,
+    "contrast": 1.021,
+    "corr": 0.847
+  },
+  "portrait/peyote/v2-simpler": {
+    "singles": 15,
+    "colors": 10,
+    "deltaE": 8.17,
+    "contrast": 0.908,
+    "corr": 0.85
+  },
   "portrait/stitch/t24": {
     "singles": 321,
     "colors": 16,
@@ -2518,6 +3484,48 @@
     "deltaE": 5.65,
     "contrast": 0.965,
     "corr": 0.925
+  },
+  "portrait/stitch/t63-contrast": {
+    "singles": 64,
+    "colors": 16,
+    "deltaE": 6.13,
+    "contrast": 1.04,
+    "corr": 0.917
+  },
+  "portrait/stitch/t63-tones": {
+    "singles": 75,
+    "colors": 16,
+    "deltaE": 5.6,
+    "contrast": 0.966,
+    "corr": 0.926
+  },
+  "portrait/stitch/t64-detail": {
+    "singles": 62,
+    "colors": 16,
+    "deltaE": 5.86,
+    "contrast": 0.976,
+    "corr": 0.921
+  },
+  "portrait/stitch/v2-balanced": {
+    "singles": 81,
+    "colors": 16,
+    "deltaE": 6.41,
+    "contrast": 1.04,
+    "corr": 0.914
+  },
+  "portrait/stitch/v2-detailed": {
+    "singles": 90,
+    "colors": 16,
+    "deltaE": 6.77,
+    "contrast": 1.05,
+    "corr": 0.908
+  },
+  "portrait/stitch/v2-simpler": {
+    "singles": 51,
+    "colors": 16,
+    "deltaE": 6.25,
+    "contrast": 0.947,
+    "corr": 0.917
   },
   "rocket/loom/t24": {
     "singles": 21,
@@ -2638,6 +3646,48 @@
     "contrast": 0.78,
     "corr": 0.839
   },
+  "rocket/loom/t63-contrast": {
+    "singles": 4,
+    "colors": 9,
+    "deltaE": 4.22,
+    "contrast": 1.036,
+    "corr": 0.839
+  },
+  "rocket/loom/t63-tones": {
+    "singles": 7,
+    "colors": 10,
+    "deltaE": 4.09,
+    "contrast": 0.951,
+    "corr": 0.851
+  },
+  "rocket/loom/t64-detail": {
+    "singles": 14,
+    "colors": 10,
+    "deltaE": 4.17,
+    "contrast": 0.926,
+    "corr": 0.845
+  },
+  "rocket/loom/v2-balanced": {
+    "singles": 6,
+    "colors": 9,
+    "deltaE": 4.21,
+    "contrast": 1.027,
+    "corr": 0.834
+  },
+  "rocket/loom/v2-detailed": {
+    "singles": 10,
+    "colors": 10,
+    "deltaE": 4.43,
+    "contrast": 1.138,
+    "corr": 0.832
+  },
+  "rocket/loom/v2-simpler": {
+    "singles": 9,
+    "colors": 9,
+    "deltaE": 4.27,
+    "contrast": 0.895,
+    "corr": 0.831
+  },
   "rocket/peyote/t24": {
     "singles": 23,
     "colors": 10,
@@ -2757,6 +3807,48 @@
     "contrast": 0.793,
     "corr": 0.818
   },
+  "rocket/peyote/t63-contrast": {
+    "singles": 8,
+    "colors": 10,
+    "deltaE": 4.18,
+    "contrast": 1.013,
+    "corr": 0.837
+  },
+  "rocket/peyote/t63-tones": {
+    "singles": 5,
+    "colors": 9,
+    "deltaE": 4.23,
+    "contrast": 0.967,
+    "corr": 0.834
+  },
+  "rocket/peyote/t64-detail": {
+    "singles": 11,
+    "colors": 9,
+    "deltaE": 4.06,
+    "contrast": 0.982,
+    "corr": 0.845
+  },
+  "rocket/peyote/v2-balanced": {
+    "singles": 11,
+    "colors": 10,
+    "deltaE": 4.21,
+    "contrast": 1.037,
+    "corr": 0.832
+  },
+  "rocket/peyote/v2-detailed": {
+    "singles": 12,
+    "colors": 10,
+    "deltaE": 4.43,
+    "contrast": 1.122,
+    "corr": 0.824
+  },
+  "rocket/peyote/v2-simpler": {
+    "singles": 4,
+    "colors": 9,
+    "deltaE": 3.96,
+    "contrast": 0.861,
+    "corr": 0.838
+  },
   "rocket/stitch/t24": {
     "singles": 76,
     "colors": 16,
@@ -2833,5 +3925,47 @@
     "deltaE": 3.47,
     "contrast": 0.912,
     "corr": 0.896
+  },
+  "rocket/stitch/t63-contrast": {
+    "singles": 9,
+    "colors": 13,
+    "deltaE": 3.44,
+    "contrast": 1.016,
+    "corr": 0.893
+  },
+  "rocket/stitch/t63-tones": {
+    "singles": 9,
+    "colors": 13,
+    "deltaE": 3.32,
+    "contrast": 0.906,
+    "corr": 0.901
+  },
+  "rocket/stitch/t64-detail": {
+    "singles": 19,
+    "colors": 13,
+    "deltaE": 3.5,
+    "contrast": 0.944,
+    "corr": 0.89
+  },
+  "rocket/stitch/v2-balanced": {
+    "singles": 10,
+    "colors": 14,
+    "deltaE": 3.27,
+    "contrast": 1.023,
+    "corr": 0.9
+  },
+  "rocket/stitch/v2-detailed": {
+    "singles": 34,
+    "colors": 16,
+    "deltaE": 3.51,
+    "contrast": 1.049,
+    "corr": 0.888
+  },
+  "rocket/stitch/v2-simpler": {
+    "singles": 9,
+    "colors": 14,
+    "deltaE": 3.24,
+    "contrast": 0.907,
+    "corr": 0.907
   }
 }

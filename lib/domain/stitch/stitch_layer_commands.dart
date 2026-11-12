@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:beading/domain/editor/editor_commands.dart';
 import 'package:beading/domain/grid/cell_position.dart';
 import 'package:beading/domain/palette/palette_snapshot.dart';
@@ -218,6 +220,117 @@ abstract final class StitchLayerCommands {
         for (final PointStitch p in layers.points)
           if (_shiftedInside(p.node, dx, dy, inside)) _movePoint(p, _shift(p.node, dx, dy)),
       ],
+    );
+  }
+
+  /// Убирает ближайший к точке ([x], [y] — в клетках от левого верхнего угла схемы) бэкстич или узелок не дальше
+  /// [radius] клеток; линии выбираются раньше узелков, если обе в пределах радиуса — ближайшая. Нечего убирать —
+  /// те же слои.
+  static StitchLayers eraseNear(StitchLayers layers, double x, double y, {double radius = 0.35}) {
+    LineStitch? bestLine;
+    double bestLineDistance = radius;
+    for (final LineStitch l in layers.lines) {
+      final double d = _distanceToSegment(x, y, l.from.x / 2, l.from.y / 2, l.to.x / 2, l.to.y / 2);
+      if (d <= bestLineDistance) {
+        bestLine = l;
+        bestLineDistance = d;
+      }
+    }
+    PointStitch? bestPoint;
+    double bestPointDistance = radius;
+    for (final PointStitch p in layers.points) {
+      final double d = math.sqrt(math.pow(x - p.node.x / 2, 2) + math.pow(y - p.node.y / 2, 2));
+      if (d <= bestPointDistance) {
+        bestPoint = p;
+        bestPointDistance = d;
+      }
+    }
+    if (bestLine != null && (bestPoint == null || bestLineDistance <= bestPointDistance)) {
+      return removeLine(layers, bestLine.from, bestLine.to);
+    }
+    return bestPoint == null ? layers : removePoint(layers, bestPoint.node);
+  }
+
+  static double _distanceToSegment(double px, double py, double ax, double ay, double bx, double by) {
+    final double dx = bx - ax;
+    final double dy = by - ay;
+    final double lengthSquared = dx * dx + dy * dy;
+    final double t = lengthSquared == 0 ? 0 : (((px - ax) * dx + (py - ay) * dy) / lengthSquared).clamp(0.0, 1.0);
+    return math.sqrt(math.pow(px - (ax + t * dx), 2) + math.pow(py - (ay + t * dy), 2));
+  }
+
+  /// Вставляет пустой ряд перед рядом [at] (`at == rows` — в конец): стежки ниже сдвигаются вниз. Линия, один конец
+  /// которой выше вставки, а другой ниже, растягивается на новый ряд.
+  static StitchLayers insertRow(StitchLayers layers, int at) =>
+      _remap(layers, rows: layers.rows + 1, mapY: (y) => y >= at * 2 ? y + 2 : y, mapRow: (r) => r >= at ? r + 1 : r);
+
+  /// Вставляет пустой столбец перед столбцом [at] (`at == columns` — в конец).
+  static StitchLayers insertColumn(StitchLayers layers, int at) => _remap(
+    layers,
+    columns: layers.columns + 1,
+    mapX: (x) => x >= at * 2 ? x + 2 : x,
+    mapColumn: (c) => c >= at ? c + 1 : c,
+  );
+
+  /// Удаляет ряд [at] вместе со стежками в нём; линии и узелки, чьи узлы лежат внутри ряда, удаляются, узлы на его
+  /// нижней границе сливаются с верхней.
+  static StitchLayers deleteRow(StitchLayers layers, int at) => _remap(
+    layers,
+    rows: layers.rows - 1,
+    mapY: (y) => y <= at * 2 ? y : (y >= (at + 1) * 2 ? y - 2 : null),
+    mapRow: (r) => r == at ? null : (r > at ? r - 1 : r),
+  );
+
+  /// Удаляет столбец [at] вместе со стежками в нём.
+  static StitchLayers deleteColumn(StitchLayers layers, int at) => _remap(
+    layers,
+    columns: layers.columns - 1,
+    mapX: (x) => x <= at * 2 ? x : (x >= (at + 1) * 2 ? x - 2 : null),
+    mapColumn: (c) => c == at ? null : (c > at ? c - 1 : c),
+  );
+
+  /// Переносит записи после вставки или удаления ряда или столбца. `null` из функции — запись пропадает; линия,
+  /// ставшая точкой, тоже.
+  static StitchLayers _remap(
+    StitchLayers layers, {
+    int? columns,
+    int? rows,
+    int? Function(int x)? mapX,
+    int? Function(int y)? mapY,
+    int? Function(int column)? mapColumn,
+    int? Function(int row)? mapRow,
+  }) {
+    LatticeNode? node(LatticeNode n) {
+      final int? x = mapX == null ? n.x : mapX(n.x);
+      final int? y = mapY == null ? n.y : mapY(n.y);
+      return x == null || y == null ? null : LatticeNode(x, y);
+    }
+
+    final List<PartialStitch> partials = <PartialStitch>[];
+    for (final PartialStitch p in layers.partials) {
+      final int? column = mapColumn == null ? p.column : mapColumn(p.column);
+      final int? row = mapRow == null ? p.row : mapRow(p.row);
+      if (column != null && row != null) partials.add(p.copyWith(column: column, row: row));
+    }
+    final List<LineStitch> lines = <LineStitch>[];
+    for (final LineStitch l in layers.lines) {
+      final LatticeNode? a = node(l.from);
+      final LatticeNode? b = node(l.to);
+      if (a != null && b != null && a != b) lines.add(LineStitch(a: a, b: b, kind: l.kind, color: l.color));
+    }
+    final List<PointStitch> points = <PointStitch>[];
+    for (final PointStitch p in layers.points) {
+      final LatticeNode? moved = node(p.node);
+      if (moved != null) points.add(_movePoint(p, moved));
+    }
+    return StitchLayers(
+      columns: columns ?? layers.columns,
+      rows: rows ?? layers.rows,
+      defaultSpec: layers.defaultSpec,
+      colorSpecs: layers.colorSpecs,
+      partials: partials,
+      lines: lines,
+      points: points,
     );
   }
 

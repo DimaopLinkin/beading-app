@@ -10,8 +10,7 @@ import 'package:intl/intl.dart';
 
 /// Легенда вышивки: по строке на цвет палитры. Образец со знаком, бренд и номер нити, название, сложения, сколько
 /// стежков каждого вида. Касание строки подсвечивает цвет на схеме ([onSelect]), повторное касание снимает подсветку.
-///
-/// Мотки (расход мулине) в строку добавит T44.
+/// Если легенду строили с расчётом мулине, в строке есть и число мотков.
 class StitchLegendView extends StatelessWidget {
   const StitchLegendView({
     required this.entries,
@@ -90,6 +89,7 @@ class _LegendRow extends StatelessWidget {
         l10n.stitchLegendBackStrands(entry.spec.backstitchStrands),
       ],
       if (entry.knots > 0) l10n.stitchLegendKnots(entry.knots),
+      if (entry.skeins != null) l10n.flossSkeins(entry.skeins!),
     ];
     final Color accent = tokens.accent.resolveFrom(context);
     return Semantics(

@@ -1,8 +1,14 @@
 import 'dart:math' as math;
 
 import 'package:beading/domain/editor/cell_rect.dart';
+import 'package:beading/domain/grid/cell_metrics.dart';
 import 'package:beading/domain/grid/cell_position.dart';
+import 'package:beading/domain/grid/fabric.dart';
 import 'package:beading/domain/grid_pattern/grid_pattern.dart';
+import 'package:beading/domain/palette/catalog_ref.dart';
+import 'package:beading/domain/palette/rgb.dart';
+import 'package:beading/domain/stitch/lattice_node.dart';
+import 'package:beading/domain/stitch/stitch_layers.dart';
 import 'package:beading/presentation/editor/editor_state.dart';
 import 'package:beading/presentation/grid_pattern/grid_pattern_view.dart';
 import 'package:beading/presentation/grid_pattern/grid_scene.dart';
@@ -26,6 +32,11 @@ class EditorCanvas extends StatefulWidget {
     required this.onStrokeCell,
     required this.onStrokeEnd,
     required this.onSelect,
+    this.layers,
+    this.lineAnchor,
+    this.beadColors = const <CatalogRef, Rgb>{},
+    this.onPointTap,
+    this.onLineDrag,
     this.controller,
     super.key,
   });
@@ -43,6 +54,22 @@ class EditorCanvas extends StatefulWidget {
 
   /// Рамка выделения: угол нажатия и текущая ячейка.
   final void Function(CellPosition anchor, CellPosition current) onSelect;
+
+  /// Слои вышивки; у бисерной схемы `null`.
+  final StitchLayers? layers;
+
+  /// Начало ломаной бэкстича: рисуется точкой на узле.
+  final LatticeNode? lineAnchor;
+
+  /// Цвета бусин слоёв по каталогу бисера.
+  final Map<CatalogRef, Rgb> beadColors;
+
+  /// Касание в точке схемы, в клетках от левого верхнего угла (дробная часть — место внутри клетки): для стежков
+  /// внутри клетки и ластика вышивки.
+  final ValueChanged<Offset>? onPointTap;
+
+  /// Протяжка бэкстича между двумя точками схемы (в клетках).
+  final void Function(Offset from, Offset to)? onLineDrag;
 
   /// Зум и сдвиг снаружи (тесты); иначе полотно ведёт своё преобразование.
   final TransformationController? controller;
@@ -64,6 +91,7 @@ class _EditorCanvasState extends State<EditorCanvas> {
   // Состояние одного касания.
   int? _primary;
   Offset? _downAt;
+  Offset? _downPoint;
   bool _moved = false;
   bool _drawing = false;
   CellPosition? _anchor;
@@ -121,6 +149,19 @@ class _EditorCanvasState extends State<EditorCanvas> {
 
   bool get _paints => widget.tool == EditorTool.brush || widget.tool == EditorTool.eraser;
 
+  /// Одиночное касание ластика вышивки — точка (линия, узелок или клетка), протяжка — мазок по клеткам.
+  bool get _eraserByPoint => widget.tool == EditorTool.eraser && widget.layers != null;
+
+  bool get _pointTool => widget.tool.isStitchPoint && widget.layers != null;
+
+  /// Точка схемы в клетках от левого верхнего угла (для прямоугольной сетки вышивки).
+  Offset _pointAt(Offset local) {
+    final Matrix4 inverse = Matrix4.tryInvert(_controller.value) ?? Matrix4.identity();
+    final Offset scene = MatrixUtils.transformPoint(inverse, local);
+    final Rect origin = _scene.cellRect(const CellPosition(0, 0));
+    return Offset((scene.dx - origin.left) / origin.width, (scene.dy - origin.top) / origin.height);
+  }
+
   void _down(PointerDownEvent e) {
     _pointers[e.pointer] = e.localPosition;
     if (_pointers.length > 1) {
@@ -133,6 +174,7 @@ class _EditorCanvasState extends State<EditorCanvas> {
     _gestureMode = false;
     _multiTouch = false;
     final CellPosition? cell = _cellAt(e.localPosition);
+    _downPoint = _pointAt(e.localPosition);
     if (_paints) {
       // Мазок начинается, когда палец сдвинулся или поднялся: второй палец (зум) не должен оставлять точку.
       _pendingCell = cell;
@@ -229,6 +271,10 @@ class _EditorCanvasState extends State<EditorCanvas> {
     if (_pointers.isEmpty) _gestureMode = false;
     if (!wasPrimary) return;
     _primary = null;
+    if (!_multiTouch && _eraserByPoint && !_drawing && !_moved) {
+      widget.onPointTap?.call(_pointAt(e.localPosition));
+      _pendingCell = null;
+    }
     if (!_multiTouch && _paints && !_drawing && _pendingCell != null) {
       // Тап: одна точка.
       final CellPosition cell = _pendingCell!;
@@ -237,7 +283,13 @@ class _EditorCanvasState extends State<EditorCanvas> {
     }
     _pendingCell = null;
     _endStroke();
-    if (!_multiTouch && !_moved && !_paints && widget.tool != EditorTool.selection) {
+    if (!_multiTouch && _pointTool) {
+      if (_moved && widget.tool == EditorTool.backstitch && _downPoint != null) {
+        widget.onLineDrag?.call(_downPoint!, _pointAt(e.localPosition));
+      } else if (!_moved) {
+        widget.onPointTap?.call(_pointAt(e.localPosition));
+      }
+    } else if (!_multiTouch && !_moved && !_paints && widget.tool != EditorTool.selection) {
       final CellPosition? cell = _cellAt(e.localPosition);
       if (cell != null) widget.onTap(cell);
     }
@@ -285,9 +337,30 @@ class _EditorCanvasState extends State<EditorCanvas> {
                     controller: _controller,
                     gesturesEnabled: false,
                     maxScale: _maxScale,
-                    options: GridViewOptions(showSymbols: widget.showSymbols),
+                    layers: widget.layers,
+                    beadColors: widget.beadColors,
+                    options: GridViewOptions(
+                      showSymbols: widget.showSymbols,
+                      canvasColor: _canvasColor,
+                    ),
                   ),
                 ),
+                if (widget.lineAnchor != null)
+                  Positioned.fill(
+                    child: IgnorePointer(
+                      child: AnimatedBuilder(
+                        animation: _controller,
+                        builder: (context, _) => CustomPaint(
+                          key: const ValueKey<String>('editor-line-anchor'),
+                          painter: _AnchorPainter(
+                            point: _anchorPoint(widget.lineAnchor!),
+                            matrix: _controller.value,
+                            color: context.tokens.accent.resolveFrom(context),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
                 if (widget.selection != null)
                   Positioned.fill(
                     child: IgnorePointer(
@@ -310,6 +383,17 @@ class _EditorCanvasState extends State<EditorCanvas> {
         );
       },
     );
+  }
+
+  Color? get _canvasColor {
+    final CellMetrics metrics = widget.pattern.metrics;
+    if (metrics is! Fabric) return null;
+    return Color.fromARGB(255, metrics.color.r, metrics.color.g, metrics.color.b);
+  }
+
+  Offset _anchorPoint(LatticeNode node) {
+    final Rect origin = _scene.cellRect(const CellPosition(0, 0));
+    return Offset(origin.left + node.x / 2 * origin.width, origin.top + node.y / 2 * origin.height);
   }
 
   Rect _selectionRect(CellRect r) {
@@ -344,4 +428,31 @@ class _SelectionPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(_SelectionPainter old) => old.rect != rect || old.matrix != matrix || old.color != color;
+}
+
+/// Точка начала ломаной бэкстича: кольцо акцентного цвета на узле.
+class _AnchorPainter extends CustomPainter {
+  const _AnchorPainter({required this.point, required this.matrix, required this.color});
+
+  final Offset point;
+  final Matrix4 matrix;
+  final Color color;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final Offset onScreen = MatrixUtils.transformPoint(matrix, point);
+    canvas
+      ..drawCircle(onScreen, 9, Paint()..color = color.withValues(alpha: 0.25))
+      ..drawCircle(
+        onScreen,
+        9,
+        Paint()
+          ..color = color
+          ..style = PaintingStyle.stroke
+          ..strokeWidth = 2,
+      );
+  }
+
+  @override
+  bool shouldRepaint(_AnchorPainter old) => old.point != point || old.matrix != matrix || old.color != color;
 }

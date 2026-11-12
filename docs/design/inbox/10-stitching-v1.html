@@ -1,0 +1,455 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Бисер — Режим вышивания крестиком (10-stitching v1)</title>
+<style>
+
+:root{--font:-apple-system,BlinkMacSystemFont,"SF Pro Text","SF Pro",system-ui,sans-serif}
+*{box-sizing:border-box}
+body{margin:0;font-family:var(--font);background:#CFC8BC;color:#1C1A1F}
+body.dp{background:#0B0A0C;color:#F4F0EA}
+.top{position:sticky;top:0;z-index:50;display:flex;gap:12px;align-items:center;flex-wrap:wrap;padding:12px 24px;background:rgba(247,244,239,.92);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-bottom:1px solid rgba(0,0,0,.12)}
+body.dp .top{background:rgba(21,19,22,.92);border-color:rgba(255,255,255,.14)}
+.top h1{margin:0;font-size:18px;flex:1;min-width:220px}
+.seg{display:flex;padding:3px;border-radius:22px;background:rgba(120,110,100,.25)}
+.seg button{border:0;background:transparent;color:inherit;font:600 14px var(--font);padding:9px 16px;border-radius:19px;cursor:pointer;min-height:44px}
+.seg button[aria-pressed="true"]{background:#fff;color:#1C1A1F;box-shadow:0 1px 3px rgba(0,0,0,.2)}
+.stage{padding:28px 24px 40px;display:flex;flex-direction:column;gap:44px}
+.row{display:flex;flex-wrap:wrap;gap:28px;justify-content:center}
+.cell{display:flex;flex-direction:column;gap:10px;align-items:center}
+.cap{font-size:14px;font-weight:600;max-width:428px;text-align:center;opacity:.9}
+.note{max-width:920px;margin:0 auto;font-size:15px;line-height:1.55;padding:0 24px 60px}
+.note h2{font-size:20px;margin:0 0 8px}
+.note ul{margin:6px 0 12px;padding-left:20px}
+
+.phone{--bg:#F7F4EF;--surf:#FFF;--surf2:#EFEBE4;--ink:#1C1A1F;--ink2:#5F5954;--sep:#E0DAD1;--acc:#B5541C;--onacc:#fff;--acct:#9A4513;--accg:rgba(181,84,28,.16);--danger:#C0362C;
+ --glass:rgba(255,255,255,.55);--dense:rgba(255,255,255,.86);--gb:1px solid rgba(255,255,255,.85);--shadow:0 10px 28px rgba(0,0,0,.18);
+ position:relative;width:428px;height:926px;border-radius:52px;overflow:hidden;background:var(--bg);color:var(--ink);border:1px solid rgba(0,0,0,.25);box-shadow:0 18px 40px rgba(0,0,0,.28);flex:none;font-family:var(--font)}
+.phone[data-theme="dark"]{--bg:#151316;--surf:#201D22;--surf2:#2A262D;--ink:#F4F0EA;--ink2:#A9A29B;--sep:#3A353D;--acc:#F0955A;--onacc:#1C1A1F;--acct:#F0955A;--accg:rgba(240,149,90,.18);--danger:#FF7A6E;
+ --glass:rgba(40,38,44,.5);--dense:rgba(28,26,32,.86);--gb:1px solid rgba(255,255,255,.26);--shadow:0 10px 28px rgba(0,0,0,.45);border-color:rgba(255,255,255,.18)}
+.glass{background:var(--glass);border:var(--gb);box-shadow:var(--shadow);backdrop-filter:blur(24px) saturate(1.6);-webkit-backdrop-filter:blur(24px) saturate(1.6)}
+.dense{background:var(--dense);border:var(--gb);box-shadow:var(--shadow);backdrop-filter:blur(32px) saturate(1.4);-webkit-backdrop-filter:blur(32px) saturate(1.4)}
+/* шапка: две строки, крупный счётчик */
+.bar{position:absolute;left:12px;right:12px;top:54px;height:92px;border-radius:36px;display:flex;align-items:center;justify-content:space-between;padding:0 8px;z-index:6}
+.bar .t{flex:1;min-width:0;text-align:center;display:flex;flex-direction:column;align-items:center;gap:1px}
+.bar .t b{font-size:15px;font-weight:600;color:var(--ink2);max-width:230px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cnt{font:600 40px/1.05 ui-monospace,"SF Mono",Menlo,monospace;font-variant-numeric:tabular-nums;letter-spacing:-1px}
+.cnt small{font:400 17px var(--font);color:var(--ink2);letter-spacing:0}
+.pb{width:170px;height:4px;border-radius:2px;background:var(--surf2);margin-top:5px}.pb i{display:block;height:4px;border-radius:2px;background:var(--acc)}
+.tb{min-width:44px;height:44px;border-radius:22px;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:600;color:var(--acct);padding:0 10px;flex:none}
+.home{position:absolute;left:50%;bottom:8px;margin-left:-67px;width:134px;height:5px;border-radius:3px;background:var(--ink);opacity:.5;z-index:9}
+.tog{position:absolute;left:12px;right:12px;top:154px;height:48px;display:flex;justify-content:space-between;gap:10px;z-index:6}
+.msg{display:flex;padding:3px;border-radius:24px}
+.msg div{min-height:42px;padding:0 16px;display:flex;align-items:center;border-radius:21px;font-size:15px;font-weight:600;color:var(--ink)}
+.msg .s{background:var(--bg);font-weight:700;box-shadow:0 0 0 1px var(--sep)}
+.sym{width:48px;height:48px;border-radius:24px;display:flex;align-items:center;justify-content:center;font-size:17px;font-weight:700;color:var(--ink);flex:none}
+.sym.on{background:var(--accg);color:var(--acct)}
+/* схема */
+.sch{position:absolute;left:8px;right:8px;border-radius:24px;background:var(--surf);border:1px solid var(--sep);overflow:hidden}
+.gn{position:absolute;left:0;width:34px;text-align:right;padding-right:6px;font-size:13px;font-weight:600;color:var(--ink2);font-variant-numeric:tabular-nums}
+.gc{position:absolute;left:2px;width:34px;height:22px;border-radius:11px;background:var(--acc);color:var(--onacc);font-size:13px;font-weight:700;display:flex;align-items:center;justify-content:center;border:2px solid #fff;z-index:5;box-shadow:0 1px 4px rgba(0,0,0,.3)}
+.area{position:absolute;left:36px;right:4px;top:0;bottom:0;overflow:hidden}
+.b{position:absolute;border-radius:50%;border:1px solid rgba(0,0,0,.25);display:flex;align-items:center;justify-content:center;font-weight:700;line-height:1}
+.b.past{opacity:.38}
+.b.cr{box-shadow:0 0 0 1.5px #151316,0 0 0 3px #fff}
+.b.hol{border-width:2px;border-style:dashed;color:var(--ink)}
+.b.nx{box-shadow:0 0 0 2px #151316,0 0 0 4px #fff,0 0 0 5px #151316;z-index:4}
+.band{position:absolute;z-index:3;background:rgba(181,84,28,.16);box-shadow:0 0 0 2px #151316,0 0 0 4.5px #fff,0 0 0 5.5px #151316;border-radius:2px;pointer-events:none}
+.phone[data-theme="dark"] .band{background:rgba(240,149,90,.18)}
+.zi{position:absolute;right:20px;top:218px;display:flex;gap:8px;z-index:6}
+.zi div{height:44px;border-radius:22px;display:flex;align-items:center;gap:6px;padding:0 16px;font-size:15px;font-weight:700}
+.zi .ind{color:var(--ink2);font-family:ui-monospace,"SF Mono",Menlo,monospace}.zi .btn{color:var(--acct)}
+.hint{position:absolute;left:24px;right:24px;z-index:6;border-radius:28px;padding:10px 10px 10px 18px;display:flex;align-items:center;justify-content:space-between;gap:10px;font-size:15px;font-weight:600}
+.hint .go{height:44px;border-radius:22px;padding:0 16px;display:flex;align-items:center;background:var(--acc);color:var(--onacc);font-weight:700;flex:none}
+/* низ */
+.bot{position:absolute;left:12px;right:12px;bottom:28px;border-radius:38px;padding:10px;display:flex;flex-direction:column;gap:8px;z-index:7}
+.wc{display:flex;align-items:center;gap:10px;min-height:52px;border-radius:26px;background:var(--surf2);padding:0 14px;font-size:17px;font-weight:700;overflow:hidden;white-space:nowrap}
+.wc .it{display:flex;align-items:center;gap:5px}
+.wc .dt{width:24px;height:24px;border-radius:50%;border:1px solid rgba(0,0,0,.25);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;flex:none}
+.wc .ar{color:var(--acct);display:flex}
+.r2{display:flex;gap:8px}
+.b1{width:60px;height:64px;border-radius:32px;background:var(--surf2);display:flex;align-items:center;justify-content:center;color:var(--ink);flex:none}
+.b2{flex:1;height:64px;border-radius:32px;background:var(--acc);color:var(--onacc);display:flex;align-items:center;justify-content:center;gap:6px;font-size:17px;font-weight:700;text-align:center}
+.b3{width:112px;height:64px;border-radius:32px;background:var(--surf2);display:flex;align-items:center;justify-content:center;gap:5px;font-size:15px;font-weight:700;color:var(--ink);flex:none}
+.toast{position:absolute;left:24px;right:24px;bottom:208px;height:44px;border-radius:22px;display:flex;align-items:center;justify-content:space-between;padding:0 6px 0 18px;font-size:15px;font-weight:600;z-index:7}
+.toast .tb{height:36px;min-width:36px}
+.banner{position:absolute;left:24px;right:24px;top:154px;height:52px;border-radius:26px;display:flex;align-items:center;gap:12px;padding:0 20px 0 8px;font-size:16px;font-weight:600;z-index:6}
+.banner i{width:34px;height:34px;border-radius:17px;background:radial-gradient(circle at 35% 30%,#fff 0 12%,#F2B84B 14% 60%,#B5541C 100%);flex:none}
+/* AX3 */
+.ax .bar{height:176px;border-radius:44px}
+.ax .bar .t b{font-size:30px;max-width:240px}
+.ax .cnt{font-size:54px;text-align:center}.ax .cnt small{font-size:34px;display:block;line-height:1.1}
+.ax .tb{min-width:56px;height:56px}
+.ax .tog{top:238px;height:64px}
+.ax .sym{width:64px;height:64px;font-size:26px}
+.ax .modeb{width:64px;height:64px;border-radius:32px;display:flex;align-items:center;justify-content:center;color:var(--acct);font-size:26px;font-weight:700}
+.ax .wc{font-size:30px;min-height:96px;flex-wrap:wrap;white-space:normal;padding:10px 16px;gap:8px 12px;border-radius:36px}
+.ax .wc .dt{width:38px;height:38px;font-size:22px}
+.ax .r2{gap:10px}
+.ax .b1{width:88px;height:88px;border-radius:44px}
+.ax .b2{height:88px;border-radius:44px;font-size:30px}
+.ax .b3{height:88px;width:auto;flex:1;border-radius:44px;font-size:28px}
+
+
+:root{--font:-apple-system,BlinkMacSystemFont,"SF Pro Text","SF Pro",system-ui,sans-serif}
+*{box-sizing:border-box}
+body{margin:0;font-family:var(--font);background:#CFC8BC;color:#1C1A1F}
+body.dp{background:#0B0A0C;color:#F4F0EA}
+.top{position:sticky;top:0;z-index:50;display:flex;gap:12px;align-items:center;flex-wrap:wrap;padding:12px 24px;background:rgba(247,244,239,.92);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-bottom:1px solid rgba(0,0,0,.12)}
+body.dp .top{background:rgba(21,19,22,.92);border-color:rgba(255,255,255,.14)}
+.top h1{margin:0;font-size:18px;flex:1;min-width:220px}
+.seg{display:flex;padding:3px;border-radius:22px;background:rgba(120,110,100,.25)}
+.seg button{border:0;background:transparent;color:inherit;font:600 14px var(--font);padding:9px 16px;border-radius:19px;cursor:pointer;min-height:44px}
+.seg button[aria-pressed="true"]{background:#fff;color:#1C1A1F;box-shadow:0 1px 3px rgba(0,0,0,.2)}
+.stage{padding:28px 24px 40px;display:flex;flex-direction:column;gap:44px}
+.row{display:flex;flex-wrap:wrap;gap:28px;justify-content:center}
+.cell{display:flex;flex-direction:column;gap:10px;align-items:center}
+.cap{font-size:14px;font-weight:600;max-width:428px;text-align:center;opacity:.9}
+.note{max-width:920px;margin:0 auto;font-size:15px;line-height:1.55;padding:0 24px 60px}
+.note h2{font-size:20px;margin:0 0 8px}.note ul{margin:6px 0 12px;padding-left:20px}
+
+.phone{--bg:#F7F4EF;--surf:#FFF;--surf2:#EFEBE4;--ink:#1C1A1F;--ink2:#5F5954;--sep:#E0DAD1;--acc:#B5541C;--onacc:#fff;--acct:#9A4513;--accg:rgba(181,84,28,.16);--danger:#C0362C;
+ --glass:rgba(255,255,255,.55);--dense:rgba(255,255,255,.86);--gb:1px solid rgba(255,255,255,.85);--shadow:0 10px 28px rgba(0,0,0,.18);--scrim:rgba(20,16,12,.38);
+ --sheet:rgba(247,244,239,.84);--sheetsolid:#F7F4EF;--row:#FFFFFF;--rowsep:#E4DED5;
+ --idea:#4A52A6;--ideab:rgba(91,99,183,.14);--prog:#8A5300;--progb:rgba(168,106,0,.16);--done:#27704A;--doneb:rgba(46,125,79,.15);
+ position:relative;width:428px;height:926px;border-radius:52px;overflow:hidden;background:var(--bg);color:var(--ink);border:1px solid rgba(0,0,0,.25);box-shadow:0 18px 40px rgba(0,0,0,.28);flex:none;font-family:var(--font)}
+.phone[data-theme="dark"]{--bg:#151316;--surf:#201D22;--surf2:#2A262D;--ink:#F4F0EA;--ink2:#A9A29B;--sep:#3A353D;--acc:#F0955A;--onacc:#1C1A1F;--acct:#F0955A;--accg:rgba(240,149,90,.22);--danger:#FF7A6E;
+ --glass:rgba(40,38,44,.5);--dense:rgba(28,26,32,.86);--gb:1px solid rgba(255,255,255,.26);--shadow:0 10px 28px rgba(0,0,0,.45);--scrim:rgba(0,0,0,.55);
+ --sheet:rgba(44,40,48,.86);--sheetsolid:#2C2830;--row:#3A353F;--rowsep:#4A4550;
+ --idea:#9BA3EE;--ideab:rgba(155,163,238,.18);--prog:#F2B84B;--progb:rgba(242,184,75,.18);--done:#6FCF97;--doneb:rgba(111,207,151,.18);border-color:rgba(255,255,255,.18)}
+.glass{background:var(--glass);border:var(--gb);box-shadow:var(--shadow);backdrop-filter:blur(24px) saturate(1.6);-webkit-backdrop-filter:blur(24px) saturate(1.6)}
+.home{position:absolute;left:50%;bottom:8px;margin-left:-67px;width:134px;height:5px;border-radius:3px;background:var(--ink);opacity:.5;z-index:30}
+
+/* библиотека (подложка) */
+.lib{--s:1;position:absolute;inset:0;padding:64px 16px 140px;display:flex;flex-direction:column;gap:12px;overflow:hidden}
+.large{flex:none;font-size:calc(34px * var(--s));font-weight:700;letter-spacing:-.4px;padding:0 4px;line-height:1.1}
+.search{flex:none;min-height:44px;border-radius:calc(22px * var(--s));background:var(--surf2);display:flex;align-items:center;gap:10px;padding:calc(8px * var(--s)) 16px;font-size:calc(17px * var(--s));color:var(--ink2)}
+.fr{flex:none;display:flex;flex-wrap:wrap;gap:8px}
+.fl{flex:none;font-size:calc(13px * var(--s));font-weight:700;color:var(--ink2);letter-spacing:.5px;text-transform:uppercase;padding:0 4px;margin-bottom:-4px}
+.chip{display:inline-flex;align-items:center;gap:6px;min-height:44px;padding:calc(8px * var(--s)) calc(16px * var(--s));border-radius:999px;font-size:calc(15px * var(--s));font-weight:600;background:var(--surf2);border:1px solid var(--sep);color:var(--ink);line-height:1.15}
+.chip.sel{background:var(--acc);border-color:var(--acc);color:var(--onacc)}
+.list{display:flex;flex-direction:column;gap:10px}
+.card{display:flex;gap:12px;padding:10px;border-radius:22px;background:var(--surf);border:1px solid var(--sep);min-height:104px}
+.ax .card{flex-direction:column}
+.pv{width:84px;height:84px;border-radius:14px;flex:none;border:1px solid rgba(0,0,0,.12)}
+.ax .pv{width:100%;height:96px}
+.cbody{flex:1;min-width:0;display:flex;flex-direction:column;gap:3px;padding:2px 0}
+.ct{font-size:calc(17px * var(--s));font-weight:600}
+.cs{font-size:calc(14px * var(--s));color:var(--ink2)}
+.st{align-self:flex-start;display:inline-flex;align-items:center;gap:5px;padding:3px 10px 3px 7px;border-radius:13px;font-size:max(13px,calc(13px * var(--s)));font-weight:600}
+.st.idea{color:var(--idea);background:var(--ideab)}.st.prog{color:var(--prog);background:var(--progb)}.st.done{color:var(--done);background:var(--doneb)}
+.bar{height:6px;border-radius:3px;background:var(--surf2);margin-top:auto}.bar i{display:block;height:6px;border-radius:3px;background:var(--prog)}
+.tabbar{position:absolute;left:16px;bottom:26px;display:flex;gap:2px;padding:6px;border-radius:36px;z-index:5}
+.tab{padding:0 13px;height:52px;border-radius:30px;display:flex;align-items:center;gap:7px;font-size:14px;font-weight:600}
+.tab.sel{background:var(--accg);color:var(--acct);padding:0 14px}
+.fab{position:absolute;right:16px;bottom:26px;width:68px;height:68px;border-radius:34px;display:flex;align-items:center;justify-content:center;background:var(--acc);border:var(--gb);box-shadow:var(--shadow);z-index:5}
+.empty{position:absolute;left:0;right:0;top:300px;display:flex;flex-direction:column;align-items:center;gap:14px;text-align:center;padding:0 40px}
+.empty h2{margin:0;font-size:22px}.empty p{margin:0;font-size:16px;color:var(--ink2)}
+.cta{height:52px;padding:0 28px;border-radius:26px;background:var(--acc);color:var(--onacc);display:flex;align-items:center;font-size:17px;font-weight:700}
+
+/* системный page sheet */
+.scrim{position:absolute;inset:0;background:var(--scrim);z-index:10}
+.pagesheet{position:absolute;left:8px;right:8px;bottom:8px;border-radius:38px;background:var(--sheet);backdrop-filter:blur(40px) saturate(1.5);-webkit-backdrop-filter:blur(40px) saturate(1.5);border:var(--gb);box-shadow:0 -2px 30px rgba(0,0,0,.25);z-index:11;display:flex;flex-direction:column;overflow:hidden}
+.pagesheet.med{height:462px}
+.pagesheet.lg{left:0;right:0;bottom:0;top:62px;border-radius:38px 38px 0 0;background:var(--sheetsolid);backdrop-filter:none}
+.grab{flex:none;align-self:center;width:36px;height:5px;border-radius:3px;background:var(--ink2);opacity:.45;margin:6px 0 2px}
+.nav{flex:none;position:relative;height:52px;display:flex;align-items:center;justify-content:center}
+.nav b{font-size:17px;font-weight:600}
+.nav .cancel{position:absolute;left:8px;min-width:44px;height:44px;padding:0 10px;display:flex;align-items:center;font-size:17px;color:var(--acct)}
+.sc{flex:none;margin:6px 16px 10px;display:flex;padding:3px;border-radius:999px;background:rgba(120,110,100,.22)}
+.sc div{flex:1;min-height:44px;display:flex;align-items:center;justify-content:center;border-radius:999px;font-size:15px;font-weight:600;color:var(--ink)}
+.sc .s{background:var(--surf);box-shadow:0 1px 4px rgba(0,0,0,.25);font-weight:700}
+.phone[data-theme="dark"] .sc .s{background:#5A5560;color:#fff}
+.group{margin:0 16px;border-radius:24px;background:var(--row);overflow:hidden}
+.item{display:flex;align-items:center;gap:14px;padding:10px 16px 10px 14px;min-height:68px;position:relative}
+.item+.item::before{content:"";position:absolute;left:72px;right:0;top:0;height:1px;background:var(--rowsep)}
+.item .ic{width:44px;height:44px;border-radius:22px;background:var(--accg);color:var(--acct);display:flex;align-items:center;justify-content:center;flex:none}
+.item b{display:block;font-size:17px;font-weight:600;line-height:1.2}
+.item span.s{font-size:13px;color:var(--ink2);line-height:1.25}
+.item .ch{margin-left:auto;color:var(--ink2);opacity:.6;flex:none}
+.foot{flex:none;margin:10px 32px 0;font-size:13px;color:var(--ink2)}
+/* AX3 внутри листа */
+.axs .nav{height:auto;flex-direction:column;align-items:flex-start;justify-content:flex-start;padding:0 16px 8px}.axs .nav b{font-size:36px;letter-spacing:-.4px;padding:0 4px}
+.axs .nav .cancel{position:static;font-size:30px;min-height:64px;padding:0 4px;margin-left:-4px}
+.axs .sc div{min-height:68px;font-size:28px}
+.axs .item{min-height:128px;gap:18px;padding:16px}
+.axs .item .ic{width:72px;height:72px;border-radius:36px}
+.axs .item b{font-size:32px}.axs .item span.s{font-size:26px}
+.axs .group{border-radius:34px}
+.axs .item+.item::before{left:106px}
+
+/* ---------- 10: добавки ---------- */
+.mono{font-family:ui-monospace,"SF Mono",Menlo,monospace}
+.xh{position:absolute;left:12px;right:12px;top:54px;height:92px;border-radius:36px;display:flex;align-items:center;justify-content:space-between;padding:0 8px;z-index:6}
+.xh .t{flex:1;min-width:0;text-align:center;display:flex;flex-direction:column;align-items:center;gap:1px}
+.xh .t b{font-size:15px;font-weight:600;color:var(--ink2);max-width:240px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.xh .cn{font:600 40px/1.05 ui-monospace,"SF Mono",Menlo,monospace;font-variant-numeric:tabular-nums;letter-spacing:-1px;white-space:nowrap}
+.xh .cn small{font:400 17px var(--font);color:var(--ink2);letter-spacing:0}
+.xh .pb{width:200px;height:4px;border-radius:2px;background:var(--surf2);margin-top:5px}.xh .pb i{display:block;height:4px;border-radius:2px;background:var(--acc)}
+.xb{min-width:44px;height:44px;border-radius:22px;display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:600;color:var(--acct);padding:0 10px;flex:none}
+.xt{position:absolute;left:12px;right:12px;top:154px;height:48px;display:flex;justify-content:space-between;gap:8px;z-index:6}
+.xs{display:flex;padding:3px;border-radius:24px}
+.xs div{min-height:42px;padding:0 14px;display:flex;align-items:center;border-radius:21px;font-size:15px;font-weight:600;color:var(--ink)}
+.xs .s{background:var(--bg);font-weight:700;box-shadow:0 0 0 1px var(--sep)}
+.xr{display:flex;gap:8px}
+.xc{height:48px;border-radius:24px;display:flex;align-items:center;gap:6px;padding:0 14px;font-size:15px;font-weight:700;color:var(--ink);white-space:nowrap}
+.xc.sq{width:48px;padding:0;justify-content:center}
+.xc.on{color:var(--acct)}
+.cvc{position:absolute;left:8px;right:8px;border-radius:24px;background:var(--surf);border:1px solid var(--sep);overflow:hidden;z-index:2}
+.cvc canvas{position:absolute;display:block}
+.cvc .gx{position:absolute;font-size:13px;font-weight:600;color:var(--ink2);font-variant-numeric:tabular-nums;line-height:1}
+.ov{position:absolute;z-index:4}
+.bchip{position:absolute;z-index:4;min-width:46px;height:30px;padding:0 10px;border-radius:15px;background:var(--surf);border:1px solid var(--sep);box-shadow:0 1px 4px rgba(0,0,0,.25);display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:700;margin:-15px 0 0 -23px;gap:3px}
+.bchip.ok{background:var(--accg);color:var(--acct)}
+.touch{position:absolute;z-index:6;width:56px;height:56px;margin:-28px 0 0 -28px;border-radius:50%;background:rgba(40,40,40,.28);border:2px solid rgba(255,255,255,.85)}
+.lpr{position:absolute;z-index:6;width:64px;height:64px;margin:-32px 0 0 -32px;border-radius:50%;border:5px solid var(--acc);border-right-color:transparent;transform:rotate(30deg)}
+.dbl{position:absolute;z-index:5;border-radius:3px;box-shadow:0 0 0 2px #151316,0 0 0 4.5px #fff,0 0 0 5.5px #151316;pointer-events:none}
+.hd{position:absolute;z-index:6;width:26px;height:26px;border-radius:50%;background:var(--acc);border:2px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,.4);margin:-13px 0 0 -13px}
+.zchip{position:absolute;z-index:6;white-space:nowrap;height:34px;padding:0 14px;border-radius:17px;display:flex;align-items:center;font-size:15px;font-weight:700;color:var(--ink)}
+.flag{position:absolute;z-index:6;margin:-30px 0 0 -6px;color:#fff;filter:drop-shadow(0 1px 2px rgba(0,0,0,.5))}
+.flagpin{width:30px;height:34px;display:flex;align-items:flex-start;justify-content:center}
+.xp{position:absolute;left:12px;right:12px;bottom:28px;border-radius:36px;padding:8px;display:flex;flex-direction:column;gap:6px;z-index:7}
+.mrow{display:flex;gap:6px}
+.mb{flex:1;min-height:62px;border-radius:20px;background:var(--surf2);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;font-size:13px;font-weight:700;color:var(--ink)}
+.mb.sel{background:var(--accg);color:var(--acct)}
+.ub{flex:1;min-height:48px;border-radius:24px;background:var(--surf2);display:flex;align-items:center;justify-content:center;gap:5px;font-size:13px;font-weight:700;color:var(--ink);padding:0 4px;white-space:nowrap}
+.ub.on{background:var(--accg);color:var(--acct)}
+.bigbtn{flex:1;height:60px;border-radius:30px;background:var(--surf2);display:flex;align-items:center;justify-content:center;gap:6px;font-size:17px;font-weight:700;color:var(--ink)}
+.bigbtn.p{background:var(--acc);color:var(--onacc)}
+.xtoast{position:absolute;left:20px;right:20px;bottom:206px;height:44px;border-radius:22px;display:flex;align-items:center;justify-content:space-between;padding:0 6px 0 18px;font-size:15px;font-weight:600;z-index:7}
+.xtoast .xb{height:36px;min-width:36px}
+.xban{position:absolute;left:24px;right:24px;top:154px;height:52px;border-radius:26px;display:flex;align-items:center;gap:12px;padding:0 20px 0 8px;font-size:16px;font-weight:600;z-index:6}
+.xban i{width:34px;height:34px;border-radius:17px;background:radial-gradient(circle at 35% 30%,#fff 0 12%,#F2B84B 14% 60%,#B5541C 100%);flex:none}
+.tipx{position:absolute;z-index:9;border-radius:22px;padding:14px 12px 14px 16px;display:flex;gap:8px;align-items:flex-start;font-size:15px;line-height:1.35}
+.tipx::before{content:"";position:absolute;left:var(--ax,60px);bottom:-9px;width:18px;height:18px;transform:rotate(45deg);background:var(--dense);border-right:var(--gb);border-bottom:var(--gb)}
+.tipx b{display:block;font-size:17px;margin-bottom:2px}
+.tipx .xx{flex:none;width:44px;height:44px;margin:-8px -4px 0 0;border-radius:22px;display:flex;align-items:center;justify-content:center;color:var(--ink2)}
+.mnu{position:absolute;z-index:12;border-radius:16px;background:var(--dense);backdrop-filter:blur(30px) saturate(1.5);-webkit-backdrop-filter:blur(30px) saturate(1.5);border:var(--gb);box-shadow:0 12px 40px rgba(0,0,0,.35);overflow:hidden;width:240px}
+.mnu div{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:0 16px;min-height:46px;font-size:17px}
+.mnu div+div{border-top:1px solid var(--rowsep)}
+.swt{width:51px;height:31px;border-radius:16px;background:rgba(120,110,100,.35);position:relative;flex:none}
+.swt::after{content:"";position:absolute;left:2px;top:2px;width:27px;height:27px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.35)}
+.swt.on{background:#34C759}.swt.on::after{left:22px}
+.alt{position:absolute;left:50%;top:50%;margin:-120px 0 0 -155px;width:310px;border-radius:30px;background:var(--dense);backdrop-filter:blur(40px) saturate(1.5);-webkit-backdrop-filter:blur(40px) saturate(1.5);border:var(--gb);box-shadow:0 20px 60px rgba(0,0,0,.45);z-index:12;text-align:center;overflow:hidden}
+.alt .m{padding:22px 20px 18px}.alt .m b{display:block;font-size:19px;margin-bottom:6px}.alt .m span{font-size:15px;line-height:1.35}
+.alt .a{min-height:56px;display:flex;align-items:center;justify-content:center;border-top:1px solid var(--rowsep);font-size:19px;color:var(--acct)}
+.alt .a.p{font-weight:700}
+/* листы */
+.pagesheet.xs1{height:470px}
+.nav .sortb{position:absolute;right:8px;min-width:44px;height:44px;padding:0 12px;display:flex;align-items:center;gap:4px;font-size:15px;font-weight:600;color:var(--acct)}
+.scl{flex:1;min-height:0;overflow:hidden;padding:0 12px 20px;display:flex;flex-direction:column;gap:6px}
+.cr{display:flex;align-items:center;gap:12px;padding:8px 12px;border-radius:18px;background:var(--row);min-height:64px}
+.cr .c{width:42px;height:42px;border-radius:50%;border:1px solid rgba(0,0,0,.25);flex:none;display:flex;align-items:center;justify-content:center;font-size:17px;font-weight:800}
+.cr .m{flex:1;min-width:0}.cr .m b{font-size:15px;display:block}.cr .m span{font-size:13px;color:var(--ink2);display:block;line-height:1.25}
+.cr .q{text-align:right;flex:none;font-size:14px;font-variant-numeric:tabular-nums;width:128px}.cr .q b{display:block;font-size:15px}
+.cr .br{height:4px;border-radius:2px;background:var(--surf2);margin-top:4px}.cr .br i{display:block;height:4px;border-radius:2px;background:var(--acc)}
+.cr.sel{box-shadow:0 0 0 2px #151316,0 0 0 4.5px #fff,0 0 0 5.5px #151316;position:relative;z-index:2}
+.crb{display:flex;gap:8px;padding:2px 0 6px}
+.crb div{flex:1;min-height:48px;border-radius:24px;background:var(--acc);color:var(--onacc);display:flex;align-items:center;justify-content:center;font-size:16px;font-weight:700}
+.crb div.s{background:var(--surf2);color:var(--ink)}
+.pk{display:flex;align-items:center;gap:12px;padding:10px 14px;border-radius:18px;background:var(--row);min-height:68px}
+.pk .i{width:40px;height:40px;border-radius:50%;background:var(--accg);color:var(--acct);display:flex;align-items:center;justify-content:center;flex:none}
+.pk b{font-size:17px;display:block}.pk span{font-size:13px;color:var(--ink2)}
+.pk .g{margin-left:auto;color:var(--acct);font-weight:700;font-size:15px;display:flex;align-items:center;gap:2px;flex:none}
+.sumn{display:flex;flex-direction:column;align-items:center;gap:2px;padding:6px 0 10px;text-align:center}
+.sumn .big{font:600 56px/1.05 ui-monospace,"SF Mono",Menlo,monospace;letter-spacing:-1px}
+.sumn .u{font-size:19px}.sumn .s{font-size:15px;color:var(--ink2)}
+.ax .xh{height:196px;border-radius:44px}
+.ax .xh .t b{font-size:22px;max-width:220px}.ax .xh .cl{font-size:30px;font-weight:600;color:var(--ink2);line-height:1.1}
+.ax .xh .cn{font-size:54px;text-align:center}.ax .xh .cn small{font-size:30px;display:block;line-height:1.15;white-space:normal}
+.ax .xb{min-width:56px;height:56px}
+.ax .xt{top:258px;height:64px}
+.ax .xc{height:64px;font-size:24px}.ax .xc.sq{width:64px}
+.ax .xs div{min-height:58px;font-size:24px}
+.ax .mrow{flex-wrap:wrap}.ax .mb{flex:1 1 44%;min-height:84px;font-size:24px;border-radius:26px}
+.ax .ub{min-height:72px;font-size:24px;border-radius:36px}
+.ax .cr{min-height:104px;padding:12px 14px;gap:10px 14px;flex-wrap:wrap}.ax .cr .m{flex:1 1 55%}.ax .cr .m b{white-space:nowrap}.ax .cr .q{flex:1 1 100%;text-align:left;width:auto}.ax .cr .c{width:60px;height:60px;font-size:26px}
+.ax .cr .m b{font-size:28px}.ax .cr .m span{font-size:22px}.ax .cr .q{font-size:22px}.ax .cr .q b{font-size:26px}
+.ax .nav{height:auto;flex-direction:column;align-items:flex-start;justify-content:flex-start;padding:0 16px 8px}.ax .nav b{font-size:34px;padding:0 4px}
+.ax .nav .cancel{position:static;font-size:28px;min-height:60px;padding:0 4px;margin-left:-4px}
+.ax .nav .sortb{position:static;font-size:24px;min-height:60px;padding:0 4px}
+/* mac */
+.mw .phone{width:900px;height:580px;border-radius:14px;box-shadow:none;border:none;background:none;overflow:visible}
+.mac{width:900px;height:580px;border-radius:14px;overflow:hidden;position:relative;background:var(--bg);color:var(--ink);border:1px solid rgba(0,0,0,.3);box-shadow:0 18px 40px rgba(0,0,0,.28);font-family:var(--font)}
+.mac .sb{position:absolute;left:8px;top:8px;bottom:8px;width:236px;border-radius:22px;padding:12px 8px;display:flex;flex-direction:column;gap:4px;z-index:3;overflow:hidden}
+.mac .sb h4{margin:0 8px 2px;font-size:13px;letter-spacing:.5px;text-transform:uppercase;color:var(--ink2);display:flex;justify-content:space-between}
+.mac .pr{display:flex;align-items:center;gap:8px;padding:5px 8px;border-radius:12px;min-height:44px}
+.mac .pr.s{background:var(--accg)}
+.mac .pr .c{width:28px;height:28px;border-radius:50%;flex:none;border:1px solid rgba(0,0,0,.25);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800}
+.mac .pr .m{flex:1;min-width:0;line-height:1.2;font-size:13px}.mac .pr .m b{display:block;font-size:13px}.mac .pr .m span{color:var(--ink2);font-size:13px}
+.mac .pr .br{height:3px;border-radius:2px;background:var(--surf2);margin-top:3px}.mac .pr .br i{display:block;height:3px;border-radius:2px;background:var(--acc)}
+.mac .tbm{position:absolute;left:256px;right:12px;top:10px;height:52px;border-radius:26px;display:flex;align-items:center;gap:4px;padding:0 10px;z-index:3}
+.mac .tbm .t{white-space:nowrap;display:flex;align-items:center;gap:6px;height:40px;padding:0 12px;border-radius:20px;font-size:13px;font-weight:700;color:var(--ink)}
+.mac .tbm .t.s{background:var(--accg);color:var(--acct)}
+.mac .tbm .sp{width:1px;height:24px;background:var(--sep);margin:0 4px}
+.mac .main{position:absolute;left:256px;right:12px;top:72px;bottom:12px;display:flex;flex-direction:column;gap:10px}
+.mac .info{display:flex;align-items:center;gap:14px;padding:6px 6px 0}
+.mac .info .cn{font:600 28px/1 ui-monospace,"SF Mono",Menlo,monospace;letter-spacing:-.5px}.mac .info .cn small{font:400 15px var(--font);color:var(--ink2)}
+.mac .info .pb{flex:1;height:6px;border-radius:3px;background:var(--surf2)}.mac .info .pb i{display:block;height:6px;border-radius:3px;background:var(--acc)}
+.mac .cvm{flex:1;position:relative;border-radius:16px;background:var(--surf);border:1px solid var(--sep);overflow:hidden}
+</style>
+</head>
+<body>
+<div class="top"><h1>Бисер · Режим вышивания крестиком · 10-stitching v1</h1>
+<div class="seg" role="group" aria-label="Тема"><button data-m="light" aria-pressed="true">Светлая</button><button data-m="dark" aria-pressed="false">Тёмная</button><button data-m="both" aria-pressed="false">Обе рядом</button></div></div>
+<div class="stage" id="stage"></div>
+<div class="note"><h2>Решения и оговорки</h2>
+<ul>
+<li><b>Работа условная, но не придуманная вручную.</b> Схема «Закат над озером» 160 × 120 (19 200 крестиков) построена на странице: процедурная картинка (как в 08) снимается по клеткам, цвета подбираются из реального каталога DMC (`assets/catalog/dmc_floss.json`, 489 цветов) ближайшим по ΔE (CIE76 в Lab); номера и названия настоящие. «Сделано» (3 420, 18 %), остаток по каждому цвету и проценты блоков <b>считаются из одной и той же маски «сделано»</b>, поэтому цифры в шапке, на блоках и в листе цветов согласованы. Образцы цветов не тонируются темой.</li>
+<li><b>Вид клетки.</b> Не зашитая клетка бледная (цвет 26–38 %) и, в режиме символов, с символом; зашитая насыщенная с белым крестиком, символ убран. Так по мере вышивания картинка «проявляется», а цвет читается и у несделанных. Режим «Символ» обязателен и по умолчанию; когда клетка меньше 14 pt (малый масштаб), символы не рисуются (мельче 11 pt они нечитаемы) и показывается цвет, как правило из 05-weaving v2. Линии сетки каждые 10 клеток жирнее, у краёв подписаны номера столбцов и рядов (13 pt).</li>
+<li><b>Шапка</b> как в 05b: название 15 pt, крупный счётчик 40 pt (число сделанных, рядом «из 19 200 · 18 %»), тонкая полоса прогресса; таймер вынесен в плавающую полосу под шапкой (кнопка 48 pt с иконкой паузы и временем «1 ч 12 мин»), рядом переключатель «Символ / Цвет» и кнопка «Слои» (в экране 2 открыт список слоёв с единственным переключателем «Бэкстич»).</li>
+<li><b>Способы отметки</b> лежат в нижней панели с <b>подписями у всех кнопок</b> (урок 06-editor): «Касание», «Мазок», «Область», «Цвет» (62 pt) и ряд «Отменить», «Блоки», «Остаток», «Парковки» (48 pt). Экраны 3–6 показывают каждый режим в действии. На малом масштабе (клетка 12 pt) работают мазок и область, касание по одной клетке отключено (подсказка «Приблизьте, чтобы отметить касанием»); на крупном (клетка 28 pt) касание. Панель 150 pt.</li>
+<li><b>Блоки 10 × 10:</b> слой «Блоки» показывает процент в каждом блоке (готовый блок отмечен галочкой, процент считается по маске), экран «Обзор» отдалённый вид всей работы 16 × 12 блоков (число = процент, галочка = готов).</li>
+<li><b>«Осталось по цветам»</b> нативный page sheet (medium, тянется до large): образец (круг с символом), «DMC 310», название, «осталось 342 из 1 200», тонкая полоса, меню сортировки «По остатку / По номеру»; нажатие на строку подсвечивает на схеме все оставшиеся крестики этого цвета (остальные цвета приглушены) и открывает кнопки «Отметить весь цвет» (с подтверждением, экран 6) и «Показать на схеме».</li>
+<li><b>Парковка:</b> долгое нажатие на крестик ставит закладку (флажок на схеме; кольцо прогресса показывает удерживание); подсказка про долгое нажатие в духе TipKit (появляется один раз); лист «Парковки»: «Угол сверху слева», «Синий цветок», «Перейти», «Поставить парковку здесь».</li>
+<li><b>Таймер без давления:</b> старт и пауза, итог в листе («Сегодня: 214 крестиков за 1 ч 12 мин»), без стриков, серий и сравнений. Пустое состояние (0 из 19 200), завершение работы с баннером-комплиментом (как в 05).</li>
+<li><b>Откат:</b> кнопка «Отменить» в панели и тост «Отмечено 38 крестиков · Отменить» (схема на время тоста укорочена, ничего не закрывает). Откатывается последнее действие целиком (мазок, область, весь цвет).</li>
+<li><b>AX3:</b> шапка (название 22 pt, «Сделано» 30 pt, число 54 pt, «из 19 200 · 18 %» 30 pt) и лист цветов (large, строки 104 pt, подписи 22–28 pt); нижняя панель на AX3 остаётся с четырьмя режимами в сетке 2 × 2 и кнопкой «Ещё». Mac: окно 900 pt, боковая панель цветов (стекло), тулбар (стекло), холст и сводка работы непрозрачные.</li>
+<li>Оговорки: названия парковок и «Синий цветок» условные; бэкстич нарисован одним контуром для показа слоя; слои, частичные крестики и узелки не показаны; системного выбора и жестов зума нет; Mac показан одним экраном по промпту. Время и числа сессии образцовые.</li>
+</ul></div>
+<script>
+const DMC=[["3713","Salmon Very Light","#ffe2e2"],["761","Salmon Light","#ffc9c9"],["760","Salmon","#f5adad"],["3712","Salmon Medium","#f18787"],["3328","Salmon Dark","#e36d6d"],["347","Salmon Very Dark","#bf2d2d"],["353","Peach","#fed7cc"],["352","Coral Light","#fd9c97"],["351","Coral","#e96a67"],["350","Coral Medium","#e04848"],["349","Coral Dark","#d21035"],["817","Coral Red Very Dark","#bb051f"],["3708","Melon Light","#ffcbd5"],["3706","Melon Medium","#ffadbc"],["3705","Melon Dark","#ff7992"],["3801","Melon Very Dark","#e74967"],["666","Bright Red","#e31d42"],["321","Red","#c72b3b"],["304","Red Medium","#b71f33"],["498","Red Dark","#a7132b"],["816","Garnet","#970b23"],["815","Garnet Medium","#87071f"],["814","Garnet Dark","#7b001b"],["894","Carnation Very Light","#ffb2bb"],["893","Carnation Light","#fc90a2"],["892","Carnation Medium","#ff798c"],["891","Carnation Dark","#ff5773"],["818","Baby Pink","#ffdfd9"],["957","Geranium Pale","#fdb5b5"],["956","Geranium","#ff9191"],["309","Rose Dark","#c12041"],["963","Dusty Rose Ultra Very Light","#ffd7d7"],["3716","Dusty Rose Medium Very Light","#ffbdbd"],["962","Dusty Rose Medium","#e68a8a"],["961","Dusty Rose Dark","#cf7373"],["3833","Raspberry Light","#ea8699"],["3832","Raspberry Medium","#db556e"],["3831","Raspberry Dark","#b32f48"],["777","Raspberry Very Dark","#913546"],["819","Baby Pink Light","#ffeeeb"],["3326","Rose Light","#fbadb4"],["776","Pink Medium","#fcb0b9"],["899","Rose Medium","#f27688"],["335","Rose","#ee546e"],["326","Rose Very Dark","#b33b4b"],["151","Dusty Rose Very Light","#f0ced4"],["3354","Dusty Rose Light","#e4a6ac"],["3733","Dusty Rose","#e8879b"],["3731","Dusty Rose Very Dark","#da6783"],["3350","Dusty Rose Ultra Dark","#bc4365"],["150","Dusty Rose Ultra Very Dark","#ab0249"],["3689","Mauve Light","#fbbfc2"],["3688","Mauve Medium","#e7a9ac"],["3687","Mauve","#c96b70"],["3803","Mauve Dark","#ab3357"],["3685","Mauve Very Dark","#881531"],["605","Cranberry Very Light","#ffc0cd"],["604","Cranberry Light","#ffb0be"],["603","Cranberry","#ffa4be"],["602","Cranberry Medium","#e24874"],["601","Cranberry Dark","#d1286a"],["600","Cranberry Very Dark","#cd2f63"],["3806","Cyclamen Pink Light","#ff8cae"],["3805","Cyclamen Pink","#f3478b"],["3804","Cyclamen Pink Dark","#e02876"],["3609","Plum Ultra Light","#f4aed5"],["3608","Plum Very Light","#ea9cc4"],["3607","Plum Light","#c54989"],["718","Plum","#9c2462"],["917","Plum Medium","#9b1359"],["915","Plum Dark","#820043"],["225","Shell Pink Ultra Very Light","#ffdfd5"],["224","Shell Pink Very Light","#ebb7af"],["152","Shell Pink Medium Light","#e2a099"],["223","Shell Pink Light","#cc847c"],["3722","Shell Pink Medium","#bc6c64"],["3721","Shell Pink Dark","#a14b51"],["221","Shell Pink Very Dark","#883e43"],["778","Antique Mauve Very Light","#dfb3bb"],["3727","Antique Mauve Light","#dba9b2"],["316","Antique Mauve Medium","#b7737f"],["3726","Antique Mauve Dark","#9b5b66"],["315","Antique Mauve Medium Dark","#814952"],["3802","Antique Mauve Very Darkv","#714149"],["902","Garnet Very Dark","#822637"],["3743","Antique Violet Very Light","#d7cbd3"],["3042","Antique Violet Light","#b79da7"],["3041","Antique Violet Medium","#956f7c"],["3740","Antique Violet Dark","#785762"],["3836","Grape Light","#ba91aa"],["3835","Grape Medium","#946083"],["3834","Grape Dark","#72375d"],["154","Grape Very Dark","#572433"],["211","Lavender Light","#e3cbe3"],["210","Lavender Medium","#c39fc3"],["209","Lavender Dark","#a37ba7"],["208","Lavender Very Dark","#835b8b"],["3837","Lavender Ultra Dark","#6c3a6e"],["327","Violet Dark","#633666"],["153","Violet Very Light","#e6ccd9"],["554","Violet Light","#dbb3cb"],["553","Violet","#a3638b"],["552","Violet  Medium","#803a6b"],["550","Violet Very Dark","#5c184e"],["3747","Blue Violet Very Light","#d3d7ed"],["341","Blue Violet Light","#b7bfdd"],["156","Blue Violet Medium Light","#a3aed1"],["340","Blue Violet Medium","#ada7c7"],["155","Blue Violet Medium Dark","#9891b6"],["3746","Blue Violet Dark","#776b98"],["333","Blue Violet Very Dark","#5c5478"],["157","Cornflower Blue Very Light","#bbc3d9"],["794","Cornflower Blue Light","#8f9cc1"],["793","Cornflower Blue Medium","#707da2"],["3807","Cornflower Blue","#60678c"],["792","Cornflower Blue Dark","#555b7b"],["158","Cornflower Blue  Very Dark","#4c526e"],["791","Cornflower Blue Very Dark","#464563"],["3840","Lavender Blue Light","#b0c0da"],["3839","Lavender Blue Medium","#7b8eab"],["3838","Lavender Blue Dark","#5c7294"],["800","Delft Blue Pale","#c0ccde"],["809","Delft Blue","#94a8c6"],["799","Delft Blue Medium","#748eb6"],["798","Delft Blue Dark","#466a8e"],["797","Royal Blue","#13477d"],["796","Royal Blue Dark","#11416d"],["820","Royal Blue Very Dark","#0e365c"],["162","Blue Ultra Very Light","#dbecf5"],["827","Blue Very Light","#bddded"],["813","Blue Light","#a1c2d7"],["826","Blue Medium","#6b9ebf"],["825","Blue Dark","#4781a5"],["824","Blue Very Dark","#396987"],["996","Electric Blue Medium","#30c2ec"],["3843","Electric Blue","#14aad0"],["995","Electric Blue Dark","#2696b6"],["3846","Turquoise Bright Light","#06e3e6"],["3845","Turquoise Bright Medium","#04c4ca"],["3844","Turquoise Bright Dark","#12aeba"],["159","Blue Gray Light","#c7cad7"],["160","Blue Gray Medium","#999fb7"],["161","Blue Gray","#7880a4"],["3756","Baby Blue Ultra Very Light","#eefcfc"],["775","Baby Blue Very Light","#d9ebf1"],["3841","Baby Blue Pale","#cddfed"],["3325","Baby Blue Light","#b8d2e6"],["3755","Baby Blue","#93b4ce"],["334","Baby Blue Medium","#739fc1"],["322","Baby Blue Dark","#5a8fb8"],["312","Baby Blue Very Dark","#35668b"],["803","Baby Blue Ultra Very Dark","#2c597c"],["336","Navy Blue","#253b73"],["823","Navy Blue Dark","#213063"],["939","Navy Blue Very Dark","#1b2853"],["3753","Antique Blue Ultra Very Light","#dbe2e9"],["3752","Antique Blue Very Light","#c7d1db"],["932","Antique Blue Light","#a2b5c6"],["931","Antique Blue Medium","#6a859e"],["930","Antique Blue Dark","#455c71"],["3750","Antique Blue Very Dark","#384c5e"],["828","Sky Blue Very Light","#c5e8ed"],["3761","Sky Blue Light","#acd8e2"],["519","Sky Blue","#7eb1c8"],["518","Wedgewood Light","#4f93a7"],["3760","Wedgewood Medium","#3e85a2"],["517","Wedgewood Dark","#3b768f"],["3842","Wedgewood Very Dark","#32667c"],["311","Wedgewood Ultra Very Dark","#1c5066"],["747","Peacock Blue Very Light","#e5fcfd"],["3766","Peacock Blue Light","#99cfd9"],["807","Peacock Blue","#64abba"],["806","Peacock Blue Dark","#3d95a5"],["3765","Peacock Blue Very Dark","#347f8c"],["3811","Turquoise Very Light","#bce3e6"],["598","Turquoise Light","#90c3cc"],["597","Turquoise","#5ba3b3"],["3810","Turquoise Dark","#488e9a"],["3809","Turquoise Vy Dark","#3f7c85"],["3808","Turquoise Ultra Very Dark","#366970"],["928","Gray Green Very Light","#dde3e3"],["927","Gray Green Light","#bdcbcb"],["926","Gray Green Medium","#98aeae"],["3768","Gray Green Dark","#657f7f"],["924","Gray Green Vy Dark","#566a6a"],["3849","Teal Green Light","#52b3a4"],["3848","Teal Green Medium","#559392"],["3847","Teal Green Dark","#347d75"],["964","Sea Green Light","#a9e2d8"],["959","Sea Green Medium","#59c7b4"],["958","Sea Green Dark","#3eb6a1"],["3812","Sea Green Very Dark","#2f8c84"],["3851","Green Bright Light","#49b3a1"],["943","Green Bright Medium","#3d9384"],["3850","Green Bright Dark","#378477"],["993","Aquamarine Very Light","#90c0b4"],["992","Aquamarine Light","#6fae9f"],["3814","Aquamarine","#508b7d"],["991","Aquamarine Dark","#477b6e"],["966","Jade Ultra Very Light","#b9d7c0"],["564","Jade Very Light","#a7cdaf"],["563","Jade Light","#8fc098"],["562","Jade Medium","#53976a"],["505","Jade Green","#338362"],["3817","Celadon Green Light","#99c3aa"],["3816","Celadon Green","#65a57d"],["163","Celadon Green Medium","#4d8361"],["3815","Celadon Green Dark","#477759"],["561","Celadon Green VD","#2c6a45"],["504","Blue Green Very Light","#c4decc"],["3813","Blue Green Light","#b2d4bd"],["503","Blue Green Medium","#7bac94"],["502","Blue Green","#5b9071"],["501","Blue Green Dark","#396f52"],["500","Blue Green Very Dark","#044d33"],["955","Nile Green Light","#a2d6ad"],["954","Nile Green","#88ba91"],["913","Nile Green Medium","#6dab77"],["912","Emerald Green Light","#1b9d6b"],["911","Emerald Green Medium","#189065"],["910","Emerald Green Dark","#187e56"],["909","Emerald Green Very Dark","#156f49"],["3818","Emerald Green Ultra Very Dark","#115a3b"],["369","Pistachio Green Very Light","#d7edcc"],["368","Pistachio Green Light","#a6c298"],["320","Pistachio Green Medium","#69885a"],["367","Pistachio Green Dark","#617a52"],["319","Pistachio Grn Very Dark","#205f2e"],["890","Pistachio Grn Ultra Very Dark","#174923"],["164","Forest Green Light","#c8d8b8"],["989","Forest Green","#8da675"],["988","Forest Green Medium","#738b5b"],["987","Forest Green Dark","#587141"],["986","Forest Green Very Dark","#405230"],["772","Yellow Green Very Light","#e4ecd4"],["3348","Yellow Green Light","#ccd9b1"],["3347","Yellow Green Medium","#71935c"],["3346","Hunter Green","#406a3a"],["3345","Hunter Green Dark","#1b5915"],["895","Hunter Green Very Dark","#1b5300"],["704","Chartreuse Bright","#9ecf34"],["703","Chartreuse","#7bb547"],["702","Kelly Green","#47a72f"],["701","Green Light","#3f8f29"],["700","Green Bright","#07731b"],["699","Green","#056517"],["907","Parrot Green Light","#c7e666"],["906","Parrot Green Medium","#7fb335"],["905","Parrot Green Dark","#628a28"],["904","Parrot Green Very Dark","#557822"],["472","Avocado Green Ultra Light","#d8e498"],["471","Avocado Grn Very Light","#aebf79"],["470","Avocado Grn Light","#94ab4f"],["469","Avocado Green","#72843c"],["937","Avocado Green Medium","#627133"],["936","Avocado Green Very Dark","#4c5826"],["935","Avocado Green Dark","#424d21"],["934","Avocado Grn Black","#313919"],["523","Fern Green Light","#abb197"],["3053","Green Gray","#9ca482"],["3052","Green Gray Medium","#889268"],["3051","Green Gray Dark","#5f6648"],["524","Fern Green Very Light","#c4cdac"],["522","Fern Green","#969e7e"],["520","Fern Green Dark","#666d4f"],["3364","Pine Green","#83975f"],["3363","Pine Green Medium","#728256"],["3362","Pine Green Dark","#5e6b47"],["165","Moss Green Very Light","#eff4a4"],["3819","Moss Green Light","#e0e868"],["166","Moss Green Medium Light","#c0c840"],["581","Moss Green","#a7ae38"],["580","Moss Green Dark","#888d33"],["734","Olive Green Light","#c7c077"],["733","Olive Green Medium","#bcb34c"],["732","Olive Green","#948c36"],["731","Olive Green Dark","#938b37"],["730","Olive Green Very Dark","#827b30"],["3013","Khaki Green Light","#b9b982"],["3012","Khaki Green Medium","#a6a75d"],["3011","Khaki Green Dark","#898a58"],["372","Mustard Light","#ccb784"],["371","Mustard","#bfa671"],["370","Mustard Medium","#b89d64"],["834","Golden Olive Very Light","#dbbe7f"],["833","Golden Olive Light","#c8ab6c"],["832","Golden Olive","#bd9b51"],["831","Golden Olive Medium","#aa8f56"],["830","Golden Olive Dark","#8d784b"],["829","Golden Olive Very Dark","#7e6b42"],["613","Drab Brown Very Light","#dcc4aa"],["612","Drab Brown Light","#bc9a78"],["611","Drab Brown","#967656"],["610","Drab Brown Dark","#796047"],["3047","Yellow Beige Light","#e7d6c1"],["3046","Yellow Beige Medium","#d8bc9a"],["3045","Yellow Beige Dark","#bc966a"],["167","Yellow Beige Very Dark","#a77c49"],["746","Off White","#fcfcee"],["677","Old Gold Very Light","#f5eccb"],["422","Hazelnut Brown Light","#c69f7b"],["3828","Hazelnut Brown","#b78b61"],["420","Hazelnut Brown Dark","#a07042"],["869","Hazelnut Brown Very Dark","#835e39"],["728","Topaz","#e4b468"],["783","Topaz Medium","#ce9124"],["782","Topaz Dark","#ae7720"],["781","Topaz Very Dark","#a26d20"],["780","Topaz Ultra Very Dark","#94631a"],["676","Old Gold Light","#e5ce97"],["729","Old Gold Medium","#d0a53e"],["680","Old Gold Dark","#bc8d0e"],["3829","Old Gold Vy Dark","#a98204"],["3822","Straw Light","#f6dc98"],["3821","Straw","#f3ce75"],["3820","Straw Dark","#dfb65f"],["3852","Straw Very Dark","#cd9d37"],["445","Lemon Light","#fffb8b"],["307","Lemon","#fded54"],["973","Canary Bright","#ffe300"],["444","Lemon Dark","#ffd600"],["3078","Golden Yellow Very Light","#fdf9cd"],["727","Topaz Very Light","#fff1af"],["726","Topaz Light","#fdd755"],["725","Topaz Medium Light","#ffc840"],["972","Canary Deep","#ffb515"],["745","Yellow Pale Light","#ffe9ad"],["744","Yellow Pale","#ffe793"],["743","Yellow Medium","#fed376"],["742","Tangerine Light","#ffbf57"],["741","Tangerine Medium","#ffa32b"],["740","Tangerine","#ff8b00"],["970","Pumpkin Light","#f78b13"],["971","Pumpkin","#f67f00"],["947","Burnt Orange","#ff7b4d"],["946","Burnt Orange Medium","#eb6307"],["900","Burnt Orange Dark","#d15807"],["967","Apricot Very Light","#ffded5"],["3824","Apricot Light","#fecdc2"],["3341","Apricot","#fcab98"],["3340","Apricot Medium","#ff836f"],["608","Burnt Orange Bright","#fd5d35"],["606","Orange Red Bright","#fa3203"],["951","Tawny Light","#ffe2cf"],["3856","Mahogany Ultra Very Light","#ffd3b5"],["722","Orange Spice Light","#f7976f"],["721","Orange Spice Medium","#f27842"],["720","Orange Spice Dark","#e55c1f"],["3825","Pumpkin Pale","#fdbd96"],["922","Copper Light","#e27323"],["921","Copper","#c66218"],["920","Copper Medium","#ac5414"],["919","Red Copper","#a64510"],["918","Red Copper Dark","#82340a"],["3770","Tawny Vy Light","#ffeee3"],["945","Tawny","#fbd5bb"],["402","Mahogany Very Light","#f7a777"],["3776","Mahogany Light","#cf7939"],["301","Mahogany Medium","#b35f2b"],["400","Mahogany Dark","#8f430f"],["300","Mahogany Very Dark","#6f2f00"],["3823","Yellow Ultra Pale","#fffde3"],["3855","Autumn Gold Light","#fad396"],["3854","Autumn Gold Medium","#f2af68"],["3853","Autumn Gold Dark","#f29746"],["3827","Golden Brown Pale","#f7bb77"],["977","Golden Brown Light","#dc9c56"],["976","Golden Brown Medium","#c28142"],["3826","Golden Brown","#ad7239"],["975","Golden Brown Dark","#914f12"],["948","Peach Very Light","#fee7da"],["754","Peach Light","#f7cbbf"],["3771","Terra Cotta Ultra Very Light","#f4bba9"],["758","Terra Cotta Very Light","#eeaa9b"],["3778","Terra Cotta Light","#d98978"],["356","Terra Cotta Medium","#c56a5b"],["3830","Terra Cotta","#b95544"],["355","Terra Cotta Dark","#984436"],["3777","Terra Cotta Very Dark","#863022"],["3779","Rosewood Ultra Very Light","#f8cac8"],["3859","Rosewood Light","#ba8b7c"],["3858","Rosewood Medium","#964a3f"],["3857","Rosewood Dark","#68251a"],["3774","Desert Sand Very Light","#f3e1d7"],["950","Desert Sand Light","#eed3c4"],["3064","Desert Sand","#c48e70"],["407","Desert Sand Medium","#bb8161"],["3773","Desert Sand Dark","#b67552"],["3772","Desert Sand Very Dark","#a06c50"],["632","Desert Sand Ultra Very Dark","#875539"],["453","Shell Gray Light","#d7cecb"],["452","Shell Gray Medium","#c0b3ae"],["451","Shell Gray Dark","#917b73"],["3861","Cocoa Light","#a68881"],["3860","Cocoa","#7d5d57"],["779","Cocoa Dark","#624b45"],["712","Cream","#fffbef"],["739","Tan Ultra Very Light","#f8e4c8"],["738","Tan Very Light","#eccc9e"],["437","Tan Light","#e4bb8e"],["436","Tan","#cb9051"],["435","Brown Very Light","#b87748"],["434","Brown Light","#985e33"],["433","Brown Medium","#7a451f"],["801","Coffee Brown Dark","#653919"],["898","Coffee Brown Very Dark","#492a13"],["938","Coffee Brown Ultra Dark","#361f0e"],["3371","Black Brown","#1e1108"],["543","Beige Brown Ultra Very Light","#f2e3ce"],["3864","Mocha Beige Light","#cbb69c"],["3863","Mocha Beige Medium","#a4835c"],["3862","Mocha Beige Dark","#8a6e4e"],["3031","Mocha Brown Very Dark","#4b3c2a"],["B5200","Snow White","#ffffff"],["Blanc","White","#fcfbf8"],["3865","Winter White","#f9f7f1"],["Ecru","Ecru","#f0eada"],["822","Beige Gray Light","#e7e2d3"],["644","Beige Gray Medium","#ddd8cb"],["642","Beige Gray Dark","#a49878"],["640","Beige Gray Very Dark","#857b61"],["3787","Brown Gray Dark","#625d50"],["3021","Brown Gray Very Dark","#4f4b41"],["3024","Brown Gray Very Light","#ebeae7"],["3023","Brown Gray Light","#b1aa97"],["3022","Brown Gray Medium","#8e9078"],["535","Ash Gray Very Light","#636458"],["3033","Mocha Brown Very Light","#e3d8cc"],["3782","Mocha Brown Light","#d2bca6"],["3032","Mocha Brown Medium","#b39f8b"],["3790","Beige Gray Ultra Dark","#7f6a55"],["3781","Mocha Brown Dark","#6b5743"],["3866","Mocha Brown Ultra Very Light","#faf6f0"],["842","Beige Brown Very Light","#d1baa1"],["841","Beige Brown Light","#b69b7e"],["840","Beige Brown Medium","#9a7c5c"],["839","Beige Brown Dark","#675541"],["838","Beige Brown Very Dark","#594937"],["3072","Beaver Gray Very Light","#e6e8e8"],["648","Beaver Gray Light","#bcb4ac"],["647","Beaver Gray Medium","#b0a69c"],["646","Beaver Gray Dark","#877d73"],["645","Beaver Gray Very Dark","#6e655c"],["844","Beaver Gray Ultra Dark","#484848"],["762","Pearl Gray Very Light","#ececec"],["415","Pearl Gray","#d3d3d6"],["318","Steel Gray Light","#ababab"],["414","Steel Gray Dark","#8c8c8c"],["168","Pewter Very Light","#d1d1d1"],["169","Pewter Light","#848484"],["317","Pewter Gray","#6c6c6c"],["413","Pewter Gray Dark","#565656"],["3799","Pewter Gray Very Dark","#424242"],["310","Black","#000000"],["01","White Tin","#e3e3e6"],["02","Tin","#d7d7d8"],["03","Tin Medium","#b8b8bb"],["04","Tin Dark","#aeaeb1"],["05","Driftwood Light","#e3ccbe"],["06","Driftwood Medium Light","#dcc6b8"],["07","Driftwood","#8f7b6e"],["08","Driftwood Dark","#6a5046"],["09","Cocoa Very Dark","#55200e"],["10","Tender Green Very Light","#edfed9"],["11","Tender Green Light","#e2edb5"],["12","Tender Green","#cdd99a"],["13","Nile Green Medium Light","#bff6e0"],["14","Apple Green Pale","#d0fbb2"],["15","Apple Green","#d1eda4"],["16","Chartreuse Light","#c9c258"],["17","Yellow Plum Light","#e5e272"],["18","Yellow Plum","#d9d56d"],["19","Autumn Gold medium Light","#f7c95f"],["20","Shrimp","#f7af93"],["21","Alizarin Light","#d79982"],["22","Alizarin","#bc604e"],["23","Apple Blossom","#ede2ed"],["24","White Lavender","#e0d7ee"],["25","Lavender Ultra Light","#dad2e9"],["26","Lavender Pale","#d7cae6"],["27","White Violet","#f0eef9"],["28","Eggplant Medium Light","#9086a9"],["29","Eggplant","#674076"],["30","Blueberry Medium Light","#7d77a5"],["31","Blueberry","#50518d"],["32","Blueberry Dark","#4d2e8a"],["33","Fuschia","#9c599e"],["34","Fuschia Dark","#7d3064"],["35","Fuschia Very Dark","#46052d"]];
+const lab=h=>{let r=[1,3,5].map(i=>parseInt(h.slice(i,i+2),16)/255).map(v=>v<=.04045?v/12.92:Math.pow((v+.055)/1.055,2.4));
+ const X=(r[0]*.4124+r[1]*.3576+r[2]*.1805)/.95047,Y=(r[0]*.2126+r[1]*.7152+r[2]*.0722),Z=(r[0]*.0193+r[1]*.1192+r[2]*.9505)/1.08883;
+ const f=t=>t>.008856?Math.cbrt(t):7.787*t+16/116;return [116*f(Y)-16,500*(f(X)-f(Y)),200*(f(Y)-f(Z))]};
+const rgb=h=>[1,3,5].map(i=>parseInt(h.slice(i,i+2),16));
+const hex=a=>'#'+a.map(v=>Math.max(0,Math.min(255,Math.round(v))).toString(16).padStart(2,'0')).join('');
+const dE=(p,q)=>Math.hypot(p[0]-q[0],p[1]-q[1],p[2]-q[2]);
+const ink=h=>{const v=rgb(h);return (v[0]*.299+v[1]*.587+v[2]*.114)>150?'#1C1A1F':'#FFFFFF'};
+const DL=DMC.map(c=>({code:c[0],name:c[1],rgb:c[2],lab:lab(c[2])}));
+const nearest=(h,ex)=>{const l=lab(h);let b=null,bd=1e9;for(const c of DL){if(ex.includes(c.code))continue;const d=dE(l,c.lab);if(d<bd){bd=d;b=c}}return b};
+const mixc=(a,b,t)=>a.map((v,i)=>v+(b[i]-v)*t);
+const SKY=[[0,[26,16,56]],[.35,[110,44,110]],[.5,[196,72,107]],[.62,[245,154,60]],[.7,[255,214,120]]];
+const skyCol=v=>{for(let i=0;i<SKY.length-1;i++){if(v<=SKY[i+1][0]){const t=(v-SKY[i][0])/(SKY[i+1][0]-SKY[i][0]);return mixc(SKY[i][1],SKY[i+1][1],Math.max(0,t))}}return SKY[SKY.length-1][1]};
+function scene(u,v){const hor=.66;const hill=.62+.05*Math.sin(u*7+1)+.03*Math.sin(u*17);
+ if(v<hor){let c=skyCol(v+.03*Math.sin(u*34+v*52)+.02*Math.sin(u*11-v*30));const dx=u-.64,dy=(v-.55)*1.25;const d=Math.hypot(dx,dy);
+  if(d<.085)c=[255,238,170];else if(d<.2)c=mixc(c,[255,200,110],(1-(d-.085)/.115)*.55);
+  if(v>hill)return [30,20,52];return c}
+ const ref=skyCol(hor-(v-hor)*.9);let c=mixc(ref,[18,12,40],.45+.3*(v-hor));
+ const dx=u-.64;if(Math.abs(dx)<.05*(1.1-(v-hor)*1.5)&&v<.9)c=mixc(c,[255,210,120],.5);return c}
+const TG=['#1a1038','#3a2060','#6e2c6e','#8a3a74','#a8508a','#c4486b','#d86a8a','#e8704a','#f59a3c','#ffc080','#ffd36e','#ffeeb0','#f2c0a0','#2a1a50','#10091f','#4a2a6a','#7a3a5a','#ff8a5a','#b84a60','#e0a060','#c8a0b0','#5a3a7a','#201438','#ffe090','#9a5a8a'];
+const used=[];const PAL=TG.map((t,i)=>{const c=nearest(t,used);used.push(c.code);return c});
+const SYM='ABCDEFGHJKLMNPRSTUVWXYZ+#';
+const GW=160,GH=120;
+const GRID=new Uint8Array(GW*GH);const COUNT=PAL.map(()=>0);
+for(let y=0;y<GH;y++)for(let x=0;x<GW;x++){const s=scene((x+.5)/GW,(y+.5)/GH);const l=lab(hex(s));let bi=0,bd=1e9;PAL.forEach((c,i)=>{const d=dE(l,c.lab);if(d<bd){bd=d;bi=i}});GRID[y*GW+x]=bi;COUNT[bi]++}
+/* «сделано»: приоритет = верхние ряды + куски блоков */
+const hs=(a,b)=>{let h=(a*374761393+b*668265263)>>>0;h=((h^(h>>>13))*1274126177)>>>0;return ((h^(h>>>16))>>>0)/4294967295};
+const order=[...Array(GW*GH).keys()].sort((a,b)=>{const pa=(a%GW)/GW*.62+hs((a%GW/10|0),(a/GW/10|0))*.38+hs(a,7)*.04,pb=(b%GW)/GW*.62+hs((b%GW/10|0),(b/GW/10|0))*.38+hs(b,7)*.04;return pa-pb});
+function mkMask(n){const m=new Uint8Array(GW*GH);for(let i=0;i<n;i++)m[order[i]]=1;return m}
+const DONE_N=3420,MASK=mkMask(DONE_N),NONE=new Uint8Array(GW*GH),ALL=new Uint8Array(GW*GH).fill(1);
+const remByColor=(m)=>{const r=PAL.map(()=>0);for(let i=0;i<GW*GH;i++)if(!m[i])r[GRID[i]]++;return r};
+const blockPct=(m,bx,by)=>{let d=0,t=0;for(let y=by*10;y<by*10+10;y++)for(let x=bx*10;x<bx*10+10;x++){t++;if(m[y*GW+x])d++}return Math.round(d/t*100)};
+const fmt=n=>n.toLocaleString('ru-RU').replace(/ /g,' ');
+/* ---------- рисование схемы ---------- */
+const THEME={light:{surf:'#FFFFFF',ink:'#1C1A1F',acc:'#B5541C'},dark:{surf:'#201D22',ink:'#F4F0EA',acc:'#F0955A'}};
+function paintCross(cv,p){const dpr=2;const W=p.w,H=p.h,cell=p.cell;cv.width=W*dpr;cv.height=H*dpr;cv.style.width=W+'px';cv.style.height=H+'px';const ctx=cv.getContext('2d');ctx.scale(dpr,dpr);
+ const T=THEME[p.th];const sr=rgb(T.surf);const mask=p.mask==='all'?ALL:p.mask==='none'?NONE:MASK;
+ ctx.fillStyle=T.surf;ctx.fillRect(0,0,W,H);
+ const c0=Math.max(0,Math.floor(p.ox)),r0=Math.max(0,Math.floor(p.oy)),c1=Math.min(GW,Math.ceil(p.ox+W/cell)),r1=Math.min(GH,Math.ceil(p.oy+H/cell));
+ const showSym=p.mode==='sym'&&cell>=14;
+ for(let r=r0;r<r1;r++)for(let c=c0;c<c1;c++){const i=GRID[r*GW+c],col=PAL[i].rgb,done=!!mask[r*GW+c];const x=(c-p.ox)*cell,y=(r-p.oy)*cell;
+  let a=done?1:(showSym?.26:.4);if(p.hl!=null&&i!==p.hl)a*=.22;
+  ctx.fillStyle=hex(mixc(sr,rgb(col),a));ctx.fillRect(x,y,cell,cell);
+  if(done&&p.hl==null||done&&p.hl===i){ctx.strokeStyle='rgba(255,255,255,.55)';ctx.lineWidth=Math.max(1,cell*.09);ctx.beginPath();ctx.moveTo(x+cell*.2,y+cell*.2);ctx.lineTo(x+cell*.8,y+cell*.8);ctx.moveTo(x+cell*.8,y+cell*.2);ctx.lineTo(x+cell*.2,y+cell*.8);ctx.stroke()}
+  else if(!done&&showSym&&(p.hl==null||p.hl===i)){ctx.fillStyle=T.ink;ctx.font='700 '+Math.round(cell*.62)+'px -apple-system,system-ui,sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(SYM[i],x+cell/2,y+cell/2+cell*.04)}
+  if(p.hl===i&&!done){ctx.strokeStyle='#151316';ctx.lineWidth=1.5;ctx.strokeRect(x+.75,y+.75,cell-1.5,cell-1.5)}
+ }
+ if(p.mk){ctx.fillStyle=THEME[p.th].acc;p.mk.forEach(m=>{const x=(m[0]-p.ox)*cell,y=(m[1]-p.oy)*cell;ctx.globalAlpha=.55;ctx.fillRect(x,y,cell,cell);ctx.globalAlpha=1;ctx.strokeStyle='#fff';ctx.lineWidth=1.5;ctx.strokeRect(x+.75,y+.75,cell-1.5,cell-1.5)})}
+ if(p.sel){const s=p.sel;ctx.fillStyle=T.acc;ctx.globalAlpha=.16;ctx.fillRect((s[0]-p.ox)*cell,(s[1]-p.oy)*cell,s[2]*cell,s[3]*cell);ctx.globalAlpha=1}
+ /* сетка */
+ ctx.lineWidth=1;ctx.strokeStyle=p.th==='dark'?'rgba(255,255,255,.12)':'rgba(0,0,0,.12)';ctx.beginPath();
+ for(let c=c0;c<=c1;c++){const x=Math.round((c-p.ox)*cell)+.5;ctx.moveTo(x,0);ctx.lineTo(x,H)}
+ for(let r=r0;r<=r1;r++){const y=Math.round((r-p.oy)*cell)+.5;ctx.moveTo(0,y);ctx.lineTo(W,y)}ctx.stroke();
+ ctx.strokeStyle=p.th==='dark'?'rgba(255,255,255,.6)':'rgba(0,0,0,.6)';ctx.lineWidth=2;ctx.beginPath();
+ for(let c=Math.ceil(c0/10)*10;c<=c1;c+=10){const x=Math.round((c-p.ox)*cell);ctx.moveTo(x,0);ctx.lineTo(x,H)}
+ for(let r=Math.ceil(r0/10)*10;r<=r1;r+=10){const y=Math.round((r-p.oy)*cell);ctx.moveTo(0,y);ctx.lineTo(W,y)}ctx.stroke();
+ if(p.bs){ctx.strokeStyle=p.th==='dark'?'#F4F0EA':'#1C1A1F';ctx.lineWidth=2.4;ctx.lineJoin='round';ctx.lineCap='round';ctx.beginPath();const cx=102,cy=66,rr=8;for(let k=0;k<=24;k++){const a=k/24*Math.PI*2;const gx=Math.round(cx+Math.cos(a)*rr),gy=Math.round(cy+Math.sin(a)*rr*.8);const x=(gx-p.ox)*cell,y=(gy-p.oy)*cell;k?ctx.lineTo(x,y):ctx.moveTo(x,y)}ctx.stroke()}
+}
+function paintOverview(cv,p){const dpr=2;const cs=p.cs,W=GW/10*p.bw,H=GH/10*p.bw;cv.width=W*dpr;cv.height=H*dpr;cv.style.width=W+'px';cv.style.height=H+'px';const ctx=cv.getContext('2d');ctx.scale(dpr,dpr);const T=THEME[p.th];
+ ctx.fillStyle=T.surf;ctx.fillRect(0,0,W,H);
+ for(let by=0;by<12;by++)for(let bx=0;bx<16;bx++){const pc=blockPct(MASK,bx,by);ctx.fillStyle=T.acc;ctx.globalAlpha=.08+.62*pc/100;ctx.fillRect(bx*p.bw,by*p.bw,p.bw,p.bw);ctx.globalAlpha=1;
+  ctx.fillStyle=p.th==='dark'?'#F4F0EA':'#1C1A1F';ctx.font='700 13px -apple-system,system-ui,sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(pc>=100?'✓':String(pc),bx*p.bw+p.bw/2,by*p.bw+p.bw/2+1)}
+ ctx.strokeStyle=p.th==='dark'?'rgba(255,255,255,.5)':'rgba(0,0,0,.45)';ctx.lineWidth=1;for(let i=0;i<=16;i++){ctx.beginPath();ctx.moveTo(i*p.bw+.5,0);ctx.lineTo(i*p.bw+.5,H);ctx.stroke()}for(let i=0;i<=12;i++){ctx.beginPath();ctx.moveTo(0,i*p.bw+.5);ctx.lineTo(W,i*p.bw+.5);ctx.stroke()}}
+function paint(){document.querySelectorAll('canvas[data-k]').forEach(cv=>{const p=JSON.parse(cv.dataset.p);if(cv.dataset.k==='cross')paintCross(cv,p);else paintOverview(cv,p)})}
+/* ---------- UI ---------- */
+const I={chevL:'M15 5l-7 7 7 7',chevD:'M6 9l6 6 6-6',chevR:'M9 5l7 7-7 7',more:'M5 12h.01M12 12h.01M19 12h.01',tap:'M12 9a3 3 0 1 0 0 6 3 3 0 0 0 0-6zM12 3v2M12 19v2M3 12h2M19 12h2',stroke:'M3 17c4-9 7 5 11-4 2-4 4-5 7-4M3 20h.01M21 7h.01',area:'M5 5h4M15 5h4M5 19h4M15 19h4M5 5v4M19 5v4M5 15v4M19 15v4',drop:'M12 3c4 5 7 8 7 11a7 7 0 0 1-14 0c0-3 3-6 7-11z',undo:'M4 12h10a5 5 0 0 1 0 8h-3M8 8l-4 4 4 4',blocks:'M4 4h16v16H4zM4 12h16M12 4v16',list:'M5 7h14M5 12h14M5 17h9',flag:'M6 21V4M6 5h11l-2 4 2 4H6',layers:'M12 3l9 5-9 5-9-5zM3 13l9 5 9-5',play:'M8 5l11 7-11 7z',pause:'M8 5v14M16 5v14',check:'M5 12l5 5 9-10',x:'M7 7l10 10M17 7L7 17',sort:'M8 9l4-4 4 4M8 15l4 4 4-4',zoom:'M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5',plus:'M12 5v14M5 12h14',minus:'M6 12h12',star:'M12 3l2.7 6 6.3.6-4.8 4.2 1.5 6.2L12 16.8 6.3 20l1.5-6.2L3 9.6 9.3 9z'};
+const ic=(n,s=22,w=2.2)=>`<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="${w}" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="${I[n]}"/></svg>`;
+const home='<div class="home"></div>';
+const pct=n=>Math.round(n/(GW*GH)*100);
+const header=(n,ax)=>`<div class="xh glass"><div class="xb" aria-label="Назад">${ic('chevL',22,2.2)}</div><div class="t"><b>Закат над озером</b>${ax?'<div class="cl">Сделано</div>':''}<div class="cn">${fmt(n)} <small>из ${fmt(GW*GH)} · ${pct(n)} %</small></div><div class="pb"><i style="width:${Math.max(1,pct(n))}%"></i></div></div><div class="xb" aria-label="Ещё">${ic('more',24,3)}</div></div>`;
+const toggles=(o={})=>`<div class="xt"><div class="xs glass"><div class="${o.mode==='col'?'':'s'}">Символ</div><div class="${o.mode==='col'?'s':''}">Цвет</div></div><div class="xr"><div class="xc sq glass ${o.layersOn?'on':''}" aria-label="Слои">${ic('layers',22)}</div><div class="xc glass">${ic(o.timer==='pause'?'play':o.timer==='start'?'play':'pause',20,2.6)}${o.time||'1 ч 12 мин'}</div></div></div>`;
+const togglesAx=`<div class="xt"><div class="xc sq glass" aria-label="Режим показа">${ic('list',26)}</div><div class="xr"><div class="xc sq glass" aria-label="Слои">${ic('layers',28)}</div><div class="xc glass">${ic('pause',24,2.6)}1 ч 12 мин</div></div></div>`;
+const MODES=[['tap','Касание'],['stroke','Мазок'],['area','Область'],['drop','Цвет']];
+const panel=(sel,o={})=>`<div class="xp dense"><div class="mrow">${MODES.map((m,i)=>`<div class="mb ${i===sel?'sel':''}">${ic(m[0],24)}${m[1]}</div>`).join('')}</div>${o.ax?`<div class="mrow"><div class="ub" style="flex:1">${ic('more',26,3)}Ещё</div></div>`:`<div class="mrow"><div class="ub ${o.undoHi?'on':''}">${ic('undo',18)}Отменить</div><div class="ub ${o.blocks?'on':''}">${ic('blocks',18)}Блоки</div><div class="ub">${ic('list',18)}Остаток</div><div class="ub">${ic('flag',18)}Парковки</div></div>`}</div>`;
+/* карточка схемы */
+function cvc(o){const th=o.th,cell=o.cell,top=o.top??210,bottom=o.bottom??210,cw=412,ch=926-top-bottom;const W=cw-30,H=ch-22;
+ const p={th,w:W,h:H,cell,ox:o.ox,oy:o.oy,mode:o.mode||'sym',hl:o.hl??null,mask:o.mask||'normal',bs:!!o.bs,mk:o.mk,sel:o.sel};
+ let g='';const c0=Math.ceil(o.ox/10)*10;for(let c=c0;c<o.ox+W/cell;c+=10)g+=`<div class="gx" style="left:${28+(c-o.ox)*cell+2}px;top:5px">${c}</div>`;
+ const r0=Math.ceil(o.oy/10)*10;for(let r=r0;r<o.oy+H/cell;r+=10)g+=`<div class="gx" style="left:3px;top:${20+(r-o.oy)*cell+2}px">${r}</div>`;
+ const P=(cx,cy)=>[28+(cx-o.ox)*cell,20+(cy-o.oy)*cell];
+ let blocks='';
+ if(o.blocksOv){for(let by=Math.floor(o.oy/10);by<(o.oy+H/cell)/10;by++)for(let bx=Math.floor(o.ox/10);bx<(o.ox+W/cell)/10;bx++){if(bx<0||by<0||bx>=16||by>=12)continue;const pc=blockPct(MASK,bx,by);const [x,y]=P(bx*10+5,by*10+5);if(x<20||x>cw-20||y<30||y>ch-20)continue;blocks+=`<div class="bchip ${pc>=100?'ok':''}" style="left:${x}px;top:${y}px">${pc>=100?ic('check',16,3):pc+' %'}</div>`}}
+ return {html:`<div class="cvc" style="top:${top}px;bottom:${bottom}px"><canvas data-k="cross" data-p='${JSON.stringify(p)}' style="left:28px;top:20px"></canvas>${g}${blocks}${(o.over?o.over(P):'')}</div>`,P}}
+/* листы */
+const sorted=(by)=>{const rem=remByColor(MASK);return PAL.map((c,i)=>({i,c,total:COUNT[i],rem:rem[i]})).filter(x=>x.total>0).sort((a,b)=>by==='num'?(+a.c.code||9999)-(+b.c.code||9999):b.rem-a.rem)};
+const crow=(x,sel)=>`<div class="cr ${sel?'sel':''}"><div class="c" style="background:${x.c.rgb};color:${ink(x.c.rgb)}">${SYM[x.i]}</div><div class="m"><b class="mono">DMC ${x.c.code}</b><span>${x.c.name}</span></div><div class="q"><b>осталось ${fmt(x.rem)}</b>из ${fmt(x.total)}<div class="br"><i style="width:${Math.round((x.total-x.rem)/x.total*100)}%"></i></div></div></div>`;
+const colorsSheet=(o={})=>{const L=sorted(o.by||'rem');const n=o.n||6;
+ return `<div class="pagesheet ${o.lg?'lg full':'med xs1'} ${o.ax?'ax':''}" style="${o.lg?'':'height:'+(o.h||470)+'px'}"><div class="grab"></div><div class="nav"><div class="cancel">Готово</div><b>Осталось по цветам</b></div><div class="sc" style="margin:0 12px 8px"><div class="${o.by==='num'?'':'s'}">По остатку</div><div class="${o.by==='num'?'s':''}">По номеру</div></div><div class="scl">${L.slice(0,n).map((x,k)=>crow(x,o.sel&&k===0)+(o.sel&&k===0?`<div class="crb"><div>Отметить весь цвет</div><div class="s">Показать на схеме</div></div>`:'')).join('')}</div></div>`};
+const parkSheet=()=>`<div class="scrim"></div><div class="pagesheet med xs1" style="height:420px"><div class="grab"></div><div class="nav"><div class="cancel">Готово</div><b>Парковки</b></div><div class="scl"><div class="pk" style="background:var(--accg);color:var(--acct)"><div class="i" style="background:var(--acc);color:var(--onacc)">${ic('flag',22)}</div><b style="font-size:17px">Поставить парковку здесь</b></div>
+ <div class="pk"><div class="i">${ic('flag',22)}</div><div><b>Угол сверху слева</b><span>столбец 1 · ряд 1</span></div><div class="g">Перейти${ic('chevR',16,2.6)}</div></div>
+ <div class="pk"><div class="i">${ic('flag',22)}</div><div><b>Синий цветок</b><span>столбец 88 · ряд 62</span></div><div class="g">Перейти${ic('chevR',16,2.6)}</div></div></div></div>`;
+const sumSheet=()=>`<div class="scrim"></div><div class="pagesheet med" style="height:440px"><div class="grab"></div><div class="nav"><div class="cancel" style="visibility:hidden">·</div><b>Итог сессии</b></div><div class="scl" style="gap:10px"><div class="sumn"><div class="big">214</div><div class="u">крестиков</div><div class="s">Сегодня: 214 крестиков за 1 ч 12 мин</div></div>
+ <div class="group" style="margin:0"><div class="item" style="min-height:52px"><b style="font-weight:600;font-size:17px;flex:1">Всего сделано</b><span style="color:var(--ink2)">${fmt(DONE_N+214)} из ${fmt(GW*GH)} · ${pct(DONE_N+214)} %</span></div></div>
+ <div style="display:flex;gap:8px"><div class="bigbtn" style="flex:1">Закончить</div><div class="bigbtn p" style="flex:1.2">${ic('play',20,2.6)}Продолжить</div></div></div></div>`;
+const home2=home;
+/* вид клетки/зум */
+const VIEW={ox:20,oy:60};
+const CIRC=(cx,cy,rad)=>{const out=[];for(let a=0;a<12;a++){const t=a/12*Math.PI*2;out.push([Math.round(cx+Math.cos(t)*rad),Math.round(cy+Math.sin(t)*rad*.8)])}return out};
+const screens=[
+ ['1 · Основной вид: режим «Символ», сделано 18 %',(th)=>{const c=cvc({th,cell:18,ox:VIEW.ox,oy:VIEW.oy});return c.html+header(DONE_N)+toggles({})+panel(0)+home}],
+ ['2 · Режим «Цвет» и слой «Бэкстич» (меню «Слои»)',(th)=>{const c=cvc({th,cell:18,ox:90,oy:52,mode:'col',bs:true});return c.html+header(DONE_N)+toggles({mode:'col',layersOn:true})+panel(0)+`<div class="mnu" style="right:16px;top:206px"><div>Бэкстич<div class="swt on" style="border:0;padding:0;min-height:0"></div></div></div>`+home}],
+ ['3 · Касание (крупный масштаб ×2,3): один крестик',(th)=>{const c=cvc({th,cell:28,ox:34,oy:68,over:P=>{const [x,y]=P(42,82);return `<div class="dbl" style="left:${x}px;top:${y}px;width:28px;height:28px"></div><div class="touch" style="left:${x+14}px;top:${y+14}px"></div><div class="zchip glass" style="left:${x-48}px;top:${y-54}px">Отмечено: 1</div>`}});return c.html+header(DONE_N+1)+toggles({})+panel(0)+home}],
+ ['4 · Мазок (малый масштаб ×1): проведи пальцем',(th)=>{const mk=[];for(let k=0;k<20;k++)mk.push([30+k,70+Math.round(Math.sin(k/3)*2)]);for(let k=0;k<18;k++)mk.push([49-k,74]);const c=cvc({th,cell:12,ox:18,oy:56,mk,over:P=>{const [x,y]=P(36,74);return `<div class="touch" style="left:${x+6}px;top:${y+6}px"></div><div class="zchip glass" style="left:${x-20}px;top:${y-56}px">Мазок: ${mk.length} крестиков</div><div class="zchip glass" style="right:10px;top:8px">×1,0</div>`}});return c.html+header(DONE_N)+toggles({})+panel(1)+home}],
+ ['5 · Область: рамка с ручками и подпись размера',(th)=>{const sel=[22,66,24,12];const c=cvc({th,cell:12,ox:14,oy:56,sel,over:P=>{const [x,y]=P(sel[0],sel[1]);const w=sel[2]*12,h=sel[3]*12;return `<div class="dbl" style="left:${x}px;top:${y}px;width:${w}px;height:${h}px"></div><div class="hd" style="left:${x}px;top:${y}px"></div><div class="hd" style="left:${x+w}px;top:${y}px"></div><div class="hd" style="left:${x}px;top:${y+h}px"></div><div class="hd" style="left:${x+w}px;top:${y+h}px"></div><div class="hd" style="left:${x+w/2}px;top:${y}px"></div><div class="hd" style="left:${x+w/2}px;top:${y+h}px"></div><div class="hd" style="left:${x}px;top:${y+h/2}px"></div><div class="hd" style="left:${x+w}px;top:${y+h/2}px"></div><div class="zchip glass" style="left:${x+w/2-70}px;top:${y-46}px">24 × 12 · 288 крестиков</div>`}});return c.html+header(DONE_N)+toggles({})+`<div class="xp dense"><div class="mrow"><div class="bigbtn">Отмена</div><div class="bigbtn p">${ic('check',22,3)}Отметить область</div></div></div>`+home}],
+ ['6 · «Отметить весь цвет»: подтверждение',(th)=>{const hl=0;const c=cvc({th,cell:18,ox:VIEW.ox,oy:VIEW.oy,hl});const rem=remByColor(MASK)[hl];return c.html+header(DONE_N)+toggles({})+panel(3)+`<div class="scrim" style="position:absolute;inset:0;background:var(--scrim);z-index:11"></div><div class="alt"><div class="m"><b>Отметить весь цвет?</b><span><span class="mono">DMC ${PAL[hl].code}</span> · ${PAL[hl].name}: осталось ${fmt(rem)} из ${fmt(COUNT[hl])} крестиков. Это можно отменить.</span></div><div class="a p">Отметить ${fmt(rem)} крестиков</div><div class="a">Отмена</div></div>`+home}],
+ ['7 · Блоки 10 × 10: процент в каждом блоке',(th)=>{const c=cvc({th,cell:18,ox:20,oy:60,blocksOv:true});return c.html+header(DONE_N)+toggles({})+panel(0,{blocks:true})+home}],
+ ['8 · Блоки: отдалённый обзор всей работы',(th)=>`<div class="cvc" style="top:210px;bottom:210px;display:flex;align-items:center;justify-content:center"><canvas data-k="ov" data-p='${JSON.stringify({th,cs:2,bw:24})}' style="position:static"></canvas></div>`+header(DONE_N)+`<div class="xt"><div class="xs glass"><div>Символ</div><div class="s">Обзор</div></div><div class="xr"><div class="xc glass">${ic('pause',20,2.6)}1 ч 12 мин</div></div></div>`+`<div class="zchip glass" style="position:absolute;left:24px;top:672px;z-index:6;height:auto;padding:8px 14px;line-height:1.3;font-size:13px;width:380px;display:block">Число в блоке: процент выполнения; ✓ блок готов. Нажмите на блок, чтобы перейти к нему.</div>`+panel(0,{blocks:true})+home],
+ ['9 · Осталось по цветам: подсветка цвета на схеме',(th)=>{const c=cvc({th,cell:18,ox:68,oy:6,hl:sorted('rem')[0].i,bottom:476});return c.html+header(DONE_N)+colorsSheet({sel:true,n:3,h:470})+home}],
+ ['10 · Парковка: подсказка и маркер на схеме',(th)=>{const c=cvc({th,cell:18,ox:80,oy:52,over:P=>{const [x,y]=P(88,62);const [x2,y2]=P(96,56);return `<div class="dbl" style="left:${x}px;top:${y}px;width:18px;height:18px"></div><div class="ov" style="left:${x+3}px;top:${y-34}px"><svg width="30" height="38" viewBox="0 0 30 38" aria-label="Парковка"><path d="M5 37V3" stroke="#151316" stroke-width="3.5" stroke-linecap="round"/><path d="M5 4h21l-5.5 7.5L26 19H5z" fill="var(--acc)" stroke="#fff" stroke-width="2.4" stroke-linejoin="round"/></svg></div><div class="zchip glass" style="left:${x+30}px;top:${y-36}px">Синий цветок</div><div class="lpr" style="left:${x2+9}px;top:${y2+9}px"></div>`}});return c.html+header(DONE_N)+toggles({})+`<div class="tipx dense" style="left:24px;right:24px;top:470px;--ax:110px"><div style="flex:1"><b>Парковка</b>Удерживайте крестик, чтобы поставить закладку: туда можно будет вернуться.</div><div class="xx" aria-label="Закрыть подсказку">${ic('x',20,2.6)}</div></div>`+panel(0)+home}],
+ ['11 · Лист «Парковки»',(th)=>{const c=cvc({th,cell:18,ox:80,oy:52});return c.html+header(DONE_N)+toggles({})+panel(0)+parkSheet()+home}],
+ ['12 · Пауза таймера и итог сессии',(th)=>{const c=cvc({th,cell:18,ox:VIEW.ox,oy:VIEW.oy});return c.html+header(DONE_N+214)+toggles({timer:'pause'})+panel(0)+sumSheet()+home}],
+ ['13 · Пустое состояние: ничего не отмечено',(th)=>{const c=cvc({th,cell:18,ox:VIEW.ox,oy:VIEW.oy,mask:'none'});return c.html+header(0)+`<div class="xt"><div class="xs glass"><div class="s">Символ</div><div>Цвет</div></div><div class="xr"><div class="xc glass">${ic('play',20,2.6)}Начать</div></div></div>`+`<div class="xban dense" style="top:216px"><i></i>Нажмите на крестик, чтобы отметить. Мазок и область внизу.</div>`+panel(0)+home}],
+ ['14 · Завершение работы (баннер-комплимент)',(th)=>{const c=cvc({th,cell:18,ox:VIEW.ox,oy:VIEW.oy,mask:'all',top:266});return c.html+header(GW*GH)+`<div class="xban glass" style="top:154px"><i></i>Вышивка готова. Красиво получилось!</div>`+`<div class="xp dense"><div class="mrow"><div class="ub" style="flex:1;min-height:52px;font-size:16px">${ic('check',20,3)}&nbsp;Все ${fmt(GW*GH)} крестиков отмечены</div></div><div class="mrow"><div class="bigbtn" style="flex:0 0 120px">${ic('undo',20)}</div><div class="bigbtn p">Готово</div></div></div>`+home}],
+ ['15 · Откат: тост «Отмечено 38 крестиков · Отменить»',(th)=>{const c=cvc({th,cell:18,ox:VIEW.ox,oy:VIEW.oy,bottom:262});return c.html+header(DONE_N+38)+toggles({})+`<div class="xtoast dense"><span>Отмечено 38 крестиков</span><div class="xb">Отменить</div></div>`+panel(1,{undoHi:true})+home}],
+ ['16 · AX3: шапка и нижняя панель',(th)=>{const c=cvc({th,cell:18,ox:VIEW.ox,oy:VIEW.oy,top:332,bottom:340});return `<div class="ax">`+c.html+header(DONE_N,true)+togglesAx+panel(0,{ax:true})+`</div>`+home}],
+ ['17 · AX3: лист «Осталось по цветам» (large)',(th)=>`<div class="ax">`+cvc({th,cell:18,ox:VIEW.ox,oy:VIEW.oy,bottom:600}).html+header(DONE_N,true)+`<div class="scrim"></div>`+colorsSheet({lg:true,ax:true,n:4,sel:false})+`</div>`+home]
+];
+function macWin(th){const L=sorted('rem');
+ 
+ const p={th,w:628,h:432,cell:14,ox:14,oy:54,mode:'sym',hl:null,mask:'normal'};
+ return `<div class="mw"><div class="phone" data-theme="${th}"><div class="mac" style="--glass:${th==='dark'?'rgba(40,38,44,.5)':'rgba(255,255,255,.55)'};--gb:${th==='dark'?'1px solid rgba(255,255,255,.26)':'1px solid rgba(255,255,255,.85)'};--shadow:0 10px 28px rgba(0,0,0,.18)">
+ <div class="sb glass"><h4><span>Осталось по цветам</span><span style="color:var(--acct)">${ic('sort',16,2.4)}</span></h4>${L.slice(0,8).map((x,k)=>`<div class="pr ${k===3?'s':''}"><div class="c" style="background:${x.c.rgb};color:${ink(x.c.rgb)}">${SYM[x.i]}</div><div class="m"><b class="mono">DMC ${x.c.code}</b><span>осталось ${fmt(x.rem)} из ${fmt(x.total)}</span><div class="br"><i style="width:${Math.round((x.total-x.rem)/x.total*100)}%"></i></div></div></div>`).join('')}<div class="pr" style="margin-top:auto;color:var(--acct);font-weight:700;font-size:13px">${ic('flag',18)}&nbsp;Парковки (2)</div></div>
+ <div class="tbm glass"><div class="t s">${ic('tap',18)}Касание</div><div class="t">${ic('stroke',18)}Мазок</div><div class="t">${ic('area',18)}Область</div><div class="t">${ic('drop',18)}Весь цвет</div><div class="sp"></div><div class="t">${ic('undo',18)}Отменить</div><div class="t">${ic('blocks',18)}Блоки</div></div>
+ <div class="main"><div class="info"><div><div style="font-size:13px;color:var(--ink2);font-weight:600">Закат над озером · Сделано</div><div class="cn">${fmt(DONE_N)} <small>из ${fmt(GW*GH)} · ${pct(DONE_N)} %</small></div></div><div class="pb"><i style="width:${pct(DONE_N)}%"></i></div><div class="t" style="display:flex;align-items:center;gap:6px;font-size:14px;font-weight:700;white-space:nowrap">${ic('pause',16,2.6)}1 ч 12 мин</div></div>
+ <div class="cvm"><canvas data-k="cross" data-p='${JSON.stringify(p)}' style="position:absolute;left:0;top:0"></canvas></div></div></div></div></div>`}
+let mode='light';
+function render(){
+ const st=document.getElementById('stage');st.innerHTML='';
+ document.body.classList.toggle('dp',mode==='dark');
+ const ths=mode==='both'?['light','dark']:[mode];
+ ths.forEach(t=>{
+  const row=document.createElement('div');row.className='row';
+  screens.forEach(s=>{const c=document.createElement('div');c.className='cell';
+   c.innerHTML=`<div class="phone" data-theme="${t}">${s[1](t)}</div><div class="cap">${s[0]} · ${t==='dark'?'тёмная':'светлая'}</div>`;row.appendChild(c)});
+  st.appendChild(row)});
+ ths.forEach(t=>{const row=document.createElement('div');row.className='row';row.style.overflowX='auto';row.innerHTML=`<div style="display:flex;flex-direction:column;gap:10px;align-items:center">${macWin(t)}<div class="cap">18 · macOS, окно 900 pt: цвета сбоку, тулбар, схема, сводка · ${t==='dark'?'тёмная':'светлая'}</div></div>`;st.appendChild(row)});
+ paint();
+}
+document.querySelectorAll('.seg button').forEach(b=>b.onclick=()=>{mode=b.dataset.m;document.querySelectorAll('.seg button').forEach(x=>x.setAttribute('aria-pressed',x===b));render()});
+render();
+</script>
+</body>
+</html>

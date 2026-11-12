@@ -6,7 +6,9 @@ import 'package:beading/domain/grid/fabric.dart';
 import 'package:beading/domain/grid/grid.dart';
 import 'package:beading/domain/grid/grid_geometry.dart';
 import 'package:beading/domain/grid/reading_order.dart';
+import 'package:beading/domain/palette/catalog_ref.dart';
 import 'package:beading/domain/palette/palette_snapshot.dart';
+import 'package:beading/domain/palette/rgb.dart';
 import 'package:beading/domain/stitch/stitch_layers.dart';
 import 'package:beading/presentation/grid_pattern/grid_base_painter.dart';
 import 'package:beading/presentation/grid_pattern/grid_colors.dart';
@@ -33,6 +35,7 @@ class GridPatternView extends StatefulWidget {
     required this.metrics,
     this.options = const GridViewOptions(),
     this.layers,
+    this.beadColors = const <CatalogRef, Rgb>{},
     this.controller,
     this.onCellTap,
     this.onCellLongPress,
@@ -51,6 +54,9 @@ class GridPatternView extends StatefulWidget {
 
   /// Слои вышивки (неполные крестики, бэкстич, узелки) поверх крестиков; у бисера `null`.
   final StitchLayers? layers;
+
+  /// Цвета бусин слоёв вышивки по позиции каталога бисера (каталог схема не хранит).
+  final Map<CatalogRef, Rgb> beadColors;
 
   /// Зум и сдвиг снаружи (например, чтобы доехать до ряда). Если не задан, вид сам вписывается по ширине.
   final TransformationController? controller;
@@ -145,6 +151,10 @@ class _GridPatternViewState extends State<GridPatternView> {
         realistic: widget.options.realistic,
         hiddenLayers: widget.options.hiddenLayers,
         highlightColor: widget.options.highlightColor,
+        beadColors: <CatalogRef, Color>{
+          for (final MapEntry<CatalogRef, Rgb> e in widget.beadColors.entries)
+            e.key: Color.fromARGB(255, e.value.r, e.value.g, e.value.b),
+        },
       ),
     );
     if (changed) _layerRevision++;

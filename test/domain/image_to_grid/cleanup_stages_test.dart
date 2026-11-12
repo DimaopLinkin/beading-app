@@ -168,6 +168,14 @@ void main() {
       expect(_cells(out.grid).toSet(), <int>{1});
     });
 
+    test('оттенковая фактура (T66): одиночка близкого оттенка остаётся, чужого тона убирается', () {
+      final GeneratedPattern near = _pattern(<String>['111', '121', '111'], <int>[0x808080, 0x858585]);
+      expect(_cells(const RemoveIslandsStep(keepToneDeltaE: 5).apply(near, _context(near)).grid).contains(2), isTrue);
+      expect(_cells(const RemoveIslandsStep().apply(near, _context(near)).grid).contains(2), isFalse);
+      final GeneratedPattern far = _pattern(<String>['111', '121', '111'], <int>[0x808080, 0xFF00FF]);
+      expect(_cells(const RemoveIslandsStep(keepToneDeltaE: 5).apply(far, _context(far)).grid).contains(2), isFalse);
+    });
+
     test('клетка под маской «важное» сохраняется', () {
       final GeneratedPattern p = _pattern(<String>['111', '121', '111'], <int>[0xFF0000, 0x00FF00]);
       final GeneratedPattern out = const RemoveIslandsStep().apply(p, _context(p, importance: <int, double>{4: 5}));
@@ -189,6 +197,31 @@ void main() {
         cellEdges: edges,
       );
       expect(const RemoveIslandsStep().apply(p, c).grid.at(1, 1), 2);
+    });
+
+    test('заметная деталь (T64) защищает клетку, а слабая нет', () {
+      final GeneratedPattern p = _pattern(<String>['111', '121', '111'], <int>[0xFF0000, 0x00FF00]);
+      PatternStepContext withDetail(double v) => PatternStepContext(
+        geometry: _rect,
+        cellImportance: Float32List(9)..fillRange(0, 9, 1),
+        cellDetail: Float32List(9)..[4] = v,
+      );
+      expect(const RemoveIslandsStep().apply(p, withDetail(0.6)).grid.at(1, 1), 2);
+      expect(const RemoveIslandsStep().apply(p, withDetail(0.3)).grid.at(1, 1), 1);
+    });
+
+    test('диагональная линия из клеток, касающихся углами, сохраняется (T64)', () {
+      final GeneratedPattern p = _pattern(<String>['2111', '1211', '1121', '1112'], <int>[0xFF0000, 0x00FF00]);
+      final GeneratedPattern out = const RemoveIslandsStep(protectDiagonals: true).apply(p, _context(p));
+      expect(<int>[for (int i = 0; i < 4; i++) out.grid.at(i, i)], everyElement(2));
+    });
+
+    test('диагональная линия без защиты чистится, пара без продолжения чистится и с защитой', () {
+      final GeneratedPattern line = _pattern(<String>['2111', '1211', '1121', '1112'], <int>[0xFF0000, 0x00FF00]);
+      expect(_cells(const RemoveIslandsStep().apply(line, _context(line)).grid).toSet(), <int>{1});
+      final GeneratedPattern p = _pattern(<String>['1111', '1211', '1121', '1111'], <int>[0xFF0000, 0x00FF00]);
+      final GeneratedPattern out = const RemoveIslandsStep(protectDiagonals: true).apply(p, _context(p));
+      expect(_cells(out.grid).toSet(), <int>{1});
     });
 
     test('линия шириной в одну клетку длиной 5 сохраняется', () {

@@ -11,6 +11,8 @@ import 'package:beading/domain/image_to_grid/background_stage.dart';
 import 'package:beading/domain/image_to_grid/face_size_advisor.dart';
 import 'package:beading/domain/image_to_grid/generation_preset.dart';
 import 'package:beading/domain/image_to_grid/image_to_grid_settings.dart';
+import 'package:beading/domain/image_to_grid/size_purpose.dart';
+import 'package:beading/domain/image_to_grid/size_suggester.dart';
 import 'package:beading/domain/palette/rgb.dart';
 import 'package:beading/domain/projects/craft.dart';
 import 'package:beading/domain/settings/floss_brands.dart';
@@ -117,6 +119,108 @@ class _FaceWarning extends StatelessWidget {
           ],
         ),
       ],
+    );
+  }
+}
+
+/// Размер по назначению и подсказка по фото (T61).
+class _SizeAssist extends StatelessWidget {
+  const _SizeAssist({required this.state, required this.cubit});
+
+  final ImageWizardState state;
+  final ImageWizardCubit cubit;
+
+  @override
+  Widget build(BuildContext context) {
+    final AppLocalizations l10n = AppLocalizations.of(context);
+    final ImageToGridSettings settings = state.settings;
+    final bool stitch = settings.craft == Craft.crossStitch;
+    final TextStyle caption = TextStyle(fontSize: 13, color: CupertinoColors.secondaryLabel.resolveFrom(context));
+    final SizeSuggestion? hint = state.sizeHint;
+    String purposeLabel(SizePurpose purpose) => stitch
+        ? l10n.imageWizardCm(_cm(purpose.stitchCm))
+        : switch (purpose) {
+            SizePurpose.small => l10n.imageWizardPurposeBracelet,
+            SizePurpose.medium => l10n.imageWizardPurposePanel,
+            SizePurpose.large => l10n.imageWizardPurposePicture,
+          };
+    SizePurpose? current;
+    for (final SizePurpose p in SizePurpose.values) {
+      if (p.columnsFor(settings) == settings.columns) current = p;
+    }
+    return _Section(
+      title: l10n.imageWizardPurpose,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          CupertinoSlidingSegmentedControl<SizePurpose>(
+            key: const ValueKey<String>('wizard-purpose'),
+            groupValue: current,
+            children: <SizePurpose, Widget>{
+              for (final SizePurpose p in SizePurpose.values) p: _SegmentLabel(purposeLabel(p)),
+            },
+            onValueChanged: (value) {
+              if (value != null) cubit.setPurpose(value);
+            },
+          ),
+          if (!stitch)
+            Padding(
+              padding: EdgeInsets.only(top: context.tokens.spacing.s),
+              child: Text(
+                l10n.imageWizardPurposeBeads(
+                  settings.columns,
+                  _cm(SizeSuggester.centimetres(settings.columns, settings.metrics)),
+                ),
+                style: caption,
+              ),
+            ),
+          if (hint != null) ...<Widget>[
+            SizedBox(height: context.tokens.spacing.s),
+            Text(
+              key: const ValueKey<String>('wizard-size-hint'),
+              stitch
+                  ? l10n.imageWizardSizeHintStitch(
+                      _fabricLabel(l10n, settings.fabric),
+                      _cm(SizeSuggester.centimetres(hint.columns, settings.fabric)),
+                      hint.columns,
+                      hint.colors,
+                    )
+                  : l10n.imageWizardSizeHintBeads(
+                      hint.columns,
+                      hint.colors,
+                      _cm(SizeSuggester.centimetres(hint.columns, settings.metrics)),
+                    ),
+              style: caption,
+            ),
+            if (!hint.reached) Text(l10n.imageWizardSizeHintLimit, style: caption),
+            if (state.sizeHintApplied)
+              Text(
+                l10n.imageWizardSizeHintApplied,
+                key: const ValueKey<String>('wizard-size-hint-applied'),
+                style: caption,
+              )
+            else
+              CupertinoButton.tinted(
+                key: const ValueKey<String>('wizard-size-hint-apply'),
+                onPressed: cubit.applySizeHint,
+                child: Text(l10n.imageWizardSizeHintApply),
+              ),
+          ],
+          if (state.beadsTooSmallForFace) ...<Widget>[
+            SizedBox(height: context.tokens.spacing.s),
+            Text(
+              l10n.imageWizardBeadsFewForFace(settings.columns),
+              key: const ValueKey<String>('wizard-beads-few'),
+              style: TextStyle(fontSize: 13, color: CupertinoColors.systemOrange.resolveFrom(context)),
+            ),
+            CupertinoButton.tinted(
+              key: const ValueKey<String>('wizard-beads-to-stitch'),
+              onPressed: () => cubit.setCraft(Craft.crossStitch),
+              child: Text(l10n.imageWizardToStitch),
+            ),
+          ],
+        ],
+      ),
     );
   }
 }
@@ -413,6 +517,7 @@ class _EditState extends State<_Edit> {
                   max: ImageToGridSettings.maxColumns,
                   onChanged: cubit.setColumns,
                 ),
+              _SizeAssist(state: state, cubit: cubit),
               _SliderRow(
                 title: l10n.imageWizardColorCount,
                 value: settings.maxColors,
@@ -564,25 +669,6 @@ class _EditState extends State<_Edit> {
                           style: caption,
                         ),
                       ),
-                  ],
-                ),
-              ),
-              MergeSemantics(
-                child: Row(
-                  children: <Widget>[
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: <Widget>[
-                          Text(l10n.imageWizardDither),
-                          Text(l10n.imageWizardDitherHint, style: caption),
-                        ],
-                      ),
-                    ),
-                    CupertinoSwitch(
-                      value: settings.dither,
-                      onChanged: (value) => cubit.setDither(value: value),
-                    ),
                   ],
                 ),
               ),

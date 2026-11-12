@@ -1,4 +1,6 @@
+import 'package:beading/domain/grid/fabric.dart';
 import 'package:beading/domain/grid/grid.dart';
+import 'package:beading/domain/materials/floss_estimate.dart';
 import 'package:beading/domain/palette/catalog_ref.dart';
 import 'package:beading/domain/palette/palette_snapshot.dart';
 import 'package:beading/domain/palette/pattern_color.dart';
@@ -66,5 +68,32 @@ void main() {
     expect(entries[0].knots, 1);
     expect(entries.fold<int>(0, (s, e) => s + e.knots), 1);
     expect(entries[2].isUnused, isFalse);
+  });
+
+  test('с расчётом мулине в строках есть мотки, без него — null', () {
+    final Grid grid = Grid.fromCells(width: 2, height: 1, cells: const <int>[1, 1]);
+    final PaletteSnapshot palette = PaletteSnapshot(<PatternColor>[
+      PatternColor(
+        rgb: const Rgb(200, 0, 0),
+        name: 'Красный',
+        components: const <CatalogRef>[CatalogRef(brand: 'Гамма', code: '3071')],
+      ),
+      PatternColor(
+        rgb: const Rgb(0, 0, 200),
+        name: 'Синий',
+        components: const <CatalogRef>[CatalogRef(brand: 'Гамма', code: '3095')],
+      ),
+    ]);
+    final FlossEstimate floss = FlossEstimator(
+      fabric: Fabric.standard,
+      layers: StitchLayers.empty(columns: 2, rows: 1),
+    ).estimate(grid, palette);
+
+    final List<StitchLegendEntry> withFloss = StitchLegend.build(grid: grid, palette: palette, floss: floss);
+
+    expect(withFloss[0].skeins, 1);
+    // Синего нет в схеме: расчёт его не знает.
+    expect(withFloss[1].skeins, isNull);
+    expect(StitchLegend.build(grid: grid, palette: palette)[0].skeins, isNull);
   });
 }

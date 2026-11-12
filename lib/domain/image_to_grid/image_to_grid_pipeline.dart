@@ -119,7 +119,7 @@ final class ImageToGridPipeline {
 
   /// Контраст и корреляция светлоты (T65) по рабочим пикселям без подготовки фото; в черновике не считаются.
   LightnessStructure? _structureOf(ImageToGridRequest request, GeneratedPattern pattern, {_Prepared? prepared}) {
-    if (request.draft) return null;
+    if (request.draft && !request.measure) return null;
     final WorkImage work =
         prepared?.rawWork ??
         WorkImage.fromSource(
@@ -253,6 +253,7 @@ final class ImageToGridPipeline {
       cellImportance: cells.importance,
       costs: labeled.costs.select(order),
       cellEdges: edges,
+      cellDetail: labeled.detail,
       cellColors: cells.colors,
       faces: prepared.faceCells,
     );
@@ -309,7 +310,12 @@ final class ImageToGridPipeline {
     );
     final WorkImage rawWork = work;
     final ImagePrefilter? prefilter = request.prefilter;
-    if (prefilter != null) work = prefilter.apply(work);
+    final FaceGuide? guide = (request.faces?.isEmpty ?? true) ? null : request.faces;
+    final Uint8List? skinPixels = guide?.skinPixels(work.width, work.height);
+    if (prefilter != null) {
+      // Кожа под маской лица (T54) получает меньше местного контраста (T63).
+      work = prefilter is EdgePreservingPrefilter ? prefilter.applyProtected(work, skinPixels) : prefilter.apply(work);
+    }
     // Цвета клеток нужны только для важности клеток и метрики ΔE: средние по рабочей картинке, как в пути T24.
     final SampledCells cells = sampler.sample(
       image: work.toSourceImage(),
@@ -327,10 +333,9 @@ final class ImageToGridPipeline {
       imageWidth: work.width,
       imageHeight: work.height,
     );
-    final FaceGuide? faces = (request.faces?.isEmpty ?? true) ? null : request.faces;
     return _Prepared(
-      skin: faces?.skinPixels(work.width, work.height),
-      faceCells: faces?.cells(regions, workWidth: work.width, workHeight: work.height),
+      skin: skinPixels,
+      faceCells: guide?.cells(regions, workWidth: work.width, workHeight: work.height),
       work: work,
       rawWork: rawWork,
       cells: cells,

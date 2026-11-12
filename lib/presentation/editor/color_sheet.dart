@@ -33,23 +33,38 @@ Future<ColorSheetResult?> showColorSheet(
   BuildContext context, {
   required CatalogRepository catalog,
   PatternColor? initial,
+  CatalogMaterial material = CatalogMaterial.bead,
+  String? defaultBrand,
 }) => showCupertinoModalPopup<ColorSheetResult>(
   context: context,
   builder: (_) => Align(
     alignment: Alignment.bottomCenter,
     child: ConstrainedBox(
       constraints: const BoxConstraints(maxWidth: 560),
-      child: ColorSheet(catalog: catalog, initial: initial),
+      child: ColorSheet(catalog: catalog, initial: initial, material: material, defaultBrand: defaultBrand),
     ),
   ),
 );
 
 /// Лист цвета: название, цвет ползунками, выбор из каталога с поиском по артикулу и ближайшие к текущему цвету.
+///
+/// Для вышивки ([material] = нитки) каталог ограничен производителем ([defaultBrand] до выбора, потом выбранный), а
+/// цвет можно собрать из двух ниток: смешанная нить, обе нитки идут в иголку.
 class ColorSheet extends StatefulWidget {
-  const ColorSheet({required this.catalog, this.initial, super.key});
+  const ColorSheet({
+    required this.catalog,
+    this.initial,
+    this.material = CatalogMaterial.bead,
+    this.defaultBrand,
+    super.key,
+  });
 
   final CatalogRepository catalog;
   final PatternColor? initial;
+  final CatalogMaterial material;
+
+  /// Производитель ниток, с которого начинается поиск (из настроек); `null` — все.
+  final String? defaultBrand;
 
   @override
   State<ColorSheet> createState() => _ColorSheetState();
@@ -58,8 +73,20 @@ class ColorSheet extends StatefulWidget {
 class _ColorSheetState extends State<ColorSheet> {
   late final TextEditingController _name = TextEditingController(text: widget.initial?.name ?? '');
   late Rgb _rgb = widget.initial?.rgb ?? const Rgb(200, 60, 60);
-  late List<CatalogRef> _components = widget.initial?.components ?? const <CatalogRef>[];
+  late List<BlendPart> _parts = <BlendPart>[
+    for (final CatalogRef ref in widget.initial?.components ?? const <CatalogRef>[])
+      BlendPart(ref: ref, rgb: widget.initial!.rgb),
+  ];
   late String? _finish = widget.initial?.finish;
+  bool get _floss => widget.material == CatalogMaterial.floss;
+
+  List<CatalogRef> get _components => <CatalogRef>[for (final BlendPart p in _parts) p.ref];
+
+  /// Режим смеси: выбранная нитка каталога встаёт на место [_slot] из двух.
+  bool _blendMode = false;
+  int _slot = 0;
+  List<String> _brands = const <String>[];
+  String? _brand;
   String _query = '';
   List<CatalogColor> _results = const <CatalogColor>[];
   List<CatalogColor> _nearest = const <CatalogColor>[];
@@ -69,8 +96,34 @@ class _ColorSheetState extends State<ColorSheet> {
   @override
   void initState() {
     super.initState();
+    _blendMode = _parts.length > 1;
+    _brand = _parts.isNotEmpty ? _parts.first.ref.brand : widget.defaultBrand;
+    if (_floss) unawaited(_loadBrands());
     unawaited(_refreshNearest());
     unawaited(_search());
+    unawaited(_loadPartColors());
+  }
+
+  Future<void> _loadBrands() async {
+    final Result<List<String>> found = await widget.catalog.brands(CatalogMaterial.floss);
+    if (!mounted) return;
+    setState(() {
+      _brands = found.valueOrNull ?? const <String>[];
+      if (_brand != null && !_brands.contains(_brand)) _brand = null;
+    });
+    unawaited(_refreshNearest());
+    unawaited(_search());
+  }
+
+  /// У сохранённой смеси цвет каждой нитки берётся из каталога: в снимке схемы хранится только среднее.
+  Future<void> _loadPartColors() async {
+    if (_parts.length < 2) return;
+    final List<BlendPart> loaded = <BlendPart>[];
+    for (final BlendPart part in _parts) {
+      final Result<CatalogColor?> found = await widget.catalog.find(part.ref.brand, part.ref.code);
+      loaded.add(BlendPart(ref: part.ref, rgb: found.valueOrNull?.rgb ?? part.rgb));
+    }
+    if (mounted) setState(() => _parts = loaded);
   }
 
   @override
@@ -83,7 +136,8 @@ class _ColorSheetState extends State<ColorSheet> {
   Future<void> _refreshNearest() async {
     final Result<List<ColorMatch<CatalogColor>>> found = await widget.catalog.nearest(
       _rgb,
-      material: CatalogMaterial.bead,
+      material: widget.material,
+      brand: _floss ? _brand : null,
     );
     if (!mounted) return;
     setState(() => _nearest = found.valueOrNull?.map((m) => m.item).toList() ?? const <CatalogColor>[]);
@@ -93,7 +147,8 @@ class _ColorSheetState extends State<ColorSheet> {
     final int token = ++_searchToken;
     final Result<List<CatalogColor>> found = await widget.catalog.search(
       query: _query,
-      material: CatalogMaterial.bead,
+      material: widget.material,
+      brand: _floss ? _brand : null,
     );
     if (!mounted || token != _searchToken) return;
     setState(() {
@@ -110,19 +165,53 @@ class _ColorSheetState extends State<ColorSheet> {
 
   void _pick(CatalogColor color) {
     setState(() {
-      _rgb = color.rgb;
-      _components = <CatalogRef>[color.ref];
-      _finish = color.finish;
-      _name.text = color.name;
+      final BlendPart part = BlendPart(ref: color.ref, rgb: color.rgb);
+      if (_blendMode) {
+        final List<BlendPart> next = List<BlendPart>.of(_parts);
+        if (_slot < next.length) {
+          next[_slot] = part;
+        } else {
+          next.add(part);
+        }
+        _parts = next;
+        _rgb = Rgb.average(<Rgb>[for (final BlendPart p in _parts) p.rgb]);
+        _finish = null;
+        if (_parts.length == 2) _name.text = _parts.map((p) => p.ref.code).join(' + ');
+      } else {
+        _parts = <BlendPart>[part];
+        _rgb = color.rgb;
+        _finish = color.finish;
+        _name.text = color.name;
+      }
     });
     unawaited(_refreshNearest());
+  }
+
+  void _setBlend({required bool value}) {
+    setState(() {
+      _blendMode = value;
+      if (value) {
+        // Первая нитка уже выбрана: следующий выбор из каталога становится второй.
+        _slot = _parts.isEmpty ? 0 : 1;
+      } else if (_parts.length > 1) {
+        _parts = <BlendPart>[_parts.first];
+        _rgb = _parts.first.rgb;
+      }
+    });
+  }
+
+  void _setBrand(String? brand) {
+    setState(() => _brand = brand);
+    unawaited(_refreshNearest());
+    unawaited(_search());
   }
 
   void _setChannel({int? r, int? g, int? b}) {
     setState(() {
       _rgb = Rgb(r ?? _rgb.r, g ?? _rgb.g, b ?? _rgb.b);
       // Ручной цвет больше не совпадает с позицией каталога.
-      _components = const <CatalogRef>[];
+      _parts = const <BlendPart>[];
+      _blendMode = false;
       _finish = null;
     });
     unawaited(_refreshNearest());
@@ -130,6 +219,12 @@ class _ColorSheetState extends State<ColorSheet> {
 
   PatternColor _result(AppLocalizations l10n) {
     final String typed = _name.text.trim();
+    if (_parts.length == 2) {
+      return PatternColor.blend(
+        name: typed.isEmpty ? _parts.map((p) => p.ref.code).join(' + ') : typed,
+        parts: _parts,
+      );
+    }
     final String fallback = _components.isEmpty ? l10n.colorSheetTitle : _components.first.code;
     return PatternColor(
       rgb: _rgb,
@@ -219,6 +314,56 @@ class _ColorSheetState extends State<ColorSheet> {
             SizedBox(height: gap),
             Text(l10n.colorSheetCatalog, style: base.copyWith(fontWeight: FontWeight.w600)),
             SizedBox(height: context.tokens.spacing.s),
+            if (_floss && _brands.isNotEmpty) ...<Widget>[
+              SingleChildScrollView(
+                key: const ValueKey<String>('color-brands'),
+                scrollDirection: Axis.horizontal,
+                child: Row(
+                  children: <Widget>[
+                    _BrandChip(label: l10n.colorSheetAllBrands, selected: _brand == null, onTap: () => _setBrand(null)),
+                    for (final String brand in _brands)
+                      _BrandChip(label: brand, selected: _brand == brand, onTap: () => _setBrand(brand)),
+                  ],
+                ),
+              ),
+              SizedBox(height: context.tokens.spacing.s),
+              MergeSemantics(
+                child: Row(
+                  children: <Widget>[
+                    Expanded(child: Text(l10n.colorSheetBlend)),
+                    CupertinoSwitch(
+                      key: const ValueKey<String>('color-blend'),
+                      value: _blendMode,
+                      onChanged: (value) => _setBlend(value: value),
+                    ),
+                  ],
+                ),
+              ),
+              if (_blendMode) ...<Widget>[
+                Text(
+                  l10n.colorSheetBlendHint,
+                  style: base.copyWith(fontSize: 13, color: CupertinoColors.secondaryLabel.resolveFrom(context)),
+                ),
+                SizedBox(height: context.tokens.spacing.s),
+                CupertinoSlidingSegmentedControl<int>(
+                  key: const ValueKey<String>('color-blend-slot'),
+                  groupValue: _slot,
+                  children: <int, Widget>{
+                    for (int i = 0; i < 2; i++)
+                      i: Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 8),
+                        child: Text(
+                          l10n.colorSheetThread(i + 1, i < _parts.length ? _parts[i].ref.code : '—'),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                  },
+                  onValueChanged: (value) => setState(() => _slot = value ?? 0),
+                ),
+              ],
+              SizedBox(height: context.tokens.spacing.s),
+            ],
             CupertinoSearchTextField(
               key: const ValueKey<String>('color-search'),
               placeholder: l10n.colorSheetSearch,
@@ -254,6 +399,43 @@ class _ColorSheetState extends State<ColorSheet> {
       ),
     );
   }
+}
+
+class _BrandChip extends StatelessWidget {
+  const _BrandChip({required this.label, required this.selected, required this.onTap});
+
+  final String label;
+  final bool selected;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) => Padding(
+    padding: const EdgeInsets.only(right: 8),
+    child: Semantics(
+      button: true,
+      selected: selected,
+      child: GestureDetector(
+        key: ValueKey<String>('brand-$label'),
+        behavior: HitTestBehavior.opaque,
+        onTap: onTap,
+        child: ConstrainedBox(
+          constraints: BoxConstraints(minHeight: context.tokens.minTapTarget),
+          child: Container(
+            alignment: Alignment.center,
+            padding: const EdgeInsets.symmetric(horizontal: 14),
+            decoration: BoxDecoration(
+              color: selected
+                  ? context.tokens.colors.accentFill.resolveFrom(context)
+                  : CupertinoColors.tertiarySystemFill.resolveFrom(context),
+              borderRadius: BorderRadius.circular(context.tokens.radius.m),
+              border: selected ? Border.all(color: context.tokens.colors.accent.resolveFrom(context), width: 2) : null,
+            ),
+            child: Text(label),
+          ),
+        ),
+      ),
+    ),
+  );
 }
 
 class _Channel extends StatelessWidget {

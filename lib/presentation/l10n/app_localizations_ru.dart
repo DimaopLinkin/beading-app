@@ -1389,6 +1389,50 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
+  String imageWizardSizeHintBeads(int columns, int colors, String cm) {
+    return 'Для этого фото лучше от $columns бусин по ширине и $colors цветов, около $cm см.';
+  }
+
+  @override
+  String imageWizardSizeHintStitch(String fabric, String cm, int columns, int colors) {
+    return 'Для этого фото на канве $fabric лучше от $cm см ($columns крестиков) и $colors цветов.';
+  }
+
+  @override
+  String get imageWizardSizeHintLimit => 'Мелкие детали этого фото не получатся даже на самом большом размере.';
+
+  @override
+  String get imageWizardSizeHintApply => 'Применить';
+
+  @override
+  String get imageWizardSizeHintApplied => 'Размер подобран по фото';
+
+  @override
+  String get imageWizardPurpose => 'Размер по назначению';
+
+  @override
+  String get imageWizardPurposeBracelet => 'Браслет';
+
+  @override
+  String get imageWizardPurposePanel => 'Панно';
+
+  @override
+  String get imageWizardPurposePicture => 'Картина';
+
+  @override
+  String imageWizardPurposeBeads(int columns, String cm) {
+    return '$columns бусин, около $cm см';
+  }
+
+  @override
+  String imageWizardBeadsFewForFace(int columns) {
+    return 'Бисера на такое лицо не хватает: на $columns столбцах глаза и губы не получатся. Возьми размер из подсказки или вышивку.';
+  }
+
+  @override
+  String get imageWizardToStitch => 'Сделать вышивкой';
+
+  @override
   String get imageWizardPreset => 'Детальность';
 
   @override
@@ -1399,13 +1443,6 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get imageWizardPresetDetailed => 'Детально';
-
-  @override
-  String get imageWizardDither => 'Плавные переходы';
-
-  @override
-  String get imageWizardDitherHint =>
-      'Плавные переходы цвета (небо, тени) выкладываются узором из соседних цветов. Остальное в схеме не меняется.';
 
   @override
   String get imageWizardUseMasks => 'Выделять главное';
@@ -1665,4 +1702,196 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get stitchParked => 'Место запомнено';
+
+  @override
+  String get flossTitle => 'Мулине';
+
+  @override
+  String flossFabricLine(String fabric) {
+    return 'Канва: $fabric';
+  }
+
+  @override
+  String flossFabricNeed(String width, String height, String stitchedWidth, String stitchedHeight, String margin) {
+    return 'Кусок канвы: $width × $height см (вышивка $stitchedWidth × $stitchedHeight см и поля по $margin см)';
+  }
+
+  @override
+  String get flossShoppingTitle => 'Что купить';
+
+  @override
+  String get flossColorsTitle => 'По цветам схемы';
+
+  @override
+  String flossSkeins(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count мотка',
+      many: '$count мотков',
+      few: '$count мотка',
+      one: '$count моток',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String flossStitches(String count) {
+    return '$count крестиков';
+  }
+
+  @override
+  String flossPartials(String count) {
+    return 'неполных: $count';
+  }
+
+  @override
+  String flossBackstitch(String cells) {
+    return 'бэкстич: $cells кл.';
+  }
+
+  @override
+  String flossKnots(String count) {
+    return 'узелков: $count';
+  }
+
+  @override
+  String get flossBlendHint => 'Смешанная нить: в иголку идут обе нитки, мотки берут по каждой.';
+
+  @override
+  String flossTotal(String skeins) {
+    return 'Итого: $skeins';
+  }
+
+  @override
+  String get flossEstimateHint =>
+      'Расход примерный, до мотка. Моток — 8 м из 6 сложений; одинаковые нитки разных цветов схемы складываются.';
+
+  @override
+  String get flossEmptyTitle => 'В схеме пока нет крестиков';
+
+  @override
+  String get flossEmptyMessage => 'Когда в схеме появятся цвета, здесь будет список ниток.';
+
+  @override
+  String get flossUnsupported => 'Расход мулине считается только для схемы на канве.';
+
+  @override
+  String flossShareHeader(String name) {
+    return 'Мулине: $name';
+  }
+
+  @override
+  String flossShareLine(int number, String thread, String skeins) {
+    return '$number. $thread — $skeins';
+  }
+
+  @override
+  String flossShareFabric(String fabric, String width, String height) {
+    return 'Канва $fabric, кусок $width × $height см';
+  }
+
+  @override
+  String flossShareReserve(int percent) {
+    return 'Мотки указаны с запасом $percent%.';
+  }
+
+  @override
+  String get editorToolHalfStitch => 'Полукрестик';
+
+  @override
+  String get editorToolQuarterStitch => 'Четверть крестика';
+
+  @override
+  String get editorToolThreeQuarterStitch => '¾ крестика';
+
+  @override
+  String get editorToolPetit => 'Петит';
+
+  @override
+  String get editorToolBackstitch => 'Бэкстич';
+
+  @override
+  String get editorToolKnot => 'Французский узелок';
+
+  @override
+  String get editorHintPartial => 'Коснитесь клетки у нужного угла или диагонали. Повторное касание убирает стежок.';
+
+  @override
+  String get editorHintBackstitch =>
+      'Коснитесь двух узлов подряд или проведите пальцем: между ними ляжет стежок. Узлы — углы, середины сторон и центры клеток.';
+
+  @override
+  String get editorHintBackstitchStart =>
+      'Начало отмечено. Коснитесь следующего узла, повторное касание узла закончит линию.';
+
+  @override
+  String get editorHintKnot =>
+      'Коснитесь узла: угла, середины стороны или центра клетки. Повторное касание убирает узелок.';
+
+  @override
+  String get editorHintEraserStitch =>
+      'Коснитесь линии или узелка, чтобы убрать их; клетку очищает касание внутри неё, мазок стирает несколько клеток.';
+
+  @override
+  String get newStitchTitle => 'Новая вышивка';
+
+  @override
+  String get newStitchDefaultName => 'Новая вышивка';
+
+  @override
+  String get newStitchUnitCells => 'Крестики';
+
+  @override
+  String get newStitchUnitCm => 'Сантиметры';
+
+  @override
+  String get newStitchWidthCells => 'Ширина, крестиков';
+
+  @override
+  String get newStitchHeightCells => 'Высота, крестиков';
+
+  @override
+  String get newStitchWidthCm => 'Ширина, см';
+
+  @override
+  String get newStitchHeightCm => 'Высота, см';
+
+  @override
+  String newStitchSizeSummary(String width, String height, String widthCm, String heightCm) {
+    return '$width × $height крестиков, на этой канве $widthCm × $heightCm см';
+  }
+
+  @override
+  String newStitchSizeInvalid(int max) {
+    return 'Размер: от 1 до $max крестиков по каждой стороне';
+  }
+
+  @override
+  String get libraryDrawStitchPattern => 'Нарисовать схему вышивки';
+
+  @override
+  String get colorSheetAllBrands => 'Все';
+
+  @override
+  String get colorSheetBlend => 'Смесь двух ниток';
+
+  @override
+  String get colorSheetBlendHint =>
+      'В иголку идут две нитки. Выберите каждую из каталога, цвет на схеме будет средним.';
+
+  @override
+  String colorSheetThread(int number, String code) {
+    return 'Нитка $number: $code';
+  }
+
+  @override
+  String get editorToolBead => 'Бусина';
+
+  @override
+  String get editorHintBead =>
+      'Коснитесь узла, чтобы поставить бусину. Повторное касание значка инструмента выбирает другую бусину из каталога.';
+
+  @override
+  String get editorProblemNoBead => 'Сначала выберите бусину из каталога.';
 }

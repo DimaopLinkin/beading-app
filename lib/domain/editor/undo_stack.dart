@@ -1,25 +1,26 @@
+import 'package:beading/domain/editor/editor_snapshot.dart';
 import 'package:beading/domain/grid/grid.dart';
 
-/// История правок схемы: undo/redo поверх неизменяемых снимков [Grid].
+/// История правок схемы: undo/redo поверх неизменяемых снимков [Grid] или [EditorSnapshot] (сетка и слои вышивки).
 ///
 /// Лимит — [limit] шагов; кроме того, суммарный размер снимков ограничен [maxTotalCells], чтобы история огромной
 /// схемы не съела память (старые шаги отбрасываются первыми, текущее состояние остаётся всегда).
 /// Мазок кисти группируется: [beginGroup] … [endGroup] — один шаг undo.
-class UndoStack {
-  UndoStack(Grid initial, {this.limit = 100, this.maxTotalCells = 16 * 1024 * 1024})
+class UndoStack<T extends Object> {
+  UndoStack(T initial, {this.limit = 100, this.maxTotalCells = 16 * 1024 * 1024})
     : assert(limit >= 1, 'limit должен быть не меньше 1'),
       _current = initial;
 
   final int limit;
   final int maxTotalCells;
 
-  Grid _current;
-  final List<Grid> _undo = <Grid>[];
-  final List<Grid> _redo = <Grid>[];
+  T _current;
+  final List<T> _undo = <T>[];
+  final List<T> _redo = <T>[];
   bool _inGroup = false;
   bool _groupRecorded = false;
 
-  Grid get current => _current;
+  T get current => _current;
 
   bool get canUndo => _undo.isNotEmpty;
 
@@ -31,7 +32,7 @@ class UndoStack {
   bool get isGrouping => _inGroup;
 
   /// Принимает новое состояние. Равное текущему игнорируется (и не стирает redo).
-  void apply(Grid next) {
+  void apply(T next) {
     if (next == _current) return;
     if (!_inGroup || !_groupRecorded) {
       _undo.add(_current);
@@ -55,7 +56,7 @@ class UndoStack {
   }
 
   /// Отменяет шаг. Возвращает новое состояние или `null`, если отменять нечего.
-  Grid? undo() {
+  T? undo() {
     endGroup();
     if (_undo.isEmpty) return null;
     _redo.add(_current);
@@ -63,7 +64,7 @@ class UndoStack {
   }
 
   /// Повторяет отменённый шаг. Возвращает новое состояние или `null`.
-  Grid? redo() {
+  T? redo() {
     endGroup();
     if (_redo.isEmpty) return null;
     _undo.add(_current);
@@ -81,9 +82,16 @@ class UndoStack {
     while (_undo.length > limit) {
       _undo.removeAt(0);
     }
-    int total = _undo.fold<int>(0, (sum, g) => sum + g.cells.length);
+    int total = _undo.fold<int>(0, (sum, g) => sum + _weight(g));
     while (total > maxTotalCells && _undo.isNotEmpty) {
-      total -= _undo.removeAt(0).cells.length;
+      total -= _weight(_undo.removeAt(0));
     }
   }
+
+  /// Вес снимка: число ячеек сетки (слои вышивки разрежены и в счёт не идут).
+  static int _weight(Object state) => switch (state) {
+    Grid() => state.cells.length,
+    EditorSnapshot() => state.grid.cells.length,
+    _ => 1,
+  };
 }

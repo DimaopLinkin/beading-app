@@ -22,6 +22,8 @@ import 'package:beading/domain/image_to_grid/image_masks.dart';
 import 'package:beading/domain/image_to_grid/image_to_grid_runner.dart';
 import 'package:beading/domain/image_to_grid/image_to_grid_settings.dart';
 import 'package:beading/domain/image_to_grid/palette_from_generated.dart';
+import 'package:beading/domain/image_to_grid/size_purpose.dart';
+import 'package:beading/domain/image_to_grid/size_suggester.dart';
 import 'package:beading/domain/image_to_grid/source_image.dart';
 import 'package:beading/domain/image_to_grid/use_cases/create_pattern_from_image.dart';
 import 'package:beading/domain/palette/palette_snapshot.dart';
@@ -48,6 +50,7 @@ class ImageWizardCubit extends Cubit<ImageWizardState> {
     required SettingsRepository settings,
     required CreatePatternFromImage createPattern,
     Duration debounce = const Duration(milliseconds: 300),
+    bool sizeHints = false,
   }) : _source = source,
        _processor = processor,
        _decoder = decoder,
@@ -57,6 +60,7 @@ class ImageWizardCubit extends Cubit<ImageWizardState> {
        _settings = settings,
        _create = createPattern,
        _debounce = debounce,
+       _sizeHints = sizeHints,
        super(const ImageWizardState());
 
   final BookImageSource _source;
@@ -68,6 +72,9 @@ class ImageWizardCubit extends Cubit<ImageWizardState> {
   final SettingsRepository _settings;
   final CreatePatternFromImage _create;
   final Duration _debounce;
+
+  /// Считать ли подсказку размера в фоне (T61); тесты с управляемым запуском конвейера её отключают.
+  final bool _sizeHints;
 
   List<CatalogColor> _catalogColors = const <CatalogColor>[];
   String _brand = '';
@@ -93,6 +100,10 @@ class ImageWizardCubit extends Cubit<ImageWizardState> {
 
   /// То же для подготовки картинки (поворот, обрезка, декодирование).
   int _preparation = 0;
+
+  /// Для какой картинки и ремесла подсказка размера уже посчитана или считается (T61); `null` — нужна новая.
+  (int, Craft)? _hintKey;
+  bool _hintRunning = false;
 
   /// Загружает каталог и бренд по умолчанию: от них зависит режим «цвета каталога».
   Future<void> start() async {
@@ -180,8 +191,10 @@ class ImageWizardCubit extends Cubit<ImageWizardState> {
         name: state.name.isEmpty ? _nameFor(file.name) : state.name,
         clearPreview: true,
         clearProblem: true,
+        clearSizeHint: true,
       ),
     );
+    _hintKey = null;
     _image = prepared.image;
     _schedule(immediate: true);
   }
@@ -199,7 +212,16 @@ class ImageWizardCubit extends Cubit<ImageWizardState> {
     _timer?.cancel();
     final int preparation = ++_preparation;
     ++_calculation;
-    emit(state.copyWith(quarterTurns: quarterTurns, crop: crop, calculating: true, clearProblem: true));
+    _hintKey = null;
+    emit(
+      state.copyWith(
+        quarterTurns: quarterTurns,
+        crop: crop,
+        calculating: true,
+        clearProblem: true,
+        clearSizeHint: true,
+      ),
+    );
     final ({Uint8List png, SourceImage image})? prepared = await _prepareImage(source, quarterTurns, crop);
     if (isClosed || preparation != _preparation) {
       return;
@@ -354,7 +376,12 @@ class ImageWizardCubit extends Cubit<ImageWizardState> {
   /// «Схема шире»: ширина, при которой лицо занимает нужное число бусин.
   void widenForFace() {
     final int? columns = state.faceAdvice?.neededColumns;
-    if (columns != null && !state.calculating) {
+    if (columns == null || state.calculating) return;
+    // Предупреждение ссылается на ту же подсказку, если она не уже нужной для лица ширины (T61).
+    final SizeSuggestion? hint = state.sizeHint;
+    if (hint != null && hint.columns >= columns) {
+      applySizeHint();
+    } else {
       setColumns(columns);
     }
   }
@@ -385,11 +412,71 @@ class ImageWizardCubit extends Cubit<ImageWizardState> {
     if (settings == state.settings) {
       return;
     }
-    emit(state.copyWith(settings: settings, catalogColors: _countCatalog(settings)));
+    final bool craftChanged = settings.craft != state.settings.craft;
+    if (craftChanged) _hintKey = null;
+    emit(state.copyWith(settings: settings, catalogColors: _countCatalog(settings), clearSizeHint: craftChanged));
     if (_image != null) {
       _schedule();
     }
   }
+
+  /// Применяет подсказку размера одним касанием: ширина и число цветов (T61).
+  void applySizeHint() {
+    final SizeSuggestion? hint = state.sizeHint;
+    if (hint == null) return;
+    _change(
+      state.settings.copyWith(
+        columns: hint.columns,
+        maxColors: hint.colors.clamp(ImageToGridSettings.minColors, ImageToGridSettings.maxColorsLimit),
+      ),
+    );
+  }
+
+  /// Размер по назначению: «браслет», «панно», «картина» (бисер) или сантиметры (вышивка).
+  void setPurpose(SizePurpose purpose) => _change(state.settings.copyWith(columns: purpose.columnsFor(state.settings)));
+
+  /// Считает подсказку размера в фоне по черновикам на нескольких ширинах (T61); стартует после полного расчёта, поэтому
+  /// первый предпросмотр не задерживает, и прерывается, как только параметры снова меняются.
+  Future<void> _computeHint() async {
+    final SourceImage? image = _image;
+    final ImageToGridSettings base = state.settings;
+    final (int, Craft) key = (_preparation, base.craft);
+    if (!_sizeHints || image == null || _hintRunning || _hintKey == key) return;
+    _hintRunning = true;
+    final int calculation = _calculation;
+    try {
+      final List<SizeProbe> probes = <SizeProbe>[];
+      for (final ({int columns, int colors}) c in SizeSuggester.candidates(
+        base.craft,
+        maxColumns: ImageToGridSettings.maxColumnsOf(base.craft),
+      )) {
+        if (isClosed || calculation != _calculation) return;
+        final GeneratedPattern pattern = await _runner.run(
+          base
+              .copyWith(columns: c.columns, maxColors: c.colors, paletteSource: PaletteSource.free)
+              .toRequest(image: image, draft: true, measure: true),
+        );
+        probes.add(SizeProbe(columns: c.columns, colors: c.colors, correlation: pattern.stats?.lightnessCorrelation));
+      }
+      if (isClosed || calculation != _calculation) return;
+      final ImageMaskSet? found = state.masks;
+      final bool subject = found != null && (found.faces.isNotEmpty || found.subjectOrPerson != null);
+      // С лицом и предметом бисера на картину меньше 80 столбцов мало (отзыв Дмитрия: портреты в бисере не читаются).
+      final SizeSuggestion? hint = const SizeSuggester().choose(
+        probes,
+        minColumns: base.craft == Craft.beading && subject ? beadSubjectColumns : 0,
+      );
+      _hintKey = key;
+      emit(state.copyWith(sizeHint: hint, clearSizeHint: hint == null));
+    } on Object {
+      // Подсказка не обязательна: без неё мастер работает как раньше.
+    } finally {
+      _hintRunning = false;
+    }
+  }
+
+  /// Самая узкая схема из бисера для фото с лицом или предметом (станок, A09).
+  static const int beadSubjectColumns = 80;
 
   String _brandFor(ImageToGridSettings settings) => settings.craft == Craft.crossStitch ? _flossBrand : _brand;
 
@@ -489,6 +576,7 @@ class ImageWizardCubit extends Cubit<ImageWizardState> {
               clearProblem: true,
             ),
     );
+    if (palette != null) unawaited(_computeHint());
   }
 
   /// Сохраняет посчитанную схему проектом. Кнопка доступна, только когда [ImageWizardState.canSave].
