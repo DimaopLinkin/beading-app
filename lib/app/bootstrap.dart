@@ -1,4 +1,6 @@
 import 'package:beading/app/app.dart';
+import 'package:beading/app/composition/app_dependencies.dart';
+import 'package:beading/app/composition/core_module.dart';
 import 'package:beading/app/di.dart';
 import 'package:beading/app/platform/app_lifecycle_binding.dart';
 import 'package:beading/app/platform/desktop_window.dart';
@@ -21,7 +23,10 @@ Future<Widget> bootstrap({
   WakelockController? wakelockController,
 }) async {
   WidgetsFlutterBinding.ensureInitialized();
-  await configureDependencies(database: database);
+  final AppDependencies dependencies = await AppDependencies.create(
+    core: database == null ? null : CoreModule(database: database),
+  );
+  await configureDependencies(dependencies);
   await (orientationLock ?? getIt<OrientationLock>()).lockPortrait();
   await (desktopWindow ?? getIt<DesktopWindow>()).configure(const DesktopWindowConfig());
   final WakelockController wakelock = wakelockController ?? getIt<WakelockController>();

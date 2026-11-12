@@ -1,5 +1,7 @@
 import 'dart:math';
 
+import 'package:beading/app/composition/app_dependencies.dart';
+import 'package:beading/app/composition/core_module.dart';
 import 'package:beading/app/library_entries.dart';
 import 'package:beading/app/platform/desktop_window.dart';
 import 'package:beading/app/platform/orientation_lock.dart';
@@ -9,7 +11,6 @@ import 'package:beading/data/catalog/catalog_asset_source.dart';
 import 'package:beading/data/catalog/catalog_seeder.dart';
 import 'package:beading/data/catalog/drift_catalog_repository.dart';
 import 'package:beading/data/db/app_database.dart';
-import 'package:beading/data/db/open_database.dart';
 import 'package:beading/data/easter_eggs/asset_compliment_source.dart';
 import 'package:beading/data/easter_eggs/drift_easter_egg_log.dart';
 import 'package:beading/data/floss_stock/drift_floss_stock_repository.dart';
@@ -18,21 +19,15 @@ import 'package:beading/data/grid_pattern/drift_grid_pattern_repository.dart';
 import 'package:beading/data/grid_pattern/drift_grid_progress_store.dart';
 import 'package:beading/data/image_pattern/drift_book_work_repository.dart';
 import 'package:beading/data/image_pattern/drift_image_pattern_repository.dart';
-import 'package:beading/data/image_pattern/local_file_store.dart';
 import 'package:beading/data/image_pattern/pdfrx_pdf_rasterizer.dart';
 import 'package:beading/data/image_pattern/picker_book_image_source.dart';
 import 'package:beading/data/image_pattern/ui_image_processor.dart';
 import 'package:beading/data/image_to_grid/isolate_image_to_grid_runner.dart';
 import 'package:beading/data/image_to_grid/ui_image_decoder.dart';
 import 'package:beading/data/platform/method_channel_image_masks.dart';
-import 'package:beading/data/platform/method_channel_reduce_transparency_source.dart';
 import 'package:beading/data/platform/share_plus_text_sharer.dart';
-import 'package:beading/data/platform/wakelock_plus_screen_wake_lock.dart';
 import 'package:beading/data/projects/drift_project_repository.dart';
-import 'package:beading/data/settings/drift_device_id_provider.dart';
-import 'package:beading/data/settings/drift_settings_repository.dart';
 import 'package:beading/data/settings/package_info_app_info_provider.dart';
-import 'package:beading/data/settings/repository_keep_screen_awake_setting.dart';
 import 'package:beading/data/sharing/drift_unit_of_work.dart';
 import 'package:beading/data/sharing/file_picker_biser_picker.dart';
 import 'package:beading/data/sharing/platform_incoming_biser_files.dart';
@@ -144,45 +139,29 @@ const String flossCatalogInstance = 'floss-catalog';
 
 const int _wizardImageMaxSide = 2048;
 
-Future<void> configureDependencies({GetIt? locator, AppDatabase? database, CatalogAssetSource? catalogAssets}) async {
+Future<void> configureDependencies(
+  AppDependencies dependencies, {
+  GetIt? locator,
+  CatalogAssetSource? catalogAssets,
+}) async {
   final GetIt container = locator ?? getIt;
   await container.reset();
-  final AppDatabase db = database ?? await openAppDatabase();
+  final CoreModule core = dependencies.core;
+  final AppDatabase db = core.database;
   container
-    ..registerSingleton<AppDatabase>(db, dispose: (value) => value.close())
-    ..registerLazySingleton<Clock>(SystemClock.new)
-    ..registerLazySingleton<IdGenerator>(() => UuidV7IdGenerator(clock: container<Clock>()))
-    ..registerLazySingleton<DeviceIdProvider>(
-      () => DriftDeviceIdProvider(dao: db.settingsDao, ids: container<IdGenerator>(), clock: container<Clock>()),
-    )
-    ..registerLazySingleton<SettingsRepository>(
-      () => DriftSettingsRepository(
-        dao: db.settingsDao,
-        deviceIds: container<DeviceIdProvider>(),
-        clock: container<Clock>(),
-      ),
-    )
-    ..registerLazySingleton<OrientationLock>(SystemChromeOrientationLock.new)
-    ..registerLazySingleton<DesktopWindow>(WindowManagerDesktopWindow.new)
-    ..registerLazySingleton<ScreenWakeLock>(WakelockPlusScreenWakeLock.new)
-    ..registerLazySingleton<ReduceTransparencySource>(
-      MethodChannelReduceTransparencySource.new,
-      dispose: (source) async {
-        if (source is MethodChannelReduceTransparencySource) {
-          await source.dispose();
-        }
-      },
-    )
-    ..registerLazySingleton<KeepScreenAwakeSetting>(
-      () => RepositoryKeepScreenAwakeSetting(container<SettingsRepository>()),
-    )
-    ..registerLazySingleton<WakelockController>(
-      () => WakelockController(wakeLock: container<ScreenWakeLock>(), setting: container<KeepScreenAwakeSetting>()),
-    )
-    ..registerLazySingleton<AppEvents>(
-      BroadcastAppEvents.new,
-      dispose: (events) => (events as BroadcastAppEvents).dispose(),
-    )
+    ..registerSingleton<AppDatabase>(db, dispose: (_) => dependencies.dispose())
+    ..registerLazySingleton<Clock>(() => core.clock)
+    ..registerLazySingleton<IdGenerator>(() => core.ids)
+    ..registerLazySingleton<DeviceIdProvider>(() => core.deviceIds)
+    ..registerLazySingleton<SettingsRepository>(() => core.settings)
+    ..registerLazySingleton<OrientationLock>(() => core.orientationLock)
+    ..registerLazySingleton<DesktopWindow>(() => core.desktopWindow)
+    ..registerLazySingleton<ScreenWakeLock>(() => core.screenWakeLock)
+    ..registerLazySingleton<ReduceTransparencySource>(() => core.reduceTransparency)
+    ..registerLazySingleton<KeepScreenAwakeSetting>(() => core.keepScreenAwake)
+    ..registerLazySingleton<WakelockController>(() => core.wakelock)
+    ..registerLazySingleton<AppEvents>(() => core.events)
+    ..registerLazySingleton<FileStore>(() => core.fileStore)
     ..registerLazySingleton<ProjectRepository>(
       () => DriftProjectRepository(
         dao: db.projectsDao,
@@ -199,7 +178,6 @@ Future<void> configureDependencies({GetIt? locator, AppDatabase? database, Catal
     )
     ..registerFactory<RenameProject>(() => RenameProject(container<ProjectRepository>()))
     ..registerFactory<UpdateNotes>(() => UpdateNotes(container<ProjectRepository>()))
-    ..registerLazySingleton<FileStore>(LocalFileStore.applicationSupport)
     ..registerLazySingleton<ImageProcessor>(UiImageProcessor.new)
     ..registerLazySingleton<ImageToGridRunner>(IsolateImageToGridRunner.new)
     ..registerLazySingleton<PdfRasterizer>(PdfrxPdfRasterizer.new)
