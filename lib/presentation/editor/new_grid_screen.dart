@@ -37,70 +37,68 @@ class NewGridScreen extends StatelessWidget {
               child: Text(l10n.newGridCreate),
             ),
           ),
-          child: SafeArea(
-            child: ListView(
-              padding: EdgeInsets.all(context.tokens.spacing.l),
-              children: <Widget>[
-                CupertinoTextField(
-                  key: const ValueKey<String>('new-grid-name'),
-                  placeholder: l10n.newGridName,
-                  onChanged: cubit.setName,
-                ),
-                SizedBox(height: gap),
-                _Label(l10n.newGridTechnique),
-                CupertinoSlidingSegmentedControl<Technique>(
-                  groupValue: state.technique,
-                  children: <Technique, Widget>{
-                    for (final Technique t in editorBeadingTechniques)
-                      t: Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 8),
-                        child: Text(t.label(l10n)),
-                      ),
-                  },
-                  onValueChanged: (value) {
-                    if (value != null) cubit.setTechnique(value);
-                  },
-                ),
-                SizedBox(height: gap),
-                _Stepper(
-                  keyPrefix: 'width',
-                  label: l10n.newGridWidth,
-                  value: state.width,
-                  onChanged: cubit.setWidth,
-                ),
-                SizedBox(height: gap),
-                _Stepper(
-                  keyPrefix: 'height',
-                  label: l10n.newGridHeight,
-                  value: state.height,
-                  onChanged: cubit.setHeight,
-                ),
-                SizedBox(height: gap),
-                _Label(l10n.newGridBead),
-                Wrap(
-                  spacing: 8,
-                  runSpacing: 8,
-                  children: <Widget>[
-                    for (final BeadSize size in BeadSize.values)
-                      _BeadChip(size: size, selected: size == state.bead, onTap: () => cubit.setBead(size)),
-                  ],
-                ),
-                SizedBox(height: gap),
-                Text(
-                  state.validSize ? _cm(l10n, state) : l10n.newGridSizeInvalid,
-                  key: const ValueKey<String>('new-grid-size'),
-                  style: TextStyle(
-                    color: state.validSize
-                        ? CupertinoColors.secondaryLabel.resolveFrom(context)
-                        : CupertinoColors.systemRed.resolveFrom(context),
-                  ),
-                ),
-                if (state.failed) ...<Widget>[
-                  SizedBox(height: gap),
-                  Text(l10n.newGridFailed, style: TextStyle(color: CupertinoColors.systemRed.resolveFrom(context))),
+          child: ListView(
+            padding: MediaQuery.paddingOf(context) + EdgeInsets.all(context.tokens.spacing.l),
+            children: <Widget>[
+              CupertinoTextField(
+                key: const ValueKey<String>('new-grid-name'),
+                placeholder: l10n.newGridName,
+                onChanged: cubit.setName,
+              ),
+              SizedBox(height: gap),
+              _Label(l10n.newGridTechnique),
+              CupertinoSlidingSegmentedControl<Technique>(
+                groupValue: state.technique,
+                children: <Technique, Widget>{
+                  for (final Technique t in editorBeadingTechniques)
+                    t: Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 8),
+                      child: Text(t.label(l10n)),
+                    ),
+                },
+                onValueChanged: (value) {
+                  if (value != null) cubit.setTechnique(value);
+                },
+              ),
+              SizedBox(height: gap),
+              _Stepper(
+                keyPrefix: 'width',
+                label: l10n.newGridWidth,
+                value: state.width,
+                onChanged: cubit.setWidth,
+              ),
+              SizedBox(height: gap),
+              _Stepper(
+                keyPrefix: 'height',
+                label: l10n.newGridHeight,
+                value: state.height,
+                onChanged: cubit.setHeight,
+              ),
+              SizedBox(height: gap),
+              _Label(l10n.newGridBead),
+              Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: <Widget>[
+                  for (final BeadSize size in BeadSize.values)
+                    _BeadChip(size: size, selected: size == state.bead, onTap: () => cubit.setBead(size)),
                 ],
+              ),
+              SizedBox(height: gap),
+              Text(
+                state.validSize ? _cm(l10n, state) : l10n.newGridSizeInvalid,
+                key: const ValueKey<String>('new-grid-size'),
+                style: TextStyle(
+                  color: state.validSize
+                      ? CupertinoColors.secondaryLabel.resolveFrom(context)
+                      : CupertinoColors.systemRed.resolveFrom(context),
+                ),
+              ),
+              if (state.failed) ...<Widget>[
+                SizedBox(height: gap),
+                Text(l10n.newGridFailed, style: TextStyle(color: CupertinoColors.systemRed.resolveFrom(context))),
               ],
-            ),
+            ],
           ),
         );
       },

@@ -1,5 +1,6 @@
 import 'package:beading/domain/palette/pattern_color.dart';
 import 'package:beading/presentation/l10n/app_localizations.dart';
+import 'package:beading/presentation/widgets/app_list_section.dart';
 import 'package:beading/presentation/widgets/color_swatch.dart';
 import 'package:flutter/cupertino.dart';
 
@@ -77,7 +78,7 @@ class _TemplateColorSheetState extends State<TemplateColorSheet> {
               child: ListView(
                 children: <Widget>[
                   if (widget.removable)
-                    CupertinoListSection.insetGrouped(
+                    AppListSection(
                       children: <Widget>[
                         CupertinoListTile.notched(
                           key: const ValueKey<String>('template-remove-color'),
@@ -95,7 +96,7 @@ class _TemplateColorSheetState extends State<TemplateColorSheet> {
                       child: Center(child: Text(l10n.templateColorEmpty)),
                     )
                   else
-                    CupertinoListSection.insetGrouped(
+                    AppListSection(
                       children: <Widget>[
                         for (final PatternColor color in shown)
                           CupertinoListTile.notched(
