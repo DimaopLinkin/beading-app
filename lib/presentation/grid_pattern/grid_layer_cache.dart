@@ -290,7 +290,9 @@ final class GridLayerCache {
           continue;
         }
         int end = column;
-        while (plain && end + 1 < c1 && grid.at(end + 1, row) == value) {
+        // В виде «как будет» между бусинами и крестиками остаётся подложка: клетки отдельно и чуть меньше, иначе
+        // переключатель «Схема / Как будет» в обзоре ничего бы не менял. Один прямоугольник на клетку по-прежнему дёшев.
+        while (plain && !options.realistic && end + 1 < c1 && grid.at(end + 1, row) == value) {
           end++;
         }
         final PatternColor? color = palette.colorAt(value);
@@ -301,7 +303,11 @@ final class GridLayerCache {
         final Rect first = scene.cellRect(CellPosition(column, row));
         paint.color = base;
         canvas.drawRect(
-          end == column ? first : first.expandToInclude(scene.cellRect(CellPosition(end, row))),
+          options.realistic
+              ? first.deflate(math.min(scene.cellSize.width, scene.cellSize.height) * 0.16)
+              : end == column
+              ? first
+              : first.expandToInclude(scene.cellRect(CellPosition(end, row))),
           paint,
         );
         column = end + 1;

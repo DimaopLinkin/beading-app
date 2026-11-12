@@ -16,6 +16,7 @@ import 'package:beading/presentation/weaving/weave_state.dart';
 import 'package:beading/presentation/widgets/glass/glass_bar.dart';
 import 'package:beading/presentation/widgets/glass/glass_panel.dart';
 import 'package:beading/presentation/widgets/glass/glass_surface.dart';
+import 'package:beading/presentation/widgets/measured_size.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -84,6 +85,9 @@ class _Workspace extends StatefulWidget {
 class _WorkspaceState extends State<_Workspace> with WidgetsBindingObserver {
   final TransformationController _controller = TransformationController();
   Size? _fitted;
+
+  /// Фактическая высота нижней панели вместе с нижним отступом; до первой раскладки берётся оценка.
+  double? _panelHeight;
 
   @override
   void initState() {
@@ -189,7 +193,7 @@ class _WorkspaceState extends State<_Workspace> with WidgetsBindingObserver {
     final WeaveCubit cubit = context.read<WeaveCubit>();
     final EdgeInsets safe = MediaQuery.paddingOf(context);
     final double topInset = safe.top + _topBarHeight + _togglesHeight;
-    final double bottomInset = safe.bottom + _bottomPanelHeight;
+    final double bottomInset = _panelHeight ?? safe.bottom + _bottomPanelHeight;
     return CallbackShortcuts(
       bindings: <ShortcutActivator, VoidCallback>{
         const SingleActivator(LogicalKeyboardKey.arrowDown): cubit.stepForward,
@@ -269,7 +273,14 @@ class _WorkspaceState extends State<_Workspace> with WidgetsBindingObserver {
                     left: 0,
                     right: 0,
                     bottom: 0,
-                    child: _PanelFrame(child: _BottomPanel(state: state)),
+                    child: MeasuredHeight(
+                      onChange: (height) {
+                        if (mounted && _panelHeight != height) {
+                          setState(() => _panelHeight = height);
+                        }
+                      },
+                      child: _PanelFrame(child: _BottomPanel(state: state)),
+                    ),
                   ),
                 ],
               );

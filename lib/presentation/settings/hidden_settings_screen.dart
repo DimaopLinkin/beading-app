@@ -6,6 +6,7 @@ import 'package:beading/presentation/l10n/app_localizations.dart';
 import 'package:beading/presentation/settings/settings_cubit.dart';
 import 'package:beading/presentation/settings/settings_state.dart';
 import 'package:beading/presentation/theme/app_icons.dart';
+import 'package:beading/presentation/widgets/app_list_section.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -63,50 +64,48 @@ class _HiddenSettingsScreenState extends State<HiddenSettingsScreen> {
     final SettingsCubit cubit = context.read<SettingsCubit>();
     return CupertinoPageScaffold(
       navigationBar: CupertinoNavigationBar(middle: Text(l10n.hiddenTitle)),
-      child: SafeArea(
-        child: BlocBuilder<SettingsCubit, SettingsState>(
-          builder: (context, state) => ListView(
-            children: <Widget>[
-              CupertinoListSection.insetGrouped(
-                header: Text(l10n.hiddenSectionName),
-                children: <Widget>[
-                  CupertinoTextFormFieldRow(
-                    key: const ValueKey<String>('hidden-name'),
-                    controller: _name,
-                    focusNode: _nameFocus,
-                    inputFormatters: <TextInputFormatter>[LengthLimitingTextInputFormatter(userNameMaxLength)],
-                    placeholder: l10n.hiddenNameHint,
-                    textInputAction: TextInputAction.done,
-                    onEditingComplete: _nameFocus.unfocus,
-                  ),
-                ],
-              ),
-              CupertinoListSection.insetGrouped(
-                header: Text(l10n.hiddenSectionDates),
-                footer: Text(l10n.hiddenDatesFooter),
-                children: <Widget>[
-                  for (final SpecialDate date in state.specialDates)
-                    CupertinoListTile.notched(
-                      title: Text(date.label),
-                      additionalInfo: Text(_format(date)),
-                      trailing: CupertinoButton(
-                        key: ValueKey<String>('remove-${date.label}'),
-                        padding: EdgeInsets.zero,
-                        minimumSize: const Size.square(44),
-                        onPressed: () => cubit.removeSpecialDate(date),
-                        child: const Icon(CupertinoIcons.minus_circle, color: CupertinoColors.systemRed),
-                      ),
-                    ),
+      child: BlocBuilder<SettingsCubit, SettingsState>(
+        builder: (context, state) => ListView(
+          children: <Widget>[
+            AppListSection(
+              header: Text(l10n.hiddenSectionName),
+              children: <Widget>[
+                CupertinoTextFormFieldRow(
+                  key: const ValueKey<String>('hidden-name'),
+                  controller: _name,
+                  focusNode: _nameFocus,
+                  inputFormatters: <TextInputFormatter>[LengthLimitingTextInputFormatter(userNameMaxLength)],
+                  placeholder: l10n.hiddenNameHint,
+                  textInputAction: TextInputAction.done,
+                  onEditingComplete: _nameFocus.unfocus,
+                ),
+              ],
+            ),
+            AppListSection(
+              header: Text(l10n.hiddenSectionDates),
+              footer: Text(l10n.hiddenDatesFooter),
+              children: <Widget>[
+                for (final SpecialDate date in state.specialDates)
                   CupertinoListTile.notched(
-                    key: const ValueKey<String>('hidden-add-date'),
-                    leading: const Icon(AppIcons.add),
-                    title: Text(l10n.hiddenAddDate),
-                    onTap: () => _addDate(cubit),
+                    title: Text(date.label),
+                    additionalInfo: Text(_format(date)),
+                    trailing: CupertinoButton(
+                      key: ValueKey<String>('remove-${date.label}'),
+                      padding: EdgeInsets.zero,
+                      minimumSize: const Size.square(44),
+                      onPressed: () => cubit.removeSpecialDate(date),
+                      child: const Icon(CupertinoIcons.minus_circle, color: CupertinoColors.systemRed),
+                    ),
                   ),
-                ],
-              ),
-            ],
-          ),
+                CupertinoListTile.notched(
+                  key: const ValueKey<String>('hidden-add-date'),
+                  leading: const Icon(AppIcons.add),
+                  title: Text(l10n.hiddenAddDate),
+                  onTap: () => _addDate(cubit),
+                ),
+              ],
+            ),
+          ],
         ),
       ),
     );

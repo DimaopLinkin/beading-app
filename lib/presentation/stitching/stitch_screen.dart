@@ -21,6 +21,7 @@ import 'package:beading/presentation/widgets/color_swatch.dart';
 import 'package:beading/presentation/widgets/glass/glass_bar.dart';
 import 'package:beading/presentation/widgets/glass/glass_panel.dart';
 import 'package:beading/presentation/widgets/glass/glass_surface.dart';
+import 'package:beading/presentation/widgets/measured_size.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -157,6 +158,9 @@ class _WorkspaceState extends State<_Workspace> with WidgetsBindingObserver {
 
   final GlobalKey _canvasKey = GlobalKey();
 
+  /// Фактическая высота нижней панели; до первой раскладки берётся оценка.
+  double? _panelHeight;
+
   /// Показывает клетку остановки в середине полотна.
   void _goToParked(StitchState s) {
     final CellPosition? cell = s.parked;
@@ -215,7 +219,7 @@ class _WorkspaceState extends State<_Workspace> with WidgetsBindingObserver {
     final EdgeInsets safe = MediaQuery.paddingOf(context);
     final bool large = MediaQuery.textScalerOf(context).scale(14) / 14 >= _largeTextScale;
     final double topInset = safe.top + _topBarHeight;
-    final double bottomInset = safe.bottom + (large ? _bottomPanelHeightLarge : _bottomPanelHeight);
+    final double bottomInset = _panelHeight ?? safe.bottom + (large ? _bottomPanelHeightLarge : _bottomPanelHeight);
     return BlocListener<StitchCubit, StitchState>(
       listenWhen: (previous, current) => previous.marks != current.marks,
       listener: (context, state) => HapticFeedback.selectionClick(),
@@ -240,8 +244,15 @@ class _WorkspaceState extends State<_Workspace> with WidgetsBindingObserver {
                   left: 0,
                   right: 0,
                   bottom: 0,
-                  child: _Frame(
-                    child: _BottomPanel(state: state, large: large, onGoToParked: () => _goToParked(state)),
+                  child: MeasuredHeight(
+                    onChange: (height) {
+                      if (mounted && _panelHeight != height) {
+                        setState(() => _panelHeight = height);
+                      }
+                    },
+                    child: _Frame(
+                      child: _BottomPanel(state: state, large: large, onGoToParked: () => _goToParked(state)),
+                    ),
                   ),
                 ),
               ],

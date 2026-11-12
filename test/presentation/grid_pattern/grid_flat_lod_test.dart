@@ -74,6 +74,40 @@ void main() {
       expect(cache.flat, isTrue);
     });
 
+    test('в виде «как будет» между клетками остаётся подложка, в схеме нет', () async {
+      Future<int> boundaryRgb({required bool realistic}) async {
+        final Grid grid = Grid.fromCells(width: 3, height: 1, cells: const <int>[1, 1, 1]);
+        final GridScene scene = GridScene(
+          geometry: const GridGeometry.rectangular(),
+          metrics: BeadSize.delica11,
+          columns: 3,
+          rows: 1,
+        );
+        final GridLayerCache cache = GridLayerCache()
+          ..configure(
+            grid: grid,
+            palette: samplePalette(),
+            scene: scene,
+            options: GridViewOptions(showGridLines: false, realistic: realistic),
+            style: _style,
+            flat: true,
+          );
+        final ui.PictureRecorder recorder = ui.PictureRecorder();
+        cache.paintVisible(Canvas(recorder), Offset.zero & scene.size);
+        final ui.Image image = await recorder.endRecording().toImage(scene.size.width.ceil(), scene.size.height.ceil());
+        final ByteData data = (await image.toByteData())!;
+        cache.dispose();
+        final int x = scene.cellSize.width.round();
+        final int y = (scene.size.height / 2).round();
+        // Цвет в центре границы клеток 0 и 1.
+        final int i = (y * image.width + x) * 4;
+        return (data.getUint8(i) << 16) | (data.getUint8(i + 1) << 8) | data.getUint8(i + 2);
+      }
+
+      expect(await boundaryRgb(realistic: false), 0xF2B84B, reason: 'в схеме клетки одного цвета слиты');
+      expect(await boundaryRgb(realistic: true), isNot(0xF2B84B), reason: 'в «как будет» там подложка');
+    });
+
     test('смена детализации сбрасывает блоки, повторная настройка — нет', () {
       final Grid grid = sampleGrid();
       final GridScene scene = GridScene(

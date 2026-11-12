@@ -63,6 +63,10 @@ class _StitchCanvasState extends State<StitchCanvas> {
   /// Клетка уже этого экранного размера: знак читается и в неё можно попасть касанием.
   static const double _readableCell = 14;
 
+  /// Знак на клетке читается уже с этого размера (на экране с плотностью 3× глиф около 17 физических пикселей).
+  /// В касание по такой клетке попасть труднее, поэтому порог касания выше: [_readableCell].
+  static const double _symbolCell = 9;
+
   TransformationController? _own;
   final Map<int, Offset> _pointers = <int, Offset>{};
   late GridScene _scene = _buildScene();
@@ -78,6 +82,7 @@ class _StitchCanvasState extends State<StitchCanvas> {
   Timer? _longTimer;
   bool _longFired = false;
   final ValueNotifier<bool> _small = ValueNotifier<bool>(false);
+  final ValueNotifier<bool> _noSymbols = ValueNotifier<bool>(false);
   final ValueNotifier<bool> _hint = ValueNotifier<bool>(false);
   Timer? _hintTimer;
 
@@ -100,6 +105,7 @@ class _StitchCanvasState extends State<StitchCanvas> {
   void _updateSmall() {
     final double cell = _scene.cellRect(const CellPosition(0, 0)).width * _controller.value.storage[0];
     _small.value = cell < _readableCell;
+    _noSymbols.value = cell < _symbolCell;
   }
 
   void _showHint() {
@@ -127,6 +133,7 @@ class _StitchCanvasState extends State<StitchCanvas> {
     _longTimer?.cancel();
     _hintTimer?.cancel();
     _small.dispose();
+    _noSymbols.dispose();
     _hint.dispose();
     _own?.dispose();
     super.dispose();
@@ -352,8 +359,8 @@ class _StitchCanvasState extends State<StitchCanvas> {
             children: <Widget>[
               Positioned.fill(
                 child: ValueListenableBuilder<bool>(
-                  valueListenable: _small,
-                  builder: (context, small, _) => GridPatternView(
+                  valueListenable: _noSymbols,
+                  builder: (context, noSymbols, _) => GridPatternView(
                     grid: widget.pattern.grid,
                     palette: widget.pattern.palette,
                     geometry: widget.pattern.geometry,
@@ -362,7 +369,7 @@ class _StitchCanvasState extends State<StitchCanvas> {
                     controller: _controller,
                     gesturesEnabled: false,
                     maxScale: _maxScale,
-                    options: small ? widget.options.withoutSymbols() : widget.options,
+                    options: noSymbols ? widget.options.withoutSymbols() : widget.options,
                   ),
                 ),
               ),
