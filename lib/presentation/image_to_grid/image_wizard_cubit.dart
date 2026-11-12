@@ -323,7 +323,7 @@ class ImageWizardCubit extends Cubit<ImageWizardState> {
   /// Другая канва: ширина работы в сантиметрах остаётся прежней, клетки пересчитываются.
   void setFabric(Fabric fabric) {
     final ImageToGridSettings now = state.settings;
-    _change(now.copyWith(fabric: fabric, columns: fabric.cellsForCm(now.widthCm)));
+    _change(now.copyWith(fabric: fabric, columns: fabric.cellsForCm(ImageToGridSettings.snapCm(now.widthCm))));
   }
 
   /// Цвет канвы: фон схемы (невышитые места).
@@ -345,7 +345,7 @@ class ImageWizardCubit extends Cubit<ImageWizardState> {
   /// Ширина готовой вышивки в сантиметрах: клетки считаются по канве.
   void setWidthCm(double cm) {
     _sizeTouched = true;
-    _change(state.settings.copyWith(columns: state.settings.fabric.cellsForCm(cm)));
+    _change(state.settings.copyWith(columns: state.settings.fabric.cellsForCm(ImageToGridSettings.snapCm(cm))));
   }
 
   /// Контуры-бэкстич из картинки (T49).

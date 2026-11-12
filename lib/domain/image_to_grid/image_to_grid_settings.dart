@@ -64,13 +64,26 @@ final class ImageToGridSettings extends Equatable {
   static const int minColumns = 8;
   static const int maxColumns = 120;
 
-  /// Вышивка большая: ориентир A09 — 110–200 крестиков по ширине (канва Аида 14, 20–30 см).
-  static const int maxStitchColumns = 250;
+  /// Самая широкая вышивка, см: у Насти дома есть работа 80 × 200 см.
+  static const double maxStitchWidthCm = 200;
+
+  /// Самая узкая вышивка, см, и шаг размера: ширина и высота кратны 5 см.
+  static const double minStitchWidthCm = 5;
+  static const double stitchCmStep = 5;
+
+  /// Вышивка большая: 200 см на самой мелкой канве (Аида 20) — около 1575 крестиков; выше потолок не нужен.
+  static const int maxStitchColumns = 1600;
+
+  /// Бюджет таблицы цен «клетка × цвет» (4 байта на число): больше схема — меньше цветов в расчёте, иначе вышивка
+  /// 200 × 80 см не поместится в память телефона.
+  static const int costBudget = 32 * 1000 * 1000;
   static const int defaultStitchColumns = 150;
   static const int defaultStitchColors = 30;
   static const int defaultMaxColors = 8;
   static const int minColors = 2;
-  static const int maxColorsLimit = 30;
+
+  /// Потолок числа цветов. Наборы и схемы: обычные 16–50 цветов, фотореалистичные большие — 84–108 и выше (A11).
+  static const int maxColorsLimit = 120;
 
   /// Отделки по умолчанию (T62): непрозрачный, матовый и блестящий бисер (Настя плетёт и тем, и другим).
   static const Set<BeadFinishGroup> defaultFinishGroups = <BeadFinishGroup>{
@@ -166,7 +179,7 @@ final class ImageToGridSettings extends Equatable {
   }) => ImageToGridSettings(
     technique: technique ?? this.technique,
     beadSize: beadSize ?? this.beadSize,
-    columns: (columns ?? this.columns).clamp(minColumns, maxColumnsOf((technique ?? this.technique).craft)),
+    columns: _clampColumns(columns ?? this.columns, technique ?? this.technique, fabric ?? this.fabric),
     maxColors: (maxColors ?? this.maxColors).clamp(minColors, maxColorsLimit),
     paletteSource: paletteSource ?? this.paletteSource,
     beadSeries: beadSeries ?? this.beadSeries,
@@ -185,17 +198,39 @@ final class ImageToGridSettings extends Equatable {
     blends: blends ?? this.blends,
   );
 
-  /// Число рядов, при котором схема повторяет пропорции [image].
-  int rowsFor(SourceImage image) => math.min(
-    Grid.maxSide,
-    GridSizing.rowsForColumns(
+  static int _clampColumns(int columns, Technique technique, Fabric fabric) {
+    int max = maxColumnsOf(technique.craft);
+    if (technique.craft == Craft.crossStitch) {
+      max = math.min(max, fabric.cellsForCm(maxStitchWidthCm));
+    }
+    return columns.clamp(minColumns, max);
+  }
+
+  /// Ширина вышивки в сантиметрах, округлённая до шага [stitchCmStep].
+  static double snapCm(double cm) =>
+      ((cm / stitchCmStep).round() * stitchCmStep).clamp(minStitchWidthCm, maxStitchWidthCm);
+
+  /// Число рядов, при котором схема повторяет пропорции [image]. У вышивки высота в сантиметрах округляется до
+  /// шага [stitchCmStep] (50 × 35 см, а не 50 × 37): картинка чуть растягивается, не больше чем на полшага.
+  int rowsFor(SourceImage image) {
+    final int natural = GridSizing.rowsForColumns(
       imageWidth: image.width,
       imageHeight: image.height,
       geometry: geometry,
       metrics: metrics,
       columns: columns,
-    ),
-  );
+    );
+    if (craft != Craft.crossStitch) {
+      return math.min(Grid.maxSide, natural);
+    }
+    final double cm = fabric.cmForCells(natural);
+    final double snapped = ((cm / stitchCmStep).round() * stitchCmStep).clamp(stitchCmStep, double.infinity);
+    return math.min(Grid.maxSide, fabric.cellsForCm(snapped));
+  }
+
+  /// Сколько цветов реально берёт расчёт для схемы в [rows] рядов: не больше [maxColors] и не больше, чем влезает в
+  /// [costBudget].
+  int colorsFor(int rows) => math.max(minColors, math.min(maxColors, costBudget ~/ (columns * rows)));
 
   /// Материал каталога под ремесло: бисер или мулине.
   CatalogMaterial get material => craft == Craft.crossStitch ? CatalogMaterial.floss : CatalogMaterial.bead;
@@ -253,7 +288,7 @@ final class ImageToGridSettings extends Equatable {
       metrics: craft == Craft.crossStitch ? fabric.withColor(const Rgb(255, 255, 255)) : metrics,
       columns: columns,
       rows: rowsFor(image),
-      maxColors: maxColors,
+      maxColors: colorsFor(rowsFor(image)),
       constraint: useCatalog
           ? PaletteConstraint.catalog(
               allowed,

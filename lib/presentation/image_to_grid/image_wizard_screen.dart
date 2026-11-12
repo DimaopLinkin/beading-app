@@ -1095,8 +1095,11 @@ class _WidthCmRow extends StatelessWidget {
   Widget build(BuildContext context) {
     final AppLocalizations l10n = AppLocalizations.of(context);
     final Fabric fabric = settings.fabric;
-    final double min = fabric.cmForCells(ImageToGridSettings.minColumns);
-    final double max = fabric.cmForCells(ImageToGridSettings.maxStitchColumns);
+    final double snapped = ImageToGridSettings.snapCm(settings.widthCm);
+    // Клетки целые: 50 см — это 276 крестиков, 50,1 см. Если размер близок к шагу, показываем шаг.
+    final double shownCm = (settings.widthCm - snapped).abs() < 0.3 ? snapped : settings.widthCm;
+    const double min = ImageToGridSettings.minStitchWidthCm;
+    const double max = ImageToGridSettings.maxStitchWidthCm;
     return Padding(
       padding: EdgeInsets.only(bottom: context.tokens.spacing.s),
       child: Column(
@@ -1107,14 +1110,15 @@ class _WidthCmRow extends StatelessWidget {
               Expanded(
                 child: Text(l10n.imageWizardWidthCm, style: const TextStyle(fontWeight: FontWeight.w600)),
               ),
-              Text(l10n.imageWizardCm(_cm(settings.widthCm)), key: const ValueKey<String>('wizard-width-cm')),
+              Text(l10n.imageWizardCm(_cm(shownCm)), key: const ValueKey<String>('wizard-width-cm')),
             ],
           ),
           CupertinoSlider(
             key: const ValueKey<String>('wizard-width-cm-slider'),
-            value: settings.widthCm.clamp(min, max),
+            value: ImageToGridSettings.snapCm(settings.widthCm),
             min: min,
             max: max,
+            divisions: ((max - min) / ImageToGridSettings.stitchCmStep).round(),
             onChanged: onChanged,
           ),
           Text(

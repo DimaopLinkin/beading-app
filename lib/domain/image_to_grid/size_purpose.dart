@@ -3,7 +3,7 @@ import 'package:beading/domain/projects/craft.dart';
 
 /// Размер по назначению (T61): «браслет», «панно», «картина» в бисере; у вышивки те же три ступени в сантиметрах.
 enum SizePurpose {
-  small(beadColumns: 24, stitchCm: 12),
+  small(beadColumns: 24, stitchCm: 10),
   medium(beadColumns: 60, stitchCm: 25),
   large(beadColumns: 100, stitchCm: 40)
   ;
