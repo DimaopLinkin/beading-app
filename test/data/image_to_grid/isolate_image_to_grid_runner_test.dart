@@ -10,6 +10,7 @@ import 'package:beading/domain/image_to_grid/generated_pattern.dart';
 import 'package:beading/domain/image_to_grid/image_mask_set.dart';
 import 'package:beading/domain/image_to_grid/image_to_grid_pipeline.dart';
 import 'package:beading/domain/image_to_grid/image_to_grid_request.dart';
+import 'package:beading/domain/image_to_grid/image_to_grid_runner.dart';
 import 'package:beading/domain/image_to_grid/palette_builder.dart';
 import 'package:beading/domain/image_to_grid/palette_entry.dart';
 import 'package:beading/domain/image_to_grid/pattern_step.dart';
@@ -171,6 +172,36 @@ void main() {
       expect(next.grid, expected.grid);
       expect(next.palette, expected.palette);
       expect(next.palette.length, greaterThan(1));
+    });
+
+    test('пока считается запрос, ждущий заменяется новым: устаревшие расчёты не копятся', () async {
+      final IsolateImageToGridRunner runner = IsolateImageToGridRunner();
+      addTearDown(runner.release);
+      final Future<GeneratedPattern> running = runner.run(pixelRequest(image));
+      final Future<GeneratedPattern> stale = runner.run(pixelRequest(image, maxColors: 2));
+      final Future<GeneratedPattern> latest = runner.run(pixelRequest(image, maxColors: 3));
+      final Future<void> staleExpectation = expectLater(stale, throwsA(isA<RunSuperseded>()));
+
+      expect((await running).grid, const ImageToGridPipeline().run(pixelRequest(image)).grid);
+      await staleExpectation;
+      expect((await latest).grid, const ImageToGridPipeline().run(pixelRequest(image, maxColors: 3)).grid);
+    });
+
+    test('заменённый запрос, нёсший картинку, не лишает следующий пикселей', () async {
+      final IsolateImageToGridRunner runner = IsolateImageToGridRunner();
+      addTearDown(runner.release);
+      final SourceImage other = blockImage(<List<int>>[
+        <int>[0x000000, 0xFFFFFF],
+        <int>[0xFFFFFF, 0x000000],
+      ], block: 4);
+      final Future<GeneratedPattern> running = runner.run(pixelRequest(image));
+      // Эта картинка ушла бы в изолят вместе с заменяемым запросом.
+      final Future<GeneratedPattern> carrier = runner.run(pixelRequest(other));
+      final Future<void> carrierExpectation = expectLater(carrier, throwsA(isA<RunSuperseded>()));
+      final Future<GeneratedPattern> next = runner.run(pixelRequest(other, maxColors: 3));
+      await running;
+      await carrierExpectation;
+      expect((await next).grid, const ImageToGridPipeline().run(pixelRequest(other, maxColors: 3)).grid);
     });
   });
 }

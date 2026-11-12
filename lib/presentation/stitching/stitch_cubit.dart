@@ -134,18 +134,8 @@ class StitchCubit extends Cubit<StitchState> {
   /// Пересчитывает счётчики по цветам, по блокам и общий.
   StitchState _recount(StitchState s) {
     final Grid grid = s.pattern!.grid;
-    final List<ColorCount> byColor = StitchCounters.byColor(
-      grid,
-      s.progress,
-      paletteSize: s.pattern!.palette.colors.length,
-    );
-    final ({int total, int done}) overall = StitchCounters.overall(grid, s.progress);
-    return s.copyWith(
-      byColor: byColor,
-      blocks: StitchBlocks.compute(grid, s.progress),
-      total: overall.total,
-      done: overall.done,
-    );
+    final StitchTally tally = StitchCounters.tally(grid, s.progress, paletteSize: s.pattern!.palette.colors.length);
+    return s.copyWith(byColor: tally.byColor, blocks: tally.blocks, total: tally.total, done: tally.done);
   }
 
   void setTool(StitchTool tool) {

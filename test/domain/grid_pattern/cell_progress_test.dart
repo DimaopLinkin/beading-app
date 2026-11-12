@@ -1,3 +1,4 @@
+import 'dart:math' as math;
 import 'dart:typed_data';
 
 import 'package:beading/domain/grid/cell_position.dart';
@@ -30,6 +31,37 @@ void main() {
       final CellProgress cleared = p.withCells(const <CellPosition>[CellPosition(17, 0)], done: false);
       expect(cleared.isDone(17, 0), isFalse);
       expect(cleared.blocks.keys.toList()..sort(), <int>[0, 8194], reason: 'опустевший блок не хранится');
+    });
+
+    test('withCells копирует только затронутые блоки: остальные общие со старым значением', () {
+      final CellProgress p = CellProgress(
+        width: 64,
+      ).withCells(const <CellPosition>[CellPosition(0, 0), CellPosition(40, 0)], done: true);
+      final CellProgress q = p.withCells(const <CellPosition>[CellPosition(1, 0)], done: true);
+      expect(identical(q.blocks[2], p.blocks[2]), isTrue, reason: 'блок (2, 0) не менялся');
+      expect(identical(q.blocks[0], p.blocks[0]), isFalse);
+      expect(p.isDone(1, 0), isFalse, reason: 'старое значение не изменилось');
+      expect(q.isDone(1, 0), isTrue);
+    });
+
+    test('снятие отметки с несуществующего блока ничего не создаёт', () {
+      final CellProgress p = CellProgress(width: 64).withCells(const <CellPosition>[CellPosition(50, 50)], done: false);
+      expect(p.isEmpty, isTrue);
+    });
+
+    test('равенство по значению: те же блоки равны, другая отметка или ширина не равны', () {
+      final CellProgress a = CellProgress(
+        width: 40,
+      ).withCells(const <CellPosition>[CellPosition(3, 3), CellPosition(30, 20)], done: true);
+      final CellProgress b = CellProgress(
+        width: 40,
+      ).withCells(const <CellPosition>[CellPosition(30, 20), CellPosition(3, 3)], done: true);
+      expect(a, b);
+      expect(a.hashCode, b.hashCode);
+      expect(a, isNot(a.withCells(const <CellPosition>[CellPosition(4, 3)], done: true)));
+      expect(a, isNot(CellProgress(width: 41, blocks: a.blocks)));
+      expect(a.withCells(const <CellPosition>[CellPosition(3, 3)], done: false), isNot(a));
+      expect(const CellProgress.none(), CellProgress(width: 0));
     });
 
     test('клетки вне ширины и с отрицательными номерами игнорируются', () {
@@ -136,6 +168,42 @@ void main() {
       );
       expect(StitchBlocks.compute(grid, CellProgress(width: 20)), hasLength(1));
       expect(const BlockCount(blockColumn: 0, blockRow: 0, total: 0, done: 0).fraction, 1);
+    });
+  });
+
+  group('StitchCounters.tally', () {
+    test('даёт те же числа, что byColor, overall и StitchBlocks.compute, на случайной схеме', () {
+      final math.Random random = math.Random(7);
+      const int width = 47;
+      const int height = 61;
+      final Grid grid = Grid.fromCells(
+        width: width,
+        height: height,
+        // Значение 0 — пусто; 5 выходит за палитру из 4 цветов и считается только в целом.
+        cells: List<int>.generate(width * height, (_) => random.nextInt(6)),
+      );
+      final CellProgress progress = CellProgress(width: width).withCells(<CellPosition>[
+        for (int r = 0; r < height; r++)
+          for (int c = 0; c < width; c++)
+            if (random.nextInt(3) == 0) CellPosition(c, r),
+      ], done: true);
+      final tally = StitchCounters.tally(grid, progress, paletteSize: 4);
+      expect(tally.byColor, StitchCounters.byColor(grid, progress, paletteSize: 4));
+      final overall = StitchCounters.overall(grid, progress);
+      expect(tally.total, overall.total);
+      expect(tally.done, overall.done);
+      expect(tally.blocks, StitchBlocks.compute(grid, progress));
+    });
+
+    test('без отметок: всё не сделано; прогресс уже схемы не ломает счёт', () {
+      final Grid grid = Grid.fromCells(width: 3, height: 2, cells: const <int>[1, 0, 2, 2, 2, 1]);
+      final tally = StitchCounters.tally(grid, const CellProgress.none(), paletteSize: 2);
+      expect(tally.total, 5);
+      expect(tally.done, 0);
+      final narrow = CellProgress(
+        width: 2,
+      ).withCells(const <CellPosition>[CellPosition(1, 1), CellPosition(5, 1)], done: true);
+      expect(StitchCounters.tally(grid, narrow, paletteSize: 2).done, 1);
     });
   });
 }

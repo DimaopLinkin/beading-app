@@ -1,6 +1,7 @@
 import 'package:beading/domain/grid/cell_position.dart';
 import 'package:beading/domain/grid/fabric.dart';
 import 'package:beading/domain/grid/grid_geometry.dart';
+import 'package:beading/domain/grid_pattern/cell_progress.dart';
 import 'package:beading/domain/palette/rgb.dart';
 import 'package:beading/domain/stitch/stitch_legend.dart';
 import 'package:beading/presentation/grid_pattern/grid_pattern_view.dart';
@@ -110,7 +111,9 @@ void main() {
           boldEvery: 10,
           highlightColor: 3,
           showCenter: true,
-          doneCells: <CellPosition>{for (int c = 0; c < 14; c++) CellPosition(c, 1)},
+          doneCells: CellProgress(
+            width: 40,
+          ).withCells(<CellPosition>[for (int c = 0; c < 14; c++) CellPosition(c, 1)], done: true),
           hiddenLayers: const <StitchLayerKind>{StitchLayerKind.points},
         ),
         fabric: Fabric.standard.withColor(const Rgb(214, 226, 240)),
