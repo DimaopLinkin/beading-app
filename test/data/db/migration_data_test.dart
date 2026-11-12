@@ -202,4 +202,28 @@ void main() {
     expect(row.rulerRow, 4);
     expect(row.markup, isNull);
   });
+
+  test('миграция v13→v14 сохраняет запас мулине, создаёт пустую очередь синхронизации и включает триггеры', () async {
+    final SchemaVerifier verifier = SchemaVerifier(GeneratedHelper());
+    final InitializedSchema old = await verifier.schemaAt(13);
+    old.rawDatabase.execute(
+      'INSERT INTO floss_stock (id, created_at, updated_at, device_id, brand, code, skeins) '
+      "VALUES ('f1', 1, 1, 'd', 'dmc', '310', 2.0)",
+    );
+
+    final AppDatabase db = AppDatabase(old.newConnection());
+    addTearDown(db.close);
+    await verifier.migrateAndValidate(db, 14);
+
+    expect(await db.select(db.flossStock).get(), hasLength(1));
+    expect(
+      await db.select(db.syncOutbox).get(),
+      isEmpty,
+      reason: 'старые данные ставит в очередь первый вход, не миграция',
+    );
+
+    await db.customStatement("UPDATE floss_stock SET skeins = 3.0 WHERE id = 'f1'");
+    final SyncOutboxRow queued = (await db.select(db.syncOutbox).get()).single;
+    expect((queued.entity, queued.syncId), ('floss_stock', 'dmc:310'));
+  });
 }

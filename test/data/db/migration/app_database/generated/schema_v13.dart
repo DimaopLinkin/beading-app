@@ -5,7 +5,7 @@ import 'dart:typed_data' as i2;
 //
 import 'package:drift/drift.dart';
 
-class Settings extends Table with TableInfo {
+class Settings extends Table with TableInfo<Settings, SettingsData> {
   @override
   final GeneratedDatabase attachedDatabase;
   final String? _alias;
@@ -75,8 +75,34 @@ class Settings extends Table with TableInfo {
   @override
   Set<GeneratedColumn> get $primaryKey => {key};
   @override
-  Never map(Map<String, dynamic> data, {String? tablePrefix}) {
-    throw UnsupportedError('TableInfo.map in schema verification code');
+  SettingsData map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return SettingsData(
+      createdAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}created_at'],
+      )!,
+      updatedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}updated_at'],
+      )!,
+      deletedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}deleted_at'],
+      ),
+      deviceId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}device_id'],
+      )!,
+      key: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}key'],
+      )!,
+      value: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}value'],
+      )!,
+    );
   }
 
   @override
@@ -90,7 +116,242 @@ class Settings extends Table with TableInfo {
   bool get dontWriteConstraints => true;
 }
 
-class Projects extends Table with TableInfo {
+class SettingsData extends DataClass implements Insertable<SettingsData> {
+  final int createdAt;
+  final int updatedAt;
+  final int? deletedAt;
+  final String deviceId;
+  final String key;
+  final String value;
+  const SettingsData({
+    required this.createdAt,
+    required this.updatedAt,
+    this.deletedAt,
+    required this.deviceId,
+    required this.key,
+    required this.value,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['created_at'] = Variable<int>(createdAt);
+    map['updated_at'] = Variable<int>(updatedAt);
+    if (!nullToAbsent || deletedAt != null) {
+      map['deleted_at'] = Variable<int>(deletedAt);
+    }
+    map['device_id'] = Variable<String>(deviceId);
+    map['key'] = Variable<String>(key);
+    map['value'] = Variable<String>(value);
+    return map;
+  }
+
+  SettingsCompanion toCompanion(bool nullToAbsent) {
+    return SettingsCompanion(
+      createdAt: Value(createdAt),
+      updatedAt: Value(updatedAt),
+      deletedAt: deletedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(deletedAt),
+      deviceId: Value(deviceId),
+      key: Value(key),
+      value: Value(value),
+    );
+  }
+
+  factory SettingsData.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return SettingsData(
+      createdAt: serializer.fromJson<int>(json['createdAt']),
+      updatedAt: serializer.fromJson<int>(json['updatedAt']),
+      deletedAt: serializer.fromJson<int?>(json['deletedAt']),
+      deviceId: serializer.fromJson<String>(json['deviceId']),
+      key: serializer.fromJson<String>(json['key']),
+      value: serializer.fromJson<String>(json['value']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'createdAt': serializer.toJson<int>(createdAt),
+      'updatedAt': serializer.toJson<int>(updatedAt),
+      'deletedAt': serializer.toJson<int?>(deletedAt),
+      'deviceId': serializer.toJson<String>(deviceId),
+      'key': serializer.toJson<String>(key),
+      'value': serializer.toJson<String>(value),
+    };
+  }
+
+  SettingsData copyWith({
+    int? createdAt,
+    int? updatedAt,
+    Value<int?> deletedAt = const Value.absent(),
+    String? deviceId,
+    String? key,
+    String? value,
+  }) => SettingsData(
+    createdAt: createdAt ?? this.createdAt,
+    updatedAt: updatedAt ?? this.updatedAt,
+    deletedAt: deletedAt.present ? deletedAt.value : this.deletedAt,
+    deviceId: deviceId ?? this.deviceId,
+    key: key ?? this.key,
+    value: value ?? this.value,
+  );
+  SettingsData copyWithCompanion(SettingsCompanion data) {
+    return SettingsData(
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+      deletedAt: data.deletedAt.present ? data.deletedAt.value : this.deletedAt,
+      deviceId: data.deviceId.present ? data.deviceId.value : this.deviceId,
+      key: data.key.present ? data.key.value : this.key,
+      value: data.value.present ? data.value.value : this.value,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('SettingsData(')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('deletedAt: $deletedAt, ')
+          ..write('deviceId: $deviceId, ')
+          ..write('key: $key, ')
+          ..write('value: $value')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode =>
+      Object.hash(createdAt, updatedAt, deletedAt, deviceId, key, value);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is SettingsData &&
+          other.createdAt == this.createdAt &&
+          other.updatedAt == this.updatedAt &&
+          other.deletedAt == this.deletedAt &&
+          other.deviceId == this.deviceId &&
+          other.key == this.key &&
+          other.value == this.value);
+}
+
+class SettingsCompanion extends UpdateCompanion<SettingsData> {
+  final Value<int> createdAt;
+  final Value<int> updatedAt;
+  final Value<int?> deletedAt;
+  final Value<String> deviceId;
+  final Value<String> key;
+  final Value<String> value;
+  final Value<int> rowid;
+  const SettingsCompanion({
+    this.createdAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.deletedAt = const Value.absent(),
+    this.deviceId = const Value.absent(),
+    this.key = const Value.absent(),
+    this.value = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  SettingsCompanion.insert({
+    required int createdAt,
+    required int updatedAt,
+    this.deletedAt = const Value.absent(),
+    required String deviceId,
+    required String key,
+    required String value,
+    this.rowid = const Value.absent(),
+  }) : createdAt = Value(createdAt),
+       updatedAt = Value(updatedAt),
+       deviceId = Value(deviceId),
+       key = Value(key),
+       value = Value(value);
+  static Insertable<SettingsData> custom({
+    Expression<int>? createdAt,
+    Expression<int>? updatedAt,
+    Expression<int>? deletedAt,
+    Expression<String>? deviceId,
+    Expression<String>? key,
+    Expression<String>? value,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (createdAt != null) 'created_at': createdAt,
+      if (updatedAt != null) 'updated_at': updatedAt,
+      if (deletedAt != null) 'deleted_at': deletedAt,
+      if (deviceId != null) 'device_id': deviceId,
+      if (key != null) 'key': key,
+      if (value != null) 'value': value,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  SettingsCompanion copyWith({
+    Value<int>? createdAt,
+    Value<int>? updatedAt,
+    Value<int?>? deletedAt,
+    Value<String>? deviceId,
+    Value<String>? key,
+    Value<String>? value,
+    Value<int>? rowid,
+  }) {
+    return SettingsCompanion(
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+      deletedAt: deletedAt ?? this.deletedAt,
+      deviceId: deviceId ?? this.deviceId,
+      key: key ?? this.key,
+      value: value ?? this.value,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (createdAt.present) {
+      map['created_at'] = Variable<int>(createdAt.value);
+    }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<int>(updatedAt.value);
+    }
+    if (deletedAt.present) {
+      map['deleted_at'] = Variable<int>(deletedAt.value);
+    }
+    if (deviceId.present) {
+      map['device_id'] = Variable<String>(deviceId.value);
+    }
+    if (key.present) {
+      map['key'] = Variable<String>(key.value);
+    }
+    if (value.present) {
+      map['value'] = Variable<String>(value.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('SettingsCompanion(')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('deletedAt: $deletedAt, ')
+          ..write('deviceId: $deviceId, ')
+          ..write('key: $key, ')
+          ..write('value: $value, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class Projects extends Table with TableInfo<Projects, ProjectsData> {
   @override
   final GeneratedDatabase attachedDatabase;
   final String? _alias;
@@ -226,8 +487,62 @@ class Projects extends Table with TableInfo {
   @override
   Set<GeneratedColumn> get $primaryKey => {id};
   @override
-  Never map(Map<String, dynamic> data, {String? tablePrefix}) {
-    throw UnsupportedError('TableInfo.map in schema verification code');
+  ProjectsData map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return ProjectsData(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id'],
+      )!,
+      createdAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}created_at'],
+      )!,
+      updatedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}updated_at'],
+      )!,
+      deletedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}deleted_at'],
+      ),
+      deviceId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}device_id'],
+      )!,
+      name: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}name'],
+      )!,
+      craft: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}craft'],
+      )!,
+      status: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}status'],
+      )!,
+      technique: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}technique'],
+      )!,
+      contentKind: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}content_kind'],
+      )!,
+      notes: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}notes'],
+      )!,
+      coverPath: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}cover_path'],
+      ),
+      lastWorkedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}last_worked_at'],
+      )!,
+    );
   }
 
   @override
@@ -241,7 +556,421 @@ class Projects extends Table with TableInfo {
   bool get dontWriteConstraints => true;
 }
 
-class EasterEggLog extends Table with TableInfo {
+class ProjectsData extends DataClass implements Insertable<ProjectsData> {
+  final String id;
+  final int createdAt;
+  final int updatedAt;
+  final int? deletedAt;
+  final String deviceId;
+  final String name;
+  final String craft;
+  final String status;
+  final String technique;
+  final String contentKind;
+  final String notes;
+  final String? coverPath;
+  final int lastWorkedAt;
+  const ProjectsData({
+    required this.id,
+    required this.createdAt,
+    required this.updatedAt,
+    this.deletedAt,
+    required this.deviceId,
+    required this.name,
+    required this.craft,
+    required this.status,
+    required this.technique,
+    required this.contentKind,
+    required this.notes,
+    this.coverPath,
+    required this.lastWorkedAt,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['created_at'] = Variable<int>(createdAt);
+    map['updated_at'] = Variable<int>(updatedAt);
+    if (!nullToAbsent || deletedAt != null) {
+      map['deleted_at'] = Variable<int>(deletedAt);
+    }
+    map['device_id'] = Variable<String>(deviceId);
+    map['name'] = Variable<String>(name);
+    map['craft'] = Variable<String>(craft);
+    map['status'] = Variable<String>(status);
+    map['technique'] = Variable<String>(technique);
+    map['content_kind'] = Variable<String>(contentKind);
+    map['notes'] = Variable<String>(notes);
+    if (!nullToAbsent || coverPath != null) {
+      map['cover_path'] = Variable<String>(coverPath);
+    }
+    map['last_worked_at'] = Variable<int>(lastWorkedAt);
+    return map;
+  }
+
+  ProjectsCompanion toCompanion(bool nullToAbsent) {
+    return ProjectsCompanion(
+      id: Value(id),
+      createdAt: Value(createdAt),
+      updatedAt: Value(updatedAt),
+      deletedAt: deletedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(deletedAt),
+      deviceId: Value(deviceId),
+      name: Value(name),
+      craft: Value(craft),
+      status: Value(status),
+      technique: Value(technique),
+      contentKind: Value(contentKind),
+      notes: Value(notes),
+      coverPath: coverPath == null && nullToAbsent
+          ? const Value.absent()
+          : Value(coverPath),
+      lastWorkedAt: Value(lastWorkedAt),
+    );
+  }
+
+  factory ProjectsData.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return ProjectsData(
+      id: serializer.fromJson<String>(json['id']),
+      createdAt: serializer.fromJson<int>(json['createdAt']),
+      updatedAt: serializer.fromJson<int>(json['updatedAt']),
+      deletedAt: serializer.fromJson<int?>(json['deletedAt']),
+      deviceId: serializer.fromJson<String>(json['deviceId']),
+      name: serializer.fromJson<String>(json['name']),
+      craft: serializer.fromJson<String>(json['craft']),
+      status: serializer.fromJson<String>(json['status']),
+      technique: serializer.fromJson<String>(json['technique']),
+      contentKind: serializer.fromJson<String>(json['contentKind']),
+      notes: serializer.fromJson<String>(json['notes']),
+      coverPath: serializer.fromJson<String?>(json['coverPath']),
+      lastWorkedAt: serializer.fromJson<int>(json['lastWorkedAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'createdAt': serializer.toJson<int>(createdAt),
+      'updatedAt': serializer.toJson<int>(updatedAt),
+      'deletedAt': serializer.toJson<int?>(deletedAt),
+      'deviceId': serializer.toJson<String>(deviceId),
+      'name': serializer.toJson<String>(name),
+      'craft': serializer.toJson<String>(craft),
+      'status': serializer.toJson<String>(status),
+      'technique': serializer.toJson<String>(technique),
+      'contentKind': serializer.toJson<String>(contentKind),
+      'notes': serializer.toJson<String>(notes),
+      'coverPath': serializer.toJson<String?>(coverPath),
+      'lastWorkedAt': serializer.toJson<int>(lastWorkedAt),
+    };
+  }
+
+  ProjectsData copyWith({
+    String? id,
+    int? createdAt,
+    int? updatedAt,
+    Value<int?> deletedAt = const Value.absent(),
+    String? deviceId,
+    String? name,
+    String? craft,
+    String? status,
+    String? technique,
+    String? contentKind,
+    String? notes,
+    Value<String?> coverPath = const Value.absent(),
+    int? lastWorkedAt,
+  }) => ProjectsData(
+    id: id ?? this.id,
+    createdAt: createdAt ?? this.createdAt,
+    updatedAt: updatedAt ?? this.updatedAt,
+    deletedAt: deletedAt.present ? deletedAt.value : this.deletedAt,
+    deviceId: deviceId ?? this.deviceId,
+    name: name ?? this.name,
+    craft: craft ?? this.craft,
+    status: status ?? this.status,
+    technique: technique ?? this.technique,
+    contentKind: contentKind ?? this.contentKind,
+    notes: notes ?? this.notes,
+    coverPath: coverPath.present ? coverPath.value : this.coverPath,
+    lastWorkedAt: lastWorkedAt ?? this.lastWorkedAt,
+  );
+  ProjectsData copyWithCompanion(ProjectsCompanion data) {
+    return ProjectsData(
+      id: data.id.present ? data.id.value : this.id,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+      deletedAt: data.deletedAt.present ? data.deletedAt.value : this.deletedAt,
+      deviceId: data.deviceId.present ? data.deviceId.value : this.deviceId,
+      name: data.name.present ? data.name.value : this.name,
+      craft: data.craft.present ? data.craft.value : this.craft,
+      status: data.status.present ? data.status.value : this.status,
+      technique: data.technique.present ? data.technique.value : this.technique,
+      contentKind: data.contentKind.present
+          ? data.contentKind.value
+          : this.contentKind,
+      notes: data.notes.present ? data.notes.value : this.notes,
+      coverPath: data.coverPath.present ? data.coverPath.value : this.coverPath,
+      lastWorkedAt: data.lastWorkedAt.present
+          ? data.lastWorkedAt.value
+          : this.lastWorkedAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ProjectsData(')
+          ..write('id: $id, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('deletedAt: $deletedAt, ')
+          ..write('deviceId: $deviceId, ')
+          ..write('name: $name, ')
+          ..write('craft: $craft, ')
+          ..write('status: $status, ')
+          ..write('technique: $technique, ')
+          ..write('contentKind: $contentKind, ')
+          ..write('notes: $notes, ')
+          ..write('coverPath: $coverPath, ')
+          ..write('lastWorkedAt: $lastWorkedAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    createdAt,
+    updatedAt,
+    deletedAt,
+    deviceId,
+    name,
+    craft,
+    status,
+    technique,
+    contentKind,
+    notes,
+    coverPath,
+    lastWorkedAt,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is ProjectsData &&
+          other.id == this.id &&
+          other.createdAt == this.createdAt &&
+          other.updatedAt == this.updatedAt &&
+          other.deletedAt == this.deletedAt &&
+          other.deviceId == this.deviceId &&
+          other.name == this.name &&
+          other.craft == this.craft &&
+          other.status == this.status &&
+          other.technique == this.technique &&
+          other.contentKind == this.contentKind &&
+          other.notes == this.notes &&
+          other.coverPath == this.coverPath &&
+          other.lastWorkedAt == this.lastWorkedAt);
+}
+
+class ProjectsCompanion extends UpdateCompanion<ProjectsData> {
+  final Value<String> id;
+  final Value<int> createdAt;
+  final Value<int> updatedAt;
+  final Value<int?> deletedAt;
+  final Value<String> deviceId;
+  final Value<String> name;
+  final Value<String> craft;
+  final Value<String> status;
+  final Value<String> technique;
+  final Value<String> contentKind;
+  final Value<String> notes;
+  final Value<String?> coverPath;
+  final Value<int> lastWorkedAt;
+  final Value<int> rowid;
+  const ProjectsCompanion({
+    this.id = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.deletedAt = const Value.absent(),
+    this.deviceId = const Value.absent(),
+    this.name = const Value.absent(),
+    this.craft = const Value.absent(),
+    this.status = const Value.absent(),
+    this.technique = const Value.absent(),
+    this.contentKind = const Value.absent(),
+    this.notes = const Value.absent(),
+    this.coverPath = const Value.absent(),
+    this.lastWorkedAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  ProjectsCompanion.insert({
+    required String id,
+    required int createdAt,
+    required int updatedAt,
+    this.deletedAt = const Value.absent(),
+    required String deviceId,
+    required String name,
+    this.craft = const Value.absent(),
+    this.status = const Value.absent(),
+    required String technique,
+    required String contentKind,
+    this.notes = const Value.absent(),
+    this.coverPath = const Value.absent(),
+    required int lastWorkedAt,
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       createdAt = Value(createdAt),
+       updatedAt = Value(updatedAt),
+       deviceId = Value(deviceId),
+       name = Value(name),
+       technique = Value(technique),
+       contentKind = Value(contentKind),
+       lastWorkedAt = Value(lastWorkedAt);
+  static Insertable<ProjectsData> custom({
+    Expression<String>? id,
+    Expression<int>? createdAt,
+    Expression<int>? updatedAt,
+    Expression<int>? deletedAt,
+    Expression<String>? deviceId,
+    Expression<String>? name,
+    Expression<String>? craft,
+    Expression<String>? status,
+    Expression<String>? technique,
+    Expression<String>? contentKind,
+    Expression<String>? notes,
+    Expression<String>? coverPath,
+    Expression<int>? lastWorkedAt,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (createdAt != null) 'created_at': createdAt,
+      if (updatedAt != null) 'updated_at': updatedAt,
+      if (deletedAt != null) 'deleted_at': deletedAt,
+      if (deviceId != null) 'device_id': deviceId,
+      if (name != null) 'name': name,
+      if (craft != null) 'craft': craft,
+      if (status != null) 'status': status,
+      if (technique != null) 'technique': technique,
+      if (contentKind != null) 'content_kind': contentKind,
+      if (notes != null) 'notes': notes,
+      if (coverPath != null) 'cover_path': coverPath,
+      if (lastWorkedAt != null) 'last_worked_at': lastWorkedAt,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  ProjectsCompanion copyWith({
+    Value<String>? id,
+    Value<int>? createdAt,
+    Value<int>? updatedAt,
+    Value<int?>? deletedAt,
+    Value<String>? deviceId,
+    Value<String>? name,
+    Value<String>? craft,
+    Value<String>? status,
+    Value<String>? technique,
+    Value<String>? contentKind,
+    Value<String>? notes,
+    Value<String?>? coverPath,
+    Value<int>? lastWorkedAt,
+    Value<int>? rowid,
+  }) {
+    return ProjectsCompanion(
+      id: id ?? this.id,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+      deletedAt: deletedAt ?? this.deletedAt,
+      deviceId: deviceId ?? this.deviceId,
+      name: name ?? this.name,
+      craft: craft ?? this.craft,
+      status: status ?? this.status,
+      technique: technique ?? this.technique,
+      contentKind: contentKind ?? this.contentKind,
+      notes: notes ?? this.notes,
+      coverPath: coverPath ?? this.coverPath,
+      lastWorkedAt: lastWorkedAt ?? this.lastWorkedAt,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<int>(createdAt.value);
+    }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<int>(updatedAt.value);
+    }
+    if (deletedAt.present) {
+      map['deleted_at'] = Variable<int>(deletedAt.value);
+    }
+    if (deviceId.present) {
+      map['device_id'] = Variable<String>(deviceId.value);
+    }
+    if (name.present) {
+      map['name'] = Variable<String>(name.value);
+    }
+    if (craft.present) {
+      map['craft'] = Variable<String>(craft.value);
+    }
+    if (status.present) {
+      map['status'] = Variable<String>(status.value);
+    }
+    if (technique.present) {
+      map['technique'] = Variable<String>(technique.value);
+    }
+    if (contentKind.present) {
+      map['content_kind'] = Variable<String>(contentKind.value);
+    }
+    if (notes.present) {
+      map['notes'] = Variable<String>(notes.value);
+    }
+    if (coverPath.present) {
+      map['cover_path'] = Variable<String>(coverPath.value);
+    }
+    if (lastWorkedAt.present) {
+      map['last_worked_at'] = Variable<int>(lastWorkedAt.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ProjectsCompanion(')
+          ..write('id: $id, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('deletedAt: $deletedAt, ')
+          ..write('deviceId: $deviceId, ')
+          ..write('name: $name, ')
+          ..write('craft: $craft, ')
+          ..write('status: $status, ')
+          ..write('technique: $technique, ')
+          ..write('contentKind: $contentKind, ')
+          ..write('notes: $notes, ')
+          ..write('coverPath: $coverPath, ')
+          ..write('lastWorkedAt: $lastWorkedAt, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class EasterEggLog extends Table
+    with TableInfo<EasterEggLog, EasterEggLogData> {
   @override
   final GeneratedDatabase attachedDatabase;
   final String? _alias;
@@ -289,8 +1018,26 @@ class EasterEggLog extends Table with TableInfo {
   @override
   Set<GeneratedColumn> get $primaryKey => {id};
   @override
-  Never map(Map<String, dynamic> data, {String? tablePrefix}) {
-    throw UnsupportedError('TableInfo.map in schema verification code');
+  EasterEggLogData map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return EasterEggLogData(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}id'],
+      )!,
+      eggGroup: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}egg_group'],
+      )!,
+      eggId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}egg_id'],
+      )!,
+      shownAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}shown_at'],
+      )!,
+    );
   }
 
   @override
@@ -302,7 +1049,182 @@ class EasterEggLog extends Table with TableInfo {
   bool get dontWriteConstraints => true;
 }
 
-class ImagePatterns extends Table with TableInfo {
+class EasterEggLogData extends DataClass
+    implements Insertable<EasterEggLogData> {
+  final int id;
+  final String eggGroup;
+  final String eggId;
+  final int shownAt;
+  const EasterEggLogData({
+    required this.id,
+    required this.eggGroup,
+    required this.eggId,
+    required this.shownAt,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['egg_group'] = Variable<String>(eggGroup);
+    map['egg_id'] = Variable<String>(eggId);
+    map['shown_at'] = Variable<int>(shownAt);
+    return map;
+  }
+
+  EasterEggLogCompanion toCompanion(bool nullToAbsent) {
+    return EasterEggLogCompanion(
+      id: Value(id),
+      eggGroup: Value(eggGroup),
+      eggId: Value(eggId),
+      shownAt: Value(shownAt),
+    );
+  }
+
+  factory EasterEggLogData.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return EasterEggLogData(
+      id: serializer.fromJson<int>(json['id']),
+      eggGroup: serializer.fromJson<String>(json['eggGroup']),
+      eggId: serializer.fromJson<String>(json['eggId']),
+      shownAt: serializer.fromJson<int>(json['shownAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'eggGroup': serializer.toJson<String>(eggGroup),
+      'eggId': serializer.toJson<String>(eggId),
+      'shownAt': serializer.toJson<int>(shownAt),
+    };
+  }
+
+  EasterEggLogData copyWith({
+    int? id,
+    String? eggGroup,
+    String? eggId,
+    int? shownAt,
+  }) => EasterEggLogData(
+    id: id ?? this.id,
+    eggGroup: eggGroup ?? this.eggGroup,
+    eggId: eggId ?? this.eggId,
+    shownAt: shownAt ?? this.shownAt,
+  );
+  EasterEggLogData copyWithCompanion(EasterEggLogCompanion data) {
+    return EasterEggLogData(
+      id: data.id.present ? data.id.value : this.id,
+      eggGroup: data.eggGroup.present ? data.eggGroup.value : this.eggGroup,
+      eggId: data.eggId.present ? data.eggId.value : this.eggId,
+      shownAt: data.shownAt.present ? data.shownAt.value : this.shownAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('EasterEggLogData(')
+          ..write('id: $id, ')
+          ..write('eggGroup: $eggGroup, ')
+          ..write('eggId: $eggId, ')
+          ..write('shownAt: $shownAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(id, eggGroup, eggId, shownAt);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is EasterEggLogData &&
+          other.id == this.id &&
+          other.eggGroup == this.eggGroup &&
+          other.eggId == this.eggId &&
+          other.shownAt == this.shownAt);
+}
+
+class EasterEggLogCompanion extends UpdateCompanion<EasterEggLogData> {
+  final Value<int> id;
+  final Value<String> eggGroup;
+  final Value<String> eggId;
+  final Value<int> shownAt;
+  const EasterEggLogCompanion({
+    this.id = const Value.absent(),
+    this.eggGroup = const Value.absent(),
+    this.eggId = const Value.absent(),
+    this.shownAt = const Value.absent(),
+  });
+  EasterEggLogCompanion.insert({
+    this.id = const Value.absent(),
+    required String eggGroup,
+    required String eggId,
+    required int shownAt,
+  }) : eggGroup = Value(eggGroup),
+       eggId = Value(eggId),
+       shownAt = Value(shownAt);
+  static Insertable<EasterEggLogData> custom({
+    Expression<int>? id,
+    Expression<String>? eggGroup,
+    Expression<String>? eggId,
+    Expression<int>? shownAt,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (eggGroup != null) 'egg_group': eggGroup,
+      if (eggId != null) 'egg_id': eggId,
+      if (shownAt != null) 'shown_at': shownAt,
+    });
+  }
+
+  EasterEggLogCompanion copyWith({
+    Value<int>? id,
+    Value<String>? eggGroup,
+    Value<String>? eggId,
+    Value<int>? shownAt,
+  }) {
+    return EasterEggLogCompanion(
+      id: id ?? this.id,
+      eggGroup: eggGroup ?? this.eggGroup,
+      eggId: eggId ?? this.eggId,
+      shownAt: shownAt ?? this.shownAt,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (eggGroup.present) {
+      map['egg_group'] = Variable<String>(eggGroup.value);
+    }
+    if (eggId.present) {
+      map['egg_id'] = Variable<String>(eggId.value);
+    }
+    if (shownAt.present) {
+      map['shown_at'] = Variable<int>(shownAt.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('EasterEggLogCompanion(')
+          ..write('id: $id, ')
+          ..write('eggGroup: $eggGroup, ')
+          ..write('eggId: $eggId, ')
+          ..write('shownAt: $shownAt')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class ImagePatterns extends Table
+    with TableInfo<ImagePatterns, ImagePatternsData> {
   @override
   final GeneratedDatabase attachedDatabase;
   final String? _alias;
@@ -376,8 +1298,34 @@ class ImagePatterns extends Table with TableInfo {
     {projectId},
   ];
   @override
-  Never map(Map<String, dynamic> data, {String? tablePrefix}) {
-    throw UnsupportedError('TableInfo.map in schema verification code');
+  ImagePatternsData map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return ImagePatternsData(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id'],
+      )!,
+      createdAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}created_at'],
+      )!,
+      updatedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}updated_at'],
+      )!,
+      deletedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}deleted_at'],
+      ),
+      deviceId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}device_id'],
+      )!,
+      projectId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}project_id'],
+      )!,
+    );
   }
 
   @override
@@ -394,7 +1342,244 @@ class ImagePatterns extends Table with TableInfo {
   bool get dontWriteConstraints => true;
 }
 
-class ImagePatternPages extends Table with TableInfo {
+class ImagePatternsData extends DataClass
+    implements Insertable<ImagePatternsData> {
+  final String id;
+  final int createdAt;
+  final int updatedAt;
+  final int? deletedAt;
+  final String deviceId;
+  final String projectId;
+  const ImagePatternsData({
+    required this.id,
+    required this.createdAt,
+    required this.updatedAt,
+    this.deletedAt,
+    required this.deviceId,
+    required this.projectId,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['created_at'] = Variable<int>(createdAt);
+    map['updated_at'] = Variable<int>(updatedAt);
+    if (!nullToAbsent || deletedAt != null) {
+      map['deleted_at'] = Variable<int>(deletedAt);
+    }
+    map['device_id'] = Variable<String>(deviceId);
+    map['project_id'] = Variable<String>(projectId);
+    return map;
+  }
+
+  ImagePatternsCompanion toCompanion(bool nullToAbsent) {
+    return ImagePatternsCompanion(
+      id: Value(id),
+      createdAt: Value(createdAt),
+      updatedAt: Value(updatedAt),
+      deletedAt: deletedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(deletedAt),
+      deviceId: Value(deviceId),
+      projectId: Value(projectId),
+    );
+  }
+
+  factory ImagePatternsData.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return ImagePatternsData(
+      id: serializer.fromJson<String>(json['id']),
+      createdAt: serializer.fromJson<int>(json['createdAt']),
+      updatedAt: serializer.fromJson<int>(json['updatedAt']),
+      deletedAt: serializer.fromJson<int?>(json['deletedAt']),
+      deviceId: serializer.fromJson<String>(json['deviceId']),
+      projectId: serializer.fromJson<String>(json['projectId']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'createdAt': serializer.toJson<int>(createdAt),
+      'updatedAt': serializer.toJson<int>(updatedAt),
+      'deletedAt': serializer.toJson<int?>(deletedAt),
+      'deviceId': serializer.toJson<String>(deviceId),
+      'projectId': serializer.toJson<String>(projectId),
+    };
+  }
+
+  ImagePatternsData copyWith({
+    String? id,
+    int? createdAt,
+    int? updatedAt,
+    Value<int?> deletedAt = const Value.absent(),
+    String? deviceId,
+    String? projectId,
+  }) => ImagePatternsData(
+    id: id ?? this.id,
+    createdAt: createdAt ?? this.createdAt,
+    updatedAt: updatedAt ?? this.updatedAt,
+    deletedAt: deletedAt.present ? deletedAt.value : this.deletedAt,
+    deviceId: deviceId ?? this.deviceId,
+    projectId: projectId ?? this.projectId,
+  );
+  ImagePatternsData copyWithCompanion(ImagePatternsCompanion data) {
+    return ImagePatternsData(
+      id: data.id.present ? data.id.value : this.id,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+      deletedAt: data.deletedAt.present ? data.deletedAt.value : this.deletedAt,
+      deviceId: data.deviceId.present ? data.deviceId.value : this.deviceId,
+      projectId: data.projectId.present ? data.projectId.value : this.projectId,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ImagePatternsData(')
+          ..write('id: $id, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('deletedAt: $deletedAt, ')
+          ..write('deviceId: $deviceId, ')
+          ..write('projectId: $projectId')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode =>
+      Object.hash(id, createdAt, updatedAt, deletedAt, deviceId, projectId);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is ImagePatternsData &&
+          other.id == this.id &&
+          other.createdAt == this.createdAt &&
+          other.updatedAt == this.updatedAt &&
+          other.deletedAt == this.deletedAt &&
+          other.deviceId == this.deviceId &&
+          other.projectId == this.projectId);
+}
+
+class ImagePatternsCompanion extends UpdateCompanion<ImagePatternsData> {
+  final Value<String> id;
+  final Value<int> createdAt;
+  final Value<int> updatedAt;
+  final Value<int?> deletedAt;
+  final Value<String> deviceId;
+  final Value<String> projectId;
+  final Value<int> rowid;
+  const ImagePatternsCompanion({
+    this.id = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.deletedAt = const Value.absent(),
+    this.deviceId = const Value.absent(),
+    this.projectId = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  ImagePatternsCompanion.insert({
+    required String id,
+    required int createdAt,
+    required int updatedAt,
+    this.deletedAt = const Value.absent(),
+    required String deviceId,
+    required String projectId,
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       createdAt = Value(createdAt),
+       updatedAt = Value(updatedAt),
+       deviceId = Value(deviceId),
+       projectId = Value(projectId);
+  static Insertable<ImagePatternsData> custom({
+    Expression<String>? id,
+    Expression<int>? createdAt,
+    Expression<int>? updatedAt,
+    Expression<int>? deletedAt,
+    Expression<String>? deviceId,
+    Expression<String>? projectId,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (createdAt != null) 'created_at': createdAt,
+      if (updatedAt != null) 'updated_at': updatedAt,
+      if (deletedAt != null) 'deleted_at': deletedAt,
+      if (deviceId != null) 'device_id': deviceId,
+      if (projectId != null) 'project_id': projectId,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  ImagePatternsCompanion copyWith({
+    Value<String>? id,
+    Value<int>? createdAt,
+    Value<int>? updatedAt,
+    Value<int?>? deletedAt,
+    Value<String>? deviceId,
+    Value<String>? projectId,
+    Value<int>? rowid,
+  }) {
+    return ImagePatternsCompanion(
+      id: id ?? this.id,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+      deletedAt: deletedAt ?? this.deletedAt,
+      deviceId: deviceId ?? this.deviceId,
+      projectId: projectId ?? this.projectId,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<int>(createdAt.value);
+    }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<int>(updatedAt.value);
+    }
+    if (deletedAt.present) {
+      map['deleted_at'] = Variable<int>(deletedAt.value);
+    }
+    if (deviceId.present) {
+      map['device_id'] = Variable<String>(deviceId.value);
+    }
+    if (projectId.present) {
+      map['project_id'] = Variable<String>(projectId.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ImagePatternsCompanion(')
+          ..write('id: $id, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('deletedAt: $deletedAt, ')
+          ..write('deviceId: $deviceId, ')
+          ..write('projectId: $projectId, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class ImagePatternPages extends Table
+    with TableInfo<ImagePatternPages, ImagePatternPagesData> {
   @override
   final GeneratedDatabase attachedDatabase;
   final String? _alias;
@@ -504,8 +1689,50 @@ class ImagePatternPages extends Table with TableInfo {
     {patternId, position},
   ];
   @override
-  Never map(Map<String, dynamic> data, {String? tablePrefix}) {
-    throw UnsupportedError('TableInfo.map in schema verification code');
+  ImagePatternPagesData map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return ImagePatternPagesData(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id'],
+      )!,
+      createdAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}created_at'],
+      )!,
+      updatedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}updated_at'],
+      )!,
+      deletedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}deleted_at'],
+      ),
+      deviceId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}device_id'],
+      )!,
+      patternId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}pattern_id'],
+      )!,
+      position: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}position'],
+      )!,
+      path: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}path'],
+      )!,
+      width: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}width'],
+      )!,
+      height: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}height'],
+      )!,
+    );
   }
 
   @override
@@ -522,7 +1749,347 @@ class ImagePatternPages extends Table with TableInfo {
   bool get dontWriteConstraints => true;
 }
 
-class GridPatterns extends Table with TableInfo {
+class ImagePatternPagesData extends DataClass
+    implements Insertable<ImagePatternPagesData> {
+  final String id;
+  final int createdAt;
+  final int updatedAt;
+  final int? deletedAt;
+  final String deviceId;
+  final String patternId;
+  final int position;
+  final String path;
+  final int width;
+  final int height;
+  const ImagePatternPagesData({
+    required this.id,
+    required this.createdAt,
+    required this.updatedAt,
+    this.deletedAt,
+    required this.deviceId,
+    required this.patternId,
+    required this.position,
+    required this.path,
+    required this.width,
+    required this.height,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['created_at'] = Variable<int>(createdAt);
+    map['updated_at'] = Variable<int>(updatedAt);
+    if (!nullToAbsent || deletedAt != null) {
+      map['deleted_at'] = Variable<int>(deletedAt);
+    }
+    map['device_id'] = Variable<String>(deviceId);
+    map['pattern_id'] = Variable<String>(patternId);
+    map['position'] = Variable<int>(position);
+    map['path'] = Variable<String>(path);
+    map['width'] = Variable<int>(width);
+    map['height'] = Variable<int>(height);
+    return map;
+  }
+
+  ImagePatternPagesCompanion toCompanion(bool nullToAbsent) {
+    return ImagePatternPagesCompanion(
+      id: Value(id),
+      createdAt: Value(createdAt),
+      updatedAt: Value(updatedAt),
+      deletedAt: deletedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(deletedAt),
+      deviceId: Value(deviceId),
+      patternId: Value(patternId),
+      position: Value(position),
+      path: Value(path),
+      width: Value(width),
+      height: Value(height),
+    );
+  }
+
+  factory ImagePatternPagesData.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return ImagePatternPagesData(
+      id: serializer.fromJson<String>(json['id']),
+      createdAt: serializer.fromJson<int>(json['createdAt']),
+      updatedAt: serializer.fromJson<int>(json['updatedAt']),
+      deletedAt: serializer.fromJson<int?>(json['deletedAt']),
+      deviceId: serializer.fromJson<String>(json['deviceId']),
+      patternId: serializer.fromJson<String>(json['patternId']),
+      position: serializer.fromJson<int>(json['position']),
+      path: serializer.fromJson<String>(json['path']),
+      width: serializer.fromJson<int>(json['width']),
+      height: serializer.fromJson<int>(json['height']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'createdAt': serializer.toJson<int>(createdAt),
+      'updatedAt': serializer.toJson<int>(updatedAt),
+      'deletedAt': serializer.toJson<int?>(deletedAt),
+      'deviceId': serializer.toJson<String>(deviceId),
+      'patternId': serializer.toJson<String>(patternId),
+      'position': serializer.toJson<int>(position),
+      'path': serializer.toJson<String>(path),
+      'width': serializer.toJson<int>(width),
+      'height': serializer.toJson<int>(height),
+    };
+  }
+
+  ImagePatternPagesData copyWith({
+    String? id,
+    int? createdAt,
+    int? updatedAt,
+    Value<int?> deletedAt = const Value.absent(),
+    String? deviceId,
+    String? patternId,
+    int? position,
+    String? path,
+    int? width,
+    int? height,
+  }) => ImagePatternPagesData(
+    id: id ?? this.id,
+    createdAt: createdAt ?? this.createdAt,
+    updatedAt: updatedAt ?? this.updatedAt,
+    deletedAt: deletedAt.present ? deletedAt.value : this.deletedAt,
+    deviceId: deviceId ?? this.deviceId,
+    patternId: patternId ?? this.patternId,
+    position: position ?? this.position,
+    path: path ?? this.path,
+    width: width ?? this.width,
+    height: height ?? this.height,
+  );
+  ImagePatternPagesData copyWithCompanion(ImagePatternPagesCompanion data) {
+    return ImagePatternPagesData(
+      id: data.id.present ? data.id.value : this.id,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+      deletedAt: data.deletedAt.present ? data.deletedAt.value : this.deletedAt,
+      deviceId: data.deviceId.present ? data.deviceId.value : this.deviceId,
+      patternId: data.patternId.present ? data.patternId.value : this.patternId,
+      position: data.position.present ? data.position.value : this.position,
+      path: data.path.present ? data.path.value : this.path,
+      width: data.width.present ? data.width.value : this.width,
+      height: data.height.present ? data.height.value : this.height,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ImagePatternPagesData(')
+          ..write('id: $id, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('deletedAt: $deletedAt, ')
+          ..write('deviceId: $deviceId, ')
+          ..write('patternId: $patternId, ')
+          ..write('position: $position, ')
+          ..write('path: $path, ')
+          ..write('width: $width, ')
+          ..write('height: $height')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    createdAt,
+    updatedAt,
+    deletedAt,
+    deviceId,
+    patternId,
+    position,
+    path,
+    width,
+    height,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is ImagePatternPagesData &&
+          other.id == this.id &&
+          other.createdAt == this.createdAt &&
+          other.updatedAt == this.updatedAt &&
+          other.deletedAt == this.deletedAt &&
+          other.deviceId == this.deviceId &&
+          other.patternId == this.patternId &&
+          other.position == this.position &&
+          other.path == this.path &&
+          other.width == this.width &&
+          other.height == this.height);
+}
+
+class ImagePatternPagesCompanion
+    extends UpdateCompanion<ImagePatternPagesData> {
+  final Value<String> id;
+  final Value<int> createdAt;
+  final Value<int> updatedAt;
+  final Value<int?> deletedAt;
+  final Value<String> deviceId;
+  final Value<String> patternId;
+  final Value<int> position;
+  final Value<String> path;
+  final Value<int> width;
+  final Value<int> height;
+  final Value<int> rowid;
+  const ImagePatternPagesCompanion({
+    this.id = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.deletedAt = const Value.absent(),
+    this.deviceId = const Value.absent(),
+    this.patternId = const Value.absent(),
+    this.position = const Value.absent(),
+    this.path = const Value.absent(),
+    this.width = const Value.absent(),
+    this.height = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  ImagePatternPagesCompanion.insert({
+    required String id,
+    required int createdAt,
+    required int updatedAt,
+    this.deletedAt = const Value.absent(),
+    required String deviceId,
+    required String patternId,
+    required int position,
+    required String path,
+    required int width,
+    required int height,
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       createdAt = Value(createdAt),
+       updatedAt = Value(updatedAt),
+       deviceId = Value(deviceId),
+       patternId = Value(patternId),
+       position = Value(position),
+       path = Value(path),
+       width = Value(width),
+       height = Value(height);
+  static Insertable<ImagePatternPagesData> custom({
+    Expression<String>? id,
+    Expression<int>? createdAt,
+    Expression<int>? updatedAt,
+    Expression<int>? deletedAt,
+    Expression<String>? deviceId,
+    Expression<String>? patternId,
+    Expression<int>? position,
+    Expression<String>? path,
+    Expression<int>? width,
+    Expression<int>? height,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (createdAt != null) 'created_at': createdAt,
+      if (updatedAt != null) 'updated_at': updatedAt,
+      if (deletedAt != null) 'deleted_at': deletedAt,
+      if (deviceId != null) 'device_id': deviceId,
+      if (patternId != null) 'pattern_id': patternId,
+      if (position != null) 'position': position,
+      if (path != null) 'path': path,
+      if (width != null) 'width': width,
+      if (height != null) 'height': height,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  ImagePatternPagesCompanion copyWith({
+    Value<String>? id,
+    Value<int>? createdAt,
+    Value<int>? updatedAt,
+    Value<int?>? deletedAt,
+    Value<String>? deviceId,
+    Value<String>? patternId,
+    Value<int>? position,
+    Value<String>? path,
+    Value<int>? width,
+    Value<int>? height,
+    Value<int>? rowid,
+  }) {
+    return ImagePatternPagesCompanion(
+      id: id ?? this.id,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+      deletedAt: deletedAt ?? this.deletedAt,
+      deviceId: deviceId ?? this.deviceId,
+      patternId: patternId ?? this.patternId,
+      position: position ?? this.position,
+      path: path ?? this.path,
+      width: width ?? this.width,
+      height: height ?? this.height,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<int>(createdAt.value);
+    }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<int>(updatedAt.value);
+    }
+    if (deletedAt.present) {
+      map['deleted_at'] = Variable<int>(deletedAt.value);
+    }
+    if (deviceId.present) {
+      map['device_id'] = Variable<String>(deviceId.value);
+    }
+    if (patternId.present) {
+      map['pattern_id'] = Variable<String>(patternId.value);
+    }
+    if (position.present) {
+      map['position'] = Variable<int>(position.value);
+    }
+    if (path.present) {
+      map['path'] = Variable<String>(path.value);
+    }
+    if (width.present) {
+      map['width'] = Variable<int>(width.value);
+    }
+    if (height.present) {
+      map['height'] = Variable<int>(height.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('ImagePatternPagesCompanion(')
+          ..write('id: $id, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('deletedAt: $deletedAt, ')
+          ..write('deviceId: $deviceId, ')
+          ..write('patternId: $patternId, ')
+          ..write('position: $position, ')
+          ..write('path: $path, ')
+          ..write('width: $width, ')
+          ..write('height: $height, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class GridPatterns extends Table
+    with TableInfo<GridPatterns, GridPatternsData> {
   @override
   final GeneratedDatabase attachedDatabase;
   final String? _alias;
@@ -698,8 +2265,78 @@ class GridPatterns extends Table with TableInfo {
     {projectId},
   ];
   @override
-  Never map(Map<String, dynamic> data, {String? tablePrefix}) {
-    throw UnsupportedError('TableInfo.map in schema verification code');
+  GridPatternsData map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return GridPatternsData(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id'],
+      )!,
+      createdAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}created_at'],
+      )!,
+      updatedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}updated_at'],
+      )!,
+      deletedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}deleted_at'],
+      ),
+      deviceId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}device_id'],
+      )!,
+      projectId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}project_id'],
+      )!,
+      geometry: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}geometry'],
+      )!,
+      geometryDrop: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}geometry_drop'],
+      )!,
+      width: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}width'],
+      )!,
+      height: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}height'],
+      )!,
+      cellMetrics: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}cell_metrics'],
+      )!,
+      currentRow: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}current_row'],
+      ),
+      currentBead: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}current_bead'],
+      ),
+      cells: attachedDatabase.typeMapping.read(
+        DriftSqlType.blob,
+        data['${effectivePrefix}cells'],
+      )!,
+      cellsCodecVersion: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}cells_codec_version'],
+      )!,
+      layers: attachedDatabase.typeMapping.read(
+        DriftSqlType.blob,
+        data['${effectivePrefix}layers'],
+      ),
+      layersCodecVersion: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}layers_codec_version'],
+      ),
+    );
   }
 
   @override
@@ -716,7 +2353,540 @@ class GridPatterns extends Table with TableInfo {
   bool get dontWriteConstraints => true;
 }
 
-class PatternColors extends Table with TableInfo {
+class GridPatternsData extends DataClass
+    implements Insertable<GridPatternsData> {
+  final String id;
+  final int createdAt;
+  final int updatedAt;
+  final int? deletedAt;
+  final String deviceId;
+  final String projectId;
+  final String geometry;
+  final int geometryDrop;
+  final int width;
+  final int height;
+  final String cellMetrics;
+  final int? currentRow;
+  final int? currentBead;
+  final i2.Uint8List cells;
+  final int cellsCodecVersion;
+  final i2.Uint8List? layers;
+  final int? layersCodecVersion;
+  const GridPatternsData({
+    required this.id,
+    required this.createdAt,
+    required this.updatedAt,
+    this.deletedAt,
+    required this.deviceId,
+    required this.projectId,
+    required this.geometry,
+    required this.geometryDrop,
+    required this.width,
+    required this.height,
+    required this.cellMetrics,
+    this.currentRow,
+    this.currentBead,
+    required this.cells,
+    required this.cellsCodecVersion,
+    this.layers,
+    this.layersCodecVersion,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['created_at'] = Variable<int>(createdAt);
+    map['updated_at'] = Variable<int>(updatedAt);
+    if (!nullToAbsent || deletedAt != null) {
+      map['deleted_at'] = Variable<int>(deletedAt);
+    }
+    map['device_id'] = Variable<String>(deviceId);
+    map['project_id'] = Variable<String>(projectId);
+    map['geometry'] = Variable<String>(geometry);
+    map['geometry_drop'] = Variable<int>(geometryDrop);
+    map['width'] = Variable<int>(width);
+    map['height'] = Variable<int>(height);
+    map['cell_metrics'] = Variable<String>(cellMetrics);
+    if (!nullToAbsent || currentRow != null) {
+      map['current_row'] = Variable<int>(currentRow);
+    }
+    if (!nullToAbsent || currentBead != null) {
+      map['current_bead'] = Variable<int>(currentBead);
+    }
+    map['cells'] = Variable<i2.Uint8List>(cells);
+    map['cells_codec_version'] = Variable<int>(cellsCodecVersion);
+    if (!nullToAbsent || layers != null) {
+      map['layers'] = Variable<i2.Uint8List>(layers);
+    }
+    if (!nullToAbsent || layersCodecVersion != null) {
+      map['layers_codec_version'] = Variable<int>(layersCodecVersion);
+    }
+    return map;
+  }
+
+  GridPatternsCompanion toCompanion(bool nullToAbsent) {
+    return GridPatternsCompanion(
+      id: Value(id),
+      createdAt: Value(createdAt),
+      updatedAt: Value(updatedAt),
+      deletedAt: deletedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(deletedAt),
+      deviceId: Value(deviceId),
+      projectId: Value(projectId),
+      geometry: Value(geometry),
+      geometryDrop: Value(geometryDrop),
+      width: Value(width),
+      height: Value(height),
+      cellMetrics: Value(cellMetrics),
+      currentRow: currentRow == null && nullToAbsent
+          ? const Value.absent()
+          : Value(currentRow),
+      currentBead: currentBead == null && nullToAbsent
+          ? const Value.absent()
+          : Value(currentBead),
+      cells: Value(cells),
+      cellsCodecVersion: Value(cellsCodecVersion),
+      layers: layers == null && nullToAbsent
+          ? const Value.absent()
+          : Value(layers),
+      layersCodecVersion: layersCodecVersion == null && nullToAbsent
+          ? const Value.absent()
+          : Value(layersCodecVersion),
+    );
+  }
+
+  factory GridPatternsData.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return GridPatternsData(
+      id: serializer.fromJson<String>(json['id']),
+      createdAt: serializer.fromJson<int>(json['createdAt']),
+      updatedAt: serializer.fromJson<int>(json['updatedAt']),
+      deletedAt: serializer.fromJson<int?>(json['deletedAt']),
+      deviceId: serializer.fromJson<String>(json['deviceId']),
+      projectId: serializer.fromJson<String>(json['projectId']),
+      geometry: serializer.fromJson<String>(json['geometry']),
+      geometryDrop: serializer.fromJson<int>(json['geometryDrop']),
+      width: serializer.fromJson<int>(json['width']),
+      height: serializer.fromJson<int>(json['height']),
+      cellMetrics: serializer.fromJson<String>(json['cellMetrics']),
+      currentRow: serializer.fromJson<int?>(json['currentRow']),
+      currentBead: serializer.fromJson<int?>(json['currentBead']),
+      cells: serializer.fromJson<i2.Uint8List>(json['cells']),
+      cellsCodecVersion: serializer.fromJson<int>(json['cellsCodecVersion']),
+      layers: serializer.fromJson<i2.Uint8List?>(json['layers']),
+      layersCodecVersion: serializer.fromJson<int?>(json['layersCodecVersion']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'createdAt': serializer.toJson<int>(createdAt),
+      'updatedAt': serializer.toJson<int>(updatedAt),
+      'deletedAt': serializer.toJson<int?>(deletedAt),
+      'deviceId': serializer.toJson<String>(deviceId),
+      'projectId': serializer.toJson<String>(projectId),
+      'geometry': serializer.toJson<String>(geometry),
+      'geometryDrop': serializer.toJson<int>(geometryDrop),
+      'width': serializer.toJson<int>(width),
+      'height': serializer.toJson<int>(height),
+      'cellMetrics': serializer.toJson<String>(cellMetrics),
+      'currentRow': serializer.toJson<int?>(currentRow),
+      'currentBead': serializer.toJson<int?>(currentBead),
+      'cells': serializer.toJson<i2.Uint8List>(cells),
+      'cellsCodecVersion': serializer.toJson<int>(cellsCodecVersion),
+      'layers': serializer.toJson<i2.Uint8List?>(layers),
+      'layersCodecVersion': serializer.toJson<int?>(layersCodecVersion),
+    };
+  }
+
+  GridPatternsData copyWith({
+    String? id,
+    int? createdAt,
+    int? updatedAt,
+    Value<int?> deletedAt = const Value.absent(),
+    String? deviceId,
+    String? projectId,
+    String? geometry,
+    int? geometryDrop,
+    int? width,
+    int? height,
+    String? cellMetrics,
+    Value<int?> currentRow = const Value.absent(),
+    Value<int?> currentBead = const Value.absent(),
+    i2.Uint8List? cells,
+    int? cellsCodecVersion,
+    Value<i2.Uint8List?> layers = const Value.absent(),
+    Value<int?> layersCodecVersion = const Value.absent(),
+  }) => GridPatternsData(
+    id: id ?? this.id,
+    createdAt: createdAt ?? this.createdAt,
+    updatedAt: updatedAt ?? this.updatedAt,
+    deletedAt: deletedAt.present ? deletedAt.value : this.deletedAt,
+    deviceId: deviceId ?? this.deviceId,
+    projectId: projectId ?? this.projectId,
+    geometry: geometry ?? this.geometry,
+    geometryDrop: geometryDrop ?? this.geometryDrop,
+    width: width ?? this.width,
+    height: height ?? this.height,
+    cellMetrics: cellMetrics ?? this.cellMetrics,
+    currentRow: currentRow.present ? currentRow.value : this.currentRow,
+    currentBead: currentBead.present ? currentBead.value : this.currentBead,
+    cells: cells ?? this.cells,
+    cellsCodecVersion: cellsCodecVersion ?? this.cellsCodecVersion,
+    layers: layers.present ? layers.value : this.layers,
+    layersCodecVersion: layersCodecVersion.present
+        ? layersCodecVersion.value
+        : this.layersCodecVersion,
+  );
+  GridPatternsData copyWithCompanion(GridPatternsCompanion data) {
+    return GridPatternsData(
+      id: data.id.present ? data.id.value : this.id,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+      deletedAt: data.deletedAt.present ? data.deletedAt.value : this.deletedAt,
+      deviceId: data.deviceId.present ? data.deviceId.value : this.deviceId,
+      projectId: data.projectId.present ? data.projectId.value : this.projectId,
+      geometry: data.geometry.present ? data.geometry.value : this.geometry,
+      geometryDrop: data.geometryDrop.present
+          ? data.geometryDrop.value
+          : this.geometryDrop,
+      width: data.width.present ? data.width.value : this.width,
+      height: data.height.present ? data.height.value : this.height,
+      cellMetrics: data.cellMetrics.present
+          ? data.cellMetrics.value
+          : this.cellMetrics,
+      currentRow: data.currentRow.present
+          ? data.currentRow.value
+          : this.currentRow,
+      currentBead: data.currentBead.present
+          ? data.currentBead.value
+          : this.currentBead,
+      cells: data.cells.present ? data.cells.value : this.cells,
+      cellsCodecVersion: data.cellsCodecVersion.present
+          ? data.cellsCodecVersion.value
+          : this.cellsCodecVersion,
+      layers: data.layers.present ? data.layers.value : this.layers,
+      layersCodecVersion: data.layersCodecVersion.present
+          ? data.layersCodecVersion.value
+          : this.layersCodecVersion,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('GridPatternsData(')
+          ..write('id: $id, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('deletedAt: $deletedAt, ')
+          ..write('deviceId: $deviceId, ')
+          ..write('projectId: $projectId, ')
+          ..write('geometry: $geometry, ')
+          ..write('geometryDrop: $geometryDrop, ')
+          ..write('width: $width, ')
+          ..write('height: $height, ')
+          ..write('cellMetrics: $cellMetrics, ')
+          ..write('currentRow: $currentRow, ')
+          ..write('currentBead: $currentBead, ')
+          ..write('cells: $cells, ')
+          ..write('cellsCodecVersion: $cellsCodecVersion, ')
+          ..write('layers: $layers, ')
+          ..write('layersCodecVersion: $layersCodecVersion')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    createdAt,
+    updatedAt,
+    deletedAt,
+    deviceId,
+    projectId,
+    geometry,
+    geometryDrop,
+    width,
+    height,
+    cellMetrics,
+    currentRow,
+    currentBead,
+    $driftBlobEquality.hash(cells),
+    cellsCodecVersion,
+    $driftBlobEquality.hash(layers),
+    layersCodecVersion,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is GridPatternsData &&
+          other.id == this.id &&
+          other.createdAt == this.createdAt &&
+          other.updatedAt == this.updatedAt &&
+          other.deletedAt == this.deletedAt &&
+          other.deviceId == this.deviceId &&
+          other.projectId == this.projectId &&
+          other.geometry == this.geometry &&
+          other.geometryDrop == this.geometryDrop &&
+          other.width == this.width &&
+          other.height == this.height &&
+          other.cellMetrics == this.cellMetrics &&
+          other.currentRow == this.currentRow &&
+          other.currentBead == this.currentBead &&
+          $driftBlobEquality.equals(other.cells, this.cells) &&
+          other.cellsCodecVersion == this.cellsCodecVersion &&
+          $driftBlobEquality.equals(other.layers, this.layers) &&
+          other.layersCodecVersion == this.layersCodecVersion);
+}
+
+class GridPatternsCompanion extends UpdateCompanion<GridPatternsData> {
+  final Value<String> id;
+  final Value<int> createdAt;
+  final Value<int> updatedAt;
+  final Value<int?> deletedAt;
+  final Value<String> deviceId;
+  final Value<String> projectId;
+  final Value<String> geometry;
+  final Value<int> geometryDrop;
+  final Value<int> width;
+  final Value<int> height;
+  final Value<String> cellMetrics;
+  final Value<int?> currentRow;
+  final Value<int?> currentBead;
+  final Value<i2.Uint8List> cells;
+  final Value<int> cellsCodecVersion;
+  final Value<i2.Uint8List?> layers;
+  final Value<int?> layersCodecVersion;
+  final Value<int> rowid;
+  const GridPatternsCompanion({
+    this.id = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.deletedAt = const Value.absent(),
+    this.deviceId = const Value.absent(),
+    this.projectId = const Value.absent(),
+    this.geometry = const Value.absent(),
+    this.geometryDrop = const Value.absent(),
+    this.width = const Value.absent(),
+    this.height = const Value.absent(),
+    this.cellMetrics = const Value.absent(),
+    this.currentRow = const Value.absent(),
+    this.currentBead = const Value.absent(),
+    this.cells = const Value.absent(),
+    this.cellsCodecVersion = const Value.absent(),
+    this.layers = const Value.absent(),
+    this.layersCodecVersion = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  GridPatternsCompanion.insert({
+    required String id,
+    required int createdAt,
+    required int updatedAt,
+    this.deletedAt = const Value.absent(),
+    required String deviceId,
+    required String projectId,
+    required String geometry,
+    this.geometryDrop = const Value.absent(),
+    required int width,
+    required int height,
+    required String cellMetrics,
+    this.currentRow = const Value.absent(),
+    this.currentBead = const Value.absent(),
+    required i2.Uint8List cells,
+    required int cellsCodecVersion,
+    this.layers = const Value.absent(),
+    this.layersCodecVersion = const Value.absent(),
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       createdAt = Value(createdAt),
+       updatedAt = Value(updatedAt),
+       deviceId = Value(deviceId),
+       projectId = Value(projectId),
+       geometry = Value(geometry),
+       width = Value(width),
+       height = Value(height),
+       cellMetrics = Value(cellMetrics),
+       cells = Value(cells),
+       cellsCodecVersion = Value(cellsCodecVersion);
+  static Insertable<GridPatternsData> custom({
+    Expression<String>? id,
+    Expression<int>? createdAt,
+    Expression<int>? updatedAt,
+    Expression<int>? deletedAt,
+    Expression<String>? deviceId,
+    Expression<String>? projectId,
+    Expression<String>? geometry,
+    Expression<int>? geometryDrop,
+    Expression<int>? width,
+    Expression<int>? height,
+    Expression<String>? cellMetrics,
+    Expression<int>? currentRow,
+    Expression<int>? currentBead,
+    Expression<i2.Uint8List>? cells,
+    Expression<int>? cellsCodecVersion,
+    Expression<i2.Uint8List>? layers,
+    Expression<int>? layersCodecVersion,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (createdAt != null) 'created_at': createdAt,
+      if (updatedAt != null) 'updated_at': updatedAt,
+      if (deletedAt != null) 'deleted_at': deletedAt,
+      if (deviceId != null) 'device_id': deviceId,
+      if (projectId != null) 'project_id': projectId,
+      if (geometry != null) 'geometry': geometry,
+      if (geometryDrop != null) 'geometry_drop': geometryDrop,
+      if (width != null) 'width': width,
+      if (height != null) 'height': height,
+      if (cellMetrics != null) 'cell_metrics': cellMetrics,
+      if (currentRow != null) 'current_row': currentRow,
+      if (currentBead != null) 'current_bead': currentBead,
+      if (cells != null) 'cells': cells,
+      if (cellsCodecVersion != null) 'cells_codec_version': cellsCodecVersion,
+      if (layers != null) 'layers': layers,
+      if (layersCodecVersion != null)
+        'layers_codec_version': layersCodecVersion,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  GridPatternsCompanion copyWith({
+    Value<String>? id,
+    Value<int>? createdAt,
+    Value<int>? updatedAt,
+    Value<int?>? deletedAt,
+    Value<String>? deviceId,
+    Value<String>? projectId,
+    Value<String>? geometry,
+    Value<int>? geometryDrop,
+    Value<int>? width,
+    Value<int>? height,
+    Value<String>? cellMetrics,
+    Value<int?>? currentRow,
+    Value<int?>? currentBead,
+    Value<i2.Uint8List>? cells,
+    Value<int>? cellsCodecVersion,
+    Value<i2.Uint8List?>? layers,
+    Value<int?>? layersCodecVersion,
+    Value<int>? rowid,
+  }) {
+    return GridPatternsCompanion(
+      id: id ?? this.id,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+      deletedAt: deletedAt ?? this.deletedAt,
+      deviceId: deviceId ?? this.deviceId,
+      projectId: projectId ?? this.projectId,
+      geometry: geometry ?? this.geometry,
+      geometryDrop: geometryDrop ?? this.geometryDrop,
+      width: width ?? this.width,
+      height: height ?? this.height,
+      cellMetrics: cellMetrics ?? this.cellMetrics,
+      currentRow: currentRow ?? this.currentRow,
+      currentBead: currentBead ?? this.currentBead,
+      cells: cells ?? this.cells,
+      cellsCodecVersion: cellsCodecVersion ?? this.cellsCodecVersion,
+      layers: layers ?? this.layers,
+      layersCodecVersion: layersCodecVersion ?? this.layersCodecVersion,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<int>(createdAt.value);
+    }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<int>(updatedAt.value);
+    }
+    if (deletedAt.present) {
+      map['deleted_at'] = Variable<int>(deletedAt.value);
+    }
+    if (deviceId.present) {
+      map['device_id'] = Variable<String>(deviceId.value);
+    }
+    if (projectId.present) {
+      map['project_id'] = Variable<String>(projectId.value);
+    }
+    if (geometry.present) {
+      map['geometry'] = Variable<String>(geometry.value);
+    }
+    if (geometryDrop.present) {
+      map['geometry_drop'] = Variable<int>(geometryDrop.value);
+    }
+    if (width.present) {
+      map['width'] = Variable<int>(width.value);
+    }
+    if (height.present) {
+      map['height'] = Variable<int>(height.value);
+    }
+    if (cellMetrics.present) {
+      map['cell_metrics'] = Variable<String>(cellMetrics.value);
+    }
+    if (currentRow.present) {
+      map['current_row'] = Variable<int>(currentRow.value);
+    }
+    if (currentBead.present) {
+      map['current_bead'] = Variable<int>(currentBead.value);
+    }
+    if (cells.present) {
+      map['cells'] = Variable<i2.Uint8List>(cells.value);
+    }
+    if (cellsCodecVersion.present) {
+      map['cells_codec_version'] = Variable<int>(cellsCodecVersion.value);
+    }
+    if (layers.present) {
+      map['layers'] = Variable<i2.Uint8List>(layers.value);
+    }
+    if (layersCodecVersion.present) {
+      map['layers_codec_version'] = Variable<int>(layersCodecVersion.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('GridPatternsCompanion(')
+          ..write('id: $id, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('deletedAt: $deletedAt, ')
+          ..write('deviceId: $deviceId, ')
+          ..write('projectId: $projectId, ')
+          ..write('geometry: $geometry, ')
+          ..write('geometryDrop: $geometryDrop, ')
+          ..write('width: $width, ')
+          ..write('height: $height, ')
+          ..write('cellMetrics: $cellMetrics, ')
+          ..write('currentRow: $currentRow, ')
+          ..write('currentBead: $currentBead, ')
+          ..write('cells: $cells, ')
+          ..write('cellsCodecVersion: $cellsCodecVersion, ')
+          ..write('layers: $layers, ')
+          ..write('layersCodecVersion: $layersCodecVersion, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class PatternColors extends Table
+    with TableInfo<PatternColors, PatternColorsData> {
   @override
   final GeneratedDatabase attachedDatabase;
   final String? _alias;
@@ -844,8 +3014,58 @@ class PatternColors extends Table with TableInfo {
     {gridPatternId, position},
   ];
   @override
-  Never map(Map<String, dynamic> data, {String? tablePrefix}) {
-    throw UnsupportedError('TableInfo.map in schema verification code');
+  PatternColorsData map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return PatternColorsData(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id'],
+      )!,
+      createdAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}created_at'],
+      )!,
+      updatedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}updated_at'],
+      )!,
+      deletedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}deleted_at'],
+      ),
+      deviceId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}device_id'],
+      )!,
+      gridPatternId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}grid_pattern_id'],
+      )!,
+      position: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}position'],
+      )!,
+      rgb: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}rgb'],
+      )!,
+      name: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}name'],
+      )!,
+      components: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}components'],
+      )!,
+      finish: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}finish'],
+      ),
+      symbol: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}symbol'],
+      ),
+    );
   }
 
   @override
@@ -862,7 +3082,404 @@ class PatternColors extends Table with TableInfo {
   bool get dontWriteConstraints => true;
 }
 
-class GridProgressRows extends Table with TableInfo {
+class PatternColorsData extends DataClass
+    implements Insertable<PatternColorsData> {
+  final String id;
+  final int createdAt;
+  final int updatedAt;
+  final int? deletedAt;
+  final String deviceId;
+  final String gridPatternId;
+  final int position;
+  final int rgb;
+  final String name;
+  final String components;
+  final String? finish;
+  final String? symbol;
+  const PatternColorsData({
+    required this.id,
+    required this.createdAt,
+    required this.updatedAt,
+    this.deletedAt,
+    required this.deviceId,
+    required this.gridPatternId,
+    required this.position,
+    required this.rgb,
+    required this.name,
+    required this.components,
+    this.finish,
+    this.symbol,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['created_at'] = Variable<int>(createdAt);
+    map['updated_at'] = Variable<int>(updatedAt);
+    if (!nullToAbsent || deletedAt != null) {
+      map['deleted_at'] = Variable<int>(deletedAt);
+    }
+    map['device_id'] = Variable<String>(deviceId);
+    map['grid_pattern_id'] = Variable<String>(gridPatternId);
+    map['position'] = Variable<int>(position);
+    map['rgb'] = Variable<int>(rgb);
+    map['name'] = Variable<String>(name);
+    map['components'] = Variable<String>(components);
+    if (!nullToAbsent || finish != null) {
+      map['finish'] = Variable<String>(finish);
+    }
+    if (!nullToAbsent || symbol != null) {
+      map['symbol'] = Variable<String>(symbol);
+    }
+    return map;
+  }
+
+  PatternColorsCompanion toCompanion(bool nullToAbsent) {
+    return PatternColorsCompanion(
+      id: Value(id),
+      createdAt: Value(createdAt),
+      updatedAt: Value(updatedAt),
+      deletedAt: deletedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(deletedAt),
+      deviceId: Value(deviceId),
+      gridPatternId: Value(gridPatternId),
+      position: Value(position),
+      rgb: Value(rgb),
+      name: Value(name),
+      components: Value(components),
+      finish: finish == null && nullToAbsent
+          ? const Value.absent()
+          : Value(finish),
+      symbol: symbol == null && nullToAbsent
+          ? const Value.absent()
+          : Value(symbol),
+    );
+  }
+
+  factory PatternColorsData.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return PatternColorsData(
+      id: serializer.fromJson<String>(json['id']),
+      createdAt: serializer.fromJson<int>(json['createdAt']),
+      updatedAt: serializer.fromJson<int>(json['updatedAt']),
+      deletedAt: serializer.fromJson<int?>(json['deletedAt']),
+      deviceId: serializer.fromJson<String>(json['deviceId']),
+      gridPatternId: serializer.fromJson<String>(json['gridPatternId']),
+      position: serializer.fromJson<int>(json['position']),
+      rgb: serializer.fromJson<int>(json['rgb']),
+      name: serializer.fromJson<String>(json['name']),
+      components: serializer.fromJson<String>(json['components']),
+      finish: serializer.fromJson<String?>(json['finish']),
+      symbol: serializer.fromJson<String?>(json['symbol']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'createdAt': serializer.toJson<int>(createdAt),
+      'updatedAt': serializer.toJson<int>(updatedAt),
+      'deletedAt': serializer.toJson<int?>(deletedAt),
+      'deviceId': serializer.toJson<String>(deviceId),
+      'gridPatternId': serializer.toJson<String>(gridPatternId),
+      'position': serializer.toJson<int>(position),
+      'rgb': serializer.toJson<int>(rgb),
+      'name': serializer.toJson<String>(name),
+      'components': serializer.toJson<String>(components),
+      'finish': serializer.toJson<String?>(finish),
+      'symbol': serializer.toJson<String?>(symbol),
+    };
+  }
+
+  PatternColorsData copyWith({
+    String? id,
+    int? createdAt,
+    int? updatedAt,
+    Value<int?> deletedAt = const Value.absent(),
+    String? deviceId,
+    String? gridPatternId,
+    int? position,
+    int? rgb,
+    String? name,
+    String? components,
+    Value<String?> finish = const Value.absent(),
+    Value<String?> symbol = const Value.absent(),
+  }) => PatternColorsData(
+    id: id ?? this.id,
+    createdAt: createdAt ?? this.createdAt,
+    updatedAt: updatedAt ?? this.updatedAt,
+    deletedAt: deletedAt.present ? deletedAt.value : this.deletedAt,
+    deviceId: deviceId ?? this.deviceId,
+    gridPatternId: gridPatternId ?? this.gridPatternId,
+    position: position ?? this.position,
+    rgb: rgb ?? this.rgb,
+    name: name ?? this.name,
+    components: components ?? this.components,
+    finish: finish.present ? finish.value : this.finish,
+    symbol: symbol.present ? symbol.value : this.symbol,
+  );
+  PatternColorsData copyWithCompanion(PatternColorsCompanion data) {
+    return PatternColorsData(
+      id: data.id.present ? data.id.value : this.id,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+      deletedAt: data.deletedAt.present ? data.deletedAt.value : this.deletedAt,
+      deviceId: data.deviceId.present ? data.deviceId.value : this.deviceId,
+      gridPatternId: data.gridPatternId.present
+          ? data.gridPatternId.value
+          : this.gridPatternId,
+      position: data.position.present ? data.position.value : this.position,
+      rgb: data.rgb.present ? data.rgb.value : this.rgb,
+      name: data.name.present ? data.name.value : this.name,
+      components: data.components.present
+          ? data.components.value
+          : this.components,
+      finish: data.finish.present ? data.finish.value : this.finish,
+      symbol: data.symbol.present ? data.symbol.value : this.symbol,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('PatternColorsData(')
+          ..write('id: $id, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('deletedAt: $deletedAt, ')
+          ..write('deviceId: $deviceId, ')
+          ..write('gridPatternId: $gridPatternId, ')
+          ..write('position: $position, ')
+          ..write('rgb: $rgb, ')
+          ..write('name: $name, ')
+          ..write('components: $components, ')
+          ..write('finish: $finish, ')
+          ..write('symbol: $symbol')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    createdAt,
+    updatedAt,
+    deletedAt,
+    deviceId,
+    gridPatternId,
+    position,
+    rgb,
+    name,
+    components,
+    finish,
+    symbol,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is PatternColorsData &&
+          other.id == this.id &&
+          other.createdAt == this.createdAt &&
+          other.updatedAt == this.updatedAt &&
+          other.deletedAt == this.deletedAt &&
+          other.deviceId == this.deviceId &&
+          other.gridPatternId == this.gridPatternId &&
+          other.position == this.position &&
+          other.rgb == this.rgb &&
+          other.name == this.name &&
+          other.components == this.components &&
+          other.finish == this.finish &&
+          other.symbol == this.symbol);
+}
+
+class PatternColorsCompanion extends UpdateCompanion<PatternColorsData> {
+  final Value<String> id;
+  final Value<int> createdAt;
+  final Value<int> updatedAt;
+  final Value<int?> deletedAt;
+  final Value<String> deviceId;
+  final Value<String> gridPatternId;
+  final Value<int> position;
+  final Value<int> rgb;
+  final Value<String> name;
+  final Value<String> components;
+  final Value<String?> finish;
+  final Value<String?> symbol;
+  final Value<int> rowid;
+  const PatternColorsCompanion({
+    this.id = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.deletedAt = const Value.absent(),
+    this.deviceId = const Value.absent(),
+    this.gridPatternId = const Value.absent(),
+    this.position = const Value.absent(),
+    this.rgb = const Value.absent(),
+    this.name = const Value.absent(),
+    this.components = const Value.absent(),
+    this.finish = const Value.absent(),
+    this.symbol = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  PatternColorsCompanion.insert({
+    required String id,
+    required int createdAt,
+    required int updatedAt,
+    this.deletedAt = const Value.absent(),
+    required String deviceId,
+    required String gridPatternId,
+    required int position,
+    required int rgb,
+    required String name,
+    required String components,
+    this.finish = const Value.absent(),
+    this.symbol = const Value.absent(),
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       createdAt = Value(createdAt),
+       updatedAt = Value(updatedAt),
+       deviceId = Value(deviceId),
+       gridPatternId = Value(gridPatternId),
+       position = Value(position),
+       rgb = Value(rgb),
+       name = Value(name),
+       components = Value(components);
+  static Insertable<PatternColorsData> custom({
+    Expression<String>? id,
+    Expression<int>? createdAt,
+    Expression<int>? updatedAt,
+    Expression<int>? deletedAt,
+    Expression<String>? deviceId,
+    Expression<String>? gridPatternId,
+    Expression<int>? position,
+    Expression<int>? rgb,
+    Expression<String>? name,
+    Expression<String>? components,
+    Expression<String>? finish,
+    Expression<String>? symbol,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (createdAt != null) 'created_at': createdAt,
+      if (updatedAt != null) 'updated_at': updatedAt,
+      if (deletedAt != null) 'deleted_at': deletedAt,
+      if (deviceId != null) 'device_id': deviceId,
+      if (gridPatternId != null) 'grid_pattern_id': gridPatternId,
+      if (position != null) 'position': position,
+      if (rgb != null) 'rgb': rgb,
+      if (name != null) 'name': name,
+      if (components != null) 'components': components,
+      if (finish != null) 'finish': finish,
+      if (symbol != null) 'symbol': symbol,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  PatternColorsCompanion copyWith({
+    Value<String>? id,
+    Value<int>? createdAt,
+    Value<int>? updatedAt,
+    Value<int?>? deletedAt,
+    Value<String>? deviceId,
+    Value<String>? gridPatternId,
+    Value<int>? position,
+    Value<int>? rgb,
+    Value<String>? name,
+    Value<String>? components,
+    Value<String?>? finish,
+    Value<String?>? symbol,
+    Value<int>? rowid,
+  }) {
+    return PatternColorsCompanion(
+      id: id ?? this.id,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+      deletedAt: deletedAt ?? this.deletedAt,
+      deviceId: deviceId ?? this.deviceId,
+      gridPatternId: gridPatternId ?? this.gridPatternId,
+      position: position ?? this.position,
+      rgb: rgb ?? this.rgb,
+      name: name ?? this.name,
+      components: components ?? this.components,
+      finish: finish ?? this.finish,
+      symbol: symbol ?? this.symbol,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<int>(createdAt.value);
+    }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<int>(updatedAt.value);
+    }
+    if (deletedAt.present) {
+      map['deleted_at'] = Variable<int>(deletedAt.value);
+    }
+    if (deviceId.present) {
+      map['device_id'] = Variable<String>(deviceId.value);
+    }
+    if (gridPatternId.present) {
+      map['grid_pattern_id'] = Variable<String>(gridPatternId.value);
+    }
+    if (position.present) {
+      map['position'] = Variable<int>(position.value);
+    }
+    if (rgb.present) {
+      map['rgb'] = Variable<int>(rgb.value);
+    }
+    if (name.present) {
+      map['name'] = Variable<String>(name.value);
+    }
+    if (components.present) {
+      map['components'] = Variable<String>(components.value);
+    }
+    if (finish.present) {
+      map['finish'] = Variable<String>(finish.value);
+    }
+    if (symbol.present) {
+      map['symbol'] = Variable<String>(symbol.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('PatternColorsCompanion(')
+          ..write('id: $id, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('deletedAt: $deletedAt, ')
+          ..write('deviceId: $deviceId, ')
+          ..write('gridPatternId: $gridPatternId, ')
+          ..write('position: $position, ')
+          ..write('rgb: $rgb, ')
+          ..write('name: $name, ')
+          ..write('components: $components, ')
+          ..write('finish: $finish, ')
+          ..write('symbol: $symbol, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class GridProgressRows extends Table
+    with TableInfo<GridProgressRows, GridProgressRowsData> {
   @override
   final GeneratedDatabase attachedDatabase;
   final String? _alias;
@@ -954,8 +3571,42 @@ class GridProgressRows extends Table with TableInfo {
     {gridPatternId, rowIndex},
   ];
   @override
-  Never map(Map<String, dynamic> data, {String? tablePrefix}) {
-    throw UnsupportedError('TableInfo.map in schema verification code');
+  GridProgressRowsData map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return GridProgressRowsData(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id'],
+      )!,
+      createdAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}created_at'],
+      )!,
+      updatedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}updated_at'],
+      )!,
+      deletedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}deleted_at'],
+      ),
+      deviceId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}device_id'],
+      )!,
+      gridPatternId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}grid_pattern_id'],
+      )!,
+      rowIndex: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}row_index'],
+      )!,
+      completedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}completed_at'],
+      )!,
+    );
   }
 
   @override
@@ -972,7 +3623,302 @@ class GridProgressRows extends Table with TableInfo {
   bool get dontWriteConstraints => true;
 }
 
-class GridProgressCells extends Table with TableInfo {
+class GridProgressRowsData extends DataClass
+    implements Insertable<GridProgressRowsData> {
+  final String id;
+  final int createdAt;
+  final int updatedAt;
+  final int? deletedAt;
+  final String deviceId;
+  final String gridPatternId;
+  final int rowIndex;
+  final int completedAt;
+  const GridProgressRowsData({
+    required this.id,
+    required this.createdAt,
+    required this.updatedAt,
+    this.deletedAt,
+    required this.deviceId,
+    required this.gridPatternId,
+    required this.rowIndex,
+    required this.completedAt,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['created_at'] = Variable<int>(createdAt);
+    map['updated_at'] = Variable<int>(updatedAt);
+    if (!nullToAbsent || deletedAt != null) {
+      map['deleted_at'] = Variable<int>(deletedAt);
+    }
+    map['device_id'] = Variable<String>(deviceId);
+    map['grid_pattern_id'] = Variable<String>(gridPatternId);
+    map['row_index'] = Variable<int>(rowIndex);
+    map['completed_at'] = Variable<int>(completedAt);
+    return map;
+  }
+
+  GridProgressRowsCompanion toCompanion(bool nullToAbsent) {
+    return GridProgressRowsCompanion(
+      id: Value(id),
+      createdAt: Value(createdAt),
+      updatedAt: Value(updatedAt),
+      deletedAt: deletedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(deletedAt),
+      deviceId: Value(deviceId),
+      gridPatternId: Value(gridPatternId),
+      rowIndex: Value(rowIndex),
+      completedAt: Value(completedAt),
+    );
+  }
+
+  factory GridProgressRowsData.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return GridProgressRowsData(
+      id: serializer.fromJson<String>(json['id']),
+      createdAt: serializer.fromJson<int>(json['createdAt']),
+      updatedAt: serializer.fromJson<int>(json['updatedAt']),
+      deletedAt: serializer.fromJson<int?>(json['deletedAt']),
+      deviceId: serializer.fromJson<String>(json['deviceId']),
+      gridPatternId: serializer.fromJson<String>(json['gridPatternId']),
+      rowIndex: serializer.fromJson<int>(json['rowIndex']),
+      completedAt: serializer.fromJson<int>(json['completedAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'createdAt': serializer.toJson<int>(createdAt),
+      'updatedAt': serializer.toJson<int>(updatedAt),
+      'deletedAt': serializer.toJson<int?>(deletedAt),
+      'deviceId': serializer.toJson<String>(deviceId),
+      'gridPatternId': serializer.toJson<String>(gridPatternId),
+      'rowIndex': serializer.toJson<int>(rowIndex),
+      'completedAt': serializer.toJson<int>(completedAt),
+    };
+  }
+
+  GridProgressRowsData copyWith({
+    String? id,
+    int? createdAt,
+    int? updatedAt,
+    Value<int?> deletedAt = const Value.absent(),
+    String? deviceId,
+    String? gridPatternId,
+    int? rowIndex,
+    int? completedAt,
+  }) => GridProgressRowsData(
+    id: id ?? this.id,
+    createdAt: createdAt ?? this.createdAt,
+    updatedAt: updatedAt ?? this.updatedAt,
+    deletedAt: deletedAt.present ? deletedAt.value : this.deletedAt,
+    deviceId: deviceId ?? this.deviceId,
+    gridPatternId: gridPatternId ?? this.gridPatternId,
+    rowIndex: rowIndex ?? this.rowIndex,
+    completedAt: completedAt ?? this.completedAt,
+  );
+  GridProgressRowsData copyWithCompanion(GridProgressRowsCompanion data) {
+    return GridProgressRowsData(
+      id: data.id.present ? data.id.value : this.id,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+      deletedAt: data.deletedAt.present ? data.deletedAt.value : this.deletedAt,
+      deviceId: data.deviceId.present ? data.deviceId.value : this.deviceId,
+      gridPatternId: data.gridPatternId.present
+          ? data.gridPatternId.value
+          : this.gridPatternId,
+      rowIndex: data.rowIndex.present ? data.rowIndex.value : this.rowIndex,
+      completedAt: data.completedAt.present
+          ? data.completedAt.value
+          : this.completedAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('GridProgressRowsData(')
+          ..write('id: $id, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('deletedAt: $deletedAt, ')
+          ..write('deviceId: $deviceId, ')
+          ..write('gridPatternId: $gridPatternId, ')
+          ..write('rowIndex: $rowIndex, ')
+          ..write('completedAt: $completedAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    createdAt,
+    updatedAt,
+    deletedAt,
+    deviceId,
+    gridPatternId,
+    rowIndex,
+    completedAt,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is GridProgressRowsData &&
+          other.id == this.id &&
+          other.createdAt == this.createdAt &&
+          other.updatedAt == this.updatedAt &&
+          other.deletedAt == this.deletedAt &&
+          other.deviceId == this.deviceId &&
+          other.gridPatternId == this.gridPatternId &&
+          other.rowIndex == this.rowIndex &&
+          other.completedAt == this.completedAt);
+}
+
+class GridProgressRowsCompanion extends UpdateCompanion<GridProgressRowsData> {
+  final Value<String> id;
+  final Value<int> createdAt;
+  final Value<int> updatedAt;
+  final Value<int?> deletedAt;
+  final Value<String> deviceId;
+  final Value<String> gridPatternId;
+  final Value<int> rowIndex;
+  final Value<int> completedAt;
+  final Value<int> rowid;
+  const GridProgressRowsCompanion({
+    this.id = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.deletedAt = const Value.absent(),
+    this.deviceId = const Value.absent(),
+    this.gridPatternId = const Value.absent(),
+    this.rowIndex = const Value.absent(),
+    this.completedAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  GridProgressRowsCompanion.insert({
+    required String id,
+    required int createdAt,
+    required int updatedAt,
+    this.deletedAt = const Value.absent(),
+    required String deviceId,
+    required String gridPatternId,
+    required int rowIndex,
+    required int completedAt,
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       createdAt = Value(createdAt),
+       updatedAt = Value(updatedAt),
+       deviceId = Value(deviceId),
+       gridPatternId = Value(gridPatternId),
+       rowIndex = Value(rowIndex),
+       completedAt = Value(completedAt);
+  static Insertable<GridProgressRowsData> custom({
+    Expression<String>? id,
+    Expression<int>? createdAt,
+    Expression<int>? updatedAt,
+    Expression<int>? deletedAt,
+    Expression<String>? deviceId,
+    Expression<String>? gridPatternId,
+    Expression<int>? rowIndex,
+    Expression<int>? completedAt,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (createdAt != null) 'created_at': createdAt,
+      if (updatedAt != null) 'updated_at': updatedAt,
+      if (deletedAt != null) 'deleted_at': deletedAt,
+      if (deviceId != null) 'device_id': deviceId,
+      if (gridPatternId != null) 'grid_pattern_id': gridPatternId,
+      if (rowIndex != null) 'row_index': rowIndex,
+      if (completedAt != null) 'completed_at': completedAt,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  GridProgressRowsCompanion copyWith({
+    Value<String>? id,
+    Value<int>? createdAt,
+    Value<int>? updatedAt,
+    Value<int?>? deletedAt,
+    Value<String>? deviceId,
+    Value<String>? gridPatternId,
+    Value<int>? rowIndex,
+    Value<int>? completedAt,
+    Value<int>? rowid,
+  }) {
+    return GridProgressRowsCompanion(
+      id: id ?? this.id,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+      deletedAt: deletedAt ?? this.deletedAt,
+      deviceId: deviceId ?? this.deviceId,
+      gridPatternId: gridPatternId ?? this.gridPatternId,
+      rowIndex: rowIndex ?? this.rowIndex,
+      completedAt: completedAt ?? this.completedAt,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<int>(createdAt.value);
+    }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<int>(updatedAt.value);
+    }
+    if (deletedAt.present) {
+      map['deleted_at'] = Variable<int>(deletedAt.value);
+    }
+    if (deviceId.present) {
+      map['device_id'] = Variable<String>(deviceId.value);
+    }
+    if (gridPatternId.present) {
+      map['grid_pattern_id'] = Variable<String>(gridPatternId.value);
+    }
+    if (rowIndex.present) {
+      map['row_index'] = Variable<int>(rowIndex.value);
+    }
+    if (completedAt.present) {
+      map['completed_at'] = Variable<int>(completedAt.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('GridProgressRowsCompanion(')
+          ..write('id: $id, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('deletedAt: $deletedAt, ')
+          ..write('deviceId: $deviceId, ')
+          ..write('gridPatternId: $gridPatternId, ')
+          ..write('rowIndex: $rowIndex, ')
+          ..write('completedAt: $completedAt, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class GridProgressCells extends Table
+    with TableInfo<GridProgressCells, GridProgressCellsData> {
   @override
   final GeneratedDatabase attachedDatabase;
   final String? _alias;
@@ -1064,8 +4010,42 @@ class GridProgressCells extends Table with TableInfo {
     {gridPatternId, blockIndex},
   ];
   @override
-  Never map(Map<String, dynamic> data, {String? tablePrefix}) {
-    throw UnsupportedError('TableInfo.map in schema verification code');
+  GridProgressCellsData map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return GridProgressCellsData(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id'],
+      )!,
+      createdAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}created_at'],
+      )!,
+      updatedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}updated_at'],
+      )!,
+      deletedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}deleted_at'],
+      ),
+      deviceId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}device_id'],
+      )!,
+      gridPatternId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}grid_pattern_id'],
+      )!,
+      blockIndex: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}block_index'],
+      )!,
+      bits: attachedDatabase.typeMapping.read(
+        DriftSqlType.blob,
+        data['${effectivePrefix}bits'],
+      )!,
+    );
   }
 
   @override
@@ -1082,7 +4062,303 @@ class GridProgressCells extends Table with TableInfo {
   bool get dontWriteConstraints => true;
 }
 
-class CatalogColors extends Table with TableInfo {
+class GridProgressCellsData extends DataClass
+    implements Insertable<GridProgressCellsData> {
+  final String id;
+  final int createdAt;
+  final int updatedAt;
+  final int? deletedAt;
+  final String deviceId;
+  final String gridPatternId;
+  final int blockIndex;
+  final i2.Uint8List bits;
+  const GridProgressCellsData({
+    required this.id,
+    required this.createdAt,
+    required this.updatedAt,
+    this.deletedAt,
+    required this.deviceId,
+    required this.gridPatternId,
+    required this.blockIndex,
+    required this.bits,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['created_at'] = Variable<int>(createdAt);
+    map['updated_at'] = Variable<int>(updatedAt);
+    if (!nullToAbsent || deletedAt != null) {
+      map['deleted_at'] = Variable<int>(deletedAt);
+    }
+    map['device_id'] = Variable<String>(deviceId);
+    map['grid_pattern_id'] = Variable<String>(gridPatternId);
+    map['block_index'] = Variable<int>(blockIndex);
+    map['bits'] = Variable<i2.Uint8List>(bits);
+    return map;
+  }
+
+  GridProgressCellsCompanion toCompanion(bool nullToAbsent) {
+    return GridProgressCellsCompanion(
+      id: Value(id),
+      createdAt: Value(createdAt),
+      updatedAt: Value(updatedAt),
+      deletedAt: deletedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(deletedAt),
+      deviceId: Value(deviceId),
+      gridPatternId: Value(gridPatternId),
+      blockIndex: Value(blockIndex),
+      bits: Value(bits),
+    );
+  }
+
+  factory GridProgressCellsData.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return GridProgressCellsData(
+      id: serializer.fromJson<String>(json['id']),
+      createdAt: serializer.fromJson<int>(json['createdAt']),
+      updatedAt: serializer.fromJson<int>(json['updatedAt']),
+      deletedAt: serializer.fromJson<int?>(json['deletedAt']),
+      deviceId: serializer.fromJson<String>(json['deviceId']),
+      gridPatternId: serializer.fromJson<String>(json['gridPatternId']),
+      blockIndex: serializer.fromJson<int>(json['blockIndex']),
+      bits: serializer.fromJson<i2.Uint8List>(json['bits']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'createdAt': serializer.toJson<int>(createdAt),
+      'updatedAt': serializer.toJson<int>(updatedAt),
+      'deletedAt': serializer.toJson<int?>(deletedAt),
+      'deviceId': serializer.toJson<String>(deviceId),
+      'gridPatternId': serializer.toJson<String>(gridPatternId),
+      'blockIndex': serializer.toJson<int>(blockIndex),
+      'bits': serializer.toJson<i2.Uint8List>(bits),
+    };
+  }
+
+  GridProgressCellsData copyWith({
+    String? id,
+    int? createdAt,
+    int? updatedAt,
+    Value<int?> deletedAt = const Value.absent(),
+    String? deviceId,
+    String? gridPatternId,
+    int? blockIndex,
+    i2.Uint8List? bits,
+  }) => GridProgressCellsData(
+    id: id ?? this.id,
+    createdAt: createdAt ?? this.createdAt,
+    updatedAt: updatedAt ?? this.updatedAt,
+    deletedAt: deletedAt.present ? deletedAt.value : this.deletedAt,
+    deviceId: deviceId ?? this.deviceId,
+    gridPatternId: gridPatternId ?? this.gridPatternId,
+    blockIndex: blockIndex ?? this.blockIndex,
+    bits: bits ?? this.bits,
+  );
+  GridProgressCellsData copyWithCompanion(GridProgressCellsCompanion data) {
+    return GridProgressCellsData(
+      id: data.id.present ? data.id.value : this.id,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+      deletedAt: data.deletedAt.present ? data.deletedAt.value : this.deletedAt,
+      deviceId: data.deviceId.present ? data.deviceId.value : this.deviceId,
+      gridPatternId: data.gridPatternId.present
+          ? data.gridPatternId.value
+          : this.gridPatternId,
+      blockIndex: data.blockIndex.present
+          ? data.blockIndex.value
+          : this.blockIndex,
+      bits: data.bits.present ? data.bits.value : this.bits,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('GridProgressCellsData(')
+          ..write('id: $id, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('deletedAt: $deletedAt, ')
+          ..write('deviceId: $deviceId, ')
+          ..write('gridPatternId: $gridPatternId, ')
+          ..write('blockIndex: $blockIndex, ')
+          ..write('bits: $bits')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    createdAt,
+    updatedAt,
+    deletedAt,
+    deviceId,
+    gridPatternId,
+    blockIndex,
+    $driftBlobEquality.hash(bits),
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is GridProgressCellsData &&
+          other.id == this.id &&
+          other.createdAt == this.createdAt &&
+          other.updatedAt == this.updatedAt &&
+          other.deletedAt == this.deletedAt &&
+          other.deviceId == this.deviceId &&
+          other.gridPatternId == this.gridPatternId &&
+          other.blockIndex == this.blockIndex &&
+          $driftBlobEquality.equals(other.bits, this.bits));
+}
+
+class GridProgressCellsCompanion
+    extends UpdateCompanion<GridProgressCellsData> {
+  final Value<String> id;
+  final Value<int> createdAt;
+  final Value<int> updatedAt;
+  final Value<int?> deletedAt;
+  final Value<String> deviceId;
+  final Value<String> gridPatternId;
+  final Value<int> blockIndex;
+  final Value<i2.Uint8List> bits;
+  final Value<int> rowid;
+  const GridProgressCellsCompanion({
+    this.id = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.deletedAt = const Value.absent(),
+    this.deviceId = const Value.absent(),
+    this.gridPatternId = const Value.absent(),
+    this.blockIndex = const Value.absent(),
+    this.bits = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  GridProgressCellsCompanion.insert({
+    required String id,
+    required int createdAt,
+    required int updatedAt,
+    this.deletedAt = const Value.absent(),
+    required String deviceId,
+    required String gridPatternId,
+    required int blockIndex,
+    required i2.Uint8List bits,
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       createdAt = Value(createdAt),
+       updatedAt = Value(updatedAt),
+       deviceId = Value(deviceId),
+       gridPatternId = Value(gridPatternId),
+       blockIndex = Value(blockIndex),
+       bits = Value(bits);
+  static Insertable<GridProgressCellsData> custom({
+    Expression<String>? id,
+    Expression<int>? createdAt,
+    Expression<int>? updatedAt,
+    Expression<int>? deletedAt,
+    Expression<String>? deviceId,
+    Expression<String>? gridPatternId,
+    Expression<int>? blockIndex,
+    Expression<i2.Uint8List>? bits,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (createdAt != null) 'created_at': createdAt,
+      if (updatedAt != null) 'updated_at': updatedAt,
+      if (deletedAt != null) 'deleted_at': deletedAt,
+      if (deviceId != null) 'device_id': deviceId,
+      if (gridPatternId != null) 'grid_pattern_id': gridPatternId,
+      if (blockIndex != null) 'block_index': blockIndex,
+      if (bits != null) 'bits': bits,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  GridProgressCellsCompanion copyWith({
+    Value<String>? id,
+    Value<int>? createdAt,
+    Value<int>? updatedAt,
+    Value<int?>? deletedAt,
+    Value<String>? deviceId,
+    Value<String>? gridPatternId,
+    Value<int>? blockIndex,
+    Value<i2.Uint8List>? bits,
+    Value<int>? rowid,
+  }) {
+    return GridProgressCellsCompanion(
+      id: id ?? this.id,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+      deletedAt: deletedAt ?? this.deletedAt,
+      deviceId: deviceId ?? this.deviceId,
+      gridPatternId: gridPatternId ?? this.gridPatternId,
+      blockIndex: blockIndex ?? this.blockIndex,
+      bits: bits ?? this.bits,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<int>(createdAt.value);
+    }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<int>(updatedAt.value);
+    }
+    if (deletedAt.present) {
+      map['deleted_at'] = Variable<int>(deletedAt.value);
+    }
+    if (deviceId.present) {
+      map['device_id'] = Variable<String>(deviceId.value);
+    }
+    if (gridPatternId.present) {
+      map['grid_pattern_id'] = Variable<String>(gridPatternId.value);
+    }
+    if (blockIndex.present) {
+      map['block_index'] = Variable<int>(blockIndex.value);
+    }
+    if (bits.present) {
+      map['bits'] = Variable<i2.Uint8List>(bits.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('GridProgressCellsCompanion(')
+          ..write('id: $id, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('deletedAt: $deletedAt, ')
+          ..write('deviceId: $deviceId, ')
+          ..write('gridPatternId: $gridPatternId, ')
+          ..write('blockIndex: $blockIndex, ')
+          ..write('bits: $bits, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class CatalogColors extends Table
+    with TableInfo<CatalogColors, CatalogColorsData> {
   @override
   final GeneratedDatabase attachedDatabase;
   final String? _alias;
@@ -1206,8 +4482,58 @@ class CatalogColors extends Table with TableInfo {
   @override
   Set<GeneratedColumn> get $primaryKey => {id};
   @override
-  Never map(Map<String, dynamic> data, {String? tablePrefix}) {
-    throw UnsupportedError('TableInfo.map in schema verification code');
+  CatalogColorsData map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return CatalogColorsData(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id'],
+      )!,
+      source: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}source'],
+      )!,
+      material: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}material'],
+      )!,
+      brand: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}brand'],
+      )!,
+      series: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}series'],
+      )!,
+      code: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}code'],
+      )!,
+      name: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}name'],
+      )!,
+      rgb: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}rgb'],
+      )!,
+      finish: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}finish'],
+      ),
+      sizeCode: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}size_code'],
+      ),
+      searchKey: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}search_key'],
+      )!,
+      position: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}position'],
+      )!,
+    );
   }
 
   @override
@@ -1221,7 +4547,397 @@ class CatalogColors extends Table with TableInfo {
   bool get dontWriteConstraints => true;
 }
 
-class CatalogSources extends Table with TableInfo {
+class CatalogColorsData extends DataClass
+    implements Insertable<CatalogColorsData> {
+  final String id;
+  final String source;
+  final String material;
+  final String brand;
+  final String series;
+  final String code;
+  final String name;
+  final int rgb;
+  final String? finish;
+  final String? sizeCode;
+  final String searchKey;
+  final int position;
+  const CatalogColorsData({
+    required this.id,
+    required this.source,
+    required this.material,
+    required this.brand,
+    required this.series,
+    required this.code,
+    required this.name,
+    required this.rgb,
+    this.finish,
+    this.sizeCode,
+    required this.searchKey,
+    required this.position,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['source'] = Variable<String>(source);
+    map['material'] = Variable<String>(material);
+    map['brand'] = Variable<String>(brand);
+    map['series'] = Variable<String>(series);
+    map['code'] = Variable<String>(code);
+    map['name'] = Variable<String>(name);
+    map['rgb'] = Variable<int>(rgb);
+    if (!nullToAbsent || finish != null) {
+      map['finish'] = Variable<String>(finish);
+    }
+    if (!nullToAbsent || sizeCode != null) {
+      map['size_code'] = Variable<String>(sizeCode);
+    }
+    map['search_key'] = Variable<String>(searchKey);
+    map['position'] = Variable<int>(position);
+    return map;
+  }
+
+  CatalogColorsCompanion toCompanion(bool nullToAbsent) {
+    return CatalogColorsCompanion(
+      id: Value(id),
+      source: Value(source),
+      material: Value(material),
+      brand: Value(brand),
+      series: Value(series),
+      code: Value(code),
+      name: Value(name),
+      rgb: Value(rgb),
+      finish: finish == null && nullToAbsent
+          ? const Value.absent()
+          : Value(finish),
+      sizeCode: sizeCode == null && nullToAbsent
+          ? const Value.absent()
+          : Value(sizeCode),
+      searchKey: Value(searchKey),
+      position: Value(position),
+    );
+  }
+
+  factory CatalogColorsData.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return CatalogColorsData(
+      id: serializer.fromJson<String>(json['id']),
+      source: serializer.fromJson<String>(json['source']),
+      material: serializer.fromJson<String>(json['material']),
+      brand: serializer.fromJson<String>(json['brand']),
+      series: serializer.fromJson<String>(json['series']),
+      code: serializer.fromJson<String>(json['code']),
+      name: serializer.fromJson<String>(json['name']),
+      rgb: serializer.fromJson<int>(json['rgb']),
+      finish: serializer.fromJson<String?>(json['finish']),
+      sizeCode: serializer.fromJson<String?>(json['sizeCode']),
+      searchKey: serializer.fromJson<String>(json['searchKey']),
+      position: serializer.fromJson<int>(json['position']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'source': serializer.toJson<String>(source),
+      'material': serializer.toJson<String>(material),
+      'brand': serializer.toJson<String>(brand),
+      'series': serializer.toJson<String>(series),
+      'code': serializer.toJson<String>(code),
+      'name': serializer.toJson<String>(name),
+      'rgb': serializer.toJson<int>(rgb),
+      'finish': serializer.toJson<String?>(finish),
+      'sizeCode': serializer.toJson<String?>(sizeCode),
+      'searchKey': serializer.toJson<String>(searchKey),
+      'position': serializer.toJson<int>(position),
+    };
+  }
+
+  CatalogColorsData copyWith({
+    String? id,
+    String? source,
+    String? material,
+    String? brand,
+    String? series,
+    String? code,
+    String? name,
+    int? rgb,
+    Value<String?> finish = const Value.absent(),
+    Value<String?> sizeCode = const Value.absent(),
+    String? searchKey,
+    int? position,
+  }) => CatalogColorsData(
+    id: id ?? this.id,
+    source: source ?? this.source,
+    material: material ?? this.material,
+    brand: brand ?? this.brand,
+    series: series ?? this.series,
+    code: code ?? this.code,
+    name: name ?? this.name,
+    rgb: rgb ?? this.rgb,
+    finish: finish.present ? finish.value : this.finish,
+    sizeCode: sizeCode.present ? sizeCode.value : this.sizeCode,
+    searchKey: searchKey ?? this.searchKey,
+    position: position ?? this.position,
+  );
+  CatalogColorsData copyWithCompanion(CatalogColorsCompanion data) {
+    return CatalogColorsData(
+      id: data.id.present ? data.id.value : this.id,
+      source: data.source.present ? data.source.value : this.source,
+      material: data.material.present ? data.material.value : this.material,
+      brand: data.brand.present ? data.brand.value : this.brand,
+      series: data.series.present ? data.series.value : this.series,
+      code: data.code.present ? data.code.value : this.code,
+      name: data.name.present ? data.name.value : this.name,
+      rgb: data.rgb.present ? data.rgb.value : this.rgb,
+      finish: data.finish.present ? data.finish.value : this.finish,
+      sizeCode: data.sizeCode.present ? data.sizeCode.value : this.sizeCode,
+      searchKey: data.searchKey.present ? data.searchKey.value : this.searchKey,
+      position: data.position.present ? data.position.value : this.position,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('CatalogColorsData(')
+          ..write('id: $id, ')
+          ..write('source: $source, ')
+          ..write('material: $material, ')
+          ..write('brand: $brand, ')
+          ..write('series: $series, ')
+          ..write('code: $code, ')
+          ..write('name: $name, ')
+          ..write('rgb: $rgb, ')
+          ..write('finish: $finish, ')
+          ..write('sizeCode: $sizeCode, ')
+          ..write('searchKey: $searchKey, ')
+          ..write('position: $position')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    source,
+    material,
+    brand,
+    series,
+    code,
+    name,
+    rgb,
+    finish,
+    sizeCode,
+    searchKey,
+    position,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is CatalogColorsData &&
+          other.id == this.id &&
+          other.source == this.source &&
+          other.material == this.material &&
+          other.brand == this.brand &&
+          other.series == this.series &&
+          other.code == this.code &&
+          other.name == this.name &&
+          other.rgb == this.rgb &&
+          other.finish == this.finish &&
+          other.sizeCode == this.sizeCode &&
+          other.searchKey == this.searchKey &&
+          other.position == this.position);
+}
+
+class CatalogColorsCompanion extends UpdateCompanion<CatalogColorsData> {
+  final Value<String> id;
+  final Value<String> source;
+  final Value<String> material;
+  final Value<String> brand;
+  final Value<String> series;
+  final Value<String> code;
+  final Value<String> name;
+  final Value<int> rgb;
+  final Value<String?> finish;
+  final Value<String?> sizeCode;
+  final Value<String> searchKey;
+  final Value<int> position;
+  final Value<int> rowid;
+  const CatalogColorsCompanion({
+    this.id = const Value.absent(),
+    this.source = const Value.absent(),
+    this.material = const Value.absent(),
+    this.brand = const Value.absent(),
+    this.series = const Value.absent(),
+    this.code = const Value.absent(),
+    this.name = const Value.absent(),
+    this.rgb = const Value.absent(),
+    this.finish = const Value.absent(),
+    this.sizeCode = const Value.absent(),
+    this.searchKey = const Value.absent(),
+    this.position = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  CatalogColorsCompanion.insert({
+    required String id,
+    required String source,
+    required String material,
+    required String brand,
+    required String series,
+    required String code,
+    required String name,
+    required int rgb,
+    this.finish = const Value.absent(),
+    this.sizeCode = const Value.absent(),
+    required String searchKey,
+    required int position,
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       source = Value(source),
+       material = Value(material),
+       brand = Value(brand),
+       series = Value(series),
+       code = Value(code),
+       name = Value(name),
+       rgb = Value(rgb),
+       searchKey = Value(searchKey),
+       position = Value(position);
+  static Insertable<CatalogColorsData> custom({
+    Expression<String>? id,
+    Expression<String>? source,
+    Expression<String>? material,
+    Expression<String>? brand,
+    Expression<String>? series,
+    Expression<String>? code,
+    Expression<String>? name,
+    Expression<int>? rgb,
+    Expression<String>? finish,
+    Expression<String>? sizeCode,
+    Expression<String>? searchKey,
+    Expression<int>? position,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (source != null) 'source': source,
+      if (material != null) 'material': material,
+      if (brand != null) 'brand': brand,
+      if (series != null) 'series': series,
+      if (code != null) 'code': code,
+      if (name != null) 'name': name,
+      if (rgb != null) 'rgb': rgb,
+      if (finish != null) 'finish': finish,
+      if (sizeCode != null) 'size_code': sizeCode,
+      if (searchKey != null) 'search_key': searchKey,
+      if (position != null) 'position': position,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  CatalogColorsCompanion copyWith({
+    Value<String>? id,
+    Value<String>? source,
+    Value<String>? material,
+    Value<String>? brand,
+    Value<String>? series,
+    Value<String>? code,
+    Value<String>? name,
+    Value<int>? rgb,
+    Value<String?>? finish,
+    Value<String?>? sizeCode,
+    Value<String>? searchKey,
+    Value<int>? position,
+    Value<int>? rowid,
+  }) {
+    return CatalogColorsCompanion(
+      id: id ?? this.id,
+      source: source ?? this.source,
+      material: material ?? this.material,
+      brand: brand ?? this.brand,
+      series: series ?? this.series,
+      code: code ?? this.code,
+      name: name ?? this.name,
+      rgb: rgb ?? this.rgb,
+      finish: finish ?? this.finish,
+      sizeCode: sizeCode ?? this.sizeCode,
+      searchKey: searchKey ?? this.searchKey,
+      position: position ?? this.position,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (source.present) {
+      map['source'] = Variable<String>(source.value);
+    }
+    if (material.present) {
+      map['material'] = Variable<String>(material.value);
+    }
+    if (brand.present) {
+      map['brand'] = Variable<String>(brand.value);
+    }
+    if (series.present) {
+      map['series'] = Variable<String>(series.value);
+    }
+    if (code.present) {
+      map['code'] = Variable<String>(code.value);
+    }
+    if (name.present) {
+      map['name'] = Variable<String>(name.value);
+    }
+    if (rgb.present) {
+      map['rgb'] = Variable<int>(rgb.value);
+    }
+    if (finish.present) {
+      map['finish'] = Variable<String>(finish.value);
+    }
+    if (sizeCode.present) {
+      map['size_code'] = Variable<String>(sizeCode.value);
+    }
+    if (searchKey.present) {
+      map['search_key'] = Variable<String>(searchKey.value);
+    }
+    if (position.present) {
+      map['position'] = Variable<int>(position.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('CatalogColorsCompanion(')
+          ..write('id: $id, ')
+          ..write('source: $source, ')
+          ..write('material: $material, ')
+          ..write('brand: $brand, ')
+          ..write('series: $series, ')
+          ..write('code: $code, ')
+          ..write('name: $name, ')
+          ..write('rgb: $rgb, ')
+          ..write('finish: $finish, ')
+          ..write('sizeCode: $sizeCode, ')
+          ..write('searchKey: $searchKey, ')
+          ..write('position: $position, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class CatalogSources extends Table
+    with TableInfo<CatalogSources, CatalogSourcesData> {
   @override
   final GeneratedDatabase attachedDatabase;
   final String? _alias;
@@ -1252,8 +4968,18 @@ class CatalogSources extends Table with TableInfo {
   @override
   Set<GeneratedColumn> get $primaryKey => {id};
   @override
-  Never map(Map<String, dynamic> data, {String? tablePrefix}) {
-    throw UnsupportedError('TableInfo.map in schema verification code');
+  CatalogSourcesData map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return CatalogSourcesData(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id'],
+      )!,
+      version: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}version'],
+      )!,
+    );
   }
 
   @override
@@ -1267,7 +4993,137 @@ class CatalogSources extends Table with TableInfo {
   bool get dontWriteConstraints => true;
 }
 
-class PageWorkStates extends Table with TableInfo {
+class CatalogSourcesData extends DataClass
+    implements Insertable<CatalogSourcesData> {
+  final String id;
+  final int version;
+  const CatalogSourcesData({required this.id, required this.version});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['version'] = Variable<int>(version);
+    return map;
+  }
+
+  CatalogSourcesCompanion toCompanion(bool nullToAbsent) {
+    return CatalogSourcesCompanion(id: Value(id), version: Value(version));
+  }
+
+  factory CatalogSourcesData.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return CatalogSourcesData(
+      id: serializer.fromJson<String>(json['id']),
+      version: serializer.fromJson<int>(json['version']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'version': serializer.toJson<int>(version),
+    };
+  }
+
+  CatalogSourcesData copyWith({String? id, int? version}) =>
+      CatalogSourcesData(id: id ?? this.id, version: version ?? this.version);
+  CatalogSourcesData copyWithCompanion(CatalogSourcesCompanion data) {
+    return CatalogSourcesData(
+      id: data.id.present ? data.id.value : this.id,
+      version: data.version.present ? data.version.value : this.version,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('CatalogSourcesData(')
+          ..write('id: $id, ')
+          ..write('version: $version')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(id, version);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is CatalogSourcesData &&
+          other.id == this.id &&
+          other.version == this.version);
+}
+
+class CatalogSourcesCompanion extends UpdateCompanion<CatalogSourcesData> {
+  final Value<String> id;
+  final Value<int> version;
+  final Value<int> rowid;
+  const CatalogSourcesCompanion({
+    this.id = const Value.absent(),
+    this.version = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  CatalogSourcesCompanion.insert({
+    required String id,
+    required int version,
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       version = Value(version);
+  static Insertable<CatalogSourcesData> custom({
+    Expression<String>? id,
+    Expression<int>? version,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (version != null) 'version': version,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  CatalogSourcesCompanion copyWith({
+    Value<String>? id,
+    Value<int>? version,
+    Value<int>? rowid,
+  }) {
+    return CatalogSourcesCompanion(
+      id: id ?? this.id,
+      version: version ?? this.version,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (version.present) {
+      map['version'] = Variable<int>(version.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('CatalogSourcesCompanion(')
+          ..write('id: $id, ')
+          ..write('version: $version, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class PageWorkStates extends Table
+    with TableInfo<PageWorkStates, PageWorkStatesData> {
   @override
   final GeneratedDatabase attachedDatabase;
   final String? _alias;
@@ -1465,8 +5321,90 @@ class PageWorkStates extends Table with TableInfo {
   @override
   Set<GeneratedColumn> get $primaryKey => {id};
   @override
-  Never map(Map<String, dynamic> data, {String? tablePrefix}) {
-    throw UnsupportedError('TableInfo.map in schema verification code');
+  PageWorkStatesData map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return PageWorkStatesData(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id'],
+      )!,
+      createdAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}created_at'],
+      )!,
+      updatedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}updated_at'],
+      )!,
+      deletedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}deleted_at'],
+      ),
+      deviceId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}device_id'],
+      )!,
+      rulerTop: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}ruler_top'],
+      )!,
+      rulerHeight: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}ruler_height'],
+      )!,
+      rulerStep: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}ruler_step'],
+      )!,
+      rulerRow: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}ruler_row'],
+      )!,
+      highlight: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}highlight'],
+      )!,
+      rowDirection: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}row_direction'],
+      )!,
+      zoneTop: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}zone_top'],
+      ),
+      zoneBottom: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}zone_bottom'],
+      ),
+      zoneLeft: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}zone_left'],
+      ),
+      zoneRight: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}zone_right'],
+      ),
+      rowCount: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}row_count'],
+      ),
+      markup: attachedDatabase.typeMapping.read(
+        DriftSqlType.blob,
+        data['${effectivePrefix}markup'],
+      ),
+      viewScale: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}view_scale'],
+      )!,
+      viewDx: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}view_dx'],
+      )!,
+      viewDy: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}view_dy'],
+      )!,
+    );
   }
 
   @override
@@ -1480,7 +5418,609 @@ class PageWorkStates extends Table with TableInfo {
   bool get dontWriteConstraints => true;
 }
 
-class BookWorkStates extends Table with TableInfo {
+class PageWorkStatesData extends DataClass
+    implements Insertable<PageWorkStatesData> {
+  final String id;
+  final int createdAt;
+  final int updatedAt;
+  final int? deletedAt;
+  final String deviceId;
+  final double rulerTop;
+  final double rulerHeight;
+  final double rulerStep;
+  final int rulerRow;
+  final String highlight;
+  final String rowDirection;
+  final double? zoneTop;
+  final double? zoneBottom;
+  final double? zoneLeft;
+  final double? zoneRight;
+  final int? rowCount;
+  final i2.Uint8List? markup;
+  final double viewScale;
+  final double viewDx;
+  final double viewDy;
+  const PageWorkStatesData({
+    required this.id,
+    required this.createdAt,
+    required this.updatedAt,
+    this.deletedAt,
+    required this.deviceId,
+    required this.rulerTop,
+    required this.rulerHeight,
+    required this.rulerStep,
+    required this.rulerRow,
+    required this.highlight,
+    required this.rowDirection,
+    this.zoneTop,
+    this.zoneBottom,
+    this.zoneLeft,
+    this.zoneRight,
+    this.rowCount,
+    this.markup,
+    required this.viewScale,
+    required this.viewDx,
+    required this.viewDy,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['created_at'] = Variable<int>(createdAt);
+    map['updated_at'] = Variable<int>(updatedAt);
+    if (!nullToAbsent || deletedAt != null) {
+      map['deleted_at'] = Variable<int>(deletedAt);
+    }
+    map['device_id'] = Variable<String>(deviceId);
+    map['ruler_top'] = Variable<double>(rulerTop);
+    map['ruler_height'] = Variable<double>(rulerHeight);
+    map['ruler_step'] = Variable<double>(rulerStep);
+    map['ruler_row'] = Variable<int>(rulerRow);
+    map['highlight'] = Variable<String>(highlight);
+    map['row_direction'] = Variable<String>(rowDirection);
+    if (!nullToAbsent || zoneTop != null) {
+      map['zone_top'] = Variable<double>(zoneTop);
+    }
+    if (!nullToAbsent || zoneBottom != null) {
+      map['zone_bottom'] = Variable<double>(zoneBottom);
+    }
+    if (!nullToAbsent || zoneLeft != null) {
+      map['zone_left'] = Variable<double>(zoneLeft);
+    }
+    if (!nullToAbsent || zoneRight != null) {
+      map['zone_right'] = Variable<double>(zoneRight);
+    }
+    if (!nullToAbsent || rowCount != null) {
+      map['row_count'] = Variable<int>(rowCount);
+    }
+    if (!nullToAbsent || markup != null) {
+      map['markup'] = Variable<i2.Uint8List>(markup);
+    }
+    map['view_scale'] = Variable<double>(viewScale);
+    map['view_dx'] = Variable<double>(viewDx);
+    map['view_dy'] = Variable<double>(viewDy);
+    return map;
+  }
+
+  PageWorkStatesCompanion toCompanion(bool nullToAbsent) {
+    return PageWorkStatesCompanion(
+      id: Value(id),
+      createdAt: Value(createdAt),
+      updatedAt: Value(updatedAt),
+      deletedAt: deletedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(deletedAt),
+      deviceId: Value(deviceId),
+      rulerTop: Value(rulerTop),
+      rulerHeight: Value(rulerHeight),
+      rulerStep: Value(rulerStep),
+      rulerRow: Value(rulerRow),
+      highlight: Value(highlight),
+      rowDirection: Value(rowDirection),
+      zoneTop: zoneTop == null && nullToAbsent
+          ? const Value.absent()
+          : Value(zoneTop),
+      zoneBottom: zoneBottom == null && nullToAbsent
+          ? const Value.absent()
+          : Value(zoneBottom),
+      zoneLeft: zoneLeft == null && nullToAbsent
+          ? const Value.absent()
+          : Value(zoneLeft),
+      zoneRight: zoneRight == null && nullToAbsent
+          ? const Value.absent()
+          : Value(zoneRight),
+      rowCount: rowCount == null && nullToAbsent
+          ? const Value.absent()
+          : Value(rowCount),
+      markup: markup == null && nullToAbsent
+          ? const Value.absent()
+          : Value(markup),
+      viewScale: Value(viewScale),
+      viewDx: Value(viewDx),
+      viewDy: Value(viewDy),
+    );
+  }
+
+  factory PageWorkStatesData.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return PageWorkStatesData(
+      id: serializer.fromJson<String>(json['id']),
+      createdAt: serializer.fromJson<int>(json['createdAt']),
+      updatedAt: serializer.fromJson<int>(json['updatedAt']),
+      deletedAt: serializer.fromJson<int?>(json['deletedAt']),
+      deviceId: serializer.fromJson<String>(json['deviceId']),
+      rulerTop: serializer.fromJson<double>(json['rulerTop']),
+      rulerHeight: serializer.fromJson<double>(json['rulerHeight']),
+      rulerStep: serializer.fromJson<double>(json['rulerStep']),
+      rulerRow: serializer.fromJson<int>(json['rulerRow']),
+      highlight: serializer.fromJson<String>(json['highlight']),
+      rowDirection: serializer.fromJson<String>(json['rowDirection']),
+      zoneTop: serializer.fromJson<double?>(json['zoneTop']),
+      zoneBottom: serializer.fromJson<double?>(json['zoneBottom']),
+      zoneLeft: serializer.fromJson<double?>(json['zoneLeft']),
+      zoneRight: serializer.fromJson<double?>(json['zoneRight']),
+      rowCount: serializer.fromJson<int?>(json['rowCount']),
+      markup: serializer.fromJson<i2.Uint8List?>(json['markup']),
+      viewScale: serializer.fromJson<double>(json['viewScale']),
+      viewDx: serializer.fromJson<double>(json['viewDx']),
+      viewDy: serializer.fromJson<double>(json['viewDy']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'createdAt': serializer.toJson<int>(createdAt),
+      'updatedAt': serializer.toJson<int>(updatedAt),
+      'deletedAt': serializer.toJson<int?>(deletedAt),
+      'deviceId': serializer.toJson<String>(deviceId),
+      'rulerTop': serializer.toJson<double>(rulerTop),
+      'rulerHeight': serializer.toJson<double>(rulerHeight),
+      'rulerStep': serializer.toJson<double>(rulerStep),
+      'rulerRow': serializer.toJson<int>(rulerRow),
+      'highlight': serializer.toJson<String>(highlight),
+      'rowDirection': serializer.toJson<String>(rowDirection),
+      'zoneTop': serializer.toJson<double?>(zoneTop),
+      'zoneBottom': serializer.toJson<double?>(zoneBottom),
+      'zoneLeft': serializer.toJson<double?>(zoneLeft),
+      'zoneRight': serializer.toJson<double?>(zoneRight),
+      'rowCount': serializer.toJson<int?>(rowCount),
+      'markup': serializer.toJson<i2.Uint8List?>(markup),
+      'viewScale': serializer.toJson<double>(viewScale),
+      'viewDx': serializer.toJson<double>(viewDx),
+      'viewDy': serializer.toJson<double>(viewDy),
+    };
+  }
+
+  PageWorkStatesData copyWith({
+    String? id,
+    int? createdAt,
+    int? updatedAt,
+    Value<int?> deletedAt = const Value.absent(),
+    String? deviceId,
+    double? rulerTop,
+    double? rulerHeight,
+    double? rulerStep,
+    int? rulerRow,
+    String? highlight,
+    String? rowDirection,
+    Value<double?> zoneTop = const Value.absent(),
+    Value<double?> zoneBottom = const Value.absent(),
+    Value<double?> zoneLeft = const Value.absent(),
+    Value<double?> zoneRight = const Value.absent(),
+    Value<int?> rowCount = const Value.absent(),
+    Value<i2.Uint8List?> markup = const Value.absent(),
+    double? viewScale,
+    double? viewDx,
+    double? viewDy,
+  }) => PageWorkStatesData(
+    id: id ?? this.id,
+    createdAt: createdAt ?? this.createdAt,
+    updatedAt: updatedAt ?? this.updatedAt,
+    deletedAt: deletedAt.present ? deletedAt.value : this.deletedAt,
+    deviceId: deviceId ?? this.deviceId,
+    rulerTop: rulerTop ?? this.rulerTop,
+    rulerHeight: rulerHeight ?? this.rulerHeight,
+    rulerStep: rulerStep ?? this.rulerStep,
+    rulerRow: rulerRow ?? this.rulerRow,
+    highlight: highlight ?? this.highlight,
+    rowDirection: rowDirection ?? this.rowDirection,
+    zoneTop: zoneTop.present ? zoneTop.value : this.zoneTop,
+    zoneBottom: zoneBottom.present ? zoneBottom.value : this.zoneBottom,
+    zoneLeft: zoneLeft.present ? zoneLeft.value : this.zoneLeft,
+    zoneRight: zoneRight.present ? zoneRight.value : this.zoneRight,
+    rowCount: rowCount.present ? rowCount.value : this.rowCount,
+    markup: markup.present ? markup.value : this.markup,
+    viewScale: viewScale ?? this.viewScale,
+    viewDx: viewDx ?? this.viewDx,
+    viewDy: viewDy ?? this.viewDy,
+  );
+  PageWorkStatesData copyWithCompanion(PageWorkStatesCompanion data) {
+    return PageWorkStatesData(
+      id: data.id.present ? data.id.value : this.id,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+      deletedAt: data.deletedAt.present ? data.deletedAt.value : this.deletedAt,
+      deviceId: data.deviceId.present ? data.deviceId.value : this.deviceId,
+      rulerTop: data.rulerTop.present ? data.rulerTop.value : this.rulerTop,
+      rulerHeight: data.rulerHeight.present
+          ? data.rulerHeight.value
+          : this.rulerHeight,
+      rulerStep: data.rulerStep.present ? data.rulerStep.value : this.rulerStep,
+      rulerRow: data.rulerRow.present ? data.rulerRow.value : this.rulerRow,
+      highlight: data.highlight.present ? data.highlight.value : this.highlight,
+      rowDirection: data.rowDirection.present
+          ? data.rowDirection.value
+          : this.rowDirection,
+      zoneTop: data.zoneTop.present ? data.zoneTop.value : this.zoneTop,
+      zoneBottom: data.zoneBottom.present
+          ? data.zoneBottom.value
+          : this.zoneBottom,
+      zoneLeft: data.zoneLeft.present ? data.zoneLeft.value : this.zoneLeft,
+      zoneRight: data.zoneRight.present ? data.zoneRight.value : this.zoneRight,
+      rowCount: data.rowCount.present ? data.rowCount.value : this.rowCount,
+      markup: data.markup.present ? data.markup.value : this.markup,
+      viewScale: data.viewScale.present ? data.viewScale.value : this.viewScale,
+      viewDx: data.viewDx.present ? data.viewDx.value : this.viewDx,
+      viewDy: data.viewDy.present ? data.viewDy.value : this.viewDy,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('PageWorkStatesData(')
+          ..write('id: $id, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('deletedAt: $deletedAt, ')
+          ..write('deviceId: $deviceId, ')
+          ..write('rulerTop: $rulerTop, ')
+          ..write('rulerHeight: $rulerHeight, ')
+          ..write('rulerStep: $rulerStep, ')
+          ..write('rulerRow: $rulerRow, ')
+          ..write('highlight: $highlight, ')
+          ..write('rowDirection: $rowDirection, ')
+          ..write('zoneTop: $zoneTop, ')
+          ..write('zoneBottom: $zoneBottom, ')
+          ..write('zoneLeft: $zoneLeft, ')
+          ..write('zoneRight: $zoneRight, ')
+          ..write('rowCount: $rowCount, ')
+          ..write('markup: $markup, ')
+          ..write('viewScale: $viewScale, ')
+          ..write('viewDx: $viewDx, ')
+          ..write('viewDy: $viewDy')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    createdAt,
+    updatedAt,
+    deletedAt,
+    deviceId,
+    rulerTop,
+    rulerHeight,
+    rulerStep,
+    rulerRow,
+    highlight,
+    rowDirection,
+    zoneTop,
+    zoneBottom,
+    zoneLeft,
+    zoneRight,
+    rowCount,
+    $driftBlobEquality.hash(markup),
+    viewScale,
+    viewDx,
+    viewDy,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is PageWorkStatesData &&
+          other.id == this.id &&
+          other.createdAt == this.createdAt &&
+          other.updatedAt == this.updatedAt &&
+          other.deletedAt == this.deletedAt &&
+          other.deviceId == this.deviceId &&
+          other.rulerTop == this.rulerTop &&
+          other.rulerHeight == this.rulerHeight &&
+          other.rulerStep == this.rulerStep &&
+          other.rulerRow == this.rulerRow &&
+          other.highlight == this.highlight &&
+          other.rowDirection == this.rowDirection &&
+          other.zoneTop == this.zoneTop &&
+          other.zoneBottom == this.zoneBottom &&
+          other.zoneLeft == this.zoneLeft &&
+          other.zoneRight == this.zoneRight &&
+          other.rowCount == this.rowCount &&
+          $driftBlobEquality.equals(other.markup, this.markup) &&
+          other.viewScale == this.viewScale &&
+          other.viewDx == this.viewDx &&
+          other.viewDy == this.viewDy);
+}
+
+class PageWorkStatesCompanion extends UpdateCompanion<PageWorkStatesData> {
+  final Value<String> id;
+  final Value<int> createdAt;
+  final Value<int> updatedAt;
+  final Value<int?> deletedAt;
+  final Value<String> deviceId;
+  final Value<double> rulerTop;
+  final Value<double> rulerHeight;
+  final Value<double> rulerStep;
+  final Value<int> rulerRow;
+  final Value<String> highlight;
+  final Value<String> rowDirection;
+  final Value<double?> zoneTop;
+  final Value<double?> zoneBottom;
+  final Value<double?> zoneLeft;
+  final Value<double?> zoneRight;
+  final Value<int?> rowCount;
+  final Value<i2.Uint8List?> markup;
+  final Value<double> viewScale;
+  final Value<double> viewDx;
+  final Value<double> viewDy;
+  final Value<int> rowid;
+  const PageWorkStatesCompanion({
+    this.id = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.deletedAt = const Value.absent(),
+    this.deviceId = const Value.absent(),
+    this.rulerTop = const Value.absent(),
+    this.rulerHeight = const Value.absent(),
+    this.rulerStep = const Value.absent(),
+    this.rulerRow = const Value.absent(),
+    this.highlight = const Value.absent(),
+    this.rowDirection = const Value.absent(),
+    this.zoneTop = const Value.absent(),
+    this.zoneBottom = const Value.absent(),
+    this.zoneLeft = const Value.absent(),
+    this.zoneRight = const Value.absent(),
+    this.rowCount = const Value.absent(),
+    this.markup = const Value.absent(),
+    this.viewScale = const Value.absent(),
+    this.viewDx = const Value.absent(),
+    this.viewDy = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  PageWorkStatesCompanion.insert({
+    required String id,
+    required int createdAt,
+    required int updatedAt,
+    this.deletedAt = const Value.absent(),
+    required String deviceId,
+    required double rulerTop,
+    required double rulerHeight,
+    required double rulerStep,
+    required int rulerRow,
+    required String highlight,
+    this.rowDirection = const Value.absent(),
+    this.zoneTop = const Value.absent(),
+    this.zoneBottom = const Value.absent(),
+    this.zoneLeft = const Value.absent(),
+    this.zoneRight = const Value.absent(),
+    this.rowCount = const Value.absent(),
+    this.markup = const Value.absent(),
+    required double viewScale,
+    required double viewDx,
+    required double viewDy,
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       createdAt = Value(createdAt),
+       updatedAt = Value(updatedAt),
+       deviceId = Value(deviceId),
+       rulerTop = Value(rulerTop),
+       rulerHeight = Value(rulerHeight),
+       rulerStep = Value(rulerStep),
+       rulerRow = Value(rulerRow),
+       highlight = Value(highlight),
+       viewScale = Value(viewScale),
+       viewDx = Value(viewDx),
+       viewDy = Value(viewDy);
+  static Insertable<PageWorkStatesData> custom({
+    Expression<String>? id,
+    Expression<int>? createdAt,
+    Expression<int>? updatedAt,
+    Expression<int>? deletedAt,
+    Expression<String>? deviceId,
+    Expression<double>? rulerTop,
+    Expression<double>? rulerHeight,
+    Expression<double>? rulerStep,
+    Expression<int>? rulerRow,
+    Expression<String>? highlight,
+    Expression<String>? rowDirection,
+    Expression<double>? zoneTop,
+    Expression<double>? zoneBottom,
+    Expression<double>? zoneLeft,
+    Expression<double>? zoneRight,
+    Expression<int>? rowCount,
+    Expression<i2.Uint8List>? markup,
+    Expression<double>? viewScale,
+    Expression<double>? viewDx,
+    Expression<double>? viewDy,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (createdAt != null) 'created_at': createdAt,
+      if (updatedAt != null) 'updated_at': updatedAt,
+      if (deletedAt != null) 'deleted_at': deletedAt,
+      if (deviceId != null) 'device_id': deviceId,
+      if (rulerTop != null) 'ruler_top': rulerTop,
+      if (rulerHeight != null) 'ruler_height': rulerHeight,
+      if (rulerStep != null) 'ruler_step': rulerStep,
+      if (rulerRow != null) 'ruler_row': rulerRow,
+      if (highlight != null) 'highlight': highlight,
+      if (rowDirection != null) 'row_direction': rowDirection,
+      if (zoneTop != null) 'zone_top': zoneTop,
+      if (zoneBottom != null) 'zone_bottom': zoneBottom,
+      if (zoneLeft != null) 'zone_left': zoneLeft,
+      if (zoneRight != null) 'zone_right': zoneRight,
+      if (rowCount != null) 'row_count': rowCount,
+      if (markup != null) 'markup': markup,
+      if (viewScale != null) 'view_scale': viewScale,
+      if (viewDx != null) 'view_dx': viewDx,
+      if (viewDy != null) 'view_dy': viewDy,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  PageWorkStatesCompanion copyWith({
+    Value<String>? id,
+    Value<int>? createdAt,
+    Value<int>? updatedAt,
+    Value<int?>? deletedAt,
+    Value<String>? deviceId,
+    Value<double>? rulerTop,
+    Value<double>? rulerHeight,
+    Value<double>? rulerStep,
+    Value<int>? rulerRow,
+    Value<String>? highlight,
+    Value<String>? rowDirection,
+    Value<double?>? zoneTop,
+    Value<double?>? zoneBottom,
+    Value<double?>? zoneLeft,
+    Value<double?>? zoneRight,
+    Value<int?>? rowCount,
+    Value<i2.Uint8List?>? markup,
+    Value<double>? viewScale,
+    Value<double>? viewDx,
+    Value<double>? viewDy,
+    Value<int>? rowid,
+  }) {
+    return PageWorkStatesCompanion(
+      id: id ?? this.id,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+      deletedAt: deletedAt ?? this.deletedAt,
+      deviceId: deviceId ?? this.deviceId,
+      rulerTop: rulerTop ?? this.rulerTop,
+      rulerHeight: rulerHeight ?? this.rulerHeight,
+      rulerStep: rulerStep ?? this.rulerStep,
+      rulerRow: rulerRow ?? this.rulerRow,
+      highlight: highlight ?? this.highlight,
+      rowDirection: rowDirection ?? this.rowDirection,
+      zoneTop: zoneTop ?? this.zoneTop,
+      zoneBottom: zoneBottom ?? this.zoneBottom,
+      zoneLeft: zoneLeft ?? this.zoneLeft,
+      zoneRight: zoneRight ?? this.zoneRight,
+      rowCount: rowCount ?? this.rowCount,
+      markup: markup ?? this.markup,
+      viewScale: viewScale ?? this.viewScale,
+      viewDx: viewDx ?? this.viewDx,
+      viewDy: viewDy ?? this.viewDy,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<int>(createdAt.value);
+    }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<int>(updatedAt.value);
+    }
+    if (deletedAt.present) {
+      map['deleted_at'] = Variable<int>(deletedAt.value);
+    }
+    if (deviceId.present) {
+      map['device_id'] = Variable<String>(deviceId.value);
+    }
+    if (rulerTop.present) {
+      map['ruler_top'] = Variable<double>(rulerTop.value);
+    }
+    if (rulerHeight.present) {
+      map['ruler_height'] = Variable<double>(rulerHeight.value);
+    }
+    if (rulerStep.present) {
+      map['ruler_step'] = Variable<double>(rulerStep.value);
+    }
+    if (rulerRow.present) {
+      map['ruler_row'] = Variable<int>(rulerRow.value);
+    }
+    if (highlight.present) {
+      map['highlight'] = Variable<String>(highlight.value);
+    }
+    if (rowDirection.present) {
+      map['row_direction'] = Variable<String>(rowDirection.value);
+    }
+    if (zoneTop.present) {
+      map['zone_top'] = Variable<double>(zoneTop.value);
+    }
+    if (zoneBottom.present) {
+      map['zone_bottom'] = Variable<double>(zoneBottom.value);
+    }
+    if (zoneLeft.present) {
+      map['zone_left'] = Variable<double>(zoneLeft.value);
+    }
+    if (zoneRight.present) {
+      map['zone_right'] = Variable<double>(zoneRight.value);
+    }
+    if (rowCount.present) {
+      map['row_count'] = Variable<int>(rowCount.value);
+    }
+    if (markup.present) {
+      map['markup'] = Variable<i2.Uint8List>(markup.value);
+    }
+    if (viewScale.present) {
+      map['view_scale'] = Variable<double>(viewScale.value);
+    }
+    if (viewDx.present) {
+      map['view_dx'] = Variable<double>(viewDx.value);
+    }
+    if (viewDy.present) {
+      map['view_dy'] = Variable<double>(viewDy.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('PageWorkStatesCompanion(')
+          ..write('id: $id, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('deletedAt: $deletedAt, ')
+          ..write('deviceId: $deviceId, ')
+          ..write('rulerTop: $rulerTop, ')
+          ..write('rulerHeight: $rulerHeight, ')
+          ..write('rulerStep: $rulerStep, ')
+          ..write('rulerRow: $rulerRow, ')
+          ..write('highlight: $highlight, ')
+          ..write('rowDirection: $rowDirection, ')
+          ..write('zoneTop: $zoneTop, ')
+          ..write('zoneBottom: $zoneBottom, ')
+          ..write('zoneLeft: $zoneLeft, ')
+          ..write('zoneRight: $zoneRight, ')
+          ..write('rowCount: $rowCount, ')
+          ..write('markup: $markup, ')
+          ..write('viewScale: $viewScale, ')
+          ..write('viewDx: $viewDx, ')
+          ..write('viewDy: $viewDy, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class BookWorkStates extends Table
+    with TableInfo<BookWorkStates, BookWorkStatesData> {
   @override
   final GeneratedDatabase attachedDatabase;
   final String? _alias;
@@ -1550,8 +6090,34 @@ class BookWorkStates extends Table with TableInfo {
   @override
   Set<GeneratedColumn> get $primaryKey => {id};
   @override
-  Never map(Map<String, dynamic> data, {String? tablePrefix}) {
-    throw UnsupportedError('TableInfo.map in schema verification code');
+  BookWorkStatesData map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return BookWorkStatesData(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id'],
+      )!,
+      createdAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}created_at'],
+      )!,
+      updatedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}updated_at'],
+      )!,
+      deletedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}deleted_at'],
+      ),
+      deviceId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}device_id'],
+      )!,
+      currentPageId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}current_page_id'],
+      )!,
+    );
   }
 
   @override
@@ -1565,7 +6131,246 @@ class BookWorkStates extends Table with TableInfo {
   bool get dontWriteConstraints => true;
 }
 
-class WorkSessions extends Table with TableInfo {
+class BookWorkStatesData extends DataClass
+    implements Insertable<BookWorkStatesData> {
+  final String id;
+  final int createdAt;
+  final int updatedAt;
+  final int? deletedAt;
+  final String deviceId;
+  final String currentPageId;
+  const BookWorkStatesData({
+    required this.id,
+    required this.createdAt,
+    required this.updatedAt,
+    this.deletedAt,
+    required this.deviceId,
+    required this.currentPageId,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['created_at'] = Variable<int>(createdAt);
+    map['updated_at'] = Variable<int>(updatedAt);
+    if (!nullToAbsent || deletedAt != null) {
+      map['deleted_at'] = Variable<int>(deletedAt);
+    }
+    map['device_id'] = Variable<String>(deviceId);
+    map['current_page_id'] = Variable<String>(currentPageId);
+    return map;
+  }
+
+  BookWorkStatesCompanion toCompanion(bool nullToAbsent) {
+    return BookWorkStatesCompanion(
+      id: Value(id),
+      createdAt: Value(createdAt),
+      updatedAt: Value(updatedAt),
+      deletedAt: deletedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(deletedAt),
+      deviceId: Value(deviceId),
+      currentPageId: Value(currentPageId),
+    );
+  }
+
+  factory BookWorkStatesData.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return BookWorkStatesData(
+      id: serializer.fromJson<String>(json['id']),
+      createdAt: serializer.fromJson<int>(json['createdAt']),
+      updatedAt: serializer.fromJson<int>(json['updatedAt']),
+      deletedAt: serializer.fromJson<int?>(json['deletedAt']),
+      deviceId: serializer.fromJson<String>(json['deviceId']),
+      currentPageId: serializer.fromJson<String>(json['currentPageId']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'createdAt': serializer.toJson<int>(createdAt),
+      'updatedAt': serializer.toJson<int>(updatedAt),
+      'deletedAt': serializer.toJson<int?>(deletedAt),
+      'deviceId': serializer.toJson<String>(deviceId),
+      'currentPageId': serializer.toJson<String>(currentPageId),
+    };
+  }
+
+  BookWorkStatesData copyWith({
+    String? id,
+    int? createdAt,
+    int? updatedAt,
+    Value<int?> deletedAt = const Value.absent(),
+    String? deviceId,
+    String? currentPageId,
+  }) => BookWorkStatesData(
+    id: id ?? this.id,
+    createdAt: createdAt ?? this.createdAt,
+    updatedAt: updatedAt ?? this.updatedAt,
+    deletedAt: deletedAt.present ? deletedAt.value : this.deletedAt,
+    deviceId: deviceId ?? this.deviceId,
+    currentPageId: currentPageId ?? this.currentPageId,
+  );
+  BookWorkStatesData copyWithCompanion(BookWorkStatesCompanion data) {
+    return BookWorkStatesData(
+      id: data.id.present ? data.id.value : this.id,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+      deletedAt: data.deletedAt.present ? data.deletedAt.value : this.deletedAt,
+      deviceId: data.deviceId.present ? data.deviceId.value : this.deviceId,
+      currentPageId: data.currentPageId.present
+          ? data.currentPageId.value
+          : this.currentPageId,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('BookWorkStatesData(')
+          ..write('id: $id, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('deletedAt: $deletedAt, ')
+          ..write('deviceId: $deviceId, ')
+          ..write('currentPageId: $currentPageId')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode =>
+      Object.hash(id, createdAt, updatedAt, deletedAt, deviceId, currentPageId);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is BookWorkStatesData &&
+          other.id == this.id &&
+          other.createdAt == this.createdAt &&
+          other.updatedAt == this.updatedAt &&
+          other.deletedAt == this.deletedAt &&
+          other.deviceId == this.deviceId &&
+          other.currentPageId == this.currentPageId);
+}
+
+class BookWorkStatesCompanion extends UpdateCompanion<BookWorkStatesData> {
+  final Value<String> id;
+  final Value<int> createdAt;
+  final Value<int> updatedAt;
+  final Value<int?> deletedAt;
+  final Value<String> deviceId;
+  final Value<String> currentPageId;
+  final Value<int> rowid;
+  const BookWorkStatesCompanion({
+    this.id = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.deletedAt = const Value.absent(),
+    this.deviceId = const Value.absent(),
+    this.currentPageId = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  BookWorkStatesCompanion.insert({
+    required String id,
+    required int createdAt,
+    required int updatedAt,
+    this.deletedAt = const Value.absent(),
+    required String deviceId,
+    required String currentPageId,
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       createdAt = Value(createdAt),
+       updatedAt = Value(updatedAt),
+       deviceId = Value(deviceId),
+       currentPageId = Value(currentPageId);
+  static Insertable<BookWorkStatesData> custom({
+    Expression<String>? id,
+    Expression<int>? createdAt,
+    Expression<int>? updatedAt,
+    Expression<int>? deletedAt,
+    Expression<String>? deviceId,
+    Expression<String>? currentPageId,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (createdAt != null) 'created_at': createdAt,
+      if (updatedAt != null) 'updated_at': updatedAt,
+      if (deletedAt != null) 'deleted_at': deletedAt,
+      if (deviceId != null) 'device_id': deviceId,
+      if (currentPageId != null) 'current_page_id': currentPageId,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  BookWorkStatesCompanion copyWith({
+    Value<String>? id,
+    Value<int>? createdAt,
+    Value<int>? updatedAt,
+    Value<int?>? deletedAt,
+    Value<String>? deviceId,
+    Value<String>? currentPageId,
+    Value<int>? rowid,
+  }) {
+    return BookWorkStatesCompanion(
+      id: id ?? this.id,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+      deletedAt: deletedAt ?? this.deletedAt,
+      deviceId: deviceId ?? this.deviceId,
+      currentPageId: currentPageId ?? this.currentPageId,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<int>(createdAt.value);
+    }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<int>(updatedAt.value);
+    }
+    if (deletedAt.present) {
+      map['deleted_at'] = Variable<int>(deletedAt.value);
+    }
+    if (deviceId.present) {
+      map['device_id'] = Variable<String>(deviceId.value);
+    }
+    if (currentPageId.present) {
+      map['current_page_id'] = Variable<String>(currentPageId.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('BookWorkStatesCompanion(')
+          ..write('id: $id, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('deletedAt: $deletedAt, ')
+          ..write('deviceId: $deviceId, ')
+          ..write('currentPageId: $currentPageId, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class WorkSessions extends Table
+    with TableInfo<WorkSessions, WorkSessionsData> {
   @override
   final GeneratedDatabase attachedDatabase;
   final String? _alias;
@@ -1653,8 +6458,42 @@ class WorkSessions extends Table with TableInfo {
   @override
   Set<GeneratedColumn> get $primaryKey => {id};
   @override
-  Never map(Map<String, dynamic> data, {String? tablePrefix}) {
-    throw UnsupportedError('TableInfo.map in schema verification code');
+  WorkSessionsData map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return WorkSessionsData(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id'],
+      )!,
+      createdAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}created_at'],
+      )!,
+      updatedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}updated_at'],
+      )!,
+      deletedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}deleted_at'],
+      ),
+      deviceId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}device_id'],
+      )!,
+      projectId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}project_id'],
+      )!,
+      startedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}started_at'],
+      )!,
+      endedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}ended_at'],
+      ),
+    );
   }
 
   @override
@@ -1668,7 +6507,300 @@ class WorkSessions extends Table with TableInfo {
   bool get dontWriteConstraints => true;
 }
 
-class FlossStock extends Table with TableInfo {
+class WorkSessionsData extends DataClass
+    implements Insertable<WorkSessionsData> {
+  final String id;
+  final int createdAt;
+  final int updatedAt;
+  final int? deletedAt;
+  final String deviceId;
+  final String projectId;
+  final int startedAt;
+  final int? endedAt;
+  const WorkSessionsData({
+    required this.id,
+    required this.createdAt,
+    required this.updatedAt,
+    this.deletedAt,
+    required this.deviceId,
+    required this.projectId,
+    required this.startedAt,
+    this.endedAt,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['created_at'] = Variable<int>(createdAt);
+    map['updated_at'] = Variable<int>(updatedAt);
+    if (!nullToAbsent || deletedAt != null) {
+      map['deleted_at'] = Variable<int>(deletedAt);
+    }
+    map['device_id'] = Variable<String>(deviceId);
+    map['project_id'] = Variable<String>(projectId);
+    map['started_at'] = Variable<int>(startedAt);
+    if (!nullToAbsent || endedAt != null) {
+      map['ended_at'] = Variable<int>(endedAt);
+    }
+    return map;
+  }
+
+  WorkSessionsCompanion toCompanion(bool nullToAbsent) {
+    return WorkSessionsCompanion(
+      id: Value(id),
+      createdAt: Value(createdAt),
+      updatedAt: Value(updatedAt),
+      deletedAt: deletedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(deletedAt),
+      deviceId: Value(deviceId),
+      projectId: Value(projectId),
+      startedAt: Value(startedAt),
+      endedAt: endedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(endedAt),
+    );
+  }
+
+  factory WorkSessionsData.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return WorkSessionsData(
+      id: serializer.fromJson<String>(json['id']),
+      createdAt: serializer.fromJson<int>(json['createdAt']),
+      updatedAt: serializer.fromJson<int>(json['updatedAt']),
+      deletedAt: serializer.fromJson<int?>(json['deletedAt']),
+      deviceId: serializer.fromJson<String>(json['deviceId']),
+      projectId: serializer.fromJson<String>(json['projectId']),
+      startedAt: serializer.fromJson<int>(json['startedAt']),
+      endedAt: serializer.fromJson<int?>(json['endedAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'createdAt': serializer.toJson<int>(createdAt),
+      'updatedAt': serializer.toJson<int>(updatedAt),
+      'deletedAt': serializer.toJson<int?>(deletedAt),
+      'deviceId': serializer.toJson<String>(deviceId),
+      'projectId': serializer.toJson<String>(projectId),
+      'startedAt': serializer.toJson<int>(startedAt),
+      'endedAt': serializer.toJson<int?>(endedAt),
+    };
+  }
+
+  WorkSessionsData copyWith({
+    String? id,
+    int? createdAt,
+    int? updatedAt,
+    Value<int?> deletedAt = const Value.absent(),
+    String? deviceId,
+    String? projectId,
+    int? startedAt,
+    Value<int?> endedAt = const Value.absent(),
+  }) => WorkSessionsData(
+    id: id ?? this.id,
+    createdAt: createdAt ?? this.createdAt,
+    updatedAt: updatedAt ?? this.updatedAt,
+    deletedAt: deletedAt.present ? deletedAt.value : this.deletedAt,
+    deviceId: deviceId ?? this.deviceId,
+    projectId: projectId ?? this.projectId,
+    startedAt: startedAt ?? this.startedAt,
+    endedAt: endedAt.present ? endedAt.value : this.endedAt,
+  );
+  WorkSessionsData copyWithCompanion(WorkSessionsCompanion data) {
+    return WorkSessionsData(
+      id: data.id.present ? data.id.value : this.id,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+      deletedAt: data.deletedAt.present ? data.deletedAt.value : this.deletedAt,
+      deviceId: data.deviceId.present ? data.deviceId.value : this.deviceId,
+      projectId: data.projectId.present ? data.projectId.value : this.projectId,
+      startedAt: data.startedAt.present ? data.startedAt.value : this.startedAt,
+      endedAt: data.endedAt.present ? data.endedAt.value : this.endedAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('WorkSessionsData(')
+          ..write('id: $id, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('deletedAt: $deletedAt, ')
+          ..write('deviceId: $deviceId, ')
+          ..write('projectId: $projectId, ')
+          ..write('startedAt: $startedAt, ')
+          ..write('endedAt: $endedAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    createdAt,
+    updatedAt,
+    deletedAt,
+    deviceId,
+    projectId,
+    startedAt,
+    endedAt,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is WorkSessionsData &&
+          other.id == this.id &&
+          other.createdAt == this.createdAt &&
+          other.updatedAt == this.updatedAt &&
+          other.deletedAt == this.deletedAt &&
+          other.deviceId == this.deviceId &&
+          other.projectId == this.projectId &&
+          other.startedAt == this.startedAt &&
+          other.endedAt == this.endedAt);
+}
+
+class WorkSessionsCompanion extends UpdateCompanion<WorkSessionsData> {
+  final Value<String> id;
+  final Value<int> createdAt;
+  final Value<int> updatedAt;
+  final Value<int?> deletedAt;
+  final Value<String> deviceId;
+  final Value<String> projectId;
+  final Value<int> startedAt;
+  final Value<int?> endedAt;
+  final Value<int> rowid;
+  const WorkSessionsCompanion({
+    this.id = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.deletedAt = const Value.absent(),
+    this.deviceId = const Value.absent(),
+    this.projectId = const Value.absent(),
+    this.startedAt = const Value.absent(),
+    this.endedAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  WorkSessionsCompanion.insert({
+    required String id,
+    required int createdAt,
+    required int updatedAt,
+    this.deletedAt = const Value.absent(),
+    required String deviceId,
+    required String projectId,
+    required int startedAt,
+    this.endedAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       createdAt = Value(createdAt),
+       updatedAt = Value(updatedAt),
+       deviceId = Value(deviceId),
+       projectId = Value(projectId),
+       startedAt = Value(startedAt);
+  static Insertable<WorkSessionsData> custom({
+    Expression<String>? id,
+    Expression<int>? createdAt,
+    Expression<int>? updatedAt,
+    Expression<int>? deletedAt,
+    Expression<String>? deviceId,
+    Expression<String>? projectId,
+    Expression<int>? startedAt,
+    Expression<int>? endedAt,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (createdAt != null) 'created_at': createdAt,
+      if (updatedAt != null) 'updated_at': updatedAt,
+      if (deletedAt != null) 'deleted_at': deletedAt,
+      if (deviceId != null) 'device_id': deviceId,
+      if (projectId != null) 'project_id': projectId,
+      if (startedAt != null) 'started_at': startedAt,
+      if (endedAt != null) 'ended_at': endedAt,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  WorkSessionsCompanion copyWith({
+    Value<String>? id,
+    Value<int>? createdAt,
+    Value<int>? updatedAt,
+    Value<int?>? deletedAt,
+    Value<String>? deviceId,
+    Value<String>? projectId,
+    Value<int>? startedAt,
+    Value<int?>? endedAt,
+    Value<int>? rowid,
+  }) {
+    return WorkSessionsCompanion(
+      id: id ?? this.id,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+      deletedAt: deletedAt ?? this.deletedAt,
+      deviceId: deviceId ?? this.deviceId,
+      projectId: projectId ?? this.projectId,
+      startedAt: startedAt ?? this.startedAt,
+      endedAt: endedAt ?? this.endedAt,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<int>(createdAt.value);
+    }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<int>(updatedAt.value);
+    }
+    if (deletedAt.present) {
+      map['deleted_at'] = Variable<int>(deletedAt.value);
+    }
+    if (deviceId.present) {
+      map['device_id'] = Variable<String>(deviceId.value);
+    }
+    if (projectId.present) {
+      map['project_id'] = Variable<String>(projectId.value);
+    }
+    if (startedAt.present) {
+      map['started_at'] = Variable<int>(startedAt.value);
+    }
+    if (endedAt.present) {
+      map['ended_at'] = Variable<int>(endedAt.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('WorkSessionsCompanion(')
+          ..write('id: $id, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('deletedAt: $deletedAt, ')
+          ..write('deviceId: $deviceId, ')
+          ..write('projectId: $projectId, ')
+          ..write('startedAt: $startedAt, ')
+          ..write('endedAt: $endedAt, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class FlossStock extends Table with TableInfo<FlossStock, FlossStockData> {
   @override
   final GeneratedDatabase attachedDatabase;
   final String? _alias;
@@ -1756,8 +6888,42 @@ class FlossStock extends Table with TableInfo {
   @override
   Set<GeneratedColumn> get $primaryKey => {id};
   @override
-  Never map(Map<String, dynamic> data, {String? tablePrefix}) {
-    throw UnsupportedError('TableInfo.map in schema verification code');
+  FlossStockData map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return FlossStockData(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id'],
+      )!,
+      createdAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}created_at'],
+      )!,
+      updatedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}updated_at'],
+      )!,
+      deletedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}deleted_at'],
+      ),
+      deviceId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}device_id'],
+      )!,
+      brand: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}brand'],
+      )!,
+      code: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}code'],
+      )!,
+      skeins: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}skeins'],
+      )!,
+    );
   }
 
   @override
@@ -1769,6 +6935,295 @@ class FlossStock extends Table with TableInfo {
   List<String> get customConstraints => const ['PRIMARY KEY(id)'];
   @override
   bool get dontWriteConstraints => true;
+}
+
+class FlossStockData extends DataClass implements Insertable<FlossStockData> {
+  final String id;
+  final int createdAt;
+  final int updatedAt;
+  final int? deletedAt;
+  final String deviceId;
+  final String brand;
+  final String code;
+  final double skeins;
+  const FlossStockData({
+    required this.id,
+    required this.createdAt,
+    required this.updatedAt,
+    this.deletedAt,
+    required this.deviceId,
+    required this.brand,
+    required this.code,
+    required this.skeins,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    map['created_at'] = Variable<int>(createdAt);
+    map['updated_at'] = Variable<int>(updatedAt);
+    if (!nullToAbsent || deletedAt != null) {
+      map['deleted_at'] = Variable<int>(deletedAt);
+    }
+    map['device_id'] = Variable<String>(deviceId);
+    map['brand'] = Variable<String>(brand);
+    map['code'] = Variable<String>(code);
+    map['skeins'] = Variable<double>(skeins);
+    return map;
+  }
+
+  FlossStockCompanion toCompanion(bool nullToAbsent) {
+    return FlossStockCompanion(
+      id: Value(id),
+      createdAt: Value(createdAt),
+      updatedAt: Value(updatedAt),
+      deletedAt: deletedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(deletedAt),
+      deviceId: Value(deviceId),
+      brand: Value(brand),
+      code: Value(code),
+      skeins: Value(skeins),
+    );
+  }
+
+  factory FlossStockData.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return FlossStockData(
+      id: serializer.fromJson<String>(json['id']),
+      createdAt: serializer.fromJson<int>(json['createdAt']),
+      updatedAt: serializer.fromJson<int>(json['updatedAt']),
+      deletedAt: serializer.fromJson<int?>(json['deletedAt']),
+      deviceId: serializer.fromJson<String>(json['deviceId']),
+      brand: serializer.fromJson<String>(json['brand']),
+      code: serializer.fromJson<String>(json['code']),
+      skeins: serializer.fromJson<double>(json['skeins']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'createdAt': serializer.toJson<int>(createdAt),
+      'updatedAt': serializer.toJson<int>(updatedAt),
+      'deletedAt': serializer.toJson<int?>(deletedAt),
+      'deviceId': serializer.toJson<String>(deviceId),
+      'brand': serializer.toJson<String>(brand),
+      'code': serializer.toJson<String>(code),
+      'skeins': serializer.toJson<double>(skeins),
+    };
+  }
+
+  FlossStockData copyWith({
+    String? id,
+    int? createdAt,
+    int? updatedAt,
+    Value<int?> deletedAt = const Value.absent(),
+    String? deviceId,
+    String? brand,
+    String? code,
+    double? skeins,
+  }) => FlossStockData(
+    id: id ?? this.id,
+    createdAt: createdAt ?? this.createdAt,
+    updatedAt: updatedAt ?? this.updatedAt,
+    deletedAt: deletedAt.present ? deletedAt.value : this.deletedAt,
+    deviceId: deviceId ?? this.deviceId,
+    brand: brand ?? this.brand,
+    code: code ?? this.code,
+    skeins: skeins ?? this.skeins,
+  );
+  FlossStockData copyWithCompanion(FlossStockCompanion data) {
+    return FlossStockData(
+      id: data.id.present ? data.id.value : this.id,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+      updatedAt: data.updatedAt.present ? data.updatedAt.value : this.updatedAt,
+      deletedAt: data.deletedAt.present ? data.deletedAt.value : this.deletedAt,
+      deviceId: data.deviceId.present ? data.deviceId.value : this.deviceId,
+      brand: data.brand.present ? data.brand.value : this.brand,
+      code: data.code.present ? data.code.value : this.code,
+      skeins: data.skeins.present ? data.skeins.value : this.skeins,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('FlossStockData(')
+          ..write('id: $id, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('deletedAt: $deletedAt, ')
+          ..write('deviceId: $deviceId, ')
+          ..write('brand: $brand, ')
+          ..write('code: $code, ')
+          ..write('skeins: $skeins')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    createdAt,
+    updatedAt,
+    deletedAt,
+    deviceId,
+    brand,
+    code,
+    skeins,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is FlossStockData &&
+          other.id == this.id &&
+          other.createdAt == this.createdAt &&
+          other.updatedAt == this.updatedAt &&
+          other.deletedAt == this.deletedAt &&
+          other.deviceId == this.deviceId &&
+          other.brand == this.brand &&
+          other.code == this.code &&
+          other.skeins == this.skeins);
+}
+
+class FlossStockCompanion extends UpdateCompanion<FlossStockData> {
+  final Value<String> id;
+  final Value<int> createdAt;
+  final Value<int> updatedAt;
+  final Value<int?> deletedAt;
+  final Value<String> deviceId;
+  final Value<String> brand;
+  final Value<String> code;
+  final Value<double> skeins;
+  final Value<int> rowid;
+  const FlossStockCompanion({
+    this.id = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.updatedAt = const Value.absent(),
+    this.deletedAt = const Value.absent(),
+    this.deviceId = const Value.absent(),
+    this.brand = const Value.absent(),
+    this.code = const Value.absent(),
+    this.skeins = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  FlossStockCompanion.insert({
+    required String id,
+    required int createdAt,
+    required int updatedAt,
+    this.deletedAt = const Value.absent(),
+    required String deviceId,
+    required String brand,
+    required String code,
+    required double skeins,
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       createdAt = Value(createdAt),
+       updatedAt = Value(updatedAt),
+       deviceId = Value(deviceId),
+       brand = Value(brand),
+       code = Value(code),
+       skeins = Value(skeins);
+  static Insertable<FlossStockData> custom({
+    Expression<String>? id,
+    Expression<int>? createdAt,
+    Expression<int>? updatedAt,
+    Expression<int>? deletedAt,
+    Expression<String>? deviceId,
+    Expression<String>? brand,
+    Expression<String>? code,
+    Expression<double>? skeins,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (createdAt != null) 'created_at': createdAt,
+      if (updatedAt != null) 'updated_at': updatedAt,
+      if (deletedAt != null) 'deleted_at': deletedAt,
+      if (deviceId != null) 'device_id': deviceId,
+      if (brand != null) 'brand': brand,
+      if (code != null) 'code': code,
+      if (skeins != null) 'skeins': skeins,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  FlossStockCompanion copyWith({
+    Value<String>? id,
+    Value<int>? createdAt,
+    Value<int>? updatedAt,
+    Value<int?>? deletedAt,
+    Value<String>? deviceId,
+    Value<String>? brand,
+    Value<String>? code,
+    Value<double>? skeins,
+    Value<int>? rowid,
+  }) {
+    return FlossStockCompanion(
+      id: id ?? this.id,
+      createdAt: createdAt ?? this.createdAt,
+      updatedAt: updatedAt ?? this.updatedAt,
+      deletedAt: deletedAt ?? this.deletedAt,
+      deviceId: deviceId ?? this.deviceId,
+      brand: brand ?? this.brand,
+      code: code ?? this.code,
+      skeins: skeins ?? this.skeins,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<int>(createdAt.value);
+    }
+    if (updatedAt.present) {
+      map['updated_at'] = Variable<int>(updatedAt.value);
+    }
+    if (deletedAt.present) {
+      map['deleted_at'] = Variable<int>(deletedAt.value);
+    }
+    if (deviceId.present) {
+      map['device_id'] = Variable<String>(deviceId.value);
+    }
+    if (brand.present) {
+      map['brand'] = Variable<String>(brand.value);
+    }
+    if (code.present) {
+      map['code'] = Variable<String>(code.value);
+    }
+    if (skeins.present) {
+      map['skeins'] = Variable<double>(skeins.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('FlossStockCompanion(')
+          ..write('id: $id, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('updatedAt: $updatedAt, ')
+          ..write('deletedAt: $deletedAt, ')
+          ..write('deviceId: $deviceId, ')
+          ..write('brand: $brand, ')
+          ..write('code: $code, ')
+          ..write('skeins: $skeins, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
 }
 
 class DatabaseAtV13 extends GeneratedDatabase {
