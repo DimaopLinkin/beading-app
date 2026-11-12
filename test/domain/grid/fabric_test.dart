@@ -81,6 +81,7 @@ void main() {
   });
 
   group('крестиков на сантиметр и запас ткани', () {
+    final Fabric aida14 = Fabric.create(kind: FabricKind.aida, count: 14).valueOrNull!;
     test('Аида 14: 5,51 крестика на см; Аида 18: 7,09', () {
       expect(aida14.stitchesPerCm, closeTo(14 / 2.54, 1e-9));
       expect(Fabric.create(kind: FabricKind.aida, count: 18).valueOrNull!.stitchesPerCm, closeTo(18 / 2.54, 1e-9));
