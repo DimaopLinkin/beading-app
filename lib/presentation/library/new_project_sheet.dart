@@ -3,6 +3,7 @@ import 'package:beading/presentation/l10n/app_localizations.dart';
 import 'package:beading/presentation/library/new_project_entry.dart';
 import 'package:beading/presentation/library/project_labels.dart';
 import 'package:beading/presentation/theme/tokens.dart';
+import 'package:beading/presentation/widgets/app_list_section.dart';
 import 'package:flutter/cupertino.dart';
 
 /// Показывает системный iOS-лист «Новый проект»: сначала ремесло, затем способы создания из [registry].
@@ -87,7 +88,7 @@ class _NewProjectSheetState extends State<NewProjectSheet> {
                 ),
               )
             else
-              CupertinoListSection.insetGrouped(
+              AppListSection(
                 children: <Widget>[
                   for (final NewProjectEntry entry in entries)
                     CupertinoListTile(

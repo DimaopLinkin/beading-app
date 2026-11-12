@@ -15,6 +15,7 @@ import 'package:beading/presentation/pattern_template/pattern_template_state.dar
 import 'package:beading/presentation/pattern_template/template_color_sheet.dart';
 import 'package:beading/presentation/theme/app_icons.dart';
 import 'package:beading/presentation/theme/tokens.dart';
+import 'package:beading/presentation/widgets/app_list_section.dart';
 import 'package:beading/presentation/widgets/color_swatch.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -183,7 +184,7 @@ class _Content extends StatelessWidget {
             Expanded(
               child: ListView(
                 children: <Widget>[
-                  CupertinoListSection.insetGrouped(
+                  AppListSection(
                     header: Text(l10n.templateSectionKind),
                     children: <Widget>[
                       Padding(
@@ -192,7 +193,7 @@ class _Content extends StatelessWidget {
                       ),
                     ],
                   ),
-                  CupertinoListSection.insetGrouped(
+                  AppListSection(
                     header: Text(l10n.templateSectionSize),
                     children: <Widget>[
                       _StepperTile(
@@ -212,7 +213,7 @@ class _Content extends StatelessWidget {
                       ),
                     ],
                   ),
-                  CupertinoListSection.insetGrouped(
+                  AppListSection(
                     header: Text(l10n.templateSectionTechnique),
                     children: <Widget>[
                       _ChoiceTile(
@@ -229,15 +230,15 @@ class _Content extends StatelessWidget {
                       ),
                     ],
                   ),
-                  CupertinoListSection.insetGrouped(
+                  AppListSection(
                     header: Text(l10n.templateSectionParams),
                     children: _paramRows(context, state, cubit),
                   ),
-                  CupertinoListSection.insetGrouped(
+                  AppListSection(
                     header: Text(l10n.templateSectionColors),
                     children: _colorRows(context, state, cubit),
                   ),
-                  CupertinoListSection.insetGrouped(
+                  AppListSection(
                     header: Text(l10n.templateSectionSymmetry),
                     footer: p.isShifted && p.symmetry != PatternSymmetry.none
                         ? Text(l10n.templateSymmetryApproximate, key: const ValueKey<String>('template-symmetry-note'))
@@ -251,7 +252,7 @@ class _Content extends StatelessWidget {
                       ),
                     ],
                   ),
-                  CupertinoListSection.insetGrouped(
+                  AppListSection(
                     header: Text(l10n.templateSectionName),
                     children: <Widget>[
                       CupertinoListTile(
