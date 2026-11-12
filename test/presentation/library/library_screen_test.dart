@@ -1,11 +1,13 @@
 import 'package:beading/core/failure.dart';
 import 'package:beading/domain/projects/craft.dart';
+import 'package:beading/domain/projects/load_project_preview.dart';
 import 'package:beading/domain/projects/project.dart';
 import 'package:beading/domain/projects/use_cases/delete_project.dart';
 import 'package:beading/domain/projects/use_cases/duplicate_project.dart';
 import 'package:beading/domain/projects/use_cases/rename_project.dart';
 import 'package:beading/domain/projects/use_cases/watch_projects.dart';
 import 'package:beading/presentation/l10n/app_localizations.dart';
+import 'package:beading/presentation/library/grid_thumbnail.dart';
 import 'package:beading/presentation/library/library_cubit.dart';
 import 'package:beading/presentation/library/library_screen.dart';
 import 'package:beading/presentation/library/new_project_entry.dart';
@@ -17,6 +19,8 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import '../../support/fake_clock.dart';
+import '../../support/fake_grid_pattern.dart';
+import '../../support/fake_image_pattern.dart';
 import '../../support/fake_project_repository.dart';
 import 'library_cubit_test.dart' show project;
 
@@ -48,6 +52,7 @@ void main() {
     VoidCallback? onOpenCatalog,
     void Function(BuildContext, Project)? onOpenMaterials,
     void Function(BuildContext, Project)? onShareFile,
+    LoadProjectPreview? loadPreview,
   }) async {
     final FakeProjectRepository source = repository;
     final LibraryCubit cubit = LibraryCubit(
@@ -73,6 +78,7 @@ void main() {
           child: LibraryScreen(
             newProjects: newProjects,
             thumbnails: thumbnails,
+            loadPreview: loadPreview,
             onOpenProject: (_, p) => opened.add(p.id),
             onOpenSettings: onOpenSettings,
             onOpenCatalog: onOpenCatalog,
@@ -154,6 +160,40 @@ void main() {
     expect(find.text('превью-маркер'), findsOneWidget);
   });
 
+  Project gridProject(String id, {Craft craft = Craft.beading}) => Project(
+    id: id,
+    name: 'Схема $id',
+    status: ProjectStatus.idea,
+    craft: craft,
+    technique: Technique.defaultFor(craft),
+    contentKind: ContentKind.grid,
+    notes: '',
+    coverPath: null,
+    lastWorkedAt: DateTime.utc(2026),
+  );
+
+  testWidgets('на карточке схемы виден процент готовности и картинка', (tester) async {
+    final FakeGridPatternRepository patterns = FakeGridPatternRepository();
+    final FakeGridProgressStore rows = FakeGridProgressStore()..rows.add(0);
+    patterns.byProject['a'] = sampleGridPattern(projectId: 'a');
+    repository.projects['a'] = gridProject('a');
+    repository.projects['b'] = project('b', 'Без схемы');
+    await pumpScreen(
+      tester,
+      loadPreview: LoadProjectPreview(
+        patterns: patterns,
+        rows: rows,
+        cells: FakeCellProgressStore(),
+        files: FakeFileStore(),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.text('25%'), findsOneWidget);
+    expect(find.byType(GridThumbnail), findsOneWidget);
+    expect(find.byKey(const ValueKey<String>('project-progress')), findsOneWidget, reason: 'у проекта без схемы нет');
+  });
+
   testWidgets('кнопка настроек вызывает onOpenSettings', (tester) async {
     var settingsOpened = 0;
     await pumpScreen(tester, onOpenSettings: () => settingsOpened++);
@@ -183,18 +223,6 @@ void main() {
 
     expect(find.bySemanticsLabel('Каталог цветов'), findsNothing);
   });
-
-  Project gridProject(String id, {Craft craft = Craft.beading}) => Project(
-    id: id,
-    name: 'Схема $id',
-    status: ProjectStatus.idea,
-    craft: craft,
-    technique: Technique.defaultFor(craft),
-    contentKind: ContentKind.grid,
-    notes: '',
-    coverPath: null,
-    lastWorkedAt: DateTime.utc(2026),
-  );
 
   testWidgets('«Поделиться файлом» есть в меню, только если передан обработчик', (tester) async {
     repository.projects['g'] = gridProject('g');

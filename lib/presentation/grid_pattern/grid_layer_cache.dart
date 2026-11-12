@@ -250,6 +250,12 @@ final class GridLayerCache {
           scene.cellRect(CellPosition(column, row)).deflate(shortSide * 0.07),
           radius,
         );
+        if (options.highlightColor == value && StitchCells.blendsIntoSurface(base, style.realistic.surface)) {
+          fill
+            ..color = StitchCells.highlightBacking
+            ..style = PaintingStyle.fill;
+          canvas.drawRRect(bead.inflate(shortSide * 0.07), fill);
+        }
         _paintBead(canvas, fill, bead, base, options.showFinish ? BeadFinish.parse(color?.finish) : null);
         if (options.showSymbols && color?.symbol != null) {
           final TextPainter text = _symbol(color!.symbol!, shortSide, base);
@@ -359,6 +365,11 @@ final class GridLayerCache {
         Color base = color == null ? _style!.unknown : Color.fromARGB(255, color.rgb.r, color.rgb.g, color.rgb.b);
         if (dimmed) base = StitchCells.dim(base, surface);
         final Rect cell = scene.cellRect(CellPosition(column, row));
+        // Выбранный цвет, сливающийся с фоном (белый на белом), получает плашку-подложку.
+        if (options.highlightColor == value && StitchCells.blendsIntoSurface(base, surface)) {
+          paint.color = StitchCells.highlightBacking;
+          canvas.drawRect(cell, paint);
+        }
         final String? symbol = color?.symbol;
         // Цвет без знака не остаётся пустым даже в режиме «знаки».
         final StitchStyle effective = look == StitchStyle.symbol && symbol == null ? StitchStyle.color : look;

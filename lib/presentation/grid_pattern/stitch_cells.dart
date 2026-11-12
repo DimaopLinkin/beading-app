@@ -9,6 +9,13 @@ abstract final class StitchCells {
   /// Цвет [base], притушенный к [surface] (подсветка одного цвета).
   static Color dim(Color base, Color surface) => Color.lerp(base, surface, dimAmount)!;
 
+  /// Светлому цвету (белый, молочный) подсветка «притушить остальные» ничего не даёт: он сливается с подложкой.
+  static bool blendsIntoSurface(Color base, Color surface) =>
+      (base.computeLuminance() - surface.computeLuminance()).abs() < 0.22;
+
+  /// Подложка под выбранной клеткой, у которой цвет сливается с фоном: серо-синяя плашка, на ней виден и белый.
+  static const Color highlightBacking = Color(0x66607D8B);
+
   /// Толщина стежка относительно меньшей стороны клетки: 2 нитки — `0,32`, как в реалистичном виде.
   static double strandWidth(int strands) => math.min(0.5, 0.2 + 0.06 * strands);
 

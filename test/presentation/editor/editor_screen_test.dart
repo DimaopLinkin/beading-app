@@ -101,6 +101,19 @@ void main() {
     });
   }
 
+  testWidgets('кнопка «Готово» есть в панели и дописывает несохранённые правки', (tester) async {
+    await pumpEditor(tester);
+    await tester.tapAt(tester.getCenter(find.byType(EditorCanvas)));
+    await tester.pump();
+    expect(find.text('Готово'), findsOneWidget);
+
+    await tester.tap(find.byKey(const ValueKey<String>('editor-done')));
+    await tester.pump(const Duration(seconds: 1));
+
+    expect(patterns.byProject['p']!.grid.cells.where((v) => v == 1), hasLength(1));
+    await finish(tester);
+  });
+
   testWidgets('касание полотна кистью красит ячейку', (tester) async {
     await pumpEditor(tester);
 

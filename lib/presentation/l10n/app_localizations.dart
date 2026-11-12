@@ -1273,6 +1273,12 @@ abstract class AppLocalizations {
   /// **'{craft} · {technique}'**
   String libraryCardSubtitle(String craft, String technique);
 
+  /// Готовность проекта на карточке списка
+  ///
+  /// In ru, this message translates to:
+  /// **'{percent}%'**
+  String libraryCardProgress(int percent);
+
   /// Статус проекта и дата последней работы
   ///
   /// In ru, this message translates to:
@@ -1692,6 +1698,12 @@ abstract class AppLocalizations {
   /// In ru, this message translates to:
   /// **'Отменить'**
   String get editorUndo;
+
+  /// Кнопка редактора: закончить правку и выйти
+  ///
+  /// In ru, this message translates to:
+  /// **'Готово'**
+  String get editorDone;
 
   /// Кнопка редактора
   ///
@@ -3223,10 +3235,16 @@ abstract class AppLocalizations {
   /// **'К месту остановки'**
   String get stitchGoToParked;
 
+  /// Действие: снять метку места остановки
+  ///
+  /// In ru, this message translates to:
+  /// **'Снять метку'**
+  String get stitchClearParked;
+
   /// Подсказка про парковку
   ///
   /// In ru, this message translates to:
-  /// **'Долгое касание запоминает место, где остановилась.'**
+  /// **'Долгое касание запоминает место, где остановилась. Ещё одно долгое касание по метке снимает её.'**
   String get stitchParkHint;
 
   /// Переключатель: показывать прогресс по блокам 10×10

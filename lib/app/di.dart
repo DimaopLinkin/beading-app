@@ -71,6 +71,7 @@ import 'package:beading/domain/image_to_grid/image_to_grid_runner.dart';
 import 'package:beading/domain/image_to_grid/use_cases/create_pattern_from_image.dart';
 import 'package:beading/domain/materials/use_cases/load_project_floss.dart';
 import 'package:beading/domain/materials/use_cases/load_project_materials.dart';
+import 'package:beading/domain/projects/load_project_preview.dart';
 import 'package:beading/domain/projects/project_content_cleaner.dart';
 import 'package:beading/domain/projects/project_content_cloner.dart';
 import 'package:beading/domain/projects/project_repository.dart';
@@ -548,6 +549,14 @@ Future<void> configureDependencies({GetIt? locator, AppDatabase? database, Catal
       return registry;
     })
     ..registerLazySingleton<ProjectThumbnailRegistry>(ProjectThumbnailRegistry.new)
+    ..registerLazySingleton<LoadProjectPreview>(
+      () => LoadProjectPreview(
+        patterns: container<GridPatternRepository>(),
+        rows: container<GridProgressStore>(),
+        cells: container<CellProgressStore>(),
+        files: container<FileStore>(),
+      ),
+    )
     ..registerFactory<LibraryCubit>(
       () => LibraryCubit(
         watchProjects: container<WatchProjects>(),

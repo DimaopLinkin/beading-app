@@ -1,6 +1,7 @@
 import 'dart:math' as math;
 
 import 'package:beading/domain/projects/craft.dart';
+import 'package:beading/domain/projects/load_project_preview.dart';
 import 'package:beading/domain/projects/project.dart';
 import 'package:beading/presentation/l10n/app_localizations.dart';
 import 'package:beading/presentation/library/filter_chip_bar.dart';
@@ -24,6 +25,7 @@ class LibraryScreen extends StatefulWidget {
   const LibraryScreen({
     required this.newProjects,
     required this.thumbnails,
+    this.loadPreview,
     this.onOpenProject,
     this.onOpenSettings,
     this.onOpenCatalog,
@@ -36,6 +38,9 @@ class LibraryScreen extends StatefulWidget {
 
   final NewProjectRegistry newProjects;
   final ProjectThumbnailRegistry thumbnails;
+
+  /// Картинка и процент готовности на карточках; в тестах можно не задавать.
+  final LoadProjectPreview? loadPreview;
   final void Function(BuildContext context, Project project)? onOpenProject;
 
   /// Открывает настройки; `null` — кнопки нет.
@@ -362,6 +367,7 @@ class _LibraryScreenState extends State<LibraryScreen> {
                   child: ProjectCard(
                     project: project,
                     thumbnails: widget.thumbnails,
+                    loadPreview: widget.loadPreview,
                     onTap: widget.onOpenProject == null ? null : () => widget.onOpenProject!(context, project),
                     onLongPress: () => _showActions(project),
                   ),

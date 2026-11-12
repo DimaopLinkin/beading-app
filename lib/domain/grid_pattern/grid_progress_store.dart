@@ -18,4 +18,7 @@ abstract interface class GridProgressStore {
 
   /// Запоминает «остановилась здесь»; `bead == null` — только ряд.
   Future<Result<void>> setCurrent(String patternId, {required int row, int? bead});
+
+  /// Снимает «остановилась здесь»: ряд и бисерина становятся пустыми.
+  Future<Result<void>> clearCurrent(String patternId);
 }

@@ -595,6 +595,23 @@ void main() {
     });
   });
 
+  group('начальное ремесло', () {
+    test('из вкладки «Вышивка» мастер открывается с вышивкой', () async {
+      cubit = build(debounce: Duration.zero);
+      addTearDown(cubit.close);
+      await cubit.start(craft: Craft.crossStitch);
+      expect(cubit.state.settings.craft, Craft.crossStitch);
+      expect(cubit.state.settings.technique, Technique.crossStitch);
+    });
+
+    test('по умолчанию — бисер', () async {
+      cubit = build(debounce: Duration.zero);
+      addTearDown(cubit.close);
+      await cubit.start();
+      expect(cubit.state.settings.craft, Craft.beading);
+    });
+  });
+
   group('каталог', () {
     test('считает подходящие цвета под размер бусины и бренд по умолчанию', () async {
       catalog = FakeCatalogRepository(<CatalogColor>[

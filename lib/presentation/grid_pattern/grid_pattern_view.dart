@@ -226,10 +226,13 @@ class _GridPatternViewState extends State<GridPatternView> {
     final GridPaintStyle style = _style(context);
     final Color veil = GridColors.veil.resolveFrom(context);
     // Вуаль сделанных клеток: слой со своим кешем блоков, а не часть подсветки, которая рисуется заново на каждый кадр.
+    // Сделанная клетка: плотная вуаль с зелёным оттенком и зелёная галочка (пока клетка на экране не мельче порога).
+    final Color green = CupertinoColors.systemGreen.resolveFrom(context);
     if (_doneCache.configure(
       scene: _scene,
       progress: widget.options.doneCells,
-      veil: veil.withValues(alpha: veil.a * 0.7),
+      veil: Color.alphaBlend(green.withValues(alpha: 0.22), veil.withValues(alpha: veil.a * 0.85)),
+      mark: _flat ? null : green,
     )) {
       _doneRevision++;
     }

@@ -141,6 +141,14 @@ class FakeGridProgressStore implements GridProgressStore {
     currentBead = bead;
     return const Success<void>(null);
   }
+
+  @override
+  Future<Result<void>> clearCurrent(String patternId) async {
+    calls.add('clear-current $patternId');
+    currentRow = null;
+    currentBead = null;
+    return const Success<void>(null);
+  }
 }
 
 /// Прогресс по клеткам в памяти. [widthOf] — ширина схемы по id (если схема неизвестна, ширина 0).

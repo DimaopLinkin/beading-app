@@ -17,6 +17,8 @@ void main() {
     expect(registry.entriesFor(Craft.beading).any((e) => e.id == 'draw-grid-beading'), isTrue);
     expect(registry.entriesFor(Craft.crossStitch).any((e) => e.id == 'draw-grid-cross-stitch'), isTrue);
     expect(registry.entriesFor(Craft.beading).any((e) => e.id == 'image-to-grid-beading'), isTrue);
+    // На вкладке «Вышивка» тоже есть схема из картинки: мастер открывается сразу с вышивкой.
+    expect(registry.entriesFor(Craft.crossStitch).any((e) => e.id == 'image-to-grid-crossStitch'), isTrue);
   });
 
   test('«Узор по шаблону» есть только у бисера: цвета и геометрия пока бисерные', () {

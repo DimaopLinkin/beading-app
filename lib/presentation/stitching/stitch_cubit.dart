@@ -283,8 +283,22 @@ class StitchCubit extends Cubit<StitchState> {
     if (cell.column >= grid.width || cell.row >= grid.height) {
       return;
     }
+    // Долгое касание по уже запомненной клетке снимает метку.
+    if (state.parked == cell) {
+      clearParked();
+      return;
+    }
     emit(state.copyWith(parked: cell));
     _enqueue(() async => (await _progress.setCurrent(_patternId!, row: cell.row, bead: cell.column)).isFailure);
+  }
+
+  /// Снимает метку места остановки.
+  void clearParked() {
+    if (!state.isReady || state.parked == null) {
+      return;
+    }
+    emit(state.copyWith(clearParked: true));
+    _enqueue(() async => (await _progress.clearCurrent(_patternId!)).isFailure);
   }
 
   /// Применяет отметку на экране, пересчитывает счётчики и сообщает пасхалкам о закрытых блоках и цветах.
@@ -344,6 +358,11 @@ class StitchCubit extends Cubit<StitchState> {
 
   void _afterChange({required bool done, required List<CellPosition> touched}) {
     final StitchState before = state;
+    final CellPosition? parked = state.parked;
+    // Дошла до запомненной клетки и сделала её: метка больше не нужна.
+    if (done && parked != null && touched.contains(parked)) {
+      clearParked();
+    }
     final StitchState counted = _recount(state);
     final int closedBlocks = counted.blocks.where((b) => b.isComplete).length;
     final int wasClosed = before.blocks.where((b) => b.isComplete).length;

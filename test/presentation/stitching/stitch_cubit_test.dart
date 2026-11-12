@@ -349,6 +349,40 @@ void main() {
     await cubit.close();
   });
 
+  test('метка места остановки снимается вручную: долгим касанием по ней же и clearParked', () async {
+    final StitchCubit cubit = await loaded();
+    cubit.park(const CellPosition(3, 2));
+    cubit.park(const CellPosition(3, 2));
+    expect(cubit.state.parked, isNull);
+    cubit
+      ..park(const CellPosition(1, 1))
+      ..clearParked();
+    expect(cubit.state.parked, isNull);
+    await cubit.close();
+    expect(rows.currentRow, isNull);
+    expect(rows.currentBead, isNull);
+  });
+
+  test('метка снимается сама, когда запомненная клетка отмечена сделанной', () async {
+    final StitchCubit cubit = await loaded();
+    cubit.park(const CellPosition(0, 0));
+    cubit.tapCell(const CellPosition(1, 0));
+    expect(cubit.state.parked, const CellPosition(0, 0), reason: 'другая клетка метку не трогает');
+    cubit.tapCell(const CellPosition(0, 0));
+    expect(cubit.state.parked, isNull);
+    await cubit.close();
+    expect(rows.currentRow, isNull);
+  });
+
+  test('снятие отметки с запомненной клетки метку не убирает', () async {
+    final StitchCubit cubit = await loaded();
+    cubit.tapCell(const CellPosition(0, 0));
+    cubit.park(const CellPosition(0, 0));
+    cubit.tapCell(const CellPosition(0, 0));
+    expect(cubit.state.parked, const CellPosition(0, 0));
+    await cubit.close();
+  });
+
   test('парковка запоминается и восстанавливается', () async {
     final StitchCubit cubit = await loaded();
     cubit.park(const CellPosition(3, 2));
