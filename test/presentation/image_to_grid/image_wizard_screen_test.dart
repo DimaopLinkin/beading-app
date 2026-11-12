@@ -194,6 +194,52 @@ void main() {
     });
   }
 
+  testWidgets('кисть: на широком экране панель слева, при крупном шрифте размеры уходят в меню', (tester) async {
+    await tester.binding.setSurfaceSize(const Size(1200, 800));
+    addTearDown(() => tester.binding.setSurfaceSize(null));
+    await openPhoto(tester, AppTheme.light);
+    final Finder brushRow = find.byKey(const ValueKey<String>('wizard-brush'));
+    await tester.scrollUntilVisible(brushRow, 300, scrollable: find.byType(Scrollable).first);
+    await tester.tap(brushRow);
+    await tester.pump();
+    expect(find.byKey(const ValueKey<String>('brush-size-0')), findsOneWidget);
+    expect(
+      tester.getTopLeft(find.byKey(const ValueKey<String>('brush-draw'))).dx,
+      lessThan(tester.getTopLeft(find.byKey(const ValueKey<String>('brush-canvas'))).dx),
+    );
+    // Кружок кисти под пальцем не мешает рисованию.
+    final TestGesture finger = await tester.startGesture(
+      tester.getCenter(find.byKey(const ValueKey<String>('brush-canvas'))),
+    );
+    await finger.moveBy(const Offset(15, 5));
+    await tester.pump();
+    await finger.up();
+    await tester.pump();
+    expect(cubit.state.brush.strokes, hasLength(1));
+  });
+
+  testWidgets('кисть при крупном шрифте: размер в меню, кнопки не меньше 84 pt', (tester) async {
+    await tester.binding.setSurfaceSize(const Size(600, 900));
+    addTearDown(() => tester.binding.setSurfaceSize(null));
+    await openPhoto(tester, AppTheme.light);
+    final Finder brushRow = find.byKey(const ValueKey<String>('wizard-brush'));
+    await tester.scrollUntilVisible(brushRow, 300, scrollable: find.byType(Scrollable).first);
+    await tester.tap(brushRow);
+    await tester.pump();
+    // Крупный шрифт включаем уже в режиме кисти: перед ним мастер тесен и на 2× (свои переполнения).
+    tester.platformDispatcher.textScaleFactorTestValue = 1.6;
+    addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
+    await tester.pump();
+    await tester.pump();
+    expect(find.byKey(const ValueKey<String>('brush-size-0')), findsNothing);
+    expect(tester.getSize(find.byKey(const ValueKey<String>('brush-draw'))).height, greaterThanOrEqualTo(84));
+    await tester.tap(find.byKey(const ValueKey<String>('brush-size-menu')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Крупный'));
+    await tester.pumpAndSettle();
+    expect(cubit.state.brushSize, 2);
+  });
+
   ImageMaskSet faceOfWidth(double width) => ImageMaskSet(
     width: 10,
     height: 10,

@@ -1080,6 +1080,8 @@
   "@imageWizardBrushLegendMine": {"description": "Легенда предпросмотра"},
   "imageWizardBrushCanvas": "Картинка: проведите пальцем по важному",
   "@imageWizardBrushCanvas": {"description": "Подпись области рисования для VoiceOver"},
+  "imageWizardBrushSizeMenu": "Размер: {name}",
+  "@imageWizardBrushSizeMenu": {"description": "Кнопка размера кисти при крупном шрифте", "placeholders": {"name": {"type": "String"}}},
   "imageWizardUseMasks": "Выделять главное",
   "@imageWizardUseMasks": {"description": "Переключатель: учитывать найденные на фото лица и объект"},
   "imageWizardUseMasksHint": "Лица и главный предмет получают больше цветов и деталей, фон — меньше.",

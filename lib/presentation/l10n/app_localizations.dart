@@ -2845,6 +2845,12 @@ abstract class AppLocalizations {
   /// **'Картинка: проведите пальцем по важному'**
   String get imageWizardBrushCanvas;
 
+  /// Кнопка размера кисти при крупном шрифте
+  ///
+  /// In ru, this message translates to:
+  /// **'Размер: {name}'**
+  String imageWizardBrushSizeMenu(String name);
+
   /// Переключатель: учитывать найденные на фото лица и объект
   ///
   /// In ru, this message translates to:

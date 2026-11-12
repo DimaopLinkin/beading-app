@@ -27,6 +27,9 @@ class ImportanceBrushMode extends StatefulWidget {
 class _ImportanceBrushModeState extends State<ImportanceBrushMode> {
   final TransformationController _controller = TransformationController();
   final ValueNotifier<List<double>?> _live = ValueNotifier<List<double>?>(null);
+
+  /// Кружок кисти под пальцем или курсором в координатах картинки (в пикселях экрана при масштабе 1).
+  final ValueNotifier<Offset?> _cursor = ValueNotifier<Offset?>(null);
   final Set<int> _pointers = <int>{};
   int? _drawing;
   List<double> _points = <double>[];
@@ -35,6 +38,7 @@ class _ImportanceBrushModeState extends State<ImportanceBrushMode> {
   void dispose() {
     _controller.dispose();
     _live.dispose();
+    _cursor.dispose();
     super.dispose();
   }
 
@@ -49,10 +53,12 @@ class _ImportanceBrushModeState extends State<ImportanceBrushMode> {
       _drawing = null;
       _points = <double>[];
       _live.value = null;
+      _cursor.value = null;
       setState(() {});
       return;
     }
     final Offset f = _fraction(e.localPosition, size);
+    _cursor.value = Offset(f.dx * size.width, f.dy * size.height);
     _drawing = e.pointer;
     _points = <double>[f.dx, f.dy];
     if (widget.state.brushEraser) {
@@ -67,6 +73,7 @@ class _ImportanceBrushModeState extends State<ImportanceBrushMode> {
       return;
     }
     final Offset f = _fraction(e.localPosition, size);
+    _cursor.value = Offset(f.dx * size.width, f.dy * size.height);
     if (widget.state.brushEraser) {
       context.read<ImageWizardCubit>().eraseBrush(<double>[f.dx, f.dy]);
       return;
@@ -85,6 +92,7 @@ class _ImportanceBrushModeState extends State<ImportanceBrushMode> {
       return;
     }
     _drawing = null;
+    _cursor.value = null;
     if (commit && !widget.state.brushEraser) {
       context.read<ImageWizardCubit>().addBrushStroke(_points);
     }
@@ -100,6 +108,13 @@ class _ImportanceBrushModeState extends State<ImportanceBrushMode> {
     final AppTokensData tokens = context.tokens;
     final TextStyle caption = TextStyle(fontSize: 13, color: CupertinoColors.secondaryLabel.resolveFrom(context));
     final bool pinching = _pointers.length > 1;
+    final MediaQueryData media = MediaQuery.of(context);
+    // Mac и планшет: панель кисти в боковой колонке слева, справа картинка.
+    final bool wide = media.size.width >= 700;
+    final Widget panel = _BrushPanel(
+      state: state,
+      large: media.textScaler.scale(13) >= 20,
+    );
     return Column(
       children: <Widget>[
         Padding(
@@ -130,95 +145,127 @@ class _ImportanceBrushModeState extends State<ImportanceBrushMode> {
           ),
         ),
         Expanded(
-          child: LayoutBuilder(
-            builder: (context, box) {
-              final int pw = math.max(1, state.preparedWidth);
-              final int ph = math.max(1, state.preparedHeight);
-              final double k = math.min(
-                (box.maxWidth - 2 * tokens.spacing.m) / pw,
-                (box.maxHeight - 2 * tokens.spacing.s) / ph,
-              );
-              final Size size = Size(pw * k, ph * k);
-              final PreparedFrame frame = PreparedFrame(
-                width: pw,
-                height: ph,
-                quarterTurns: state.quarterTurns,
-                crop: state.crop,
-              );
-              return Center(
-                child: Semantics(
-                  label: l10n.imageWizardBrushCanvas,
-                  child: SizedBox(
-                    width: size.width,
-                    height: size.height,
-                    child: ClipRect(
-                      child: Listener(
-                        key: const ValueKey<String>('brush-canvas'),
-                        behavior: HitTestBehavior.opaque,
-                        onPointerDown: (e) => _down(e, size),
-                        onPointerMove: (e) => _move(e, size),
-                        onPointerUp: (e) => _up(e, commit: true),
-                        onPointerCancel: (e) => _up(e, commit: false),
-                        child: InteractiveViewer(
-                          transformationController: _controller,
-                          constrained: false,
-                          minScale: 1,
-                          maxScale: 6,
-                          panEnabled: pinching,
-                          scaleEnabled: pinching,
-                          child: SizedBox(
-                            width: size.width,
-                            height: size.height,
-                            child: Stack(
-                              children: <Widget>[
-                                Positioned.fill(
-                                  child: Image.memory(
-                                    state.prepared!,
-                                    fit: BoxFit.fill,
-                                    gaplessPlayback: true,
-                                    excludeFromSemantics: true,
-                                    errorBuilder: (context, error, stack) => const SizedBox.shrink(),
+          child: Flex(
+            direction: wide ? Axis.horizontal : Axis.vertical,
+            children: <Widget>[
+              if (wide)
+                SizedBox(
+                  width: 320,
+                  child: SingleChildScrollView(
+                    child: Column(
+                      children: <Widget>[
+                        panel,
+                        if (!state.hasMasks && state.brush.isEmpty)
+                          Padding(
+                            padding: EdgeInsets.all(tokens.spacing.m),
+                            child: Text(l10n.imageWizardBrushEmpty, style: caption, textAlign: TextAlign.center),
+                          ),
+                      ],
+                    ),
+                  ),
+                ),
+              Expanded(
+                child: LayoutBuilder(
+                  builder: (context, box) {
+                    final int pw = math.max(1, state.preparedWidth);
+                    final int ph = math.max(1, state.preparedHeight);
+                    final double k = math.min(
+                      (box.maxWidth - 2 * tokens.spacing.m) / pw,
+                      (box.maxHeight - 2 * tokens.spacing.s) / ph,
+                    );
+                    final Size size = Size(pw * k, ph * k);
+                    final PreparedFrame frame = PreparedFrame(
+                      width: pw,
+                      height: ph,
+                      quarterTurns: state.quarterTurns,
+                      crop: state.crop,
+                    );
+                    return Center(
+                      child: Semantics(
+                        label: l10n.imageWizardBrushCanvas,
+                        child: SizedBox(
+                          width: size.width,
+                          height: size.height,
+                          child: ClipRect(
+                            child: Listener(
+                              key: const ValueKey<String>('brush-canvas'),
+                              behavior: HitTestBehavior.opaque,
+                              onPointerDown: (e) => _down(e, size),
+                              onPointerMove: (e) => _move(e, size),
+                              onPointerUp: (e) => _up(e, commit: true),
+                              onPointerCancel: (e) => _up(e, commit: false),
+                              child: InteractiveViewer(
+                                transformationController: _controller,
+                                constrained: false,
+                                minScale: 1,
+                                maxScale: 6,
+                                panEnabled: pinching,
+                                scaleEnabled: pinching,
+                                child: SizedBox(
+                                  width: size.width,
+                                  height: size.height,
+                                  child: Stack(
+                                    children: <Widget>[
+                                      Positioned.fill(
+                                        child: Image.memory(
+                                          state.prepared!,
+                                          fit: BoxFit.fill,
+                                          gaplessPlayback: true,
+                                          excludeFromSemantics: true,
+                                          errorBuilder: (context, error, stack) => const SizedBox.shrink(),
+                                        ),
+                                      ),
+                                      Positioned.fill(
+                                        child: CustomPaint(
+                                          painter: _BrushPainter(
+                                            brush: state.brush,
+                                            frame: frame,
+                                            masks: state.brushShowAuto ? state.masks : null,
+                                            live: _live,
+                                            cursor: _cursor,
+                                            liveRadius: ImageWizardState.brushSizes[state.brushSize],
+                                            liveVisible: !state.brushEraser,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
                                   ),
                                 ),
-                                Positioned.fill(
-                                  child: CustomPaint(
-                                    painter: _BrushPainter(
-                                      brush: state.brush,
-                                      frame: frame,
-                                      masks: state.brushShowAuto ? state.masks : null,
-                                      live: _live,
-                                      liveRadius: ImageWizardState.brushSizes[state.brushSize],
-                                      liveVisible: !state.brushEraser,
-                                    ),
-                                  ),
-                                ),
-                              ],
+                              ),
                             ),
                           ),
                         ),
                       ),
-                    ),
-                  ),
+                    );
+                  },
                 ),
-              );
-            },
+              ),
+              if (!wide) ...<Widget>[
+                if (!state.hasMasks && state.brush.isEmpty)
+                  Padding(
+                    padding: EdgeInsets.symmetric(horizontal: tokens.spacing.l, vertical: tokens.spacing.xs),
+                    child: Text(l10n.imageWizardBrushEmpty, style: caption, textAlign: TextAlign.center),
+                  ),
+                ConstrainedBox(
+                  constraints: BoxConstraints(maxHeight: media.size.height * 0.55),
+                  child: SingleChildScrollView(child: panel),
+                ),
+              ],
+            ],
           ),
         ),
-        if (!state.hasMasks && state.brush.isEmpty)
-          Padding(
-            padding: EdgeInsets.symmetric(horizontal: tokens.spacing.l, vertical: tokens.spacing.xs),
-            child: Text(l10n.imageWizardBrushEmpty, style: caption, textAlign: TextAlign.center),
-          ),
-        _BrushPanel(state: state),
       ],
     );
   }
 }
 
 class _BrushPanel extends StatelessWidget {
-  const _BrushPanel({required this.state});
+  const _BrushPanel({required this.state, required this.large});
 
   final ImageWizardState state;
+
+  /// Очень крупный шрифт (AX3): кнопки выше, по две в ряд, размеры уходят в меню.
+  final bool large;
 
   @override
   Widget build(BuildContext context) {
@@ -255,24 +302,36 @@ class _BrushPanel extends StatelessWidget {
                 ],
               ),
             ),
-          Wrap(
-            alignment: WrapAlignment.spaceEvenly,
-            spacing: tokens.spacing.xs,
-            children: <Widget>[
+          ..._layout(<Widget>[
+            _BrushButton(
+              key: const ValueKey<String>('brush-draw'),
+              icon: CupertinoIcons.paintbrush,
+              label: l10n.imageWizardBrushBrush,
+              selected: !state.brushEraser,
+              minHeight: large ? _largeButton : null,
+              onPressed: () => cubit.setBrushEraser(eraser: false),
+            ),
+            _BrushButton(
+              key: const ValueKey<String>('brush-eraser'),
+              icon: CupertinoIcons.delete_left,
+              label: l10n.imageWizardBrushEraser,
+              selected: state.brushEraser,
+              minHeight: large ? _largeButton : null,
+              onPressed: () => cubit.setBrushEraser(eraser: true),
+            ),
+            if (large)
               _BrushButton(
-                key: const ValueKey<String>('brush-draw'),
-                icon: CupertinoIcons.paintbrush,
-                label: l10n.imageWizardBrushBrush,
-                selected: !state.brushEraser,
-                onPressed: () => cubit.setBrushEraser(eraser: false),
-              ),
-              _BrushButton(
-                key: const ValueKey<String>('brush-eraser'),
-                icon: CupertinoIcons.delete_left,
-                label: l10n.imageWizardBrushEraser,
-                selected: state.brushEraser,
-                onPressed: () => cubit.setBrushEraser(eraser: true),
-              ),
+                key: const ValueKey<String>('brush-size-menu'),
+                iconWidget: Container(
+                  width: 8 + ImageWizardState.brushSizes[state.brushSize] * 200,
+                  height: 8 + ImageWizardState.brushSizes[state.brushSize] * 200,
+                  decoration: const BoxDecoration(shape: BoxShape.circle, color: _amber),
+                ),
+                label: l10n.imageWizardBrushSizeMenu(sizeNames[state.brushSize]),
+                minHeight: _largeButton,
+                onPressed: () => _pickSize(context, cubit, sizeNames),
+              )
+            else
               for (final (int i, String name) in sizeNames.indexed)
                 _BrushButton(
                   key: ValueKey<String>('brush-size-$i'),
@@ -285,34 +344,75 @@ class _BrushPanel extends StatelessWidget {
                   selected: state.brushSize == i,
                   onPressed: () => cubit.setBrushSize(i),
                 ),
-            ],
-          ),
+            _BrushButton(
+              key: const ValueKey<String>('brush-clear'),
+              icon: CupertinoIcons.trash,
+              label: l10n.imageWizardBrushClear,
+              minHeight: large ? _largeButton : null,
+              onPressed: state.brush.isEmpty ? null : () => _confirmClear(context, cubit),
+            ),
+            _BrushButton(
+              key: const ValueKey<String>('brush-undo'),
+              icon: CupertinoIcons.arrow_uturn_left,
+              label: l10n.imageWizardBrushUndo,
+              minHeight: large ? _largeButton : null,
+              onPressed: state.canUndoBrush ? cubit.undoBrush : null,
+            ),
+          ], tokens),
           SizedBox(height: tokens.spacing.xs),
-          Wrap(
-            alignment: WrapAlignment.spaceEvenly,
-            spacing: tokens.spacing.xs,
-            children: <Widget>[
-              _BrushButton(
-                key: const ValueKey<String>('brush-clear'),
-                icon: CupertinoIcons.trash,
-                label: l10n.imageWizardBrushClear,
-                onPressed: state.brush.isEmpty ? null : () => _confirmClear(context, cubit),
-              ),
-              _BrushButton(
-                key: const ValueKey<String>('brush-undo'),
-                icon: CupertinoIcons.arrow_uturn_left,
-                label: l10n.imageWizardBrushUndo,
-                onPressed: state.canUndoBrush ? cubit.undoBrush : null,
-              ),
-              CupertinoButton.filled(
-                key: const ValueKey<String>('brush-done'),
-                minimumSize: Size(96, tokens.minTapTarget),
-                onPressed: cubit.finishBrush,
-                child: Text(l10n.imageWizardBrushDone),
-              ),
-            ],
+          Center(
+            child: CupertinoButton.filled(
+              key: const ValueKey<String>('brush-done'),
+              minimumSize: Size(large ? 200 : 96, large ? _largeButton : tokens.minTapTarget),
+              onPressed: cubit.finishBrush,
+              child: Text(l10n.imageWizardBrushDone),
+            ),
           ),
         ],
+      ),
+    );
+  }
+
+  static const double _largeButton = 84;
+
+  /// Кнопки в ряд с переносом; при крупном шрифте сеткой по две в ряд.
+  List<Widget> _layout(List<Widget> buttons, AppTokensData tokens) {
+    if (!large) {
+      return <Widget>[
+        Wrap(alignment: WrapAlignment.spaceEvenly, spacing: tokens.spacing.xs, children: buttons),
+      ];
+    }
+    return <Widget>[
+      for (int i = 0; i < buttons.length; i += 2)
+        Row(
+          children: <Widget>[
+            Expanded(child: buttons[i]),
+            Expanded(child: i + 1 < buttons.length ? buttons[i + 1] : const SizedBox.shrink()),
+          ],
+        ),
+    ];
+  }
+
+  Future<void> _pickSize(BuildContext context, ImageWizardCubit cubit, List<String> names) {
+    final AppLocalizations l10n = AppLocalizations.of(context);
+    return showCupertinoModalPopup<void>(
+      context: context,
+      builder: (sheet) => CupertinoActionSheet(
+        actions: <Widget>[
+          for (final (int i, String name) in names.indexed)
+            CupertinoActionSheetAction(
+              isDefaultAction: state.brushSize == i,
+              onPressed: () {
+                cubit.setBrushSize(i);
+                Navigator.of(sheet).pop();
+              },
+              child: Text(name),
+            ),
+        ],
+        cancelButton: CupertinoActionSheetAction(
+          onPressed: () => Navigator.of(sheet).pop(),
+          child: Text(l10n.imageWizardCancel),
+        ),
       ),
     );
   }
@@ -350,9 +450,11 @@ class _BrushButton extends StatelessWidget {
     this.icon,
     this.iconWidget,
     this.selected = false,
+    this.minHeight,
     super.key,
   });
 
+  final double? minHeight;
   final String label;
   final VoidCallback? onPressed;
   final IconData? icon;
@@ -378,7 +480,7 @@ class _BrushButton extends StatelessWidget {
         behavior: HitTestBehavior.opaque,
         onTap: onPressed,
         child: ConstrainedBox(
-          constraints: BoxConstraints(minWidth: tokens.minTapTarget, minHeight: tokens.minTapTarget),
+          constraints: BoxConstraints(minWidth: tokens.minTapTarget, minHeight: minHeight ?? tokens.minTapTarget),
           child: DecoratedBox(
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(tokens.radius.s),
@@ -416,14 +518,16 @@ class _BrushPainter extends CustomPainter {
     required this.frame,
     required this.masks,
     required this.live,
+    required this.cursor,
     required this.liveRadius,
     required this.liveVisible,
-  }) : super(repaint: live);
+  }) : super(repaint: Listenable.merge(<Listenable>[live, cursor]));
 
   final ImportanceBrush brush;
   final PreparedFrame frame;
   final ImageMaskSet? masks;
   final ValueNotifier<List<double>?> live;
+  final ValueNotifier<Offset?> cursor;
   final double liveRadius;
   final bool liveVisible;
 
@@ -446,6 +550,27 @@ class _BrushPainter extends CustomPainter {
       _paintStroke(canvas, <Offset>[
         for (int i = 0; i + 1 < now.length; i += 2) Offset(now[i] * size.width, now[i + 1] * size.height),
       ], liveRadius * short * 2);
+    }
+    final Offset? at = cursor.value;
+    if (at != null) {
+      // Кружок размера кисти: тёмный и белый контур, чтобы читался на любой картинке.
+      canvas
+        ..drawCircle(
+          at,
+          liveRadius * short,
+          Paint()
+            ..style = PaintingStyle.stroke
+            ..strokeWidth = 3
+            ..color = const Color(0xCC000000),
+        )
+        ..drawCircle(
+          at,
+          liveRadius * short,
+          Paint()
+            ..style = PaintingStyle.stroke
+            ..strokeWidth = 1.5
+            ..color = const Color(0xFFFFFFFF),
+        );
     }
   }
 
@@ -476,6 +601,18 @@ class _BrushPainter extends CustomPainter {
       ..drawPath(path, line(const Color(0xCC000000), width + 4))
       ..drawPath(path, line(const Color(0xFFFFFFFF), width + 2))
       ..drawPath(path, line(_amber.withValues(alpha: 0.45), width));
+    // Косая штриховка под мазком: подсветка отличается от оранжевых бусин и без цвета (слой с маской по мазку).
+    final Rect bounds = path.getBounds().inflate(width / 2 + 2);
+    canvas.saveLayer(bounds, Paint());
+    final Paint hatch = Paint()
+      ..strokeWidth = 1.5
+      ..color = const Color(0xCC7A4A00);
+    for (double x = bounds.left - bounds.height; x < bounds.right; x += 6) {
+      canvas.drawLine(Offset(x, bounds.bottom), Offset(x + bounds.height, bounds.top), hatch);
+    }
+    canvas
+      ..drawPath(path, line(const Color(0xFFFFFFFF), width)..blendMode = BlendMode.dstIn)
+      ..restore();
   }
 
   /// Найденное генератором: объект сеткой ячеек и рамки лиц, пунктиром не рисуем, а тоньше и бледнее ваших мазков.
