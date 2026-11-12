@@ -279,7 +279,7 @@ final class ImageToGridPipeline {
     final List<BlendSuggestion> blends = _blends(request, pattern, cells);
     if (request.suggestBlends && !request.draft) times['blends'] = lap();
     if (request.applyBlends && blends.isNotEmpty) pattern = applyBlends(pattern, blends);
-    final List<LineStitch> lines = _backstitch(request, pattern, work, regions);
+    final List<LineStitch> lines = _backstitch(request, pattern, work, regions, prepared.faceCells);
     if (request.backstitch && !request.draft) times['backstitch'] = lap();
     return GeneratedPattern(
       grid: pattern.grid,
@@ -356,6 +356,7 @@ final class ImageToGridPipeline {
     GeneratedPattern pattern,
     WorkImage work,
     CellRegions regions,
+    FaceCells? faces,
   ) {
     if (!request.backstitch || request.draft || pattern.palette.isEmpty) return const <LineStitch>[];
     // Бэкстич шьют одной ниткой, поэтому бленд для контура не годится (если есть из чего выбрать).
@@ -389,6 +390,7 @@ final class ImageToGridPipeline {
       regions: regions,
       color: darkest + 1,
       subject: subject,
+      features: faces?.feature,
     );
   }
 

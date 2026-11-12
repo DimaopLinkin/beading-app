@@ -81,8 +81,12 @@ _Scene _scene(
 const Rgb _black = Rgb(0, 0, 0);
 const Rgb _white = Rgb(255, 255, 255);
 
-List<LineStitch> _build(_Scene s, {Uint8List? subject, OutlineBackstitch stage = const OutlineBackstitch()}) =>
-    stage.build(grid: s.grid, work: s.work, regions: s.regions, color: 1, subject: subject);
+List<LineStitch> _build(
+  _Scene s, {
+  Uint8List? subject,
+  Uint8List? features,
+  OutlineBackstitch stage = const OutlineBackstitch(),
+}) => stage.build(grid: s.grid, work: s.work, regions: s.regions, color: 1, subject: subject, features: features);
 
 double _totalLength(List<LineStitch> lines) {
   double sum = 0;
@@ -162,42 +166,130 @@ void main() {
   });
 
   group('маска объекта', () {
-    test('граница объекта обводится замкнутым контуром, даже без контраста', () {
-      final _Scene s = _scene(10, 10, color: (c, r) => const Rgb(100, 100, 100), value: (c, r) => 1);
+    Uint8List square(int from, int to) {
       final Uint8List subject = Uint8List(100);
-      for (int r = 3; r < 7; r++) {
-        for (int c = 3; c < 7; c++) {
+      for (int r = from; r < to; r++) {
+        for (int c = from; c < to; c++) {
           subject[r * 10 + c] = 1;
         }
       }
-      final List<LineStitch> lines = _build(s, subject: subject);
-      expect(_totalLength(lines), closeTo(16, 1e-9));
-      expect(lines.length, 4);
-      final Set<LatticeNode> corners = <LatticeNode>{
-        for (final LineStitch l in lines) ...<LatticeNode>[l.from, l.to],
-      };
-      expect(corners, <LatticeNode>{
-        const LatticeNode.corner(3, 3),
-        const LatticeNode.corner(7, 3),
-        const LatticeNode.corner(3, 7),
-        const LatticeNode.corner(7, 7),
-      });
+      return subject;
+    }
+
+    test('граница маски сама по себе не обводится: без контраста линий нет', () {
+      final _Scene s = _scene(10, 10, color: (c, r) => const Rgb(100, 100, 100), value: (c, r) => 1);
+      expect(_build(s, subject: square(3, 7)), isEmpty);
     });
 
-    test('объект у края картинки не обводится по краю схемы', () {
-      final _Scene s = _scene(10, 10, color: (c, r) => const Rgb(100, 100, 100), value: (c, r) => 1);
-      final Uint8List subject = Uint8List(100);
-      for (int r = 0; r < 4; r++) {
-        for (int c = 0; c < 4; c++) {
-          subject[r * 10 + c] = 1;
-        }
-      }
-      expect(_totalLength(_build(s, subject: subject)), closeTo(8, 1e-9));
+    test('граница маски с контрастом обводится, как и без маски', () {
+      bool inside(int c, int r) => c >= 3 && c < 7 && r >= 3 && r < 7;
+      final _Scene s = _scene(
+        10,
+        10,
+        color: (c, r) => inside(c, r) ? _black : _white,
+        value: (c, r) => inside(c, r) ? 1 : 2,
+      );
+      expect(_totalLength(_build(s, subject: square(3, 7))), closeTo(16, 1e-9));
+      expect(_totalLength(_build(s)), closeTo(16, 1e-9));
     });
 
     test('маска неверного размера — ошибка', () {
       final _Scene s = _scene(10, 10, color: (c, r) => _white, value: (c, r) => 1);
       expect(() => _build(s, subject: Uint8List(5)), throwsArgumentError);
+    });
+
+    test('при нехватке бюджета линии внутри объекта важнее линий фона', () {
+      // Слева (вне объекта) и справа (в объекте) одинаковые контрастные вертикали; бюджета хватает на одну.
+      final _Scene s = _scene(
+        40,
+        12,
+        color: (c, r) => c == 5 || c == 30 ? _black : _white,
+        value: (c, r) => c == 5 || c == 30 ? 1 : 2,
+      );
+      final Uint8List subject = Uint8List(40 * 12);
+      for (int r = 0; r < 12; r++) {
+        for (int c = 20; c < 40; c++) {
+          subject[r * 40 + c] = 1;
+        }
+      }
+      final List<LineStitch> lines = _build(
+        s,
+        subject: subject,
+        stage: const OutlineBackstitch(budget: 0.02, minBudget: 12),
+      );
+      expect(lines, isNotEmpty);
+      for (final LineStitch l in lines) {
+        expect(l.from.x, greaterThanOrEqualTo(40), reason: 'остался только участок внутри объекта');
+      }
+    });
+  });
+
+  group('что обводить', () {
+    test('граница двух светлых цветов не обводится тёмной ниткой', () {
+      final _Scene s = _scene(
+        10,
+        10,
+        color: (c, r) => c < 5 ? const Rgb(255, 255, 255) : const Rgb(225, 200, 190),
+        value: (c, r) => c < 5 ? 1 : 2,
+      );
+      expect(_build(s), isEmpty);
+    });
+
+    test('слабая граница, продолжающая сильную, дорисовывается, а одиночная слабая — нет', () {
+      const Rgb mid = Rgb(110, 110, 110);
+      // Сильный участок c = 4/5 в рядах 0–4; ниже та же граница слабее (светлее) — продолжение.
+      final _Scene s = _scene(
+        16,
+        16,
+        color: (c, r) => c < 5 ? (r < 5 ? _black : const Rgb(50, 50, 50)) : mid,
+        value: (c, r) => c < 5 ? 1 : 2,
+      );
+      final double withTail = _totalLength(_build(s, stage: const OutlineBackstitch(contrast: 30, budget: 1)));
+      final double strongOnly = _totalLength(
+        _build(s, stage: const OutlineBackstitch(contrast: 30, weakRatio: 1, budget: 1)),
+      );
+      expect(withTail, greaterThan(strongOnly));
+    });
+
+    test('общая длина линий укладывается в бюджет (доля от закрашенных клеток)', () {
+      // Полосы по две клетки: контрастных границ сколько угодно.
+      final _Scene s = _scene(
+        30,
+        30,
+        color: (c, r) => (c ~/ 2).isEven ? _black : _white,
+        value: (c, r) => (c ~/ 2).isEven ? 1 : 2,
+      );
+      final List<LineStitch> lines = _build(s, stage: const OutlineBackstitch(budget: 0.1, minBudget: 20));
+      expect(lines, isNotEmpty);
+      // 900 клеток × 0,1 = 90 клеток нитки с запасом на последнюю цепочку.
+      expect(_totalLength(lines), lessThan(90 + 40));
+      final double unlimited = _totalLength(_build(s, stage: const OutlineBackstitch(budget: 10)));
+      expect(unlimited, greaterThan(_totalLength(lines)));
+    });
+  });
+
+  group('черты лица', () {
+    // Светлая кожа и чуть более тёмный глаз: ΔE мал, и обычный порог границу не берёт.
+    final _Scene s = _scene(
+      12,
+      12,
+      color: (c, r) => c >= 4 && c < 8 && r >= 4 && r < 8 ? const Rgb(185, 150, 140) : const Rgb(235, 205, 190),
+      value: (c, r) => c >= 4 && c < 8 && r >= 4 && r < 8 ? 2 : 1,
+    );
+
+    test('мягкая граница черты обводится, а без отметки черт — нет', () {
+      final Uint8List features = Uint8List(144);
+      for (int r = 4; r < 8; r++) {
+        for (int c = 4; c < 8; c++) {
+          features[r * 12 + c] = 1;
+        }
+      }
+      expect(_build(s), isEmpty);
+      expect(_totalLength(_build(s, features: features)), closeTo(16, 1e-9));
+    });
+
+    test('отметка черт неверного размера — ошибка', () {
+      expect(() => _build(s, features: Uint8List(3)), throwsArgumentError);
     });
   });
 
