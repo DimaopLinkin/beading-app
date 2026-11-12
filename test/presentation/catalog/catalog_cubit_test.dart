@@ -1,12 +1,15 @@
 import 'dart:async';
 
+import 'package:beading/core/failure.dart';
 import 'package:beading/domain/catalog/catalog_color.dart';
+import 'package:beading/domain/catalog/catalog_material.dart';
 import 'package:beading/domain/catalog/use_cases/find_similar_colors.dart';
 import 'package:beading/domain/settings/setting_keys.dart';
 import 'package:beading/presentation/catalog/catalog_cubit.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import '../../support/fake_catalog_repository.dart';
+import '../../support/fake_floss_stock.dart';
 import '../../support/fake_settings_repository.dart';
 
 void main() {
@@ -232,5 +235,44 @@ void main() {
     await cubit.close();
     gate.complete();
     await pending;
+  });
+
+  group('запас ниток', () {
+    final CatalogColor dmc310 = catalogColor(
+      '310',
+      'Black',
+      '#000000',
+      brand: 'DMC',
+      series: 'Mouliné',
+      material: CatalogMaterial.floss,
+    );
+
+    CatalogCubit makeFloss(FakeFlossStockRepository stock) {
+      catalog = FakeCatalogRepository(<CatalogColor>[dmc310]);
+      final CatalogCubit cubit = CatalogCubit(
+        catalog: catalog,
+        findSimilar: FindSimilarColors(catalog),
+        settings: settings,
+        material: CatalogMaterial.floss,
+        stock: stock,
+      );
+      addTearDown(cubit.close);
+      return cubit;
+    }
+
+    test('ошибка записи запаса попадает в состояние, следующая удачная запись её снимает', () async {
+      final FakeFlossStockRepository stock = FakeFlossStockRepository();
+      final CatalogCubit cubit = makeFloss(stock);
+      stock.failNextWrite = const StorageFailure('disk');
+
+      await cubit.setStock(dmc310, 1);
+      expect(cubit.state.stockWriteFailure, isNotNull);
+      expect(stock.snapshot, isEmpty);
+
+      await cubit.setStock(dmc310, 1);
+      expect(cubit.state.stockWriteFailure, isNull);
+      await pumpEventQueue();
+      expect(cubit.state.stock.values, <double>[1]);
+    });
   });
 }
