@@ -3,10 +3,12 @@ import 'dart:typed_data';
 import 'package:beading/core/failure.dart';
 import 'package:beading/core/result.dart';
 import 'package:beading/data/sharing/zip_biser_codec.dart';
+import 'package:beading/domain/floss_stock/floss_stock_entry.dart';
 import 'package:beading/domain/grid_pattern/grid_pattern.dart';
 import 'package:beading/domain/grid_pattern/grid_progress.dart';
 import 'package:beading/domain/image_pattern/file_store.dart';
 import 'package:beading/domain/image_pattern/image_pattern.dart';
+import 'package:beading/domain/palette/catalog_ref.dart';
 import 'package:beading/domain/projects/project.dart';
 import 'package:beading/domain/sharing/biser/biser_models.dart';
 import 'package:beading/domain/sharing/biser/import_biser.dart';
@@ -103,6 +105,65 @@ void main() {
       expect((await b.workSessions.totalFor(project.id)).valueOrNull, const Duration(minutes: 20));
       expect((await b.workSessions.byProject(project.id)).valueOrNull, hasLength(2));
     }
+  });
+
+  group('запас ниток в резервной копии', () {
+    const CatalogRef dmc310 = CatalogRef(brand: 'DMC', code: '310');
+    const CatalogRef dmc666 = CatalogRef(brand: 'DMC', code: '666');
+
+    Map<CatalogRef, double> stockOf(List<FlossStockEntry> all) => <CatalogRef, double>{
+      for (final FlossStockEntry e in all) e.ref: e.skeins,
+    };
+
+    test('переезжает на пустое устройство, версия формата 3', () async {
+      final BiserDevice a = BiserDevice();
+      final BiserDevice b = BiserDevice();
+      await a.stock.setSkeins(dmc310, 2.5);
+      await a.stock.setSkeins(dmc666, 1);
+      final Uint8List bytes = await a.backupBytes();
+
+      expect(contentOf(bytes).formatVersion, 3);
+      expect((await b.import(bytes)).failureOrNull, isNull);
+
+      expect(stockOf((await b.stock.all()).valueOrNull!), <CatalogRef, double>{dmc310: 2.5, dmc666: 1});
+    });
+
+    test('слияние двух устройств: побеждает более свежая запись, чужие нитки добавляются', () async {
+      final BiserDevice a = BiserDevice();
+      final BiserDevice b = BiserDevice();
+      await b.stock.setSkeins(dmc310, 5);
+      a.clock.advance(const Duration(days: 1));
+      await a.stock.setSkeins(dmc310, 2);
+      await a.stock.setSkeins(dmc666, 3);
+
+      expect((await b.import(await a.backupBytes())).failureOrNull, isNull);
+
+      expect(stockOf((await b.stock.all()).valueOrNull!), <CatalogRef, double>{dmc310: 2, dmc666: 3});
+    });
+
+    test('более старая запись из файла не затирает свежую локальную', () async {
+      final BiserDevice a = BiserDevice();
+      final BiserDevice b = BiserDevice();
+      await a.stock.setSkeins(dmc310, 2);
+      b.clock.advance(const Duration(days: 1));
+      await b.stock.setSkeins(dmc310, 5);
+
+      await b.import(await a.backupBytes());
+
+      expect(stockOf((await b.stock.all()).valueOrNull!), <CatalogRef, double>{dmc310: 5});
+    });
+
+    test('без запаса файл остаётся прежней версии, экспорт одного проекта запас не берёт', () async {
+      final BiserDevice a = BiserDevice();
+      await populate(a, randomBundle(5, projects: 1));
+      expect(contentOf(await a.backupBytes()).formatVersion, lessThan(3));
+
+      await a.stock.setSkeins(dmc310, 2);
+      final String id = (await a.allProjects()).single.id;
+      final Uint8List single = (await a.export.project(id)).valueOrNull!.bytes;
+
+      expect(contentOf(single).flossStock, isEmpty);
+    });
   });
 
   test('копия проекта при совпавшем id получает своё время работы, исходное не меняется', () async {

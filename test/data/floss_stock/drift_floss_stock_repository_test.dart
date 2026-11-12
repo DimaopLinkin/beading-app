@@ -38,7 +38,10 @@ void main() {
   test('setSkeins добавляет нитку со служебными колонками', () async {
     expect((await repository.setSkeins(dmc310, 2.5)).isSuccess, isTrue);
 
-    expect((await repository.all()).valueOrNull, <FlossStockEntry>[const FlossStockEntry(ref: dmc310, skeins: 2.5)]);
+    final FlossStockEntry entry = (await repository.all()).valueOrNull!.single;
+    expect(entry.ref, dmc310);
+    expect(entry.skeins, 2.5);
+    expect(entry.updatedAt, clock.now());
     final FlossStockRow row = (await db.select(db.flossStock).get()).single;
     expect(row.createdAt, clock.now().millisecondsSinceEpoch);
     expect(row.deviceId, isNotEmpty);
@@ -87,7 +90,7 @@ void main() {
       repository.watchAll(),
       emitsInOrder(<Matcher>[
         isEmpty,
-        equals(<FlossStockEntry>[const FlossStockEntry(ref: dmc310, skeins: 1)]),
+        predicate<List<FlossStockEntry>>((l) => l.length == 1 && l.single.ref == dmc310 && l.single.skeins == 1),
       ]),
     );
     await Future<void>.delayed(Duration.zero);
@@ -100,5 +103,60 @@ void main() {
       expect((await repository.setSkeins(dmc310, bad)).failureOrNull, isA<ValidationFailure>(), reason: '$bad');
     }
     expect(await db.select(db.flossStock).get(), isEmpty);
+  });
+
+  group('merge', () {
+    final DateTime older = DateTime.utc(2026, 11);
+    final DateTime newer = DateTime.utc(2026, 11, 20);
+
+    test('добавляет нитки, которых нет, с временем из файла', () async {
+      await repository.merge(<FlossStockEntry>[FlossStockEntry(ref: dmc310, skeins: 3, updatedAt: older)]);
+
+      final FlossStockEntry entry = (await repository.all()).valueOrNull!.single;
+      expect(entry.skeins, 3);
+      expect(entry.updatedAt, older);
+    });
+
+    test('более свежая запись из файла заменяет локальную', () async {
+      await repository.setSkeins(dmc310, 1);
+
+      await repository.merge(<FlossStockEntry>[FlossStockEntry(ref: dmc310, skeins: 4, updatedAt: newer)]);
+
+      expect((await repository.all()).valueOrNull!.single.skeins, 4);
+    });
+
+    test('более старая или равная запись из файла локальную не трогает', () async {
+      await repository.setSkeins(dmc310, 1);
+      final DateTime same = clock.now();
+
+      await repository.merge(<FlossStockEntry>[
+        FlossStockEntry(ref: dmc310, skeins: 4, updatedAt: older),
+        FlossStockEntry(ref: dmc310, skeins: 5, updatedAt: same),
+      ]);
+
+      expect((await repository.all()).valueOrNull!.single.skeins, 1);
+    });
+
+    test('записи без времени и с неверным числом мотков пропускаются, нитка из запаса не стирается', () async {
+      await repository.setSkeins(anchor310, 2);
+
+      await repository.merge(<FlossStockEntry>[
+        const FlossStockEntry(ref: dmc310, skeins: 3),
+        FlossStockEntry(ref: dmc310, skeins: 0, updatedAt: newer),
+        FlossStockEntry(ref: dmc310, skeins: 1000, updatedAt: newer),
+        FlossStockEntry(ref: dmc310, skeins: double.nan, updatedAt: newer),
+      ]);
+
+      expect((await repository.all()).valueOrNull!.map((e) => e.ref), <CatalogRef>[anchor310]);
+    });
+
+    test('убранная раньше нитка возвращается записью из файла', () async {
+      await repository.setSkeins(dmc310, 2);
+      await repository.setSkeins(dmc310, 0);
+
+      await repository.merge(<FlossStockEntry>[FlossStockEntry(ref: dmc310, skeins: 1, updatedAt: newer)]);
+
+      expect((await repository.all()).valueOrNull!.single.skeins, 1);
+    });
   });
 }

@@ -14,6 +14,11 @@ abstract interface class FlossStockRepository {
   /// запаса. Конечное число до [maxSkeins], иначе `ValidationFailure`.
   Future<Result<void>> setSkeins(CatalogRef ref, double skeins);
 
+  /// Сливает запас из файла: нитки без записи добавляются, у остальных остаётся запись с более свежим `updatedAt`
+  /// (при равенстве побеждает локальная). Записи без `updatedAt` или с неверным числом мотков пропускаются.
+  /// Убранные нитки не передаются: «нет в запасе» не стирает запись на другом устройстве.
+  Future<Result<void>> merge(List<FlossStockEntry> incoming);
+
   /// Предел одной записи, мотков: защита от опечатки.
   static const double maxSkeins = 999;
 }

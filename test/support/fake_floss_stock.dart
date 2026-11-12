@@ -17,6 +17,27 @@ class FakeFlossStockRepository implements FlossStockRepository {
 
   Map<CatalogRef, double> get snapshot => Map<CatalogRef, double>.unmodifiable(_skeins);
 
+  final Map<CatalogRef, DateTime> _updated = <CatalogRef, DateTime>{};
+
+  /// Записи, пришедшие через `merge`.
+  final List<FlossStockEntry> merged = <FlossStockEntry>[];
+
+  @override
+  Future<Result<void>> merge(List<FlossStockEntry> incoming) async {
+    merged.addAll(incoming);
+    for (final FlossStockEntry e in incoming) {
+      final DateTime? at = e.updatedAt;
+      if (at == null || e.skeins <= 0) continue;
+      final DateTime? have = _updated[e.ref];
+      if (have == null || at.isAfter(have)) {
+        _skeins[e.ref] = e.skeins;
+        _updated[e.ref] = at;
+      }
+    }
+    _changes.add(_entries);
+    return const Success<void>(null);
+  }
+
   /// Если задано, `setSkeins` вернёт эту ошибку.
   Failure? failNextWrite;
 

@@ -90,11 +90,59 @@ class DriftFlossStockRepository implements FlossStockRepository {
     return guarded.fold(onSuccess: (inner) => inner, onFailure: Err<void>.new);
   }
 
+  @override
+  Future<Result<void>> merge(List<FlossStockEntry> incoming) async {
+    final Result<String> deviceId = await _deviceIds.deviceId();
+    if (deviceId case Err<String>(:final Failure failure)) {
+      return Err<void>(failure);
+    }
+    final Result<Result<void>> guarded = await guardStorage<Result<void>>(() async {
+      final int now = _clock.now().millisecondsSinceEpoch;
+      final String device = deviceId.valueOrNull!;
+      for (final FlossStockEntry entry in incoming) {
+        final DateTime? at = entry.updatedAt;
+        if (at == null ||
+            !entry.skeins.isFinite ||
+            entry.skeins <= 0 ||
+            entry.skeins > FlossStockRepository.maxSkeins) {
+          continue;
+        }
+        final int atMs = at.millisecondsSinceEpoch;
+        final FlossStockRow? existing = await _dao.findAlive(entry.ref.brand, entry.ref.code);
+        if (existing == null) {
+          await _dao.insertRow(
+            FlossStockCompanion.insert(
+              id: _ids.next(),
+              brand: entry.ref.brand,
+              code: entry.ref.code,
+              skeins: entry.skeins,
+              createdAt: now,
+              updatedAt: atMs,
+              deviceId: device,
+            ),
+          );
+        } else if (atMs > existing.updatedAt) {
+          await _dao.updateRow(
+            existing.id,
+            FlossStockCompanion(
+              skeins: Value<double>(entry.skeins),
+              updatedAt: Value<int>(atMs),
+              deviceId: Value<String>(device),
+            ),
+          );
+        }
+      }
+      return const Success<void>(null);
+    });
+    return guarded.fold(onSuccess: (inner) => inner, onFailure: Err<void>.new);
+  }
+
   List<FlossStockEntry> _toDomain(List<FlossStockRow> rows) => <FlossStockEntry>[
     for (final FlossStockRow row in rows)
       FlossStockEntry(
         ref: CatalogRef(brand: row.brand, code: row.code),
         skeins: row.skeins,
+        updatedAt: DateTime.fromMillisecondsSinceEpoch(row.updatedAt, isUtc: true),
       ),
   ];
 }
