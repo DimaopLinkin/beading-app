@@ -18,12 +18,14 @@ Future<Widget> bootstrapWithFakes(
   WidgetTester tester, {
   FakeOrientationLock? orientation,
   FakeDesktopWindow? window,
+  ReduceTransparencySource? reduceTransparency,
 }) async => (await tester.runAsync(
   () => bootstrap(
     database: createInMemoryDatabase(),
     orientationLock: orientation ?? FakeOrientationLock(),
     desktopWindow: window ?? FakeDesktopWindow(),
     wakelockController: fakeWakelockController(),
+    reduceTransparencySource: reduceTransparency,
   ),
 ))!;
 
@@ -130,10 +132,10 @@ void main() {
   });
 
   testWidgets('«Уменьшить прозрачность» из системы доходит до стекла', (tester) async {
-    final Widget app = await bootstrapWithFakes(tester);
-    getIt
-      ..unregister<ReduceTransparencySource>()
-      ..registerSingleton<ReduceTransparencySource>(FakeReduceTransparencySource(initial: true));
+    final Widget app = await bootstrapWithFakes(
+      tester,
+      reduceTransparency: FakeReduceTransparencySource(initial: true),
+    );
 
     await tester.pumpWidget(app);
     await tester.pumpAndSettle();

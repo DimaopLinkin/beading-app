@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:beading/app/composition/app_dependencies.dart';
 import 'package:beading/app/di.dart';
 import 'package:beading/app/platform/app_menu_bar.dart';
 import 'package:beading/app/router.dart';
@@ -7,7 +8,6 @@ import 'package:beading/domain/easter_eggs/easter_egg_service.dart';
 import 'package:beading/domain/easter_eggs/long_session_watcher.dart';
 import 'package:beading/domain/events/app_events.dart';
 import 'package:beading/domain/settings/app_theme_mode.dart';
-import 'package:beading/domain/settings/reduce_transparency_source.dart';
 import 'package:beading/domain/sharing/biser/biser_file_source.dart';
 import 'package:beading/presentation/easter_eggs/compliment_banner_cubit.dart';
 import 'package:beading/presentation/easter_eggs/compliment_overlay.dart';
@@ -24,19 +24,21 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
 class BeadingApp extends StatefulWidget {
-  const BeadingApp({super.key});
+  const BeadingApp({required this.dependencies, super.key});
+
+  final AppDependencies dependencies;
 
   @override
   State<BeadingApp> createState() => _BeadingAppState();
 }
 
 class _BeadingAppState extends State<BeadingApp> {
-  late final GoRouter _router = createRouter();
-  late final ThemeModeCubit _themeModeCubit = getIt<ThemeModeCubit>()..restore();
-  late final SettingsCubit _settingsCubit = getIt<SettingsCubit>()..load();
-  final ComplimentBannerCubit _complimentCubit = getIt<ComplimentBannerCubit>();
-  final EasterEggService _easterEggs = getIt<EasterEggService>();
-  final LongSessionWatcher _longSession = getIt<LongSessionWatcher>();
+  late final GoRouter _router = createRouter(widget.dependencies);
+  late final ThemeModeCubit _themeModeCubit = widget.dependencies.settings.themeModeCubit()..restore();
+  late final SettingsCubit _settingsCubit = widget.dependencies.settings.settingsCubit()..load();
+  late final ComplimentBannerCubit _complimentCubit = widget.dependencies.easterEggs.complimentBannerCubit();
+  late final EasterEggService _easterEggs = widget.dependencies.easterEggs.service;
+  late final LongSessionWatcher _longSession = widget.dependencies.easterEggs.longSession;
 
   @override
   void initState() {
@@ -44,7 +46,7 @@ class _BeadingAppState extends State<BeadingApp> {
     // Баннер уже слушает поток комплиментов (cubit создан в поле), теперь можно запускать пасхалки.
     _easterEggs.start();
     _longSession.start();
-    getIt<AppEvents>().publish(const AppStarted());
+    widget.dependencies.core.events.publish(const AppStarted());
   }
 
   @override
@@ -82,7 +84,7 @@ class _BeadingAppState extends State<BeadingApp> {
           builder: (context, child) => AppTheme.builder(
             context,
             ReduceTransparencyScope(
-              source: getIt<ReduceTransparencySource>(),
+              source: widget.dependencies.core.reduceTransparency,
               child: DismissFocusOnTap(
                 child: DataTransferHost(
                   cubit: getIt<DataTransferCubit>(),

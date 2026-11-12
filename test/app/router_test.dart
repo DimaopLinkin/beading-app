@@ -1,10 +1,16 @@
+import 'package:beading/app/composition/app_dependencies.dart';
+import 'package:beading/app/composition/core_module.dart';
 import 'package:beading/app/router.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 
+import '../support/in_memory_database.dart';
+
 void main() {
   Iterable<String> paths({required bool devTools}) {
-    final GoRouter router = createRouter(showDeveloperTools: devTools);
+    final AppDependencies dependencies = AppDependencies(core: CoreModule(database: createInMemoryDatabase()));
+    addTearDown(dependencies.dispose);
+    final GoRouter router = createRouter(dependencies, showDeveloperTools: devTools);
     addTearDown(router.dispose);
     return router.configuration.routes.whereType<GoRoute>().map((route) => route.path);
   }

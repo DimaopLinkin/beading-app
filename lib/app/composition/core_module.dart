@@ -3,7 +3,6 @@ import 'package:beading/app/platform/orientation_lock.dart';
 import 'package:beading/core/clock.dart';
 import 'package:beading/core/id_generator.dart';
 import 'package:beading/data/db/app_database.dart';
-import 'package:beading/data/db/open_database.dart';
 import 'package:beading/data/image_pattern/local_file_store.dart';
 import 'package:beading/data/platform/method_channel_reduce_transparency_source.dart';
 import 'package:beading/data/platform/wakelock_plus_screen_wake_lock.dart';
@@ -38,9 +37,6 @@ final class CoreModule {
        _desktopWindow = desktopWindow,
        _screenWakeLock = screenWakeLock,
        _reduceTransparency = reduceTransparency;
-
-  /// Открывает файловую базу в Application Support и собирает ядро.
-  static Future<CoreModule> open() async => CoreModule(database: await openAppDatabase());
 
   final AppDatabase database;
   final Clock? _clock;

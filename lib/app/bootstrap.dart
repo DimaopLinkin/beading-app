@@ -9,6 +9,8 @@ import 'package:beading/app/startup_failure_app.dart';
 import 'package:beading/core/result.dart';
 import 'package:beading/data/catalog/catalog_seeder.dart';
 import 'package:beading/data/db/app_database.dart';
+import 'package:beading/data/db/open_database.dart';
+import 'package:beading/domain/settings/reduce_transparency_source.dart';
 import 'package:beading/domain/settings/wakelock_controller.dart';
 import 'package:flutter/widgets.dart';
 
@@ -21,10 +23,11 @@ Future<Widget> bootstrap({
   OrientationLock? orientationLock,
   DesktopWindow? desktopWindow,
   WakelockController? wakelockController,
+  ReduceTransparencySource? reduceTransparencySource,
 }) async {
   WidgetsFlutterBinding.ensureInitialized();
-  final AppDependencies dependencies = await AppDependencies.create(
-    core: database == null ? null : CoreModule(database: database),
+  final AppDependencies dependencies = AppDependencies(
+    core: CoreModule(database: database ?? await openAppDatabase(), reduceTransparency: reduceTransparencySource),
   );
   await configureDependencies(dependencies);
   await (orientationLock ?? getIt<OrientationLock>()).lockPortrait();
@@ -38,7 +41,7 @@ Future<Widget> bootstrap({
   if (seeded case Err<void>(:final failure)) {
     debugPrint('Каталог загружен не полностью: ${failure.message}');
   }
-  return const BeadingApp();
+  return BeadingApp(dependencies: dependencies);
 }
 
 /// [bootstrap], который не бросает: если запуск не удался (база не открылась, миграция упала), возвращает экран
@@ -48,6 +51,7 @@ Future<Widget> bootstrapSafely({
   OrientationLock? orientationLock,
   DesktopWindow? desktopWindow,
   WakelockController? wakelockController,
+  ReduceTransparencySource? reduceTransparencySource,
 }) async {
   try {
     return await bootstrap(
@@ -55,6 +59,7 @@ Future<Widget> bootstrapSafely({
       orientationLock: orientationLock,
       desktopWindow: desktopWindow,
       wakelockController: wakelockController,
+      reduceTransparencySource: reduceTransparencySource,
     );
   } on Object catch (error, stack) {
     debugPrint('Запуск не удался: $error\n$stack');
