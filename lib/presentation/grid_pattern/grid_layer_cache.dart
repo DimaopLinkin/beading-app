@@ -5,6 +5,7 @@ import 'dart:ui';
 import 'package:beading/domain/grid/cell_position.dart';
 import 'package:beading/domain/grid/cell_range.dart';
 import 'package:beading/domain/grid/grid.dart';
+import 'package:beading/domain/grid/grid_geometry.dart';
 import 'package:beading/domain/palette/palette_snapshot.dart';
 import 'package:beading/domain/palette/pattern_color.dart';
 import 'package:beading/domain/stitch/stitch_layers.dart';
@@ -66,11 +67,15 @@ final class GridLayerCache {
   GridScene? _scene;
   GridViewOptions? _options;
   GridPaintStyle? _style;
+  bool _flat = false;
   StitchSpec _defaultSpec = const StitchSpec();
   Map<int, StitchSpec> _colorSpecs = const <int, StitchSpec>{};
 
   /// Сколько блоков построено за всё время (для тестов и профилирования).
   int buildCount = 0;
+
+  /// Слой рисуется обзорно (клетка на экране мельче нескольких пикселей).
+  bool get flat => _flat;
 
   /// Сколько блоков лежит в кеше.
   int get cachedBlocks => _blocks.length;
@@ -83,6 +88,7 @@ final class GridLayerCache {
     required GridViewOptions options,
     required GridPaintStyle style,
     StitchLayers? layers,
+    bool flat = false,
   }) {
     // От слоёв слой ячеек зависит только толщиной крестика: она берётся из сложений, а не из стежков слоёв.
     final StitchSpec defaultSpec = layers?.defaultSpec ?? const StitchSpec();
@@ -94,7 +100,9 @@ final class GridLayerCache {
         (identical(_palette, palette) || _palette == palette) &&
         _sameScene(scene) &&
         (_options?.sameBaseLayer(options) ?? false) &&
-        _style == style;
+        _style == style &&
+        _flat == flat;
+    _flat = flat;
     _defaultSpec = defaultSpec;
     _colorSpecs = colorSpecs;
     _grid = grid;
@@ -180,6 +188,10 @@ final class GridLayerCache {
 
     final PictureRecorder recorder = PictureRecorder();
     final Canvas canvas = Canvas(recorder);
+    if (_flat) {
+      _paintFlatBlock(canvas, c0, c1, r0, r1);
+      return recorder.endRecording();
+    }
     if (options.realistic) {
       RealisticCells.paintBlock(
         canvas,
@@ -254,6 +266,47 @@ final class GridLayerCache {
 
     _paintBoldLines(canvas, style.boldLine, c0, c1, r0, r1);
     return recorder.endRecording();
+  }
+
+  /// Крупный план не нужен, когда клетка на экране меньше нескольких пикселей: заливка по цвету, подряд идущие
+  /// клетки одного цвета одним прямоугольником. Ни крестиков, ни бликов, ни знаков, ни линий.
+  ///
+  /// Это обзор всей схемы. Подробная отрисовка плотной вышивки в таком масштабе — десятки тысяч фигур на кадр при
+  /// щипке и сотни миллисекунд на каждый новый предпросмотр, а глазу они не видны.
+  void _paintFlatBlock(Canvas canvas, int c0, int c1, int r0, int r1) {
+    final GridScene scene = _scene!;
+    final Grid grid = _grid!;
+    final PaletteSnapshot palette = _palette!;
+    final GridViewOptions options = _options!;
+    final GridPaintStyle style = _style!;
+    final bool plain = scene.geometry is RectangularGeometry;
+    final Paint paint = Paint();
+    for (int row = r0; row < r1; row++) {
+      int column = c0;
+      while (column < c1) {
+        final int value = grid.at(column, row);
+        if (value == 0) {
+          column++;
+          continue;
+        }
+        int end = column;
+        while (plain && end + 1 < c1 && grid.at(end + 1, row) == value) {
+          end++;
+        }
+        final PatternColor? color = palette.colorAt(value);
+        Color base = color == null ? style.unknown : Color.fromARGB(255, color.rgb.r, color.rgb.g, color.rgb.b);
+        if (options.highlightColor != null && options.highlightColor != value) {
+          base = StitchCells.dim(base, style.realistic.surface);
+        }
+        final Rect first = scene.cellRect(CellPosition(column, row));
+        paint.color = base;
+        canvas.drawRect(
+          end == column ? first : first.expandToInclude(scene.cellRect(CellPosition(end, row))),
+          paint,
+        );
+        column = end + 1;
+      }
+    }
   }
 
   /// Жирные линии «каждая N-я» блока.

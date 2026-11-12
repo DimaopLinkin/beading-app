@@ -12,6 +12,7 @@ import 'package:beading/domain/palette/rgb.dart';
 import 'package:beading/domain/stitch/stitch_layers.dart';
 import 'package:beading/presentation/grid_pattern/grid_base_painter.dart';
 import 'package:beading/presentation/grid_pattern/grid_colors.dart';
+import 'package:beading/presentation/grid_pattern/grid_done_layer.dart';
 import 'package:beading/presentation/grid_pattern/grid_layer_cache.dart';
 import 'package:beading/presentation/grid_pattern/grid_overlay_painter.dart';
 import 'package:beading/presentation/grid_pattern/grid_scene.dart';
@@ -89,11 +90,21 @@ const double gridRowGutter = 72;
 class _GridPatternViewState extends State<GridPatternView> {
   GridLayerCache? _ownCache;
   final StitchLayerCache _layerCache = StitchLayerCache();
+  final GridDoneLayerCache _doneCache = GridDoneLayerCache();
+  int _doneRevision = 0;
   int _layerRevision = 0;
   TransformationController? _ownController;
   late GridScene _scene = _buildScene();
   int _revision = 0;
   bool _fitted = false;
+
+  /// Клетка на экране меньше [_flatBelowPx]: слой ячеек рисуется обзорно (заливка без деталей).
+  bool _flat = false;
+  TransformationController? _listened;
+
+  /// Меньше стольких пикселей клетка читается только цветом; зазор до [_detailAbovePx] не даёт слою мигать на границе.
+  static const double _flatBelowPx = 4;
+  static const double _detailAbovePx = 5.5;
 
   GridLayerCache get _cache => widget.layerCache ?? (_ownCache ??= GridLayerCache());
 
@@ -107,9 +118,36 @@ class _GridPatternViewState extends State<GridPatternView> {
   );
 
   @override
+  void initState() {
+    super.initState();
+    _listenTransform();
+  }
+
+  /// Интерактивный вид следит за зумом: уровень детализации зависит от размера клетки на экране.
+  void _listenTransform() {
+    _listened?.removeListener(_onTransform);
+    _listened = widget.interactive ? _controller : null;
+    _listened?.addListener(_onTransform);
+    _flat = widget.interactive && _isFlat(_controller.value.storage[0]);
+  }
+
+  bool _isFlat(double scale) {
+    final double px = math.min(_scene.cellSize.width, _scene.cellSize.height) * scale;
+    return _flat ? px < _detailAbovePx : px < _flatBelowPx;
+  }
+
+  void _onTransform() {
+    final bool flat = _isFlat(_controller.value.storage[0]);
+    if (flat != _flat) setState(() => _flat = flat);
+  }
+
+  @override
   void didUpdateWidget(GridPatternView oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (oldWidget.controller != widget.controller) _fitted = false;
+    if (oldWidget.controller != widget.controller || oldWidget.interactive != widget.interactive) {
+      _fitted = false;
+      _listenTransform();
+    }
     if (oldWidget.geometry != widget.geometry ||
         oldWidget.metrics != widget.metrics ||
         oldWidget.grid.width != widget.grid.width ||
@@ -121,8 +159,10 @@ class _GridPatternViewState extends State<GridPatternView> {
 
   @override
   void dispose() {
+    _listened?.removeListener(_onTransform);
     _ownCache?.dispose();
     _layerCache.dispose();
+    _doneCache.dispose();
     _ownController?.dispose();
     super.dispose();
   }
@@ -173,6 +213,8 @@ class _GridPatternViewState extends State<GridPatternView> {
     if (widget.controller != null || _fitted) return;
     _fitted = true;
     final double scale = math.min(3, viewport.width / _scene.size.width);
+    // Первый же кадр рисуется в итоговом масштабе: вся схема сразу в нужной детализации, без пересборки после.
+    _flat = _isFlat(scale);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
       _controller.value = Matrix4.identity()..scaleByDouble(scale, scale, 1, 1);
@@ -182,19 +224,15 @@ class _GridPatternViewState extends State<GridPatternView> {
   @override
   Widget build(BuildContext context) {
     final GridPaintStyle style = _style(context);
-    final int before = _cache.buildCount;
-    _cache.configure(
-      grid: widget.grid,
-      palette: widget.palette,
-      scene: _scene,
-      options: widget.options,
-      style: style,
-      layers: widget.layers,
-    );
-    _configureLayers(style);
-    // Слой сброшен конфигурацией — painter должен перерисоваться (счётчик построений не годится: блоки ленивые).
-    if (_cache.cachedBlocks == 0 && before == _cache.buildCount) _revision++;
     final Color veil = GridColors.veil.resolveFrom(context);
+    // Вуаль сделанных клеток: слой со своим кешем блоков, а не часть подсветки, которая рисуется заново на каждый кадр.
+    if (_doneCache.configure(
+      scene: _scene,
+      progress: widget.options.doneCells,
+      veil: veil.withValues(alpha: veil.a * 0.7),
+    )) {
+      _doneRevision++;
+    }
 
     return LayoutBuilder(
       builder: (context, constraints) {
@@ -202,6 +240,24 @@ class _GridPatternViewState extends State<GridPatternView> {
         final double gutter = widget.interactive && widget.options.currentRow != null ? gridRowGutter : 0;
         final Size viewport = Size(math.max(1, constraints.maxWidth - gutter), constraints.maxHeight);
         _fit(viewport);
+        // Неинтерактивный вид масштабирует `FittedBox`, интерактивный — зум; от размера клетки на экране зависит
+        // детализация слоя ячеек.
+        final bool flat = widget.interactive
+            ? _flat
+            : _fitsFlat(math.min(viewport.width / _scene.size.width, viewport.height / _scene.size.height));
+        final int before = _cache.buildCount;
+        _cache.configure(
+          grid: widget.grid,
+          palette: widget.palette,
+          scene: _scene,
+          options: widget.options,
+          style: style,
+          layers: widget.layers,
+          flat: flat,
+        );
+        _configureLayers(style);
+        // Слой сброшен конфигурацией — painter должен перерисоваться (счётчик построений не годится: блоки ленивые).
+        if (_cache.cachedBlocks == 0 && before == _cache.buildCount) _revision++;
         final double fitScale = viewport.width / _scene.size.width;
         final Widget scene = SizedBox(
           width: _scene.size.width,
@@ -230,6 +286,23 @@ class _GridPatternViewState extends State<GridPatternView> {
                       child: CustomPaint(
                         key: const ValueKey<String>('stitch-layers'),
                         painter: StitchLayersPainter(cache: _layerCache, revision: _layerRevision),
+                      ),
+                    ),
+                  ),
+                ),
+              if (!widget.options.doneCells.isEmpty)
+                Positioned.fill(
+                  child: IgnorePointer(
+                    child: RepaintBoundary(
+                      child: CustomPaint(
+                        key: const ValueKey<String>('grid-done'),
+                        painter: GridDonePainter(
+                          cache: _doneCache,
+                          controller: _controller,
+                          viewportSize: viewport,
+                          revision: _doneRevision,
+                          wholeScene: !widget.interactive,
+                        ),
                       ),
                     ),
                   ),
@@ -295,6 +368,8 @@ class _GridPatternViewState extends State<GridPatternView> {
       },
     );
   }
+
+  bool _fitsFlat(double scale) => math.min(_scene.cellSize.width, _scene.cellSize.height) * scale < _flatBelowPx;
 
   void _emit(Offset scenePoint, ValueChanged<CellPosition> callback) {
     final CellPosition? cell = _scene.cellAt(scenePoint);

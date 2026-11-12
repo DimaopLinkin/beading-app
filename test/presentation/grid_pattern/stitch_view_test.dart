@@ -3,6 +3,7 @@ import 'package:beading/domain/grid/cell_position.dart';
 import 'package:beading/domain/grid/fabric.dart';
 import 'package:beading/domain/grid/grid.dart';
 import 'package:beading/domain/grid/grid_geometry.dart';
+import 'package:beading/domain/grid_pattern/cell_progress.dart';
 import 'package:beading/domain/materials/floss_estimate.dart';
 import 'package:beading/domain/palette/catalog_ref.dart';
 import 'package:beading/domain/stitch/stitch_layers.dart';
@@ -119,7 +120,10 @@ void main() {
       tester,
       _view(
         cache: cache,
-        options: GridViewOptions(showCenter: true, doneCells: <CellPosition>{const CellPosition(0, 0)}),
+        options: GridViewOptions(
+          showCenter: true,
+          doneCells: CellProgress(width: 40).withCells(const <CellPosition>[CellPosition(0, 0)], done: true),
+        ),
       ),
     );
     expect(cache.buildCount, built);

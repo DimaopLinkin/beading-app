@@ -42,6 +42,17 @@ final class GridScene {
   /// Размер всей схемы в сцене.
   late final Size size;
 
+  /// Та же раскладка: ячейки лежат в тех же местах (кеши слоёв сравнивают сцены по ней, а не по объекту).
+  bool sameLayout(GridScene other) =>
+      identical(this, other) ||
+      (geometry == other.geometry &&
+          metrics == other.metrics &&
+          columns == other.columns &&
+          rows == other.rows &&
+          pxPerMm == other.pxPerMm &&
+          cellSize == other.cellSize &&
+          size == other.size);
+
   /// Прямоугольник ячейки.
   Rect cellRect(CellPosition cell) {
     final MmPoint center = geometry.cellCenter(metrics, cell);

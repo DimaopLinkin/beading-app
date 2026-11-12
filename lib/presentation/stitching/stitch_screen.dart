@@ -136,7 +136,7 @@ class _WorkspaceState extends State<_Workspace> with WidgetsBindingObserver {
       highlightColor: s.highlight,
       canvasColor: metrics is Fabric ? Color.fromARGB(255, metrics.color.r, metrics.color.g, metrics.color.b) : null,
       currentCell: parked == null ? null : (column: parked.column, row: parked.row),
-      doneCells: s.progress.cells(height: s.pattern!.grid.height).toSet(),
+      doneCells: s.progress,
     );
   }
 

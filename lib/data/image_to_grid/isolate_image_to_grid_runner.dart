@@ -38,9 +38,46 @@ final class IsolateImageToGridRunner implements ImageToGridRunner {
   /// Картинка-заглушка в запросах без пикселей.
   static final SourceImage _placeholder = SourceImage(width: 1, height: 1, rgba: Uint8List(4));
 
+  /// Запрос, ждущий конца расчёта; новый запрос заменяет его.
+  ({ImageToGridRequest request, Completer<GeneratedPattern> completer})? _waiting;
+
+  /// Идёт ли расчёт в изоляте.
+  bool _busy = false;
+
   @override
-  Future<GeneratedPattern> run(ImageToGridRequest request) async {
-    final SendPort worker = await _start();
+  Future<GeneratedPattern> run(ImageToGridRequest request) {
+    final Completer<GeneratedPattern> completer = Completer<GeneratedPattern>();
+    final waiting = _waiting;
+    if (waiting != null && !waiting.completer.isCompleted) {
+      waiting.completer.completeError(const RunSuperseded());
+    }
+    _waiting = (request: request, completer: completer);
+    unawaited(_pump());
+    return completer.future;
+  }
+
+  /// Отправляет ждущий запрос, если изолят свободен.
+  Future<void> _pump() async {
+    if (_busy) return;
+    final waiting = _waiting;
+    if (waiting == null) return;
+    _waiting = null;
+    _busy = true;
+    final int epoch = _epoch;
+    try {
+      final SendPort worker = await _start();
+      if (epoch != _epoch) throw StateError('Сессия расчёта закрыта');
+      _dispatch(worker, waiting.request, waiting.completer);
+    } on Object catch (error, stack) {
+      _busy = false;
+      if (!waiting.completer.isCompleted) waiting.completer.completeError(error, stack);
+      unawaited(_pump());
+    }
+  }
+
+  /// Картинка и маски уходят в изолят, только если их там ещё нет: решаем в момент отправки, а не постановки в
+  /// очередь, иначе заменённый запрос унёс бы их с собой.
+  void _dispatch(SendPort worker, ImageToGridRequest request, Completer<GeneratedPattern> completer) {
     final bool carriesImage =
         !identical(request.image, _sentImage) ||
         !identical(request.importance, _sentImportance) ||
@@ -51,12 +88,15 @@ final class IsolateImageToGridRunner implements ImageToGridRunner {
     _sentMasks = request.faces?.masks;
     _sentMask = request.subjectMask;
     final int id = _nextId++;
-    final Completer<GeneratedPattern> completer = Completer<GeneratedPattern>();
     _pending[id] = completer;
     worker.send(
       _Job(id, carriesImage ? request : request.withSource(image: _placeholder), carriesImage: carriesImage),
     );
-    return completer.future;
+  }
+
+  void _finished() {
+    _busy = false;
+    unawaited(_pump());
   }
 
   @override
@@ -68,6 +108,11 @@ final class IsolateImageToGridRunner implements ImageToGridRunner {
     _replies = null;
     _isolate?.kill(priority: Isolate.immediate);
     _isolate = null;
+    final waiting = _waiting;
+    _waiting = null;
+    if (waiting != null && !waiting.completer.isCompleted) {
+      waiting.completer.completeError(StateError('Сессия расчёта закрыта'));
+    }
     _failPending('Сессия расчёта закрыта');
   }
 
@@ -84,6 +129,7 @@ final class IsolateImageToGridRunner implements ImageToGridRunner {
       if (!pending.isCompleted) pending.completeError(error);
     }
     _pending.clear();
+    _busy = false;
   }
 
   Future<SendPort> _start() {
@@ -118,6 +164,8 @@ final class IsolateImageToGridRunner implements ImageToGridRunner {
           _forgetSent();
           _worker = null;
           _failPending('Расчёт прерван');
+          // Ждущий запрос не виноват в гибели изолята: он пойдёт в новый.
+          unawaited(_pump());
         }
       } else if (message is _Done) {
         final Completer<GeneratedPattern>? pending = _pending.remove(message.id);
@@ -128,6 +176,7 @@ final class IsolateImageToGridRunner implements ImageToGridRunner {
         } else {
           pending.completeError(StateError(message.error ?? 'Расчёт не удался'));
         }
+        _finished();
       }
     });
     final ImageToGridPipeline pipeline = _pipeline;

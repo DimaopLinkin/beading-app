@@ -2,6 +2,7 @@ import 'dart:ui' show Color;
 
 import 'package:beading/domain/grid/cell_position.dart';
 import 'package:beading/domain/grid/reading_order.dart';
+import 'package:beading/domain/grid_pattern/cell_progress.dart';
 import 'package:equatable/equatable.dart';
 
 /// Как рисуется клетка вышивки на схеме (бисер этот выбор не использует).
@@ -41,7 +42,7 @@ final class GridViewOptions extends Equatable {
     this.hiddenLayers = const <StitchLayerKind>{},
     this.highlightColor,
     this.showCenter = false,
-    this.doneCells = const <CellPosition>{},
+    this.doneCells = const CellProgress.none(),
   }) : assert(boldEvery >= 0, 'boldEvery не может быть отрицательным');
 
   /// Знак палитры на каждой бусине.
@@ -94,8 +95,9 @@ final class GridViewOptions extends Equatable {
   /// Отметки центра схемы на всех четырёх краях.
   final bool showCenter;
 
-  /// Сделанные клетки вышивки: притушены вуалью.
-  final Set<CellPosition> doneCells;
+  /// Сделанные клетки вышивки: притушены вуалью. Отметки как есть, без разворота в набор клеток: на большой схеме
+  /// разворот на каждый кадр жеста обходится дороже самой отрисовки.
+  final CellProgress doneCells;
 
   /// Копия без знаков на клетках (мелкий масштаб): остаётся заливка цветом.
   GridViewOptions withoutSymbols() => GridViewOptions(
