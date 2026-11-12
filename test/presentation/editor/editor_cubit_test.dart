@@ -6,6 +6,7 @@ import 'package:beading/domain/grid/grid.dart';
 import 'package:beading/domain/grid/grid_geometry.dart';
 import 'package:beading/domain/grid_pattern/grid_pattern.dart';
 import 'package:beading/domain/grid_pattern/use_cases/save_grid_pattern.dart';
+import 'package:beading/domain/grid_pattern/use_cases/shift_progress.dart';
 import 'package:beading/domain/palette/catalog_ref.dart';
 import 'package:beading/domain/palette/palette_snapshot.dart';
 import 'package:beading/domain/palette/pattern_color.dart';
@@ -42,6 +43,8 @@ void main() {
         palette: samplePalette(),
       );
 
+  FakeGridProgressStore? progressRows;
+
   Future<void> start({GridPattern? initial, Duration delay = const Duration(milliseconds: 50)}) async {
     projects.projects['proj-1'] = Project(
       id: 'proj-1',
@@ -61,6 +64,7 @@ void main() {
       patterns: patterns,
       savePattern: SaveGridPattern(patterns),
       touchProject: TouchProject(repository: projects, clock: FakeClock(DateTime.utc(2026, 2))),
+      shiftProgress: progressRows == null ? null : ShiftProgress(rows: progressRows!, cells: FakeCellProgressStore()),
       saveDelay: delay,
     );
     await cubit.load();
@@ -71,7 +75,10 @@ void main() {
     patterns = FakeGridPatternRepository();
   });
 
-  tearDown(() => cubit.close());
+  tearDown(() {
+    progressRows = null;
+    return cubit.close();
+  });
 
   Grid grid() => cubit.state.pattern!.grid;
 
@@ -254,6 +261,39 @@ void main() {
     await cubit.flush();
     expect(cubit.state.save, EditorSave.saved);
     expect(patterns.byProject['proj-1']!.grid.at(0, 0), 1);
+  });
+
+  group('отметки прогресса идут за рядами', () {
+    test('вставка, «Отменить» и «Вернуть» сдвигают отметки туда и обратно', () async {
+      progressRows = FakeGridProgressStore()..rows.addAll(<int>{0, 1, 3});
+      await start();
+      cubit.insertRow(1);
+      await pumpEventQueue();
+      expect(progressRows!.rows, <int>{0, 2, 4});
+
+      cubit.undo();
+      await pumpEventQueue();
+      expect(progressRows!.rows, <int>{0, 1, 3});
+
+      cubit.redo();
+      await pumpEventQueue();
+      expect(progressRows!.rows, <int>{0, 2, 4});
+    });
+
+    test('удаление ряда убирает его отметку, обычная правка отметок не трогает', () async {
+      progressRows = FakeGridProgressStore()..rows.addAll(<int>{0, 1, 3});
+      await start();
+      cubit.tapCell(const CellPosition(0, 0));
+      await pumpEventQueue();
+      expect(progressRows!.calls, isEmpty);
+      cubit.deleteRow(1);
+      await pumpEventQueue();
+      expect(progressRows!.rows, <int>{0, 2});
+      cubit.undo();
+      await pumpEventQueue();
+      // Вернулся пустой ряд: отметка удалённого ряда не возвращается, остальные на местах.
+      expect(progressRows!.rows, <int>{0, 3});
+    });
   });
 }
 
