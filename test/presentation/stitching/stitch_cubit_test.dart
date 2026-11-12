@@ -15,6 +15,7 @@ import 'package:beading/domain/settings/setting_keys.dart';
 import 'package:beading/domain/weaving/work_session_tracker.dart';
 import 'package:beading/presentation/stitching/stitch_cubit.dart';
 import 'package:beading/presentation/stitching/stitch_state.dart';
+import 'package:fake_async/fake_async.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import '../../support/fake_clock.dart';
@@ -191,6 +192,116 @@ void main() {
     expect(cubit.state.done, 0, reason: 'в области одна пустая клетка');
     cubit.areaEnd();
     await cubit.close();
+  });
+
+  group('откат', () {
+    test('касание откатывается без тоста; кнопка гаснет, когда откатывать нечего', () async {
+      final StitchCubit cubit = await loaded();
+      expect(cubit.state.canUndo, isFalse);
+      cubit.tapCell(const CellPosition(0, 0));
+      expect(cubit.state.canUndo, isTrue);
+      expect(cubit.state.undoNotice, isNull, reason: 'тост только после действия на несколько клеток');
+      cubit.undo();
+      expect(cubit.state.done, 0);
+      expect(cubit.state.canUndo, isFalse);
+      cubit.undo();
+      expect(cubit.state.done, 0);
+      await cubit.close();
+      expect(cells.blocksByPattern['pat-1'], isEmpty, reason: 'откат записан на диск');
+    });
+
+    test('откат мазка не снимает клетки, которые были сделаны до него', () async {
+      final StitchCubit cubit = await loaded();
+      cubit.tapCell(const CellPosition(0, 0));
+      cubit
+        ..strokeStart()
+        ..strokeCell(const CellPosition(1, 0))
+        ..strokeCell(const CellPosition(0, 0))
+        ..strokeCell(const CellPosition(3, 0))
+        ..strokeEnd();
+      expect(cubit.state.done, 3);
+      cubit.undo();
+      expect(cubit.state.done, 1);
+      expect(cubit.state.progress.isDone(0, 0), isTrue);
+      await cubit.close();
+    });
+
+    test('мазок: тост «отмечено N», откат возвращает как было', () async {
+      final StitchCubit cubit = await loaded();
+      cubit
+        ..strokeStart()
+        ..strokeCell(const CellPosition(0, 0))
+        ..strokeCell(const CellPosition(1, 0))
+        ..strokeCell(const CellPosition(3, 0))
+        ..strokeEnd();
+      expect(cubit.state.done, 3);
+      expect(cubit.state.undoNotice, (count: 3, done: true));
+      cubit.undo();
+      expect(cubit.state.done, 0);
+      expect(cubit.state.undoNotice, isNull);
+      await cubit.close();
+    });
+
+    test('область и цвет целиком откатываются по одному действию, в обратном порядке', () async {
+      final StitchCubit cubit = await loaded();
+      cubit.markColor(1);
+      expect(cubit.state.done, 4);
+      cubit
+        ..setTool(StitchTool.area)
+        ..areaDrag(const CellPosition(0, 0), const CellPosition(3, 0))
+        ..areaEnd();
+      final int afterArea = cubit.state.done;
+      expect(afterArea, greaterThan(4));
+      cubit.undo();
+      expect(cubit.state.done, 4);
+      cubit.undo();
+      expect(cubit.state.done, 0);
+      await cubit.close();
+    });
+
+    test('снятие отметок откатывается обратно отметкой; тост «снято»', () async {
+      final StitchCubit cubit = await loaded();
+      cubit.markColor(1);
+      cubit.markColor(1);
+      expect(cubit.state.done, 0);
+      expect(cubit.state.undoNotice, (count: 4, done: false));
+      cubit.undo();
+      expect(cubit.state.done, 4);
+      await cubit.close();
+    });
+
+    test('тост сам пропадает через пять секунд, откат остаётся; dismissUndoNotice скрывает тост', () {
+      fakeAsync((async) {
+        final StitchCubit cubit = create();
+        cubit.load();
+        async.flushMicrotasks();
+        cubit.markColor(1);
+        expect(cubit.state.undoNotice, isNotNull);
+        async.elapse(const Duration(seconds: 6));
+        expect(cubit.state.undoNotice, isNull);
+        expect(cubit.state.canUndo, isTrue);
+        cubit.markColor(1);
+        expect(cubit.state.undoNotice, isNotNull);
+        cubit.dismissUndoNotice();
+        expect(cubit.state.undoNotice, isNull);
+        cubit.close();
+        async.flushMicrotasks();
+      });
+    });
+
+    test('история ограничена тридцатью действиями', () async {
+      final StitchCubit cubit = await loaded();
+      for (int i = 0; i < 32; i++) {
+        cubit.tapCell(CellPosition(i.isEven ? 0 : 1, 0));
+      }
+      int undone = 0;
+      while (cubit.state.canUndo) {
+        cubit.undo();
+        undone++;
+      }
+      expect(undone, 30);
+      await cubit.close();
+    });
   });
 
   test('по цвету: отмечает все клетки цвета, повторно снимает; подсветка переключается', () async {

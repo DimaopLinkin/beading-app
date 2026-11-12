@@ -1836,6 +1836,35 @@ class AppLocalizationsRu extends AppLocalizations {
   String get stitchActionMore => 'Ещё';
 
   @override
+  String get stitchActionUndo => 'Отменить';
+
+  @override
+  String stitchUndoMarked(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count крестика',
+      many: '$count крестиков',
+      few: '$count крестика',
+      one: '$count крестик',
+    );
+    return 'Отмечено $_temp0';
+  }
+
+  @override
+  String stitchUndoUnmarked(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count крестика',
+      many: '$count крестиков',
+      few: '$count крестика',
+      one: '$count крестик',
+    );
+    return 'Снято $_temp0';
+  }
+
+  @override
   String get stitchZoomHint => 'Приблизьте, чтобы отметить касанием';
 
   @override

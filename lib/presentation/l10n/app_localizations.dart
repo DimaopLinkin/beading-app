@@ -3259,6 +3259,24 @@ abstract class AppLocalizations {
   /// **'Ещё'**
   String get stitchActionMore;
 
+  /// Кнопка: откатить последнее действие в вышивании
+  ///
+  /// In ru, this message translates to:
+  /// **'Отменить'**
+  String get stitchActionUndo;
+
+  /// Тост после мазка, области или цвета целиком
+  ///
+  /// In ru, this message translates to:
+  /// **'Отмечено {count, plural, one{{count} крестик} few{{count} крестика} many{{count} крестиков} other{{count} крестика}}'**
+  String stitchUndoMarked(int count);
+
+  /// Тост после снятия отметок мазком, областью или цветом
+  ///
+  /// In ru, this message translates to:
+  /// **'Снято {count, plural, one{{count} крестик} few{{count} крестика} many{{count} крестиков} other{{count} крестика}}'**
+  String stitchUndoUnmarked(int count);
+
   /// Подсказка, когда касание по мелким клеткам вышивки ничего не отметило
   ///
   /// In ru, this message translates to:

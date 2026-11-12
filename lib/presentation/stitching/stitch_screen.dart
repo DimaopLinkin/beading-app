@@ -74,7 +74,7 @@ const double _bottomPanelHeight = 236;
 const double _bottomPanelHeightLarge = 372;
 
 /// Ширина, с которой экран раскладывается как на Mac: слева остаток по цветам, сверху панель режимов.
-const double _wideBreakpoint = 700;
+const double _wideBreakpoint = 900;
 const double _sidebarWidth = 340;
 
 /// Масштаб шрифта, с которого режимы лежат сеткой 2 × 2 (AX3 в макете 10).
@@ -187,7 +187,11 @@ class _WorkspaceState extends State<_Workspace> with WidgetsBindingObserver {
     if (state.offerFinish) {
       return const _FinishOffer();
     }
-    return state.saveFailed ? const _SaveFailedNotice() : null;
+    if (state.saveFailed) {
+      return const _SaveFailedNotice();
+    }
+    final ({int count, bool done})? undo = state.undoNotice;
+    return undo == null ? null : _UndoToast(count: undo.count, done: undo.done);
   }
 
   @override
@@ -437,6 +441,12 @@ List<_Action> _extras(BuildContext context, StitchState state, VoidCallback goTo
   final bool parked = state.parked != null;
   return <_Action>[
     _Action(
+      id: 'stitch-undo',
+      icon: AppIcons.undo,
+      label: l10n.stitchActionUndo,
+      onPressed: state.canUndo ? cubit.undo : null,
+    ),
+    _Action(
       id: 'stitch-blocks',
       icon: CupertinoIcons.square_grid_2x2,
       label: l10n.stitchActionBlocks,
@@ -509,13 +519,15 @@ class _LabelButton extends StatelessWidget {
               children: <Widget>[
                 Icon(action.icon, color: color, size: size > 70 ? 30 : 22),
                 const SizedBox(height: 2),
+                // Подпись в одну строку, а если не помещается, чуть мельче: кнопки в ряду одной ширины.
                 Flexible(
-                  child: Text(
-                    action.label,
-                    maxLines: 2,
-                    textAlign: TextAlign.center,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(color: color, fontSize: size > 70 ? 17 : 12, fontWeight: FontWeight.w600),
+                  child: FittedBox(
+                    fit: BoxFit.scaleDown,
+                    child: Text(
+                      action.label,
+                      maxLines: 1,
+                      style: TextStyle(color: color, fontSize: size > 70 ? 17 : 12, fontWeight: FontWeight.w600),
+                    ),
                   ),
                 ),
               ],
@@ -539,14 +551,11 @@ class _ActionRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Row(
-    mainAxisSize: compact ? MainAxisSize.min : MainAxisSize.max,
     children: <Widget>[
       for (final _Action a in actions)
-        compact
-            ? SizedBox(width: 92, child: _LabelButton(action: a, size: 52))
-            : Expanded(
-                child: _LabelButton(action: a, size: size),
-              ),
+        Expanded(
+          child: _LabelButton(action: a, size: compact ? 52 : size),
+        ),
     ],
   );
 }
@@ -847,6 +856,47 @@ class _FinishOffer extends StatelessWidget {
                     ),
                   ),
                 ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// Тост после мазка, области или цвета целиком: «Отмечено 38 крестиков · Отменить».
+class _UndoToast extends StatelessWidget {
+  const _UndoToast({required this.count, required this.done});
+
+  final int count;
+  final bool done;
+
+  @override
+  Widget build(BuildContext context) {
+    final AppLocalizations l10n = AppLocalizations.of(context);
+    final AppTokensData tokens = context.tokens;
+    final StitchCubit cubit = context.read<StitchCubit>();
+    return _Frame(
+      child: Padding(
+        padding: EdgeInsets.symmetric(horizontal: tokens.spacing.l),
+        child: GlassPanel(
+          density: GlassDensity.dense,
+          padding: EdgeInsets.symmetric(horizontal: tokens.spacing.m, vertical: tokens.spacing.xs),
+          child: Row(
+            children: <Widget>[
+              Expanded(
+                child: Text(
+                  key: const ValueKey<String>('stitch-undo-toast'),
+                  done ? l10n.stitchUndoMarked(count) : l10n.stitchUndoUnmarked(count),
+                ),
+              ),
+              CupertinoButton(
+                key: const ValueKey<String>('stitch-undo-toast-button'),
+                padding: EdgeInsets.zero,
+                minimumSize: Size(tokens.minTapTarget, tokens.minTapTarget),
+                onPressed: cubit.undo,
+                child: Text(l10n.stitchActionUndo),
               ),
             ],
           ),

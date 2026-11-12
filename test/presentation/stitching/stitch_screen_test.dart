@@ -202,6 +202,31 @@ void main() {
     await closeScreen(tester, cubit);
   });
 
+  testWidgets('откат: кнопка «Отменить» и тост после мазка', (tester) async {
+    final StitchCubit cubit = await open(tester);
+    final Finder undo = find.byKey(const ValueKey<String>('stitch-undo'));
+    expect(
+      tester.widget<CupertinoButton>(undo).onPressed,
+      isNull,
+    );
+    await tester.tap(find.text('Мазок'));
+    await tester.pump(const Duration(milliseconds: 300));
+    final Offset center = tester.getCenter(find.byKey(const ValueKey<String>('stitch-overlay')));
+    final TestGesture finger = await tester.startGesture(center);
+    await finger.moveBy(const Offset(40, 0));
+    await finger.moveBy(const Offset(40, 0));
+    await finger.up();
+    await tester.pump();
+    final int marked = cubit.state.done;
+    expect(marked, greaterThan(1));
+    expect(find.byKey(const ValueKey<String>('stitch-undo-toast')), findsOneWidget);
+    await tester.tap(find.byKey(const ValueKey<String>('stitch-undo-toast-button')));
+    await tester.pump();
+    expect(cubit.state.done, 0);
+    expect(find.byKey(const ValueKey<String>('stitch-undo-toast')), findsNothing);
+    await closeScreen(tester, cubit);
+  });
+
   testWidgets('мелкие клетки: касание не отмечает, показывает подсказку; мазок работает', (tester) async {
     patterns.byProject[projectId] = GridPattern(
       id: 'pat-2',
