@@ -3,6 +3,8 @@ import 'dart:typed_data';
 
 import 'package:beading/core/id_generator.dart';
 import 'package:beading/data/db/app_database.dart';
+import 'package:beading/data/db/daos/floss_stock_dao.dart';
+import 'package:beading/data/floss_stock/drift_floss_stock_repository.dart';
 import 'package:beading/data/grid_pattern/drift_cell_progress_store.dart';
 import 'package:beading/data/grid_pattern/drift_grid_pattern_repository.dart';
 import 'package:beading/data/grid_pattern/drift_grid_progress_store.dart';
@@ -49,6 +51,7 @@ class BiserDevice {
     images = DriftImagePatternRepository(dao: db.imagePatternsDao, deviceIds: devices, clock: clock);
     bookWork = DriftBookWorkRepository(dao: db.bookWorkDao, deviceIds: devices, clock: clock);
     workSessions = DriftWorkSessionRepository(dao: db.workSessionsDao, deviceIds: devices, clock: clock, ids: ids);
+    stock = DriftFlossStockRepository(dao: FlossStockDao(db), deviceIds: devices, clock: clock, ids: ids);
     final LocalFileStore real = LocalFileStore(() async => root);
     realFiles = real;
     files = wrapFiles == null ? real : wrapFiles(real);
@@ -64,6 +67,7 @@ class BiserDevice {
       codec: const ZipBiserCodec(),
       clock: clock,
       appInfo: _AppInfo(),
+      flossStock: stock,
     );
     import = ImportBiser(
       codec: const ZipBiserCodec(),
@@ -77,6 +81,7 @@ class BiserDevice {
       files: files,
       ids: ids,
       unitOfWork: DriftUnitOfWork(db),
+      flossStock: stock,
     );
   }
 
@@ -91,6 +96,7 @@ class BiserDevice {
   late final DriftImagePatternRepository images;
   late final DriftBookWorkRepository bookWork;
   late final DriftWorkSessionRepository workSessions;
+  late final DriftFlossStockRepository stock;
   late final FileStore files;
   late final LocalFileStore realFiles;
   late final ExportProjects export;

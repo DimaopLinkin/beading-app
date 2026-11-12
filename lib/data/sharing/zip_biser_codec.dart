@@ -41,7 +41,7 @@ class ZipBiserCodec implements BiserCodec {
     try {
       archive = ZipDecoder().decodeBytes(bytes);
     } on Object {
-      return const Err<BiserBundle>(ValidationFailure('Файл повреждён или это не файл «Бисера»'));
+      return const Err<BiserBundle>(ValidationFailure('Файл повреждён или это не файл «Канители»'));
     }
     if (archive.files.length > maxEntries) {
       return const Err<BiserBundle>(ValidationFailure('В файле слишком много записей'));
@@ -74,7 +74,7 @@ class ZipBiserCodec implements BiserCodec {
       return const Err<BiserBundle>(ValidationFailure('Файл повреждён: не удалось распаковать'));
     }
     if (manifest == null) {
-      return const Err<BiserBundle>(ValidationFailure('Это не файл «Бисера»: нет манифеста'));
+      return const Err<BiserBundle>(ValidationFailure('Это не файл «Канители»: нет манифеста'));
     }
     return BiserJson.decode(manifest, files);
   }

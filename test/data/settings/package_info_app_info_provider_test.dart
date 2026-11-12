@@ -6,7 +6,7 @@ import 'package:package_info_plus/package_info_plus.dart';
 void main() {
   test('читает версию и номер сборки из пакета', () async {
     PackageInfo.setMockInitialValues(
-      appName: 'Бисер',
+      appName: 'Канитель',
       packageName: 'app.beading',
       version: '1.2.3',
       buildNumber: '45',

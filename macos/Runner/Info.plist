@@ -5,7 +5,7 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>
-	<string>Бисер</string>
+	<string>Канитель</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIconFile</key>
@@ -40,7 +40,7 @@
 	<array>
 		<dict>
 			<key>CFBundleTypeName</key>
-			<string>Файл «Бисера»</string>
+			<string>Файл «Канители»</string>
 			<key>CFBundleTypeRole</key>
 			<string>Editor</string>
 			<key>CFBundleTypeExtensions</key>
@@ -80,7 +80,7 @@
 				<string>public.archive</string>
 			</array>
 			<key>UTTypeDescription</key>
-			<string>Файл «Бисера»</string>
+			<string>Файл «Канители»</string>
 			<key>UTTypeIdentifier</key>
 			<string>com.dimaoplinkin.beading.biser</string>
 			<key>UTTypeTagSpecification</key>

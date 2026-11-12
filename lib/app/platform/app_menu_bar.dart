@@ -21,7 +21,7 @@ class AppMenuBar extends StatelessWidget {
     this.platform,
     this.undoLabel = 'Отменить',
     this.redoLabel = 'Повторить',
-    this.appLabel = 'Бисер',
+    this.appLabel = 'Канитель',
     this.editLabel = 'Правка',
     this.preferencesLabel = 'Настройки…',
     super.key,

@@ -3,6 +3,7 @@ import 'dart:typed_data';
 
 import 'package:beading/core/failure.dart';
 import 'package:beading/core/result.dart';
+import 'package:beading/domain/floss_stock/floss_stock_entry.dart';
 import 'package:beading/domain/grid/cell_metrics.dart';
 import 'package:beading/domain/grid/grid.dart';
 import 'package:beading/domain/grid/grid_codec.dart';
@@ -43,6 +44,18 @@ abstract final class BiserJson {
     'exportedAt': bundle.exportedAt.toUtc().millisecondsSinceEpoch,
     'appVersion': bundle.appVersion,
     'projects': <Object?>[for (final BiserProject p in bundle.projects) _project(p)],
+    // Необязательное поле формата 3: запас ниток; без него файл остаётся версии 1–2.
+    if (bundle.flossStock.isNotEmpty)
+      'flossStock': <Object?>[
+        for (final FlossStockEntry e in bundle.flossStock)
+          if (e.updatedAt != null)
+            <String, Object?>{
+              'brand': e.ref.brand,
+              'code': e.ref.code,
+              'skeins': e.skeins,
+              'updatedAt': e.updatedAt!.toUtc().millisecondsSinceEpoch,
+            },
+      ],
   });
 
   static Map<String, Object?> _project(BiserProject item) {
@@ -157,12 +170,12 @@ abstract final class BiserJson {
     }
     final Map<String, Object?> root = _map(parsed, 'манифест');
     if (root['format'] != formatName) {
-      throw const _BadBiser('Это не файл «Бисера»');
+      throw const _BadBiser('Это не файл «Канители»');
     }
     final int version = _int(root['version'], 'версия формата');
     if (version > biserFormatVersion) {
       throw _BadBiser(
-        'Файл создан более новой версией приложения (формат $version). Обновите «Бисер» и откройте файл снова.',
+        'Файл создан более новой версией приложения (формат $version). Обновите «Канитель» и откройте файл снова.',
       );
     }
     if (version < 1) {
@@ -178,12 +191,38 @@ abstract final class BiserJson {
       }
       projects.add(project);
     }
+    final List<FlossStockEntry> stock = <FlossStockEntry>[];
+    final Set<CatalogRef> seen = <CatalogRef>{};
+    if (root['flossStock'] != null) {
+      for (final Object? raw in _list(root['flossStock'], 'запас ниток')) {
+        final Map<String, Object?> e = _map(raw, 'нитка запаса');
+        final double skeins = _double(e['skeins'], 'число мотков');
+        if (!skeins.isFinite || skeins <= 0 || skeins > 999) {
+          throw const _BadBiser('Файл повреждён: число мотков в запасе неверно');
+        }
+        final CatalogRef ref = CatalogRef(
+          brand: _string(e['brand'], 'бренд нитки'),
+          code: _string(e['code'], 'номер нитки'),
+        );
+        if (!seen.add(ref)) {
+          throw _BadBiser('В запасе дважды нитка $ref');
+        }
+        stock.add(
+          FlossStockEntry(
+            ref: ref,
+            skeins: skeins,
+            updatedAt: DateTime.fromMillisecondsSinceEpoch(_int(e['updatedAt'], 'время записи запаса'), isUtc: true),
+          ),
+        );
+      }
+    }
     return BiserBundle(
       kind: kind,
       exportedAt: DateTime.fromMillisecondsSinceEpoch(_int(root['exportedAt'], 'время экспорта'), isUtc: true),
       appVersion: _string(root['appVersion'], 'версия приложения'),
       projects: projects,
       files: files,
+      flossStock: stock,
       formatVersion: version,
     );
   }

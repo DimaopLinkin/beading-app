@@ -1,6 +1,8 @@
+import 'dart:async';
 import 'dart:math' as math;
 
 import 'package:beading/core/failure.dart';
+import 'package:beading/domain/floss_stock/floss_shortage.dart';
 import 'package:beading/domain/materials/floss_estimate.dart';
 import 'package:beading/domain/sharing/text_sharer.dart';
 import 'package:beading/presentation/floss/floss_cubit.dart';
@@ -11,6 +13,7 @@ import 'package:beading/presentation/theme/app_icons.dart';
 import 'package:beading/presentation/theme/tokens.dart';
 import 'package:beading/presentation/widgets/color_swatch.dart';
 import 'package:beading/presentation/widgets/glass/glass_button.dart';
+import 'package:beading/presentation/widgets/stock_stepper.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -43,7 +46,7 @@ class _FlossScreenState extends State<FlossScreen> {
 
   Future<void> _share(FlossState state) async {
     final AppLocalizations l10n = AppLocalizations.of(context);
-    final FlossFormat format = FlossFormat(l10n, state.estimate!, withReserve: state.withReserve);
+    final FlossFormat format = _formatOf(l10n, state);
     final result = await widget.sharer.shareText(
       format.shareText(state.projectName),
       subject: l10n.flossShareHeader(state.projectName),
@@ -66,12 +69,46 @@ class _FlossScreenState extends State<FlossScreen> {
     );
   }
 
+  static FlossFormat _formatOf(AppLocalizations l10n, FlossState state) => FlossFormat(
+    l10n,
+    state.estimate!,
+    withReserve: state.withReserve,
+    shortage: state.shortage,
+    hasStock: state.stock.isNotEmpty,
+  );
+
+  Future<void> _editStock(BuildContext context, FlossShortageLine line, FlossFormat format) async {
+    final FlossCubit cubit = context.read<FlossCubit>();
+    final double? value = await showCupertinoModalPopup<double>(
+      context: context,
+      builder: (sheetContext) => _StockSheet(line: line, format: format),
+    );
+    if (value != null) await cubit.setStock(line.purchase.ref, value);
+  }
+
   @override
   Widget build(BuildContext context) {
     final AppLocalizations l10n = AppLocalizations.of(context);
     final AppTokensData tokens = context.tokens;
     return CupertinoPageScaffold(
-      child: BlocBuilder<FlossCubit, FlossState>(
+      child: BlocConsumer<FlossCubit, FlossState>(
+        listenWhen: (before, after) => after.writeFailure != null && after.writeFailure != before.writeFailure,
+        listener: (context, state) => unawaited(
+          showCupertinoDialog<void>(
+            context: context,
+            builder: (dialogContext) => CupertinoAlertDialog(
+              title: Text(l10n.actionFailedTitle),
+              content: Text(l10n.flossStockWriteFailed),
+              actions: <Widget>[
+                CupertinoDialogAction(
+                  isDefaultAction: true,
+                  onPressed: () => Navigator.of(dialogContext).pop(),
+                  child: Text(l10n.commonOk),
+                ),
+              ],
+            ),
+          ),
+        ),
         builder: (context, state) {
           final double width = MediaQuery.sizeOf(context).width;
           final double side = math.max(tokens.spacing.l, (width - FlossScreen.maxContentWidth) / 2);
@@ -175,23 +212,63 @@ class _FlossScreenState extends State<FlossScreen> {
           ),
         ];
       case FlossStatus.ready:
+        final FlossFormat format = _formatOf(l10n, state);
         if (state.isEmpty) {
-          return <Widget>[message(l10n.flossEmptyTitle, text: l10n.flossEmptyMessage)];
+          if (!state.remainingOnly) {
+            return <Widget>[message(l10n.flossEmptyTitle, text: l10n.flossEmptyMessage)];
+          }
+          return <Widget>[
+            section(
+              _Header(state: state, format: format),
+              top: tokens.spacing.s,
+            ),
+            SliverFillRemaining(
+              hasScrollBody: false,
+              child: Padding(
+                padding: EdgeInsets.all(tokens.spacing.xl),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: <Widget>[
+                    Text(
+                      l10n.flossRemainingDone,
+                      textAlign: TextAlign.center,
+                      style: CupertinoTheme.of(context).textTheme.navTitleTextStyle,
+                    ),
+                    SizedBox(height: tokens.spacing.s),
+                    Text(
+                      l10n.flossRemainingDoneMessage,
+                      textAlign: TextAlign.center,
+                      style: base.copyWith(color: secondary),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ];
         }
-        final FlossFormat format = FlossFormat(l10n, state.estimate!, withReserve: state.withReserve);
         final FlossEstimate estimate = state.estimate!;
+        final FlossShortage shortage = state.shortage!;
         return <Widget>[
           section(
             _Header(state: state, format: format),
             top: tokens.spacing.s,
           ),
           section(heading(l10n.flossShoppingTitle), top: tokens.spacing.l),
+          section(
+            _ShortageSummary(shortage: shortage, remaining: state.remainingOnly, format: format),
+            top: tokens.spacing.s,
+          ),
           SliverPadding(
             padding: inset.copyWith(top: tokens.spacing.s),
             sliver: SliverList.separated(
               itemCount: estimate.purchases.length,
               separatorBuilder: (_, _) => SizedBox(height: tokens.spacing.s),
-              itemBuilder: (context, index) => _PurchaseRow(line: estimate.purchases[index], format: format),
+              itemBuilder: (context, index) => _PurchaseRow(
+                line: estimate.purchases[index],
+                shortage: shortage.lines[index],
+                format: format,
+                onEdit: () => unawaited(_editStock(context, shortage.lines[index], format)),
+              ),
             ),
           ),
           section(_TotalRow(format: format), top: tokens.spacing.m),
@@ -251,6 +328,26 @@ class _Header extends StatelessWidget {
         ),
         Text(l10n.flossFabricLine(format.fabricLabel), style: base.copyWith(fontSize: 15, color: secondary)),
         Text(format.fabricNeedText, style: base.copyWith(fontSize: 15, color: secondary)),
+        SizedBox(height: tokens.spacing.m),
+        CupertinoSlidingSegmentedControl<bool>(
+          groupValue: state.remainingOnly,
+          onValueChanged: (value) => unawaited(context.read<FlossCubit>().setRemainingOnly(value: value ?? false)),
+          children: <bool, Widget>{
+            false: Padding(
+              padding: EdgeInsets.symmetric(vertical: tokens.spacing.s),
+              child: Text(l10n.flossScopeAll),
+            ),
+            true: Padding(
+              padding: EdgeInsets.symmetric(vertical: tokens.spacing.s),
+              child: Text(l10n.flossScopeRemaining),
+            ),
+          },
+        ),
+        if (state.remainingOnly)
+          Padding(
+            padding: EdgeInsets.only(top: tokens.spacing.s),
+            child: Text(l10n.flossScopeRemainingHint, style: base.copyWith(fontSize: 13, color: secondary)),
+          ),
         SizedBox(height: tokens.spacing.m),
         if (MediaQuery.textScalerOf(context).scale(1) > 1.3)
           MergeSemantics(
@@ -344,50 +441,198 @@ class _BeadRow extends StatelessWidget {
 }
 
 class _PurchaseRow extends StatelessWidget {
-  const _PurchaseRow({required this.line, required this.format});
+  const _PurchaseRow({required this.line, required this.shortage, required this.format, required this.onEdit});
 
   final FlossPurchaseLine line;
+  final FlossShortageLine shortage;
   final FlossFormat format;
+  final VoidCallback onEdit;
 
   @override
   Widget build(BuildContext context) {
+    final AppLocalizations l10n = AppLocalizations.of(context);
     final AppTokensData tokens = context.tokens;
     final TextStyle base = CupertinoTheme.of(context).textTheme.textStyle;
     final Color secondary = CupertinoColors.secondaryLabel.resolveFrom(context);
     final String skeins = format.skeinsText(format.purchaseSkeins(line));
     final String article = line.ref.toString();
-    return _Card(
-      label: '$article, ${line.name ?? ''}, $skeins',
-      child: Row(
-        children: <Widget>[
-          ColorSwatchView(rgb: line.rgb, size: 36),
-          SizedBox(width: tokens.spacing.m),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+    final String needHave = l10n.flossStockNeedHave(
+      format.amountText(shortage.needSkeins),
+      format.amountText(shortage.haveSkeins),
+    );
+    final String status = shortage.isCovered
+        ? l10n.flossStockEnough
+        : l10n.flossStockBuy(format.skeinsText(shortage.toBuy));
+    final Color statusColor = shortage.isCovered
+        ? CupertinoColors.systemGreen.resolveFrom(context)
+        : CupertinoColors.systemOrange.resolveFrom(context);
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: onEdit,
+      child: Semantics(
+        button: true,
+        hint: l10n.flossStockEdit,
+        container: true,
+        excludeSemantics: true,
+        label: '$article, ${line.name ?? ''}, $skeins, $needHave, $status',
+        onTap: onEdit,
+        child: DecoratedBox(
+          decoration: BoxDecoration(
+            color: CupertinoColors.secondarySystemGroupedBackground.resolveFrom(context),
+            borderRadius: BorderRadius.circular(tokens.radius.m),
+          ),
+          child: Padding(
+            padding: EdgeInsets.all(tokens.spacing.m),
+            child: Row(
               children: <Widget>[
-                Text(
-                  article,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: base.copyWith(fontSize: 15, fontWeight: FontWeight.w600),
-                ),
-                if (line.name != null)
-                  Text(
-                    line.name!,
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                    style: base.copyWith(fontSize: 13, color: secondary),
+                ColorSwatchView(rgb: line.rgb, size: 36),
+                SizedBox(width: tokens.spacing.m),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: <Widget>[
+                      Text(
+                        article,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: base.copyWith(fontSize: 15, fontWeight: FontWeight.w600),
+                      ),
+                      if (line.name != null)
+                        Text(
+                          line.name!,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                          style: base.copyWith(fontSize: 13, color: secondary),
+                        ),
+                      Text(
+                        needHave,
+                        style: base.merge(tokens.counterTextStyle).copyWith(fontSize: 13, color: secondary),
+                      ),
+                      Text(
+                        status,
+                        style: base.copyWith(fontSize: 13, fontWeight: FontWeight.w600, color: statusColor),
+                      ),
+                    ],
                   ),
+                ),
+                SizedBox(width: tokens.spacing.m),
+                Text(
+                  skeins,
+                  style: base.merge(tokens.counterTextStyle).copyWith(fontSize: 17, fontWeight: FontWeight.w600),
+                ),
               ],
             ),
           ),
-          SizedBox(width: tokens.spacing.m),
-          Text(
-            skeins,
-            style: base.merge(tokens.counterTextStyle).copyWith(fontSize: 17, fontWeight: FontWeight.w600),
+        ),
+      ),
+    );
+  }
+}
+
+/// Итог сверки с запасом: хватает или сколько докупить.
+class _ShortageSummary extends StatelessWidget {
+  const _ShortageSummary({required this.shortage, required this.remaining, required this.format});
+
+  final FlossShortage shortage;
+  final bool remaining;
+  final FlossFormat format;
+
+  @override
+  Widget build(BuildContext context) {
+    final AppLocalizations l10n = AppLocalizations.of(context);
+    final AppTokensData tokens = context.tokens;
+    final TextStyle base = CupertinoTheme.of(context).textTheme.textStyle;
+    final bool covered = shortage.isCovered;
+    final String title = covered
+        ? (remaining ? l10n.flossStockCoveredRemaining : l10n.flossStockCovered)
+        : l10n.flossStockShort(format.skeinsText(shortage.totalToBuy));
+    final Color color = covered
+        ? CupertinoColors.systemGreen.resolveFrom(context)
+        : CupertinoColors.systemOrange.resolveFrom(context);
+    return Semantics(
+      container: true,
+      liveRegion: true,
+      child: Padding(
+        padding: EdgeInsets.symmetric(horizontal: tokens.spacing.m),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: <Widget>[
+            Text(
+              title,
+              style: base.copyWith(fontSize: 17, fontWeight: FontWeight.w600, color: color),
+            ),
+            if (!covered)
+              Text(
+                l10n.flossStockShortThreads(shortage.missingCount),
+                style: base.copyWith(fontSize: 13, color: CupertinoColors.secondaryLabel.resolveFrom(context)),
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// Лист правки запаса нитки: сколько мотков осталось, шаг в полмотка.
+class _StockSheet extends StatefulWidget {
+  const _StockSheet({required this.line, required this.format});
+
+  final FlossShortageLine line;
+  final FlossFormat format;
+
+  @override
+  State<_StockSheet> createState() => _StockSheetState();
+}
+
+class _StockSheetState extends State<_StockSheet> {
+  late double _value = widget.line.haveSkeins;
+
+  @override
+  Widget build(BuildContext context) {
+    final AppLocalizations l10n = AppLocalizations.of(context);
+    final AppTokensData tokens = context.tokens;
+    final TextStyle base = CupertinoTheme.of(context).textTheme.textStyle;
+    final Color secondary = CupertinoColors.secondaryLabel.resolveFrom(context);
+    return CupertinoPopupSurface(
+      child: SafeArea(
+        top: false,
+        child: Padding(
+          padding: EdgeInsets.all(tokens.spacing.l),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: <Widget>[
+              Text(
+                l10n.flossStockSheetTitle(widget.line.purchase.ref.toString()),
+                textAlign: TextAlign.center,
+                style: base.copyWith(fontSize: 17, fontWeight: FontWeight.w600),
+              ),
+              SizedBox(height: tokens.spacing.s),
+              Text(
+                l10n.flossStockSheetHint,
+                textAlign: TextAlign.center,
+                style: base.copyWith(fontSize: 13, color: secondary),
+              ),
+              SizedBox(height: tokens.spacing.m),
+              StockStepper(value: _value, onChanged: (v) => setState(() => _value = v)),
+              SizedBox(height: tokens.spacing.s),
+              CupertinoButton.filled(
+                key: const ValueKey<String>('stock-save'),
+                onPressed: () => Navigator.of(context).pop(_value),
+                child: Text(l10n.commonSave),
+              ),
+              if (widget.line.haveSkeins > 0)
+                CupertinoButton(
+                  key: const ValueKey<String>('stock-clear'),
+                  onPressed: () => Navigator.of(context).pop(0.0),
+                  child: Text(
+                    l10n.flossStockClear,
+                    style: TextStyle(color: CupertinoColors.destructiveRed.resolveFrom(context)),
+                  ),
+                ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }

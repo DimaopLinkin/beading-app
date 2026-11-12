@@ -1,4 +1,5 @@
 import 'package:beading/core/failure.dart';
+import 'package:beading/domain/grid/cell_position.dart';
 import 'package:beading/domain/grid/fabric.dart';
 import 'package:beading/domain/grid/grid.dart';
 import 'package:beading/domain/grid/grid_geometry.dart';
@@ -80,5 +81,51 @@ void main() {
     patterns.byProject['proj-1'] = good.copyWith(palette: PaletteSnapshot(const <PatternColor>[]));
 
     expect((await LoadProjectFloss(patterns)('proj-1')).failureOrNull, isA<ValidationFailure>());
+  });
+
+  group('remainingOnly: только невыполненные клетки', () {
+    test('сделанные клетки не считаются в расходе', () async {
+      patterns.byProject['proj-1'] = _stitchPattern();
+      final FakeCellProgressStore progress = FakeCellProgressStore(width: 2);
+      await progress.setCells('pat-1', const <CellPosition>[CellPosition(0, 0)], done: true);
+      final LoadProjectFloss load = LoadProjectFloss(patterns, progress: progress);
+
+      final FlossEstimate all = (await load('proj-1')).valueOrNull!;
+      final FlossEstimate rest = (await load('proj-1', remainingOnly: true)).valueOrNull!;
+
+      expect(all.totalCrossStitches, 2);
+      expect(rest.totalCrossStitches, 1);
+      expect(rest.purchases.single.strandMeters, closeTo(all.purchases.single.strandMeters / 2, 1e-9));
+    });
+
+    test('вся схема сделана: расхода нет', () async {
+      patterns.byProject['proj-1'] = _stitchPattern();
+      final FakeCellProgressStore progress = FakeCellProgressStore(width: 2);
+      await progress.setCells('pat-1', const <CellPosition>[CellPosition(0, 0), CellPosition(1, 0)], done: true);
+
+      final FlossEstimate rest = (await LoadProjectFloss(patterns, progress: progress)(
+        'proj-1',
+        remainingOnly: true,
+      )).valueOrNull!;
+
+      expect(rest.totalCrossStitches, 0);
+      expect(rest.purchases, isEmpty);
+    });
+
+    test('без отметок остаток равен целому расходу', () async {
+      patterns.byProject['proj-1'] = _stitchPattern();
+      final LoadProjectFloss load = LoadProjectFloss(patterns, progress: FakeCellProgressStore(width: 2));
+
+      expect((await load('proj-1', remainingOnly: true)).valueOrNull, (await load('proj-1')).valueOrNull);
+    });
+
+    test('remainingOnly без хранилища прогресса — ошибка проверки', () async {
+      patterns.byProject['proj-1'] = _stitchPattern();
+
+      expect(
+        (await LoadProjectFloss(patterns)('proj-1', remainingOnly: true)).failureOrNull,
+        isA<ValidationFailure>(),
+      );
+    });
   });
 }

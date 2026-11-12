@@ -151,7 +151,7 @@ void main() {
     incoming.controller.add(Success<BiserFile>(BiserFile(name: 'a.biser', bytes: Uint8List.fromList(<int>[1, 2]))));
     await tester.pumpAndSettle();
     expect(find.text('Не получилось'), findsOneWidget);
-    expect(find.textContaining('Бисера'), findsOneWidget);
+    expect(find.textContaining('Канители'), findsOneWidget);
   });
 
   testWidgets('системная ошибка чтения файла — общий текст', (tester) async {

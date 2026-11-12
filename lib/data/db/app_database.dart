@@ -2,6 +2,7 @@ import 'package:beading/data/db/app_database.steps.dart';
 import 'package:beading/data/db/daos/book_work_dao.dart';
 import 'package:beading/data/db/daos/catalog_dao.dart';
 import 'package:beading/data/db/daos/easter_egg_log_dao.dart';
+import 'package:beading/data/db/daos/floss_stock_dao.dart';
 import 'package:beading/data/db/daos/grid_patterns_dao.dart';
 import 'package:beading/data/db/daos/image_patterns_dao.dart';
 import 'package:beading/data/db/daos/projects_dao.dart';
@@ -10,6 +11,7 @@ import 'package:beading/data/db/daos/work_sessions_dao.dart';
 import 'package:beading/data/db/tables/book_work_tables.dart';
 import 'package:beading/data/db/tables/catalog_tables.dart';
 import 'package:beading/data/db/tables/easter_egg_log_table.dart';
+import 'package:beading/data/db/tables/floss_stock_table.dart';
 import 'package:beading/data/db/tables/grid_pattern_tables.dart';
 import 'package:beading/data/db/tables/image_pattern_tables.dart';
 import 'package:beading/data/db/tables/projects_table.dart';
@@ -36,6 +38,7 @@ part 'app_database.g.dart';
     PageWorkStates,
     BookWorkStates,
     WorkSessions,
+    FlossStock,
   ],
   daos: <Type>[
     SettingsDao,
@@ -46,13 +49,14 @@ part 'app_database.g.dart';
     CatalogDao,
     BookWorkDao,
     WorkSessionsDao,
+    FlossStockDao,
   ],
 )
 class AppDatabase extends _$AppDatabase {
   AppDatabase(super.e);
 
   @override
-  int get schemaVersion => 12;
+  int get schemaVersion => 13;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -101,6 +105,8 @@ class AppDatabase extends _$AppDatabase {
       from10To11: (m, schema) => m.createTable(schema.gridProgressCells),
       // v12 (T45): пометки маркером на странице схемы из книги.
       from11To12: (m, schema) => m.addColumn(schema.pageWorkStates, schema.pageWorkStates.markup),
+
+      from12To13: (m, schema) => m.createTable(schema.flossStock),
     ),
     beforeOpen: (details) => customStatement('PRAGMA foreign_keys = ON'),
   );

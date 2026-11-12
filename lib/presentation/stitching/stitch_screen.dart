@@ -29,7 +29,10 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 /// Режим вышивания: схема на весь экран, отметка клеток касанием, мазком или областью, остаток по цветам, процент
 /// по блокам 10×10 и парковка. [StitchCubit] берётся из контекста.
 class StitchScreen extends StatelessWidget {
-  const StitchScreen({super.key});
+  const StitchScreen({this.onOpenFloss, super.key});
+
+  /// Открывает расход и запас ниток проекта; `null` — кнопки нет.
+  final VoidCallback? onOpenFloss;
 
   static const String routePath = '/stitch/:projectId';
 
@@ -43,10 +46,22 @@ class StitchScreen extends StatelessWidget {
       builder: (context, state) => switch (state.status) {
         StitchStatus.loading => const Center(child: CupertinoActivityIndicator()),
         StitchStatus.failed => const _LoadFailed(),
-        StitchStatus.ready => const _Workspace(),
+        StitchStatus.ready => _FlossLink(onOpen: onOpenFloss, child: const _Workspace()),
       },
     ),
   );
+}
+
+/// Передаёт вниз по дереву «открыть расход ниток», чтобы не тянуть колбэк через все панели.
+class _FlossLink extends InheritedWidget {
+  const _FlossLink({required this.onOpen, required super.child});
+
+  final VoidCallback? onOpen;
+
+  static VoidCallback? of(BuildContext context) => context.dependOnInheritedWidgetOfExactType<_FlossLink>()?.onOpen;
+
+  @override
+  bool updateShouldNotify(_FlossLink oldWidget) => onOpen != oldWidget.onOpen;
 }
 
 class _LoadFailed extends StatelessWidget {
@@ -225,6 +240,13 @@ class _WorkspaceState extends State<_Workspace> with WidgetsBindingObserver {
                   child: _Frame(child: _TopBar(state: state)),
                 ),
                 if (notice != null) Positioned(left: 0, right: 0, top: topInset, child: notice),
+                if (state.highlight != null)
+                  Positioned(
+                    left: 0,
+                    right: 0,
+                    bottom: bottomInset + 8,
+                    child: _HighlightChip(state: state),
+                  ),
                 Positioned(
                   left: 0,
                   right: 0,
@@ -300,6 +322,8 @@ class _WorkspaceState extends State<_Workspace> with WidgetsBindingObserver {
                   children: <Widget>[
                     Positioned.fill(child: _canvas(state, cubit)),
                     if (notice != null) Positioned(left: 0, right: 0, top: 0, child: notice),
+                    if (state.highlight != null)
+                      Positioned(left: 0, right: 0, bottom: 8, child: _HighlightChip(state: state)),
                   ],
                 ),
               ),
@@ -454,6 +478,7 @@ List<_Action> _extras(BuildContext context, StitchState state, VoidCallback goTo
   final AppLocalizations l10n = AppLocalizations.of(context);
   final StitchCubit cubit = context.read<StitchCubit>();
   final bool parked = state.parked != null;
+  final VoidCallback? openFloss = _FlossLink.of(context);
   return <_Action>[
     _Action(
       id: 'stitch-undo',
@@ -482,6 +507,8 @@ List<_Action> _extras(BuildContext context, StitchState state, VoidCallback goTo
       onPressed: parked ? goToParked : () => _showParkHint(context),
       onLongPress: parked ? cubit.clearParked : null,
     ),
+    if (openFloss != null)
+      _Action(id: 'stitch-floss', icon: AppIcons.thread, label: l10n.stitchActionFloss, onPressed: openFloss),
   ];
 }
 
@@ -885,6 +912,57 @@ class _FinishOffer extends StatelessWidget {
 }
 
 /// Тост после мазка, области или цвета целиком: «Отмечено 38 крестиков · Отменить».
+/// Плашка «выбран цвет» над нижней панелью: касание сбрасывает выбор, не нужно искать цвет в списке заново.
+class _HighlightChip extends StatelessWidget {
+  const _HighlightChip({required this.state});
+
+  final StitchState state;
+
+  @override
+  Widget build(BuildContext context) {
+    final AppLocalizations l10n = AppLocalizations.of(context);
+    final AppTokensData tokens = context.tokens;
+    final PatternColor? color = state.pattern!.palette.colorAt(state.highlight!);
+    if (color == null) {
+      return const SizedBox.shrink();
+    }
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: tokens.spacing.l),
+      child: Center(
+        child: GlassPanel(
+          key: const ValueKey<String>('stitch-highlight-chip'),
+          density: GlassDensity.dense,
+          padding: EdgeInsets.only(left: tokens.spacing.m),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              ColorSwatchView(rgb: color.rgb, radius: 6),
+              SizedBox(width: tokens.spacing.s),
+              Flexible(
+                child: Text(
+                  '${color.symbol == null ? '' : '${color.symbol}  '}${StitchLegendView.threadLabel(color)}',
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+              ),
+              CupertinoButton(
+                key: const ValueKey<String>('stitch-highlight-reset'),
+                padding: EdgeInsets.symmetric(horizontal: tokens.spacing.m),
+                minimumSize: Size(tokens.minTapTarget, tokens.minTapTarget),
+                onPressed: () => context.read<StitchCubit>().highlight(null),
+                child: Semantics(
+                  label: l10n.stitchResetHighlight,
+                  child: const Icon(CupertinoIcons.xmark_circle_fill),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
 class _UndoToast extends StatelessWidget {
   const _UndoToast({required this.count, required this.done});
 

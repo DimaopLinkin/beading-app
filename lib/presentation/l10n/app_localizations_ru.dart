@@ -9,7 +9,7 @@ class AppLocalizationsRu extends AppLocalizations {
   AppLocalizationsRu([String locale = 'ru']) : super(locale);
 
   @override
-  String get appTitle => 'Бисер';
+  String get appTitle => 'Канитель';
 
   @override
   String get libraryTitle => 'Мои работы';
@@ -111,7 +111,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get aboutTitle => 'О приложении';
 
   @override
-  String get aboutTagline => 'Каждая бусинка на своём месте. Плети с удовольствием!';
+  String get aboutTagline => 'Каждая бусина и каждый крестик на своём месте.';
 
   @override
   String get aboutCredits =>
@@ -1048,6 +1048,14 @@ class AppLocalizationsRu extends AppLocalizations {
   String get catalogTitleFloss => 'Каталог ниток';
 
   @override
+  String get catalogStockTitle => 'Мой запас';
+
+  @override
+  String catalogStockBadgeSemantic(String amount) {
+    return 'в запасе $amount';
+  }
+
+  @override
   String get catalogSearchPlaceholder => 'Артикул или название';
 
   @override
@@ -1833,6 +1841,9 @@ class AppLocalizationsRu extends AppLocalizations {
   String get stitchHighlightColor => 'Подсветить на схеме';
 
   @override
+  String get stitchResetHighlight => 'Сбросить выбор цвета';
+
+  @override
   String get stitchGoToParked => 'К месту остановки';
 
   @override
@@ -1844,6 +1855,9 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get stitchBlocks => 'Блоки 10×10';
+
+  @override
+  String get stitchActionFloss => 'Нитки';
 
   @override
   String get stitchActionBlocks => 'Блоки';
@@ -2020,6 +2034,93 @@ class AppLocalizationsRu extends AppLocalizations {
   String flossShareReserve(int percent) {
     return 'Мотки указаны с запасом $percent%.';
   }
+
+  @override
+  String get flossScopeAll => 'Вся схема';
+
+  @override
+  String get flossScopeRemaining => 'Осталось вышить';
+
+  @override
+  String get flossScopeRemainingHint =>
+      'Считаются невышитые крестики. Бэкстич, неполные крестики и узелки считаются целиком: их выполнение не отмечается.';
+
+  @override
+  String get flossRemainingDone => 'Все крестики вышиты';
+
+  @override
+  String get flossRemainingDoneMessage => 'На оставшуюся работу ниток больше не нужно.';
+
+  @override
+  String get flossStockCovered => 'Запаса ниток хватает на всю работу';
+
+  @override
+  String get flossStockCoveredRemaining => 'Запаса ниток хватает на оставшуюся работу';
+
+  @override
+  String flossStockShort(String skeins) {
+    return 'Докупить: $skeins';
+  }
+
+  @override
+  String flossStockShortThreads(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'не хватает $count ниток',
+      many: 'не хватает $count ниток',
+      few: 'не хватает $count ниток',
+      one: 'не хватает $count нитки',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String flossStockNeedHave(String need, String have) {
+    return 'Нужно $need · есть $have';
+  }
+
+  @override
+  String flossStockAmount(String amount) {
+    return '$amount мот.';
+  }
+
+  @override
+  String get flossStockEnough => 'Хватает';
+
+  @override
+  String flossStockBuy(String skeins) {
+    return 'Докупить: $skeins';
+  }
+
+  @override
+  String get flossStockEdit => 'Изменить запас ниток';
+
+  @override
+  String flossStockSheetTitle(String thread) {
+    return 'Запас: $thread';
+  }
+
+  @override
+  String get flossStockSheetHint => 'Сколько мотков осталось. Начатый моток — доля: 0,5 — половина.';
+
+  @override
+  String get flossStockLess => 'Меньше';
+
+  @override
+  String get flossStockMore => 'Больше';
+
+  @override
+  String get flossStockClear => 'Нет в запасе';
+
+  @override
+  String get flossStockWriteFailed => 'Не удалось сохранить запас ниток';
+
+  @override
+  String get flossShareToBuy => 'Докупить:';
+
+  @override
+  String get flossShareAllCovered => 'Весь запас на месте: докупать ничего не нужно.';
 
   @override
   String get editorToolHalfStitch => 'Полукрестик';

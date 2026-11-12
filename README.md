@@ -1,6 +1,6 @@
-# Бисер
+# Канитель
 
-Приложение для бисероплетения (iOS + macOS) на Flutter 3.41. Документация — в [docs/](docs/).
+Приложение для бисероплетения и вышивки крестиком (iOS + macOS) на Flutter 3.41. Документация — в [docs/](docs/).
 
 ```bash
 git clone https://github.com/DimaopLinkin/beading-app && cd beading-app
