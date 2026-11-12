@@ -524,4 +524,48 @@ void main() {
       expect(cubit.state.work.ruler.zone, isNull);
     });
   });
+
+  group('маркер', () {
+    test('мазок, «Отменить» и «Вернуть»', () async {
+      final BookWorkCubit cubit = await loaded()
+        ..startMarker()
+        ..addStroke(<double>[0.1, 0.1, 0.2, 0.2, 0.3, 0.2]);
+      expect(cubit.state.work.markup.strokes, hasLength(1));
+      cubit.undoMarkup();
+      expect(cubit.state.work.markup.strokes, isEmpty);
+      expect(cubit.state.canRedoMarkup, isTrue);
+      cubit.redoMarkup();
+      expect(cubit.state.work.markup.strokes, hasLength(1));
+    });
+
+    test('ластик стирает мазок одним шагом, очистка страницы отменяется', () async {
+      final BookWorkCubit cubit = await loaded()
+        ..startMarker()
+        ..addStroke(<double>[0.1, 0.1, 0.3, 0.1])
+        ..addStroke(<double>[0.1, 0.5, 0.3, 0.5])
+        ..setMarkerEraser(eraser: true)
+        ..beginErase()
+        ..eraseAlong(<double>[0.2, 0.1])
+        ..endErase();
+      expect(cubit.state.work.markup.strokes, hasLength(1));
+      cubit.undoMarkup();
+      expect(cubit.state.work.markup.strokes, hasLength(2));
+      cubit.clearMarkup();
+      expect(cubit.state.work.markup.isEmpty, isTrue);
+      cubit.undoMarkup();
+      expect(cubit.state.work.markup.strokes, hasLength(2));
+    });
+
+    test('пометки у каждой страницы свои', () async {
+      final BookWorkCubit cubit = await loaded()
+        ..startMarker()
+        ..addStroke(<double>[0.1, 0.1, 0.3, 0.1]);
+      cubit.selectPage(1);
+      await pumpEventQueue();
+      expect(cubit.state.work.markup.isEmpty, isTrue);
+      cubit.selectPage(0);
+      await pumpEventQueue();
+      expect(cubit.state.work.markup.strokes, hasLength(1));
+    });
+  });
 }

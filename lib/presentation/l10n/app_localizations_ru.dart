@@ -472,6 +472,78 @@ class AppLocalizationsRu extends AppLocalizations {
   String get bookWorkNotesHint => 'Что важно не забыть: цвета, где остановилась, что поменять';
 
   @override
+  String get bookWorkMarker => 'Маркер';
+
+  @override
+  String get bookWorkMarkerBack => 'Линейка';
+
+  @override
+  String get bookWorkMarkerEraser => 'Ластик';
+
+  @override
+  String get bookWorkMarkerUndo => 'Отменить';
+
+  @override
+  String get bookWorkMarkerRedo => 'Вернуть';
+
+  @override
+  String get bookWorkMarkerShow => 'Пометки';
+
+  @override
+  String get bookWorkMarkerThin => 'Тонкий';
+
+  @override
+  String get bookWorkMarkerMedium => 'Средний';
+
+  @override
+  String get bookWorkMarkerWide => 'Широкий';
+
+  @override
+  String get bookWorkMarkerYellow => 'Жёлтый';
+
+  @override
+  String get bookWorkMarkerPink => 'Розовый';
+
+  @override
+  String get bookWorkMarkerBlue => 'Голубой';
+
+  @override
+  String get bookWorkMarkerGreen => 'Зелёный';
+
+  @override
+  String get bookWorkMarkerOrange => 'Оранжевый';
+
+  @override
+  String get bookWorkMarkerClear => 'Очистить страницу';
+
+  @override
+  String bookWorkMarkerClearMessage(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Пометок: $count. Это можно отменить.',
+      many: 'Пометок: $count. Это можно отменить.',
+      few: 'Пометки: $count. Это можно отменить.',
+      one: 'Пометка: $count. Это можно отменить.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get bookWorkMarkerHint => 'Один палец рисует, два пальца двигают и масштабируют страницу.';
+
+  @override
+  String get bookWorkMarkerEmpty => 'Пометок пока нет';
+
+  @override
+  String get bookWorkPageHasMarkup => 'Пометки';
+
+  @override
+  String bookWorkPageItemMarked(int number) {
+    return 'Страница $number, есть пометки';
+  }
+
+  @override
   String get bookWorkDone => 'Готово';
 
   @override

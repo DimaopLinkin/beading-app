@@ -1,10 +1,12 @@
 import 'dart:typed_data';
 
 import 'package:beading/core/result.dart';
+import 'package:beading/domain/image_pattern/book_work/page_markup.dart';
 import 'package:beading/domain/image_pattern/book_work/pattern_zone.dart';
 import 'package:beading/domain/image_pattern/book_work/ruler_state.dart';
 import 'package:beading/domain/image_pattern/file_store.dart';
 import 'package:beading/domain/image_pattern/image_pattern.dart';
+import 'package:beading/presentation/book_work/markup_painter.dart';
 import 'package:beading/presentation/book_work/ruler_colors.dart';
 import 'package:beading/presentation/l10n/app_localizations.dart';
 import 'package:beading/presentation/theme/tokens.dart';
@@ -20,6 +22,10 @@ class PageCanvas extends StatelessWidget {
     required this.ruler,
     required this.width,
     this.showZoneFrame = false,
+    this.markup = const PageMarkup.empty(),
+    this.showMarkup = true,
+    this.markerEditing = false,
+    this.liveStroke,
     super.key,
   });
 
@@ -29,6 +35,14 @@ class PageCanvas extends StatelessWidget {
 
   /// Рамка зоны схемы: показывается, пока границы выбирают.
   final bool showZoneFrame;
+
+  /// Пометки маркером (T45), видны ли они и идёт ли режим «Маркер»: тогда линейка притушена до 30 %.
+  final PageMarkup markup;
+  final bool showMarkup;
+  final bool markerEditing;
+
+  /// Мазок под пальцем: рисуется поверх остальных и обновляется без пересборки страницы.
+  final ValueNotifier<LiveStroke?>? liveStroke;
 
   /// Ширина, в которую вписана страница (при зуме 1×).
   final double width;
@@ -86,7 +100,19 @@ class PageCanvas extends StatelessWidget {
             top: ruler.top * scale,
             height: ruler.height * scale,
             child: IgnorePointer(
-              child: RowRing(child: ColoredBox(color: fill)),
+              child: Opacity(
+                opacity: markerEditing ? 0.3 : 1,
+                child: RowRing(child: ColoredBox(color: fill)),
+              ),
+            ),
+          ),
+          // Мазки лежат над вуалью пройденных рядов: пометки не тускнеют вместе со схемой.
+          Positioned.fill(
+            key: const ValueKey<String>('markup-layer'),
+            child: IgnorePointer(
+              child: CustomPaint(
+                painter: MarkupPainter(markup: markup, visible: showMarkup, live: liveStroke),
+              ),
             ),
           ),
           if (showZoneFrame)

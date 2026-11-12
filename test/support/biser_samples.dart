@@ -8,6 +8,7 @@ import 'package:beading/domain/grid/grid_geometry.dart';
 import 'package:beading/domain/grid_pattern/cell_progress.dart';
 import 'package:beading/domain/grid_pattern/grid_pattern.dart';
 import 'package:beading/domain/grid_pattern/grid_progress.dart';
+import 'package:beading/domain/image_pattern/book_work/page_markup.dart';
 import 'package:beading/domain/image_pattern/book_work/page_viewport.dart';
 import 'package:beading/domain/image_pattern/book_work/page_work.dart';
 import 'package:beading/domain/image_pattern/book_work/pattern_zone.dart';
@@ -115,6 +116,13 @@ BiserBundle randomBundle(int seed, {int projects = 4}) {
                       dx: random.nextDouble() * -20,
                       dy: random.nextDouble() * -20,
                     ),
+                    // Пометки маркером (T45) — по зерну, значения точно представимы во float32.
+                    markup: (seed + p) % 3 == 1
+                        ? PageMarkup(<MarkerStroke>[
+                            MarkerStroke(rgb: 0xFFE45C, width: 0.0625, points: const <double>[0.25, 0.5, 0.5, 0.75]),
+                            MarkerStroke(rgb: 0x7CC8FF, width: 0.125, points: const <double>[0.125, 0.125]),
+                          ])
+                        : const PageMarkup.empty(),
                   ),
           ),
         );

@@ -943,6 +943,126 @@ abstract class AppLocalizations {
   /// **'Что важно не забыть: цвета, где остановилась, что поменять'**
   String get bookWorkNotesHint;
 
+  /// Кнопка входа в режим маркера на странице схемы из книги и название режима
+  ///
+  /// In ru, this message translates to:
+  /// **'Маркер'**
+  String get bookWorkMarker;
+
+  /// Кнопка выхода из режима маркера обратно к линейке
+  ///
+  /// In ru, this message translates to:
+  /// **'Линейка'**
+  String get bookWorkMarkerBack;
+
+  /// Инструмент: стереть мазок маркера
+  ///
+  /// In ru, this message translates to:
+  /// **'Ластик'**
+  String get bookWorkMarkerEraser;
+
+  /// Отменить последнее действие с пометками
+  ///
+  /// In ru, this message translates to:
+  /// **'Отменить'**
+  String get bookWorkMarkerUndo;
+
+  /// Вернуть отменённое действие с пометками
+  ///
+  /// In ru, this message translates to:
+  /// **'Вернуть'**
+  String get bookWorkMarkerRedo;
+
+  /// Переключатель показа пометок маркером (глаз)
+  ///
+  /// In ru, this message translates to:
+  /// **'Пометки'**
+  String get bookWorkMarkerShow;
+
+  /// Толщина маркера: тонкий
+  ///
+  /// In ru, this message translates to:
+  /// **'Тонкий'**
+  String get bookWorkMarkerThin;
+
+  /// Толщина маркера: средний
+  ///
+  /// In ru, this message translates to:
+  /// **'Средний'**
+  String get bookWorkMarkerMedium;
+
+  /// Толщина маркера: широкий
+  ///
+  /// In ru, this message translates to:
+  /// **'Широкий'**
+  String get bookWorkMarkerWide;
+
+  /// Цвет маркера
+  ///
+  /// In ru, this message translates to:
+  /// **'Жёлтый'**
+  String get bookWorkMarkerYellow;
+
+  /// Цвет маркера
+  ///
+  /// In ru, this message translates to:
+  /// **'Розовый'**
+  String get bookWorkMarkerPink;
+
+  /// Цвет маркера
+  ///
+  /// In ru, this message translates to:
+  /// **'Голубой'**
+  String get bookWorkMarkerBlue;
+
+  /// Цвет маркера
+  ///
+  /// In ru, this message translates to:
+  /// **'Зелёный'**
+  String get bookWorkMarkerGreen;
+
+  /// Цвет маркера
+  ///
+  /// In ru, this message translates to:
+  /// **'Оранжевый'**
+  String get bookWorkMarkerOrange;
+
+  /// Действие: стереть все пометки на странице
+  ///
+  /// In ru, this message translates to:
+  /// **'Очистить страницу'**
+  String get bookWorkMarkerClear;
+
+  /// Пояснение в подтверждении очистки страницы
+  ///
+  /// In ru, this message translates to:
+  /// **'{count, plural, one{Пометка: {count}. Это можно отменить.} few{Пометки: {count}. Это можно отменить.} many{Пометок: {count}. Это можно отменить.} other{Пометок: {count}. Это можно отменить.}}'**
+  String bookWorkMarkerClearMessage(int count);
+
+  /// Подсказка под панелью маркера
+  ///
+  /// In ru, this message translates to:
+  /// **'Один палец рисует, два пальца двигают и масштабируют страницу.'**
+  String get bookWorkMarkerHint;
+
+  /// Подсказка в режиме маркера на странице без пометок
+  ///
+  /// In ru, this message translates to:
+  /// **'Пометок пока нет'**
+  String get bookWorkMarkerEmpty;
+
+  /// Метка у страницы в списке страниц: на ней есть пометки маркером
+  ///
+  /// In ru, this message translates to:
+  /// **'Пометки'**
+  String get bookWorkPageHasMarkup;
+
+  /// Подпись страницы с пометками для VoiceOver
+  ///
+  /// In ru, this message translates to:
+  /// **'Страница {number}, есть пометки'**
+  String bookWorkPageItemMarked(int number);
+
   /// Кнопка закрытия листа
   ///
   /// In ru, this message translates to:

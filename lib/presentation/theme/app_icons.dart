@@ -37,6 +37,12 @@ abstract final class AppIcons {
   static const IconData undo = CupertinoIcons.arrow_uturn_left;
   static const IconData redo = CupertinoIcons.arrow_uturn_right;
 
+  /// Маркер на странице схемы из книги (T45).
+  static const IconData marker = CupertinoIcons.pencil_outline;
+  static const IconData eraser = CupertinoIcons.delete_left;
+  static const IconData eye = CupertinoIcons.eye;
+  static const IconData eyeOff = CupertinoIcons.eye_slash;
+
   /// Имена SF Symbols для будущей нативной подмены (по таблице 01b). Проверены по названию, но не в приложении
   /// SF Symbols: `paintbucket.classic` может отсутствовать в старых версиях, запасной `drop.fill`.
   static const Map<String, String> sfSymbols = <String, String>{
