@@ -1575,6 +1575,11 @@ class AppLocalizationsRu extends AppLocalizations {
   String get imageWizardBrushCanvas => 'Картинка: проведите пальцем по важному';
 
   @override
+  String imageWizardBrushSizeMenu(String name) {
+    return 'Размер: $name';
+  }
+
+  @override
   String get imageWizardUseMasks => 'Выделять главное';
 
   @override
