@@ -1833,6 +1833,9 @@ class AppLocalizationsRu extends AppLocalizations {
   String get stitchHighlightColor => 'Подсветить на схеме';
 
   @override
+  String get stitchResetHighlight => 'Сбросить выбор цвета';
+
+  @override
   String get stitchGoToParked => 'К месту остановки';
 
   @override
