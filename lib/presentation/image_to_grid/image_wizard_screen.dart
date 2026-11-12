@@ -392,6 +392,15 @@ class _EditState extends State<_Edit> {
                   ),
                 ],
               ),
+              if (!state.brush.isEmpty) ...<Widget>[
+                SizedBox(height: tokens.spacing.xs),
+                Text(
+                  key: const ValueKey<String>('wizard-brush-crop-hint'),
+                  l10n.imageWizardBrushCropHint,
+                  textAlign: TextAlign.center,
+                  style: caption,
+                ),
+              ],
               SizedBox(height: gap),
               _Section(
                 title: l10n.imageWizardCraft,

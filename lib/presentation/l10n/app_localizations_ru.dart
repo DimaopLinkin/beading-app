@@ -1523,6 +1523,9 @@ class AppLocalizationsRu extends AppLocalizations {
   String get imageWizardBrushTitle => 'Выделить важное';
 
   @override
+  String get imageWizardBrushCropHint => 'Выделение сохранится при обрезке и повороте.';
+
+  @override
   String get imageWizardBrushManual => 'Выделено вручную';
 
   @override
@@ -1819,6 +1822,18 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get stitchBlocks => 'Блоки 10×10';
+
+  @override
+  String get stitchActionBlocks => 'Блоки';
+
+  @override
+  String get stitchActionSymbols => 'Символы';
+
+  @override
+  String get stitchActionParking => 'Парковка';
+
+  @override
+  String get stitchActionMore => 'Ещё';
 
   @override
   String get stitchZoomHint => 'Приблизьте, чтобы отметить касанием';

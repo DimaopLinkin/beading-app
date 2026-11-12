@@ -2743,6 +2743,12 @@ abstract class AppLocalizations {
   /// **'Выделить важное'**
   String get imageWizardBrushTitle;
 
+  /// Подсказка под кнопками поворота и обрезки, когда есть мазки кисти «важное»
+  ///
+  /// In ru, this message translates to:
+  /// **'Выделение сохранится при обрезке и повороте.'**
+  String get imageWizardBrushCropHint;
+
   /// Бейдж строки, когда есть мазки
   ///
   /// In ru, this message translates to:
@@ -3228,6 +3234,30 @@ abstract class AppLocalizations {
   /// In ru, this message translates to:
   /// **'Блоки 10×10'**
   String get stitchBlocks;
+
+  /// Кнопка нижней панели вышивания: блоки 10×10
+  ///
+  /// In ru, this message translates to:
+  /// **'Блоки'**
+  String get stitchActionBlocks;
+
+  /// Кнопка нижней панели вышивания: знаки на клетках
+  ///
+  /// In ru, this message translates to:
+  /// **'Символы'**
+  String get stitchActionSymbols;
+
+  /// Кнопка нижней панели вышивания, пока места остановки нет
+  ///
+  /// In ru, this message translates to:
+  /// **'Парковка'**
+  String get stitchActionParking;
+
+  /// Кнопка панели вышивания при очень крупном шрифте: остальные действия
+  ///
+  /// In ru, this message translates to:
+  /// **'Ещё'**
+  String get stitchActionMore;
 
   /// Подсказка, когда касание по мелким клеткам вышивки ничего не отметило
   ///

@@ -155,6 +155,53 @@ void main() {
     expect(cells.calls, isNotEmpty);
   });
 
+  testWidgets('широкий экран: боковая панель цветов и панель режимов сверху', (tester) async {
+    await tester.binding.setSurfaceSize(const Size(1000, 700));
+    addTearDown(() => tester.binding.setSurfaceSize(null));
+    final StitchCubit cubit = newCubit();
+    await tester.pumpWidget(app(cubit, AppTheme.light));
+    await tester.runAsync(cubit.load);
+    await tester.pump();
+    await tester.pump();
+    expect(find.byKey(const ValueKey<String>('stitch-sidebar')), findsOneWidget);
+    expect(find.byKey(const ValueKey<String>('stitch-color-0')), findsOneWidget);
+    expect(find.byKey(const ValueKey<String>('stitch-colors')), findsNothing);
+    await tester.tap(find.text('Область'));
+    await tester.pump(const Duration(milliseconds: 300));
+    expect(cubit.state.tool, StitchTool.area);
+    final bool blocks = cubit.state.showBlocks;
+    await tester.tap(find.byKey(const ValueKey<String>('stitch-blocks')));
+    await tester.pump();
+    expect(cubit.state.showBlocks, !blocks);
+    await closeScreen(tester, cubit);
+  });
+
+  testWidgets('очень крупный шрифт: режимы сеткой 2 × 2 и кнопка «Ещё» с остальными действиями', (tester) async {
+    tester.platformDispatcher.textScaleFactorTestValue = 2.4;
+    addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
+    tester.view
+      ..physicalSize = const Size(430, 932)
+      ..devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    final StitchCubit cubit = newCubit();
+    await tester.pumpWidget(app(cubit, AppTheme.light));
+    await tester.runAsync(cubit.load);
+    await tester.pump();
+    await tester.pump();
+    expect(find.byKey(const ValueKey<String>('stitch-more')), findsOneWidget);
+    expect(find.byKey(const ValueKey<String>('stitch-blocks')), findsNothing);
+    final double tapY = tester.getCenter(find.byKey(const ValueKey<String>('stitch-tool-tap'))).dy;
+    expect(tester.getCenter(find.byKey(const ValueKey<String>('stitch-tool-stroke'))).dy, tapY);
+    expect(tester.getCenter(find.byKey(const ValueKey<String>('stitch-tool-area'))).dy, greaterThan(tapY));
+    final bool blocks = cubit.state.showBlocks;
+    await tester.tap(find.byKey(const ValueKey<String>('stitch-more')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Блоки'));
+    await tester.pump(const Duration(milliseconds: 400));
+    expect(cubit.state.showBlocks, !blocks);
+    await closeScreen(tester, cubit);
+  });
+
   testWidgets('мелкие клетки: касание не отмечает, показывает подсказку; мазок работает', (tester) async {
     patterns.byProject[projectId] = GridPattern(
       id: 'pat-2',
