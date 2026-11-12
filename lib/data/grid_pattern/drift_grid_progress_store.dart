@@ -118,6 +118,18 @@ class DriftGridProgressStore implements GridProgressStore {
         );
       });
 
+  @override
+  Future<Result<void>> clearCurrent(String patternId) => _write(patternId, (now, deviceId) async {
+    await (_dao.update(_dao.gridPatterns)..where((t) => t.id.equals(patternId))).write(
+      GridPatternsCompanion(
+        currentRow: const Value<int?>(null),
+        currentBead: const Value<int?>(null),
+        updatedAt: Value<int>(now),
+        deviceId: Value<String>(deviceId),
+      ),
+    );
+  });
+
   Future<Result<void>> _write(String patternId, Future<void> Function(int now, String deviceId) action) async {
     final Result<String> deviceId = await _deviceIds.deviceId();
     if (deviceId case Err<String>(:final Failure failure)) {

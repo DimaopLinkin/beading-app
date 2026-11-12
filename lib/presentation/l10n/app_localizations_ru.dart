@@ -715,6 +715,11 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
+  String libraryCardProgress(int percent) {
+    return '$percent%';
+  }
+
+  @override
   String libraryCardLastWorked(String status, DateTime date) {
     final intl.DateFormat dateDateFormat = intl.DateFormat.yMMMd(localeName);
     final String dateString = dateDateFormat.format(date);
@@ -943,6 +948,9 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get editorUndo => 'Отменить';
+
+  @override
+  String get editorDone => 'Готово';
 
   @override
   String get editorRedo => 'Повторить';
@@ -1818,7 +1826,11 @@ class AppLocalizationsRu extends AppLocalizations {
   String get stitchGoToParked => 'К месту остановки';
 
   @override
-  String get stitchParkHint => 'Долгое касание запоминает место, где остановилась.';
+  String get stitchClearParked => 'Снять метку';
+
+  @override
+  String get stitchParkHint =>
+      'Долгое касание запоминает место, где остановилась. Ещё одно долгое касание по метке снимает её.';
 
   @override
   String get stitchBlocks => 'Блоки 10×10';

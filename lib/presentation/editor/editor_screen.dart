@@ -62,6 +62,17 @@ class EditorScreen extends StatelessWidget {
                         icon: AppIcons.redo,
                         onPressed: state.canRedo ? cubit.redo : null,
                       ),
+                      CupertinoButton(
+                        key: const ValueKey<String>('editor-done'),
+                        padding: const EdgeInsets.only(left: 8),
+                        minimumSize: Size.square(context.tokens.minTapTarget),
+                        onPressed: () async {
+                          final NavigatorState navigator = Navigator.of(context);
+                          await cubit.flush();
+                          await navigator.maybePop();
+                        },
+                        child: Text(l10n.editorDone, style: const TextStyle(fontWeight: FontWeight.w600)),
+                      ),
                     ],
                   )
                 : null,

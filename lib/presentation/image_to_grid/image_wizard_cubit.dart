@@ -114,8 +114,9 @@ class ImageWizardCubit extends Cubit<ImageWizardState> {
   /// Пользовательница сама меняла размер или число цветов для этой фотографии: подсказка сама ничего не применяет (T66).
   bool _sizeTouched = false;
 
-  /// Загружает каталог и бренд по умолчанию: от них зависит режим «цвета каталога».
-  Future<void> start() async {
+  /// Загружает каталог и бренд по умолчанию: от них зависит режим «цвета каталога». [craft] — ремесло, с которого
+  /// открывается мастер (из вкладки «Вышивка» листа «Новый проект» — вышивка).
+  Future<void> start({Craft craft = Craft.beading}) async {
     final Result<List<CatalogColor>> colors = await _catalog.search(material: CatalogMaterial.bead);
     final Result<List<CatalogColor>> floss = await _catalog.search(material: CatalogMaterial.floss);
     final Result<String> brand = await _settings.read(SettingKeys.defaultBeadBrand);
@@ -130,6 +131,7 @@ class ImageWizardCubit extends Cubit<ImageWizardState> {
     _brand = brand.valueOrNull ?? '';
     _flossBrand = flossBrand.valueOrNull ?? '';
     emit(state.copyWith(catalogColors: _countCatalog(state.settings), flossBrand: _flossBrand));
+    setCraft(craft);
     if (_image != null) {
       _schedule(immediate: true);
     }

@@ -5,6 +5,7 @@ import 'package:beading/core/clock.dart';
 import 'package:beading/domain/catalog/catalog_repository.dart';
 import 'package:beading/domain/image_pattern/file_store.dart';
 import 'package:beading/domain/projects/craft.dart';
+import 'package:beading/domain/projects/load_project_preview.dart';
 import 'package:beading/domain/projects/project.dart';
 import 'package:beading/domain/settings/app_info.dart';
 import 'package:beading/domain/settings/secret_tap_handler.dart';
@@ -100,6 +101,7 @@ GoRouter createRouter({bool showDeveloperTools = !kReleaseMode}) => GoRouter(
         child: LibraryScreen(
           newProjects: getIt<NewProjectRegistry>(),
           thumbnails: getIt<ProjectThumbnailRegistry>(),
+          loadPreview: getIt<LoadProjectPreview>(),
           onOpenSettings: () => context.push(AppRoutes.settings),
           onOpenCatalog: () => context.push(AppRoutes.catalog),
           onOpenMaterials: (context, project) => context.push(
@@ -188,8 +190,11 @@ GoRouter createRouter({bool showDeveloperTools = !kReleaseMode}) => GoRouter(
     ),
     GoRoute(
       path: AppRoutes.imageToGrid,
-      builder: (_, _) => BlocProvider<ImageWizardCubit>(
-        create: (_) => getIt<ImageWizardCubit>()..start(),
+      builder: (_, state) => BlocProvider<ImageWizardCubit>(
+        create: (_) => getIt<ImageWizardCubit>()
+          ..start(
+            craft: state.uri.queryParameters['craft'] == Craft.crossStitch.name ? Craft.crossStitch : Craft.beading,
+          ),
         child: const ImageWizardScreen(),
       ),
     ),

@@ -550,6 +550,8 @@
     "description": "Подпись карточки проекта: ремесло и техника",
     "placeholders": {"craft": {"type": "String"}, "technique": {"type": "String"}}
   },
+  "libraryCardProgress": "{percent}%",
+  "@libraryCardProgress": {"description": "Готовность проекта на карточке списка", "placeholders": {"percent": {"type": "int"}}},
   "libraryCardLastWorked": "{status} · {date}",
   "@libraryCardLastWorked": {
     "description": "Статус проекта и дата последней работы",
@@ -696,6 +698,8 @@
   "@editorTouchFirst": {"description": "Подсказка, когда не выбрана ячейка для вставки или удаления"},
   "editorUndo": "Отменить",
   "@editorUndo": {"description": "Кнопка редактора"},
+  "editorDone": "Готово",
+  "@editorDone": {"description": "Кнопка редактора: закончить правку и выйти"},
   "editorRedo": "Повторить",
   "@editorRedo": {"description": "Кнопка редактора"},
   "editorSymbols": "Символы",
@@ -1211,7 +1215,9 @@
   "@stitchHighlightColor": {"description": "Действие: подсветить цвет на схеме"},
   "stitchGoToParked": "К месту остановки",
   "@stitchGoToParked": {"description": "Кнопка: показать клетку, на которой остановились"},
-  "stitchParkHint": "Долгое касание запоминает место, где остановилась.",
+  "stitchClearParked": "Снять метку",
+  "@stitchClearParked": {"description": "Действие: снять метку места остановки"},
+  "stitchParkHint": "Долгое касание запоминает место, где остановилась. Ещё одно долгое касание по метке снимает её.",
   "@stitchParkHint": {"description": "Подсказка про парковку"},
   "stitchBlocks": "Блоки 10×10",
   "@stitchBlocks": {"description": "Переключатель: показывать прогресс по блокам 10×10"},

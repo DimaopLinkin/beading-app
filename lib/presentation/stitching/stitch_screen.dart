@@ -388,6 +388,7 @@ class _Action {
     required this.icon,
     required this.label,
     required this.onPressed,
+    this.onLongPress,
     this.selected = false,
   });
 
@@ -395,6 +396,9 @@ class _Action {
   final IconData icon;
   final String label;
   final VoidCallback? onPressed;
+
+  /// Долгое нажатие на кнопку; сейчас им снимается метка места остановки.
+  final VoidCallback? onLongPress;
   final bool selected;
 }
 
@@ -465,6 +469,7 @@ List<_Action> _extras(BuildContext context, StitchState state, VoidCallback goTo
       icon: CupertinoIcons.flag,
       label: parked ? l10n.stitchGoToParked : l10n.stitchActionParking,
       onPressed: parked ? goToParked : () => _showParkHint(context),
+      onLongPress: parked ? cubit.clearParked : null,
     ),
   ];
 }
@@ -499,38 +504,41 @@ class _LabelButton extends StatelessWidget {
     final AppTokensData tokens = context.tokens;
     final Color accent = tokens.accent.resolveFrom(context);
     final Color color = action.selected ? accent : CupertinoColors.label.resolveFrom(context);
-    return CupertinoButton(
-      key: ValueKey<String>(action.id),
-      padding: EdgeInsets.zero,
-      minimumSize: Size(tokens.minTapTarget, size),
-      onPressed: action.onPressed,
-      child: Semantics(
-        selected: action.selected,
-        child: DecoratedBox(
-          decoration: BoxDecoration(
-            color: action.selected ? accent.withValues(alpha: 0.16) : null,
-            borderRadius: BorderRadius.circular(12),
-          ),
-          child: SizedBox(
-            height: size,
-            width: double.infinity,
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: <Widget>[
-                Icon(action.icon, color: color, size: size > 70 ? 30 : 22),
-                const SizedBox(height: 2),
-                // Подпись в одну строку, а если не помещается, чуть мельче: кнопки в ряду одной ширины.
-                Flexible(
-                  child: FittedBox(
-                    fit: BoxFit.scaleDown,
-                    child: Text(
-                      action.label,
-                      maxLines: 1,
-                      style: TextStyle(color: color, fontSize: size > 70 ? 17 : 12, fontWeight: FontWeight.w600),
+    return GestureDetector(
+      onLongPress: action.onLongPress,
+      child: CupertinoButton(
+        key: ValueKey<String>(action.id),
+        padding: EdgeInsets.zero,
+        minimumSize: Size(tokens.minTapTarget, size),
+        onPressed: action.onPressed,
+        child: Semantics(
+          selected: action.selected,
+          child: DecoratedBox(
+            decoration: BoxDecoration(
+              color: action.selected ? accent.withValues(alpha: 0.16) : null,
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: SizedBox(
+              height: size,
+              width: double.infinity,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: <Widget>[
+                  Icon(action.icon, color: color, size: size > 70 ? 30 : 22),
+                  const SizedBox(height: 2),
+                  // Подпись в одну строку, а если не помещается, чуть мельче: кнопки в ряду одной ширины.
+                  Flexible(
+                    child: FittedBox(
+                      fit: BoxFit.scaleDown,
+                      child: Text(
+                        action.label,
+                        maxLines: 1,
+                        style: TextStyle(color: color, fontSize: size > 70 ? 17 : 12, fontWeight: FontWeight.w600),
+                      ),
                     ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         ),
