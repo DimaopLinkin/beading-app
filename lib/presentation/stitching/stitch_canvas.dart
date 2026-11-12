@@ -9,6 +9,7 @@ import 'package:beading/domain/stitch/stitch_layers.dart';
 import 'package:beading/presentation/grid_pattern/grid_pattern_view.dart';
 import 'package:beading/presentation/grid_pattern/grid_scene.dart';
 import 'package:beading/presentation/grid_pattern/grid_view_options.dart';
+import 'package:beading/presentation/l10n/app_localizations.dart';
 import 'package:beading/presentation/stitching/stitch_state.dart';
 import 'package:beading/presentation/theme/tokens.dart';
 import 'package:flutter/cupertino.dart';
@@ -59,6 +60,9 @@ class _StitchCanvasState extends State<StitchCanvas> {
   static const double _tapSlop = 8;
   static const Duration _longPress = Duration(milliseconds: 500);
 
+  /// Клетка уже этого экранного размера: знак читается и в неё можно попасть касанием.
+  static const double _readableCell = 14;
+
   TransformationController? _own;
   final Map<int, Offset> _pointers = <int, Offset>{};
   late GridScene _scene = _buildScene();
@@ -73,6 +77,9 @@ class _StitchCanvasState extends State<StitchCanvas> {
   CellPosition? _pendingCell;
   Timer? _longTimer;
   bool _longFired = false;
+  final ValueNotifier<bool> _small = ValueNotifier<bool>(false);
+  final ValueNotifier<bool> _hint = ValueNotifier<bool>(false);
+  Timer? _hintTimer;
 
   TransformationController get _controller => widget.controller ?? (_own ??= TransformationController());
 
@@ -82,6 +89,24 @@ class _StitchCanvasState extends State<StitchCanvas> {
     columns: widget.pattern.grid.width,
     rows: widget.pattern.grid.height,
   );
+
+  @override
+  void initState() {
+    super.initState();
+    _controller.addListener(_updateSmall);
+    WidgetsBinding.instance.addPostFrameCallback((_) => _updateSmall());
+  }
+
+  void _updateSmall() {
+    final double cell = _scene.cellRect(const CellPosition(0, 0)).width * _controller.value.storage[0];
+    _small.value = cell < _readableCell;
+  }
+
+  void _showHint() {
+    _hintTimer?.cancel();
+    _hint.value = true;
+    _hintTimer = Timer(const Duration(seconds: 2), () => _hint.value = false);
+  }
 
   @override
   void didUpdateWidget(StitchCanvas oldWidget) {
@@ -98,7 +123,11 @@ class _StitchCanvasState extends State<StitchCanvas> {
 
   @override
   void dispose() {
+    _controller.removeListener(_updateSmall);
     _longTimer?.cancel();
+    _hintTimer?.cancel();
+    _small.dispose();
+    _hint.dispose();
     _own?.dispose();
     super.dispose();
   }
@@ -117,6 +146,7 @@ class _StitchCanvasState extends State<StitchCanvas> {
       _controller.value = Matrix4.identity()
         ..translateByDouble(dx, 0, 0, 1)
         ..scaleByDouble(scale, scale, 1, 1);
+      _updateSmall();
     });
   }
 
@@ -272,6 +302,8 @@ class _StitchCanvasState extends State<StitchCanvas> {
           widget.onStrokeStart();
           widget.onStrokeCell(cell);
           widget.onStrokeEnd();
+        } else if (_small.value) {
+          _showHint();
         } else {
           widget.onTap(cell);
         }
@@ -319,16 +351,49 @@ class _StitchCanvasState extends State<StitchCanvas> {
           child: Stack(
             children: <Widget>[
               Positioned.fill(
-                child: GridPatternView(
-                  grid: widget.pattern.grid,
-                  palette: widget.pattern.palette,
-                  geometry: widget.pattern.geometry,
-                  metrics: widget.pattern.metrics,
-                  layers: widget.layers,
-                  controller: _controller,
-                  gesturesEnabled: false,
-                  maxScale: _maxScale,
-                  options: widget.options,
+                child: ValueListenableBuilder<bool>(
+                  valueListenable: _small,
+                  builder: (context, small, _) => GridPatternView(
+                    grid: widget.pattern.grid,
+                    palette: widget.pattern.palette,
+                    geometry: widget.pattern.geometry,
+                    metrics: widget.pattern.metrics,
+                    layers: widget.layers,
+                    controller: _controller,
+                    gesturesEnabled: false,
+                    maxScale: _maxScale,
+                    options: small ? widget.options.withoutSymbols() : widget.options,
+                  ),
+                ),
+              ),
+              Positioned(
+                left: 16,
+                right: 16,
+                bottom: 12,
+                child: IgnorePointer(
+                  child: ValueListenableBuilder<bool>(
+                    valueListenable: _hint,
+                    builder: (context, shown, _) => AnimatedOpacity(
+                      opacity: shown ? 1 : 0,
+                      duration: const Duration(milliseconds: 150),
+                      child: Center(
+                        child: DecoratedBox(
+                          key: const ValueKey<String>('stitch-zoom-hint'),
+                          decoration: BoxDecoration(
+                            color: CupertinoColors.black.withValues(alpha: 0.7),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                            child: Text(
+                              AppLocalizations.of(context).stitchZoomHint,
+                              style: const TextStyle(color: CupertinoColors.white, fontSize: 15),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
                 ),
               ),
               if (widget.state.showBlocks || widget.state.areaPreview != null)

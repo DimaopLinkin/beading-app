@@ -97,6 +97,26 @@ final class GridViewOptions extends Equatable {
   /// Сделанные клетки вышивки: притушены вуалью.
   final Set<CellPosition> doneCells;
 
+  /// Копия без знаков на клетках (мелкий масштаб): остаётся заливка цветом.
+  GridViewOptions withoutSymbols() => GridViewOptions(
+    showGridLines: showGridLines,
+    boldEvery: boldEvery,
+    showFinish: showFinish,
+    realistic: realistic,
+    currentRow: currentRow,
+    currentCell: currentCell,
+    doneRows: doneRows,
+    markCurrentRowBeads: markCurrentRowBeads,
+    order: order,
+    pendingCells: pendingCells,
+    canvasColor: canvasColor,
+    stitchStyle: StitchStyle.color,
+    hiddenLayers: hiddenLayers,
+    highlightColor: highlightColor,
+    showCenter: showCenter,
+    doneCells: doneCells,
+  );
+
   /// Вид клетки вышивки с учётом [showSymbols].
   StitchStyle get effectiveStitchStyle => stitchStyle ?? (showSymbols ? StitchStyle.colorAndSymbol : StitchStyle.color);
 
