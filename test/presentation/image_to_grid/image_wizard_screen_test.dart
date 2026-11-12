@@ -21,8 +21,10 @@ import 'package:beading/domain/image_to_grid/use_cases/create_pattern_from_image
 import 'package:beading/domain/palette/rgb.dart';
 import 'package:beading/domain/projects/craft.dart';
 import 'package:beading/domain/projects/use_cases/create_project.dart';
+import 'package:beading/presentation/grid_pattern/grid_pattern_view.dart';
 import 'package:beading/presentation/image_to_grid/image_wizard_cubit.dart';
 import 'package:beading/presentation/image_to_grid/image_wizard_screen.dart';
+import 'package:beading/presentation/image_to_grid/image_wizard_state.dart';
 import 'package:beading/presentation/l10n/app_localizations.dart';
 import 'package:beading/presentation/theme/app_theme.dart';
 import 'package:flutter/cupertino.dart';
@@ -142,6 +144,40 @@ void main() {
       expect(cubit.state.settings.technique.name, 'peyote');
     });
   }
+
+  testWidgets('полный предпросмотр: открывается из мастера, зумится и возвращает к параметрам без потерь', (
+    tester,
+  ) async {
+    await openPhoto(tester, AppTheme.light);
+    final settingsBefore = cubit.state.settings;
+    await tester.tap(find.byKey(const ValueKey<String>('wizard-preview-open')));
+    await tester.pumpAndSettle();
+
+    expect(find.byKey(const ValueKey<String>('full-preview')), findsOneWidget);
+    expect(find.byType(GridPatternView), findsOneWidget);
+    expect(find.byType(InteractiveViewer), findsOneWidget);
+
+    // «Как будет» переключается и сохраняется в мастере.
+    await tester.tap(
+      find.descendant(of: find.byKey(const ValueKey<String>('full-preview-look')), matching: find.text('Как будет')),
+    );
+    await tester.pumpAndSettle();
+    expect(cubit.state.realistic, isTrue);
+
+    await tester.tap(find.byKey(const ValueKey<String>('full-preview-back')));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const ValueKey<String>('full-preview')), findsNothing);
+    expect(find.byKey(const ValueKey<String>('wizard-grid')), findsOneWidget);
+    expect(cubit.state.settings, settingsBefore);
+    expect(cubit.state.step, ImageWizardStep.edit);
+  });
+
+  testWidgets('полный предпросмотр: тап по предпросмотру тоже открывает его', (tester) async {
+    await openPhoto(tester, AppTheme.light);
+    await tester.tap(find.byKey(const ValueKey<String>('wizard-preview')));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const ValueKey<String>('full-preview')), findsOneWidget);
+  });
 
   testWidgets('переключатель «Выделять главное» виден, только когда на фото нашлись лица или объект', (tester) async {
     await openPhoto(tester, AppTheme.light);

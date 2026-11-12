@@ -18,6 +18,7 @@ import 'package:beading/domain/projects/craft.dart';
 import 'package:beading/domain/settings/floss_brands.dart';
 import 'package:beading/presentation/grid_pattern/grid_pattern_view.dart';
 import 'package:beading/presentation/grid_pattern/grid_view_options.dart';
+import 'package:beading/presentation/image_to_grid/full_preview_screen.dart';
 import 'package:beading/presentation/image_to_grid/image_wizard_cubit.dart';
 import 'package:beading/presentation/image_to_grid/image_wizard_state.dart';
 import 'package:beading/presentation/image_to_grid/importance_brush_mode.dart';
@@ -961,6 +962,7 @@ class _Preview extends StatelessWidget {
         GestureDetector(
           key: const ValueKey<String>('wizard-preview'),
           behavior: HitTestBehavior.opaque,
+          onTap: grid == null ? null : () => showFullPreview(context),
           onLongPressStart: (_) => cubit.setComparing(value: true),
           onLongPressEnd: (_) => cubit.setComparing(value: false),
           onLongPressCancel: () => cubit.setComparing(value: false),
@@ -974,6 +976,22 @@ class _Preview extends StatelessWidget {
                 child: Stack(
                   children: <Widget>[
                     Positioned.fill(child: Center(child: content)),
+                    if (grid != null)
+                      Positioned(
+                        bottom: 0,
+                        right: 0,
+                        child: CupertinoButton(
+                          key: const ValueKey<String>('wizard-preview-open'),
+                          padding: EdgeInsets.all(tokens.spacing.s),
+                          minimumSize: Size.square(tokens.minTapTarget),
+                          onPressed: () => showFullPreview(context),
+                          child: Semantics(
+                            label: l10n.imageWizardFullPreviewOpen,
+                            button: true,
+                            child: const Icon(CupertinoIcons.arrow_up_left_arrow_down_right),
+                          ),
+                        ),
+                      ),
                     if (state.calculating)
                       Positioned(
                         top: tokens.spacing.s,
