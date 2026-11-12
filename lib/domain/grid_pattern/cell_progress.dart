@@ -1,7 +1,6 @@
 import 'dart:typed_data';
 
 import 'package:beading/domain/grid/cell_position.dart';
-import 'package:equatable/equatable.dart';
 
 /// Отметки «сделано» по клеткам вышивки: битовые блоки 16×16 (по 32 байта).
 ///
@@ -11,13 +10,15 @@ import 'package:equatable/equatable.dart';
 /// Блоки — единица записи и слияния при синхронизации (LWW по блоку, см. docs/data-and-sync.md). Индекс блока не
 /// зависит от размера схемы (шаг строки блоков фиксирован), поэтому смена размера индексы не меняет: [resized] лишь
 /// отбрасывает клетки вне схемы.
-final class CellProgress extends Equatable {
+final class CellProgress {
   CellProgress({required this.width, Map<int, Uint8List> blocks = const <int, Uint8List>{}})
     : assert(width >= 0, 'ширина не может быть отрицательной'),
       _blocks = Map<int, Uint8List>.unmodifiable(<int, Uint8List>{
         for (final MapEntry<int, Uint8List> e in blocks.entries)
           if (e.value.length == blockBytes && _hasBits(e.value)) e.key: Uint8List.fromList(e.value),
       });
+
+  CellProgress._shared(this.width, this._blocks);
 
   /// Нет ни одной отметки; ширина не важна.
   const CellProgress.none() : width = 0, _blocks = const <int, Uint8List>{};
@@ -84,23 +85,38 @@ final class CellProgress extends Equatable {
 
   /// Копия, где [cells] отмечены ([done] = `true`) или сняты. Клетки вне ширины пропускаются; высоту проверяет вызывающий.
   CellProgress withCells(Iterable<CellPosition> cells, {required bool done}) {
-    final Map<int, Uint8List> next = <int, Uint8List>{
-      for (final MapEntry<int, Uint8List> e in _blocks.entries) e.key: Uint8List.fromList(e.value),
-    };
+    // Копируются только затронутые блоки: остальные неизменяемы и разделяются со старым значением. Так отметка одной
+    // клетки на большой схеме не стоит копии всего прогресса (мазок вызывает её на каждую клетку).
+    final Map<int, Uint8List> next = Map<int, Uint8List>.of(_blocks);
+    final Set<int> copied = <int>{};
     for (final CellPosition cell in cells) {
       if (cell.column < 0 || cell.row < 0 || cell.column >= width) {
         continue;
       }
       final int index = _blockIndex(cell.column, cell.row);
       final int bit = _bitIndex(cell.column, cell.row);
-      final Uint8List block = next.putIfAbsent(index, () => Uint8List(blockBytes));
+      Uint8List? block = next[index];
+      if (block == null) {
+        if (!done) {
+          continue;
+        }
+        block = next[index] = Uint8List(blockBytes);
+        copied.add(index);
+      } else if (copied.add(index)) {
+        block = next[index] = Uint8List.fromList(block);
+      }
       if (done) {
         block[bit >> 3] |= 1 << (bit & 7);
       } else {
         block[bit >> 3] &= ~(1 << (bit & 7));
       }
     }
-    return CellProgress(width: width, blocks: next);
+    for (final int index in copied) {
+      if (!_hasBits(next[index]!)) {
+        next.remove(index);
+      }
+    }
+    return CellProgress._shared(width, Map<int, Uint8List>.unmodifiable(next));
   }
 
   /// Прогресс для схемы нового размера: клетки вне неё отбрасываются, индексы блоков пересчитываются.
@@ -153,11 +169,25 @@ final class CellProgress extends Equatable {
     return c;
   });
 
+  /// Равенство по значению без копирования блоков: на большой схеме его зовут на каждый кадр жеста.
   @override
-  List<Object?> get props => <Object?>[
-    width,
-    <Object?>[
-      for (final int k in (_blocks.keys.toList()..sort())) <Object?>[k, _blocks[k]!.toList()],
-    ],
-  ];
+  // ignore: avoid_equals_and_hash_code_on_mutable_classes, поля final, значение неизменяемо
+  bool operator ==(Object other) {
+    if (identical(this, other)) {
+      return true;
+    }
+    if (other is! CellProgress || other.width != width || other._blocks.length != _blocks.length) {
+      return false;
+    }
+    for (final MapEntry<int, Uint8List> e in _blocks.entries) {
+      if (!_same(e.value, other._blocks[e.key])) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  @override
+  // ignore: avoid_equals_and_hash_code_on_mutable_classes, см. выше
+  int get hashCode => Object.hash(width, _blocks.length, Object.hashAllUnordered(_blocks.keys));
 }
