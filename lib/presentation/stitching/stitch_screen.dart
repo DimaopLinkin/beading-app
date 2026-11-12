@@ -436,7 +436,7 @@ class _BottomPanel extends StatelessWidget {
                         onGoToParked == null ? l10n.stitchParkHint : l10n.stitchGoToParked,
                         maxLines: 2,
                         textAlign: TextAlign.center,
-                        style: const TextStyle(fontSize: 13),
+                        style: const TextStyle(fontSize: 14),
                       ),
                     ),
                   ),
