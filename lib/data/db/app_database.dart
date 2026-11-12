@@ -61,7 +61,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase(super.e);
 
   @override
-  int get schemaVersion => 14;
+  int get schemaVersion => 15;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -122,6 +122,11 @@ class AppDatabase extends _$AppDatabase {
         await m.createTable(schema.syncShadow);
         await m.createTable(schema.syncApplying);
         await _createSyncTriggers();
+      },
+      // v15 (T26б): время и устройство позиции «остановилась здесь» отдельно от записи сетки.
+      from14To15: (m, schema) async {
+        await m.addColumn(schema.gridPatterns, schema.gridPatterns.cursorUpdatedAt);
+        await m.addColumn(schema.gridPatterns, schema.gridPatterns.cursorDeviceId);
       },
     ),
     beforeOpen: (details) => customStatement('PRAGMA foreign_keys = ON'),

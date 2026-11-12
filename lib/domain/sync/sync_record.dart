@@ -29,6 +29,15 @@ class SyncRecord extends Equatable {
   /// JSON-нагрузка. Поле `v` — версия формата сущности (1, если не указано).
   final Map<String, Object?> data;
 
+  SyncRecord copyWithData(Map<String, Object?> data, {required int updatedAt, required String deviceId}) => SyncRecord(
+    entity: entity,
+    syncId: syncId,
+    updatedAt: updatedAt,
+    deletedAt: deletedAt,
+    deviceId: deviceId,
+    data: data,
+  );
+
   bool get isDeleted => deletedAt != null;
 
   String get key => '$entity/$syncId';

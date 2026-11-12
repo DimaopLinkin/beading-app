@@ -186,6 +186,8 @@ class DriftGridPatternRepository implements GridPatternRepository {
       final int? currentRow = existing.currentRow;
       final bool rowGone = currentRow != null && currentRow >= readingRows;
       final int? currentBead = existing.currentBead;
+      final bool beadGone = rowGone || (currentBead != null && currentBead >= order.maxRowLength);
+      final bool cursorTrimmed = beadGone;
       await (_dao.update(_dao.gridPatterns)..where((t) => t.id.equals(pattern.id))).write(
         GridPatternsCompanion(
           geometry: Value<String>(geometry.kind),
@@ -198,9 +200,9 @@ class DriftGridPatternRepository implements GridPatternRepository {
           layers: Value<Uint8List?>(layers?.bytes),
           layersCodecVersion: Value<int?>(layers?.codecVersion),
           currentRow: rowGone ? const Value<int?>(null) : const Value<int?>.absent(),
-          currentBead: rowGone || (currentBead != null && currentBead >= order.maxRowLength)
-              ? const Value<int?>(null)
-              : const Value<int?>.absent(),
+          currentBead: beadGone ? const Value<int?>(null) : const Value<int?>.absent(),
+          cursorUpdatedAt: cursorTrimmed ? Value<int?>(now) : const Value<int?>.absent(),
+          cursorDeviceId: cursorTrimmed ? Value<String?>(deviceId) : const Value<String?>.absent(),
           updatedAt: Value<int>(now),
           deviceId: Value<String>(deviceId),
         ),

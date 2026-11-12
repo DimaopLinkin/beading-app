@@ -25,6 +25,13 @@ class GridPatterns extends Table with UuidIdColumn, SyncColumns {
 
   IntColumn get currentBead => integer().nullable()();
 
+  /// Когда и с какого устройства менялась позиция «остановилась здесь» (ADR-0006, R-09): отдельное время нужно, чтобы
+  /// движение по ряду не «обновляло» запись сетки и не выигрывало у настоящей правки сетки на другом устройстве.
+  /// `NULL` — позицию не меняли, берётся `updated_at`.
+  IntColumn get cursorUpdatedAt => integer().nullable()();
+
+  TextColumn get cursorDeviceId => text().nullable()();
+
   BlobColumn get cells => blob()();
 
   IntColumn get cellsCodecVersion => integer()();
