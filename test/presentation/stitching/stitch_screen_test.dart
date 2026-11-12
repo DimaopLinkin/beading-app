@@ -11,6 +11,8 @@ import 'package:beading/domain/projects/use_cases/change_project_status.dart';
 import 'package:beading/domain/projects/use_cases/create_project.dart';
 import 'package:beading/domain/projects/use_cases/touch_project.dart';
 import 'package:beading/domain/weaving/work_session_tracker.dart';
+import 'package:beading/presentation/grid_pattern/grid_pattern_view.dart';
+import 'package:beading/presentation/grid_pattern/grid_view_options.dart';
 import 'package:beading/presentation/l10n/app_localizations.dart';
 import 'package:beading/presentation/stitching/stitch_canvas.dart';
 import 'package:beading/presentation/stitching/stitch_cubit.dart';
@@ -18,6 +20,7 @@ import 'package:beading/presentation/stitching/stitch_screen.dart';
 import 'package:beading/presentation/stitching/stitch_state.dart';
 import 'package:beading/presentation/theme/app_theme.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -254,6 +257,33 @@ void main() {
     await tester.pump(const Duration(seconds: 3));
     await closeScreen(tester, cubit);
     expect(cells.calls, isEmpty);
+  });
+
+  testWidgets('знаки появляются раньше, чем клетку удобно отмечать касанием', (tester) async {
+    patterns.byProject[projectId] = GridPattern(
+      id: 'pat-3',
+      projectId: projectId,
+      geometry: const GridGeometry.rectangular(),
+      metrics: BeadSize.delica11,
+      grid: Grid.fromCells(width: 60, height: 60, cells: List<int>.generate(3600, (i) => i % 2 + 1)),
+      palette: samplePalette(),
+    );
+    final StitchCubit cubit = await open(tester);
+    StitchStyle style() => tester
+        .widget<GridPatternView>(find.descendant(of: find.byType(StitchCanvas), matching: find.byType(GridPatternView)))
+        .options
+        .effectiveStitchStyle;
+    expect(style(), StitchStyle.color, reason: 'вся схема в окне: клетки мелкие, знаков нет');
+
+    final Offset center = tester.getCenter(find.byKey(const ValueKey<String>('stitch-overlay')));
+    tester.binding.handlePointerEvent(PointerScaleEvent(position: center, scale: 2));
+    await tester.pump();
+    expect(style(), StitchStyle.colorAndSymbol, reason: 'клетка около 13 px: знак уже виден');
+    await tester.tapAt(center);
+    await tester.pump();
+    expect(find.text('Приблизьте, чтобы отметить касанием'), findsOneWidget, reason: 'а касанием ещё не отметить');
+    await tester.pump(const Duration(seconds: 3));
+    await closeScreen(tester, cubit);
   });
 
   testWidgets('инструменты переключаются; мазок пальцем отмечает несколько клеток', (tester) async {
