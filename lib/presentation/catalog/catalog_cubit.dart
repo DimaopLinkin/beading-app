@@ -55,9 +55,13 @@ class CatalogState extends Equatable {
     this.colors = const <CatalogColor>[],
     this.selection,
     this.stock = const <CatalogRef, double>{},
+    this.stockWriteFailure,
   });
 
   final CatalogStatus status;
+
+  /// Последняя запись запаса не удалась; `null` — запись прошла или ещё не было.
+  final Failure? stockWriteFailure;
 
   /// Запас мулине: мотков по ниткам; пусто, если запас не ведётся (каталог бисера).
   final Map<CatalogRef, double> stock;
@@ -83,8 +87,10 @@ class CatalogState extends Equatable {
     List<CatalogColor>? colors,
     SimilarSelection? Function()? selection,
     Map<CatalogRef, double>? stock,
+    Failure? Function()? stockWriteFailure,
   }) => CatalogState(
     stock: stock ?? this.stock,
+    stockWriteFailure: stockWriteFailure == null ? this.stockWriteFailure : stockWriteFailure(),
     status: status ?? this.status,
     tabs: tabs ?? this.tabs,
     tab: tab == null ? this.tab : tab(),
@@ -94,7 +100,7 @@ class CatalogState extends Equatable {
   );
 
   @override
-  List<Object?> get props => <Object?>[status, tabs, tab, query, colors, selection, stock];
+  List<Object?> get props => <Object?>[status, tabs, tab, query, colors, selection, stock, stockWriteFailure];
 }
 
 /// Каталог цветов: вкладки брендов, поиск по артикулу и названию, «подобрать похожий».
@@ -124,9 +130,14 @@ class CatalogCubit extends Cubit<CatalogState> {
   /// Ведётся ли запас ниток: в каталоге есть «мой запас».
   bool get hasStock => _stock != null;
 
-  /// Записывает, сколько мотков [color] осталось ([skeins] ≤ 0 — убрать из запаса).
+  /// Записывает, сколько мотков [color] осталось ([skeins] ≤ 0 — убрать из запаса). Ошибка записи не теряется:
+  /// она ложится в [CatalogState.stockWriteFailure], пока не пройдёт следующая запись.
   Future<void> setStock(CatalogColor color, double skeins) async {
-    await _stock?.setSkeins(CatalogRef(brand: color.brand, code: color.code), skeins);
+    final FlossStockRepository? stock = _stock;
+    if (stock == null) return;
+    final Result<void> result = await stock.setSkeins(CatalogRef(brand: color.brand, code: color.code), skeins);
+    if (isClosed) return;
+    emit(state.copyWith(stockWriteFailure: () => result is Err<void> ? result.failure : null));
   }
 
   @override

@@ -1,3 +1,4 @@
+import 'package:beading/core/failure.dart';
 import 'package:beading/domain/catalog/catalog_color.dart';
 import 'package:beading/domain/catalog/catalog_material.dart';
 import 'package:beading/domain/catalog/use_cases/find_similar_colors.dart';
@@ -284,6 +285,23 @@ void main() {
       expect(stock.snapshot[ref310], 1);
       expect(cubit.state.stock[ref310], 1);
       expect(find.text('1 мот.'), findsWidgets);
+    });
+
+    testWidgets('лист цвета: счётчик меняется сразу, а ошибка записи видна и число возвращается', (tester) async {
+      final (CatalogCubit cubit, FakeFlossStockRepository stock) = await pumpFloss(tester);
+
+      await tester.tap(find.text('310'));
+      await tester.pumpAndSettle();
+      stock.failNextWrite = const StorageFailure('disk');
+      await tester.tap(find.byKey(const ValueKey<String>('stock-more')));
+      await tester.pump();
+      await tester.pump();
+      await tester.pumpAndSettle();
+
+      expect(find.text('Не удалось сохранить запас ниток'), findsOneWidget);
+      expect(find.text('0 мот.'), findsWidgets);
+      expect(stock.snapshot, isEmpty);
+      expect(cubit.state.stockWriteFailure, isNotNull);
     });
 
     testWidgets('каталог бисера без запаса: нет «Мой запас»', (tester) async {

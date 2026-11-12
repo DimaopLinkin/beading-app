@@ -11,6 +11,7 @@ import 'package:beading/presentation/l10n/app_localizations.dart';
 import 'package:beading/presentation/library/project_labels.dart';
 import 'package:beading/presentation/theme/app_icons.dart';
 import 'package:beading/presentation/theme/tokens.dart';
+import 'package:beading/presentation/widgets/app_list_section.dart';
 import 'package:beading/presentation/widgets/color_swatch.dart';
 import 'package:beading/presentation/widgets/glass/glass_button.dart';
 import 'package:beading/presentation/widgets/stock_stepper.dart';
@@ -79,7 +80,7 @@ class _FlossScreenState extends State<FlossScreen> {
 
   Future<void> _editStock(BuildContext context, FlossShortageLine line, FlossFormat format) async {
     final FlossCubit cubit = context.read<FlossCubit>();
-    final double? value = await showCupertinoModalPopup<double>(
+    final double? value = await showCupertinoSheet<double>(
       context: context,
       builder: (sheetContext) => _StockSheet(line: line, format: format),
     );
@@ -593,45 +594,51 @@ class _StockSheetState extends State<_StockSheet> {
     final AppTokensData tokens = context.tokens;
     final TextStyle base = CupertinoTheme.of(context).textTheme.textStyle;
     final Color secondary = CupertinoColors.secondaryLabel.resolveFrom(context);
-    return CupertinoPopupSurface(
+    return CupertinoPageScaffold(
+      navigationBar: CupertinoNavigationBar(
+        automaticallyImplyLeading: false,
+        middle: Text(l10n.flossStockSheetTitle(widget.line.purchase.ref.toString())),
+        leading: CupertinoButton(
+          padding: EdgeInsets.zero,
+          minimumSize: Size.square(tokens.minTapTarget),
+          onPressed: () => Navigator.of(context).pop(),
+          child: Text(l10n.cancel),
+        ),
+        trailing: CupertinoButton(
+          key: const ValueKey<String>('stock-save'),
+          padding: EdgeInsets.zero,
+          minimumSize: Size.square(tokens.minTapTarget),
+          onPressed: () => Navigator.of(context).pop(_value),
+          child: Text(l10n.commonSave),
+        ),
+      ),
       child: SafeArea(
-        top: false,
-        child: Padding(
-          padding: EdgeInsets.all(tokens.spacing.l),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: <Widget>[
-              Text(
-                l10n.flossStockSheetTitle(widget.line.purchase.ref.toString()),
-                textAlign: TextAlign.center,
-                style: base.copyWith(fontSize: 17, fontWeight: FontWeight.w600),
-              ),
-              SizedBox(height: tokens.spacing.s),
-              Text(
-                l10n.flossStockSheetHint,
-                textAlign: TextAlign.center,
-                style: base.copyWith(fontSize: 13, color: secondary),
-              ),
-              SizedBox(height: tokens.spacing.m),
-              StockStepper(value: _value, onChanged: (v) => setState(() => _value = v)),
-              SizedBox(height: tokens.spacing.s),
-              CupertinoButton.filled(
-                key: const ValueKey<String>('stock-save'),
-                onPressed: () => Navigator.of(context).pop(_value),
-                child: Text(l10n.commonSave),
-              ),
-              if (widget.line.haveSkeins > 0)
-                CupertinoButton(
-                  key: const ValueKey<String>('stock-clear'),
-                  onPressed: () => Navigator.of(context).pop(0.0),
-                  child: Text(
-                    l10n.flossStockClear,
-                    style: TextStyle(color: CupertinoColors.destructiveRed.resolveFrom(context)),
-                  ),
+        child: ListView(
+          children: <Widget>[
+            AppListSection(
+              footer: Text(l10n.flossStockSheetHint, style: base.copyWith(fontSize: 13, color: secondary)),
+              children: <Widget>[
+                CupertinoListTile(
+                  title: StockStepper(value: _value, onChanged: (v) => setState(() => _value = v)),
                 ),
-            ],
-          ),
+              ],
+            ),
+            if (widget.line.haveSkeins > 0)
+              AppListSection(
+                children: <Widget>[
+                  CupertinoListTile(
+                    key: const ValueKey<String>('stock-clear'),
+                    title: Center(
+                      child: Text(
+                        l10n.flossStockClear,
+                        style: TextStyle(color: CupertinoColors.destructiveRed.resolveFrom(context)),
+                      ),
+                    ),
+                    onTap: () => Navigator.of(context).pop(0.0),
+                  ),
+                ],
+              ),
+          ],
         ),
       ),
     );
