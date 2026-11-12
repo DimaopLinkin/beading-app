@@ -41,6 +41,24 @@ void main() {
     expect(cache.cachedBlocks, 49);
   });
 
+  test('смена галочки (клетки стали мельче порога) пересобирает слой, тот же цвет — нет', () {
+    final GridScene scene = _scene();
+    final CellProgress progress = _filled(20, 20);
+    const Color green = Color(0xFF34C759);
+    expect(cache.configure(scene: scene, progress: progress, veil: _veil, mark: green), isTrue);
+    expect(cache.configure(scene: scene, progress: progress, veil: _veil, mark: green), isFalse);
+    cache.paintVisible(ui.Canvas(ui.PictureRecorder()), Offset.zero & scene.size);
+    final int built = cache.buildCount;
+
+    expect(
+      cache.configure(scene: scene, progress: progress, veil: _veil),
+      isTrue,
+      reason: 'галочки убрали',
+    );
+    cache.paintVisible(ui.Canvas(ui.PictureRecorder()), Offset.zero & scene.size);
+    expect(cache.buildCount, greaterThan(built), reason: 'блоки построены заново, уже без галочек');
+  });
+
   test('повторная настройка тем же прогрессом ничего не сбрасывает', () {
     final GridScene scene = _scene();
     final CellProgress progress = _filled(40, 40);

@@ -189,7 +189,7 @@ void main() {
     );
     await tester.pumpAndSettle();
 
-    expect(find.text('33%'), findsOneWidget);
+    expect(find.text('25%'), findsOneWidget);
     expect(find.byType(GridThumbnail), findsOneWidget);
     expect(find.byKey(const ValueKey<String>('project-progress')), findsOneWidget, reason: 'у проекта без схемы нет');
   });

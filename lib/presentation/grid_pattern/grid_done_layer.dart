@@ -23,21 +23,24 @@ final class GridDoneLayerCache {
   CellProgress _progress = const CellProgress.none();
   GridScene? _scene;
   Color? _veil;
+  Color? _mark;
 
   /// Сколько блоков построено за всё время (для тестов и профилирования).
   int buildCount = 0;
 
   int get cachedBlocks => _pictures.length;
 
-  /// Сообщает кешу, что рисовать. Возвращает `true`, если что-то изменилось и слой надо перерисовать.
-  bool configure({required GridScene scene, required CellProgress progress, required Color veil}) {
+  /// Сообщает кешу, что рисовать. Возвращает `true`, если что-то изменилось и слой надо перерисовать. [mark] — цвет
+  /// галочки на каждой сделанной клетке; `null` — без галочек (клетки на экране слишком мелкие).
+  bool configure({required GridScene scene, required CellProgress progress, required Color veil, Color? mark}) {
     final GridScene? oldScene = _scene;
-    final bool sameLayout = oldScene != null && oldScene.sameLayout(scene) && _veil == veil;
+    final bool sameLayout = oldScene != null && oldScene.sameLayout(scene) && _veil == veil && _mark == mark;
     if (sameLayout && (identical(_progress, progress) || _progress == progress)) {
       return false;
     }
     _scene = scene;
     _veil = veil;
+    _mark = mark;
     if (!sameLayout) {
       _dropAll();
     } else {
@@ -104,6 +107,7 @@ final class GridDoneLayerCache {
     const int side = CellProgress.blockSide;
     final bool plain = scene.geometry is RectangularGeometry;
     final Path path = Path();
+    final Path ticks = Path();
     for (int dy = 0; dy < side; dy++) {
       final int row = by * side + dy;
       if (row >= scene.rows) {
@@ -122,12 +126,41 @@ final class GridDoneLayerCache {
         }
         final Rect first = scene.cellRect(CellPosition(bx * side + dx, row));
         path.addRect(end == dx ? first : first.expandToInclude(scene.cellRect(CellPosition(bx * side + end, row))));
+        if (_mark != null) {
+          for (int c = dx; c <= end; c++) {
+            _addTick(ticks, scene.cellRect(CellPosition(bx * side + c, row)));
+          }
+        }
         dx = end + 1;
       }
     }
     final PictureRecorder recorder = PictureRecorder();
-    Canvas(recorder).drawPath(path, Paint()..color = _veil!);
+    final Canvas canvas = Canvas(recorder)..drawPath(path, Paint()..color = _veil!);
+    final Color? mark = _mark;
+    if (mark != null) {
+      // Толщина галочки по меньшей стороне клетки: на экране она видна, пока клетка не мельче порога плоского вида.
+      final Rect any = scene.cellRect(const CellPosition(0, 0));
+      final double shortSide = any.width < any.height ? any.width : any.height;
+      canvas.drawPath(
+        ticks,
+        Paint()
+          ..style = PaintingStyle.stroke
+          ..strokeCap = StrokeCap.round
+          ..strokeJoin = StrokeJoin.round
+          ..strokeWidth = shortSide * 0.13
+          ..color = mark,
+      );
+    }
     return recorder.endRecording();
+  }
+
+  /// Галочка в клетке: короткий штрих вниз и длинный вверх.
+  static void _addTick(Path path, Rect cell) {
+    Offset at(double x, double y) => Offset(cell.left + cell.width * x, cell.top + cell.height * y);
+    path
+      ..moveTo(at(0.28, 0.54).dx, at(0.28, 0.54).dy)
+      ..lineTo(at(0.44, 0.7).dx, at(0.44, 0.7).dy)
+      ..lineTo(at(0.74, 0.32).dx, at(0.74, 0.32).dy);
   }
 
   static bool _isSet(Uint8List bits, int dx, int dy) {

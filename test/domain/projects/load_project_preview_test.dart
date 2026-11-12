@@ -42,16 +42,16 @@ void main() {
     rows.rows.add(0);
     final ProjectPreview preview = await load(_project('p'));
     expect(preview.pattern, isNotNull);
-    expect(preview.progress, closeTo(1 / 3, 1e-9));
-    expect(preview.percent, 33);
+    expect(preview.progress, closeTo(1 / 4, 1e-9), reason: 'у пейота со сдвигом 4 ряда плетения');
+    expect(preview.percent, 25);
   });
 
   test('вышивка: доля — сделанные клетки от клеток с цветом', () async {
     patterns.byProject['p'] = sampleGridPattern(projectId: 'p');
     await cells.setCells('pat-1', const <CellPosition>[CellPosition(0, 0), CellPosition(1, 0)], done: true);
     final ProjectPreview preview = await load(_project('p', craft: Craft.crossStitch));
-    expect(preview.progress, closeTo(2 / 8, 1e-9));
-    expect(preview.percent, 25);
+    expect(preview.progress, closeTo(2 / 9, 1e-9), reason: '9 клеток с цветом, 3 пустые');
+    expect(preview.percent, 22);
   });
 
   test('схема без отметок — 0 %', () async {
