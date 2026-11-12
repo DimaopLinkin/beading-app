@@ -77,6 +77,12 @@ CellCosts _flatCosts(GeneratedPattern p, {required int truth}) {
 }
 
 void main() {
+  test('остров, перекрашенный в цвет соседнего острова, не оставляет новой одиночки (A09-11)', () {
+    final GeneratedPattern p = _pattern(<String>['1223333'], <int>[0xFF0000, 0x00FF00, 0x0000FF]);
+    final GeneratedPattern out = const RemoveIslandsStep().apply(p, _context(p));
+    expect(_cells(out.grid).toSet(), <int>{3});
+  });
+
   _extra();
   group('PottsLabelSmoother', () {
     test('шум на однотонной картинке убирается полностью', () {
