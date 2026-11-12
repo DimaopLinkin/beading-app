@@ -61,7 +61,6 @@
 | `scripts/internal/release_notes.sh` | фрагменты changelog, см. [changelog.md](changelog.md) |
 | `scripts/internal/release_common.sh` | общие функции release_ios/macos |
 | `scripts/internal/team/` | процесс команды, см. [team.md](team.md) |
-| `tool/make_app_icons.js` | разовая генерация иконок |
 
 CI: `.github/workflows/check.yml` — на каждый PR в `dev` и `main`, `ubuntu-latest`, Flutter 3.41.0, `scripts/internal/check.sh`. Нативную сборку (`flutter build macos`, `flutter build ios --no-codesign`) в CI не гоняем: минуты macOS дороги, проблемы нативной сборки решаем при подготовке релиза (решение Дмитрия).
 
