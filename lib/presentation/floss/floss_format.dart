@@ -21,6 +21,8 @@ class FlossFormat {
 
   int purchaseSkeins(FlossPurchaseLine line) => withReserve ? line.skeinsWithReserve : line.skeins;
 
+  int beadPieces(BeadPurchaseLine line) => withReserve ? line.piecesWithReserve : line.pieces;
+
   int get totalSkeins => withReserve ? estimate.totalSkeinsWithReserve : estimate.totalSkeins;
 
   String skeinsText(int count) => l10n.flossSkeins(count);
@@ -76,6 +78,14 @@ class FlossFormat {
     for (final FlossPurchaseLine line in estimate.purchases) {
       final String name = line.name == null ? '' : ' ${line.name}';
       text.writeln(l10n.flossShareLine(number++, '${line.ref}$name', skeinsText(purchaseSkeins(line))));
+    }
+    if (estimate.beads.isNotEmpty) {
+      text
+        ..writeln()
+        ..writeln(l10n.flossBeadsTitle);
+      for (final BeadPurchaseLine line in estimate.beads) {
+        text.writeln(l10n.flossShareBeadLine('${line.ref}', l10n.flossBeadPieces(beadPieces(line))));
+      }
     }
     text
       ..writeln()

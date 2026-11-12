@@ -3055,6 +3055,24 @@ abstract class AppLocalizations {
   /// **'Что купить'**
   String get flossShoppingTitle;
 
+  /// Заголовок списка бусин слоя «бусины» в расходе мулине
+  ///
+  /// In ru, this message translates to:
+  /// **'Бисер на вышивке'**
+  String get flossBeadsTitle;
+
+  /// Число бусин слоя вышивки
+  ///
+  /// In ru, this message translates to:
+  /// **'{count, plural, one{{count} бусина} few{{count} бусины} many{{count} бусин} other{{count} бусины}}'**
+  String flossBeadPieces(int count);
+
+  /// Строка бусины в тексте списка мулине
+  ///
+  /// In ru, this message translates to:
+  /// **'{bead} — {pieces}'**
+  String flossShareBeadLine(String bead, String pieces);
+
   /// Заголовок таблицы цветов расхода мулине
   ///
   /// In ru, this message translates to:
