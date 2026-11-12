@@ -943,6 +943,12 @@ abstract class AppLocalizations {
   /// **'Что важно не забыть: цвета, где остановилась, что поменять'**
   String get bookWorkNotesHint;
 
+  /// Метка у страницы в списке страниц: на ней есть пометки маркером
+  ///
+  /// In ru, this message translates to:
+  /// **'Пометки'**
+  String get bookWorkPageHasMarkup;
+
   /// Кнопка входа в режим маркера на странице схемы из книги и название режима
   ///
   /// In ru, this message translates to:
@@ -1050,12 +1056,6 @@ abstract class AppLocalizations {
   /// In ru, this message translates to:
   /// **'Пометок пока нет'**
   String get bookWorkMarkerEmpty;
-
-  /// Метка у страницы в списке страниц: на ней есть пометки маркером
-  ///
-  /// In ru, this message translates to:
-  /// **'Пометки'**
-  String get bookWorkPageHasMarkup;
 
   /// Подпись страницы с пометками для VoiceOver
   ///

@@ -212,6 +212,23 @@ void main() {
     await closeScreen(tester, cubit);
   });
 
+  testWidgets('в списке страниц у страницы с пометками есть значок маркера', (tester) async {
+    final BookWorkCubit cubit = await open(tester);
+    cubit
+      ..startMarker()
+      ..addStroke(<double>[0.1, 0.1, 0.2, 0.2])
+      ..finishMarker();
+    await tester.pump();
+
+    await tester.tap(find.text('Страница 1 из 3'));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const ValueKey<String>('page-marked-0')), findsOneWidget);
+    expect(find.byKey(const ValueKey<String>('page-marked-1')), findsNothing);
+    await tester.tap(find.byKey(const ValueKey<String>('page-item-0')));
+    await tester.pumpAndSettle();
+    await closeScreen(tester, cubit);
+  });
+
   testWidgets('открытая страница запоминается и открывается снова', (tester) async {
     final BookWorkCubit first = await open(tester);
     await tester.tap(find.text('Страница 1 из 3'));

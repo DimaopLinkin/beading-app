@@ -415,6 +415,8 @@
     "description": "Кнопка и заголовок листа заметок проекта"
   },
   "bookWorkNotesHint": "Что важно не забыть: цвета, где остановилась, что поменять",
+  "bookWorkPageHasMarkup": "Есть пометки",
+  "@bookWorkPageHasMarkup": {"description": "Подпись страницы с пометками маркером в списке страниц"},
   "bookWorkMarker": "Маркер",
   "@bookWorkMarker": {"description": "Кнопка входа в режим маркера на странице схемы из книги и название режима"},
   "bookWorkMarkerBack": "Линейка",

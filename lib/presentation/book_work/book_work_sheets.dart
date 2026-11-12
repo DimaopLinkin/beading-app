@@ -402,10 +402,13 @@ class _PagesSheet extends StatelessWidget {
                 itemCount: state.pages.length,
                 itemBuilder: (context, index) {
                   final bool current = index == state.pageIndex;
+                  final bool marked = !(state.works[state.pages[index].id]?.markup.isEmpty ?? true);
                   return Semantics(
                     button: true,
                     selected: current,
-                    label: l10n.bookWorkPageItem(index + 1),
+                    label: marked
+                        ? '${l10n.bookWorkPageItem(index + 1)}. ${l10n.bookWorkPageHasMarkup}'
+                        : l10n.bookWorkPageItem(index + 1),
                     excludeSemantics: true,
                     onTap: () {
                       cubit.selectPage(index);
@@ -423,6 +426,16 @@ class _PagesSheet extends StatelessWidget {
                         child: Row(
                           children: <Widget>[
                             Expanded(child: Text(l10n.bookWorkPageItem(index + 1))),
+                            if (marked)
+                              Padding(
+                                key: ValueKey<String>('page-marked-$index'),
+                                padding: const EdgeInsets.only(right: 8),
+                                child: Icon(
+                                  AppIcons.marker,
+                                  size: 18,
+                                  color: CupertinoColors.secondaryLabel.resolveFrom(context),
+                                ),
+                              ),
                             if (current) Icon(AppIcons.selected, color: context.tokens.accent.resolveFrom(context)),
                           ],
                         ),
