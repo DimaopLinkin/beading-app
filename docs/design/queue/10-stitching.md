@@ -1,7 +1,7 @@
 ---
 id: 10-stitching
 title: Режим вышивания крестиком (MUST-X5, NICE-X3)
-status: todo
+status: delivered
 depends: 05b-peyote-columns
 ---
 
