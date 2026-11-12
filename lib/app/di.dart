@@ -1,5 +1,3 @@
-import 'dart:math';
-
 import 'package:beading/app/composition/app_dependencies.dart';
 import 'package:beading/app/composition/core_module.dart';
 import 'package:beading/app/library_entries.dart';
@@ -11,8 +9,6 @@ import 'package:beading/data/catalog/catalog_asset_source.dart';
 import 'package:beading/data/catalog/catalog_seeder.dart';
 import 'package:beading/data/catalog/drift_catalog_repository.dart';
 import 'package:beading/data/db/app_database.dart';
-import 'package:beading/data/easter_eggs/asset_compliment_source.dart';
-import 'package:beading/data/easter_eggs/drift_easter_egg_log.dart';
 import 'package:beading/data/floss_stock/drift_floss_stock_repository.dart';
 import 'package:beading/data/grid_pattern/drift_cell_progress_store.dart';
 import 'package:beading/data/grid_pattern/drift_grid_pattern_repository.dart';
@@ -27,7 +23,6 @@ import 'package:beading/data/image_to_grid/ui_image_decoder.dart';
 import 'package:beading/data/platform/method_channel_image_masks.dart';
 import 'package:beading/data/platform/share_plus_text_sharer.dart';
 import 'package:beading/data/projects/drift_project_repository.dart';
-import 'package:beading/data/settings/package_info_app_info_provider.dart';
 import 'package:beading/data/sharing/drift_unit_of_work.dart';
 import 'package:beading/data/sharing/file_picker_biser_picker.dart';
 import 'package:beading/data/sharing/platform_incoming_biser_files.dart';
@@ -38,11 +33,6 @@ import 'package:beading/data/weaving/drift_work_session_repository.dart';
 import 'package:beading/domain/catalog/catalog_material.dart';
 import 'package:beading/domain/catalog/catalog_repository.dart';
 import 'package:beading/domain/catalog/use_cases/find_similar_colors.dart';
-import 'package:beading/domain/easter_eggs/compliment_source.dart';
-import 'package:beading/domain/easter_eggs/easter_egg_log.dart';
-import 'package:beading/domain/easter_eggs/easter_egg_policy.dart';
-import 'package:beading/domain/easter_eggs/easter_egg_service.dart';
-import 'package:beading/domain/easter_eggs/long_session_watcher.dart';
 import 'package:beading/domain/events/app_events.dart';
 import 'package:beading/domain/floss_stock/floss_stock_repository.dart';
 import 'package:beading/domain/grid_pattern/cell_progress_store.dart';
@@ -81,13 +71,11 @@ import 'package:beading/domain/projects/use_cases/rename_project.dart';
 import 'package:beading/domain/projects/use_cases/touch_project.dart';
 import 'package:beading/domain/projects/use_cases/update_notes.dart';
 import 'package:beading/domain/projects/use_cases/watch_projects.dart';
-import 'package:beading/domain/settings/app_events_secret_tap_handler.dart';
 import 'package:beading/domain/settings/app_info.dart';
 import 'package:beading/domain/settings/device_id_provider.dart';
 import 'package:beading/domain/settings/keep_screen_awake_setting.dart';
 import 'package:beading/domain/settings/reduce_transparency_source.dart';
 import 'package:beading/domain/settings/screen_wake_lock.dart';
-import 'package:beading/domain/settings/secret_tap_handler.dart';
 import 'package:beading/domain/settings/setting_keys.dart';
 import 'package:beading/domain/settings/settings_repository.dart';
 import 'package:beading/domain/settings/wakelock_controller.dart';
@@ -106,7 +94,6 @@ import 'package:beading/domain/weaving/work_session_repository.dart';
 import 'package:beading/domain/weaving/work_session_tracker.dart';
 import 'package:beading/presentation/book_work/book_work_cubit.dart';
 import 'package:beading/presentation/catalog/catalog_cubit.dart';
-import 'package:beading/presentation/easter_eggs/compliment_banner_cubit.dart';
 import 'package:beading/presentation/editor/editor_cubit.dart';
 import 'package:beading/presentation/editor/new_grid_cubit.dart';
 import 'package:beading/presentation/editor/new_stitch_cubit.dart';
@@ -118,10 +105,8 @@ import 'package:beading/presentation/library/new_project_entry.dart';
 import 'package:beading/presentation/library/project_thumbnail_provider.dart';
 import 'package:beading/presentation/materials/materials_cubit.dart';
 import 'package:beading/presentation/pattern_template/pattern_template_cubit.dart';
-import 'package:beading/presentation/settings/settings_cubit.dart';
 import 'package:beading/presentation/sharing/data_transfer_cubit.dart';
 import 'package:beading/presentation/stitching/stitch_cubit.dart';
-import 'package:beading/presentation/theme/theme_mode_cubit.dart';
 import 'package:beading/presentation/weaving/weave_cubit.dart';
 import 'package:get_it/get_it.dart';
 
@@ -414,25 +399,6 @@ Future<void> configureDependencies(
         ],
       ),
     )
-    ..registerLazySingleton<EasterEggLog>(() => DriftEasterEggLog(db.easterEggLogDao))
-    ..registerLazySingleton<ComplimentSource>(AssetComplimentSource.new)
-    ..registerLazySingleton<EasterEggService>(
-      () => EasterEggService(
-        events: container<AppEvents>(),
-        // Композиционный корень: единственное место, где создаётся источник случайности пасхалок.
-        policy: EasterEggPolicy(random: Random()),
-        log: container<EasterEggLog>(),
-        source: container<ComplimentSource>(),
-        settings: container<SettingsRepository>(),
-        clock: container<Clock>(),
-      ),
-      dispose: (value) => value.dispose(),
-    )
-    ..registerLazySingleton<LongSessionWatcher>(
-      () => LongSessionWatcher(events: container<AppEvents>(), clock: container<Clock>()),
-      dispose: (value) => value.dispose(),
-    )
-    ..registerFactory<ComplimentBannerCubit>(() => ComplimentBannerCubit(container<EasterEggService>().shown))
     ..registerLazySingleton<CatalogAssetSource>(() => catalogAssets ?? BundleCatalogAssetSource())
     ..registerLazySingleton<CatalogSeeder>(
       () => CatalogSeeder(dao: db.catalogDao, assets: container<CatalogAssetSource>()),
@@ -546,10 +512,7 @@ Future<void> configureDependencies(
       ),
       dispose: (cubit) => cubit.close(),
     )
-    ..registerFactory<ThemeModeCubit>(() => ThemeModeCubit(container<SettingsRepository>()))
-    ..registerFactory<SettingsCubit>(() => SettingsCubit(container<SettingsRepository>()))
-    ..registerLazySingleton<AppInfoProvider>(PackageInfoAppInfoProvider.new)
-    ..registerLazySingleton<SecretTapHandler>(() => AppEventsSecretTapHandler(container<AppEvents>()))
+    ..registerLazySingleton<AppInfoProvider>(() => dependencies.settings.appInfo)
     // Реестры библиотеки: фичи (T06, T17, T23, T25) добавляют сюда пункты «Нового проекта» и превью карточек.
     ..registerLazySingleton<NewProjectRegistry>(() {
       final NewProjectRegistry registry = NewProjectRegistry();
