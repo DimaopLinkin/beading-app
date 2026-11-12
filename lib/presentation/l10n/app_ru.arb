@@ -998,6 +998,8 @@
   "@imageWizardPresetSimpler": {"description": "Предустановка: крупные чистые области"},
   "imageWizardPresetBalanced": "Средне",
   "@imageWizardPresetBalanced": {"description": "Предустановка по умолчанию"},
+  "imageWizardPresetAsIs": "Как на фото",
+  "@imageWizardPresetAsIs": {"description": "Детальность без предустановки: простой перенос фото в клетки, больше исходных деталей и одиночных клеток"},
   "imageWizardPresetDetailed": "Детально",
   "@imageWizardPresetDetailed": {"description": "Предустановка: больше мелких деталей"},
   "imageWizardUseMasks": "Выделять главное",

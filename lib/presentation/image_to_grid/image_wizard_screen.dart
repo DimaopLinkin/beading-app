@@ -527,16 +527,28 @@ class _EditState extends State<_Edit> {
               ),
               _Section(
                 title: l10n.imageWizardPreset,
-                child: CupertinoSlidingSegmentedControl<GenerationPreset>(
-                  groupValue: settings.preset,
-                  children: <GenerationPreset, Widget>{
-                    GenerationPreset.simpler: _SegmentLabel(l10n.imageWizardPresetSimpler),
-                    GenerationPreset.balanced: _SegmentLabel(l10n.imageWizardPresetBalanced),
-                    GenerationPreset.detailed: _SegmentLabel(l10n.imageWizardPresetDetailed),
+                child: CupertinoSlidingSegmentedControl<_PresetChoice>(
+                  key: const ValueKey<String>('wizard-preset'),
+                  groupValue: switch (settings.preset) {
+                    null => _PresetChoice.asIs,
+                    GenerationPreset.simpler => _PresetChoice.simpler,
+                    GenerationPreset.balanced => _PresetChoice.balanced,
+                    GenerationPreset.detailed => _PresetChoice.detailed,
+                  },
+                  children: <_PresetChoice, Widget>{
+                    _PresetChoice.asIs: _SegmentLabel(l10n.imageWizardPresetAsIs),
+                    _PresetChoice.simpler: _SegmentLabel(l10n.imageWizardPresetSimpler),
+                    _PresetChoice.balanced: _SegmentLabel(l10n.imageWizardPresetBalanced),
+                    _PresetChoice.detailed: _SegmentLabel(l10n.imageWizardPresetDetailed),
                   },
                   onValueChanged: (value) {
                     if (value != null) {
-                      cubit.setPreset(value);
+                      cubit.setPreset(switch (value) {
+                        _PresetChoice.asIs => null,
+                        _PresetChoice.simpler => GenerationPreset.simpler,
+                        _PresetChoice.balanced => GenerationPreset.balanced,
+                        _PresetChoice.detailed => GenerationPreset.detailed,
+                      });
                     }
                   },
                 ),
@@ -758,6 +770,9 @@ String _beadLabel(AppLocalizations l10n, BeadSize size) {
   };
   return '$shape ${size.sizeCode}';
 }
+
+/// Выбор детальности в мастере: «как на фото» (T24 без предустановки) и три предустановки.
+enum _PresetChoice { asIs, simpler, balanced, detailed }
 
 class _SegmentLabel extends StatelessWidget {
   const _SegmentLabel(this.text);
