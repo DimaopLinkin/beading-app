@@ -51,7 +51,7 @@ final class ImageToGridSettings extends Equatable {
     this.detailVoting = false,
     this.dither = false,
     this.useMasks = true,
-    this.preset = GenerationPreset.balanced,
+    this.preset = GenerationPreset.detailed,
     this.steps = const <PatternStep>[],
     this.background = BackgroundMode.keep,
     this.outline = false,
