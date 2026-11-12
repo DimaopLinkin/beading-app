@@ -10,12 +10,14 @@ import 'package:beading/domain/editor/cell_line.dart';
 import 'package:beading/domain/editor/cell_rect.dart';
 import 'package:beading/domain/editor/editor_commands.dart';
 import 'package:beading/domain/editor/editor_snapshot.dart';
+import 'package:beading/domain/editor/shape_edit.dart';
 import 'package:beading/domain/editor/undo_stack.dart';
 import 'package:beading/domain/grid/cell_position.dart';
 import 'package:beading/domain/grid/grid.dart';
 import 'package:beading/domain/grid_pattern/grid_pattern.dart';
 import 'package:beading/domain/grid_pattern/grid_pattern_repository.dart';
 import 'package:beading/domain/grid_pattern/use_cases/save_grid_pattern.dart';
+import 'package:beading/domain/grid_pattern/use_cases/shift_progress.dart';
 import 'package:beading/domain/palette/catalog_ref.dart';
 import 'package:beading/domain/palette/palette_snapshot.dart';
 import 'package:beading/domain/palette/pattern_color.dart';
@@ -47,6 +49,7 @@ class EditorCubit extends Cubit<EditorState> {
     required SaveGridPattern savePattern,
     required TouchProject touchProject,
     CatalogRepository? catalog,
+    ShiftProgress? shiftProgress,
     this.saveDelay = const Duration(milliseconds: 400),
   }) : _projectId = projectId,
        _projects = projects,
@@ -54,6 +57,7 @@ class EditorCubit extends Cubit<EditorState> {
        _savePattern = savePattern,
        _touchProject = touchProject,
        _catalog = catalog,
+       _shiftProgress = shiftProgress,
        super(const EditorState());
 
   final Duration saveDelay;
@@ -64,6 +68,9 @@ class EditorCubit extends Cubit<EditorState> {
   final SaveGridPattern _savePattern;
   final TouchProject _touchProject;
   final CatalogRepository? _catalog;
+
+  /// Сдвиг отметок прогресса вслед за вставкой и удалением рядов и столбцов; `null` — отметки не трогаем.
+  final ShiftProgress? _shiftProgress;
 
   UndoStack<EditorSnapshot>? _undo;
   Timer? _timer;
@@ -504,34 +511,55 @@ class EditorCubit extends Cubit<EditorState> {
   }
 
   void insertRow(int at) {
-    if (_ready) _applyResult(EditorCommands.insertRow(_pattern.grid, at), (l) => StitchLayerCommands.insertRow(l, at));
+    if (_ready) {
+      _applyResult(
+        EditorCommands.insertRow(_pattern.grid, at),
+        (l) => StitchLayerCommands.insertRow(l, at),
+        ShapeEdit(axis: ShapeAxis.row, at: at, insert: true),
+      );
+    }
   }
 
   void deleteRow(int at) {
-    if (_ready) _applyResult(EditorCommands.deleteRow(_pattern.grid, at), (l) => StitchLayerCommands.deleteRow(l, at));
+    if (_ready) {
+      _applyResult(
+        EditorCommands.deleteRow(_pattern.grid, at),
+        (l) => StitchLayerCommands.deleteRow(l, at),
+        ShapeEdit(axis: ShapeAxis.row, at: at, insert: false),
+      );
+    }
   }
 
   void insertColumn(int at) {
     if (_ready) {
-      _applyResult(EditorCommands.insertColumn(_pattern.grid, at), (l) => StitchLayerCommands.insertColumn(l, at));
+      _applyResult(
+        EditorCommands.insertColumn(_pattern.grid, at),
+        (l) => StitchLayerCommands.insertColumn(l, at),
+        ShapeEdit(axis: ShapeAxis.column, at: at, insert: true),
+      );
     }
   }
 
   void deleteColumn(int at) {
     if (_ready) {
-      _applyResult(EditorCommands.deleteColumn(_pattern.grid, at), (l) => StitchLayerCommands.deleteColumn(l, at));
+      _applyResult(
+        EditorCommands.deleteColumn(_pattern.grid, at),
+        (l) => StitchLayerCommands.deleteColumn(l, at),
+        ShapeEdit(axis: ShapeAxis.column, at: at, insert: false),
+      );
     }
   }
 
-  void _applyResult(Result<Grid> result, StitchLayers Function(StitchLayers layers) onLayers) {
+  void _applyResult(Result<Grid> result, StitchLayers Function(StitchLayers layers) onLayers, ShapeEdit edit) {
     switch (result) {
       case Success<Grid>(:final Grid value):
         // Форма меняется: выделение и фокус больше не указывают на те же ячейки.
         final StitchLayers? layers = state.layers;
         _apply(
-          EditorSnapshot(grid: value, layers: layers == null ? null : onLayers(layers)),
+          EditorSnapshot(grid: value, layers: layers == null ? null : onLayers(layers), edit: edit),
           resetView: true,
         );
+        _moveProgress(edit);
       case Err<Grid>():
         final bool atLimit = result.failureOrNull!.message.contains('максимум');
         emit(state.copyWith(problem: atLimit ? EditorProblem.limitReached : EditorProblem.lastRowOrColumn));
@@ -542,14 +570,30 @@ class EditorCubit extends Cubit<EditorState> {
 
   void undo() {
     if (!_ready) return;
+    final ShapeEdit? undone = _snapshot.edit;
     final EditorSnapshot? snapshot = _undo!.undo();
-    if (snapshot != null) _afterHistory(snapshot);
+    if (snapshot != null) {
+      _afterHistory(snapshot);
+      if (undone != null) _moveProgress(undone.inverse);
+    }
   }
 
   void redo() {
     if (!_ready) return;
     final EditorSnapshot? snapshot = _undo!.redo();
-    if (snapshot != null) _afterHistory(snapshot);
+    if (snapshot != null) {
+      _afterHistory(snapshot);
+      final ShapeEdit? redone = snapshot.edit;
+      if (redone != null) _moveProgress(redone);
+    }
+  }
+
+  /// Отметки прогресса идут за клетками; после сохранения схемы нового размера сдвигать поздно, поэтому сразу.
+  void _moveProgress(ShapeEdit edit) {
+    final ShiftProgress? shift = _shiftProgress;
+    if (shift != null) {
+      unawaited(shift(_pattern.id, _pattern.geometry, edit));
+    }
   }
 
   void _afterHistory(EditorSnapshot snapshot) {

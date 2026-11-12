@@ -55,6 +55,7 @@ import 'package:beading/domain/grid_pattern/use_cases/cell_progress_commands.dar
 import 'package:beading/domain/grid_pattern/use_cases/create_grid_pattern.dart';
 import 'package:beading/domain/grid_pattern/use_cases/grid_progress_commands.dart';
 import 'package:beading/domain/grid_pattern/use_cases/save_grid_pattern.dart';
+import 'package:beading/domain/grid_pattern/use_cases/shift_progress.dart';
 import 'package:beading/domain/image_pattern/book_work/book_work_repository.dart';
 import 'package:beading/domain/image_pattern/book_work/record_book_progress.dart';
 import 'package:beading/domain/image_pattern/file_store.dart';
@@ -347,6 +348,7 @@ Future<void> configureDependencies({GetIt? locator, AppDatabase? database, Catal
         savePattern: container<SaveGridPattern>(),
         touchProject: container<TouchProject>(),
         catalog: container<CatalogRepository>(),
+        shiftProgress: ShiftProgress(rows: container<GridProgressStore>(), cells: container<CellProgressStore>()),
       ),
     )
     ..registerFactoryParam<NewGridCubit, String, void>(
