@@ -317,7 +317,7 @@ class ImportBiser {
           continue;
         }
         final Result<void> workSaved = await _bookWork.savePage(
-          PageWork(pageId: pageIds[page.id]!, ruler: work.ruler, viewport: work.viewport),
+          PageWork(pageId: pageIds[page.id]!, ruler: work.ruler, viewport: work.viewport, markup: work.markup),
         );
         if (workSaved case Err<void>(:final Failure failure)) {
           return Err<String>(failure);

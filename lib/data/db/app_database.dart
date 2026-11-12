@@ -52,7 +52,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase(super.e);
 
   @override
-  int get schemaVersion => 11;
+  int get schemaVersion => 12;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -99,6 +99,8 @@ class AppDatabase extends _$AppDatabase {
       },
       // v11 (T38): прогресс вышивки по клеткам.
       from10To11: (m, schema) => m.createTable(schema.gridProgressCells),
+      // v12 (T45): пометки маркером на странице схемы из книги.
+      from11To12: (m, schema) => m.addColumn(schema.pageWorkStates, schema.pageWorkStates.markup),
     ),
     beforeOpen: (details) => customStatement('PRAGMA foreign_keys = ON'),
   );

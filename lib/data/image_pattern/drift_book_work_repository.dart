@@ -4,6 +4,7 @@ import 'package:beading/data/db/app_database.dart';
 import 'package:beading/data/db/daos/book_work_dao.dart';
 import 'package:beading/data/settings/storage_guard.dart';
 import 'package:beading/domain/image_pattern/book_work/book_work_repository.dart';
+import 'package:beading/domain/image_pattern/book_work/page_markup.dart';
 import 'package:beading/domain/image_pattern/book_work/page_viewport.dart';
 import 'package:beading/domain/image_pattern/book_work/page_work.dart';
 import 'package:beading/domain/image_pattern/book_work/pattern_zone.dart';
@@ -42,6 +43,7 @@ class DriftBookWorkRepository implements BookWorkRepository {
       final RulerState ruler = work.ruler;
       final PageViewport view = work.viewport;
       final PatternZone? zone = ruler.zone;
+      final Uint8List? markup = work.markup.isEmpty ? null : PageMarkupCodec.encode(work.markup);
       return _dao.upsertPageState(
         PageWorkStatesCompanion.insert(
           id: work.pageId,
@@ -56,6 +58,7 @@ class DriftBookWorkRepository implements BookWorkRepository {
           zoneLeft: Value<double?>(zone?.left),
           zoneRight: Value<double?>(zone?.right),
           rowCount: Value<int?>(ruler.rowCount),
+          markup: Value<Uint8List?>(markup),
           viewScale: view.scale,
           viewDx: view.dx,
           viewDy: view.dy,
@@ -75,6 +78,7 @@ class DriftBookWorkRepository implements BookWorkRepository {
           zoneLeft: Value<double?>(zone?.left),
           zoneRight: Value<double?>(zone?.right),
           rowCount: Value<int?>(ruler.rowCount),
+          markup: Value<Uint8List?>(markup),
           viewScale: Value<double>(view.scale),
           viewDx: Value<double>(view.dx),
           viewDy: Value<double>(view.dy),
@@ -119,6 +123,9 @@ class DriftBookWorkRepository implements BookWorkRepository {
       rowCount: row.rowCount,
     ),
     viewport: PageViewport(scale: row.viewScale, dx: row.viewDx, dy: row.viewDy),
+    markup: row.markup == null
+        ? const PageMarkup.empty()
+        : (PageMarkupCodec.decode(row.markup!) ?? const PageMarkup.empty()),
   );
 
   /// Зона есть, только если записаны все четыре края.

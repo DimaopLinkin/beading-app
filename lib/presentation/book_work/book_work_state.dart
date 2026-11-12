@@ -1,3 +1,4 @@
+import 'package:beading/domain/image_pattern/book_work/page_markup.dart';
 import 'package:beading/domain/image_pattern/book_work/page_work.dart';
 import 'package:beading/domain/image_pattern/book_work/ruler_state.dart';
 import 'package:beading/domain/image_pattern/image_pattern.dart';
@@ -18,6 +19,13 @@ class BookWorkState extends Equatable {
     this.panelCollapsed = false,
     this.undoRuler,
     this.zoneEditing = false,
+    this.markerEditing = false,
+    this.markerColor = 0,
+    this.markerWidth = 1,
+    this.markerEraser = false,
+    this.showMarkup = true,
+    this.markupUndo = const <PageMarkup>[],
+    this.markupRedo = const <PageMarkup>[],
   });
 
   final BookWorkStatus status;
@@ -40,6 +48,26 @@ class BookWorkState extends Equatable {
 
   /// Идёт выбор границ схемы на фото: поверх страницы ручки зоны. Не сохраняется.
   final bool zoneEditing;
+
+  /// Включён режим «Маркер» (T45): линейка притушена, палец рисует, два пальца двигают страницу.
+  final bool markerEditing;
+
+  /// Номера в [MarkerPalette.colors] и [MarkerPalette.widths].
+  final int markerColor;
+  final int markerWidth;
+
+  /// Вместо рисования стирается мазок, которого коснулся палец.
+  final bool markerEraser;
+
+  /// «Показывать пометки» (глаз): выключенный прячет мазки на экране, данные остаются.
+  final bool showMarkup;
+
+  /// Прежние состояния пометок текущей страницы для «Отменить» и «Вернуть»; сбрасываются при смене страницы.
+  final List<PageMarkup> markupUndo;
+  final List<PageMarkup> markupRedo;
+
+  bool get canUndoMarkup => markupUndo.isNotEmpty;
+  bool get canRedoMarkup => markupRedo.isNotEmpty;
 
   bool get isReady => status == BookWorkStatus.ready;
 
@@ -70,6 +98,13 @@ class BookWorkState extends Equatable {
     RulerState? undoRuler,
     bool clearUndo = false,
     bool? zoneEditing,
+    bool? markerEditing,
+    int? markerColor,
+    int? markerWidth,
+    bool? markerEraser,
+    bool? showMarkup,
+    List<PageMarkup>? markupUndo,
+    List<PageMarkup>? markupRedo,
   }) => BookWorkState(
     status: status ?? this.status,
     projectName: projectName ?? this.projectName,
@@ -81,6 +116,13 @@ class BookWorkState extends Equatable {
     panelCollapsed: panelCollapsed ?? this.panelCollapsed,
     undoRuler: clearUndo ? null : undoRuler ?? this.undoRuler,
     zoneEditing: zoneEditing ?? this.zoneEditing,
+    markerEditing: markerEditing ?? this.markerEditing,
+    markerColor: markerColor ?? this.markerColor,
+    markerWidth: markerWidth ?? this.markerWidth,
+    markerEraser: markerEraser ?? this.markerEraser,
+    showMarkup: showMarkup ?? this.showMarkup,
+    markupUndo: markupUndo ?? this.markupUndo,
+    markupRedo: markupRedo ?? this.markupRedo,
   );
 
   @override
@@ -95,5 +137,12 @@ class BookWorkState extends Equatable {
     panelCollapsed,
     undoRuler,
     zoneEditing,
+    markerEditing,
+    markerColor,
+    markerWidth,
+    markerEraser,
+    showMarkup,
+    markupUndo,
+    markupRedo,
   ];
 }

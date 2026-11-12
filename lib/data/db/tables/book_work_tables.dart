@@ -40,6 +40,9 @@ class PageWorkStates extends Table with UuidIdColumn, SyncColumns {
   IntColumn get rowCount => integer().nullable()();
 
   /// Зум и сдвиг вида.
+  /// Пометки маркером (T45): двоичный вид `PageMarkupCodec`, `null` — пометок нет.
+  BlobColumn get markup => blob().nullable()();
+
   RealColumn get viewScale => real()();
 
   RealColumn get viewDx => real()();

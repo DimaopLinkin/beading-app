@@ -12,6 +12,7 @@ import 'package:beading/domain/grid_pattern/cell_progress.dart';
 import 'package:beading/domain/grid_pattern/grid_geometry_codec.dart';
 import 'package:beading/domain/grid_pattern/grid_pattern.dart';
 import 'package:beading/domain/grid_pattern/grid_progress.dart';
+import 'package:beading/domain/image_pattern/book_work/page_markup.dart';
 import 'package:beading/domain/image_pattern/book_work/page_viewport.dart';
 import 'package:beading/domain/image_pattern/book_work/page_work.dart';
 import 'package:beading/domain/image_pattern/book_work/pattern_zone.dart';
@@ -131,6 +132,8 @@ abstract final class BiserJson {
                   'scale': page.work!.viewport.scale,
                   'dx': page.work!.viewport.dx,
                   'dy': page.work!.viewport.dy,
+                  // Необязательное поле T45: пометки маркером, версия формата прежняя.
+                  if (!page.work!.markup.isEmpty) 'markup': base64Encode(PageMarkupCodec.encode(page.work!.markup)),
                 },
         },
     ],
@@ -427,6 +430,7 @@ abstract final class BiserJson {
             dx: _double(w['dx'], 'сдвиг'),
             dy: _double(w['dy'], 'сдвиг'),
           ),
+          markup: _readMarkup(w['markup']),
         );
       }
       pages.add(BiserPage(id: id, file: file, width: width, height: height, work: work));
@@ -442,6 +446,16 @@ abstract final class BiserJson {
     Success<T>(:final T value) => value,
     Err<T>(:final Failure failure) => throw _BadBiser(failure.message),
   };
+
+  /// Пометки маркером: нет поля или оно не разбирается — страница без пометок, а не отказ импорта.
+  static PageMarkup _readMarkup(Object? raw) {
+    if (raw is! String) return const PageMarkup.empty();
+    try {
+      return PageMarkupCodec.decode(base64Decode(raw)) ?? const PageMarkup.empty();
+    } on FormatException {
+      return const PageMarkup.empty();
+    }
+  }
 
   static Map<String, Object?>? _zone(PatternZone? zone) => zone == null
       ? null

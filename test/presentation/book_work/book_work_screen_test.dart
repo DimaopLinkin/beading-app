@@ -515,6 +515,28 @@ void main() {
     await closeScreen(tester, cubit);
   });
 
+  testWidgets('маркер: палец рисует мазок, «Готово» возвращает линейку', (tester) async {
+    final BookWorkCubit cubit = await open(tester);
+    await tester.tap(find.byKey(const ValueKey<String>('start-marker')));
+    await tester.pump();
+    expect(cubit.state.markerEditing, isTrue);
+    expect(find.byKey(const ValueKey<String>('ruler-handle')), findsNothing);
+
+    final TestGesture finger = await tester.startGesture(const Offset(400, 500));
+    await finger.moveBy(const Offset(40, 10));
+    await finger.moveBy(const Offset(40, 10));
+    await finger.up();
+    await tester.pump();
+    expect(cubit.state.work.markup.strokes, hasLength(1));
+    expect(cubit.state.canUndoMarkup, isTrue);
+
+    await tester.tap(find.byKey(const ValueKey<String>('marker-done')));
+    await tester.pump();
+    expect(cubit.state.markerEditing, isFalse);
+    expect(cubit.state.work.markup.strokes, hasLength(1));
+    await closeScreen(tester, cubit);
+  });
+
   testWidgets('«Вся страница» в режиме границ снимает зону', (tester) async {
     final BookWorkCubit cubit = await open(tester);
     await tester.tap(find.byKey(const ValueKey<String>('edit-zone')));
