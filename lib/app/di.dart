@@ -535,6 +535,7 @@ Future<void> configureDependencies({GetIt? locator, AppDatabase? database, Catal
         codec: container<BiserCodec>(),
         clock: container<Clock>(),
         appInfo: container<AppInfoProvider>(),
+        flossStock: container<FlossStockRepository>(),
       ),
     )
     ..registerFactory<ImportBiser>(
@@ -550,6 +551,7 @@ Future<void> configureDependencies({GetIt? locator, AppDatabase? database, Catal
         files: container<FileStore>(),
         ids: container<IdGenerator>(),
         unitOfWork: container<UnitOfWork>(),
+        flossStock: container<FlossStockRepository>(),
       ),
     )
     ..registerLazySingleton<OxsDecoder>(() => const XmlOxsDecoder())

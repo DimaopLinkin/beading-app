@@ -3,6 +3,8 @@ import 'dart:typed_data';
 import 'package:beading/core/clock.dart';
 import 'package:beading/core/failure.dart';
 import 'package:beading/core/result.dart';
+import 'package:beading/domain/floss_stock/floss_stock_entry.dart';
+import 'package:beading/domain/floss_stock/floss_stock_repository.dart';
 import 'package:beading/domain/grid_pattern/cell_progress.dart';
 import 'package:beading/domain/grid_pattern/cell_progress_store.dart';
 import 'package:beading/domain/grid_pattern/grid_pattern.dart';
@@ -45,7 +47,9 @@ class ExportProjects {
     required BiserCodec codec,
     required Clock clock,
     required AppInfoProvider appInfo,
-  }) : _projects = projects,
+    FlossStockRepository? flossStock,
+  }) : _flossStock = flossStock,
+       _projects = projects,
        _grids = grids,
        _progress = progress,
        _cellProgress = cellProgress,
@@ -70,6 +74,7 @@ class ExportProjects {
   final BiserCodec _codec;
   final Clock _clock;
   final AppInfoProvider _appInfo;
+  final FlossStockRepository? _flossStock;
 
   /// Один проект.
   Future<Result<BiserExport>> project(String id) async {
@@ -108,6 +113,15 @@ class ExportProjects {
       }
       items.add(item.valueOrNull!.withWorkSessions(sessions.valueOrNull!));
     }
+    // Запас ниток общий для проектов: в файл он попадает только с резервной копией библиотеки.
+    List<FlossStockEntry> stock = const <FlossStockEntry>[];
+    if (kind == BiserKind.backup && _flossStock != null) {
+      final Result<List<FlossStockEntry>> loaded = await _flossStock.all();
+      if (loaded case Err<List<FlossStockEntry>>(:final Failure failure)) {
+        return Err<BiserExport>(failure);
+      }
+      stock = loaded.valueOrNull!;
+    }
     final AppInfo info = await _appInfo.load();
     final Result<Uint8List> bytes = _codec.encode(
       BiserBundle(
@@ -116,6 +130,7 @@ class ExportProjects {
         appVersion: info.version,
         projects: items,
         files: files,
+        flossStock: stock,
       ),
     );
     return bytes.map((b) => BiserExport(bytes: b, fileName: '$baseName.$extension', projectCount: items.length));

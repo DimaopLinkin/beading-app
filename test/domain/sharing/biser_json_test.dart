@@ -3,8 +3,10 @@ import 'dart:typed_data';
 
 import 'package:beading/core/failure.dart';
 import 'package:beading/core/result.dart';
+import 'package:beading/domain/floss_stock/floss_stock_entry.dart';
 import 'package:beading/domain/image_pattern/book_work/page_work.dart';
 import 'package:beading/domain/image_pattern/book_work/ruler_state.dart';
+import 'package:beading/domain/palette/catalog_ref.dart';
 import 'package:beading/domain/sharing/biser/biser_json.dart';
 import 'package:beading/domain/sharing/biser/biser_models.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -55,6 +57,50 @@ void main() {
       withCells = randomBundle(seed, projects: 1);
     }
     expect(manifestOf(withCells)['version'], 2);
+  });
+
+  group('запас ниток (версия 3)', () {
+    final BiserBundle withStock = BiserBundle(
+      kind: BiserKind.backup,
+      exportedAt: DateTime.utc(2026),
+      appVersion: '1',
+      projects: const <BiserProject>[],
+      flossStock: <FlossStockEntry>[
+        FlossStockEntry(
+          ref: const CatalogRef(brand: 'DMC', code: '310'),
+          skeins: 2.5,
+          updatedAt: DateTime.utc(2026, 11, 12),
+        ),
+      ],
+    );
+
+    test('пишется версия 3 и запас читается обратно', () {
+      expect(manifestOf(withStock)['version'], 3);
+      expect(parse(BiserJson.encode(withStock), const <String, Uint8List>{}).valueOrNull, withStock);
+    });
+
+    test('файл версии 2 без запаса читается: запаса нет', () {
+      final Map<String, Object?> manifest = manifestOf(randomBundle(3, projects: 1))..['version'] = 2;
+      expect(parse(manifest, randomBundle(3, projects: 1).files).valueOrNull!.flossStock, isEmpty);
+    });
+
+    test('кривой запас отвергается: число мотков, дубль, нет времени', () {
+      Map<String, Object?> manifest(List<Object?> stock) => manifestOf(withStock)..['flossStock'] = stock;
+      Map<String, Object?> entry({Object? skeins = 1, String code = '310', Object? at = 1}) => <String, Object?>{
+        'brand': 'DMC',
+        'code': code,
+        'skeins': skeins,
+        'updatedAt': at,
+      };
+      const Map<String, Uint8List> none = <String, Uint8List>{};
+
+      expect(parse(manifest(<Object?>[entry(skeins: 0)]), none).failureOrNull, isA<ValidationFailure>());
+      expect(parse(manifest(<Object?>[entry(skeins: 1000)]), none).failureOrNull, isA<ValidationFailure>());
+      expect(parse(manifest(<Object?>[entry(skeins: 'много')]), none).failureOrNull, isA<ValidationFailure>());
+      expect(parse(manifest(<Object?>[entry(), entry()]), none).failureOrNull, isA<ValidationFailure>());
+      expect(parse(manifest(<Object?>[entry(at: null)]), none).failureOrNull, isA<ValidationFailure>());
+      expect(parse(manifest(<Object?>[entry()]), none).failureOrNull, isNull);
+    });
   });
 
   test('файл формата версии 1 (без отметок клеток) читается', () {
