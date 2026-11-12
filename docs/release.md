@@ -7,7 +7,7 @@
 | iPhone | **Ad Hoc** `.ipa`, подписана сертификатом Apple Distribution, UDID телефона зарегистрирован в портале | Дмитрий ставит сам (Finder/Apple Configurator/`xcrun devicectl`) |
 | MacBook | `.app` с подписью **Developer ID Application**, нотаризована и «прошита» (stapled), упакована в `.dmg` | Дмитрий отправляет `.dmg`, она перетаскивает в «Программы» |
 
-Идентификаторы: bundle id `com.dimaoplinkin.beading` (iOS и macOS одинаковый), iCloud-контейнер `iCloud.com.dimaoplinkin.beading`, имя под значком «Бисер», минимум iOS 18.0 и macOS 26.0.
+Идентификаторы: bundle id `com.icloudcheck.app` (iOS и macOS одинаковый), iCloud-контейнер `iCloud.com.icloudcheck.app`, имя под значком «Бисер», минимум iOS 18.0 и macOS 26.0.
 
 ## Настройка один раз (делает Дмитрий)
 
@@ -17,8 +17,8 @@
 
 [developer.apple.com/account](https://developer.apple.com/account) → *Certificates, Identifiers & Profiles*. Team ID (10 символов) виден в *Membership details*; он нужен скриптам как `TEAM_ID`.
 
-1. **Identifiers → + → App IDs → App**. Description «Бисер», Bundle ID *Explicit* `com.dimaoplinkin.beading`. Capabilities: **iCloud** (отметить *Include CloudKit support*). Ничего больше не включать. Платформы: iOS и macOS (один App ID на обе).
-2. **Identifiers → + → iCloud Containers**. Identifier `iCloud.com.dimaoplinkin.beading`. Затем открыть App ID → *iCloud → Configure* и привязать этот контейнер.
+1. **Identifiers → + → App IDs → App**. Description «Бисер», Bundle ID *Explicit* `com.icloudcheck.app`. Capabilities: **iCloud** (отметить *Include CloudKit support*). Ничего больше не включать. Платформы: iOS и macOS (один App ID на обе).
+2. **Identifiers → + → iCloud Containers**. Identifier `iCloud.com.icloudcheck.app`. Затем открыть App ID → *iCloud → Configure* и привязать этот контейнер.
 3. **Devices → + → iOS**. Имя «iPhone Насти», UDID её телефона. Как узнать UDID: подключить iPhone к Mac кабелем → Finder → выбрать iPhone → под именем щёлкнуть по строке с моделью, пока не появится UDID → правый клик → *Копировать*. (Либо Xcode → Window → Devices and Simulators → Identifier.)
 4. **Certificates**: нужны **Apple Distribution** (для Ad Hoc) и **Developer ID Application** (для Mac). Дмитрий создаёт их сам в связке ключей (CSR → портал → скачать → двойной щелчок), либо Xcode → Settings → Accounts → *Manage Certificates* → «+». Developer ID Application может создать только Account Holder или Admin команды.
 5. Профили вручную создавать не нужно: скрипты вызывают `xcodebuild … -allowProvisioningUpdates`, и Xcode сам создаст Ad Hoc профиль (с её UDID) и Developer ID профиль. Для этого в Xcode (*Settings → Accounts*) должна быть добавлена учётная запись команды.
