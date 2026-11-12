@@ -18,14 +18,14 @@ import 'package:beading/domain/stitch/line_stitch.dart';
 ///  - тёмная сторона границы не светлее [darkLimit]: тёмная нитка по границе двух светлых цветов выглядит грязью.
 ///
 /// Клетки черт лица (глаза, брови, губы, нос) обводятся и при мягком контрасте: [featureBoost] усиливает контраст границы,
-/// а ограничение [darkLimit] для них не действует.
+/// а ограничение [darkLimit] для них мягче (на 18).
 ///
 /// Маска объекта только расставляет приоритеты: граница маски сама по себе, без контраста, не обводится, а границы вне
 /// объекта весят меньше ([outsideWeight]).
 ///
 /// Из кандидатов собираются цепочки через узлы с двумя связями; короче [minLength] клеток отбрасываются. Дальше цепочки
 /// ранжируются (средний контраст × √длины, внутри объекта выше) и берутся, пока длина ниток не дойдёт до бюджета:
-/// [budget] × число закрашенных клеток, но не меньше [minBudget] клеток. Остальное упрощается Рамером — Дугласом — Пекером
+/// [budget] × число закрашенных клеток, но не меньше [minBudget] клеток; цепочка, которая не влезает в остаток бюджета, пропускается. Остальное упрощается Рамером — Дугласом — Пекером
 /// до [tolerance] клеток, а стежок не длиннее [maxStitch] клеток. Все концы лежат на углах клеток полушаговой решётки.
 ///
 /// Чистая функция без случайности: один вход — один результат.
@@ -74,7 +74,7 @@ final class OutlineBackstitch {
   /// Тёмная сторона границы светлее этого (L, 0–100) — границу не обводим.
   final double darkLimit;
 
-  /// Во сколько раз границы вне маски объекта слабее внутри (если маска есть).
+  /// Во сколько раз границы, где хотя бы одна клетка вне маски объекта, слабее внутренних (если маска есть).
   final double outsideWeight;
 
   /// Бюджет ниток: клеток линии на одну закрашенную клетку.
@@ -121,10 +121,10 @@ final class OutlineBackstitch {
       final Lab? lb = means[b];
       if (la == null || lb == null) return 0;
       final bool feature = features != null && (features[a] != 0 || features[b] != 0);
-      if (!feature && math.min(la.l, lb.l) > darkLimit) return 0;
+      if (math.min(la.l, lb.l) > darkLimit + (feature ? 18 : 0)) return 0;
       double d = deltaE2000(la, lb);
       if (feature) d *= featureBoost;
-      if (subject != null && subject[a] == 0 && subject[b] == 0) d *= outsideWeight;
+      if (subject != null && (subject[a] == 0 || subject[b] == 0)) d *= outsideWeight;
       return d;
     }
 
@@ -195,7 +195,7 @@ final class OutlineBackstitch {
     }
     final List<List<int>> chains = <List<int>>[
       for (final List<int> chain in _chains(links))
-        if (chain.length - 1 >= minLength || (chain.length - 1 >= 2 && chain.every(featureNodes.contains))) chain,
+        if (chain.length - 1 >= minLength || (chain.length - 1 >= 3 && chain.every(featureNodes.contains))) chain,
     ];
     // Ранг цепочки: средний контраст × √длины; сильнейшие и длиннейшие первыми, при равенстве — по порядку (детерминизм).
     double score(List<int> chain) {
@@ -215,8 +215,11 @@ final class OutlineBackstitch {
     double used = 0;
     final List<LineStitch> lines = <LineStitch>[];
     for (final (double, int) entry in ranked) {
-      if (used >= limit) break;
       final List<int> chain = chains[entry.$2];
+      // Цепочка, которая не влезает в остаток бюджета, пропускается (возможно, влезет более короткая).
+      // Исключение — первая цепочка до двух бюджетов: замкнутый контур единственной детали (глаз, пятно) не пропадает.
+      final double room = used == 0 ? limit * 2 : limit;
+      if (used + chain.length - 1 > room) continue;
       used += chain.length - 1;
       final List<(int, int)> points = <(int, int)>[
         for (final int n in chain) (n % stride, n ~/ stride),

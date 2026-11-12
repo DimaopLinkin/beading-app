@@ -390,7 +390,9 @@ final class ImageToGridPipeline {
       regions: regions,
       color: darkest + 1,
       subject: subject,
-      features: faces?.feature,
+      features: faces != null && faces.columns == pattern.grid.width && faces.rows == pattern.grid.height
+          ? faces.feature
+          : null,
     );
   }
 

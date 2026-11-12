@@ -198,6 +198,24 @@ void main() {
       expect(() => _build(s, subject: Uint8List(5)), throwsArgumentError);
     });
 
+    test('цепочка длиннее бюджета не рисуется целиком', () {
+      final _Scene s = _scene(30, 30, color: (c, r) => c < 15 ? _black : _white, value: (c, r) => c < 15 ? 1 : 2);
+      expect(_build(s, stage: const OutlineBackstitch(budget: 0.01, minBudget: 10)), isEmpty);
+    });
+
+    test('граница маски с контрастом весит меньше внутренней', () {
+      final _Scene s = _scene(10, 10, color: (c, r) => c < 5 ? _black : _white, value: (c, r) => c < 5 ? 1 : 2);
+      final Uint8List subject = Uint8List(100);
+      for (int r = 0; r < 10; r++) {
+        for (int c = 0; c < 5; c++) {
+          subject[r * 10 + c] = 1;
+        }
+      }
+      const OutlineBackstitch stage = OutlineBackstitch(contrast: 90, weakRatio: 1);
+      expect(_build(s, stage: stage), isNotEmpty);
+      expect(_build(s, subject: subject, stage: stage), isEmpty);
+    });
+
     test('при нехватке бюджета линии внутри объекта важнее линий фона', () {
       // Слева (вне объекта) и справа (в объекте) одинаковые контрастные вертикали; бюджета хватает на одну.
       final _Scene s = _scene(
