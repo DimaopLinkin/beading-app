@@ -2034,6 +2034,15 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
+  String get flossPrint => 'Распечатать схему (PDF)';
+
+  @override
+  String get flossPrintHint => 'Листы A4, 10 крестиков = 3 см, номера по краям через 10 клеток, справа цвета и знаки.';
+
+  @override
+  String get flossPrintFailed => 'Не удалось собрать PDF. Попробуйте ещё раз.';
+
+  @override
   String get flossShoppingTitle => 'Что купить';
 
   @override

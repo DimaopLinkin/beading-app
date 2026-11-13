@@ -8,6 +8,7 @@ import 'package:beading/domain/floss_stock/floss_stock_repository.dart';
 import 'package:beading/domain/materials/floss_estimate.dart';
 import 'package:beading/domain/materials/use_cases/load_project_floss.dart';
 import 'package:beading/domain/palette/catalog_ref.dart';
+import 'package:beading/domain/printing/use_cases/export_pattern_pdf.dart';
 import 'package:beading/domain/projects/project.dart';
 import 'package:beading/domain/projects/project_repository.dart';
 import 'package:equatable/equatable.dart';
@@ -86,9 +87,11 @@ class FlossCubit extends Cubit<FlossState> {
   FlossCubit({
     required this.projectId,
     required LoadProjectFloss loadFloss,
+    required ExportPatternPdf exportPdf,
     required ProjectRepository projects,
     required FlossStockRepository stock,
   }) : _loadFloss = loadFloss,
+       _exportPdf = exportPdf,
        _projects = projects,
        _stock = stock,
        super(const FlossState()) {
@@ -99,9 +102,13 @@ class FlossCubit extends Cubit<FlossState> {
 
   final String projectId;
   final LoadProjectFloss _loadFloss;
+  final ExportPatternPdf _exportPdf;
   final ProjectRepository _projects;
   final FlossStockRepository _stock;
   StreamSubscription<List<FlossStockEntry>>? _stockSub;
+
+  /// PDF схемы для печати (T76); состояние экрана не меняет.
+  Future<Result<PatternPdf>> exportPdf() => _exportPdf(projectId);
 
   Future<void> load() async {
     final FlossState before = state;

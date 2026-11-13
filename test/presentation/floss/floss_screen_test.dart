@@ -9,6 +9,7 @@ import 'package:beading/domain/palette/catalog_ref.dart';
 import 'package:beading/domain/palette/palette_snapshot.dart';
 import 'package:beading/domain/palette/pattern_color.dart';
 import 'package:beading/domain/palette/rgb.dart';
+import 'package:beading/domain/printing/use_cases/export_pattern_pdf.dart';
 import 'package:beading/domain/projects/craft.dart';
 import 'package:beading/domain/projects/project.dart';
 import 'package:beading/presentation/floss/floss_cubit.dart';
@@ -19,8 +20,10 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import '../../support/fake_biser.dart';
 import '../../support/fake_floss_stock.dart';
 import '../../support/fake_grid_pattern.dart';
+import '../../support/fake_pattern_printer.dart';
 import '../../support/fake_project_repository.dart';
 import '../../support/fake_text_sharer.dart';
 
@@ -70,6 +73,8 @@ void main() {
   late FakeProjectRepository projects;
   late FakeGridPatternRepository patterns;
   late FakeTextSharer sharer;
+  late FakeFileSharer fileSharer;
+  late FakePatternPrinter printer;
   late FakeFlossStockRepository stock;
   late FakeCellProgressStore progress;
 
@@ -77,6 +82,8 @@ void main() {
     projects = FakeProjectRepository()..projects['proj-1'] = _stitchProject();
     patterns = FakeGridPatternRepository()..byProject['proj-1'] = _pattern();
     sharer = FakeTextSharer();
+    fileSharer = FakeFileSharer();
+    printer = FakePatternPrinter();
     stock = FakeFlossStockRepository();
     progress = FakeCellProgressStore(width: 20);
   });
@@ -85,6 +92,7 @@ void main() {
     final FlossCubit cubit = FlossCubit(
       projectId: 'proj-1',
       loadFloss: LoadProjectFloss(patterns, progress: progress),
+      exportPdf: ExportPatternPdf(projects: projects, patterns: patterns, printer: printer),
       projects: projects,
       stock: stock,
     );
@@ -107,7 +115,7 @@ void main() {
         locale: const Locale('ru'),
         home: BlocProvider<FlossCubit>.value(
           value: cubit,
-          child: FlossScreen(sharer: sharer),
+          child: FlossScreen(sharer: sharer, fileSharer: fileSharer),
         ),
       ),
     );
@@ -238,6 +246,29 @@ void main() {
     expect(share.text, contains('2. Гамма 3095 — 1 моток'));
     expect(share.text, contains('Итого: 2 мотка'));
     expect(share.origin, isNotNull);
+  });
+
+  testWidgets('«Распечатать схему» собирает PDF и отдаёт файл листу «Поделиться» (T76)', (tester) async {
+    await pumpScreen(tester);
+
+    await tester.tap(find.text('Распечатать схему (PDF)'));
+    await tester.pumpAndSettle();
+
+    expect(printer.calls.single.title, 'Котик');
+    final share = fileSharer.shared.single;
+    expect(share.fileName, 'Котик.pdf');
+    expect(share.origin, isNotNull);
+  });
+
+  testWidgets('ошибка сборки PDF: понятное сообщение, файл не отдаётся (T76)', (tester) async {
+    printer.failure = const UnexpectedFailure('boom');
+    await pumpScreen(tester);
+
+    await tester.tap(find.text('Распечатать схему (PDF)'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Не удалось собрать PDF. Попробуйте ещё раз.'), findsOneWidget);
+    expect(fileSharer.shared, isEmpty);
   });
 
   testWidgets('бисерная схема: сообщение, что мулине считается только для канвы', (tester) async {

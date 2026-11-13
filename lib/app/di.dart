@@ -18,6 +18,7 @@ import 'package:beading/data/image_to_grid/isolate_image_to_grid_runner.dart';
 import 'package:beading/data/image_to_grid/ui_image_decoder.dart';
 import 'package:beading/data/platform/method_channel_image_masks.dart';
 import 'package:beading/data/platform/share_plus_text_sharer.dart';
+import 'package:beading/data/printing/pdf_pattern_printer.dart';
 import 'package:beading/data/projects/drift_project_repository.dart';
 import 'package:beading/data/sharing/drift_unit_of_work.dart';
 import 'package:beading/data/sharing/file_picker_biser_picker.dart';
@@ -54,6 +55,8 @@ import 'package:beading/domain/image_to_grid/image_to_grid_runner.dart';
 import 'package:beading/domain/image_to_grid/use_cases/create_pattern_from_image.dart';
 import 'package:beading/domain/materials/use_cases/load_project_floss.dart';
 import 'package:beading/domain/materials/use_cases/load_project_materials.dart';
+import 'package:beading/domain/printing/pattern_printer.dart';
+import 'package:beading/domain/printing/use_cases/export_pattern_pdf.dart';
 import 'package:beading/domain/projects/load_project_preview.dart';
 import 'package:beading/domain/projects/project_content_cleaner.dart';
 import 'package:beading/domain/projects/project_content_cloner.dart';
@@ -401,10 +404,19 @@ Future<void> configureDependencies(
     ..registerFactory<LoadProjectFloss>(
       () => LoadProjectFloss(container<GridPatternRepository>(), progress: container<CellProgressStore>()),
     )
+    ..registerLazySingleton<PatternPrinter>(PdfPatternPrinter.new)
+    ..registerFactory<ExportPatternPdf>(
+      () => ExportPatternPdf(
+        projects: container<ProjectRepository>(),
+        patterns: container<GridPatternRepository>(),
+        printer: container<PatternPrinter>(),
+      ),
+    )
     ..registerFactoryParam<FlossCubit, String, void>(
       (projectId, _) => FlossCubit(
         projectId: projectId,
         loadFloss: container<LoadProjectFloss>(),
+        exportPdf: container<ExportPatternPdf>(),
         projects: container<ProjectRepository>(),
         stock: container<FlossStockRepository>(),
       ),
