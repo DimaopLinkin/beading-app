@@ -83,5 +83,54 @@ void main() {
 
       expect(result, <int>[1, 2, 2, 1]);
     });
+
+    group('тёплая клетка не уходит в серую нитку (T74)', () {
+      // Затенённый лоб с фото и нитки «Гаммы»: серо-бежевая 3035 по ΔE2000 ближе всех (3,3), но рядом с тёплой кожей
+      // читается тёмным грязным пятном. Тёплая 0807 той же светлоты и насыщенности (ΔE2000 6,0), 5202 светлее (7,1).
+      const Rgb shadedSkin = Rgb(173, 135, 101);
+      const Rgb grey3035 = Rgb(0xa4, 0x86, 0x6c);
+      const Rgb warm0807 = Rgb(0xa4, 0x7d, 0x4b);
+      const Rgb light5202 = Rgb(0xc9, 0x9a, 0x76);
+
+      test('кожа в тени берёт тёплую нитку, а не серую', () {
+        final List<int> result = assigner.assign(
+          cells: <Rgb?>[shadedSkin],
+          columns: 1,
+          rows: 1,
+          palette: <Rgb>[grey3035, warm0807, light5202],
+        );
+        expect(result, <int>[2]);
+      });
+
+      test('серая клетка серую нитку берёт как раньше', () {
+        final List<int> result = assigner.assign(
+          cells: <Rgb?>[grey3035],
+          columns: 1,
+          rows: 1,
+          palette: <Rgb>[grey3035, warm0807, light5202],
+        );
+        expect(result, <int>[1]);
+      });
+
+      test('если тёплой нитки близко нет, серая остаётся лучшей', () {
+        final List<int> result = assigner.assign(
+          cells: <Rgb?>[shadedSkin],
+          columns: 1,
+          rows: 1,
+          palette: <Rgb>[grey3035, const Rgb(230, 120, 20)],
+        );
+        expect(result, <int>[1]);
+      });
+
+      test('без надбавки (chromaPenalty: 0) — чистый ΔE2000, как до T71', () {
+        final List<int> result = const ColorAssigner(chromaPenalty: 0).assign(
+          cells: <Rgb?>[shadedSkin],
+          columns: 1,
+          rows: 1,
+          palette: <Rgb>[grey3035, warm0807, light5202],
+        );
+        expect(result, <int>[1]);
+      });
+    });
   });
 }
