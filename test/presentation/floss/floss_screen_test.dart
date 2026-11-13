@@ -4,6 +4,7 @@ import 'package:beading/domain/grid/fabric.dart';
 import 'package:beading/domain/grid/grid.dart';
 import 'package:beading/domain/grid/grid_geometry.dart';
 import 'package:beading/domain/grid_pattern/grid_pattern.dart';
+import 'package:beading/domain/image_pattern/pdf_rasterizer.dart';
 import 'package:beading/domain/materials/use_cases/load_project_floss.dart';
 import 'package:beading/domain/palette/catalog_ref.dart';
 import 'package:beading/domain/palette/palette_snapshot.dart';
@@ -17,6 +18,7 @@ import 'package:beading/domain/projects/project.dart';
 import 'package:beading/presentation/floss/floss_cubit.dart';
 import 'package:beading/presentation/floss/floss_screen.dart';
 import 'package:beading/presentation/l10n/app_localizations.dart';
+import 'package:beading/presentation/theme/app_icons.dart';
 import 'package:beading/presentation/theme/app_theme.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -25,6 +27,7 @@ import 'package:flutter_test/flutter_test.dart';
 import '../../support/fake_biser.dart';
 import '../../support/fake_floss_stock.dart';
 import '../../support/fake_grid_pattern.dart';
+import '../../support/fake_image_pattern.dart';
 import '../../support/fake_pattern_printer.dart';
 import '../../support/fake_project_repository.dart';
 import '../../support/fake_settings_repository.dart';
@@ -106,7 +109,11 @@ void main() {
     return cubit;
   }
 
-  Future<void> pumpScreen(WidgetTester tester, {CupertinoThemeData theme = AppTheme.light}) async {
+  Future<void> pumpScreen(
+    WidgetTester tester, {
+    CupertinoThemeData theme = AppTheme.light,
+    PdfRasterizer? rasterizer,
+  }) async {
     tester.view
       ..physicalSize = const Size(430, 1200)
       ..devicePixelRatio = 1;
@@ -121,7 +128,7 @@ void main() {
         locale: const Locale('ru'),
         home: BlocProvider<FlossCubit>.value(
           value: cubit,
-          child: FlossScreen(sharer: sharer, fileSharer: fileSharer),
+          child: FlossScreen(sharer: sharer, fileSharer: fileSharer, rasterizer: rasterizer),
         ),
       ),
     );
@@ -286,6 +293,27 @@ void main() {
       expect(find.text('45'), findsOneWidget);
     },
   );
+
+  testWidgets('просмотр PDF: сначала страницы, «Поделиться» из просмотра отдаёт файл (T81)', (tester) async {
+    final FakePdfRasterizer rasterizer = FakePdfRasterizer()..pages = 3;
+    await pumpScreen(tester, rasterizer: rasterizer);
+
+    await tester.tap(find.text('Распечатать схему (PDF)'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey<String>('print-build')));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Страница 1 из 3'), findsOneWidget);
+    expect(fileSharer.shared, isEmpty, reason: 'сначала просмотр');
+    await tester.drag(find.byType(PageView), const Offset(-600, 0));
+    await tester.pumpAndSettle();
+    expect(find.text('Страница 2 из 3'), findsOneWidget);
+
+    await tester.tap(find.byIcon(AppIcons.share));
+    await tester.pumpAndSettle();
+    expect(fileSharer.shared.single.fileName, 'Котик.pdf');
+    expect(fileSharer.shared.single.origin, isNotNull);
+  });
 
   testWidgets('ошибка сборки PDF: понятное сообщение, файл не отдаётся (T76)', (tester) async {
     printer.failure = const UnexpectedFailure('boom');

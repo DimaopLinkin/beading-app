@@ -2098,6 +2098,14 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
+  String get printPreviewTitle => 'Просмотр PDF';
+
+  @override
+  String printPreviewPage(int page, int count) {
+    return 'Страница $page из $count';
+  }
+
+  @override
   String get printBuild => 'Собрать PDF';
 
   @override

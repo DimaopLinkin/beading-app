@@ -7,6 +7,7 @@ import 'package:beading/domain/grid/bead_size.dart';
 import 'package:beading/domain/grid/fabric.dart';
 import 'package:beading/domain/grid/grid.dart';
 import 'package:beading/domain/image_pattern/crop_rect.dart';
+import 'package:beading/domain/image_pattern/pdf_rasterizer.dart';
 import 'package:beading/domain/image_to_grid/background_stage.dart';
 import 'package:beading/domain/image_to_grid/face_size_advisor.dart';
 import 'package:beading/domain/image_to_grid/generation_preset.dart';
@@ -36,7 +37,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 /// Мастер «Схема из картинки». Закрывается с id созданного проекта.
 class ImageWizardScreen extends StatelessWidget {
-  const ImageWizardScreen({this.cameraAvailable, this.fileSharer, super.key});
+  const ImageWizardScreen({this.cameraAvailable, this.fileSharer, this.rasterizer, super.key});
 
   /// Адрес экрана в роутере.
   static const String routePath = '/generate/image';
@@ -46,6 +47,7 @@ class ImageWizardScreen extends StatelessWidget {
 
   /// Лист «Поделиться» для PDF схемы (T80); без него печати в мастере нет.
   final FileSharer? fileSharer;
+  final PdfRasterizer? rasterizer;
 
   @override
   Widget build(BuildContext context) {
@@ -92,7 +94,10 @@ class ImageWizardScreen extends StatelessWidget {
             ),
             ImageWizardStep.edit || ImageWizardStep.saving => Stack(
               children: <Widget>[
-                if (state.brushing) ImportanceBrushMode(state: state) else _Edit(state: state, fileSharer: fileSharer),
+                if (state.brushing)
+                  ImportanceBrushMode(state: state)
+                else
+                  _Edit(state: state, fileSharer: fileSharer, rasterizer: rasterizer),
                 if (state.step == ImageWizardStep.saving) _Busy(text: l10n.imageWizardSaving),
               ],
             ),
@@ -357,10 +362,11 @@ class _PickSource extends StatelessWidget {
 }
 
 class _Edit extends StatefulWidget {
-  const _Edit({required this.state, this.fileSharer});
+  const _Edit({required this.state, this.fileSharer, this.rasterizer});
 
   final ImageWizardState state;
   final FileSharer? fileSharer;
+  final PdfRasterizer? rasterizer;
 
   @override
   State<_Edit> createState() => _EditState();
@@ -752,6 +758,7 @@ class _EditState extends State<_Edit> {
                             summary: () async => cubit.printSummary,
                             build: cubit.exportPdf,
                             fileSharer: widget.fileSharer!,
+                            rasterizer: widget.rasterizer,
                           ),
                         ),
                       ),

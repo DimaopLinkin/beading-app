@@ -4,6 +4,7 @@ import 'package:beading/app/composition/app_dependencies.dart';
 import 'package:beading/app/composition/app_routes.dart';
 import 'package:beading/app/di.dart';
 import 'package:beading/domain/image_pattern/file_store.dart';
+import 'package:beading/domain/image_pattern/pdf_rasterizer.dart';
 import 'package:beading/domain/projects/craft.dart';
 import 'package:beading/domain/projects/load_project_preview.dart';
 import 'package:beading/domain/projects/project.dart';
@@ -174,7 +175,7 @@ GoRouter createRouter(AppDependencies dependencies, {bool showDeveloperTools = !
           }
           return cubit;
         },
-        child: ImageWizardScreen(fileSharer: getIt<FileSharer>()),
+        child: ImageWizardScreen(fileSharer: getIt<FileSharer>(), rasterizer: getIt<PdfRasterizer>()),
       ),
     ),
     GoRoute(
@@ -196,7 +197,11 @@ GoRouter createRouter(AppDependencies dependencies, {bool showDeveloperTools = !
       path: FlossScreen.routePath,
       builder: (_, state) => BlocProvider<FlossCubit>(
         create: (_) => getIt<FlossCubit>(param1: state.pathParameters['projectId'])..load(),
-        child: FlossScreen(sharer: getIt<TextSharer>(), fileSharer: getIt<FileSharer>()),
+        child: FlossScreen(
+          sharer: getIt<TextSharer>(),
+          fileSharer: getIt<FileSharer>(),
+          rasterizer: getIt<PdfRasterizer>(),
+        ),
       ),
     ),
     GoRoute(

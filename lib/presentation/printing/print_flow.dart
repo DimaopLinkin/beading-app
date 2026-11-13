@@ -1,12 +1,14 @@
 import 'dart:async';
 
 import 'package:beading/core/result.dart';
+import 'package:beading/domain/image_pattern/pdf_rasterizer.dart';
 import 'package:beading/domain/printing/print_layout.dart';
 import 'package:beading/domain/printing/print_options.dart';
 import 'package:beading/domain/printing/use_cases/export_pattern_pdf.dart';
 import 'package:beading/domain/sharing/file_sharer.dart';
 import 'package:beading/domain/sharing/text_sharer.dart';
 import 'package:beading/presentation/l10n/app_localizations.dart';
+import 'package:beading/presentation/printing/pdf_preview_screen.dart';
 import 'package:beading/presentation/theme/tokens.dart';
 import 'package:flutter/cupertino.dart';
 
@@ -20,6 +22,7 @@ Future<void> runPrintFlow(
   required Future<PrintSummary?> Function() summary,
   required Future<Result<PatternPdf>> Function(PrintOptions options) build,
   required FileSharer fileSharer,
+  PdfRasterizer? rasterizer,
   GlobalKey? originKey,
 }) async {
   final PrintOptions initial = await loadOptions();
@@ -44,6 +47,22 @@ Future<void> runPrintFlow(
   if (!context.mounted) return;
   Navigator.of(context, rootNavigator: true).pop();
   Result<void> shared = const Success<void>(null);
+  final PdfRasterizer? viewer = rasterizer;
+  if (viewer != null && pdf is Success<PatternPdf>) {
+    final PatternPdf value = pdf.value;
+    // Сначала смотрим, потом «Поделиться» из просмотра.
+    await Navigator.of(context).push(
+      CupertinoPageRoute<void>(
+        builder: (_) => PdfPreviewScreen(
+          pdf: value.bytes,
+          fileName: value.fileName,
+          rasterizer: viewer,
+          fileSharer: fileSharer,
+        ),
+      ),
+    );
+    return;
+  }
   if (pdf case Success<PatternPdf>(:final PatternPdf value)) {
     final RenderObject? box = originKey?.currentContext?.findRenderObject();
     ShareOrigin? origin;

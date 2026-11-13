@@ -3649,6 +3649,18 @@ abstract class AppLocalizations {
   /// **'Цветов больше мест: нужно стоек — {racks} по {slots} мест.'**
   String printSlotsMany(int racks, int slots);
 
+  /// Заголовок просмотра PDF, пока страницы не открылись
+  ///
+  /// In ru, this message translates to:
+  /// **'Просмотр PDF'**
+  String get printPreviewTitle;
+
+  /// Заголовок просмотра PDF
+  ///
+  /// In ru, this message translates to:
+  /// **'Страница {page} из {count}'**
+  String printPreviewPage(int page, int count);
+
   /// Кнопка сборки PDF
   ///
   /// In ru, this message translates to:
