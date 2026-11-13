@@ -9,6 +9,7 @@ import 'package:beading/domain/sharing/file_sharer.dart';
 import 'package:beading/domain/sharing/text_sharer.dart';
 import 'package:beading/presentation/floss/floss_cubit.dart';
 import 'package:beading/presentation/floss/floss_format.dart';
+import 'package:beading/presentation/grid_pattern/stitch_legend_view.dart';
 import 'package:beading/presentation/l10n/app_localizations.dart';
 import 'package:beading/presentation/library/project_labels.dart';
 import 'package:beading/presentation/printing/print_flow.dart';
@@ -335,7 +336,11 @@ class _FlossScreenState extends State<FlossScreen> {
             sliver: SliverList.separated(
               itemCount: estimate.lines.length,
               separatorBuilder: (_, _) => SizedBox(height: tokens.spacing.s),
-              itemBuilder: (context, index) => _ColorRow(line: estimate.lines[index], format: format),
+              itemBuilder: (context, index) => _ColorRow(
+                line: estimate.lines[index],
+                format: format,
+                slot: state.printOptions.slotLabel(estimate.lines[index].colorIndex - 1, estimate.paletteSize),
+              ),
             ),
           ),
           if (estimate.lines.any((l) => l.isBlend))
@@ -691,10 +696,13 @@ class _StockSheetState extends State<_StockSheet> {
 }
 
 class _ColorRow extends StatelessWidget {
-  const _ColorRow({required this.line, required this.format});
+  const _ColorRow({required this.line, required this.format, required this.slot});
 
   final FlossMaterialLine line;
   final FlossFormat format;
+
+  /// Номер места для иглы на стойке, как в легенде PDF.
+  final String slot;
 
   @override
   Widget build(BuildContext context) {
@@ -707,15 +715,20 @@ class _ColorRow extends StatelessWidget {
     final String? extras = format.extrasText(line);
     final String skeins = format.skeinsText(format.skeins(line));
     return _Card(
-      label: '$article, ${line.color.name}, $stitches, ${extras ?? ''}, $skeins',
+      label: '$slot, $article, ${line.color.name}, $stitches, ${extras ?? ''}, $skeins',
       child: Row(
         children: <Widget>[
-          ColorSwatchView(rgb: line.color.rgb, size: 36),
-          if (line.color.symbol != null)
-            ConstrainedBox(
-              constraints: const BoxConstraints(minWidth: 28),
-              child: Text(line.color.symbol!, textAlign: TextAlign.center, style: base.copyWith(fontSize: 17)),
+          SizedBox(
+            width: 40,
+            child: Text(
+              slot,
+              key: ValueKey<String>('floss-color-slot-${line.colorIndex}'),
+              textAlign: TextAlign.end,
+              style: base.copyWith(fontSize: 17, fontWeight: FontWeight.w600),
             ),
+          ),
+          SizedBox(width: tokens.spacing.s),
+          LegendSwatch(color: line.color),
           SizedBox(width: tokens.spacing.m),
           Expanded(
             child: Column(

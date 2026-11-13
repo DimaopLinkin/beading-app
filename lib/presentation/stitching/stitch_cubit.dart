@@ -104,7 +104,7 @@ class StitchCubit extends Cubit<StitchState> {
     final Result<CellProgress> cells = await _cellProgress.load(found.id);
     final Result<GridProgress> rows = await _progress.load(found.id);
     final Result<bool> symbols = await _settings.read<bool>(SettingKeys.symbolMode);
-    final PrintOptions printOptions = await PrintOptionsStore(_settings).load();
+    final PrintOptions printOptions = await PrintOptionsStore(_settings).load(projectId: _projectId);
     if (isClosed) {
       return;
     }
