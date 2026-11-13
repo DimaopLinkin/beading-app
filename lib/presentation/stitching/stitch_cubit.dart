@@ -14,6 +14,8 @@ import 'package:beading/domain/grid_pattern/grid_progress_store.dart';
 import 'package:beading/domain/grid_pattern/stitch_counters.dart';
 import 'package:beading/domain/grid_pattern/use_cases/cell_progress_commands.dart';
 import 'package:beading/domain/image_pattern/book_work/record_book_progress.dart';
+import 'package:beading/domain/printing/print_options.dart';
+import 'package:beading/domain/printing/print_options_store.dart';
 import 'package:beading/domain/projects/project.dart';
 import 'package:beading/domain/projects/project_repository.dart';
 import 'package:beading/domain/projects/use_cases/change_project_status.dart';
@@ -102,6 +104,7 @@ class StitchCubit extends Cubit<StitchState> {
     final Result<CellProgress> cells = await _cellProgress.load(found.id);
     final Result<GridProgress> rows = await _progress.load(found.id);
     final Result<bool> symbols = await _settings.read<bool>(SettingKeys.symbolMode);
+    final PrintOptions printOptions = await PrintOptionsStore(_settings).load();
     if (isClosed) {
       return;
     }
@@ -126,6 +129,7 @@ class StitchCubit extends Cubit<StitchState> {
           pattern: found,
           progress: cells.valueOrNull,
           showSymbols: symbols.valueOrNull ?? false,
+          printOptions: printOptions,
           parked: parked,
         ),
       ),
