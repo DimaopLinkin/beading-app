@@ -86,6 +86,7 @@ GoRouter createRouter(AppDependencies dependencies, {bool showDeveloperTools = !
           loadPreview: getIt<LoadProjectPreview>(),
           onOpenSettings: () => context.push(AppRoutes.settings),
           onOpenCatalog: () => unawaited(_chooseCatalog(context)),
+          onEditInGenerator: (context, project) => unawaited(_editInGenerator(context, project)),
           onOpenMaterials: (context, project) => context.push(
             project.craft == Craft.crossStitch ? AppRoutes.floss(project.id) : AppRoutes.materials(project.id),
           ),
@@ -159,10 +160,20 @@ GoRouter createRouter(AppDependencies dependencies, {bool showDeveloperTools = !
     GoRoute(
       path: AppRoutes.imageToGrid,
       builder: (_, state) => BlocProvider<ImageWizardCubit>(
-        create: (_) => getIt<ImageWizardCubit>()
-          ..start(
-            craft: state.uri.queryParameters['craft'] == Craft.crossStitch.name ? Craft.crossStitch : Craft.beading,
-          ),
+        create: (_) {
+          final ImageWizardCubit cubit = getIt<ImageWizardCubit>();
+          final String? edit = state.uri.queryParameters['edit'];
+          if (edit != null) {
+            unawaited(cubit.startEditing(edit));
+          } else {
+            unawaited(
+              cubit.start(
+                craft: state.uri.queryParameters['craft'] == Craft.crossStitch.name ? Craft.crossStitch : Craft.beading,
+              ),
+            );
+          }
+          return cubit;
+        },
         child: const ImageWizardScreen(),
       ),
     ),
@@ -197,3 +208,11 @@ GoRouter createRouter(AppDependencies dependencies, {bool showDeveloperTools = !
     ),
   ],
 );
+
+/// Открывает схему проекта в мастере «Схема из картинки»; сохранённую схему сразу показывает в редакторе.
+Future<void> _editInGenerator(BuildContext context, Project project) async {
+  final String? projectId = await context.push<String>('${AppRoutes.imageToGrid}?edit=${project.id}');
+  if (projectId != null && context.mounted) {
+    await context.push<void>(AppRoutes.editor(projectId));
+  }
+}
