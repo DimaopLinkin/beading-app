@@ -17,6 +17,7 @@ import 'package:beading/domain/projects/craft.dart';
 import 'package:beading/domain/projects/project.dart';
 import 'package:beading/presentation/floss/floss_cubit.dart';
 import 'package:beading/presentation/floss/floss_screen.dart';
+import 'package:beading/presentation/grid_pattern/stitch_legend_view.dart';
 import 'package:beading/presentation/l10n/app_localizations.dart';
 import 'package:beading/presentation/theme/app_icons.dart';
 import 'package:beading/presentation/theme/app_theme.dart';
@@ -293,6 +294,23 @@ void main() {
       expect(find.text('45'), findsOneWidget);
     },
   );
+
+  testWidgets('окно «Нитки»: номер места и образец с символом; места берутся из настройки вышивки (T83)', (
+    tester,
+  ) async {
+    await PrintOptionsStore(settings).save(const PrintOptions(slotsPerRack: 80), projectId: 'proj-1');
+    await pumpScreen(tester);
+
+    final Finder first = find.byKey(const ValueKey<String>('floss-color-slot-1'), skipOffstage: false);
+    expect(tester.widget<Text>(first).data, '1');
+    expect(
+      tester.widget<Text>(find.byKey(const ValueKey<String>('floss-color-slot-2'), skipOffstage: false)).data,
+      '2',
+    );
+    expect(find.byType(LegendSwatch, skipOffstage: false), findsWidgets);
+    final FlossCubit cubit = tester.element(find.byType(FlossScreen)).read<FlossCubit>();
+    expect(cubit.state.printOptions.slotsPerRack, 80);
+  });
 
   testWidgets('просмотр PDF: сначала страницы, «Поделиться» из просмотра отдаёт файл (T81)', (tester) async {
     final FakePdfRasterizer rasterizer = FakePdfRasterizer()..pages = 3;

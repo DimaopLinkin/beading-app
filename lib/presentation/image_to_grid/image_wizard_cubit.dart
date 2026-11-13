@@ -912,6 +912,9 @@ class ImageWizardCubit extends Cubit<ImageWizardState> {
     switch (created) {
       case Success<Project>(:final Project value):
         await _saveRecipe(value.id);
+        // Места на стойке, выбранные при печати из мастера, закрепляются за новой вышивкой.
+        final PrintOptionsStore store = PrintOptionsStore(_settings);
+        await store.save(await store.load(), projectId: value.id);
         if (isClosed) return;
         emit(state.copyWith(step: ImageWizardStep.done, projectId: value.id));
       case Err<Project>(:final Failure failure):

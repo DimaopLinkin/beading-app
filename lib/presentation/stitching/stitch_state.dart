@@ -3,6 +3,7 @@ import 'package:beading/domain/grid/cell_position.dart';
 import 'package:beading/domain/grid_pattern/cell_progress.dart';
 import 'package:beading/domain/grid_pattern/grid_pattern.dart';
 import 'package:beading/domain/grid_pattern/stitch_counters.dart';
+import 'package:beading/domain/printing/print_options.dart';
 import 'package:equatable/equatable.dart';
 
 enum StitchStatus { loading, ready, failed }
@@ -19,6 +20,7 @@ class StitchState extends Equatable {
     this.progress = const CellProgress.none(),
     this.tool = StitchTool.tap,
     this.showSymbols = false,
+    this.printOptions = const PrintOptions(),
     this.showBlocks = true,
     this.highlight,
     this.parked,
@@ -43,6 +45,9 @@ class StitchState extends Equatable {
   final CellProgress progress;
   final StitchTool tool;
   final bool showSymbols;
+
+  /// Настройки стойки для игл: номер цвета в списке такой же, как в легенде PDF (T82).
+  final PrintOptions printOptions;
 
   /// Показывать процент по блокам 10×10.
   final bool showBlocks;
@@ -96,6 +101,7 @@ class StitchState extends Equatable {
     CellProgress? progress,
     StitchTool? tool,
     bool? showSymbols,
+    PrintOptions? printOptions,
     bool? showBlocks,
     int? highlight,
     bool clearHighlight = false,
@@ -121,6 +127,7 @@ class StitchState extends Equatable {
     progress: progress ?? this.progress,
     tool: tool ?? this.tool,
     showSymbols: showSymbols ?? this.showSymbols,
+    printOptions: printOptions ?? this.printOptions,
     showBlocks: showBlocks ?? this.showBlocks,
     highlight: clearHighlight ? null : (highlight ?? this.highlight),
     parked: clearParked ? null : (parked ?? this.parked),
@@ -145,6 +152,7 @@ class StitchState extends Equatable {
     progress,
     tool,
     showSymbols,
+    printOptions,
     showBlocks,
     highlight,
     parked,

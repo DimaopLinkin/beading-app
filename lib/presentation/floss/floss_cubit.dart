@@ -28,6 +28,7 @@ class FlossState extends Equatable {
     this.remainingOnly = false,
     this.stock = const <FlossStockEntry>[],
     this.writeFailure,
+    this.printOptions = const PrintOptions(),
   });
 
   final FlossStatus status;
@@ -47,6 +48,9 @@ class FlossState extends Equatable {
   /// Ошибка последней записи запаса; сбрасывается следующей успешной.
   final Failure? writeFailure;
 
+  /// Настройки стойки этой вышивки: номера цветов в списке такие же, как в PDF (T83).
+  final PrintOptions printOptions;
+
   bool get isEmpty =>
       estimate != null && estimate!.lines.isEmpty && estimate!.beads.isEmpty && estimate!.purchases.isEmpty;
 
@@ -59,6 +63,7 @@ class FlossState extends Equatable {
     bool? remainingOnly,
     List<FlossStockEntry>? stock,
     Failure? writeFailure,
+    PrintOptions? printOptions,
     bool clearWriteFailure = false,
   }) => FlossState(
     status: status,
@@ -69,6 +74,7 @@ class FlossState extends Equatable {
     remainingOnly: remainingOnly ?? this.remainingOnly,
     stock: stock ?? this.stock,
     writeFailure: clearWriteFailure ? null : (writeFailure ?? this.writeFailure),
+    printOptions: printOptions ?? this.printOptions,
   );
 
   @override
@@ -81,6 +87,7 @@ class FlossState extends Equatable {
     remainingOnly,
     stock,
     writeFailure,
+    printOptions,
   ];
 }
 
@@ -113,19 +120,29 @@ class FlossCubit extends Cubit<FlossState> {
   StreamSubscription<List<FlossStockEntry>>? _stockSub;
 
   /// Запомненные настройки печати и размер схемы для окна настроек (T80).
-  Future<PrintOptions> loadPrintOptions() => _printOptions.load();
+  Future<PrintOptions> loadPrintOptions() => _printOptions.load(projectId: projectId);
 
   Future<Result<PrintSummary>> printSummary() => _exportPdf.summary(projectId);
 
   /// PDF схемы для печати (T76); настройки запоминаются, состояние экрана не меняется.
   Future<Result<PatternPdf>> exportPdf(PrintOptions options) async {
-    await _printOptions.save(options);
+    await _printOptions.save(options, projectId: projectId);
+    if (!isClosed) emit(state.copyWith(printOptions: options));
     return _exportPdf(projectId, options: options);
   }
 
   Future<void> load() async {
     final FlossState before = state;
-    emit(FlossState(withReserve: before.withReserve, remainingOnly: before.remainingOnly, stock: before.stock));
+    emit(
+      FlossState(
+        withReserve: before.withReserve,
+        remainingOnly: before.remainingOnly,
+        stock: before.stock,
+        printOptions: before.printOptions,
+      ),
+    );
+    final PrintOptions options = await _printOptions.load(projectId: projectId);
+    if (isClosed) return;
     final Result<Project> project = await _projects.get(projectId);
     if (isClosed) return;
     if (project case Err<Project>(:final Failure failure)) {
@@ -136,6 +153,7 @@ class FlossCubit extends Cubit<FlossState> {
           withReserve: before.withReserve,
           remainingOnly: before.remainingOnly,
           stock: state.stock,
+          printOptions: options,
         ),
       );
       return;
@@ -153,6 +171,7 @@ class FlossCubit extends Cubit<FlossState> {
             withReserve: before.withReserve,
             remainingOnly: before.remainingOnly,
             stock: state.stock,
+            printOptions: options,
           ),
         );
       case Err<FlossEstimate>(:final Failure failure):
@@ -164,6 +183,7 @@ class FlossCubit extends Cubit<FlossState> {
             withReserve: before.withReserve,
             remainingOnly: before.remainingOnly,
             stock: state.stock,
+            printOptions: options,
           ),
         );
     }
