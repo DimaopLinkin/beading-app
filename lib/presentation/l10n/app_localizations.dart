@@ -313,6 +313,12 @@ abstract class AppLocalizations {
   /// **'Поделиться файлом'**
   String get projectShareFile;
 
+  /// Действие над схемой: открыть её в мастере «Схема из картинки» и изменить
+  ///
+  /// In ru, this message translates to:
+  /// **'Изменить в генераторе'**
+  String get projectEditInGenerator;
+
   /// No description provided for @ok.
   ///
   /// In ru, this message translates to:
@@ -2905,6 +2911,12 @@ abstract class AppLocalizations {
   /// **'Детально'**
   String get imageWizardPresetDetailed;
 
+  /// Строка мастера вышивки: открывает список ниток и канвы к покупке
+  ///
+  /// In ru, this message translates to:
+  /// **'Список закупки'**
+  String get imageWizardShopping;
+
   /// Строка параметров и заголовок режима кисти
   ///
   /// In ru, this message translates to:
@@ -3259,6 +3271,42 @@ abstract class AppLocalizations {
   /// **'Сохранить схему'**
   String get imageWizardSave;
 
+  /// Заголовок мастера, когда в нём правят уже сохранённую схему
+  ///
+  /// In ru, this message translates to:
+  /// **'Изменить схему'**
+  String get imageWizardEditTitle;
+
+  /// Главная кнопка мастера при правке сохранённой схемы
+  ///
+  /// In ru, this message translates to:
+  /// **'Сохранить изменения'**
+  String get imageWizardSaveChanges;
+
+  /// Подсказка на первом шаге правки схемы, созданной без сохранённого фото
+  ///
+  /// In ru, this message translates to:
+  /// **'Исходного фото у этой схемы не сохранилось. Выберите его снова: размер, канва и техника останутся как были.'**
+  String get imageWizardEditNoPhoto;
+
+  /// Заголовок вопроса при сохранении изменений схемы, по которой уже работали
+  ///
+  /// In ru, this message translates to:
+  /// **'У схемы есть отметки'**
+  String get imageWizardProgressTitle;
+
+  /// Пояснение к вопросу при сохранении изменений схемы с отметками
+  ///
+  /// In ru, this message translates to:
+  /// **'Новая схема не совпадёт с прежней, и отметки к ней не подойдут. Сохранить изменения как новую схему? Прежняя останется как есть.'**
+  String get imageWizardProgressMessage;
+
+  /// Кнопка: сохранить изменённую схему отдельным проектом
+  ///
+  /// In ru, this message translates to:
+  /// **'Сохранить как новую'**
+  String get imageWizardSaveAsCopy;
+
   /// Индикатор сохранения
   ///
   /// In ru, this message translates to:
@@ -3534,6 +3582,96 @@ abstract class AppLocalizations {
   /// In ru, this message translates to:
   /// **'Кусок канвы: {width} × {height} см (вышивка {stitchedWidth} × {stitchedHeight} см и поля по {margin} см)'**
   String flossFabricNeed(String width, String height, String stitchedWidth, String stitchedHeight, String margin);
+
+  /// Строка экрана мулине: собирает PDF схемы для печати
+  ///
+  /// In ru, this message translates to:
+  /// **'Распечатать схему (PDF)'**
+  String get flossPrint;
+
+  /// Пояснение к печати схемы
+  ///
+  /// In ru, this message translates to:
+  /// **'Масштаб 10 крестиков = 3 см, номера по краям через 10 клеток, легенда с номерами для игольницы отдельным листом.'**
+  String get flossPrintHint;
+
+  /// Ошибка сборки PDF схемы
+  ///
+  /// In ru, this message translates to:
+  /// **'Не удалось собрать PDF. Попробуйте ещё раз.'**
+  String get flossPrintFailed;
+
+  /// Заголовок листа настроек печати
+  ///
+  /// In ru, this message translates to:
+  /// **'Печать схемы'**
+  String get printSheetTitle;
+
+  /// Подпись выбора формата A4–A2
+  ///
+  /// In ru, this message translates to:
+  /// **'Формат листа'**
+  String get printPaper;
+
+  /// Сколько страниц получится
+  ///
+  /// In ru, this message translates to:
+  /// **'Страниц: {total} (схема {sheets} + легенда {legend})'**
+  String printPages(int total, int sheets, int legend);
+
+  /// Пояснение к масштабу
+  ///
+  /// In ru, this message translates to:
+  /// **'Масштаб всегда 10 крестиков = 3 см, легенда всегда на листе A4.'**
+  String get printScaleHint;
+
+  /// Подпись настройки стойки
+  ///
+  /// In ru, this message translates to:
+  /// **'Мест на стойке для игл'**
+  String get printSlots;
+
+  /// Пояснение к стойке игл
+  ///
+  /// In ru, this message translates to:
+  /// **'В легенде каждый цвет получает номер места. Если цветов больше, нумерация продолжается на следующей стойке: «2-7» — вторая стойка, седьмое место.'**
+  String get printSlotsHint;
+
+  /// Цвета помещаются на одну стойку
+  ///
+  /// In ru, this message translates to:
+  /// **'У вас {count} цветов: хватит одной стойки.'**
+  String printSlotsOne(int count);
+
+  /// Нужно несколько стоек
+  ///
+  /// In ru, this message translates to:
+  /// **'Цветов больше мест: нужно стоек — {racks} по {slots} мест.'**
+  String printSlotsMany(int racks, int slots);
+
+  /// Заголовок просмотра PDF, пока страницы не открылись
+  ///
+  /// In ru, this message translates to:
+  /// **'Просмотр PDF'**
+  String get printPreviewTitle;
+
+  /// Заголовок просмотра PDF
+  ///
+  /// In ru, this message translates to:
+  /// **'Страница {page} из {count}'**
+  String printPreviewPage(int page, int count);
+
+  /// Кнопка сборки PDF
+  ///
+  /// In ru, this message translates to:
+  /// **'Собрать PDF'**
+  String get printBuild;
+
+  /// Ожидание сборки PDF
+  ///
+  /// In ru, this message translates to:
+  /// **'Собираю PDF…'**
+  String get printBuilding;
 
   /// Заголовок списка покупок мулине
   ///

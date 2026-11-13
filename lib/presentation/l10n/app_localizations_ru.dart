@@ -124,6 +124,9 @@ class AppLocalizationsRu extends AppLocalizations {
   String get projectShareFile => 'Поделиться файлом';
 
   @override
+  String get projectEditInGenerator => 'Изменить в генераторе';
+
+  @override
   String get ok => 'Понятно';
 
   @override
@@ -1624,6 +1627,9 @@ class AppLocalizationsRu extends AppLocalizations {
   String get imageWizardPresetDetailed => 'Детально';
 
   @override
+  String get imageWizardShopping => 'Список закупки';
+
+  @override
   String get imageWizardBrushTitle => 'Выделить важное';
 
   @override
@@ -1857,6 +1863,26 @@ class AppLocalizationsRu extends AppLocalizations {
   String get imageWizardSave => 'Сохранить схему';
 
   @override
+  String get imageWizardEditTitle => 'Изменить схему';
+
+  @override
+  String get imageWizardSaveChanges => 'Сохранить изменения';
+
+  @override
+  String get imageWizardEditNoPhoto =>
+      'Исходного фото у этой схемы не сохранилось. Выберите его снова: размер, канва и техника останутся как были.';
+
+  @override
+  String get imageWizardProgressTitle => 'У схемы есть отметки';
+
+  @override
+  String get imageWizardProgressMessage =>
+      'Новая схема не совпадёт с прежней, и отметки к ней не подойдут. Сохранить изменения как новую схему? Прежняя останется как есть.';
+
+  @override
+  String get imageWizardSaveAsCopy => 'Сохранить как новую';
+
+  @override
   String get imageWizardSaving => 'Сохраняю…';
 
   @override
@@ -2029,6 +2055,61 @@ class AppLocalizationsRu extends AppLocalizations {
   String flossFabricNeed(String width, String height, String stitchedWidth, String stitchedHeight, String margin) {
     return 'Кусок канвы: $width × $height см (вышивка $stitchedWidth × $stitchedHeight см и поля по $margin см)';
   }
+
+  @override
+  String get flossPrint => 'Распечатать схему (PDF)';
+
+  @override
+  String get flossPrintHint =>
+      'Масштаб 10 крестиков = 3 см, номера по краям через 10 клеток, легенда с номерами для игольницы отдельным листом.';
+
+  @override
+  String get flossPrintFailed => 'Не удалось собрать PDF. Попробуйте ещё раз.';
+
+  @override
+  String get printSheetTitle => 'Печать схемы';
+
+  @override
+  String get printPaper => 'Формат листа';
+
+  @override
+  String printPages(int total, int sheets, int legend) {
+    return 'Страниц: $total (схема $sheets + легенда $legend)';
+  }
+
+  @override
+  String get printScaleHint => 'Масштаб всегда 10 крестиков = 3 см, легенда всегда на листе A4.';
+
+  @override
+  String get printSlots => 'Мест на стойке для игл';
+
+  @override
+  String get printSlotsHint =>
+      'В легенде каждый цвет получает номер места. Если цветов больше, нумерация продолжается на следующей стойке: «2-7» — вторая стойка, седьмое место.';
+
+  @override
+  String printSlotsOne(int count) {
+    return 'У вас $count цветов: хватит одной стойки.';
+  }
+
+  @override
+  String printSlotsMany(int racks, int slots) {
+    return 'Цветов больше мест: нужно стоек — $racks по $slots мест.';
+  }
+
+  @override
+  String get printPreviewTitle => 'Просмотр PDF';
+
+  @override
+  String printPreviewPage(int page, int count) {
+    return 'Страница $page из $count';
+  }
+
+  @override
+  String get printBuild => 'Собрать PDF';
+
+  @override
+  String get printBuilding => 'Собираю PDF…';
 
   @override
   String get flossShoppingTitle => 'Что купить';

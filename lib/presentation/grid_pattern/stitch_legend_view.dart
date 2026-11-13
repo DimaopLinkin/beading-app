@@ -99,7 +99,7 @@ class _LegendRow extends StatelessWidget {
       child: CupertinoListTile.notched(
         key: ValueKey<String>('legend-${entry.gridValue}'),
         backgroundColor: selected ? accent.withValues(alpha: 0.14) : null,
-        leading: _Swatch(color: color),
+        leading: LegendSwatch(color: color),
         title: Text(StitchLegendView.threadLabel(color), maxLines: 1, overflow: TextOverflow.ellipsis),
         subtitle: Text('${color.name}\n${details.join(' · ')}', maxLines: 3, overflow: TextOverflow.ellipsis),
         additionalInfo: Text(l10n.stitchLegendCrosses(entry.crosses)),
@@ -111,8 +111,8 @@ class _LegendRow extends StatelessWidget {
 }
 
 /// Образец нити со знаком палитры: знак чёрный или белый по яркости заливки, как на схеме.
-class _Swatch extends StatelessWidget {
-  const _Swatch({required this.color});
+class LegendSwatch extends StatelessWidget {
+  const LegendSwatch({required this.color, super.key});
 
   final PatternColor color;
 

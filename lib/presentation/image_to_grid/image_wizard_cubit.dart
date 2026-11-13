@@ -9,7 +9,10 @@ import 'package:beading/domain/catalog/catalog_color.dart';
 import 'package:beading/domain/catalog/catalog_material.dart';
 import 'package:beading/domain/catalog/catalog_repository.dart';
 import 'package:beading/domain/grid/bead_size.dart';
+import 'package:beading/domain/grid/cell_metrics.dart';
 import 'package:beading/domain/grid/fabric.dart';
+import 'package:beading/domain/grid_pattern/grid_pattern.dart';
+import 'package:beading/domain/grid_pattern/grid_pattern_repository.dart';
 import 'package:beading/domain/image_pattern/crop_rect.dart';
 import 'package:beading/domain/image_pattern/image_processor.dart';
 import 'package:beading/domain/image_pattern/picked_book_file.dart';
@@ -19,18 +22,27 @@ import 'package:beading/domain/image_to_grid/generation_preset.dart';
 import 'package:beading/domain/image_to_grid/image_decoder.dart';
 import 'package:beading/domain/image_to_grid/image_mask_set.dart';
 import 'package:beading/domain/image_to_grid/image_masks.dart';
+import 'package:beading/domain/image_to_grid/image_recipe.dart';
 import 'package:beading/domain/image_to_grid/image_to_grid_runner.dart';
 import 'package:beading/domain/image_to_grid/image_to_grid_settings.dart';
 import 'package:beading/domain/image_to_grid/importance_brush.dart';
 import 'package:beading/domain/image_to_grid/palette_from_generated.dart';
+import 'package:beading/domain/image_to_grid/pattern_floss.dart';
+import 'package:beading/domain/image_to_grid/printable_generated.dart';
 import 'package:beading/domain/image_to_grid/size_purpose.dart';
 import 'package:beading/domain/image_to_grid/size_suggester.dart';
 import 'package:beading/domain/image_to_grid/source_image.dart';
 import 'package:beading/domain/image_to_grid/use_cases/create_pattern_from_image.dart';
+import 'package:beading/domain/image_to_grid/use_cases/replace_pattern_from_image.dart';
 import 'package:beading/domain/palette/palette_snapshot.dart';
 import 'package:beading/domain/palette/rgb.dart';
+import 'package:beading/domain/printing/pattern_printer.dart';
+import 'package:beading/domain/printing/print_options.dart';
+import 'package:beading/domain/printing/print_options_store.dart';
+import 'package:beading/domain/printing/use_cases/export_pattern_pdf.dart';
 import 'package:beading/domain/projects/craft.dart';
 import 'package:beading/domain/projects/project.dart';
+import 'package:beading/domain/projects/project_repository.dart';
 import 'package:beading/domain/settings/setting_keys.dart';
 import 'package:beading/domain/settings/settings_repository.dart';
 import 'package:beading/presentation/image_to_grid/image_wizard_state.dart';
@@ -50,6 +62,11 @@ class ImageWizardCubit extends Cubit<ImageWizardState> {
     required CatalogRepository catalog,
     required SettingsRepository settings,
     required CreatePatternFromImage createPattern,
+    ImageRecipeStore? recipes,
+    ReplacePatternFromImage? replacePattern,
+    ProjectRepository? projects,
+    GridPatternRepository? patterns,
+    PatternPrinter? printer,
     Duration debounce = const Duration(milliseconds: 300),
     bool sizeHints = false,
   }) : _source = source,
@@ -60,6 +77,11 @@ class ImageWizardCubit extends Cubit<ImageWizardState> {
        _catalog = catalog,
        _settings = settings,
        _create = createPattern,
+       _recipes = recipes,
+       _replace = replacePattern,
+       _projects = projects,
+       _patterns = patterns,
+       _printer = printer,
        _debounce = debounce,
        _sizeHints = sizeHints,
        super(const ImageWizardState());
@@ -72,6 +94,15 @@ class ImageWizardCubit extends Cubit<ImageWizardState> {
   final CatalogRepository _catalog;
   final SettingsRepository _settings;
   final CreatePatternFromImage _create;
+
+  /// Нужны для правки готовой схемы (T79); без них мастер только создаёт новые.
+  final ImageRecipeStore? _recipes;
+  final ReplacePatternFromImage? _replace;
+  final ProjectRepository? _projects;
+  final GridPatternRepository? _patterns;
+
+  /// Печать схемы до сохранения (T80); без принтера кнопки печати в мастере нет.
+  final PatternPrinter? _printer;
   final Duration _debounce;
 
   /// Считать ли подсказку размера в фоне (T61); тесты с управляемым запуском конвейера её отключают.
@@ -137,6 +168,48 @@ class ImageWizardCubit extends Cubit<ImageWizardState> {
     }
   }
 
+  /// Открывает на правку схему проекта [projectId] (T79): параметры и фото берутся из сохранённого рецепта. Схемы,
+  /// созданные раньше, рецепта не имеют: размер, канва и техника берутся из самой схемы, фото выбирают заново.
+  Future<void> startEditing(String projectId) async {
+    final Project? project = (await _projects?.get(projectId))?.valueOrNull;
+    final GridPattern? pattern = (await _patterns?.getByProject(projectId))?.valueOrNull;
+    if (project == null || pattern == null) {
+      emit(state.copyWith(problem: ImageWizardProblem.sourceUnavailable));
+      return;
+    }
+    emit(state.copyWith(editingProjectId: projectId, name: project.name));
+    await start(craft: project.craft);
+    if (isClosed) return;
+    final ImageRecipe? recipe = await _recipes?.load(projectId);
+    if (isClosed) return;
+    if (recipe == null) {
+      final CellMetrics metrics = pattern.metrics;
+      _change(
+        state.settings.copyWith(
+          technique: project.technique,
+          columns: pattern.grid.width,
+          beadSize: metrics is BeadSize ? metrics : null,
+          fabric: metrics is Fabric ? metrics : null,
+        ),
+      );
+      return;
+    }
+    emit(state.copyWith(settings: recipe.settings, catalogColors: _countCatalog(recipe.settings)));
+    await _loadSource(
+      recipe.source,
+      project.name,
+      quarterTurns: recipe.quarterTurns,
+      crop: recipe.crop,
+      brush: recipe.brush,
+    );
+  }
+
+  /// Есть ли у открытой на правку схемы отметки прогресса: замена их сотрёт, и стоит предложить копию.
+  Future<bool> editingHasProgress() async {
+    final String? id = state.editingProjectId;
+    return id != null && (await _replace?.hasProgress(id)) == true;
+  }
+
   Future<void> takePhoto() => _pick(_source.takePhoto);
 
   Future<void> pickPhotos() => _pick(_source.pickPhotos);
@@ -172,10 +245,21 @@ class ImageWizardCubit extends Cubit<ImageWizardState> {
       emit(state.copyWith(opening: false, problem: ImageWizardProblem.unreadable));
       return;
     }
+    await _loadSource(file.bytes, _nameFor(file.name));
+  }
+
+  /// Открывает фото в мастере: [quarterTurns], [crop] и [brush] приходят из сохранённого рецепта (T79).
+  Future<void> _loadSource(
+    Uint8List bytes,
+    String fileName, {
+    int quarterTurns = 0,
+    CropRect crop = CropRect.full,
+    ImportanceBrush brush = ImportanceBrush.empty,
+  }) async {
     _timer?.cancel();
     final int preparation = ++_preparation;
     ++_calculation;
-    final ({Uint8List png, SourceImage image})? prepared = await _prepareImage(file.bytes, 0, CropRect.full);
+    final ({Uint8List png, SourceImage image})? prepared = await _prepareImage(bytes, quarterTurns, crop);
     if (isClosed || preparation != _preparation) {
       return;
     }
@@ -192,7 +276,7 @@ class ImageWizardCubit extends Cubit<ImageWizardState> {
     _brushUndo.clear();
     emit(
       state.copyWith(
-        brush: ImportanceBrush.empty,
+        brush: brush,
         brushing: false,
         brushUndoDepth: 0,
         preparedWidth: prepared.image.width,
@@ -201,18 +285,18 @@ class ImageWizardCubit extends Cubit<ImageWizardState> {
         opening: false,
         masks: maskSet,
         clearMasks: maskSet == null,
-        source: file.bytes,
+        source: bytes,
         prepared: prepared.png,
-        quarterTurns: 0,
-        crop: CropRect.full,
-        name: state.name.isEmpty ? _nameFor(file.name) : state.name,
+        quarterTurns: quarterTurns,
+        crop: crop,
+        name: state.name.isEmpty ? fileName : state.name,
         clearPreview: true,
         clearProblem: true,
         clearSizeHint: true,
       ),
     );
     _hintKey = null;
-    _sizeTouched = false;
+    _sizeTouched = state.editing;
     _image = prepared.image;
     _rebuildImportance();
     _schedule(immediate: true);
@@ -750,6 +834,7 @@ class ImageWizardCubit extends Cubit<ImageWizardState> {
               preview: pattern,
               previewPalette: palette,
               previewSettings: settings,
+              flossEstimate: pattern == null ? null : estimateFlossForGenerated(pattern, palette, settings.metrics),
               calculating: false,
               clearProblem: true,
             ),
@@ -757,8 +842,41 @@ class ImageWizardCubit extends Cubit<ImageWizardState> {
     if (palette != null) unawaited(_computeHint());
   }
 
+  bool get canPrint =>
+      _printer != null && state.flossEstimate != null && state.previewSettings?.craft == Craft.crossStitch;
+
+  /// Размер показанной схемы для окна настроек печати.
+  PrintSummary? get printSummary {
+    final GeneratedPattern? pattern = state.preview;
+    final PaletteSnapshot? palette = state.previewPalette;
+    if (pattern == null || palette == null) return null;
+    return PrintSummary(columns: pattern.grid.width, rows: pattern.grid.height, colors: palette.length);
+  }
+
+  Future<PrintOptions> loadPrintOptions() => PrintOptionsStore(_settings).load();
+
+  /// PDF показанной схемы (T80): настройки запоминаются, схема не сохраняется.
+  Future<Result<PatternPdf>> exportPdf(PrintOptions options) async {
+    final PatternPrinter? printer = _printer;
+    final GeneratedPattern? pattern = state.preview;
+    final PaletteSnapshot? palette = state.previewPalette;
+    final ImageToGridSettings? settings = state.previewSettings;
+    final GridPattern? printable = pattern == null || palette == null || settings == null
+        ? null
+        : printablePatternOf(pattern, palette, settings.metrics);
+    if (printer == null || printable == null) {
+      return const Err<PatternPdf>(ValidationFailure('Схема ещё не посчитана'));
+    }
+    await PrintOptionsStore(_settings).save(options);
+    final String title = state.name.trim().isEmpty ? 'Схема' : state.name.trim();
+    final Result<Uint8List> pdf = await printer.renderPdf(title: title, pattern: printable, options: options);
+    return pdf.map((bytes) => PatternPdf(fileName: '${ExportPatternPdf.fileNameOf(title)}.pdf', bytes: bytes));
+  }
+
   /// Сохраняет посчитанную схему проектом. Кнопка доступна, только когда [ImageWizardState.canSave].
-  Future<void> save() async {
+  ///
+  /// При правке готовой схемы (T79) заменяет её сетку; [asCopy] сохраняет новым проектом, а прежний не трогает.
+  Future<void> save({bool asCopy = false}) async {
     final GeneratedPattern? pattern = state.preview;
     if (!state.canSave || pattern == null) {
       return;
@@ -769,13 +887,21 @@ class ImageWizardCubit extends Cubit<ImageWizardState> {
     }
     emit(state.copyWith(step: ImageWizardStep.saving, clearProblem: true));
     Result<Project> created;
+    final String? editing = state.editingProjectId;
     try {
-      created = await _create(
-        name: state.name,
-        technique: state.settings.technique,
-        metrics: state.settings.metrics,
-        pattern: pattern,
-      );
+      created = editing != null && !asCopy && _replace != null
+          ? await _replace(
+              projectId: editing,
+              name: state.name,
+              metrics: state.settings.metrics,
+              generated: pattern,
+            )
+          : await _create(
+              name: state.name,
+              technique: state.settings.technique,
+              metrics: state.settings.metrics,
+              pattern: pattern,
+            );
     } on Object {
       // Сбой драйвера или нехватка памяти на огромной схеме: без этого мастер навсегда остался бы в «Сохраняю…».
       created = const Err<Project>(StorageFailure('Не удалось записать схему'));
@@ -785,6 +911,11 @@ class ImageWizardCubit extends Cubit<ImageWizardState> {
     }
     switch (created) {
       case Success<Project>(:final Project value):
+        await _saveRecipe(value.id);
+        // Места на стойке, выбранные при печати из мастера, закрепляются за новой вышивкой.
+        final PrintOptionsStore store = PrintOptionsStore(_settings);
+        await store.save(await store.load(), projectId: value.id);
+        if (isClosed) return;
         emit(state.copyWith(step: ImageWizardStep.done, projectId: value.id));
       case Err<Project>(:final Failure failure):
         emit(
@@ -793,6 +924,26 @@ class ImageWizardCubit extends Cubit<ImageWizardState> {
             problem: failure is ValidationFailure ? ImageWizardProblem.invalidName : ImageWizardProblem.saveFailed,
           ),
         );
+    }
+  }
+
+  /// Запоминает, из чего собрана схема, чтобы её можно было открыть в мастере. Сбой записи схему не отменяет.
+  Future<void> _saveRecipe(String projectId) async {
+    final Uint8List? source = state.source;
+    if (_recipes == null || source == null) return;
+    try {
+      await _recipes.save(
+        projectId,
+        ImageRecipe(
+          source: source,
+          quarterTurns: state.quarterTurns,
+          crop: state.crop,
+          brush: state.brush,
+          settings: state.settings,
+        ),
+      );
+    } on Object {
+      // Без рецепта схема просто не откроется на правку.
     }
   }
 

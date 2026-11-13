@@ -7,6 +7,7 @@ import 'package:beading/domain/image_to_grid/image_mask_set.dart';
 import 'package:beading/domain/image_to_grid/image_to_grid_settings.dart';
 import 'package:beading/domain/image_to_grid/importance_brush.dart';
 import 'package:beading/domain/image_to_grid/size_suggester.dart';
+import 'package:beading/domain/materials/floss_estimate.dart';
 import 'package:beading/domain/palette/palette_snapshot.dart';
 import 'package:beading/domain/projects/craft.dart';
 import 'package:equatable/equatable.dart';
@@ -29,6 +30,7 @@ class ImageWizardState extends Equatable {
     this.preview,
     this.previewPalette,
     this.previewSettings,
+    this.flossEstimate,
     this.calculating = false,
     this.catalogColors = 0,
     this.flossBrand = '',
@@ -46,6 +48,7 @@ class ImageWizardState extends Equatable {
     this.sizeHint,
     this.problem,
     this.projectId,
+    this.editingProjectId,
   });
 
   final ImageWizardStep step;
@@ -69,6 +72,9 @@ class ImageWizardState extends Equatable {
   /// Палитра показанной схемы и параметры, с которыми она посчитана: рисуем именно по ним, а не по текущим.
   final PaletteSnapshot? previewPalette;
   final ImageToGridSettings? previewSettings;
+
+  /// Расход мулине показанной схемы вышивки (T77); `null` — бисер или схемы ещё нет.
+  final FlossEstimate? flossEstimate;
 
   /// Идёт расчёт: показанная схема может не совпадать с текущими параметрами.
   final bool calculating;
@@ -139,6 +145,11 @@ class ImageWizardState extends Equatable {
   /// Созданный проект, когда [step] — [ImageWizardStep.done].
   final String? projectId;
 
+  /// Схема этого проекта открыта на правку (T79): ремесло и техника заперты, сохранение заменяет сетку.
+  final String? editingProjectId;
+
+  bool get editing => editingProjectId != null;
+
   /// Сохранять можно только то, что видно: схема посчитана для текущих параметров.
   bool get canSave => step == ImageWizardStep.edit && preview != null && !calculating && previewSettings == settings;
 
@@ -164,6 +175,7 @@ class ImageWizardState extends Equatable {
     GeneratedPattern? preview,
     PaletteSnapshot? previewPalette,
     ImageToGridSettings? previewSettings,
+    FlossEstimate? flossEstimate,
     bool? calculating,
     int? catalogColors,
     String? flossBrand,
@@ -181,6 +193,7 @@ class ImageWizardState extends Equatable {
     SizeSuggestion? sizeHint,
     ImageWizardProblem? problem,
     String? projectId,
+    String? editingProjectId,
     bool clearProblem = false,
     bool clearPreview = false,
     bool clearMasks = false,
@@ -197,6 +210,7 @@ class ImageWizardState extends Equatable {
     preview: clearPreview ? null : (preview ?? this.preview),
     previewPalette: clearPreview ? null : (previewPalette ?? this.previewPalette),
     previewSettings: clearPreview ? null : (previewSettings ?? this.previewSettings),
+    flossEstimate: clearPreview ? null : (flossEstimate ?? this.flossEstimate),
     calculating: calculating ?? this.calculating,
     catalogColors: catalogColors ?? this.catalogColors,
     flossBrand: flossBrand ?? this.flossBrand,
@@ -214,6 +228,7 @@ class ImageWizardState extends Equatable {
     sizeHint: clearSizeHint ? null : (sizeHint ?? this.sizeHint),
     problem: clearProblem ? null : (problem ?? this.problem),
     projectId: projectId ?? this.projectId,
+    editingProjectId: editingProjectId ?? this.editingProjectId,
   );
 
   @override
@@ -229,6 +244,7 @@ class ImageWizardState extends Equatable {
     preview,
     previewPalette,
     previewSettings,
+    flossEstimate,
     calculating,
     catalogColors,
     flossBrand,
@@ -246,5 +262,6 @@ class ImageWizardState extends Equatable {
     sizeHint,
     problem,
     projectId,
+    editingProjectId,
   ];
 }

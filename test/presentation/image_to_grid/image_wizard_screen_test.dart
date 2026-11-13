@@ -34,11 +34,13 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import '../../support/fake_biser.dart';
 import '../../support/fake_catalog_repository.dart';
 import '../../support/fake_clock.dart';
 import '../../support/fake_grid_pattern.dart';
 import '../../support/fake_image_masks.dart';
 import '../../support/fake_image_pattern.dart';
+import '../../support/fake_pattern_printer.dart';
 import '../../support/fake_project_repository.dart';
 import '../../support/fake_settings_repository.dart';
 import '../../support/test_images.dart';
@@ -69,11 +71,15 @@ void main() {
   late FakeGridPatternRepository patterns;
   late FakeImageMasks masks;
   late ImageWizardCubit cubit;
+  late FakePatternPrinter printer;
+  late FakeFileSharer fileSharer;
 
   setUp(() {
     source = FakeBookImageSource();
     masks = FakeImageMasks();
     projects = FakeProjectRepository();
+    printer = FakePatternPrinter();
+    fileSharer = FakeFileSharer();
     patterns = FakeGridPatternRepository();
     final FakeIdGenerator ids = FakeIdGenerator();
     cubit = ImageWizardCubit(
@@ -92,6 +98,7 @@ void main() {
           ids: ids,
         ),
       ),
+      printer: printer,
       debounce: Duration.zero,
     );
     addTearDown(cubit.close);
@@ -104,7 +111,7 @@ void main() {
     supportedLocales: AppLocalizations.supportedLocales,
     home: BlocProvider<ImageWizardCubit>.value(
       value: cubit,
-      child: ImageWizardScreen(cameraAvailable: camera),
+      child: ImageWizardScreen(cameraAvailable: camera, fileSharer: fileSharer),
     ),
   );
 
@@ -463,6 +470,37 @@ void main() {
       await tester.tap(backstitch);
       await tester.pumpAndSettle();
       expect(cubit.state.settings.backstitch, isTrue);
+    });
+
+    testWidgets('список закупки: строка с числом мотков открывает лист с нитками и канвой (T77)', (tester) async {
+      await toStitch(tester);
+      final Finder row = find.byKey(const ValueKey<String>('wizard-shopping'));
+      await tester.scrollUntilVisible(row, 200, scrollable: find.byType(Scrollable).last);
+      await tester.pumpAndSettle();
+      expect(find.text('Список закупки'), findsOneWidget);
+      await tester.tap(row);
+      await tester.pumpAndSettle();
+      expect(find.text('Что купить'), findsOneWidget);
+      expect(find.textContaining('Итого:'), findsOneWidget);
+      await tester.tap(find.byKey(const ValueKey<String>('shopping-close')));
+      await tester.pumpAndSettle();
+    });
+
+    testWidgets('печать из мастера: настройки, PDF несохранённой схемы уходит в «Поделиться» (T80)', (tester) async {
+      await toStitch(tester);
+      final Finder row = find.byKey(const ValueKey<String>('wizard-print'));
+      await tester.scrollUntilVisible(row, 200, scrollable: find.byType(Scrollable).last);
+      await tester.pumpAndSettle();
+      await tester.tap(row);
+      await tester.pumpAndSettle();
+      expect(find.text('Печать схемы'), findsOneWidget);
+      expect(find.textContaining('Страниц:'), findsOneWidget);
+      await tester.tap(find.byKey(const ValueKey<String>('print-build')));
+      await tester.pumpAndSettle();
+      expect(printer.calls.single.title, 'Розы');
+      expect(printer.calls.single.pattern.grid.width, cubit.state.preview!.grid.width);
+      expect(fileSharer.shared.single.fileName, 'Розы.pdf');
+      expect(projects.projects, isEmpty, reason: 'схема не сохраняется');
     });
 
     testWidgets('ширина: кнопки − и + двигают на 5 см, число вводится с клавиатуры (T71)', (tester) async {

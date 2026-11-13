@@ -3,12 +3,16 @@ import 'dart:math' as math;
 
 import 'package:beading/core/failure.dart';
 import 'package:beading/domain/floss_stock/floss_shortage.dart';
+import 'package:beading/domain/image_pattern/pdf_rasterizer.dart';
 import 'package:beading/domain/materials/floss_estimate.dart';
+import 'package:beading/domain/sharing/file_sharer.dart';
 import 'package:beading/domain/sharing/text_sharer.dart';
 import 'package:beading/presentation/floss/floss_cubit.dart';
 import 'package:beading/presentation/floss/floss_format.dart';
+import 'package:beading/presentation/grid_pattern/stitch_legend_view.dart';
 import 'package:beading/presentation/l10n/app_localizations.dart';
 import 'package:beading/presentation/library/project_labels.dart';
+import 'package:beading/presentation/printing/print_flow.dart';
 import 'package:beading/presentation/theme/app_icons.dart';
 import 'package:beading/presentation/theme/tokens.dart';
 import 'package:beading/presentation/widgets/app_list_section.dart';
@@ -21,7 +25,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 /// Расход мулине для вышивки: канва, список покупок по ниткам, таблица по цветам схемы и «Поделиться».
 /// Ждёт [FlossCubit] в дереве выше.
 class FlossScreen extends StatefulWidget {
-  const FlossScreen({required this.sharer, super.key});
+  const FlossScreen({required this.sharer, required this.fileSharer, this.rasterizer, super.key});
 
   static const String routePath = '/projects/:projectId/floss';
 
@@ -30,6 +34,10 @@ class FlossScreen extends StatefulWidget {
   static const double maxContentWidth = 720;
 
   final TextSharer sharer;
+  final FileSharer fileSharer;
+
+  /// Для просмотра PDF перед печатью; без него файл сразу уходит в «Поделиться».
+  final PdfRasterizer? rasterizer;
 
   @override
   State<FlossScreen> createState() => _FlossScreenState();
@@ -37,6 +45,28 @@ class FlossScreen extends StatefulWidget {
 
 class _FlossScreenState extends State<FlossScreen> {
   final GlobalKey _shareKey = GlobalKey();
+  final GlobalKey _printKey = GlobalKey();
+  bool _printing = false;
+
+  /// Настройки печати, сборка PDF и лист «Поделиться» (там «Напечатать» и «Сохранить в Файлы»).
+  Future<void> _print() async {
+    if (_printing) return;
+    final FlossCubit cubit = context.read<FlossCubit>();
+    setState(() => _printing = true);
+    try {
+      await runPrintFlow(
+        context,
+        loadOptions: cubit.loadPrintOptions,
+        summary: () async => (await cubit.printSummary()).valueOrNull,
+        build: cubit.exportPdf,
+        fileSharer: widget.fileSharer,
+        rasterizer: widget.rasterizer,
+        originKey: _printKey,
+      );
+    } finally {
+      if (mounted) setState(() => _printing = false);
+    }
+  }
 
   ShareOrigin? _shareOrigin() {
     final RenderObject? box = _shareKey.currentContext?.findRenderObject();
@@ -254,6 +284,22 @@ class _FlossScreenState extends State<FlossScreen> {
             _Header(state: state, format: format),
             top: tokens.spacing.s,
           ),
+          section(
+            AppListSection(
+              margin: EdgeInsets.zero,
+              footer: Text(l10n.flossPrintHint, style: base.copyWith(fontSize: 13, color: secondary)),
+              children: <Widget>[
+                CupertinoListTile.notched(
+                  key: _printKey,
+                  title: Text(l10n.flossPrint),
+                  leading: const Icon(AppIcons.print),
+                  trailing: const CupertinoListTileChevron(),
+                  onTap: () => unawaited(_print()),
+                ),
+              ],
+            ),
+            top: tokens.spacing.m,
+          ),
           section(heading(l10n.flossShoppingTitle), top: tokens.spacing.l),
           section(
             _ShortageSummary(shortage: shortage, remaining: state.remainingOnly, format: format),
@@ -290,7 +336,11 @@ class _FlossScreenState extends State<FlossScreen> {
             sliver: SliverList.separated(
               itemCount: estimate.lines.length,
               separatorBuilder: (_, _) => SizedBox(height: tokens.spacing.s),
-              itemBuilder: (context, index) => _ColorRow(line: estimate.lines[index], format: format),
+              itemBuilder: (context, index) => _ColorRow(
+                line: estimate.lines[index],
+                format: format,
+                slot: state.printOptions.slotLabel(estimate.lines[index].colorIndex - 1, estimate.paletteSize),
+              ),
             ),
           ),
           if (estimate.lines.any((l) => l.isBlend))
@@ -646,10 +696,13 @@ class _StockSheetState extends State<_StockSheet> {
 }
 
 class _ColorRow extends StatelessWidget {
-  const _ColorRow({required this.line, required this.format});
+  const _ColorRow({required this.line, required this.format, required this.slot});
 
   final FlossMaterialLine line;
   final FlossFormat format;
+
+  /// Номер места для иглы на стойке, как в легенде PDF.
+  final String slot;
 
   @override
   Widget build(BuildContext context) {
@@ -662,15 +715,20 @@ class _ColorRow extends StatelessWidget {
     final String? extras = format.extrasText(line);
     final String skeins = format.skeinsText(format.skeins(line));
     return _Card(
-      label: '$article, ${line.color.name}, $stitches, ${extras ?? ''}, $skeins',
+      label: '$slot, $article, ${line.color.name}, $stitches, ${extras ?? ''}, $skeins',
       child: Row(
         children: <Widget>[
-          ColorSwatchView(rgb: line.color.rgb, size: 36),
-          if (line.color.symbol != null)
-            ConstrainedBox(
-              constraints: const BoxConstraints(minWidth: 28),
-              child: Text(line.color.symbol!, textAlign: TextAlign.center, style: base.copyWith(fontSize: 17)),
+          SizedBox(
+            width: 40,
+            child: Text(
+              slot,
+              key: ValueKey<String>('floss-color-slot-${line.colorIndex}'),
+              textAlign: TextAlign.end,
+              style: base.copyWith(fontSize: 17, fontWeight: FontWeight.w600),
             ),
+          ),
+          SizedBox(width: tokens.spacing.s),
+          LegendSwatch(color: line.color),
           SizedBox(width: tokens.spacing.m),
           Expanded(
             child: Column(
