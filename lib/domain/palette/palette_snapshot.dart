@@ -54,6 +54,25 @@ final class PaletteSnapshot extends Equatable {
 
   int get length => colors.length;
 
+  /// Копия, где мелкие и похожие знаки ([SymbolAssigner.avoided]) заменены первым свободным знаком набора. Нужна
+  /// для показа схем, сохранённых с прежним набором; в базу замена не пишется.
+  PaletteSnapshot withLegibleSymbols() {
+    if (!colors.any((c) => c.symbol != null && SymbolAssigner.avoided.contains(c.symbol))) return this;
+    final List<String?> used = colors.map((c) => c.symbol).toList();
+    return PaletteSnapshot(<PatternColor>[
+      for (int i = 0; i < colors.length; i++)
+        if (colors[i].symbol != null && SymbolAssigner.avoided.contains(colors[i].symbol))
+          () {
+            final String? next = _assigner.next(used);
+            if (next == null) return colors[i];
+            used[i] = next;
+            return colors[i].copyWith(symbol: next);
+          }()
+        else
+          colors[i],
+    ]);
+  }
+
   /// Цвет по значению сетки (с 1); `null` для `0` и значений вне палитры.
   PatternColor? colorAt(int gridValue) => _valid(gridValue) ? colors[gridValue - 1] : null;
 

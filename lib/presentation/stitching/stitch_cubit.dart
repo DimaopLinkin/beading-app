@@ -96,7 +96,9 @@ class StitchCubit extends Cubit<StitchState> {
       emit(state.copyWith(status: StitchStatus.failed));
       return;
     }
-    final GridPattern found = pattern.valueOrNull!;
+    final GridPattern loaded = pattern.valueOrNull!;
+    // Мелкие и похожие знаки старых схем заменяем только на показе.
+    final GridPattern found = loaded.copyWith(palette: loaded.palette.withLegibleSymbols());
     final Result<CellProgress> cells = await _cellProgress.load(found.id);
     final Result<GridProgress> rows = await _progress.load(found.id);
     final Result<bool> symbols = await _settings.read<bool>(SettingKeys.symbolMode);

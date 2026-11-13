@@ -126,8 +126,8 @@ void main() {
 
     test('начинается с A–Z, затем цифры', () {
       final List<String> first = assigner.symbols.take(36).toList();
-      expect(first.take(26).join(), 'ABCDEFGHIJKLMNOPQRSTUVWXYZ');
-      expect(first.skip(26).join(), '0123456789');
+      expect(first.take(23).join(), 'ABCDEFGHJKLMNPRSTUVWXYZ');
+      expect(first.skip(23).take(10).join(), '0123456789');
     });
 
     test('не меньше 120 различимых одиночных символов', () {
@@ -135,6 +135,10 @@ void main() {
       expect(all.length, greaterThanOrEqualTo(120));
       expect(all.toSet(), hasLength(all.length));
       expect(all.every((s) => s.runes.length == 1 && s.trim() == s), isTrue);
+    });
+
+    test('нет мелких и похожих знаков', () {
+      expect(assigner.symbols.toSet().intersection(SymbolAssigner.avoided), isEmpty);
     });
 
     test('символов хватает на максимум цветов генератора', () {
@@ -161,6 +165,23 @@ void main() {
 
     test('когда символы кончились — null', () {
       expect(assigner.next(assigner.symbols), isNull);
+    });
+  });
+
+  group('PaletteSnapshot.withLegibleSymbols', () {
+    test('заменяет двоеточие и точку первым свободным знаком, остальное не трогает', () {
+      final PaletteSnapshot palette = PaletteSnapshot(<PatternColor>[
+        _color('a', const Rgb(1, 2, 3), symbol: ':'),
+        _color('b', const Rgb(4, 5, 6), symbol: 'A'),
+        _color('c', const Rgb(7, 8, 9), symbol: '.'),
+      ]);
+      final List<String?> symbols = palette.withLegibleSymbols().colors.map((c) => c.symbol).toList();
+      expect(symbols, <String?>['B', 'A', 'C']);
+    });
+
+    test('без избегаемых знаков возвращает ту же палитру', () {
+      final PaletteSnapshot palette = PaletteSnapshot(<PatternColor>[_color('a', const Rgb(1, 2, 3), symbol: 'A')]);
+      expect(identical(palette.withLegibleSymbols(), palette), isTrue);
     });
   });
 
