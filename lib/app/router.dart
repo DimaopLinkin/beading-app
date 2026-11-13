@@ -114,6 +114,7 @@ GoRouter createRouter(AppDependencies dependencies, {bool showDeveloperTools = !
     ...dependencies.settings.routes(
       showDeveloperTools: showDeveloperTools,
       dataTransfer: getIt.call,
+      sync: dependencies.sync,
     ),
     GoRoute(
       path: AppRoutes.importBook,

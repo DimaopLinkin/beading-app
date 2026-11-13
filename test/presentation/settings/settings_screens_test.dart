@@ -83,8 +83,9 @@ void main() {
         expect(find.text('Производитель бисера'), findsOneWidget);
         expect(find.text('Miyuki'), findsOneWidget);
         expect(find.text('Резервная копия'), findsOneWidget);
-        expect(find.text('Синхронизация с iCloud'), findsOneWidget);
-        expect(find.text('Скоро'), findsNWidgets(2));
+        expect(find.text('Синхронизация'), findsOneWidget);
+        expect(find.text('Скоро'), findsOneWidget);
+        expect(find.text('Не настроена в этой сборке'), findsOneWidget);
         expect(find.text('О приложении'), findsOneWidget);
       });
     }
@@ -160,7 +161,7 @@ void main() {
 
       expect(find.text('Создать резервную копию'), findsOneWidget);
       expect(find.text('Восстановить из файла'), findsOneWidget);
-      expect(find.text('Скоро'), findsOneWidget);
+      expect(find.text('Скоро'), findsNothing);
 
       await tester.tap(find.byKey(const ValueKey<String>('settings-backup')));
       await tester.pump();
