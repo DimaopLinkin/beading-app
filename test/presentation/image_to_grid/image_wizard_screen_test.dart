@@ -267,7 +267,7 @@ void main() {
     expect((painter.cursor as ValueNotifier<Offset?>).value, isNull);
   });
 
-  testWidgets('кисть: на широком экране панель слева, при крупном шрифте размеры уходят в меню', (tester) async {
+  testWidgets('кисть: на широком экране панель слева', (tester) async {
     await tester.binding.setSurfaceSize(const Size(1200, 800));
     addTearDown(() => tester.binding.setSurfaceSize(null));
     await openPhoto(tester, AppTheme.light);
@@ -291,27 +291,55 @@ void main() {
     expect(cubit.state.brush.strokes, hasLength(1));
   });
 
-  testWidgets('кисть при крупном шрифте: размер в меню, кнопки не меньше 84 pt', (tester) async {
-    await tester.binding.setSurfaceSize(const Size(600, 900));
-    addTearDown(() => tester.binding.setSurfaceSize(null));
+  testWidgets('кисть: одна панель навигации, компактная панель инструментов', (tester) async {
+    tester.view
+      ..physicalSize = const Size(430, 932)
+      ..devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
     await openPhoto(tester, AppTheme.light);
     final Finder brushRow = find.byKey(const ValueKey<String>('wizard-brush'));
     await tester.scrollUntilVisible(brushRow, 300, scrollable: find.byType(Scrollable).first);
     await tester.tap(brushRow);
     await tester.pump();
-    // Крупный шрифт включаем уже в режиме кисти: перед ним мастер тесен и на 2× (свои переполнения).
-    tester.platformDispatcher.textScaleFactorTestValue = 1.6;
-    addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
+    expect(find.byType(CupertinoNavigationBar), findsOneWidget);
+    expect(find.text('Отмена'), findsOneWidget);
+    expect(find.text('Выделить важное'), findsOneWidget);
+    expect(find.byKey(const ValueKey<String>('brush-done')), findsOneWidget);
+    final Size panel = tester.getSize(find.byKey(const ValueKey<String>('brush-panel')));
+    expect(panel.width, 430);
+    expect(panel.height, lessThan(932 * 0.25));
+    expect(tester.takeException(), isNull);
+    // Отмена в режиме кисти закрывает только кисть, а не мастер.
+    await tester.tap(find.byKey(const ValueKey<String>('brush-cancel')));
     await tester.pump();
-    await tester.pump();
-    expect(find.byKey(const ValueKey<String>('brush-size-0')), findsNothing);
-    expect(tester.getSize(find.byKey(const ValueKey<String>('brush-draw'))).height, greaterThanOrEqualTo(84));
-    await tester.tap(find.byKey(const ValueKey<String>('brush-size-menu')));
-    await tester.pumpAndSettle();
-    await tester.tap(find.text('Крупный'));
-    await tester.pumpAndSettle();
-    expect(cubit.state.brushSize, 2);
+    expect(cubit.state.brushing, isFalse);
+    expect(find.byType(CupertinoNavigationBar), findsOneWidget);
   });
+
+  for (final double scale in <double>[1.6, 2.4]) {
+    testWidgets('кисть при шрифте ×$scale: без переполнения, размер выбирается', (tester) async {
+      tester.view
+        ..physicalSize = const Size(430, 932)
+        ..devicePixelRatio = 1;
+      addTearDown(tester.view.reset);
+      await openPhoto(tester, AppTheme.light);
+      final Finder brushRow = find.byKey(const ValueKey<String>('wizard-brush'));
+      await tester.scrollUntilVisible(brushRow, 300, scrollable: find.byType(Scrollable).first);
+      await tester.tap(brushRow);
+      await tester.pump();
+      tester.platformDispatcher.textScaleFactorTestValue = scale;
+      addTearDown(tester.platformDispatcher.clearTextScaleFactorTestValue);
+      await tester.pump();
+      await tester.pump();
+      expect(tester.takeException(), isNull);
+      await tester.tap(find.byKey(const ValueKey<String>('brush-size-2')));
+      await tester.pumpAndSettle();
+      expect(cubit.state.brushSize, 2);
+      await tester.tap(find.byKey(const ValueKey<String>('brush-eraser')));
+      await tester.pumpAndSettle();
+      expect(cubit.state.brushEraser, isTrue);
+    });
+  }
 
   ImageMaskSet faceOfWidth(double width) => ImageMaskSet(
     width: 10,

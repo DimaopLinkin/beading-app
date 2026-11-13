@@ -48,14 +48,34 @@ class ImageWizardScreen extends StatelessWidget {
       listenWhen: (previous, current) => current.step == ImageWizardStep.done && previous.step != ImageWizardStep.done,
       listener: (context, state) => Navigator.of(context).maybePop(state.projectId),
       builder: (context, state) => CupertinoPageScaffold(
-        navigationBar: CupertinoNavigationBar(
-          middle: Text(l10n.imageWizardTitle),
-          leading: CupertinoButton(
-            padding: EdgeInsets.zero,
-            onPressed: state.step == ImageWizardStep.saving ? null : () => Navigator.of(context).maybePop(),
-            child: Text(l10n.imageWizardCancel),
-          ),
-        ),
+        navigationBar: state.brushing && state.step == ImageWizardStep.edit
+            // Режим кисти (макет 12): одна панель навигации, «Отмена» и «Готово» кисти в ней.
+            ? CupertinoNavigationBar(
+                middle: Text(l10n.imageWizardBrushTitle),
+                leading: CupertinoButton(
+                  key: const ValueKey<String>('brush-cancel'),
+                  padding: EdgeInsets.zero,
+                  onPressed: context.read<ImageWizardCubit>().cancelBrush,
+                  child: Text(l10n.imageWizardCancel),
+                ),
+                trailing: CupertinoButton(
+                  key: const ValueKey<String>('brush-done'),
+                  padding: EdgeInsets.zero,
+                  onPressed: context.read<ImageWizardCubit>().finishBrush,
+                  child: Text(
+                    l10n.imageWizardBrushDone,
+                    style: const TextStyle(fontWeight: FontWeight.w600),
+                  ),
+                ),
+              )
+            : CupertinoNavigationBar(
+                middle: Text(l10n.imageWizardTitle),
+                leading: CupertinoButton(
+                  padding: EdgeInsets.zero,
+                  onPressed: state.step == ImageWizardStep.saving ? null : () => Navigator.of(context).maybePop(),
+                  child: Text(l10n.imageWizardCancel),
+                ),
+              ),
         child: SafeArea(
           child: switch (state.step) {
             ImageWizardStep.pickSource || ImageWizardStep.done => Stack(
@@ -369,15 +389,15 @@ class _EditState extends State<_Edit> {
               SizedBox(height: gap),
               Text(l10n.imageWizardCompareHint, textAlign: TextAlign.center, style: caption),
               SizedBox(height: gap),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
+              Wrap(
+                alignment: WrapAlignment.center,
+                spacing: gap,
                 children: <Widget>[
                   _IconAction(
                     icon: CupertinoIcons.rotate_right,
                     label: l10n.imageWizardRotate,
                     onPressed: cubit.rotate,
                   ),
-                  SizedBox(width: gap),
                   _IconAction(
                     icon: CupertinoIcons.crop,
                     label: l10n.imageWizardCrop,
