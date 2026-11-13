@@ -1084,6 +1084,8 @@
   "@imageWizardPresetAsIs": {"description": "Детальность без предустановки: простой перенос фото в клетки, больше исходных деталей и одиночных клеток"},
   "imageWizardPresetDetailed": "Детально",
   "@imageWizardPresetDetailed": {"description": "Предустановка: больше мелких деталей"},
+  "imageWizardShopping": "Список закупки",
+  "@imageWizardShopping": {"description": "Строка мастера вышивки: открывает список ниток и канвы к покупке"},
   "imageWizardBrushTitle": "Выделить важное",
   "@imageWizardBrushTitle": {"description": "Строка параметров и заголовок режима кисти"},
   "imageWizardBrushCropHint": "Выделение сохранится при обрезке и повороте.",

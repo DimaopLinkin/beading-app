@@ -465,6 +465,20 @@ void main() {
       expect(cubit.state.settings.backstitch, isTrue);
     });
 
+    testWidgets('список закупки: строка с числом мотков открывает лист с нитками и канвой (T77)', (tester) async {
+      await toStitch(tester);
+      final Finder row = find.byKey(const ValueKey<String>('wizard-shopping'));
+      await tester.scrollUntilVisible(row, 200, scrollable: find.byType(Scrollable).last);
+      await tester.pumpAndSettle();
+      expect(find.text('Список закупки'), findsOneWidget);
+      await tester.tap(row);
+      await tester.pumpAndSettle();
+      expect(find.text('Что купить'), findsOneWidget);
+      expect(find.textContaining('Итого:'), findsOneWidget);
+      await tester.tap(find.byKey(const ValueKey<String>('shopping-close')));
+      await tester.pumpAndSettle();
+    });
+
     testWidgets('ширина: кнопки − и + двигают на 5 см, число вводится с клавиатуры (T71)', (tester) async {
       await toStitch(tester);
       final Finder minus = find.byKey(const ValueKey<String>('wizard-width-cm-minus'));

@@ -1624,6 +1624,9 @@ class AppLocalizationsRu extends AppLocalizations {
   String get imageWizardPresetDetailed => 'Детально';
 
   @override
+  String get imageWizardShopping => 'Список закупки';
+
+  @override
   String get imageWizardBrushTitle => 'Выделить важное';
 
   @override

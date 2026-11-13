@@ -2905,6 +2905,12 @@ abstract class AppLocalizations {
   /// **'Детально'**
   String get imageWizardPresetDetailed;
 
+  /// Строка мастера вышивки: открывает список ниток и канвы к покупке
+  ///
+  /// In ru, this message translates to:
+  /// **'Список закупки'**
+  String get imageWizardShopping;
+
   /// Строка параметров и заголовок режима кисти
   ///
   /// In ru, this message translates to:

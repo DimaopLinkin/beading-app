@@ -18,6 +18,7 @@ import 'package:beading/domain/projects/craft.dart';
 import 'package:beading/domain/settings/floss_brands.dart';
 import 'package:beading/presentation/grid_pattern/grid_pattern_view.dart';
 import 'package:beading/presentation/grid_pattern/grid_view_options.dart';
+import 'package:beading/presentation/image_to_grid/floss_shopping_sheet.dart';
 import 'package:beading/presentation/image_to_grid/full_preview_screen.dart';
 import 'package:beading/presentation/image_to_grid/image_wizard_cubit.dart';
 import 'package:beading/presentation/image_to_grid/image_wizard_state.dart';
@@ -717,6 +718,21 @@ class _EditState extends State<_Edit> {
                   ],
                 ),
               ),
+              if (state.flossEstimate != null && state.previewSettings?.craft == Craft.crossStitch) ...<Widget>[
+                SizedBox(height: gap),
+                AppListSection(
+                  margin: EdgeInsets.zero,
+                  children: <Widget>[
+                    CupertinoListTile.notched(
+                      key: const ValueKey<String>('wizard-shopping'),
+                      title: Text(l10n.imageWizardShopping),
+                      additionalInfo: Text(l10n.flossSkeins(state.flossEstimate!.totalSkeins)),
+                      trailing: const CupertinoListTileChevron(),
+                      onTap: () => unawaited(showFlossShoppingSheet(context, state.flossEstimate!)),
+                    ),
+                  ],
+                ),
+              ],
               SizedBox(height: gap),
               AppListSection(
                 margin: EdgeInsets.zero,
