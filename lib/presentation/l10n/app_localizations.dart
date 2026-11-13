@@ -313,6 +313,12 @@ abstract class AppLocalizations {
   /// **'Поделиться файлом'**
   String get projectShareFile;
 
+  /// Действие над схемой: открыть её в мастере «Схема из картинки» и изменить
+  ///
+  /// In ru, this message translates to:
+  /// **'Изменить в генераторе'**
+  String get projectEditInGenerator;
+
   /// No description provided for @ok.
   ///
   /// In ru, this message translates to:
@@ -3264,6 +3270,42 @@ abstract class AppLocalizations {
   /// In ru, this message translates to:
   /// **'Сохранить схему'**
   String get imageWizardSave;
+
+  /// Заголовок мастера, когда в нём правят уже сохранённую схему
+  ///
+  /// In ru, this message translates to:
+  /// **'Изменить схему'**
+  String get imageWizardEditTitle;
+
+  /// Главная кнопка мастера при правке сохранённой схемы
+  ///
+  /// In ru, this message translates to:
+  /// **'Сохранить изменения'**
+  String get imageWizardSaveChanges;
+
+  /// Подсказка на первом шаге правки схемы, созданной без сохранённого фото
+  ///
+  /// In ru, this message translates to:
+  /// **'Исходного фото у этой схемы не сохранилось. Выберите его снова: размер, канва и техника останутся как были.'**
+  String get imageWizardEditNoPhoto;
+
+  /// Заголовок вопроса при сохранении изменений схемы, по которой уже работали
+  ///
+  /// In ru, this message translates to:
+  /// **'У схемы есть отметки'**
+  String get imageWizardProgressTitle;
+
+  /// Пояснение к вопросу при сохранении изменений схемы с отметками
+  ///
+  /// In ru, this message translates to:
+  /// **'Новая схема не совпадёт с прежней, и отметки к ней не подойдут. Сохранить изменения как новую схему? Прежняя останется как есть.'**
+  String get imageWizardProgressMessage;
+
+  /// Кнопка: сохранить изменённую схему отдельным проектом
+  ///
+  /// In ru, this message translates to:
+  /// **'Сохранить как новую'**
+  String get imageWizardSaveAsCopy;
 
   /// Индикатор сохранения
   ///

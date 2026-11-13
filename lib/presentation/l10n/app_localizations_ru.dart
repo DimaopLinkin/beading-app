@@ -124,6 +124,9 @@ class AppLocalizationsRu extends AppLocalizations {
   String get projectShareFile => 'Поделиться файлом';
 
   @override
+  String get projectEditInGenerator => 'Изменить в генераторе';
+
+  @override
   String get ok => 'Понятно';
 
   @override
@@ -1858,6 +1861,26 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get imageWizardSave => 'Сохранить схему';
+
+  @override
+  String get imageWizardEditTitle => 'Изменить схему';
+
+  @override
+  String get imageWizardSaveChanges => 'Сохранить изменения';
+
+  @override
+  String get imageWizardEditNoPhoto =>
+      'Исходного фото у этой схемы не сохранилось. Выберите его снова: размер, канва и техника останутся как были.';
+
+  @override
+  String get imageWizardProgressTitle => 'У схемы есть отметки';
+
+  @override
+  String get imageWizardProgressMessage =>
+      'Новая схема не совпадёт с прежней, и отметки к ней не подойдут. Сохранить изменения как новую схему? Прежняя останется как есть.';
+
+  @override
+  String get imageWizardSaveAsCopy => 'Сохранить как новую';
 
   @override
   String get imageWizardSaving => 'Сохраняю…';

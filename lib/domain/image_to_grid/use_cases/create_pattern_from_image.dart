@@ -42,7 +42,7 @@ class CreatePatternFromImage {
       geometry: geometryForTechnique(technique),
       grid: pattern.grid,
       palette: palette.valueOrNull,
-      layers: _layers(pattern, technique, metrics),
+      layers: layersForGenerated(pattern, technique, metrics),
     );
     return switch (created) {
       Success<CreatedGridPattern>(:final CreatedGridPattern value) => Success<Project>(value.project),
@@ -51,7 +51,7 @@ class CreatePatternFromImage {
   }
 
   /// Слои вышивки: у вышивки всегда (число сложений по канве и линии контуров, если есть).
-  GridLayersBlob? _layers(GeneratedPattern pattern, Technique technique, CellMetrics metrics) {
+  static GridLayersBlob? layersForGenerated(GeneratedPattern pattern, Technique technique, CellMetrics metrics) {
     if (technique.craft != Craft.crossStitch) return null;
     final StitchSpec spec = metrics is Fabric
         ? StitchSpec(crossStrands: metrics.defaultCrossStrands, backstitchStrands: metrics.defaultBackstitchStrands)

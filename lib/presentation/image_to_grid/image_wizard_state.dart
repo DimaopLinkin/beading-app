@@ -48,6 +48,7 @@ class ImageWizardState extends Equatable {
     this.sizeHint,
     this.problem,
     this.projectId,
+    this.editingProjectId,
   });
 
   final ImageWizardStep step;
@@ -144,6 +145,11 @@ class ImageWizardState extends Equatable {
   /// Созданный проект, когда [step] — [ImageWizardStep.done].
   final String? projectId;
 
+  /// Схема этого проекта открыта на правку (T79): ремесло и техника заперты, сохранение заменяет сетку.
+  final String? editingProjectId;
+
+  bool get editing => editingProjectId != null;
+
   /// Сохранять можно только то, что видно: схема посчитана для текущих параметров.
   bool get canSave => step == ImageWizardStep.edit && preview != null && !calculating && previewSettings == settings;
 
@@ -187,6 +193,7 @@ class ImageWizardState extends Equatable {
     SizeSuggestion? sizeHint,
     ImageWizardProblem? problem,
     String? projectId,
+    String? editingProjectId,
     bool clearProblem = false,
     bool clearPreview = false,
     bool clearMasks = false,
@@ -221,6 +228,7 @@ class ImageWizardState extends Equatable {
     sizeHint: clearSizeHint ? null : (sizeHint ?? this.sizeHint),
     problem: clearProblem ? null : (problem ?? this.problem),
     projectId: projectId ?? this.projectId,
+    editingProjectId: editingProjectId ?? this.editingProjectId,
   );
 
   @override
@@ -254,5 +262,6 @@ class ImageWizardState extends Equatable {
     sizeHint,
     problem,
     projectId,
+    editingProjectId,
   ];
 }

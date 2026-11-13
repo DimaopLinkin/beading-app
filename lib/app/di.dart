@@ -51,8 +51,10 @@ import 'package:beading/domain/image_pattern/picked_book_file.dart';
 import 'package:beading/domain/image_pattern/use_cases/import_book_pattern.dart';
 import 'package:beading/domain/image_to_grid/image_decoder.dart';
 import 'package:beading/domain/image_to_grid/image_masks.dart';
+import 'package:beading/domain/image_to_grid/image_recipe.dart';
 import 'package:beading/domain/image_to_grid/image_to_grid_runner.dart';
 import 'package:beading/domain/image_to_grid/use_cases/create_pattern_from_image.dart';
+import 'package:beading/domain/image_to_grid/use_cases/replace_pattern_from_image.dart';
 import 'package:beading/domain/materials/use_cases/load_project_floss.dart';
 import 'package:beading/domain/materials/use_cases/load_project_materials.dart';
 import 'package:beading/domain/printing/pattern_printer.dart';
@@ -207,6 +209,15 @@ Future<void> configureDependencies(
         catalog: container<CatalogRepository>(),
         settings: container<SettingsRepository>(),
         createPattern: CreatePatternFromImage(container<CreateGridPattern>()),
+        recipes: container<ImageRecipeStore>(),
+        replacePattern: ReplacePatternFromImage(
+          patterns: container<GridPatternRepository>(),
+          rows: container<GridProgressStore>(),
+          cells: container<CellProgressStore>(),
+          projects: container<ProjectRepository>(),
+        ),
+        projects: container<ProjectRepository>(),
+        patterns: container<GridPatternRepository>(),
         sizeHints: true,
       ),
     )
@@ -243,6 +254,7 @@ Future<void> configureDependencies(
     ..registerFactory<MarkColor>(
       () => MarkColor(patterns: container<GridPatternRepository>(), progress: container<CellProgressStore>()),
     )
+    ..registerLazySingleton<ImageRecipeStore>(() => ImageRecipeStore(container<FileStore>()))
     ..registerLazySingleton<GridPatternContentCleaner>(
       () => GridPatternContentCleaner(container<GridPatternRepository>()),
     )
@@ -280,6 +292,7 @@ Future<void> configureDependencies(
         cleaners: <ProjectContentCleaner>[
           container<ImagePatternContentCleaner>(),
           container<GridPatternContentCleaner>(),
+          ImageRecipeContentCleaner(container<ImageRecipeStore>()),
           container<WorkSessionContentCleaner>(),
         ],
       ),
