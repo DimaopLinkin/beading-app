@@ -184,8 +184,110 @@ abstract class AppLocalizations {
   /// No description provided for @settingsSync.
   ///
   /// In ru, this message translates to:
-  /// **'Синхронизация с iCloud'**
+  /// **'Синхронизация'**
   String get settingsSync;
+
+  /// No description provided for @settingsSyncOff.
+  ///
+  /// In ru, this message translates to:
+  /// **'Не настроена в этой сборке'**
+  String get settingsSyncOff;
+
+  /// No description provided for @syncAccount.
+  ///
+  /// In ru, this message translates to:
+  /// **'Аккаунт'**
+  String get syncAccount;
+
+  /// No description provided for @syncEmail.
+  ///
+  /// In ru, this message translates to:
+  /// **'Почта'**
+  String get syncEmail;
+
+  /// No description provided for @syncPassword.
+  ///
+  /// In ru, this message translates to:
+  /// **'Пароль'**
+  String get syncPassword;
+
+  /// No description provided for @syncSignIn.
+  ///
+  /// In ru, this message translates to:
+  /// **'Войти'**
+  String get syncSignIn;
+
+  /// No description provided for @syncSignOut.
+  ///
+  /// In ru, this message translates to:
+  /// **'Выйти'**
+  String get syncSignOut;
+
+  /// No description provided for @syncNow.
+  ///
+  /// In ru, this message translates to:
+  /// **'Синхронизировать сейчас'**
+  String get syncNow;
+
+  /// No description provided for @syncSignedOutHint.
+  ///
+  /// In ru, this message translates to:
+  /// **'Войдите, чтобы работы, прогресс и запас ниток были на всех ваших устройствах. Без входа приложение работает как раньше.'**
+  String get syncSignedOutHint;
+
+  /// No description provided for @syncBusy.
+  ///
+  /// In ru, this message translates to:
+  /// **'Синхронизируем…'**
+  String get syncBusy;
+
+  /// No description provided for @syncNever.
+  ///
+  /// In ru, this message translates to:
+  /// **'Ещё не синхронизировалось'**
+  String get syncNever;
+
+  /// No description provided for @syncUpdatedAt.
+  ///
+  /// In ru, this message translates to:
+  /// **'Обновлено в {time}'**
+  String syncUpdatedAt(String time);
+
+  /// No description provided for @syncProblemInvalidCredentials.
+  ///
+  /// In ru, this message translates to:
+  /// **'Неверная почта или пароль'**
+  String get syncProblemInvalidCredentials;
+
+  /// No description provided for @syncProblemOffline.
+  ///
+  /// In ru, this message translates to:
+  /// **'Нет сети. Приложение работает без синхронизации, изменения отправятся позже.'**
+  String get syncProblemOffline;
+
+  /// No description provided for @syncProblemServer.
+  ///
+  /// In ru, this message translates to:
+  /// **'Сервер синхронизации не отвечает. Возможно, он на паузе.'**
+  String get syncProblemServer;
+
+  /// No description provided for @syncProblemOwnerMismatch.
+  ///
+  /// In ru, this message translates to:
+  /// **'На устройстве данные другого аккаунта. Войдите под прежним аккаунтом.'**
+  String get syncProblemOwnerMismatch;
+
+  /// No description provided for @syncProblemNeedsAppUpdate.
+  ///
+  /// In ru, this message translates to:
+  /// **'На другом устройстве версия новее. Обновите приложение, чтобы получить все данные.'**
+  String get syncProblemNeedsAppUpdate;
+
+  /// No description provided for @syncProblemFailed.
+  ///
+  /// In ru, this message translates to:
+  /// **'Не получилось синхронизировать. Попробуйте ещё раз.'**
+  String get syncProblemFailed;
 
   /// No description provided for @settingsSoon.
   ///

@@ -18,12 +18,21 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 ///
 /// Резервная копия работает, если передан [dataTransfer] (T21); синхронизация — заглушка «Скоро» до T28.
 class SettingsScreen extends StatelessWidget {
-  const SettingsScreen({required this.onOpenAbout, this.onOpenGlassCheck, this.dataTransfer, super.key});
+  const SettingsScreen({
+    required this.onOpenAbout,
+    this.onOpenSync,
+    this.onOpenGlassCheck,
+    this.dataTransfer,
+    super.key,
+  });
 
   /// Резервная копия и восстановление; `null` — пункты «Скоро».
   final DataTransferCubit? dataTransfer;
 
   final VoidCallback onOpenAbout;
+
+  /// `null` — сборка без синхронизации.
+  final VoidCallback? onOpenSync;
 
   /// Раздел «Для разработки» (проверка стекла на устройстве); `null` в релизной сборке.
   final VoidCallback? onOpenGlassCheck;
@@ -106,7 +115,9 @@ class SettingsScreen extends StatelessWidget {
                   CupertinoListTile.notched(
                     key: const ValueKey<String>('settings-sync'),
                     title: Text(l10n.settingsSync),
-                    additionalInfo: Text(l10n.settingsSoon),
+                    additionalInfo: onOpenSync == null ? Text(l10n.settingsSyncOff) : null,
+                    trailing: onOpenSync == null ? null : const CupertinoListTileChevron(),
+                    onTap: onOpenSync,
                   ),
                 ],
               ),

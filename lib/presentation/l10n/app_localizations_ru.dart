@@ -54,7 +54,62 @@ class AppLocalizationsRu extends AppLocalizations {
   String get settingsBackup => 'Резервная копия';
 
   @override
-  String get settingsSync => 'Синхронизация с iCloud';
+  String get settingsSync => 'Синхронизация';
+
+  @override
+  String get settingsSyncOff => 'Не настроена в этой сборке';
+
+  @override
+  String get syncAccount => 'Аккаунт';
+
+  @override
+  String get syncEmail => 'Почта';
+
+  @override
+  String get syncPassword => 'Пароль';
+
+  @override
+  String get syncSignIn => 'Войти';
+
+  @override
+  String get syncSignOut => 'Выйти';
+
+  @override
+  String get syncNow => 'Синхронизировать сейчас';
+
+  @override
+  String get syncSignedOutHint =>
+      'Войдите, чтобы работы, прогресс и запас ниток были на всех ваших устройствах. Без входа приложение работает как раньше.';
+
+  @override
+  String get syncBusy => 'Синхронизируем…';
+
+  @override
+  String get syncNever => 'Ещё не синхронизировалось';
+
+  @override
+  String syncUpdatedAt(String time) {
+    return 'Обновлено в $time';
+  }
+
+  @override
+  String get syncProblemInvalidCredentials => 'Неверная почта или пароль';
+
+  @override
+  String get syncProblemOffline => 'Нет сети. Приложение работает без синхронизации, изменения отправятся позже.';
+
+  @override
+  String get syncProblemServer => 'Сервер синхронизации не отвечает. Возможно, он на паузе.';
+
+  @override
+  String get syncProblemOwnerMismatch => 'На устройстве данные другого аккаунта. Войдите под прежним аккаунтом.';
+
+  @override
+  String get syncProblemNeedsAppUpdate =>
+      'На другом устройстве версия новее. Обновите приложение, чтобы получить все данные.';
+
+  @override
+  String get syncProblemFailed => 'Не получилось синхронизировать. Попробуйте ещё раз.';
 
   @override
   String get settingsSoon => 'Скоро';
