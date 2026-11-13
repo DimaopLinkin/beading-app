@@ -16,6 +16,7 @@ import 'package:beading/domain/image_to_grid/size_suggester.dart';
 import 'package:beading/domain/palette/rgb.dart';
 import 'package:beading/domain/projects/craft.dart';
 import 'package:beading/domain/settings/floss_brands.dart';
+import 'package:beading/domain/sharing/file_sharer.dart';
 import 'package:beading/presentation/grid_pattern/grid_pattern_view.dart';
 import 'package:beading/presentation/grid_pattern/grid_view_options.dart';
 import 'package:beading/presentation/image_to_grid/floss_shopping_sheet.dart';
@@ -26,6 +27,7 @@ import 'package:beading/presentation/image_to_grid/importance_brush_mode.dart';
 import 'package:beading/presentation/import_book/crop_editor.dart';
 import 'package:beading/presentation/l10n/app_localizations.dart';
 import 'package:beading/presentation/library/project_labels.dart';
+import 'package:beading/presentation/printing/print_flow.dart';
 import 'package:beading/presentation/theme/app_icons.dart';
 import 'package:beading/presentation/theme/tokens.dart';
 import 'package:beading/presentation/widgets/app_list_section.dart';
@@ -34,13 +36,16 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 /// Мастер «Схема из картинки». Закрывается с id созданного проекта.
 class ImageWizardScreen extends StatelessWidget {
-  const ImageWizardScreen({this.cameraAvailable, super.key});
+  const ImageWizardScreen({this.cameraAvailable, this.fileSharer, super.key});
 
   /// Адрес экрана в роутере.
   static const String routePath = '/generate/image';
 
   /// Камера есть только на iPhone: на Mac `image_picker` её не поддерживает. `null` — решить по платформе.
   final bool? cameraAvailable;
+
+  /// Лист «Поделиться» для PDF схемы (T80); без него печати в мастере нет.
+  final FileSharer? fileSharer;
 
   @override
   Widget build(BuildContext context) {
@@ -87,7 +92,7 @@ class ImageWizardScreen extends StatelessWidget {
             ),
             ImageWizardStep.edit || ImageWizardStep.saving => Stack(
               children: <Widget>[
-                if (state.brushing) ImportanceBrushMode(state: state) else _Edit(state: state),
+                if (state.brushing) ImportanceBrushMode(state: state) else _Edit(state: state, fileSharer: fileSharer),
                 if (state.step == ImageWizardStep.saving) _Busy(text: l10n.imageWizardSaving),
               ],
             ),
@@ -352,9 +357,10 @@ class _PickSource extends StatelessWidget {
 }
 
 class _Edit extends StatefulWidget {
-  const _Edit({required this.state});
+  const _Edit({required this.state, this.fileSharer});
 
   final ImageWizardState state;
+  final FileSharer? fileSharer;
 
   @override
   State<_Edit> createState() => _EditState();
@@ -733,6 +739,22 @@ class _EditState extends State<_Edit> {
                       trailing: const CupertinoListTileChevron(),
                       onTap: () => unawaited(showFlossShoppingSheet(context, state.flossEstimate!)),
                     ),
+                    if (cubit.canPrint && widget.fileSharer != null)
+                      CupertinoListTile.notched(
+                        key: const ValueKey<String>('wizard-print'),
+                        title: Text(l10n.flossPrint),
+                        leading: const Icon(AppIcons.print),
+                        trailing: const CupertinoListTileChevron(),
+                        onTap: () => unawaited(
+                          runPrintFlow(
+                            context,
+                            loadOptions: cubit.loadPrintOptions,
+                            summary: () async => cubit.printSummary,
+                            build: cubit.exportPdf,
+                            fileSharer: widget.fileSharer!,
+                          ),
+                        ),
+                      ),
                   ],
                 ),
               ],

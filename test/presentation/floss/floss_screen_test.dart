@@ -9,6 +9,8 @@ import 'package:beading/domain/palette/catalog_ref.dart';
 import 'package:beading/domain/palette/palette_snapshot.dart';
 import 'package:beading/domain/palette/pattern_color.dart';
 import 'package:beading/domain/palette/rgb.dart';
+import 'package:beading/domain/printing/print_options.dart';
+import 'package:beading/domain/printing/print_options_store.dart';
 import 'package:beading/domain/printing/use_cases/export_pattern_pdf.dart';
 import 'package:beading/domain/projects/craft.dart';
 import 'package:beading/domain/projects/project.dart';
@@ -25,6 +27,7 @@ import '../../support/fake_floss_stock.dart';
 import '../../support/fake_grid_pattern.dart';
 import '../../support/fake_pattern_printer.dart';
 import '../../support/fake_project_repository.dart';
+import '../../support/fake_settings_repository.dart';
 import '../../support/fake_text_sharer.dart';
 
 Project _stitchProject() => Project(
@@ -75,6 +78,7 @@ void main() {
   late FakeTextSharer sharer;
   late FakeFileSharer fileSharer;
   late FakePatternPrinter printer;
+  late FakeSettingsRepository settings;
   late FakeFlossStockRepository stock;
   late FakeCellProgressStore progress;
 
@@ -84,6 +88,7 @@ void main() {
     sharer = FakeTextSharer();
     fileSharer = FakeFileSharer();
     printer = FakePatternPrinter();
+    settings = FakeSettingsRepository();
     stock = FakeFlossStockRepository();
     progress = FakeCellProgressStore(width: 20);
   });
@@ -93,6 +98,7 @@ void main() {
       projectId: 'proj-1',
       loadFloss: LoadProjectFloss(patterns, progress: progress),
       exportPdf: ExportPatternPdf(projects: projects, patterns: patterns, printer: printer),
+      printOptions: PrintOptionsStore(settings),
       projects: projects,
       stock: stock,
     );
@@ -248,17 +254,38 @@ void main() {
     expect(share.origin, isNotNull);
   });
 
-  testWidgets('«Распечатать схему» собирает PDF и отдаёт файл листу «Поделиться» (T76)', (tester) async {
-    await pumpScreen(tester);
+  testWidgets(
+    'печать: лист настроек показывает страницы, формат и места запоминаются, PDF уходит в «Поделиться» (T76, T80)',
+    (
+      tester,
+    ) async {
+      await pumpScreen(tester);
 
-    await tester.tap(find.text('Распечатать схему (PDF)'));
-    await tester.pumpAndSettle();
+      await tester.tap(find.text('Распечатать схему (PDF)'));
+      await tester.pumpAndSettle();
+      expect(find.text('Печать схемы'), findsOneWidget);
+      expect(find.textContaining('Страниц: 2 (схема 1 + легенда 1)'), findsOneWidget);
 
-    expect(printer.calls.single.title, 'Котик');
-    final share = fileSharer.shared.single;
-    expect(share.fileName, 'Котик.pdf');
-    expect(share.origin, isNotNull);
-  });
+      await tester.tap(find.text('A3'));
+      await tester.tap(find.byKey(const ValueKey<String>('print-slots-minus')));
+      await tester.pumpAndSettle();
+      expect(find.text('45'), findsOneWidget);
+      await tester.tap(find.byKey(const ValueKey<String>('print-build')));
+      await tester.pumpAndSettle();
+
+      expect(printer.calls.single.title, 'Котик');
+      expect(printer.calls.single.options, const PrintOptions(paper: PrintPaper.a3, slotsPerRack: 45));
+      final share = fileSharer.shared.single;
+      expect(share.fileName, 'Котик.pdf');
+      expect(share.origin, isNotNull);
+      expect(await PrintOptionsStore(settings).load(), const PrintOptions(paper: PrintPaper.a3, slotsPerRack: 45));
+
+      // Следующая печать начинается с запомненных настроек.
+      await tester.tap(find.text('Распечатать схему (PDF)'));
+      await tester.pumpAndSettle();
+      expect(find.text('45'), findsOneWidget);
+    },
+  );
 
   testWidgets('ошибка сборки PDF: понятное сообщение, файл не отдаётся (T76)', (tester) async {
     printer.failure = const UnexpectedFailure('boom');
@@ -266,8 +293,22 @@ void main() {
 
     await tester.tap(find.text('Распечатать схему (PDF)'));
     await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey<String>('print-build')));
+    await tester.pumpAndSettle();
 
     expect(find.text('Не удалось собрать PDF. Попробуйте ещё раз.'), findsOneWidget);
+    expect(fileSharer.shared, isEmpty);
+  });
+
+  testWidgets('отмена в листе настроек ничего не собирает', (tester) async {
+    await pumpScreen(tester);
+
+    await tester.tap(find.text('Распечатать схему (PDF)'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Отмена'));
+    await tester.pumpAndSettle();
+
+    expect(printer.calls, isEmpty);
     expect(fileSharer.shared, isEmpty);
   });
 

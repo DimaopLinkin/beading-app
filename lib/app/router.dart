@@ -174,7 +174,7 @@ GoRouter createRouter(AppDependencies dependencies, {bool showDeveloperTools = !
           }
           return cubit;
         },
-        child: const ImageWizardScreen(),
+        child: ImageWizardScreen(fileSharer: getIt<FileSharer>()),
       ),
     ),
     GoRoute(
