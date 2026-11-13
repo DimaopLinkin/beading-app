@@ -9,6 +9,9 @@ abstract final class AppIcons {
   static const IconData rowUp = CupertinoIcons.chevron_up;
   static const IconData rowDown = CupertinoIcons.chevron_down;
   static const IconData resize = CupertinoIcons.arrow_up_down;
+  static const IconData resizeWide = CupertinoIcons.arrow_left_right;
+  static const IconData zoneFrame = CupertinoIcons.crop;
+  static const IconData zoneMinus = CupertinoIcons.minus;
   static const IconData warning = CupertinoIcons.exclamationmark_triangle;
   static const IconData forward = CupertinoIcons.chevron_forward;
   static const IconData rulerSettings = CupertinoIcons.slider_horizontal_3;
@@ -16,10 +19,15 @@ abstract final class AppIcons {
   static const IconData pages = CupertinoIcons.square_on_square;
   static const IconData share = CupertinoIcons.share;
   static const IconData catalog = CupertinoIcons.color_filter;
+  static const IconData thread = CupertinoIcons.bag;
   static const IconData selected = CupertinoIcons.checkmark;
+  static const IconData minus = CupertinoIcons.minus_circle;
+  static const IconData plus = CupertinoIcons.plus_circle;
+  static const IconData template = CupertinoIcons.square_grid_3x2;
   static const IconData craftBeading = CupertinoIcons.circle_grid_3x3_fill;
   static const IconData craftCrossStitch = CupertinoIcons.square_grid_2x2_fill;
 
+  static const IconData photo = CupertinoIcons.photo;
   static const IconData search = CupertinoIcons.search;
 
   // Инструменты редактора (01b, п. 6). Eraser, selection, mirror и режим «по бусине» нарисованы виджетом `AppGlyph`.
@@ -29,6 +37,12 @@ abstract final class AppIcons {
   static const IconData replaceColor = CupertinoIcons.arrow_left_right;
   static const IconData undo = CupertinoIcons.arrow_uturn_left;
   static const IconData redo = CupertinoIcons.arrow_uturn_right;
+
+  /// Маркер на странице схемы из книги (T45).
+  static const IconData marker = CupertinoIcons.pencil_outline;
+  static const IconData eraser = CupertinoIcons.delete_left;
+  static const IconData eye = CupertinoIcons.eye;
+  static const IconData eyeOff = CupertinoIcons.eye_slash;
 
   /// Имена SF Symbols для будущей нативной подмены (по таблице 01b). Проверены по названию, но не в приложении
   /// SF Symbols: `paintbucket.classic` может отсутствовать в старых версиях, запасной `drop.fill`.

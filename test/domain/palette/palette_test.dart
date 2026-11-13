@@ -1,5 +1,6 @@
 import 'package:beading/core/failure.dart';
 import 'package:beading/core/result.dart';
+import 'package:beading/domain/image_to_grid/image_to_grid_settings.dart';
 import 'package:beading/domain/palette/catalog_ref.dart';
 import 'package:beading/domain/palette/nearest_color_matcher.dart';
 import 'package:beading/domain/palette/palette_snapshot.dart';
@@ -134,6 +135,10 @@ void main() {
       expect(all.length, greaterThanOrEqualTo(120));
       expect(all.toSet(), hasLength(all.length));
       expect(all.every((s) => s.runes.length == 1 && s.trim() == s), isTrue);
+    });
+
+    test('символов хватает на максимум цветов генератора', () {
+      expect(assigner.symbols.length, greaterThanOrEqualTo(ImageToGridSettings.maxColorsLimit));
     });
 
     test('120 цветов получают 120 разных символов', () {

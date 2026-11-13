@@ -25,4 +25,75 @@ void registerLibraryEntries(NewProjectRegistry registry) {
       ),
     );
   }
+
+  // Редактор бисерных схем (T17).
+  registry.register(
+    NewProjectEntry(
+      id: 'draw-grid-beading',
+      craft: Craft.beading,
+      order: 20,
+      title: (l10n) => l10n.libraryDrawPattern,
+      icon: AppIcons.brush,
+      onSelected: (context) async {
+        final String? projectId = await context.push<String>(AppRoutes.newGrid);
+        if (projectId != null && context.mounted) {
+          await context.push<void>(AppRoutes.editor(projectId));
+        }
+      },
+    ),
+  );
+
+  // Редактор схем вышивки (T40): канва, размер, потом тот же редактор со стежками и слоями.
+  registry.register(
+    NewProjectEntry(
+      id: 'draw-grid-cross-stitch',
+      craft: Craft.crossStitch,
+      order: 20,
+      title: (l10n) => l10n.libraryDrawStitchPattern,
+      icon: AppIcons.brush,
+      onSelected: (context) async {
+        final String? projectId = await context.push<String>(AppRoutes.newStitch);
+        if (projectId != null && context.mounted) {
+          await context.push<void>(AppRoutes.editor(projectId));
+        }
+      },
+    ),
+  );
+
+  // Схема из фото: мастер открывается сразу с нужным ремеслом, внутри его можно сменить.
+  for (final Craft craft in Craft.values) {
+    registry.register(
+      NewProjectEntry(
+        id: 'image-to-grid-${craft.name}',
+        craft: craft,
+        order: 30,
+        title: (l10n) => l10n.libraryImageToGrid,
+        icon: AppIcons.photo,
+        onSelected: (context) async {
+          // Готовую схему сразу открываем в редакторе: подправить лишнее и начать работу.
+          final String? projectId = await context.push<String>('${AppRoutes.imageToGrid}?craft=${craft.name}');
+          if (projectId != null && context.mounted) {
+            await context.push<void>(AppRoutes.editor(projectId));
+          }
+        },
+      ),
+    );
+  }
+
+  // Узор по готовому шаблону: бисер; после сохранения проект открывается в редакторе.
+  registry.register(
+    NewProjectEntry(
+      id: 'pattern-template',
+      craft: Craft.beading,
+      order: 40,
+      title: (l10n) => l10n.templateEntryTitle,
+      icon: AppIcons.template,
+      onSelected: (context) async {
+        final String? projectId = await context.push<String>(AppRoutes.patternTemplate);
+        if (projectId != null && context.mounted) {
+          await context.push<void>(AppRoutes.editor(projectId));
+        }
+      },
+    ),
+  );
 }

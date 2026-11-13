@@ -2,10 +2,10 @@ import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
 
-/// Запускает scripts/check_architecture.sh на временной фикстуре проекта.
+/// Запускает scripts/internal/check_architecture.sh на временной фикстуре проекта.
 void main() {
   late Directory fixture;
-  final String script = '${Directory.current.path}/scripts/check_architecture.sh';
+  final String script = '${Directory.current.path}/scripts/internal/check_architecture.sh';
 
   setUp(() {
     fixture = Directory.systemTemp.createTempSync('arch_fixture_');
@@ -64,6 +64,24 @@ void main() {
       expect(result.exitCode, 1);
       expect(result.stdout, contains('ARCH:'));
       expect(result.stdout, contains(path));
+    });
+  });
+
+  group('cupertino_icons', () {
+    test('CupertinoIcons без зависимости в pubspec — ошибка', () {
+      write('lib/presentation/i.dart', 'const x = CupertinoIcons.add;\n');
+
+      final ProcessResult result = run();
+
+      expect(result.exitCode, 1);
+      expect(result.stdout, contains('cupertino_icons'));
+    });
+
+    test('CupertinoIcons с зависимостью проходит', () {
+      File('${fixture.path}/pubspec.yaml').writeAsStringSync('name: demo\ndependencies:\n  cupertino_icons: ^1.0.8\n');
+      write('lib/presentation/i.dart', 'const x = CupertinoIcons.add;\n');
+
+      expect(run().exitCode, 0);
     });
   });
 }

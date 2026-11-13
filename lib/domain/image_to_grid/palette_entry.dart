@@ -4,7 +4,7 @@ import 'package:equatable/equatable.dart';
 
 /// Цвет результата: позиция каталога или, при свободной палитре, просто цвет.
 final class PaletteEntry extends Equatable {
-  const PaletteEntry({required this.rgb, this.catalog});
+  const PaletteEntry({required this.rgb, this.catalog, this.blendPartner});
 
   /// Цвет позиции каталога: показывается её собственный RGB.
   factory PaletteEntry.fromCatalog(CatalogColor color) => PaletteEntry(rgb: color.rgb, catalog: color);
@@ -14,6 +14,9 @@ final class PaletteEntry extends Equatable {
   /// Позиция каталога или `null` для цвета вне каталога.
   final CatalogColor? catalog;
 
+  /// Вторая нитка бленда (T46): в иголке [catalog] и она, [rgb] — их среднее. `null` — обычный цвет.
+  final CatalogColor? blendPartner;
+
   @override
-  List<Object?> get props => <Object?>[rgb, catalog];
+  List<Object?> get props => <Object?>[rgb, catalog, blendPartner];
 }

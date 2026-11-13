@@ -1,213 +1,5584 @@
 {
-  "version": 1,
-  "material": "bead",
-  "brand": "Toho",
-  "series": "Round",
-  "sizeCode": "11/0",
-  "colors": [
-    {
-      "code": "8",
-      "name": "Transparent Cobalt",
-      "rgb": "#1f3f9a",
-      "finish": "transparent"
-    },
-    {
-      "code": "19",
-      "name": "Sugar Plum",
-      "rgb": "#8f4f8a",
-      "finish": "opaque"
-    },
-    {
-      "code": "42",
-      "name": "Dandelion Opaque",
-      "rgb": "#f0cf2a",
-      "finish": "opaque"
-    },
-    {
-      "code": "43",
-      "name": "Blue Turquoise Opaque",
-      "rgb": "#1fa0b8",
-      "finish": "opaque"
-    },
-    {
-      "code": "44",
-      "name": "Opaque Sour Apple",
-      "rgb": "#a8c83a",
-      "finish": "opaque"
-    },
-    {
-      "code": "45A",
-      "name": "Cherry Opaque",
-      "rgb": "#b02030",
-      "finish": "opaque"
-    },
-    {
-      "code": "47",
-      "name": "Green Mint Opaque",
-      "rgb": "#9fd3b0",
-      "finish": "opaque"
-    },
-    {
-      "code": "49",
-      "name": "Opaque Jet",
-      "rgb": "#111111",
-      "finish": "opaque"
-    },
-    {
-      "code": "51",
-      "name": "Opaque Lt. Beige",
-      "rgb": "#e3d3b8",
-      "finish": "opaque"
-    },
-    {
-      "code": "118",
-      "name": "Green Emerald Luster",
-      "rgb": "#2a8f5a",
-      "finish": "luster"
-    },
-    {
-      "code": "123D",
-      "name": "Dark Beige Opaque Luster",
-      "rgb": "#b89a78",
-      "finish": "luster"
-    },
-    {
-      "code": "128",
-      "name": "Dandelion Luster",
-      "rgb": "#e8c85a",
-      "finish": "luster"
-    },
-    {
-      "code": "130",
-      "name": "Mint Green Luster",
-      "rgb": "#a8d8c0",
-      "finish": "luster"
-    },
-    {
-      "code": "133",
-      "name": "Lavender Luster",
-      "rgb": "#c0aad8",
-      "finish": "luster"
-    },
-    {
-      "code": "145L",
-      "name": "Soft Pink Ceylon",
-      "rgb": "#f0d0d8",
-      "finish": "ceylon"
-    },
-    {
-      "code": "150",
-      "name": "Smoke Ceylon",
-      "rgb": "#a09aa0",
-      "finish": "ceylon"
-    },
-    {
-      "code": "161",
-      "name": "Crystal Rainbow",
-      "rgb": "#e8e8ee",
-      "finish": "rainbow"
-    },
-    {
-      "code": "246",
-      "name": "Luster Black Diamond/Opaque Yellow Lined",
-      "rgb": "#8a7a30",
-      "finish": "lined"
-    },
-    {
-      "code": "262",
-      "name": "Crystal Gold Lined",
-      "rgb": "#e0d090",
-      "finish": "gold_lined"
-    },
-    {
-      "code": "612",
-      "name": "Gun Metal Matte",
-      "rgb": "#4a4a50",
-      "finish": "matte"
-    },
-    {
-      "code": "706",
-      "name": "Matte Iris Teal",
-      "rgb": "#3a6f7a",
-      "finish": "matte"
-    },
-    {
-      "code": "904",
-      "name": "Apricot Ceylon",
-      "rgb": "#f0c8a8",
-      "finish": "ceylon"
-    },
-    {
-      "code": "905",
-      "name": "Peach Blush Ceylon",
-      "rgb": "#f0b8a8",
-      "finish": "ceylon"
-    },
-    {
-      "code": "7B",
-      "name": "Green Grass",
-      "rgb": "#3f9a4a",
-      "finish": "transparent"
-    },
-    {
-      "code": "21F",
-      "name": "Silver Lined Frosted Crystal",
-      "rgb": "#d8dadc",
-      "finish": "frosted"
-    },
-    {
-      "code": "27BD",
-      "name": "Teal Silver Lined",
-      "rgb": "#2a8a90",
-      "finish": "silver_lined"
-    },
-    {
-      "code": "45F",
-      "name": "Red Pepper Frosted",
-      "rgb": "#c03a30",
-      "finish": "frosted"
-    },
-    {
-      "code": "48F",
-      "name": "Navy Blue Frosted",
-      "rgb": "#2a3a6a",
-      "finish": "frosted"
-    },
-    {
-      "code": "148F",
-      "name": "Ceylon Frosted Peach Cobbler",
-      "rgb": "#f0c0a0",
-      "finish": "frosted"
-    },
-    {
-      "code": "252",
-      "name": "Aqua/Purple Lined",
-      "rgb": "#7a60a8",
-      "finish": "lined"
-    },
-    {
-      "code": "252F",
-      "name": "Aqua/Purple Lined Frosted",
-      "rgb": "#8a78b0",
-      "finish": "frosted"
-    },
-    {
-      "code": "999",
-      "name": "Black Diamond Rainbow Gold Lined",
-      "rgb": "#7a6a50",
-      "finish": "rainbow"
-    },
-    {
-      "code": "2602F",
-      "name": "Honeydew Semi Glazed",
-      "rgb": "#b8d8a0",
-      "finish": "semi_glazed"
-    },
-    {
-      "code": "2611F",
-      "name": "Orange Semi Glazed",
-      "rgb": "#e8903a",
-      "finish": "semi_glazed"
-    }
-  ]
+ "version": 2,
+ "material": "bead",
+ "brand": "Toho",
+ "series": "Round",
+ "sizeCode": "11/0",
+ "source": "adamaszczos/beadloo-assets@3ed19b1247e3bc315b646dbcc4de691c996dccfb",
+ "colors": [
+  {
+   "code": "1",
+   "name": "Crystal, Transparent",
+   "rgb": "#d9d8dd",
+   "finish": "transparent"
+  },
+  {
+   "code": "1F",
+   "name": "Crystal, Transparent, Frosted",
+   "rgb": "#d9d9d2",
+   "finish": "matte"
+  },
+  {
+   "code": "2",
+   "name": "Lt Topaz, Transparent",
+   "rgb": "#d5871a",
+   "finish": "transparent"
+  },
+  {
+   "code": "2B",
+   "name": "Med Topaz, Transparent",
+   "rgb": "#cc7c23",
+   "finish": "transparent"
+  },
+  {
+   "code": "2C",
+   "name": "Topaz, Transparent",
+   "rgb": "#c06833",
+   "finish": "transparent"
+  },
+  {
+   "code": "2CF",
+   "name": "Dk Topaz, Transparent, Frosted",
+   "rgb": "#7f4413",
+   "finish": "matte"
+  },
+  {
+   "code": "2F",
+   "name": "Lt Topaz, Transparent, Frosted",
+   "rgb": "#cd821e",
+   "finish": "matte"
+  },
+  {
+   "code": "3",
+   "name": "Aquamarine, Transparent",
+   "rgb": "#0faee5",
+   "finish": "transparent"
+  },
+  {
+   "code": "3B",
+   "name": "Dk Aquamarine, Transparent",
+   "rgb": "#097fed",
+   "finish": "transparent"
+  },
+  {
+   "code": "3BF",
+   "name": "Med Aquamarine, Transparent, Frosted",
+   "rgb": "#028cfa",
+   "finish": "matte"
+  },
+  {
+   "code": "3C",
+   "name": "Dk Aquamarine, Transparent",
+   "rgb": "#0963c8",
+   "finish": "transparent"
+  },
+  {
+   "code": "3CF",
+   "name": "Dk Aquamarine, Transparent, Frosted",
+   "rgb": "#2c61cf",
+   "finish": "matte"
+  },
+  {
+   "code": "4",
+   "name": "Lime Green, Transparent",
+   "rgb": "#8db81c",
+   "finish": "transparent"
+  },
+  {
+   "code": "4F",
+   "name": "Lime Green, Transparent, Frosted",
+   "rgb": "#92c22f",
+   "finish": "matte"
+  },
+  {
+   "code": "5",
+   "name": "Lt Siam Ruby, Transparent",
+   "rgb": "#e2331f",
+   "finish": "transparent"
+  },
+  {
+   "code": "5B",
+   "name": "Siam Ruby, Transparent",
+   "rgb": "#b42a2c",
+   "finish": "transparent"
+  },
+  {
+   "code": "5BF",
+   "name": "Siam Ruby, Transparent, Frosted",
+   "rgb": "#b7262a",
+   "finish": "matte"
+  },
+  {
+   "code": "5C",
+   "name": "Ruby, Transparent",
+   "rgb": "#b02829",
+   "finish": "transparent"
+  },
+  {
+   "code": "5CF",
+   "name": "Ruby, Transparent, Frosted",
+   "rgb": "#a5393b",
+   "finish": "matte"
+  },
+  {
+   "code": "5D",
+   "name": "Garnet, Transparent",
+   "rgb": "#6d4849",
+   "finish": "transparent"
+  },
+  {
+   "code": "5F",
+   "name": "Lt Siam Ruby, Transparent, Frosted",
+   "rgb": "#ef191c",
+   "finish": "matte"
+  },
+  {
+   "code": "6",
+   "name": "Lt Amethyst, Transparent",
+   "rgb": "#a77b8c",
+   "finish": "transparent"
+  },
+  {
+   "code": "6B",
+   "name": "Med Amethyst, Transparent",
+   "rgb": "#3f2137",
+   "finish": "transparent"
+  },
+  {
+   "code": "6BF",
+   "name": "Med Amethyst, Transparent, Frosted",
+   "rgb": "#673b52",
+   "finish": "matte"
+  },
+  {
+   "code": "6C",
+   "name": "Amethyst, Transparent",
+   "rgb": "#6f6267",
+   "finish": "transparent"
+  },
+  {
+   "code": "6CF",
+   "name": "Amethyst, Transparent, Frosted",
+   "rgb": "#42323e",
+   "finish": "matte"
+  },
+  {
+   "code": "6F",
+   "name": "Lt Amethyst, Transparent, Frosted",
+   "rgb": "#8b6174",
+   "finish": "matte"
+  },
+  {
+   "code": "7",
+   "name": "Peridot, Transparent",
+   "rgb": "#288d32",
+   "finish": "transparent"
+  },
+  {
+   "code": "7B",
+   "name": "Grass Green, Transparent",
+   "rgb": "#287a3a",
+   "finish": "transparent"
+  },
+  {
+   "code": "7BD",
+   "name": "Capri Blue, Transparent",
+   "rgb": "#2a616d",
+   "finish": "transparent"
+  },
+  {
+   "code": "7BDF",
+   "name": "Teal, Transparent, Frosted",
+   "rgb": "#0e5256",
+   "finish": "matte"
+  },
+  {
+   "code": "7BF",
+   "name": "Grass Green, Transparent, Frosted",
+   "rgb": "#146d2d",
+   "finish": "matte"
+  },
+  {
+   "code": "7F",
+   "name": "Peridot, Transparent, Frosted",
+   "rgb": "#28912c",
+   "finish": "matte"
+  },
+  {
+   "code": "8",
+   "name": "Cobalt, Transparent",
+   "rgb": "#281f5f",
+   "finish": "transparent"
+  },
+  {
+   "code": "8D",
+   "name": "Cobalt, Transparent",
+   "rgb": "#1a1b39",
+   "finish": "transparent"
+  },
+  {
+   "code": "8DF",
+   "name": "Cobalt, Transparent, Frosted",
+   "rgb": "#2b1e59",
+   "finish": "matte"
+  },
+  {
+   "code": "8F",
+   "name": "Dk Sapphire, Transparent, Frosted",
+   "rgb": "#20114d",
+   "finish": "matte"
+  },
+  {
+   "code": "9",
+   "name": "Black Diamond, Transparent",
+   "rgb": "#76807d",
+   "finish": "transparent"
+  },
+  {
+   "code": "9AF",
+   "name": "Black Diamond, Other, Frosted",
+   "rgb": "#7b817d",
+   "finish": "matte"
+  },
+  {
+   "code": "9B",
+   "name": "Gray, Transparent",
+   "rgb": "#5c6463",
+   "finish": "transparent"
+  },
+  {
+   "code": "9F",
+   "name": "Lt Gray, Transparent, Frosted",
+   "rgb": "#788281",
+   "finish": "matte"
+  },
+  {
+   "code": "10",
+   "name": "Lt Hyacinth, Transparent",
+   "rgb": "#f45d19",
+   "finish": "transparent"
+  },
+  {
+   "code": "10B",
+   "name": "Hyacinth, Transparent",
+   "rgb": "#fc5d21",
+   "finish": "transparent"
+  },
+  {
+   "code": "10BF",
+   "name": "Hyacinth, Transparent, Frosted",
+   "rgb": "#d33702",
+   "finish": "matte"
+  },
+  {
+   "code": "11",
+   "name": "Rosaline, Transparent",
+   "rgb": "#e2b0a6",
+   "finish": "transparent"
+  },
+  {
+   "code": "11F",
+   "name": "Rosaline, Transparent, Frosted",
+   "rgb": "#e3b4ab",
+   "finish": "matte"
+  },
+  {
+   "code": "12",
+   "name": "Lemon, Transparent",
+   "rgb": "#ecdc36",
+   "finish": "transparent"
+  },
+  {
+   "code": "12F",
+   "name": "Lemon, Transparent, Frosted",
+   "rgb": "#d9cb2b",
+   "finish": "matte"
+  },
+  {
+   "code": "13",
+   "name": "Lt Sapphire, Transparent",
+   "rgb": "#617dcb",
+   "finish": "transparent"
+  },
+  {
+   "code": "13F",
+   "name": "Lt Sapphire, Transparent, Frosted",
+   "rgb": "#6b8fe8",
+   "finish": "matte"
+  },
+  {
+   "code": "14",
+   "name": "Root Beer, Transparent",
+   "rgb": "#2b2824",
+   "finish": "transparent"
+  },
+  {
+   "code": "15",
+   "name": "Citrus Spritz, Other",
+   "rgb": "#b8cf80",
+   "finish": "opaque"
+  },
+  {
+   "code": "15F",
+   "name": "Citrus Spritz, Transparent, Frosted",
+   "rgb": "#d7e6ae",
+   "finish": "matte"
+  },
+  {
+   "code": "19",
+   "name": "Sugar Plum, Transparent",
+   "rgb": "#8a789d",
+   "finish": "transparent"
+  },
+  {
+   "code": "19F",
+   "name": "Sugar Plum, Transparent, Frosted",
+   "rgb": "#7b668f",
+   "finish": "matte"
+  },
+  {
+   "code": "21",
+   "name": "Crystal, Transparent, Silver-Lined",
+   "rgb": "#cac6b4",
+   "finish": "silver_lined"
+  },
+  {
+   "code": "21F",
+   "name": "Crystal, Transparent, Frosted, Silver-Lined",
+   "rgb": "#c1b7a6",
+   "finish": "silver_lined"
+  },
+  {
+   "code": "22",
+   "name": "Lt Topaz, Transparent, Silver-Lined",
+   "rgb": "#dfb359",
+   "finish": "silver_lined"
+  },
+  {
+   "code": "22A",
+   "name": "Lt Topaz, Transparent, Silver-Lined",
+   "rgb": "#cdbc6a",
+   "finish": "silver_lined"
+  },
+  {
+   "code": "22B",
+   "name": "Med Topaz, Transparent, Silver-Lined",
+   "rgb": "#d6a864",
+   "finish": "silver_lined"
+  },
+  {
+   "code": "22BF",
+   "name": "Topaz, Transparent, Frosted, Silver-Lined",
+   "rgb": "#edd08a",
+   "finish": "silver_lined"
+  },
+  {
+   "code": "22C",
+   "name": "Topaz, Transparent, Silver-Lined",
+   "rgb": "#af7441",
+   "finish": "silver_lined"
+  },
+  {
+   "code": "22CF",
+   "name": "Dk Topaz, Transparent, Frosted, Silver-Lined",
+   "rgb": "#b9792f",
+   "finish": "silver_lined"
+  },
+  {
+   "code": "22F",
+   "name": "Lt Topaz, Transparent, Frosted, Silver-Lined",
+   "rgb": "#caa65d",
+   "finish": "silver_lined"
+  },
+  {
+   "code": "23",
+   "name": "Aquamarine, Transparent, Silver-Lined",
+   "rgb": "#5cc0cd",
+   "finish": "silver_lined"
+  },
+  {
+   "code": "23B",
+   "name": "Dk Aqua, Transparent, Silver-Lined",
+   "rgb": "#45b0ce",
+   "finish": "silver_lined"
+  },
+  {
+   "code": "23BD",
+   "name": "Other",
+   "rgb": "#3d7699",
+   "finish": "opaque"
+  },
+  {
+   "code": "23BF",
+   "name": "Dk Aquamarine, Transparent, Frosted, Silver-Lined",
+   "rgb": "#349fca",
+   "finish": "silver_lined"
+  },
+  {
+   "code": "23F",
+   "name": "Aquamarine, Transparent, Frosted, Silver-Lined",
+   "rgb": "#6ec2d4",
+   "finish": "silver_lined"
+  },
+  {
+   "code": "23L",
+   "name": "Lt Denim Blue, Transparent, Silver-Lined",
+   "rgb": "#789ce3",
+   "finish": "silver_lined"
+  },
+  {
+   "code": "24",
+   "name": "Lime Green, Transparent, Silver-Lined",
+   "rgb": "#adc145",
+   "finish": "silver_lined"
+  },
+  {
+   "code": "24B",
+   "name": "Dk Peridot, Transparent, Silver-Lined",
+   "rgb": "#47b48a",
+   "finish": "silver_lined"
+  },
+  {
+   "code": "24BF",
+   "name": "Dk Peridot, Transparent, Frosted, Silver-Lined",
+   "rgb": "#67b99d",
+   "finish": "silver_lined"
+  },
+  {
+   "code": "24F",
+   "name": "Lime Green, Transparent, Frosted, Silver-Lined",
+   "rgb": "#b7c248",
+   "finish": "silver_lined"
+  },
+  {
+   "code": "25",
+   "name": "Lt Siam Ruby, Transparent, Silver-Lined",
+   "rgb": "#de3936",
+   "finish": "silver_lined"
+  },
+  {
+   "code": "25B",
+   "name": "Siam Ruby, Transparent, Silver-Lined",
+   "rgb": "#c4302d",
+   "finish": "silver_lined"
+  },
+  {
+   "code": "25C",
+   "name": "Ruby, Transparent, Silver-Lined",
+   "rgb": "#a33835",
+   "finish": "silver_lined"
+  },
+  {
+   "code": "25CF",
+   "name": "Ruby, Transparent, Frosted, Silver-Lined",
+   "rgb": "#6a271d",
+   "finish": "silver_lined"
+  },
+  {
+   "code": "25D",
+   "name": "Garnet, Transparent, Silver-Lined",
+   "rgb": "#8a635e",
+   "finish": "silver_lined"
+  },
+  {
+   "code": "25DF",
+   "name": "Garnet, Transparent, Frosted, Silver-Lined",
+   "rgb": "#9e3b3f",
+   "finish": "silver_lined"
+  },
+  {
+   "code": "25F",
+   "name": "Lt Siam Ruby, Transparent, Frosted, Silver-Lined",
+   "rgb": "#c12520",
+   "finish": "silver_lined"
+  },
+  {
+   "code": "26",
+   "name": "Lt Amethyst, Transparent, Silver-Lined",
+   "rgb": "#bd9491",
+   "finish": "silver_lined"
+  },
+  {
+   "code": "26B",
+   "name": "Med Amethyst, Transparent, Silver-Lined",
+   "rgb": "#a57e7e",
+   "finish": "silver_lined"
+  },
+  {
+   "code": "26BF",
+   "name": "Med Amethyst, Transparent, Frosted, Silver-Lined",
+   "rgb": "#b7898f",
+   "finish": "silver_lined"
+  },
+  {
+   "code": "26C",
+   "name": "Amethyst, Transparent, Silver-Lined",
+   "rgb": "#a57d84",
+   "finish": "silver_lined"
+  },
+  {
+   "code": "26CF",
+   "name": "Amethyst, Transparent, Frosted, Silver-Lined",
+   "rgb": "#a07474",
+   "finish": "silver_lined"
+  },
+  {
+   "code": "27",
+   "name": "Peridot, Transparent, Silver-Lined",
+   "rgb": "#4eb140",
+   "finish": "silver_lined"
+  },
+  {
+   "code": "27B",
+   "name": "Grass Green, Transparent, Silver-Lined",
+   "rgb": "#41a64f",
+   "finish": "silver_lined"
+  },
+  {
+   "code": "27BD",
+   "name": "Teal, Transparent, Silver-Lined",
+   "rgb": "#1f4e53",
+   "finish": "silver_lined"
+  },
+  {
+   "code": "27F",
+   "name": "Peridot, Transparent, Frosted, Silver-Lined",
+   "rgb": "#70af48",
+   "finish": "silver_lined"
+  },
+  {
+   "code": "28",
+   "name": "Cobalt, Transparent, Silver-Lined",
+   "rgb": "#2e3698",
+   "finish": "silver_lined"
+  },
+  {
+   "code": "28DF",
+   "name": "Cobalt, Transparent, Frosted, Silver-Lined",
+   "rgb": "#624db3",
+   "finish": "silver_lined"
+  },
+  {
+   "code": "28F",
+   "name": "Dk Sapphire, Transparent, Frosted, Silver-Lined",
+   "rgb": "#6c6ac8",
+   "finish": "silver_lined"
+  },
+  {
+   "code": "29",
+   "name": "Black Diamond, Transparent, Silver-Lined",
+   "rgb": "#6a746c",
+   "finish": "silver_lined"
+  },
+  {
+   "code": "29A",
+   "name": "Black Diamond, Transparent, Silver-Lined",
+   "rgb": "#949891",
+   "finish": "silver_lined"
+  },
+  {
+   "code": "29AF",
+   "name": "Black Diamond, Transparent, Frosted, Silver-Lined",
+   "rgb": "#a6a697",
+   "finish": "silver_lined"
+  },
+  {
+   "code": "29B",
+   "name": "Gray, Transparent, Silver-Lined",
+   "rgb": "#8e9088",
+   "finish": "silver_lined"
+  },
+  {
+   "code": "29BF",
+   "name": "Gray, Transparent, Frosted, Silver-Lined",
+   "rgb": "#7e7d6f",
+   "finish": "silver_lined"
+  },
+  {
+   "code": "29C",
+   "name": "Dk Gray, Transparent, Silver-Lined",
+   "rgb": "#727767",
+   "finish": "silver_lined"
+  },
+  {
+   "code": "30B",
+   "name": "Hyacinth, Transparent, Silver-Lined",
+   "rgb": "#e6520f",
+   "finish": "silver_lined"
+  },
+  {
+   "code": "30BF",
+   "name": "Hyacinth, Transparent, Frosted, Silver-Lined",
+   "rgb": "#ed6c32",
+   "finish": "silver_lined"
+  },
+  {
+   "code": "31",
+   "name": "Rosaline, Transparent, Silver-Lined",
+   "rgb": "#d5aa8f",
+   "finish": "silver_lined"
+  },
+  {
+   "code": "31F",
+   "name": "Rosaline, Transparent, Frosted, Silver-Lined",
+   "rgb": "#deb6a1",
+   "finish": "silver_lined"
+  },
+  {
+   "code": "32",
+   "name": "Lemon, Transparent, Silver-Lined",
+   "rgb": "#d4bf1d",
+   "finish": "silver_lined"
+  },
+  {
+   "code": "33",
+   "name": "Lt Sapphire, Transparent, Silver-Lined",
+   "rgb": "#7e96c2",
+   "finish": "silver_lined"
+  },
+  {
+   "code": "33F",
+   "name": "Lt Sapphire, Transparent, Frosted, Silver-Lined",
+   "rgb": "#91a9de",
+   "finish": "silver_lined"
+  },
+  {
+   "code": "34",
+   "name": "Smoky Topaz, Transparent, Silver-Lined",
+   "rgb": "#7d3f20",
+   "finish": "silver_lined"
+  },
+  {
+   "code": "34F",
+   "name": "Smoky Topaz, Transparent, Frosted, Silver-Lined",
+   "rgb": "#b97341",
+   "finish": "silver_lined"
+  },
+  {
+   "code": "35",
+   "name": "Sapphire, Transparent, Silver-Lined",
+   "rgb": "#6b69be",
+   "finish": "silver_lined"
+  },
+  {
+   "code": "35F",
+   "name": "Sapphire, Transparent, Frosted, Silver-Lined",
+   "rgb": "#898fd0",
+   "finish": "silver_lined"
+  },
+  {
+   "code": "36",
+   "name": "Green Emerald, Transparent, Silver-Lined",
+   "rgb": "#588d64",
+   "finish": "silver_lined"
+  },
+  {
+   "code": "36F",
+   "name": "Green Emerald, Transparent, Frosted, Silver-Lined",
+   "rgb": "#548257",
+   "finish": "silver_lined"
+  },
+  {
+   "code": "37",
+   "name": "Olivine, Transparent, Silver-Lined",
+   "rgb": "#7d915c",
+   "finish": "silver_lined"
+  },
+  {
+   "code": "37F",
+   "name": "Olive, Transparent, Frosted, Silver-Lined",
+   "rgb": "#a1b86b",
+   "finish": "silver_lined"
+  },
+  {
+   "code": "38",
+   "name": "Pink, Transparent, Silver-Lined",
+   "rgb": "#ed759c",
+   "finish": "silver_lined"
+  },
+  {
+   "code": "39",
+   "name": "Tanzanite, Transparent, Silver-Lined",
+   "rgb": "#9d919b",
+   "finish": "silver_lined"
+  },
+  {
+   "code": "39F",
+   "name": "Lt Tanzanite, Transparent, Frosted, Silver-Lined",
+   "rgb": "#a1939e",
+   "finish": "silver_lined"
+  },
+  {
+   "code": "41",
+   "name": "White, Opaque",
+   "rgb": "#dbdcd6",
+   "finish": "opaque"
+  },
+  {
+   "code": "41F",
+   "name": "White, Opaque, Frosted",
+   "rgb": "#dfe0de",
+   "finish": "matte"
+  },
+  {
+   "code": "42",
+   "name": "Dandelion, Opaque",
+   "rgb": "#e1ce1d",
+   "finish": "opaque"
+  },
+  {
+   "code": "42B",
+   "name": "Sunshine, Opaque",
+   "rgb": "#efa905",
+   "finish": "opaque"
+  },
+  {
+   "code": "42BF",
+   "name": "Sunshine, Opaque, Frosted",
+   "rgb": "#f6d819",
+   "finish": "matte"
+  },
+  {
+   "code": "42D",
+   "name": "Orange, Opaque",
+   "rgb": "#fb6f13",
+   "finish": "opaque"
+  },
+  {
+   "code": "42DF",
+   "name": "Cantelope, Opaque, Frosted",
+   "rgb": "#f68610",
+   "finish": "matte"
+  },
+  {
+   "code": "42F",
+   "name": "Dandelion, Opaque, Frosted",
+   "rgb": "#f0d725",
+   "finish": "matte"
+  },
+  {
+   "code": "43",
+   "name": "Blue Turquoise, Opaque",
+   "rgb": "#6ccfed",
+   "finish": "opaque"
+  },
+  {
+   "code": "43D",
+   "name": "Cornflower, Opaque",
+   "rgb": "#5068d7",
+   "finish": "opaque"
+  },
+  {
+   "code": "43DF",
+   "name": "Cornflower, Opaque, Frosted",
+   "rgb": "#5f7bc2",
+   "finish": "matte"
+  },
+  {
+   "code": "43F",
+   "name": "Blue Turquoise, Opaque, Frosted",
+   "rgb": "#5bcaec",
+   "finish": "matte"
+  },
+  {
+   "code": "44",
+   "name": "Sour Apple, Opaque",
+   "rgb": "#bad96e",
+   "finish": "opaque"
+  },
+  {
+   "code": "44F",
+   "name": "Sour Apple, Opaque, Frosted",
+   "rgb": "#a0ca61",
+   "finish": "matte"
+  },
+  {
+   "code": "45",
+   "name": "Pepper Red, Opaque",
+   "rgb": "#80271e",
+   "finish": "opaque"
+  },
+  {
+   "code": "45A",
+   "name": "Cherry, Opaque",
+   "rgb": "#d82424",
+   "finish": "opaque"
+  },
+  {
+   "code": "45AF",
+   "name": "Cherry, Opaque, Frosted",
+   "rgb": "#d41417",
+   "finish": "matte"
+  },
+  {
+   "code": "45F",
+   "name": "Pepper Red, Opaque, Frosted",
+   "rgb": "#83271f",
+   "finish": "matte"
+  },
+  {
+   "code": "46",
+   "name": "Oxblood, Opaque",
+   "rgb": "#6e4339",
+   "finish": "opaque"
+  },
+  {
+   "code": "46D",
+   "name": "Deep Chocolate Brown, Opaque",
+   "rgb": "#211c19",
+   "finish": "opaque"
+  },
+  {
+   "code": "46F",
+   "name": "Oxblood, Opaque, Frosted",
+   "rgb": "#4f302b",
+   "finish": "matte"
+  },
+  {
+   "code": "46L",
+   "name": "Terra Cotta, Opaque",
+   "rgb": "#a9583f",
+   "finish": "opaque"
+  },
+  {
+   "code": "46LF",
+   "name": "Terra Cotta, Opaque, Frosted",
+   "rgb": "#9d3516",
+   "finish": "matte"
+  },
+  {
+   "code": "47",
+   "name": "Mint Green, Opaque",
+   "rgb": "#3eb64b",
+   "finish": "opaque"
+  },
+  {
+   "code": "47D",
+   "name": "Shamrock, Opaque",
+   "rgb": "#2ab769",
+   "finish": "opaque"
+  },
+  {
+   "code": "47DF",
+   "name": "Shamrock, Opaque, Frosted",
+   "rgb": "#37b86c",
+   "finish": "matte"
+  },
+  {
+   "code": "47F",
+   "name": "Mint Green, Opaque, Frosted",
+   "rgb": "#51c25d",
+   "finish": "matte"
+  },
+  {
+   "code": "47H",
+   "name": "Pine Green, Opaque",
+   "rgb": "#2d744a",
+   "finish": "opaque"
+  },
+  {
+   "code": "47HF",
+   "name": "Pine Green, Opaque, Frosted",
+   "rgb": "#346f3b",
+   "finish": "matte"
+  },
+  {
+   "code": "48",
+   "name": "Navy Blue, Opaque",
+   "rgb": "#4d45af",
+   "finish": "opaque"
+  },
+  {
+   "code": "48F",
+   "name": "Navy Blue, Opaque, Frosted",
+   "rgb": "#3a329b",
+   "finish": "matte"
+  },
+  {
+   "code": "48L",
+   "name": "Periwinkle, Opaque",
+   "rgb": "#6c76e2",
+   "finish": "opaque"
+  },
+  {
+   "code": "48LF",
+   "name": "Periwinkle, Opaque, Frosted",
+   "rgb": "#7282e6",
+   "finish": "matte"
+  },
+  {
+   "code": "49",
+   "name": "Jet, Opaque",
+   "rgb": "#1a1c20",
+   "finish": "opaque"
+  },
+  {
+   "code": "49F",
+   "name": "Jet, Opaque, Frosted",
+   "rgb": "#2c2c2d",
+   "finish": "matte"
+  },
+  {
+   "code": "50",
+   "name": "Sunset Orange, Opaque",
+   "rgb": "#fa451d",
+   "finish": "opaque"
+  },
+  {
+   "code": "50A",
+   "name": "Orange, Other",
+   "rgb": "#e55819",
+   "finish": "opaque"
+  },
+  {
+   "code": "50AF",
+   "name": "Pumpkin, Opaque, Frosted",
+   "rgb": "#fc5c43",
+   "finish": "matte"
+  },
+  {
+   "code": "50F",
+   "name": "Sunset Orange, Opaque, Frosted",
+   "rgb": "#ef4321",
+   "finish": "matte"
+  },
+  {
+   "code": "51",
+   "name": "Lt Beige, Opaque",
+   "rgb": "#dfcea9",
+   "finish": "opaque"
+  },
+  {
+   "code": "51F",
+   "name": "Lt Beige, Opaque, Frosted",
+   "rgb": "#e0d0a7",
+   "finish": "matte"
+  },
+  {
+   "code": "52",
+   "name": "Lavender, Opaque",
+   "rgb": "#8c7c8b",
+   "finish": "opaque"
+  },
+  {
+   "code": "52D",
+   "name": "Dk Lavender, Opaque",
+   "rgb": "#735e6c",
+   "finish": "opaque"
+  },
+  {
+   "code": "52F",
+   "name": "Lavender, Opaque, Frosted",
+   "rgb": "#bc9fae",
+   "finish": "matte"
+  },
+  {
+   "code": "53",
+   "name": "Gray, Opaque",
+   "rgb": "#bdc0bf",
+   "finish": "opaque"
+  },
+  {
+   "code": "53F",
+   "name": "Gray, Opaque, Frosted",
+   "rgb": "#bfc2c1",
+   "finish": "matte"
+  },
+  {
+   "code": "55",
+   "name": "Turquoise, Opaque",
+   "rgb": "#30a594",
+   "finish": "opaque"
+  },
+  {
+   "code": "55D",
+   "name": "Dk Turquoise, Opaque",
+   "rgb": "#62a087",
+   "finish": "opaque"
+  },
+  {
+   "code": "55DF",
+   "name": "Dk Turquoise, Opaque, Frosted",
+   "rgb": "#3cc4aa",
+   "finish": "matte"
+  },
+  {
+   "code": "55F",
+   "name": "Turquoise, Opaque, Frosted",
+   "rgb": "#46c9bd",
+   "finish": "matte"
+  },
+  {
+   "code": "72",
+   "name": "Beach Glass Green, Transparent",
+   "rgb": "#169864",
+   "finish": "transparent"
+  },
+  {
+   "code": "72F",
+   "name": "Dk Peridot, Transparent, Frosted",
+   "rgb": "#058d52",
+   "finish": "matte"
+  },
+  {
+   "code": "81",
+   "name": "Hematite, Metallic, Metallic",
+   "rgb": "#737a8b",
+   "finish": "metallic"
+  },
+  {
+   "code": "82",
+   "name": "Nebula, Metallic, Metallic",
+   "rgb": "#6069bc",
+   "finish": "metallic"
+  },
+  {
+   "code": "82F",
+   "name": "Nebula, Metallic, Frosted, Metallic",
+   "rgb": "#3c4252",
+   "finish": "metallic"
+  },
+  {
+   "code": "83",
+   "name": "Iris Brown, Metallic, Metallic",
+   "rgb": "#817b61",
+   "finish": "metallic"
+  },
+  {
+   "code": "83F",
+   "name": "Iris Brown, Metallic, Frosted, Metallic",
+   "rgb": "#7a7666",
+   "finish": "metallic"
+  },
+  {
+   "code": "84",
+   "name": "Iris Green/Brown, Metallic, Metallic",
+   "rgb": "#648984",
+   "finish": "metallic"
+  },
+  {
+   "code": "84F",
+   "name": "Iris Green/Brown, Metallic, Frosted, Metallic",
+   "rgb": "#6e827d",
+   "finish": "metallic"
+  },
+  {
+   "code": "85",
+   "name": "Iris Purple, Metallic, Metallic",
+   "rgb": "#9e7187",
+   "finish": "metallic"
+  },
+  {
+   "code": "85F",
+   "name": "Iris Purple, Metallic, Frosted, Metallic",
+   "rgb": "#7c6265",
+   "finish": "metallic"
+  },
+  {
+   "code": "86",
+   "name": "Iris, Metallic, Metallic",
+   "rgb": "#6f778f",
+   "finish": "metallic"
+  },
+  {
+   "code": "86F",
+   "name": "Iris, Opaque, Frosted",
+   "rgb": "#788897",
+   "finish": "matte"
+  },
+  {
+   "code": "87",
+   "name": "Cobalt, Transparent",
+   "rgb": "#9790da",
+   "finish": "transparent"
+  },
+  {
+   "code": "87DF",
+   "name": "Cobalt, Transparent, Frosted",
+   "rgb": "#7578c0",
+   "finish": "matte"
+  },
+  {
+   "code": "87F",
+   "name": "Dk Sapphire, Transparent, Frosted",
+   "rgb": "#5e43c2",
+   "finish": "matte"
+  },
+  {
+   "code": "88",
+   "name": "Cosmos, Metallic, Metallic",
+   "rgb": "#608aac",
+   "finish": "metallic"
+  },
+  {
+   "code": "89",
+   "name": "Moss, Metallic, Metallic",
+   "rgb": "#82918a",
+   "finish": "metallic"
+  },
+  {
+   "code": "90",
+   "name": "Amethyst Gun Metal, Metallic, Metallic",
+   "rgb": "#8d7b8d",
+   "finish": "metallic"
+  },
+  {
+   "code": "101",
+   "name": "Crystal, Transparent, Luster",
+   "rgb": "#dfdedb",
+   "finish": "luster"
+  },
+  {
+   "code": "102",
+   "name": "Wild Yellow Rose, Other",
+   "rgb": "#f2df38",
+   "finish": "opaque"
+  },
+  {
+   "code": "103",
+   "name": "Lt Topaz, Transparent, Luster",
+   "rgb": "#daa768",
+   "finish": "luster"
+  },
+  {
+   "code": "103C",
+   "name": "Topaz, Transparent, Luster",
+   "rgb": "#c39779",
+   "finish": "luster"
+  },
+  {
+   "code": "104",
+   "name": "Aquamarine, Transparent, Luster",
+   "rgb": "#53c6ec",
+   "finish": "luster"
+  },
+  {
+   "code": "104B",
+   "name": "Dark Aqua, Transparent, Luster",
+   "rgb": "#1f75ca",
+   "finish": "luster"
+  },
+  {
+   "code": "105",
+   "name": "Lime Green, Transparent, Luster",
+   "rgb": "#a3c559",
+   "finish": "luster"
+  },
+  {
+   "code": "106",
+   "name": "Rosaline, Transparent, Luster",
+   "rgb": "#d5ada5",
+   "finish": "luster"
+  },
+  {
+   "code": "107",
+   "name": "Lt Sapphire, Transparent, Luster",
+   "rgb": "#83a9ec",
+   "finish": "luster"
+  },
+  {
+   "code": "108",
+   "name": "Peridot, Transparent, Luster",
+   "rgb": "#58b978",
+   "finish": "luster"
+  },
+  {
+   "code": "108B",
+   "name": "Grass Green, Transparent, Luster",
+   "rgb": "#47917b",
+   "finish": "luster"
+  },
+  {
+   "code": "108BD",
+   "name": "Teal, Transparent, Luster",
+   "rgb": "#7abacb",
+   "finish": "luster"
+  },
+  {
+   "code": "109",
+   "name": "Crystal/Tropical Sunset Lined, Other, Luster",
+   "rgb": "#e48ba1",
+   "finish": "luster"
+  },
+  {
+   "code": "110",
+   "name": "Lt Amethyst, Transparent, Luster",
+   "rgb": "#b9a2b1",
+   "finish": "luster"
+  },
+  {
+   "code": "110B",
+   "name": "Med Amethyst, Transparent, Luster",
+   "rgb": "#baa9b3",
+   "finish": "luster"
+  },
+  {
+   "code": "111",
+   "name": "Lt Hyacinth, Transparent, Luster",
+   "rgb": "#f4804c",
+   "finish": "luster"
+  },
+  {
+   "code": "112",
+   "name": "Black Diamond, Transparent, Luster",
+   "rgb": "#939da1",
+   "finish": "luster"
+  },
+  {
+   "code": "114",
+   "name": "Smoky Topaz, Transparent, Luster",
+   "rgb": "#af9698",
+   "finish": "luster"
+  },
+  {
+   "code": "115",
+   "name": "Amethyst, Transparent, Luster",
+   "rgb": "#978794",
+   "finish": "luster"
+  },
+  {
+   "code": "116",
+   "name": "Cobalt, Transparent, Luster",
+   "rgb": "#a0a4f0",
+   "finish": "luster"
+  },
+  {
+   "code": "118",
+   "name": "Green Emerald, Transparent, Luster",
+   "rgb": "#5d8286",
+   "finish": "luster"
+  },
+  {
+   "code": "119",
+   "name": "Olivine, Transparent, Luster",
+   "rgb": "#718e88",
+   "finish": "luster"
+  },
+  {
+   "code": "121",
+   "name": "White, Opaque, Luster",
+   "rgb": "#f6f4f5",
+   "finish": "luster"
+  },
+  {
+   "code": "122",
+   "name": "Navajo White, Opaque, Luster",
+   "rgb": "#e1d7be",
+   "finish": "luster"
+  },
+  {
+   "code": "123",
+   "name": "Lt Beige, Opaque, Luster",
+   "rgb": "#dabf9c",
+   "finish": "luster"
+  },
+  {
+   "code": "123D",
+   "name": "Dk Beige, Opaque, Luster",
+   "rgb": "#d19654",
+   "finish": "luster"
+  },
+  {
+   "code": "123L",
+   "name": "Lt Beige, Opaque, Luster",
+   "rgb": "#d3d1ad",
+   "finish": "luster"
+  },
+  {
+   "code": "124",
+   "name": "Pale Blue, Opaque, Luster",
+   "rgb": "#94cad9",
+   "finish": "luster"
+  },
+  {
+   "code": "125",
+   "name": "Cherry, Opaque, Luster",
+   "rgb": "#ca4140",
+   "finish": "luster"
+  },
+  {
+   "code": "126",
+   "name": "Baby Pink, Opaque, Luster",
+   "rgb": "#f0bbc2",
+   "finish": "luster"
+  },
+  {
+   "code": "127",
+   "name": "Pale Mauve, Opaque, Luster",
+   "rgb": "#c399af",
+   "finish": "luster"
+  },
+  {
+   "code": "128",
+   "name": "Dandelion, Opaque, Luster",
+   "rgb": "#e2d449",
+   "finish": "luster"
+  },
+  {
+   "code": "129",
+   "name": "Pumpkin, Opaque, Luster",
+   "rgb": "#e3846d",
+   "finish": "luster"
+  },
+  {
+   "code": "130",
+   "name": "Mint Green, Opaque, Luster",
+   "rgb": "#8bc599",
+   "finish": "luster"
+  },
+  {
+   "code": "131",
+   "name": "Sour Apple, Opaque, Luster",
+   "rgb": "#a3ca74",
+   "finish": "luster"
+  },
+  {
+   "code": "132",
+   "name": "Turquoise, Opaque, Luster",
+   "rgb": "#60bcb6",
+   "finish": "luster"
+  },
+  {
+   "code": "133",
+   "name": "Lavender, Opaque, Luster",
+   "rgb": "#9e8a9a",
+   "finish": "luster"
+  },
+  {
+   "code": "136",
+   "name": "Sugar Plum, Transparent, Luster",
+   "rgb": "#706f8c",
+   "finish": "luster"
+  },
+  {
+   "code": "141",
+   "name": "Snowflake, Opaque, Ceylon",
+   "rgb": "#d8d6d4",
+   "finish": "ceylon"
+  },
+  {
+   "code": "141F",
+   "name": "Snowflake, Opaque, Frosted, Ceylon",
+   "rgb": "#d9d9d9",
+   "finish": "matte"
+  },
+  {
+   "code": "142",
+   "name": "Banana Cream, Opaque, Ceylon",
+   "rgb": "#e0dbad",
+   "finish": "ceylon"
+  },
+  {
+   "code": "142F",
+   "name": "Banana Cream, Opaque, Frosted, Ceylon",
+   "rgb": "#ded6a0",
+   "finish": "matte"
+  },
+  {
+   "code": "143",
+   "name": "Aqua, Opaque, Ceylon",
+   "rgb": "#a5cfdc",
+   "finish": "ceylon"
+  },
+  {
+   "code": "143F",
+   "name": "Aqua, Opaque, Frosted, Ceylon",
+   "rgb": "#99cedd",
+   "finish": "matte"
+  },
+  {
+   "code": "144",
+   "name": "Celery, Opaque, Ceylon",
+   "rgb": "#79c4ac",
+   "finish": "ceylon"
+  },
+  {
+   "code": "144F",
+   "name": "Celery, Opaque, Frosted, Ceylon",
+   "rgb": "#5acaa5",
+   "finish": "matte"
+  },
+  {
+   "code": "145",
+   "name": "Innocent Pink, Opaque, Ceylon",
+   "rgb": "#f9bbcb",
+   "finish": "ceylon"
+  },
+  {
+   "code": "145F",
+   "name": "Innocent Pink, Opaque, Frosted, Ceylon",
+   "rgb": "#f5abbb",
+   "finish": "matte"
+  },
+  {
+   "code": "145L",
+   "name": "Soft Pink, Opaque, Ceylon",
+   "rgb": "#e1c1c3",
+   "finish": "ceylon"
+  },
+  {
+   "code": "146",
+   "name": "Glacier, Opaque, Ceylon",
+   "rgb": "#729aca",
+   "finish": "ceylon"
+  },
+  {
+   "code": "146F",
+   "name": "Glacier, Opaque, Frosted, Ceylon",
+   "rgb": "#87a8e9",
+   "finish": "matte"
+  },
+  {
+   "code": "147",
+   "name": "Lt Ivory, Opaque, Ceylon",
+   "rgb": "#dfccb4",
+   "finish": "ceylon"
+  },
+  {
+   "code": "147F",
+   "name": "Lt Ivory, Opaque, Frosted, Ceylon",
+   "rgb": "#d8bea6",
+   "finish": "matte"
+  },
+  {
+   "code": "148",
+   "name": "Peach Cobler, Opaque, Ceylon",
+   "rgb": "#e8ad5e",
+   "finish": "ceylon"
+  },
+  {
+   "code": "148F",
+   "name": "Peach Cobler, Opaque, Frosted, Ceylon",
+   "rgb": "#fdad2c",
+   "finish": "matte"
+  },
+  {
+   "code": "150",
+   "name": "Smoke, Opaque, Ceylon",
+   "rgb": "#747b82",
+   "finish": "ceylon"
+  },
+  {
+   "code": "150F",
+   "name": "Smoke, Opaque, Frosted, Ceylon",
+   "rgb": "#9da7a7",
+   "finish": "matte"
+  },
+  {
+   "code": "151",
+   "name": "Grape Mist, Opaque, Ceylon",
+   "rgb": "#9a7d91",
+   "finish": "ceylon"
+  },
+  {
+   "code": "151F",
+   "name": "Grape Mist, Opaque, Frosted, Ceylon",
+   "rgb": "#a58393",
+   "finish": "matte"
+  },
+  {
+   "code": "156",
+   "name": "Jade, Opaque, Ceylon",
+   "rgb": "#7cdeb4",
+   "finish": "ceylon"
+  },
+  {
+   "code": "161",
+   "name": "Crystal, Transparent",
+   "rgb": "#d6d2d0",
+   "finish": "transparent"
+  },
+  {
+   "code": "161F",
+   "name": "Crystal, Transparent, Frosted",
+   "rgb": "#d8d4d5",
+   "finish": "matte"
+  },
+  {
+   "code": "162B",
+   "name": "Med Topaz, Transparent",
+   "rgb": "#e1a757",
+   "finish": "transparent"
+  },
+  {
+   "code": "162C",
+   "name": "Topaz, Transparent",
+   "rgb": "#c0958b",
+   "finish": "transparent"
+  },
+  {
+   "code": "162CF",
+   "name": "Dk Topaz, Transparent, Frosted",
+   "rgb": "#cd9367",
+   "finish": "matte"
+  },
+  {
+   "code": "162F",
+   "name": "Lt Topaz, Transparent, Frosted",
+   "rgb": "#e2ae64",
+   "finish": "matte"
+  },
+  {
+   "code": "163",
+   "name": "Aquamarine, Transparent",
+   "rgb": "#40c0e7",
+   "finish": "transparent"
+  },
+  {
+   "code": "163B",
+   "name": "Dk Aqua, Transparent",
+   "rgb": "#41b6ec",
+   "finish": "transparent"
+  },
+  {
+   "code": "163BF",
+   "name": "Dk Aquamarine, Transparent, Frosted",
+   "rgb": "#4eb5f4",
+   "finish": "matte"
+  },
+  {
+   "code": "163F",
+   "name": "Aquamarine, Transparent, Frosted",
+   "rgb": "#65b3ee",
+   "finish": "matte"
+  },
+  {
+   "code": "164",
+   "name": "Lime Green, Transparent",
+   "rgb": "#afd965",
+   "finish": "transparent"
+  },
+  {
+   "code": "164B",
+   "name": "Dk Peridot, Transparent",
+   "rgb": "#34a283",
+   "finish": "transparent"
+  },
+  {
+   "code": "164BF",
+   "name": "Dk Peridot, Transparent, Frosted",
+   "rgb": "#2fb6a2",
+   "finish": "matte"
+  },
+  {
+   "code": "164F",
+   "name": "Lime Green, Transparent, Frosted",
+   "rgb": "#bed45f",
+   "finish": "matte"
+  },
+  {
+   "code": "165",
+   "name": "Lt Siam Ruby, Transparent",
+   "rgb": "#f26e69",
+   "finish": "transparent"
+  },
+  {
+   "code": "165B",
+   "name": "Siam Ruby, Transparent",
+   "rgb": "#dc6c86",
+   "finish": "transparent"
+  },
+  {
+   "code": "165BF",
+   "name": "Siam Ruby, Transparent, Frosted",
+   "rgb": "#d96a6f",
+   "finish": "matte"
+  },
+  {
+   "code": "165C",
+   "name": "Ruby, Transparent",
+   "rgb": "#e1484a",
+   "finish": "transparent"
+  },
+  {
+   "code": "165CF",
+   "name": "Ruby, Transparent, Frosted",
+   "rgb": "#e18697",
+   "finish": "matte"
+  },
+  {
+   "code": "165F",
+   "name": "Lt Siam Ruby, Transparent, Frosted",
+   "rgb": "#e05c63",
+   "finish": "matte"
+  },
+  {
+   "code": "166",
+   "name": "Lt Amethyst, Transparent",
+   "rgb": "#b99ba8",
+   "finish": "transparent"
+  },
+  {
+   "code": "166B",
+   "name": "Med Amethyst, Transparent",
+   "rgb": "#b99aad",
+   "finish": "transparent"
+  },
+  {
+   "code": "166BF",
+   "name": "Med Amethyst, Transparent, Frosted",
+   "rgb": "#b69daf",
+   "finish": "matte"
+  },
+  {
+   "code": "166C",
+   "name": "Amethyst, Transparent",
+   "rgb": "#a497a8",
+   "finish": "transparent"
+  },
+  {
+   "code": "166CF",
+   "name": "Amethyst, Transparent, Frosted",
+   "rgb": "#958690",
+   "finish": "matte"
+  },
+  {
+   "code": "166D",
+   "name": "Sugar Plum, Transparent",
+   "rgb": "#8da7b6",
+   "finish": "transparent"
+  },
+  {
+   "code": "166DF",
+   "name": "Lt Tanzanite, Transparent, Frosted",
+   "rgb": "#9a92ae",
+   "finish": "matte"
+  },
+  {
+   "code": "166F",
+   "name": "Lt Amethyst, Transparent, Frosted",
+   "rgb": "#bda1aa",
+   "finish": "matte"
+  },
+  {
+   "code": "167",
+   "name": "Peridot, Transparent",
+   "rgb": "#84d2ae",
+   "finish": "transparent"
+  },
+  {
+   "code": "167B",
+   "name": "Grass Green, Transparent",
+   "rgb": "#6cbfa5",
+   "finish": "transparent"
+  },
+  {
+   "code": "167BD",
+   "name": "Teal, Transparent",
+   "rgb": "#72a4b4",
+   "finish": "transparent"
+  },
+  {
+   "code": "167BDF",
+   "name": "Teal, Transparent, Frosted",
+   "rgb": "#609ca9",
+   "finish": "matte"
+  },
+  {
+   "code": "167BF",
+   "name": "Grass Green, Transparent, Frosted",
+   "rgb": "#336236",
+   "finish": "matte"
+  },
+  {
+   "code": "167F",
+   "name": "Peridot, Transparent, Frosted",
+   "rgb": "#44b978",
+   "finish": "matte"
+  },
+  {
+   "code": "168",
+   "name": "Lt Sapphire, Transparent",
+   "rgb": "#8aa9e0",
+   "finish": "transparent"
+  },
+  {
+   "code": "168F",
+   "name": "Lt Sapphire, Transparent, Frosted",
+   "rgb": "#89abf0",
+   "finish": "matte"
+  },
+  {
+   "code": "169",
+   "name": "Rosaline, Transparent",
+   "rgb": "#deb19f",
+   "finish": "transparent"
+  },
+  {
+   "code": "169F",
+   "name": "Rosaline, Transparent, Frosted",
+   "rgb": "#ebbaab",
+   "finish": "matte"
+  },
+  {
+   "code": "170D",
+   "name": "Aqua Frost, Transparent",
+   "rgb": "#1f83a5",
+   "finish": "transparent"
+  },
+  {
+   "code": "171",
+   "name": "Dyed Ballerina Pink, Other",
+   "rgb": "#f8bbc8",
+   "finish": "opaque"
+  },
+  {
+   "code": "171D",
+   "name": "Ballerina Pink, Transparent",
+   "rgb": "#f2b4c2",
+   "finish": "transparent"
+  },
+  {
+   "code": "171L",
+   "name": "Lt Ballerina Pink, Transparent",
+   "rgb": "#f3cace",
+   "finish": "transparent"
+  },
+  {
+   "code": "173",
+   "name": "Dyed Lemon Mist, Other",
+   "rgb": "#c8e1a6",
+   "finish": "opaque"
+  },
+  {
+   "code": "174",
+   "name": "Lt Hyacinth, Transparent",
+   "rgb": "#f36327",
+   "finish": "transparent"
+  },
+  {
+   "code": "174B",
+   "name": "Hyacinth, Transparent",
+   "rgb": "#f6764b",
+   "finish": "transparent"
+  },
+  {
+   "code": "174BF",
+   "name": "Hyacinth, Transparent, Frosted",
+   "rgb": "#ef491f",
+   "finish": "matte"
+  },
+  {
+   "code": "175",
+   "name": "Lemon, Transparent",
+   "rgb": "#cc9b15",
+   "finish": "transparent"
+  },
+  {
+   "code": "175F",
+   "name": "Lemon, Transparent, Frosted",
+   "rgb": "#decf53",
+   "finish": "matte"
+  },
+  {
+   "code": "176",
+   "name": "Black Diamond, Transparent",
+   "rgb": "#a1b0b1",
+   "finish": "transparent"
+  },
+  {
+   "code": "176AF",
+   "name": "Black Diamond, Transparent, Frosted",
+   "rgb": "#758588",
+   "finish": "matte"
+  },
+  {
+   "code": "176B",
+   "name": "Gray, Transparent",
+   "rgb": "#afa7a8",
+   "finish": "transparent"
+  },
+  {
+   "code": "176BF",
+   "name": "Gray, Transparent, Frosted",
+   "rgb": "#96a7a5",
+   "finish": "matte"
+  },
+  {
+   "code": "177",
+   "name": "Smoky Topaz, Transparent",
+   "rgb": "#b39588",
+   "finish": "transparent"
+  },
+  {
+   "code": "177F",
+   "name": "Smoky Topaz, Transparent, Frosted",
+   "rgb": "#af95a4",
+   "finish": "matte"
+  },
+  {
+   "code": "178",
+   "name": "Sapphire, Transparent",
+   "rgb": "#9893ef",
+   "finish": "transparent"
+  },
+  {
+   "code": "178F",
+   "name": "Sapphire, Transparent, Frosted",
+   "rgb": "#816ffa",
+   "finish": "matte"
+  },
+  {
+   "code": "179",
+   "name": "Green Emerald, Transparent",
+   "rgb": "#7ab0a1",
+   "finish": "transparent"
+  },
+  {
+   "code": "179F",
+   "name": "Green Emerald, Transparent, Frosted",
+   "rgb": "#77907e",
+   "finish": "matte"
+  },
+  {
+   "code": "180",
+   "name": "Olivine, Transparent",
+   "rgb": "#9fa79f",
+   "finish": "transparent"
+  },
+  {
+   "code": "180F",
+   "name": "Olivine, Transparent, Frosted",
+   "rgb": "#82998a",
+   "finish": "matte"
+  },
+  {
+   "code": "181",
+   "name": "Crystal/Tanzanite Lined, Transparent, Inside-Color",
+   "rgb": "#8f86b9",
+   "finish": "inside_dyed"
+  },
+  {
+   "code": "182",
+   "name": "Crystal/ Yellow Lined, Opaque, Inside-Color, Luster",
+   "rgb": "#ddcf8b",
+   "finish": "inside_dyed"
+  },
+  {
+   "code": "183",
+   "name": "Crystal/ Aqua Lined, Opaque, Inside-Color, Luster",
+   "rgb": "#5ba7c0",
+   "finish": "inside_dyed"
+  },
+  {
+   "code": "184",
+   "name": "Crystal/Spearmint Lined, Transparent, Inside-Color, Luster",
+   "rgb": "#5bc680",
+   "finish": "inside_dyed"
+  },
+  {
+   "code": "185",
+   "name": "Crystal/Poppy Lined, Transparent, Inside-Color, Luster",
+   "rgb": "#ea585d",
+   "finish": "inside_dyed"
+  },
+  {
+   "code": "186",
+   "name": "Crystal/Terra Cotta Lined, Transparent, Inside-Color, Luster",
+   "rgb": "#bc7574",
+   "finish": "inside_dyed"
+  },
+  {
+   "code": "187",
+   "name": "Crystal/Shamrock Lined, Transparent, Inside-Color",
+   "rgb": "#2f9a6c",
+   "finish": "inside_dyed"
+  },
+  {
+   "code": "188",
+   "name": "Crystal/Capri Blue Lined, Transparent, Inside-Color, Luster",
+   "rgb": "#5a7d96",
+   "finish": "inside_dyed"
+  },
+  {
+   "code": "189",
+   "name": "Crystal/Caribbean Blue Lined, Transparent, Inside-Color, Luster",
+   "rgb": "#5885b7",
+   "finish": "inside_dyed"
+  },
+  {
+   "code": "190",
+   "name": "Crystal/Tropical Sunset Lined, Transparent, Inside-Color, Luster",
+   "rgb": "#ea5955",
+   "finish": "inside_dyed"
+  },
+  {
+   "code": "191B",
+   "name": "Crystal/Hot Pink Lined, Transparent, Inside-Color",
+   "rgb": "#f490ae",
+   "finish": "inside_dyed"
+  },
+  {
+   "code": "191F",
+   "name": "Crystal/Soft Pink Lined, Transparent, Frosted, Inside-Color",
+   "rgb": "#efb0ae",
+   "finish": "inside_dyed"
+  },
+  {
+   "code": "192",
+   "name": "Crystal/Yellow Lined, Transparent, Inside-Color",
+   "rgb": "#e5cb62",
+   "finish": "inside_dyed"
+  },
+  {
+   "code": "193",
+   "name": "Crystal/Dk Capri Lined, Transparent, Inside-Color, Luster",
+   "rgb": "#5e8ec3",
+   "finish": "inside_dyed"
+  },
+  {
+   "code": "201",
+   "name": "Gold Amethyst, Other, Luster",
+   "rgb": "#cd8a92",
+   "finish": "luster"
+  },
+  {
+   "code": "202",
+   "name": "Gold Lilac, Other, Luster",
+   "rgb": "#d7948f",
+   "finish": "luster"
+  },
+  {
+   "code": "203",
+   "name": "Gold Lt Amethyst, Other, Luster",
+   "rgb": "#d5aa99",
+   "finish": "luster"
+  },
+  {
+   "code": "204",
+   "name": "Gold Montana Blue, Other, Luster",
+   "rgb": "#b49a85",
+   "finish": "luster"
+  },
+  {
+   "code": "205",
+   "name": "Gold Dk Amethyst, Other, Luster",
+   "rgb": "#d88cbb",
+   "finish": "luster"
+  },
+  {
+   "code": "206",
+   "name": "Gold Hydrangea, Other, Luster",
+   "rgb": "#788895",
+   "finish": "luster"
+  },
+  {
+   "code": "221",
+   "name": "Bronze, Other",
+   "rgb": "#cea269",
+   "finish": "opaque"
+  },
+  {
+   "code": "221F",
+   "name": "Bronze, Other, Frosted",
+   "rgb": "#725b3d",
+   "finish": "matte"
+  },
+  {
+   "code": "222",
+   "name": "Dk Bronze, Other",
+   "rgb": "#d48876",
+   "finish": "opaque"
+  },
+  {
+   "code": "222F",
+   "name": "Dk Bronze, Other, Frosted",
+   "rgb": "#492f36",
+   "finish": "matte"
+  },
+  {
+   "code": "223",
+   "name": "Antique Bronze, Other",
+   "rgb": "#c09d5f",
+   "finish": "opaque"
+  },
+  {
+   "code": "223F",
+   "name": "Antique Bronze, Other, Frosted",
+   "rgb": "#453c29",
+   "finish": "matte"
+  },
+  {
+   "code": "224",
+   "name": "Olympic Bronze, Other",
+   "rgb": "#9c634c",
+   "finish": "opaque"
+  },
+  {
+   "code": "225",
+   "name": "Bronze Antique Gold, Other",
+   "rgb": "#828051",
+   "finish": "opaque"
+  },
+  {
+   "code": "241",
+   "name": "Lt Topaz/Mauve Lined, Transparent, Inside-Color",
+   "rgb": "#d96660",
+   "finish": "inside_dyed"
+  },
+  {
+   "code": "242",
+   "name": "Jonquil/Emerald Lined, Transparent, Inside-Color, Luster",
+   "rgb": "#59966b",
+   "finish": "inside_dyed"
+  },
+  {
+   "code": "242F",
+   "name": "Jonquil/Emerald Lined, Transparent, Frosted, Inside-Color",
+   "rgb": "#367a46",
+   "finish": "inside_dyed"
+  },
+  {
+   "code": "243",
+   "name": "Topaz/ Emerald Lined, Opaque, Inside-Color",
+   "rgb": "#717f79",
+   "finish": "inside_dyed"
+  },
+  {
+   "code": "244",
+   "name": "Lt Topaz/Jet Lined, Transparent, Inside-Color",
+   "rgb": "#869886",
+   "finish": "inside_dyed"
+  },
+  {
+   "code": "245",
+   "name": "Jonquil/Jet Lined, Transparent, Inside-Color",
+   "rgb": "#8c8f94",
+   "finish": "inside_dyed"
+  },
+  {
+   "code": "246",
+   "name": "Black Diamond/ Yellow Lined, Opaque, Inside-Color, Luster",
+   "rgb": "#9ea371",
+   "finish": "inside_dyed"
+  },
+  {
+   "code": "247",
+   "name": "Peridot/Oxblood Lined, Transparent, Inside-Color",
+   "rgb": "#7c816f",
+   "finish": "inside_dyed"
+  },
+  {
+   "code": "248",
+   "name": "Aqua/Jet Lined, Transparent, Inside-Color",
+   "rgb": "#4d789a",
+   "finish": "inside_dyed"
+  },
+  {
+   "code": "249",
+   "name": "Peridot/Emerald Lined, Transparent, Inside-Color",
+   "rgb": "#5d7b85",
+   "finish": "inside_dyed"
+  },
+  {
+   "code": "250",
+   "name": "Peridot/Fuchsia Lined, Transparent, Inside-Color",
+   "rgb": "#8d9277",
+   "finish": "inside_dyed"
+  },
+  {
+   "code": "251",
+   "name": "Lt Amethyst/Jet Lined, Transparent, Inside-Color, Luster",
+   "rgb": "#796e8a",
+   "finish": "inside_dyed"
+  },
+  {
+   "code": "252",
+   "name": "Aqua/Purple Lined, Transparent, Inside-Color",
+   "rgb": "#534780",
+   "finish": "inside_dyed"
+  },
+  {
+   "code": "252F",
+   "name": "Aqua/Purple Lined, Transparent, Frosted, Inside-Color",
+   "rgb": "#493672",
+   "finish": "inside_dyed"
+  },
+  {
+   "code": "261",
+   "name": "Crystal/Gray Lined, Transparent, Inside-Color",
+   "rgb": "#b0b1ae",
+   "finish": "inside_dyed"
+  },
+  {
+   "code": "262",
+   "name": "Crystal/, Transparent, Gold-Lined, Inside-Color",
+   "rgb": "#af9e89",
+   "finish": "gold_lined"
+  },
+  {
+   "code": "263",
+   "name": "Crystal/Lt Capri Lined, Transparent, Inside-Color",
+   "rgb": "#74a9bc",
+   "finish": "inside_dyed"
+  },
+  {
+   "code": "264",
+   "name": "Crystal/Teal Lined, Transparent, Inside-Color",
+   "rgb": "#6ca9a2",
+   "finish": "inside_dyed"
+  },
+  {
+   "code": "265",
+   "name": "Crystal/ Purple Lined, Metallic, Inside-Color, Metallic",
+   "rgb": "#726f9d",
+   "finish": "metallic"
+  },
+  {
+   "code": "266",
+   "name": "Gold Crystal/ Gray Lined, Opaque, Inside-Color, Luster",
+   "rgb": "#84868a",
+   "finish": "inside_dyed"
+  },
+  {
+   "code": "267",
+   "name": "Crystal/Rose, Transparent, Gold-Lined, Inside-Color",
+   "rgb": "#bd96a1",
+   "finish": "gold_lined"
+  },
+  {
+   "code": "268",
+   "name": "Crystal/, Transparent, Gold-Lined, Inside-Color",
+   "rgb": "#9a8271",
+   "finish": "gold_lined"
+  },
+  {
+   "code": "270",
+   "name": "Crystal/ Teal Lined, Metallic, Inside-Color, Metallic",
+   "rgb": "#417c84",
+   "finish": "metallic"
+  },
+  {
+   "code": "272",
+   "name": "Other",
+   "rgb": "#6c8596",
+   "finish": "opaque"
+  },
+  {
+   "code": "274",
+   "name": "Crystal/Green Teal Lined, Transparent, Inside-Color",
+   "rgb": "#3889a4",
+   "finish": "inside_dyed"
+  },
+  {
+   "code": "277",
+   "name": "Aqua/Lavender Lined, Transparent, Inside-Color",
+   "rgb": "#809fb8",
+   "finish": "inside_dyed"
+  },
+  {
+   "code": "278",
+   "name": "Topaz, Transparent, Gold-Lined",
+   "rgb": "#b1835d",
+   "finish": "gold_lined"
+  },
+  {
+   "code": "279",
+   "name": "Lt Topaz/Gray Lined, Transparent, Inside-Color",
+   "rgb": "#d0b38d",
+   "finish": "inside_dyed"
+  },
+  {
+   "code": "281",
+   "name": "Topaz/Olivine Lined, Transparent, Inside-Color",
+   "rgb": "#a58e7a",
+   "finish": "inside_dyed"
+  },
+  {
+   "code": "282",
+   "name": "Gray/Gun Metal Lined, Transparent, Inside-Color",
+   "rgb": "#aaaeab",
+   "finish": "inside_dyed"
+  },
+  {
+   "code": "284",
+   "name": "Aqua/, Transparent, Gold-Lined, Inside-Color",
+   "rgb": "#7daf9e",
+   "finish": "gold_lined"
+  },
+  {
+   "code": "285",
+   "name": "Aqua/Tin Lined, Transparent, Inside-Color",
+   "rgb": "#72a3bd",
+   "finish": "inside_dyed"
+  },
+  {
+   "code": "286",
+   "name": "Pale Amber, Transparent, Silver-Lined",
+   "rgb": "#bca488",
+   "finish": "silver_lined"
+  },
+  {
+   "code": "288",
+   "name": "Crystal/ Blue Lined, Metallic, Inside-Color, Metallic",
+   "rgb": "#959ea0",
+   "finish": "metallic"
+  },
+  {
+   "code": "290",
+   "name": "Rose, Transparent, Luster",
+   "rgb": "#eca9a0",
+   "finish": "luster"
+  },
+  {
+   "code": "291",
+   "name": "Rose/Mauve Lined, Transparent, Luster",
+   "rgb": "#dd8d95",
+   "finish": "luster"
+  },
+  {
+   "code": "294",
+   "name": "Blue Raspberry, Transparent, Inside-Color",
+   "rgb": "#949fb7",
+   "finish": "inside_dyed"
+  },
+  {
+   "code": "295",
+   "name": "Lt Topaz, Transparent, Gold-Lined, Luster",
+   "rgb": "#908035",
+   "finish": "gold_lined"
+  },
+  {
+   "code": "301",
+   "name": "Lt Topaz/Peach Lined, Transparent, Inside-Color",
+   "rgb": "#ee9868",
+   "finish": "inside_dyed"
+  },
+  {
+   "code": "302",
+   "name": "Jonquil/Apricot Lined, Transparent, Inside-Color",
+   "rgb": "#bb9529",
+   "finish": "inside_dyed"
+  },
+  {
+   "code": "303",
+   "name": "Jonquil/Hyacinth Lined, Transparent, Inside-Color",
+   "rgb": "#d16e49",
+   "finish": "inside_dyed"
+  },
+  {
+   "code": "304",
+   "name": "Lt Sapphire/Hyacinth Lined, Transparent, Inside-Color",
+   "rgb": "#be6c94",
+   "finish": "inside_dyed"
+  },
+  {
+   "code": "306",
+   "name": "Jonquil/Shamrock Lined, Transparent, Inside-Color",
+   "rgb": "#36ac46",
+   "finish": "inside_dyed"
+  },
+  {
+   "code": "307",
+   "name": "Aqua/ Yellow Lined, Opaque, Inside-Color",
+   "rgb": "#a7e79d",
+   "finish": "inside_dyed"
+  },
+  {
+   "code": "309",
+   "name": "Lt Sapphire/ Blue Lined, Opaque, Inside-Color",
+   "rgb": "#2283d5",
+   "finish": "inside_dyed"
+  },
+  {
+   "code": "321",
+   "name": "Gold Mediterranean Sea, Other, Luster",
+   "rgb": "#5f9fa4",
+   "finish": "luster"
+  },
+  {
+   "code": "322",
+   "name": "Gold Emerald, Other, Luster",
+   "rgb": "#67ba8f",
+   "finish": "luster"
+  },
+  {
+   "code": "323",
+   "name": "Gold Olivine, Other, Luster",
+   "rgb": "#9d9c84",
+   "finish": "luster"
+  },
+  {
+   "code": "324",
+   "name": "Gold Prairie Green, Other, Luster",
+   "rgb": "#a99a61",
+   "finish": "luster"
+  },
+  {
+   "code": "325",
+   "name": "Gold Lt Tanzanite, Other, Luster",
+   "rgb": "#c3a494",
+   "finish": "luster"
+  },
+  {
+   "code": "326",
+   "name": "Gold Orion, Other, Luster",
+   "rgb": "#b39b9a",
+   "finish": "luster"
+  },
+  {
+   "code": "327",
+   "name": "Gold Mystic, Other, Luster",
+   "rgb": "#a176ba",
+   "finish": "luster"
+  },
+  {
+   "code": "328",
+   "name": "Gold Moon Shadow, Other, Luster",
+   "rgb": "#67546f",
+   "finish": "luster"
+  },
+  {
+   "code": "329",
+   "name": "Gold African Sunset, Other, Luster",
+   "rgb": "#6a392a",
+   "finish": "luster"
+  },
+  {
+   "code": "331",
+   "name": "Gold Wild Berry, Other, Luster",
+   "rgb": "#cc8ba6",
+   "finish": "luster"
+  },
+  {
+   "code": "332",
+   "name": "Gold Raspberry, Other, Luster",
+   "rgb": "#d76d9c",
+   "finish": "luster"
+  },
+  {
+   "code": "332F",
+   "name": "Other",
+   "rgb": "#985276",
+   "finish": "opaque"
+  },
+  {
+   "code": "333",
+   "name": "Gold Fern, Other, Luster",
+   "rgb": "#929d6d",
+   "finish": "luster"
+  },
+  {
+   "code": "341",
+   "name": "Crystal/Tomato Lined, Transparent, Inside-Color",
+   "rgb": "#f16e6f",
+   "finish": "inside_dyed"
+  },
+  {
+   "code": "344",
+   "name": "Crystal/Dk Purple Lined, Opaque, Inside-Color",
+   "rgb": "#898d8d",
+   "finish": "inside_dyed"
+  },
+  {
+   "code": "347",
+   "name": "Crystal/Capri Lined, Transparent, Inside-Color",
+   "rgb": "#7b99aa",
+   "finish": "inside_dyed"
+  },
+  {
+   "code": "350",
+   "name": "Crystal/Fuchsia Lined, Transparent, Inside-Color",
+   "rgb": "#eb7db8",
+   "finish": "inside_dyed"
+  },
+  {
+   "code": "351",
+   "name": "Crystal/ Blue Lined, Opaque, Inside-Color",
+   "rgb": "#7cc1d6",
+   "finish": "inside_dyed"
+  },
+  {
+   "code": "352",
+   "name": "Crystal/Lt Jonquil Lined, Transparent, Inside-Color",
+   "rgb": "#e1c397",
+   "finish": "inside_dyed"
+  },
+  {
+   "code": "354",
+   "name": "Crystal/Mint Julep Lined, Transparent, Inside-Color",
+   "rgb": "#84caa1",
+   "finish": "inside_dyed"
+  },
+  {
+   "code": "355",
+   "name": "Crystal/Siam Lined, Transparent, Inside-Color",
+   "rgb": "#e76571",
+   "finish": "inside_dyed"
+  },
+  {
+   "code": "356",
+   "name": "Lt Amethyst/Fuchsia Lined, Transparent, Inside-Color",
+   "rgb": "#cd80a7",
+   "finish": "inside_dyed"
+  },
+  {
+   "code": "361",
+   "name": "Dk Aqua/Violet Lined, Transparent, Inside-Color",
+   "rgb": "#5f76d4",
+   "finish": "inside_dyed"
+  },
+  {
+   "code": "362",
+   "name": "Navy Blue, Transparent, Inside-Color, Luster",
+   "rgb": "#727c8a",
+   "finish": "inside_dyed"
+  },
+  {
+   "code": "363",
+   "name": "Montana Blue/Oxblood Lined, Transparent, Inside-Color",
+   "rgb": "#ac8d88",
+   "finish": "inside_dyed"
+  },
+  {
+   "code": "364",
+   "name": "Grape, Transparent, Inside-Color, Luster",
+   "rgb": "#b0a2ad",
+   "finish": "inside_dyed"
+  },
+  {
+   "code": "365",
+   "name": "Lt Topaz/Pomegranate Lined, Transparent, Inside-Color",
+   "rgb": "#cf634d",
+   "finish": "inside_dyed"
+  },
+  {
+   "code": "369",
+   "name": "Black Diamond/Orange Creme Lined, Transparent, Inside-Color",
+   "rgb": "#bfae88",
+   "finish": "inside_dyed"
+  },
+  {
+   "code": "371",
+   "name": "Black Diamond/White Lined, Transparent, Inside-Color",
+   "rgb": "#909597",
+   "finish": "inside_dyed"
+  },
+  {
+   "code": "374",
+   "name": "Emerald Green/Denim Blue, Transparent, Luster",
+   "rgb": "#679e9e",
+   "finish": "luster"
+  },
+  {
+   "code": "375",
+   "name": "Topaz/Lt Gray Lined, Transparent, Inside-Color",
+   "rgb": "#c3a366",
+   "finish": "inside_dyed"
+  },
+  {
+   "code": "377",
+   "name": "Lt Sapphire/ Teal Lined, Metallic, Inside-Color, Metallic",
+   "rgb": "#2d918a",
+   "finish": "metallic"
+  },
+  {
+   "code": "380",
+   "name": "Topaz/Mint Julep Lined, Transparent, Inside-Color",
+   "rgb": "#a2bc7c",
+   "finish": "inside_dyed"
+  },
+  {
+   "code": "381",
+   "name": "Aqua/Oxblood Lined, Transparent, Inside-Color",
+   "rgb": "#978bbe",
+   "finish": "inside_dyed"
+  },
+  {
+   "code": "384",
+   "name": "Montana Blue/ Green Lined, Opaque, Inside-Color",
+   "rgb": "#579085",
+   "finish": "inside_dyed"
+  },
+  {
+   "code": "387",
+   "name": "Peridot/ Green Lined, Opaque, Inside-Color",
+   "rgb": "#5599a7",
+   "finish": "inside_dyed"
+  },
+  {
+   "code": "388",
+   "name": "Lt Topaz/Hyacinth Lined, Transparent, Inside-Color",
+   "rgb": "#da464b",
+   "finish": "inside_dyed"
+  },
+  {
+   "code": "388FM",
+   "name": "Hyacinth Lined Lt Topaz, Other, Frosted",
+   "rgb": "#cc2d1a",
+   "finish": "matte"
+  },
+  {
+   "code": "393",
+   "name": "Inside ColorTopaz/ Green Lined, Opaque",
+   "rgb": "#80a65a",
+   "finish": "opaque"
+  },
+  {
+   "code": "400",
+   "name": "Ruby/Jet Lined, Transparent, Inside-Color",
+   "rgb": "#5c6d85",
+   "finish": "inside_dyed"
+  },
+  {
+   "code": "401",
+   "name": "White, Opaque",
+   "rgb": "#dcdada",
+   "finish": "opaque"
+  },
+  {
+   "code": "402",
+   "name": "Dandelion, Opaque",
+   "rgb": "#f1e242",
+   "finish": "opaque"
+  },
+  {
+   "code": "403",
+   "name": "Blue Turquoise, Opaque",
+   "rgb": "#3ea0c9",
+   "finish": "opaque"
+  },
+  {
+   "code": "404",
+   "name": "Sour Apple, Opaque",
+   "rgb": "#bce48a",
+   "finish": "opaque"
+  },
+  {
+   "code": "405",
+   "name": "Cherry, Opaque",
+   "rgb": "#ef6165",
+   "finish": "opaque"
+  },
+  {
+   "code": "405F",
+   "name": "Cherry, Opaque, Frosted",
+   "rgb": "#9b343b",
+   "finish": "matte"
+  },
+  {
+   "code": "406",
+   "name": "Oxblood, Opaque",
+   "rgb": "#847d74",
+   "finish": "opaque"
+  },
+  {
+   "code": "406F",
+   "name": "Oxblood, Opaque, Frosted",
+   "rgb": "#4b435b",
+   "finish": "matte"
+  },
+  {
+   "code": "407",
+   "name": "Mint Green, Opaque",
+   "rgb": "#87df90",
+   "finish": "opaque"
+  },
+  {
+   "code": "408",
+   "name": "Navy Blue, Opaque",
+   "rgb": "#8f9feb",
+   "finish": "opaque"
+  },
+  {
+   "code": "409",
+   "name": "Lt Beige, Opaque",
+   "rgb": "#e2d5ab",
+   "finish": "opaque"
+  },
+  {
+   "code": "410",
+   "name": "Pumpkin, Opaque",
+   "rgb": "#ed7c5a",
+   "finish": "opaque"
+  },
+  {
+   "code": "410F",
+   "name": "Pumpkin, Opaque, Frosted",
+   "rgb": "#ed5046",
+   "finish": "matte"
+  },
+  {
+   "code": "412",
+   "name": "Lavender, Opaque",
+   "rgb": "#a08a8f",
+   "finish": "opaque"
+  },
+  {
+   "code": "413",
+   "name": "Turquoise, Opaque",
+   "rgb": "#5ad3d1",
+   "finish": "opaque"
+  },
+  {
+   "code": "413F",
+   "name": "Turquoise, Opaque, Frosted",
+   "rgb": "#62c8d6",
+   "finish": "matte"
+  },
+  {
+   "code": "421",
+   "name": "Gold Pink, Transparent, Luster",
+   "rgb": "#9a672d",
+   "finish": "luster"
+  },
+  {
+   "code": "422",
+   "name": "Gold Dk Antique Bronze, Other, Luster",
+   "rgb": "#a09b62",
+   "finish": "luster"
+  },
+  {
+   "code": "425",
+   "name": "Gold Marionberry, Other, Luster",
+   "rgb": "#7b7785",
+   "finish": "luster"
+  },
+  {
+   "code": "454",
+   "name": "Gold Root Beer, Other, Luster",
+   "rgb": "#a8a5c3",
+   "finish": "luster"
+  },
+  {
+   "code": "455",
+   "name": "Gold Pale Wisteria, Other, Luster",
+   "rgb": "#aea9b7",
+   "finish": "luster"
+  },
+  {
+   "code": "457",
+   "name": "Gold Green Tea, Other, Luster",
+   "rgb": "#c3bd93",
+   "finish": "luster"
+  },
+  {
+   "code": "459",
+   "name": "Gold Dk Topaz, Other, Luster",
+   "rgb": "#c8a67c",
+   "finish": "luster"
+  },
+  {
+   "code": "461",
+   "name": "Grape, Metallic, Metallic",
+   "rgb": "#a553bf",
+   "finish": "metallic"
+  },
+  {
+   "code": "477",
+   "name": "Dyed Lavender Mist, Other",
+   "rgb": "#c3adc4",
+   "finish": "opaque"
+  },
+  {
+   "code": "477D",
+   "name": "Foxglove, Transparent",
+   "rgb": "#c3aad0",
+   "finish": "transparent"
+  },
+  {
+   "code": "501",
+   "name": "Cinnamon Bronze, Metallic, Metallic",
+   "rgb": "#825d3c",
+   "finish": "metallic"
+  },
+  {
+   "code": "502",
+   "name": "Amethyst, Metallic, Metallic",
+   "rgb": "#8d645d",
+   "finish": "metallic"
+  },
+  {
+   "code": "503",
+   "name": "Dk Amethyst, Metallic, Metallic",
+   "rgb": "#9a597a",
+   "finish": "metallic"
+  },
+  {
+   "code": "504",
+   "name": "Iris Violet, Metallic, Metallic",
+   "rgb": "#2e2334",
+   "finish": "metallic"
+  },
+  {
+   "code": "505",
+   "name": "Dragonfly, Metallic, Metallic",
+   "rgb": "#6580a6",
+   "finish": "metallic"
+  },
+  {
+   "code": "506",
+   "name": "June Bug, Metallic, Metallic",
+   "rgb": "#47a49e",
+   "finish": "metallic"
+  },
+  {
+   "code": "507",
+   "name": "Iris Green, Metallic, Metallic",
+   "rgb": "#72855b",
+   "finish": "metallic"
+  },
+  {
+   "code": "508",
+   "name": "Iris Olivine, Metallic, Metallic",
+   "rgb": "#8b9c72",
+   "finish": "metallic"
+  },
+  {
+   "code": "509",
+   "name": "Iris Purple/Green, Metallic, Metallic",
+   "rgb": "#5f4630",
+   "finish": "metallic"
+  },
+  {
+   "code": "511",
+   "name": "Peacock Blue, Metallic, Galvanized",
+   "rgb": "#618897",
+   "finish": "galvanized"
+  },
+  {
+   "code": "511F",
+   "name": "Mediteranian Blue, Metallic, Frosted, Metallic",
+   "rgb": "#458bc2",
+   "finish": "metallic"
+  },
+  {
+   "code": "512",
+   "name": "Green Silver, Metallic, Galvanized",
+   "rgb": "#7a9692",
+   "finish": "galvanized"
+  },
+  {
+   "code": "512F",
+   "name": "Blue Haze, Metallic, Frosted, Metallic",
+   "rgb": "#8aa49c",
+   "finish": "metallic"
+  },
+  {
+   "code": "513",
+   "name": "Carnival, Metallic, Galvanized",
+   "rgb": "#ad9b4c",
+   "finish": "galvanized"
+  },
+  {
+   "code": "513F",
+   "name": "Carnival, Metallic, Frosted, Metallic",
+   "rgb": "#b28e46",
+   "finish": "metallic"
+  },
+  {
+   "code": "514",
+   "name": "Gypsy Gold, Metallic, Metallic",
+   "rgb": "#b1846a",
+   "finish": "metallic"
+  },
+  {
+   "code": "514F",
+   "name": "Copper Twilight, Metallic, Frosted, Metallic",
+   "rgb": "#5c372a",
+   "finish": "metallic"
+  },
+  {
+   "code": "515F",
+   "name": "Mardi Gras, Metallic, Frosted, Metallic",
+   "rgb": "#855b98",
+   "finish": "metallic"
+  },
+  {
+   "code": "516",
+   "name": "Dark Hematite, Metallic, Galvanized",
+   "rgb": "#636a70",
+   "finish": "galvanized"
+  },
+  {
+   "code": "519",
+   "name": "Teal Hematite, Metallic, Metallic",
+   "rgb": "#324e4d",
+   "finish": "metallic"
+  },
+  {
+   "code": "519F",
+   "name": "Teal Hematite, Metallic, Frosted, Metallic",
+   "rgb": "#456465",
+   "finish": "metallic"
+  },
+  {
+   "code": "552",
+   "name": "Peach Coral, Metallic, Galvanized",
+   "rgb": "#b18a7b",
+   "finish": "galvanized"
+  },
+  {
+   "code": "558",
+   "name": "Aluminum, Metallic, Galvanized",
+   "rgb": "#c1c290",
+   "finish": "galvanized"
+  },
+  {
+   "code": "558F",
+   "name": "Aluminum, Metallic, Matte, Galvanized",
+   "rgb": "#bdb198",
+   "finish": "galvanized"
+  },
+  {
+   "code": "560",
+   "name": "Sea Foam, Metallic, Galvanized",
+   "rgb": "#b2ca90",
+   "finish": "galvanized"
+  },
+  {
+   "code": "561F",
+   "name": "Lt Teal, Metallic, Matte, Galvanized",
+   "rgb": "#6ea885",
+   "finish": "galvanized"
+  },
+  {
+   "code": "566",
+   "name": "Antique Silver, Metallic, Frosted, Metallic",
+   "rgb": "#988f80",
+   "finish": "metallic"
+  },
+  {
+   "code": "571",
+   "name": "Other",
+   "rgb": "#a8848b",
+   "finish": "opaque"
+  },
+  {
+   "code": "572",
+   "name": "Other",
+   "rgb": "#8e8f7f",
+   "finish": "opaque"
+  },
+  {
+   "code": "602",
+   "name": "Gray, Metallic, Galvanized",
+   "rgb": "#73726c",
+   "finish": "galvanized"
+  },
+  {
+   "code": "602F",
+   "name": "Gray, Metallic, Frosted, Metallic",
+   "rgb": "#525958",
+   "finish": "metallic"
+  },
+  {
+   "code": "604",
+   "name": "Lt Lavender, Metallic, Galvanized",
+   "rgb": "#7e7877",
+   "finish": "galvanized"
+  },
+  {
+   "code": "605",
+   "name": "Dk Lavender, Metallic, Galvanized",
+   "rgb": "#83777a",
+   "finish": "galvanized"
+  },
+  {
+   "code": "607",
+   "name": "Violet, Metallic, Metallic",
+   "rgb": "#543f53",
+   "finish": "metallic"
+  },
+  {
+   "code": "611",
+   "name": "Color Gray, Opaque, Matte",
+   "rgb": "#798992",
+   "finish": "matte"
+  },
+  {
+   "code": "612",
+   "name": "Color Gun Metal, Other, Matte",
+   "rgb": "#abb1b9",
+   "finish": "matte"
+  },
+  {
+   "code": "613",
+   "name": "Color Iris Gray, Other, Matte",
+   "rgb": "#5b584a",
+   "finish": "matte"
+  },
+  {
+   "code": "614",
+   "name": "Color Iris Brown, Other, Matte",
+   "rgb": "#605b4e",
+   "finish": "matte"
+  },
+  {
+   "code": "615",
+   "name": "Color Iris Purple, Other, Matte",
+   "rgb": "#907d81",
+   "finish": "matte"
+  },
+  {
+   "code": "617",
+   "name": "Color Dk Olive, Other, Matte",
+   "rgb": "#777b4c",
+   "finish": "matte"
+  },
+  {
+   "code": "618",
+   "name": "Pastel Mudbrick, Opaque, Frosted",
+   "rgb": "#95704c",
+   "finish": "matte"
+  },
+  {
+   "code": "621",
+   "name": "French Rose, Transparent",
+   "rgb": "#ce767d",
+   "finish": "transparent"
+  },
+  {
+   "code": "622",
+   "name": "Lt Topaz, Other",
+   "rgb": "#c97621",
+   "finish": "opaque"
+  },
+  {
+   "code": "625F",
+   "name": "Gold Plum, Other, Matte, Luster",
+   "rgb": "#8d587b",
+   "finish": "matte"
+  },
+  {
+   "code": "699",
+   "name": "Crystal/Shamrock Lined, Transparent, Inside-Color",
+   "rgb": "#93c1a7",
+   "finish": "inside_dyed"
+  },
+  {
+   "code": "701",
+   "name": "24K Crystal, Transparent, Gold-Lined",
+   "rgb": "#d4ac5a",
+   "finish": "gold_lined"
+  },
+  {
+   "code": "702",
+   "name": "Color Dk Copper, Other, Matte",
+   "rgb": "#856b50",
+   "finish": "matte"
+  },
+  {
+   "code": "703",
+   "name": "Color Mauve Mocha, Other, Matte",
+   "rgb": "#9d7673",
+   "finish": "matte"
+  },
+  {
+   "code": "704",
+   "name": "Color Andromeda, Other, Matte",
+   "rgb": "#bf7c9d",
+   "finish": "matte"
+  },
+  {
+   "code": "705",
+   "name": "Color Iris Blue, Other, Matte",
+   "rgb": "#676088",
+   "finish": "matte"
+  },
+  {
+   "code": "706",
+   "name": "Color Iris Teal, Other, Matte",
+   "rgb": "#7e9fa3",
+   "finish": "matte"
+  },
+  {
+   "code": "707",
+   "name": "Color Iris Peridot, Other, Matte",
+   "rgb": "#63785d",
+   "finish": "matte"
+  },
+  {
+   "code": "708",
+   "name": "Color Cassiopeia, Other, Matte",
+   "rgb": "#73685a",
+   "finish": "matte"
+  },
+  {
+   "code": "709",
+   "name": "Color Iris Violet, Other, Matte",
+   "rgb": "#7f806a",
+   "finish": "matte"
+  },
+  {
+   "code": "710",
+   "name": "Color Aquarius, Other, Matte",
+   "rgb": "#97c1ae",
+   "finish": "matte"
+  },
+  {
+   "code": "711",
+   "name": "Nickel, Other",
+   "rgb": "#a79f92",
+   "finish": "opaque"
+  },
+  {
+   "code": "712",
+   "name": "24K Gold Plated, Metallic, Metallic",
+   "rgb": "#ebcb79",
+   "finish": "metallic"
+  },
+  {
+   "code": "714",
+   "name": "Silver, Metallic, Metallic",
+   "rgb": "#aeaba1",
+   "finish": "metallic"
+  },
+  {
+   "code": "721",
+   "name": "Blue Gold, Metallic, Galvanized",
+   "rgb": "#80968b",
+   "finish": "galvanized"
+  },
+  {
+   "code": "722",
+   "name": "Midas Gold, Metallic, Galvanized",
+   "rgb": "#b98c63",
+   "finish": "galvanized"
+  },
+  {
+   "code": "740",
+   "name": "Copper Lined Crystal, Other",
+   "rgb": "#daa18d",
+   "finish": "opaque"
+  },
+  {
+   "code": "741",
+   "name": "Copper Lined Alabaster, Other",
+   "rgb": "#ccafb0",
+   "finish": "opaque"
+  },
+  {
+   "code": "742",
+   "name": "Copper Lined Peridot, Other",
+   "rgb": "#67904a",
+   "finish": "opaque"
+  },
+  {
+   "code": "744",
+   "name": "Copper Lined Lt Topaz, Other",
+   "rgb": "#c48544",
+   "finish": "opaque"
+  },
+  {
+   "code": "745",
+   "name": "Copper Lined Marigold, Other",
+   "rgb": "#d6a025",
+   "finish": "opaque"
+  },
+  {
+   "code": "746",
+   "name": "Copper Lined Lt Amethyst, Other",
+   "rgb": "#b07a74",
+   "finish": "opaque"
+  },
+  {
+   "code": "747",
+   "name": "Copper Lined Lime Green, Other",
+   "rgb": "#81771a",
+   "finish": "opaque"
+  },
+  {
+   "code": "761",
+   "name": "Color White, Opaque, Matte",
+   "rgb": "#d8d9d1",
+   "finish": "matte"
+  },
+  {
+   "code": "762",
+   "name": "Pastel Egg Shell, Opaque, Frosted",
+   "rgb": "#e9d4ac",
+   "finish": "matte"
+  },
+  {
+   "code": "763",
+   "name": "Pastel Apricot, Opaque, Frosted",
+   "rgb": "#e6c39a",
+   "finish": "matte"
+  },
+  {
+   "code": "764",
+   "name": "Pastel Shrimp, Opaque, Frosted",
+   "rgb": "#e7b5a6",
+   "finish": "matte"
+  },
+  {
+   "code": "765",
+   "name": "Pastel Plumeria, Opaque, Frosted",
+   "rgb": "#d99fae",
+   "finish": "matte"
+  },
+  {
+   "code": "766",
+   "name": "Pastel Lt Lilac, Opaque, Frosted",
+   "rgb": "#c393a1",
+   "finish": "matte"
+  },
+  {
+   "code": "767",
+   "name": "Pastel Lt Gray, Opaque, Frosted",
+   "rgb": "#cad0da",
+   "finish": "matte"
+  },
+  {
+   "code": "771",
+   "name": "Crystal/Strawberry Lined, Transparent, Inside-Color",
+   "rgb": "#b998a3",
+   "finish": "inside_dyed"
+  },
+  {
+   "code": "773",
+   "name": "Crystal/Montana Blue Lined, Transparent, Inside-Color",
+   "rgb": "#a2b2ba",
+   "finish": "inside_dyed"
+  },
+  {
+   "code": "774",
+   "name": "Crystal/Grape Lined, Transparent, Inside-Color",
+   "rgb": "#67749f",
+   "finish": "inside_dyed"
+  },
+  {
+   "code": "774F",
+   "name": "Crystal/Grape Lined, Transparent, Frosted, Inside-Color",
+   "rgb": "#464150",
+   "finish": "inside_dyed"
+  },
+  {
+   "code": "776",
+   "name": "Aqua/Purple Lined, Transparent, Inside-Color",
+   "rgb": "#958cc6",
+   "finish": "inside_dyed"
+  },
+  {
+   "code": "777",
+   "name": "Crystal/Creme Lined, Transparent, Inside-Color",
+   "rgb": "#e3decf",
+   "finish": "inside_dyed"
+  },
+  {
+   "code": "779",
+   "name": "Crystal/Salmon Lined, Transparent, Inside-Color",
+   "rgb": "#f48288",
+   "finish": "inside_dyed"
+  },
+  {
+   "code": "781",
+   "name": "Aqua Lined Crystal, Other",
+   "rgb": "#3f88af",
+   "finish": "opaque"
+  },
+  {
+   "code": "782",
+   "name": "Crystal/Capri Lined, Transparent, Inside-Color",
+   "rgb": "#73919a",
+   "finish": "inside_dyed"
+  },
+  {
+   "code": "783",
+   "name": "Crystal/ Gray Lined, Opaque, Inside-Color",
+   "rgb": "#89909c",
+   "finish": "inside_dyed"
+  },
+  {
+   "code": "784",
+   "name": "Crystal/Sandstone Lined, Transparent, Inside-Color",
+   "rgb": "#bd847e",
+   "finish": "inside_dyed"
+  },
+  {
+   "code": "785",
+   "name": "Crystal/Hot Pink Lined, Transparent, Inside-Color, Luster",
+   "rgb": "#e380ac",
+   "finish": "inside_dyed"
+  },
+  {
+   "code": "794",
+   "name": "Crystal/Apricot Lined, Transparent, Inside-Color",
+   "rgb": "#f2bd9a",
+   "finish": "inside_dyed"
+  },
+  {
+   "code": "801",
+   "name": "Luminous Neon Tangerine, Other",
+   "rgb": "#faa940",
+   "finish": "opaque"
+  },
+  {
+   "code": "802",
+   "name": "Luminous Neon Orange, Other",
+   "rgb": "#f9904a",
+   "finish": "opaque"
+  },
+  {
+   "code": "802F",
+   "name": "Other",
+   "rgb": "#e2611e",
+   "finish": "opaque"
+  },
+  {
+   "code": "803",
+   "name": "Luminous Neon Salmon, Other",
+   "rgb": "#f16f51",
+   "finish": "opaque"
+  },
+  {
+   "code": "805",
+   "name": "Luminous Neon Green, Other",
+   "rgb": "#20ea77",
+   "finish": "opaque"
+  },
+  {
+   "code": "833",
+   "name": "Neon Yellow, Opaque, Ceylon",
+   "rgb": "#d3e97f",
+   "finish": "ceylon"
+  },
+  {
+   "code": "901",
+   "name": "Rice Pudding, Opaque, Ceylon",
+   "rgb": "#eecc91",
+   "finish": "ceylon"
+  },
+  {
+   "code": "902",
+   "name": "Lemon Chiffon, Opaque, Ceylon",
+   "rgb": "#f6e391",
+   "finish": "ceylon"
+  },
+  {
+   "code": "903",
+   "name": "Custard, Opaque, Ceylon",
+   "rgb": "#f8dba1",
+   "finish": "ceylon"
+  },
+  {
+   "code": "904",
+   "name": "Apricot, Opaque, Ceylon",
+   "rgb": "#f2b8a0",
+   "finish": "ceylon"
+  },
+  {
+   "code": "905",
+   "name": "Peach Blush, Opaque, Ceylon",
+   "rgb": "#f3a09a",
+   "finish": "ceylon"
+  },
+  {
+   "code": "906",
+   "name": "Tomato Soup, Opaque, Ceylon",
+   "rgb": "#eb9196",
+   "finish": "ceylon"
+  },
+  {
+   "code": "906F",
+   "name": "Grapefruit, Opaque, Frosted, Ceylon",
+   "rgb": "#d55857",
+   "finish": "matte"
+  },
+  {
+   "code": "907",
+   "name": "Petunia, Opaque, Ceylon",
+   "rgb": "#cb9ca2",
+   "finish": "ceylon"
+  },
+  {
+   "code": "908",
+   "name": "Dyed Baby Pink, Opaque, Ceylon",
+   "rgb": "#cb7992",
+   "finish": "ceylon"
+  },
+  {
+   "code": "909",
+   "name": "Cotton Candy, Opaque, Ceylon",
+   "rgb": "#ee7e8b",
+   "finish": "ceylon"
+  },
+  {
+   "code": "910",
+   "name": "Hot Pink, Opaque, Ceylon",
+   "rgb": "#fa78b6",
+   "finish": "ceylon"
+  },
+  {
+   "code": "911",
+   "name": "Impatiens Pink, Opaque, Ceylon",
+   "rgb": "#ed969e",
+   "finish": "ceylon"
+  },
+  {
+   "code": "917",
+   "name": "Denim Blue, Opaque, Ceylon",
+   "rgb": "#91a6de",
+   "finish": "ceylon"
+  },
+  {
+   "code": "918",
+   "name": "English Bluebell, Opaque, Ceylon",
+   "rgb": "#76bfdc",
+   "finish": "ceylon"
+  },
+  {
+   "code": "919",
+   "name": "Forget Me Not, Opaque, Ceylon",
+   "rgb": "#96d1e9",
+   "finish": "ceylon"
+  },
+  {
+   "code": "920",
+   "name": "Lt Sea Green, Opaque, Ceylon",
+   "rgb": "#6cc8c3",
+   "finish": "ceylon"
+  },
+  {
+   "code": "921",
+   "name": "Virginia Bluebell, Opaque, Ceylon",
+   "rgb": "#99a2d6",
+   "finish": "ceylon"
+  },
+  {
+   "code": "922",
+   "name": "Gladiola, Opaque, Ceylon",
+   "rgb": "#b9a5db",
+   "finish": "ceylon"
+  },
+  {
+   "code": "925",
+   "name": "Lt Topaz/Coral Pink Lined, Transparent, Inside-Color",
+   "rgb": "#f38a70",
+   "finish": "inside_dyed"
+  },
+  {
+   "code": "926",
+   "name": "Lt Topaz/ Lavender Lined, Opaque, Inside-Color",
+   "rgb": "#9d98a9",
+   "finish": "inside_dyed"
+  },
+  {
+   "code": "928",
+   "name": "Rosaline/ Purple Lined, Opaque, Inside-Color",
+   "rgb": "#a179c1",
+   "finish": "inside_dyed"
+  },
+  {
+   "code": "928F",
+   "name": "Rosaline/ Purple Lined, Opaque, Frosted, Inside-Color",
+   "rgb": "#4d4270",
+   "finish": "inside_dyed"
+  },
+  {
+   "code": "929",
+   "name": "Lt Yellow/Capri Lined, Transparent, Inside-Color",
+   "rgb": "#74748d",
+   "finish": "inside_dyed"
+  },
+  {
+   "code": "931",
+   "name": "Aqua/White Lined, Transparent, Inside-Color",
+   "rgb": "#469dc5",
+   "finish": "inside_dyed"
+  },
+  {
+   "code": "932",
+   "name": "Aqua/Capri Lined, Transparent, Inside-Color",
+   "rgb": "#286db4",
+   "finish": "inside_dyed"
+  },
+  {
+   "code": "933",
+   "name": "Lt Sapphire/White Lined, Transparent, Inside-Color",
+   "rgb": "#aac0e6",
+   "finish": "inside_dyed"
+  },
+  {
+   "code": "934",
+   "name": "Lt Sapphire/ Purple Lined, Opaque, Inside-Color",
+   "rgb": "#586cd1",
+   "finish": "inside_dyed"
+  },
+  {
+   "code": "935",
+   "name": "Crystal/Wisteria Lined, Transparent, Inside-Color",
+   "rgb": "#b187d3",
+   "finish": "inside_dyed"
+  },
+  {
+   "code": "937",
+   "name": "Aqua/Bubble Gum Pink Lined, Transparent, Inside-Color",
+   "rgb": "#ab90e3",
+   "finish": "inside_dyed"
+  },
+  {
+   "code": "938",
+   "name": "Aqua/Pink Lined, Transparent, Inside-Color",
+   "rgb": "#8e97eb",
+   "finish": "inside_dyed"
+  },
+  {
+   "code": "939",
+   "name": "Green Emerald, Transparent",
+   "rgb": "#7b9582",
+   "finish": "transparent"
+  },
+  {
+   "code": "939F",
+   "name": "Green Emerald, Transparent, Frosted",
+   "rgb": "#2a533c",
+   "finish": "matte"
+  },
+  {
+   "code": "940",
+   "name": "Olivine, Transparent",
+   "rgb": "#757e65",
+   "finish": "transparent"
+  },
+  {
+   "code": "940F",
+   "name": "Olivine, Transparent, Frosted",
+   "rgb": "#37422a",
+   "finish": "matte"
+  },
+  {
+   "code": "941",
+   "name": "Smoky Topaz, Transparent",
+   "rgb": "#9f8071",
+   "finish": "transparent"
+  },
+  {
+   "code": "942",
+   "name": "Sapphire, Transparent",
+   "rgb": "#4840b9",
+   "finish": "transparent"
+  },
+  {
+   "code": "945",
+   "name": "Jonquil/Mint Julep Lined, Transparent, Inside-Color",
+   "rgb": "#b0c979",
+   "finish": "inside_dyed"
+  },
+  {
+   "code": "946",
+   "name": "Jonquil/ Green Lined, Opaque, Inside-Color",
+   "rgb": "#bccb7d",
+   "finish": "inside_dyed"
+  },
+  {
+   "code": "946F",
+   "name": "Jonquil/ Green Lined, Opaque, Frosted, Inside-Color",
+   "rgb": "#7ab25b",
+   "finish": "inside_dyed"
+  },
+  {
+   "code": "947",
+   "name": "Lime Green/ Green Lined, Opaque, Inside-Color",
+   "rgb": "#5ebe7c",
+   "finish": "inside_dyed"
+  },
+  {
+   "code": "947F",
+   "name": "Lime Green/ Green Lined, Opaque, Frosted, Inside-Color",
+   "rgb": "#5a7c48",
+   "finish": "inside_dyed"
+  },
+  {
+   "code": "948",
+   "name": "Jonquil/White Lined, Transparent, Inside-Color",
+   "rgb": "#dabe8e",
+   "finish": "inside_dyed"
+  },
+  {
+   "code": "950",
+   "name": "Jonquil/Burnt Orange Lined, Transparent, Inside-Color",
+   "rgb": "#de7f36",
+   "finish": "inside_dyed"
+  },
+  {
+   "code": "950F",
+   "name": "Jonquil/Burnt Orange Lined, Transparent, Frosted, Inside-Color",
+   "rgb": "#e3a135",
+   "finish": "inside_dyed"
+  },
+  {
+   "code": "951",
+   "name": "Jonquil/Brick Red Lined, Transparent, Inside-Color",
+   "rgb": "#b15249",
+   "finish": "inside_dyed"
+  },
+  {
+   "code": "952",
+   "name": "Lt Topaz/Sea Foam Lined, Transparent, Inside-Color",
+   "rgb": "#a7bc97",
+   "finish": "inside_dyed"
+  },
+  {
+   "code": "953",
+   "name": "Jonquil/Turquoise Lined, Transparent, Inside-Color",
+   "rgb": "#88b395",
+   "finish": "inside_dyed"
+  },
+  {
+   "code": "954",
+   "name": "Aqua/Lt Jonquil Lined, Transparent, Inside-Color",
+   "rgb": "#3dbdab",
+   "finish": "inside_dyed"
+  },
+  {
+   "code": "955",
+   "name": "Jonquil/Lt Apricot Lined, Transparent, Inside-Color",
+   "rgb": "#e2a76f",
+   "finish": "inside_dyed"
+  },
+  {
+   "code": "956",
+   "name": "Jonquil/Coral Lined, Transparent, Inside-Color",
+   "rgb": "#e98368",
+   "finish": "inside_dyed"
+  },
+  {
+   "code": "957",
+   "name": "Hyacinth/White Lined, Transparent, Inside-Color",
+   "rgb": "#ef4829",
+   "finish": "inside_dyed"
+  },
+  {
+   "code": "958",
+   "name": "Hyacinth/Siam Lined, Transparent, Inside-Color",
+   "rgb": "#f06e50",
+   "finish": "inside_dyed"
+  },
+  {
+   "code": "959",
+   "name": "Lt Amethyst/Pink Lined, Transparent, Inside-Color",
+   "rgb": "#e67fab",
+   "finish": "inside_dyed"
+  },
+  {
+   "code": "960",
+   "name": "Lt Topaz/Pink Lined, Transparent, Inside-Color",
+   "rgb": "#bb8484",
+   "finish": "inside_dyed"
+  },
+  {
+   "code": "961",
+   "name": "Crystal/Butter Lined, Transparent, Inside-Color",
+   "rgb": "#e7a649",
+   "finish": "inside_dyed"
+  },
+  {
+   "code": "961F",
+   "name": "Crystal/Butter Lined, Transparent, Frosted, Inside-Color",
+   "rgb": "#e3bd42",
+   "finish": "inside_dyed"
+  },
+  {
+   "code": "962",
+   "name": "Crystal/Peach Lined, Transparent, Inside-Color",
+   "rgb": "#ee9248",
+   "finish": "inside_dyed"
+  },
+  {
+   "code": "963",
+   "name": "Crystal/Apricot Lined, Transparent, Inside-Color",
+   "rgb": "#f28169",
+   "finish": "inside_dyed"
+  },
+  {
+   "code": "964",
+   "name": "Crystal/Dk Coral Lined, Transparent, Inside-Color",
+   "rgb": "#ef7560",
+   "finish": "inside_dyed"
+  },
+  {
+   "code": "965",
+   "name": "Crystal/Carnation Lined, Transparent, Inside-Color",
+   "rgb": "#ee609d",
+   "finish": "inside_dyed"
+  },
+  {
+   "code": "966",
+   "name": "Crystal/Purple Lined, Transparent, Inside-Color",
+   "rgb": "#a08bce",
+   "finish": "inside_dyed"
+  },
+  {
+   "code": "967",
+   "name": "Crystal/Neon Rosaline Lined, Transparent, Inside-Color",
+   "rgb": "#e2b2bb",
+   "finish": "inside_dyed"
+  },
+  {
+   "code": "969",
+   "name": "Crystal/Neon Carnation Lined, Transparent, Inside-Color",
+   "rgb": "#fc95bd",
+   "finish": "inside_dyed"
+  },
+  {
+   "code": "971",
+   "name": "Crystal/Neon Pink Lined, Transparent, Matte, Inside-Color",
+   "rgb": "#fa6aac",
+   "finish": "inside_dyed"
+  },
+  {
+   "code": "975",
+   "name": "Crystal/Neon Sea Foam Lined, Transparent, Inside-Color",
+   "rgb": "#87d9ad",
+   "finish": "inside_dyed"
+  },
+  {
+   "code": "976",
+   "name": "Crystal/Neon Ice Blue Lined, Transparent, Inside-Color",
+   "rgb": "#9bdff2",
+   "finish": "inside_dyed"
+  },
+  {
+   "code": "977",
+   "name": "Crystal/Neon Purple Lined, Transparent, Inside-Color",
+   "rgb": "#938ed8",
+   "finish": "inside_dyed"
+  },
+  {
+   "code": "978",
+   "name": "Luminous Neon Pink, Other",
+   "rgb": "#e94b71",
+   "finish": "opaque"
+  },
+  {
+   "code": "979",
+   "name": "Luminous Lt Topaz/Neon Pink Lined, Other",
+   "rgb": "#e85762",
+   "finish": "opaque"
+  },
+  {
+   "code": "980",
+   "name": "Luminous Lt Sapphire/Neon Pink Lined, Other",
+   "rgb": "#cd47aa",
+   "finish": "opaque"
+  },
+  {
+   "code": "981",
+   "name": "Crystal/Snow Lined, Transparent, Inside-Color",
+   "rgb": "#e4dfd2",
+   "finish": "inside_dyed"
+  },
+  {
+   "code": "981F",
+   "name": "Crystal/Snow Lined, Transparent, Frosted, Inside-Color",
+   "rgb": "#bfcbc8",
+   "finish": "inside_dyed"
+  },
+  {
+   "code": "984",
+   "name": "Crystal/Papaya Lined, Transparent, Inside-Color",
+   "rgb": "#f0a262",
+   "finish": "inside_dyed"
+  },
+  {
+   "code": "985",
+   "name": "Crystal/Salmon Lined, Transparent, Inside-Color",
+   "rgb": "#f28c6c",
+   "finish": "inside_dyed"
+  },
+  {
+   "code": "987",
+   "name": "Crystal/Ballerina Pink Lined, Transparent, Inside-Color",
+   "rgb": "#f994b7",
+   "finish": "inside_dyed"
+  },
+  {
+   "code": "988",
+   "name": "Crystal/Lupine Lined, Transparent, Inside-Color",
+   "rgb": "#9f99cb",
+   "finish": "inside_dyed"
+  },
+  {
+   "code": "989",
+   "name": "Crystal, Transparent, Gold-Lined",
+   "rgb": "#c2a67e",
+   "finish": "gold_lined"
+  },
+  {
+   "code": "989F",
+   "name": "Crystal, Transparent, Frosted, Gold-Lined",
+   "rgb": "#a78955",
+   "finish": "gold_lined"
+  },
+  {
+   "code": "990",
+   "name": "Aqua, Transparent, Gold-Lined",
+   "rgb": "#8fad9e",
+   "finish": "gold_lined"
+  },
+  {
+   "code": "991",
+   "name": "Peridot, Transparent, Gold-Lined",
+   "rgb": "#4e541a",
+   "finish": "gold_lined"
+  },
+  {
+   "code": "992",
+   "name": "Lt Montana Blue, Transparent, Gold-Lined",
+   "rgb": "#9d9e9d",
+   "finish": "gold_lined"
+  },
+  {
+   "code": "993",
+   "name": "Black Diamond, Transparent, Gold-Lined",
+   "rgb": "#a59787",
+   "finish": "gold_lined"
+  },
+  {
+   "code": "994",
+   "name": "Crystal, Transparent, Gold-Lined",
+   "rgb": "#b6a07b",
+   "finish": "gold_lined"
+  },
+  {
+   "code": "995",
+   "name": "Aqua, Transparent, Gold-Lined",
+   "rgb": "#7ca3a2",
+   "finish": "gold_lined"
+  },
+  {
+   "code": "995F",
+   "name": "Aqua, Transparent, Frosted, Gold-Lined",
+   "rgb": "#346254",
+   "finish": "gold_lined"
+  },
+  {
+   "code": "996",
+   "name": "Peridot, Transparent, Gold-Lined",
+   "rgb": "#a0984e",
+   "finish": "gold_lined"
+  },
+  {
+   "code": "996F",
+   "name": "Peridot, Transparent, Frosted, Gold-Lined",
+   "rgb": "#716c27",
+   "finish": "gold_lined"
+  },
+  {
+   "code": "997",
+   "name": "Lt Sapphire, Transparent, Gold-Lined",
+   "rgb": "#a6a0ae",
+   "finish": "gold_lined"
+  },
+  {
+   "code": "997F",
+   "name": "Lt Sapphire, Transparent, Frosted, Gold-Lined",
+   "rgb": "#474c5b",
+   "finish": "gold_lined"
+  },
+  {
+   "code": "998",
+   "name": "Lt Jonquil, Transparent, Gold-Lined",
+   "rgb": "#b09866",
+   "finish": "gold_lined"
+  },
+  {
+   "code": "999",
+   "name": "Black Diamond, Transparent, Gold-Lined",
+   "rgb": "#9d8f7e",
+   "finish": "gold_lined"
+  },
+  {
+   "code": "999F",
+   "name": "Black Diamond, Transparent, Frosted, Gold-Lined",
+   "rgb": "#474631",
+   "finish": "gold_lined"
+  },
+  {
+   "code": "1007",
+   "name": "Peridot, Transparent, Gold-Lined, Luster",
+   "rgb": "#647e68",
+   "finish": "gold_lined"
+  },
+  {
+   "code": "1009",
+   "name": "Gray, Transparent, Silver-Lined, Luster",
+   "rgb": "#878888",
+   "finish": "silver_lined"
+  },
+  {
+   "code": "1010",
+   "name": "Med Amethyst, Transparent, Silver-Lined, Luster",
+   "rgb": "#a19e9c",
+   "finish": "silver_lined"
+  },
+  {
+   "code": "1015",
+   "name": "Crystal/Blush Lined, Transparent, Inside-Color",
+   "rgb": "#a08088",
+   "finish": "inside_dyed"
+  },
+  {
+   "code": "1046",
+   "name": "Peridot/ White Lined, Opaque, Inside-Color, Luster",
+   "rgb": "#9aae78",
+   "finish": "inside_dyed"
+  },
+  {
+   "code": "1057",
+   "name": "Lt Sapphire/ Dk Blue Lined, Opaque, Inside-Color",
+   "rgb": "#8e9cc4",
+   "finish": "inside_dyed"
+  },
+  {
+   "code": "1064",
+   "name": "Crystal/Concord Grape Lined, Transparent, Inside-Color",
+   "rgb": "#7e8086",
+   "finish": "inside_dyed"
+  },
+  {
+   "code": "1071",
+   "name": "Crystal/Antique Plum Lined, Transparent, Inside-Color",
+   "rgb": "#938278",
+   "finish": "inside_dyed"
+  },
+  {
+   "code": "1075",
+   "name": "Crystal/Berry Wine Lined, Transparent, Inside-Color",
+   "rgb": "#815f79",
+   "finish": "inside_dyed"
+  },
+  {
+   "code": "1076",
+   "name": "Gray/Magenta Lined, Transparent, Inside-Color",
+   "rgb": "#78596c",
+   "finish": "inside_dyed"
+  },
+  {
+   "code": "1078",
+   "name": "Other",
+   "rgb": "#c4245c",
+   "finish": "opaque"
+  },
+  {
+   "code": "1143",
+   "name": "Translucent Glacier, Other",
+   "rgb": "#259adf",
+   "finish": "opaque"
+  },
+  {
+   "code": "1144",
+   "name": "Milky Kiwi, Other",
+   "rgb": "#77d0a5",
+   "finish": "opaque"
+  },
+  {
+   "code": "1146",
+   "name": "Translucent Sapphire, Other",
+   "rgb": "#5d8fd8",
+   "finish": "opaque"
+  },
+  {
+   "code": "1200",
+   "name": "Marbled White/Pink, Opaque",
+   "rgb": "#c9a5b7",
+   "finish": "opaque"
+  },
+  {
+   "code": "1201",
+   "name": "Marbled Beige/Pink, Opaque",
+   "rgb": "#d7ab99",
+   "finish": "opaque"
+  },
+  {
+   "code": "1202",
+   "name": "Marbled Pink/Pink, Opaque",
+   "rgb": "#c796aa",
+   "finish": "opaque"
+  },
+  {
+   "code": "1203",
+   "name": "Marbled Pink/Amethyst, Opaque",
+   "rgb": "#bfa49b",
+   "finish": "opaque"
+  },
+  {
+   "code": "1204",
+   "name": "Marbled Lt Blue/Amethyst, Opaque",
+   "rgb": "#aaa3c1",
+   "finish": "opaque"
+  },
+  {
+   "code": "1205",
+   "name": "Marbled White/Blue, Opaque",
+   "rgb": "#bac7d0",
+   "finish": "opaque"
+  },
+  {
+   "code": "1206",
+   "name": "Marbled Turquoise/Amethyst, Opaque",
+   "rgb": "#88a6b0",
+   "finish": "opaque"
+  },
+  {
+   "code": "1207",
+   "name": "Marbled Turquoise/Blue, Opaque",
+   "rgb": "#8caca3",
+   "finish": "opaque"
+  },
+  {
+   "code": "1208",
+   "name": "Marbled Turquoise/ Blue, Opaque, Luster",
+   "rgb": "#8d9ba2",
+   "finish": "luster"
+  },
+  {
+   "code": "1209",
+   "name": "Marbled Avacado/Pink, Opaque",
+   "rgb": "#bca86d",
+   "finish": "opaque"
+  },
+  {
+   "code": "1300",
+   "name": "Alexandrite, Transparent",
+   "rgb": "#977c9a",
+   "finish": "transparent"
+  },
+  {
+   "code": "1606",
+   "name": "Tuscan Orange, Opaque, Luster",
+   "rgb": "#d88b23",
+   "finish": "luster"
+  },
+  {
+   "code": "1611",
+   "name": "Lagoon, Opaque, Luster",
+   "rgb": "#68a39d",
+   "finish": "luster"
+  },
+  {
+   "code": "1623F",
+   "name": "Gold Yellow, Opaque, Frosted, Luster",
+   "rgb": "#c3983a",
+   "finish": "matte"
+  },
+  {
+   "code": "1624F",
+   "name": "Pea Green Soup, Opaque, Frosted",
+   "rgb": "#7e8031",
+   "finish": "matte"
+  },
+  {
+   "code": "1700",
+   "name": "Gilded Marble White, Other",
+   "rgb": "#a68f84",
+   "finish": "opaque"
+  },
+  {
+   "code": "1701",
+   "name": "Gilded Marble Blue, Other",
+   "rgb": "#aa9588",
+   "finish": "opaque"
+  },
+  {
+   "code": "1702",
+   "name": "Gilded Marble Green, Other",
+   "rgb": "#899952",
+   "finish": "opaque"
+  },
+  {
+   "code": "1703",
+   "name": "Gilded Marble Turquoise, Other",
+   "rgb": "#b2ab8a",
+   "finish": "opaque"
+  },
+  {
+   "code": "1704",
+   "name": "Gilded Marble Lavender, Other",
+   "rgb": "#c6a191",
+   "finish": "opaque"
+  },
+  {
+   "code": "1705",
+   "name": "Gilded Marble Brown, Other",
+   "rgb": "#c2a27f",
+   "finish": "opaque"
+  },
+  {
+   "code": "1706",
+   "name": "Gilded Marble Black, Other",
+   "rgb": "#a69372",
+   "finish": "opaque"
+  },
+  {
+   "code": "1707",
+   "name": "Gilded Marble Orange, Other",
+   "rgb": "#d39766",
+   "finish": "opaque"
+  },
+  {
+   "code": "1708",
+   "name": "Gilded Marble Red, Other",
+   "rgb": "#d79a78",
+   "finish": "opaque"
+  },
+  {
+   "code": "1809",
+   "name": "Copper Lined Lt Amethyst, Other",
+   "rgb": "#835e58",
+   "finish": "opaque"
+  },
+  {
+   "code": "1820",
+   "name": "Gray/ Gray Lined, Opaque, Inside-Color",
+   "rgb": "#637288",
+   "finish": "inside_dyed"
+  },
+  {
+   "code": "1824",
+   "name": "Alexandrite/ Orange Lined, Opaque, Inside-Color",
+   "rgb": "#8a4451",
+   "finish": "inside_dyed"
+  },
+  {
+   "code": "1825",
+   "name": "Hyacinth/ Purple Lined, Opaque, Inside-Color",
+   "rgb": "#e29584",
+   "finish": "inside_dyed"
+  },
+  {
+   "code": "1829",
+   "name": "Jonquil/Forest Green Lined, Transparent, Inside-Color",
+   "rgb": "#9eab74",
+   "finish": "inside_dyed"
+  },
+  {
+   "code": "1830",
+   "name": "Lt Jonquil/Mint Lined, Transparent, Inside-Color",
+   "rgb": "#93c27d",
+   "finish": "inside_dyed"
+  },
+  {
+   "code": "1832",
+   "name": "Mint Julep Lined Crystal, Other",
+   "rgb": "#3bb1ad",
+   "finish": "opaque"
+  },
+  {
+   "code": "1833",
+   "name": "Lt Sapphire/ Teal Lined, Opaque, Inside-Color",
+   "rgb": "#398f85",
+   "finish": "inside_dyed"
+  },
+  {
+   "code": "1837",
+   "name": "Aqua/ Purple Lined, Opaque, Inside-Color",
+   "rgb": "#829ade",
+   "finish": "inside_dyed"
+  },
+  {
+   "code": "1846",
+   "name": "Orange Creamcicle Lined, Transparent, Inside-Color",
+   "rgb": "#e1c46d",
+   "finish": "inside_dyed"
+  },
+  {
+   "code": "1853",
+   "name": "Honey Comb, Transparent",
+   "rgb": "#a78565",
+   "finish": "transparent"
+  },
+  {
+   "code": "1854",
+   "name": "Crystal/Fuchsia Lined, Transparent, Inside-Color",
+   "rgb": "#714e69",
+   "finish": "inside_dyed"
+  },
+  {
+   "code": "2031F",
+   "name": "Rosaline, Transparent, Frosted, Silver-Lined",
+   "rgb": "#cfa48f",
+   "finish": "silver_lined"
+  },
+  {
+   "code": "2100",
+   "name": "Milky White, Transparent, Silver-Lined",
+   "rgb": "#d8d4c9",
+   "finish": "silver_lined"
+  },
+  {
+   "code": "2103",
+   "name": "Milky Peridot, Transparent, Silver-Lined",
+   "rgb": "#82b67b",
+   "finish": "silver_lined"
+  },
+  {
+   "code": "2106",
+   "name": "Milky Mauve, Transparent, Silver-Lined",
+   "rgb": "#be5983",
+   "finish": "silver_lined"
+  },
+  {
+   "code": "2110",
+   "name": "Milky Lt Topaz, Transparent, Silver-Lined",
+   "rgb": "#e2a84d",
+   "finish": "silver_lined"
+  },
+  {
+   "code": "2113",
+   "name": "Milky Pomegranate, Transparent, Silver-Lined",
+   "rgb": "#b85a65",
+   "finish": "silver_lined"
+  },
+  {
+   "code": "2114",
+   "name": "Milky Nutmeg, Transparent, Silver-Lined",
+   "rgb": "#997981",
+   "finish": "silver_lined"
+  },
+  {
+   "code": "2116",
+   "name": "Milky Lt Aqua, Transparent, Silver-Lined",
+   "rgb": "#9dcecb",
+   "finish": "silver_lined"
+  },
+  {
+   "code": "2151S",
+   "name": "Champagne, Transparent, Silver-Lined",
+   "rgb": "#d2b767",
+   "finish": "silver_lined"
+  },
+  {
+   "code": "2152",
+   "name": "Sarsaparilla, Transparent",
+   "rgb": "#683a2c",
+   "finish": "transparent"
+  },
+  {
+   "code": "2152S",
+   "name": "Sasparilla, Transparent, Silver-Lined",
+   "rgb": "#bc8e45",
+   "finish": "silver_lined"
+  },
+  {
+   "code": "2154S",
+   "name": "Marmalade, Transparent, Silver-Lined",
+   "rgb": "#a55e2e",
+   "finish": "silver_lined"
+  },
+  {
+   "code": "2155",
+   "name": "Chamomile, Transparent",
+   "rgb": "#9c6d17",
+   "finish": "transparent"
+  },
+  {
+   "code": "2156",
+   "name": "Honey, Transparent",
+   "rgb": "#9b5524",
+   "finish": "transparent"
+  },
+  {
+   "code": "2201",
+   "name": "Almond Blossom, Transparent, Silver-Lined",
+   "rgb": "#ea5f5d",
+   "finish": "silver_lined"
+  },
+  {
+   "code": "2204",
+   "name": "Dyed Pink Olivine, Transparent, Frosted, Silver-Lined",
+   "rgb": "#85705e",
+   "finish": "silver_lined"
+  },
+  {
+   "code": "2205",
+   "name": "Root Beer, Transparent, Silver-Lined",
+   "rgb": "#4b4037",
+   "finish": "silver_lined"
+  },
+  {
+   "code": "2208",
+   "name": "Burnt Orange, Transparent, Silver-Lined",
+   "rgb": "#8e2916",
+   "finish": "silver_lined"
+  },
+  {
+   "code": "2214",
+   "name": "Other",
+   "rgb": "#d177be",
+   "finish": "opaque"
+  },
+  {
+   "code": "2215",
+   "name": "Lt Pink, Transparent, Silver-Lined",
+   "rgb": "#e990a0",
+   "finish": "silver_lined"
+  },
+  {
+   "code": "2217",
+   "name": "Milky Fuchsia, Transparent, Silver-Lined",
+   "rgb": "#a63e91",
+   "finish": "silver_lined"
+  },
+  {
+   "code": "2218",
+   "name": "Mauve, Transparent, Silver-Lined",
+   "rgb": "#d58496",
+   "finish": "silver_lined"
+  },
+  {
+   "code": "2219",
+   "name": "Lt Grape, Transparent, Silver-Lined",
+   "rgb": "#af799a",
+   "finish": "silver_lined"
+  },
+  {
+   "code": "2224",
+   "name": "Purple, Transparent, Silver-Lined",
+   "rgb": "#6a4987",
+   "finish": "silver_lined"
+  },
+  {
+   "code": "2600F",
+   "name": "Semi Glazed Lemongrass, Other",
+   "rgb": "#989a2e",
+   "finish": "opaque"
+  },
+  {
+   "code": "2601F",
+   "name": "Semi Glazed Olive, Other",
+   "rgb": "#757830",
+   "finish": "opaque"
+  },
+  {
+   "code": "2602F",
+   "name": "Semi Glazed Honeydew, Other",
+   "rgb": "#849651",
+   "finish": "opaque"
+  },
+  {
+   "code": "2603F",
+   "name": "Semi Glazed Clover, Other",
+   "rgb": "#6c874a",
+   "finish": "opaque"
+  },
+  {
+   "code": "2604F",
+   "name": "Semi Glazed Turquoise, Other",
+   "rgb": "#628782",
+   "finish": "opaque"
+  },
+  {
+   "code": "2605F",
+   "name": "Semi Glazed Blue Turquoise, Other",
+   "rgb": "#67838a",
+   "finish": "opaque"
+  },
+  {
+   "code": "2606F",
+   "name": "Semi Glazed Soft Blue, Other",
+   "rgb": "#5e72a7",
+   "finish": "opaque"
+  },
+  {
+   "code": "2607F",
+   "name": "Semi Glazed Navy Blue, Other",
+   "rgb": "#292f64",
+   "finish": "opaque"
+  },
+  {
+   "code": "2608F",
+   "name": "Semi Glazed Lavender, Other",
+   "rgb": "#82777e",
+   "finish": "opaque"
+  },
+  {
+   "code": "2609F",
+   "name": "Semi Glazed Dk Red, Other",
+   "rgb": "#683129",
+   "finish": "opaque"
+  },
+  {
+   "code": "2610F",
+   "name": "Semi Glazed Burnt Orange, Other",
+   "rgb": "#8c4427",
+   "finish": "opaque"
+  },
+  {
+   "code": "2611F",
+   "name": "Semi Glazed Orange, Other",
+   "rgb": "#b95628",
+   "finish": "opaque"
+  },
+  {
+   "code": "2612F",
+   "name": "Semi Glazed Jet, Other",
+   "rgb": "#121313",
+   "finish": "opaque"
+  },
+  {
+   "code": "2630F",
+   "name": "Semi Glazed Lemongrass, Other",
+   "rgb": "#9c9c4b",
+   "finish": "opaque"
+  },
+  {
+   "code": "2631F",
+   "name": "Semi Glazed Olive, Other",
+   "rgb": "#80824c",
+   "finish": "opaque"
+  },
+  {
+   "code": "2632F",
+   "name": "Semi Glazed Honeydew, Other",
+   "rgb": "#8d9c60",
+   "finish": "opaque"
+  },
+  {
+   "code": "2633F",
+   "name": "Semi Glazed Clover, Other",
+   "rgb": "#74885d",
+   "finish": "opaque"
+  },
+  {
+   "code": "2634F",
+   "name": "Semi Glazed Turquoise, Other",
+   "rgb": "#688e8b",
+   "finish": "opaque"
+  },
+  {
+   "code": "2635F",
+   "name": "Semi Glazed Blue Turquoise, Other",
+   "rgb": "#657a82",
+   "finish": "opaque"
+  },
+  {
+   "code": "2636F",
+   "name": "Semi Glazed Soft Blue, Other",
+   "rgb": "#6c779f",
+   "finish": "opaque"
+  },
+  {
+   "code": "2637F",
+   "name": "Semi Glazed Navy Blue, Other",
+   "rgb": "#535586",
+   "finish": "opaque"
+  },
+  {
+   "code": "2638F",
+   "name": "Semi Glazed Lavender, Other",
+   "rgb": "#767579",
+   "finish": "opaque"
+  },
+  {
+   "code": "2639F",
+   "name": "Semi Glazed Dk Red, Other",
+   "rgb": "#725551",
+   "finish": "opaque"
+  },
+  {
+   "code": "2640F",
+   "name": "Semi Glazed Burnt Orange, Other",
+   "rgb": "#8b5e4f",
+   "finish": "opaque"
+  },
+  {
+   "code": "2641F",
+   "name": "Semi Glazed Orange, Other",
+   "rgb": "#af6850",
+   "finish": "opaque"
+  },
+  {
+   "code": "2642F",
+   "name": "Semi Glazed Jet, Other",
+   "rgb": "#50493a",
+   "finish": "opaque"
+  },
+  {
+   "code": "2700",
+   "name": "Glow In The Dark Crystal/Glow Green, Other",
+   "rgb": "#9db8a8",
+   "finish": "opaque"
+  },
+  {
+   "code": "2701",
+   "name": "Glow In The Dark Crystal/Glow Blue, Other",
+   "rgb": "#aeb3b0",
+   "finish": "opaque"
+  },
+  {
+   "code": "2710",
+   "name": "Glow In The Dark Crystal/Bright Green, Other",
+   "rgb": "#8eb297",
+   "finish": "opaque"
+  },
+  {
+   "code": "2711",
+   "name": "Glow In The Dark Crystal/Bright Blue, Other",
+   "rgb": "#a7acac",
+   "finish": "opaque"
+  },
+  {
+   "code": "2720",
+   "name": "Glow In The Dark Pink/Yellow Green, Other",
+   "rgb": "#a19386",
+   "finish": "opaque"
+  },
+  {
+   "code": "2721",
+   "name": "Glow In The Dark Yellow/Bright Green, Other",
+   "rgb": "#9da660",
+   "finish": "opaque"
+  },
+  {
+   "code": "2722",
+   "name": "Glow In The Dark Mint Green/Bright Green, Other",
+   "rgb": "#77a881",
+   "finish": "opaque"
+  },
+  {
+   "code": "2723",
+   "name": "Glow In The Dark Baby Blue/Bright Green, Other",
+   "rgb": "#8bc1b0",
+   "finish": "opaque"
+  },
+  {
+   "code": "2724",
+   "name": "Glow In The Dark Dark Pink/Green Pink, Other",
+   "rgb": "#b48aab",
+   "finish": "opaque"
+  },
+  {
+   "code": "2725",
+   "name": "Glow In The Dark Gray Crystal/Bright Green, Other",
+   "rgb": "#779c8a",
+   "finish": "opaque"
+  },
+  {
+   "code": "MAG01",
+   "name": "24K Gold Plate, Other",
+   "rgb": "#cba44d",
+   "finish": "opaque"
+  },
+  {
+   "code": "MAG02",
+   "name": "Silver Plated, Other",
+   "rgb": "#bfbfbf",
+   "finish": "opaque"
+  },
+  {
+   "code": "MAG03",
+   "name": "Copper Penny, Metallic, Metallic",
+   "rgb": "#bd805e",
+   "finish": "metallic"
+  },
+  {
+   "code": "MAG04",
+   "name": "Nickel Plated, Other",
+   "rgb": "#868686",
+   "finish": "opaque"
+  },
+  {
+   "code": "PF21",
+   "name": "Crystal, Transparent, Silver-Lined",
+   "rgb": "#c7b8a2",
+   "finish": "silver_lined"
+  },
+  {
+   "code": "PF21F",
+   "name": "Crystal, Transparent, Frosted, Silver-Lined",
+   "rgb": "#c3bdac",
+   "finish": "silver_lined"
+  },
+  {
+   "code": "PF22",
+   "name": "Lt Topaz, Transparent, Silver-Lined",
+   "rgb": "#d29740",
+   "finish": "silver_lined"
+  },
+  {
+   "code": "PF551",
+   "name": "Rose Gold, Metallic, Galvanized",
+   "rgb": "#be9675",
+   "finish": "galvanized"
+  },
+  {
+   "code": "PF551F",
+   "name": "Rose Gold, Metallic, Matte, Galvanized",
+   "rgb": "#b88850",
+   "finish": "galvanized"
+  },
+  {
+   "code": "PF552",
+   "name": "Sweet Blush, Metallic, Galvanized",
+   "rgb": "#c2a58f",
+   "finish": "galvanized"
+  },
+  {
+   "code": "PF552F",
+   "name": "Peach Coral, Metallic, Matte, Galvanized",
+   "rgb": "#ebbc9c",
+   "finish": "galvanized"
+  },
+  {
+   "code": "PF553",
+   "name": "Pink Lilac, Metallic, Galvanized",
+   "rgb": "#cc7f8d",
+   "finish": "galvanized"
+  },
+  {
+   "code": "PF553F",
+   "name": "Pink Lilac, Metallic, Matte, Galvanized",
+   "rgb": "#a96468",
+   "finish": "galvanized"
+  },
+  {
+   "code": "PF554",
+   "name": "Lilac, Metallic, Galvanized",
+   "rgb": "#a48886",
+   "finish": "galvanized"
+  },
+  {
+   "code": "PF554F",
+   "name": "Lilac, Metallic, Matte, Galvanized",
+   "rgb": "#87787b",
+   "finish": "galvanized"
+  },
+  {
+   "code": "PF556",
+   "name": "Mauve, Metallic, Galvanized",
+   "rgb": "#92766a",
+   "finish": "galvanized"
+  },
+  {
+   "code": "PF556F",
+   "name": "Mauve, Metallic, Matte, Galvanized",
+   "rgb": "#917468",
+   "finish": "galvanized"
+  },
+  {
+   "code": "PF557",
+   "name": "Starlight, Metallic, Galvanized",
+   "rgb": "#cb9e52",
+   "finish": "galvanized"
+  },
+  {
+   "code": "PF557F",
+   "name": "Starlight, Metallic, Matte, Galvanized",
+   "rgb": "#d1a24d",
+   "finish": "galvanized"
+  },
+  {
+   "code": "PF558",
+   "name": "Aluminum, Metallic, Galvanized",
+   "rgb": "#b5a98d",
+   "finish": "galvanized"
+  },
+  {
+   "code": "PF558F",
+   "name": "Aluminum, Metallic, Matte, Galvanized",
+   "rgb": "#beaf89",
+   "finish": "galvanized"
+  },
+  {
+   "code": "PF559",
+   "name": "Yellow Gold, Metallic, Galvanized",
+   "rgb": "#cab759",
+   "finish": "galvanized"
+  },
+  {
+   "code": "PF559F",
+   "name": "Yellow Gold, Metallic, Frosted, Galvanized",
+   "rgb": "#baae6f",
+   "finish": "galvanized"
+  },
+  {
+   "code": "PF560",
+   "name": "Sea Foam, Metallic, Galvanized",
+   "rgb": "#85ab6b",
+   "finish": "galvanized"
+  },
+  {
+   "code": "PF561",
+   "name": "Green Teal, Metallic, Galvanized",
+   "rgb": "#52b394",
+   "finish": "galvanized"
+  },
+  {
+   "code": "PF561F",
+   "name": "Green Teal, Metallic, Matte, Galvanized",
+   "rgb": "#3fb79a",
+   "finish": "galvanized"
+  },
+  {
+   "code": "PF562",
+   "name": "Saffron, Metallic, Galvanized",
+   "rgb": "#bf6e40",
+   "finish": "galvanized"
+  },
+  {
+   "code": "PF562F",
+   "name": "Saffron, Metallic, Matte, Galvanized",
+   "rgb": "#c98265",
+   "finish": "galvanized"
+  },
+  {
+   "code": "PF563",
+   "name": "Orchid, Metallic, Galvanized",
+   "rgb": "#cd557d",
+   "finish": "galvanized"
+  },
+  {
+   "code": "PF563F",
+   "name": "Orchid, Metallic, Matte, Galvanized",
+   "rgb": "#c36977",
+   "finish": "galvanized"
+  },
+  {
+   "code": "PF564",
+   "name": "Brick Red, Metallic, Galvanized",
+   "rgb": "#aa3f48",
+   "finish": "galvanized"
+  },
+  {
+   "code": "PF564F",
+   "name": "Brick Red, Metallic, Matte, Galvanized",
+   "rgb": "#872a23",
+   "finish": "galvanized"
+  },
+  {
+   "code": "PF565",
+   "name": "Blue Slate, Metallic, Galvanized",
+   "rgb": "#829d78",
+   "finish": "galvanized"
+  },
+  {
+   "code": "PF565F",
+   "name": "Blue Slate, Metallic, Frosted, Galvanized",
+   "rgb": "#737d78",
+   "finish": "galvanized"
+  },
+  {
+   "code": "PF567",
+   "name": "Polaris, Metallic, Metallic",
+   "rgb": "#6d72a2",
+   "finish": "metallic"
+  },
+  {
+   "code": "PF567F",
+   "name": "Polaris, Metallic, Frosted, Metallic",
+   "rgb": "#625f77",
+   "finish": "metallic"
+  },
+  {
+   "code": "PF568",
+   "name": "Gun Metal Gray, Metallic, Galvanized",
+   "rgb": "#77778a",
+   "finish": "galvanized"
+  },
+  {
+   "code": "PF569",
+   "name": "Teal, Metallic, Galvanized",
+   "rgb": "#32af98",
+   "finish": "galvanized"
+  },
+  {
+   "code": "PF569F",
+   "name": "Teal, Metallic, Matte, Galvanized",
+   "rgb": "#49b3be",
+   "finish": "galvanized"
+  },
+  {
+   "code": "PF570",
+   "name": "Mint Green, Metallic, Galvanized",
+   "rgb": "#8ca97a",
+   "finish": "galvanized"
+  },
+  {
+   "code": "PF570F",
+   "name": "Mint Green, Metallic, Frosted, Galvanized",
+   "rgb": "#569976",
+   "finish": "galvanized"
+  },
+  {
+   "code": "PF577",
+   "name": "Other",
+   "rgb": "#799294",
+   "finish": "opaque"
+  },
+  {
+   "code": "PF577F",
+   "name": "Other",
+   "rgb": "#6f8e8b",
+   "finish": "opaque"
+  },
+  {
+   "code": "PF578",
+   "name": "Turquoise, Metallic, Galvanized",
+   "rgb": "#3aa8ab",
+   "finish": "galvanized"
+  },
+  {
+   "code": "PF578F",
+   "name": "Turquoise, Metallic, Frosted, Galvanized",
+   "rgb": "#5bcac1",
+   "finish": "galvanized"
+  },
+  {
+   "code": "PF579",
+   "name": "Pale Lilac, Metallic, Galvanized",
+   "rgb": "#907f92",
+   "finish": "galvanized"
+  },
+  {
+   "code": "PF579F",
+   "name": "Pale Lilac, Metallic, Matte, Galvanized",
+   "rgb": "#987991",
+   "finish": "galvanized"
+  },
+  {
+   "code": "PF580",
+   "name": "Sugar Plum, Metallic, Galvanized",
+   "rgb": "#bc6a9d",
+   "finish": "galvanized"
+  },
+  {
+   "code": "PF580F",
+   "name": "Sugar Plum, Metallic, Matte, Galvanized",
+   "rgb": "#ad5e9b",
+   "finish": "galvanized"
+  },
+  {
+   "code": "PF581",
+   "name": "Violet, Metallic, Galvanized",
+   "rgb": "#8c7ccb",
+   "finish": "galvanized"
+  },
+  {
+   "code": "PF581F",
+   "name": "Violet, Metallic, Matte, Galvanized",
+   "rgb": "#715aa8",
+   "finish": "galvanized"
+  },
+  {
+   "code": "PF582",
+   "name": "Aqua Sky, Metallic, Galvanized",
+   "rgb": "#649fc4",
+   "finish": "galvanized"
+  },
+  {
+   "code": "PF582F",
+   "name": "Aqua Sky, Metallic, Matte, Galvanized",
+   "rgb": "#2298b7",
+   "finish": "galvanized"
+  },
+  {
+   "code": "PF583",
+   "name": "Caribbean Blue, Metallic, Galvanized",
+   "rgb": "#218cb9",
+   "finish": "galvanized"
+  },
+  {
+   "code": "PF583F",
+   "name": "Caribbean Blue, Metallic, Matte, Galvanized",
+   "rgb": "#186aa7",
+   "finish": "galvanized"
+  },
+  {
+   "code": "PF584",
+   "name": "Turkish Blue, Metallic, Galvanized",
+   "rgb": "#3f7db2",
+   "finish": "galvanized"
+  },
+  {
+   "code": "PF584F",
+   "name": "Turkish Blue, Metallic, Matte, Galvanized",
+   "rgb": "#1b5b85",
+   "finish": "galvanized"
+  },
+  {
+   "code": "PF585",
+   "name": "Ocean Blue, Metallic, Galvanized",
+   "rgb": "#1c5fa6",
+   "finish": "galvanized"
+  },
+  {
+   "code": "PF585F",
+   "name": "Ocean Blue, Metallic, Matte, Galvanized",
+   "rgb": "#155391",
+   "finish": "galvanized"
+  },
+  {
+   "code": "PF586",
+   "name": "Denim Blue, Metallic, Galvanized",
+   "rgb": "#436dad",
+   "finish": "galvanized"
+  },
+  {
+   "code": "PF586F",
+   "name": "Denim Blue, Metallic, Matte, Galvanized",
+   "rgb": "#375fa6",
+   "finish": "galvanized"
+  },
+  {
+   "code": "PF587",
+   "name": "Green Apple, Metallic, Galvanized",
+   "rgb": "#72bd6e",
+   "finish": "galvanized"
+  },
+  {
+   "code": "PF587F",
+   "name": "Green Apple, Metallic, Matte, Galvanized",
+   "rgb": "#64bc69",
+   "finish": "galvanized"
+  },
+  {
+   "code": "PF588",
+   "name": "Spring Green, Metallic, Galvanized",
+   "rgb": "#42aa6a",
+   "finish": "galvanized"
+  },
+  {
+   "code": "PF588F",
+   "name": "Spring Green, Metallic, Matte, Galvanized",
+   "rgb": "#23a765",
+   "finish": "galvanized"
+  },
+  {
+   "code": "PF589",
+   "name": "Jade Green, Metallic, Galvanized",
+   "rgb": "#83a280",
+   "finish": "galvanized"
+  },
+  {
+   "code": "PF589F",
+   "name": "Jade Green, Metallic, Matte, Galvanized",
+   "rgb": "#588a67",
+   "finish": "galvanized"
+  },
+  {
+   "code": "PF590",
+   "name": "Yellow Gold, Metallic, Galvanized",
+   "rgb": "#bab64f",
+   "finish": "galvanized"
+  },
+  {
+   "code": "PF590F",
+   "name": "Yellow Gold, Metallic, Matte, Galvanized",
+   "rgb": "#bdbc40",
+   "finish": "galvanized"
+  },
+  {
+   "code": "PF591",
+   "name": "Old Gold, Metallic, Galvanized",
+   "rgb": "#b89040",
+   "finish": "galvanized"
+  },
+  {
+   "code": "PF591F",
+   "name": "Old Gold, Metallic, Matte, Galvanized",
+   "rgb": "#b3732b",
+   "finish": "galvanized"
+  },
+  {
+   "code": "PF592",
+   "name": "Golden Fleece, Metallic, Galvanized",
+   "rgb": "#b69e5f",
+   "finish": "galvanized"
+  },
+  {
+   "code": "PF592F",
+   "name": "Golden Fleece, Metallic, Matte, Galvanized",
+   "rgb": "#a68540",
+   "finish": "galvanized"
+  },
+  {
+   "code": "PF593",
+   "name": "Almond, Metallic, Galvanized",
+   "rgb": "#a6885f",
+   "finish": "galvanized"
+  },
+  {
+   "code": "PF593F",
+   "name": "Almond, Metallic, Matte, Galvanized",
+   "rgb": "#7e653e",
+   "finish": "galvanized"
+  },
+  {
+   "code": "PF594",
+   "name": "Medal Bronze, Metallic, Galvanized",
+   "rgb": "#896e39",
+   "finish": "galvanized"
+  },
+  {
+   "code": "PF594F",
+   "name": "Medal Bronze, Metallic, Matte, Galvanized",
+   "rgb": "#86683d",
+   "finish": "galvanized"
+  },
+  {
+   "code": "PF595",
+   "name": "Cool Gray, Metallic, Galvanized",
+   "rgb": "#4e4f47",
+   "finish": "galvanized"
+  },
+  {
+   "code": "PF595F",
+   "name": "Cool Gray, Metallic, Matte, Galvanized",
+   "rgb": "#5f5954",
+   "finish": "galvanized"
+  },
+  {
+   "code": "PF2100",
+   "name": "Translucent White, Transparent, Silver-Lined",
+   "rgb": "#b1bbb6",
+   "finish": "silver_lined"
+  },
+  {
+   "code": "PF2101",
+   "name": "Milky Cloud, Transparent, Silver-Lined",
+   "rgb": "#beb4a9",
+   "finish": "silver_lined"
+  },
+  {
+   "code": "PF2102",
+   "name": "Milky Montana Blue, Transparent, Silver-Lined",
+   "rgb": "#9bafbf",
+   "finish": "silver_lined"
+  },
+  {
+   "code": "PF2103",
+   "name": "Milky Peridot, Transparent, Silver-Lined",
+   "rgb": "#58ac96",
+   "finish": "silver_lined"
+  },
+  {
+   "code": "PF2104",
+   "name": "Milky Teal, Transparent, Silver-Lined",
+   "rgb": "#41c8a9",
+   "finish": "silver_lined"
+  },
+  {
+   "code": "PF2105",
+   "name": "Milky Baby Pink, Transparent, Silver-Lined",
+   "rgb": "#cc92a4",
+   "finish": "silver_lined"
+  },
+  {
+   "code": "PF2106",
+   "name": "Milky Mauve, Transparent, Silver-Lined",
+   "rgb": "#dc7880",
+   "finish": "silver_lined"
+  },
+  {
+   "code": "PF2107",
+   "name": "Milky Electric Pink, Transparent, Silver-Lined",
+   "rgb": "#d16393",
+   "finish": "silver_lined"
+  },
+  {
+   "code": "PF2108",
+   "name": "Milky Amethyst, Transparent, Silver-Lined",
+   "rgb": "#bda1b1",
+   "finish": "silver_lined"
+  },
+  {
+   "code": "PF2109",
+   "name": "Milky Jonquil, Transparent, Silver-Lined",
+   "rgb": "#c7b990",
+   "finish": "silver_lined"
+  },
+  {
+   "code": "PF2110",
+   "name": "Milky Lt Topaz, Transparent, Silver-Lined",
+   "rgb": "#cb8a45",
+   "finish": "silver_lined"
+  },
+  {
+   "code": "PF2111",
+   "name": "Milky Peach, Transparent, Silver-Lined",
+   "rgb": "#f8af8f",
+   "finish": "silver_lined"
+  },
+  {
+   "code": "PF2112",
+   "name": "Milky Grapefruit, Transparent, Silver-Lined",
+   "rgb": "#e8956f",
+   "finish": "silver_lined"
+  },
+  {
+   "code": "PF2113",
+   "name": "Milky Pomegranate, Transparent, Silver-Lined",
+   "rgb": "#b0624c",
+   "finish": "silver_lined"
+  },
+  {
+   "code": "PF2114",
+   "name": "Translucent Nutmeg, Transparent, Silver-Lined",
+   "rgb": "#6e5860",
+   "finish": "silver_lined"
+  },
+  {
+   "code": "PF2115",
+   "name": "Milky Gray, Transparent, Silver-Lined",
+   "rgb": "#867e7f",
+   "finish": "silver_lined"
+  },
+  {
+   "code": "PF2116",
+   "name": "Milky Lt Aqua, Transparent, Silver-Lined",
+   "rgb": "#a2cfb8",
+   "finish": "silver_lined"
+  },
+  {
+   "code": "PF2117",
+   "name": "Milky Aqua, Transparent, Silver-Lined",
+   "rgb": "#57b5ab",
+   "finish": "silver_lined"
+  },
+  {
+   "code": "PF2118",
+   "name": "Milky Lt Peridot, Transparent, Silver-Lined",
+   "rgb": "#7fc095",
+   "finish": "silver_lined"
+  },
+  {
+   "code": "PF2119",
+   "name": "Milky Dk Peridot, Transparent, Silver-Lined",
+   "rgb": "#7ac39b",
+   "finish": "silver_lined"
+  },
+  {
+   "code": "PF2120",
+   "name": "Milky Soft Pink, Transparent, Silver-Lined",
+   "rgb": "#ca98a4",
+   "finish": "silver_lined"
+  },
+  {
+   "code": "PF2121",
+   "name": "Milky Lt Amethyst, Transparent, Silver-Lined",
+   "rgb": "#bf95a3",
+   "finish": "silver_lined"
+  },
+  {
+   "code": "PF2122",
+   "name": "Milky Alexandrite, Transparent, Silver-Lined",
+   "rgb": "#a99cb3",
+   "finish": "silver_lined"
+  },
+  {
+   "code": "PF2123",
+   "name": "Milky Sapphire, Transparent, Silver-Lined",
+   "rgb": "#8299bf",
+   "finish": "silver_lined"
+  },
+  {
+   "code": "PF2124",
+   "name": "Milky Tanzanite, Transparent, Silver-Lined",
+   "rgb": "#635e77",
+   "finish": "silver_lined"
+  },
+  {
+   "code": "PF2125",
+   "name": "Milky Lt Jonquil, Transparent, Silver-Lined",
+   "rgb": "#c0af70",
+   "finish": "silver_lined"
+  },
+  {
+   "code": "PF2126",
+   "name": "Milky Peachy Pink, Transparent, Silver-Lined",
+   "rgb": "#daada5",
+   "finish": "silver_lined"
+  },
+  {
+   "code": "PF2225",
+   "name": "Other",
+   "rgb": "#766aa6",
+   "finish": "opaque"
+  },
+  {
+   "code": "PF2700S",
+   "name": "Glow In The Dark Crystal/Glow Green, Transparent, Silver-Lined",
+   "rgb": "#aeb0a7",
+   "finish": "silver_lined"
+  },
+  {
+   "code": "PF2701S",
+   "name": "Glow In The Dark Crystal/Glow Blue, Transparent, Silver-Lined",
+   "rgb": "#aaa9a0",
+   "finish": "silver_lined"
+  },
+  {
+   "code": "Y301F",
+   "name": "HYBRID Natural Picasso, Other, Frosted",
+   "rgb": "#8a6556",
+   "finish": "matte"
+  },
+  {
+   "code": "Y302F",
+   "name": "HYBRID Jet Picasso, Other, Frosted",
+   "rgb": "#2c2f2e",
+   "finish": "matte"
+  },
+  {
+   "code": "Y306F",
+   "name": "HYBRID Lt Beige Picasso, Other, Frosted",
+   "rgb": "#1d0e09",
+   "finish": "matte"
+  },
+  {
+   "code": "Y307",
+   "name": "HYBRID Turquoise Picasso, Other",
+   "rgb": "#4d582d",
+   "finish": "opaque"
+  },
+  {
+   "code": "Y307F",
+   "name": "HYBRID Turquoise Picasso, Other, Frosted",
+   "rgb": "#5e6f56",
+   "finish": "matte"
+  },
+  {
+   "code": "Y313",
+   "name": "HYBRID Lt Topaz Picasso, Transparent",
+   "rgb": "#2b2824",
+   "finish": "transparent"
+  },
+  {
+   "code": "Y315",
+   "name": "HYBRID Lime Green Picasso, Transparent",
+   "rgb": "#564b28",
+   "finish": "transparent"
+  },
+  {
+   "code": "Y316",
+   "name": "HYBRID Siam Ruby Picasso, Transparent",
+   "rgb": "#312f31",
+   "finish": "transparent"
+  },
+  {
+   "code": "Y317",
+   "name": "HYBRID Lt Amethyst Picasso, Transparent",
+   "rgb": "#2b1f18",
+   "finish": "transparent"
+  },
+  {
+   "code": "Y321F",
+   "name": "HYBRID Mint Green Picasso, Opaque, Frosted",
+   "rgb": "#719246",
+   "finish": "matte"
+  },
+  {
+   "code": "Y612",
+   "name": "HYBRID Suede Purple, Metallic, Metallic",
+   "rgb": "#4b3e60",
+   "finish": "metallic"
+  },
+  {
+   "code": "Y613",
+   "name": "HYBRID Suede Blue, Metallic, Metallic",
+   "rgb": "#3d6092",
+   "finish": "metallic"
+  },
+  {
+   "code": "Y614",
+   "name": "HYBRID Suede Lt Green, Metallic, Metallic",
+   "rgb": "#4e6b5e",
+   "finish": "metallic"
+  },
+  {
+   "code": "Y615",
+   "name": "HYBRID Suede Gold, Metallic, Metallic",
+   "rgb": "#878156",
+   "finish": "metallic"
+  },
+  {
+   "code": "Y617",
+   "name": "HYBRID Suede Pink, Metallic, Metallic",
+   "rgb": "#6e5866",
+   "finish": "metallic"
+  },
+  {
+   "code": "Y618",
+   "name": "HYBRID Sueded Gold Topaz, Other",
+   "rgb": "#c09d3a",
+   "finish": "opaque"
+  },
+  {
+   "code": "Y619",
+   "name": "HYBRID Sueded Gold Aquamarine, Transparent",
+   "rgb": "#78bbfb",
+   "finish": "transparent"
+  },
+  {
+   "code": "Y620",
+   "name": "HYBRID Sueded Gold Lime Green, Transparent",
+   "rgb": "#92a520",
+   "finish": "transparent"
+  },
+  {
+   "code": "Y625",
+   "name": "HYBRID Sueded Gold Siam Ruby, Other",
+   "rgb": "#e03e27",
+   "finish": "opaque"
+  },
+  {
+   "code": "Y628",
+   "name": "HYBRID Sueded Gold Amethyst, Transparent",
+   "rgb": "#a38e89",
+   "finish": "transparent"
+  },
+  {
+   "code": "Y629",
+   "name": "HYBRID Sueded Gold Peridot, Transparent",
+   "rgb": "#478120",
+   "finish": "transparent"
+  },
+  {
+   "code": "Y630",
+   "name": "HYBRID Sueded Crystal, Other",
+   "rgb": "#d8d9c4",
+   "finish": "opaque"
+  },
+  {
+   "code": "Y631",
+   "name": "HYBRID Lt Sueded Gold Lame', Other",
+   "rgb": "#decf82",
+   "finish": "opaque"
+  },
+  {
+   "code": "Y632",
+   "name": "HYBRID Sueded Gold Capri Blue, Transparent",
+   "rgb": "#697a7a",
+   "finish": "transparent"
+  },
+  {
+   "code": "Y633",
+   "name": "HYBRID Suede Dk Green, Metallic, Metallic",
+   "rgb": "#2a2b25",
+   "finish": "metallic"
+  },
+  {
+   "code": "Y861",
+   "name": "HYBRID Oxidized Bronze Blueberry, Other",
+   "rgb": "#8d94ac",
+   "finish": "opaque"
+  },
+  {
+   "code": "Y863",
+   "name": "HYBRID Oxidized Bronze, Other",
+   "rgb": "#9194a4",
+   "finish": "opaque"
+  },
+  {
+   "code": "Y910",
+   "name": "HYBRID Polychrome Blue Aqua, Other",
+   "rgb": "#8aa8a2",
+   "finish": "opaque"
+  },
+  {
+   "code": "Y911",
+   "name": "HYBRID Suede Red Copper, Metallic, Metallic",
+   "rgb": "#5f3b3e",
+   "finish": "metallic"
+  },
+  {
+   "code": "Y912",
+   "name": "HYBRID, Other",
+   "rgb": "#434a40",
+   "finish": "opaque"
+  },
+  {
+   "code": "Y913",
+   "name": "HYBRID Polychrome Orchid Aqua, Other",
+   "rgb": "#7f819c",
+   "finish": "opaque"
+  },
+  {
+   "code": "Y914",
+   "name": "HYBRID, Other",
+   "rgb": "#d7e0db",
+   "finish": "opaque"
+  },
+  {
+   "code": "Y915",
+   "name": "HYBRID, Other",
+   "rgb": "#f8d68d",
+   "finish": "opaque"
+  },
+  {
+   "code": "YPS0011",
+   "name": "Airy Blue, Metallic, Metallic",
+   "rgb": "#809dc1",
+   "finish": "metallic"
+  },
+  {
+   "code": "YPS0012",
+   "name": "Aurora Red, Metallic, Metallic",
+   "rgb": "#a34841",
+   "finish": "metallic"
+  },
+  {
+   "code": "YPS0013",
+   "name": "Bodacious, Metallic, Metallic",
+   "rgb": "#836cba",
+   "finish": "metallic"
+  },
+  {
+   "code": "YPS0014",
+   "name": "Dusty Cedar, Metallic, Metallic",
+   "rgb": "#82687a",
+   "finish": "metallic"
+  },
+  {
+   "code": "YPS0015",
+   "name": "Riverside, Metallic, Metallic",
+   "rgb": "#5c6bc5",
+   "finish": "metallic"
+  },
+  {
+   "code": "YPS0016",
+   "name": "Lush Meadow, Metallic, Metallic",
+   "rgb": "#329b70",
+   "finish": "metallic"
+  },
+  {
+   "code": "YPS0017",
+   "name": "Spicy Mustard, Metallic, Metallic",
+   "rgb": "#b09d53",
+   "finish": "metallic"
+  },
+  {
+   "code": "YPS0019",
+   "name": "Potter's Clay, Metallic, Metallic",
+   "rgb": "#a57665",
+   "finish": "metallic"
+  },
+  {
+   "code": "YPS0020",
+   "name": "Warm Taupe, Metallic, Metallic",
+   "rgb": "#997e6d",
+   "finish": "metallic"
+  },
+  {
+   "code": "YPS0021",
+   "name": "Milky Bodacious, Other",
+   "rgb": "#7e66d3",
+   "finish": "opaque"
+  },
+  {
+   "code": "YPS0022",
+   "name": "Milky Aurora Red, Other",
+   "rgb": "#a02a29",
+   "finish": "opaque"
+  },
+  {
+   "code": "YPS0023",
+   "name": "Milky Dusty Cedar, Other",
+   "rgb": "#6b5c73",
+   "finish": "opaque"
+  },
+  {
+   "code": "YPS0024",
+   "name": "Milky Airy Blue, Other",
+   "rgb": "#aec8fc",
+   "finish": "opaque"
+  },
+  {
+   "code": "YPS0025",
+   "name": "Milky Hazelnut, Other",
+   "rgb": "#9b7a74",
+   "finish": "opaque"
+  },
+  {
+   "code": "YPS0026",
+   "name": "Milky Pale Dogwood, Other",
+   "rgb": "#e0aebb",
+   "finish": "opaque"
+  },
+  {
+   "code": "YPS0027",
+   "name": "Milky Primrose Yellow, Other",
+   "rgb": "#ebbf34",
+   "finish": "opaque"
+  },
+  {
+   "code": "YPS0028",
+   "name": "Milky Kale, Other",
+   "rgb": "#35613f",
+   "finish": "opaque"
+  },
+  {
+   "code": "YPS0029",
+   "name": "Milky Island Paradise, Other",
+   "rgb": "#6ce0f3",
+   "finish": "opaque"
+  },
+  {
+   "code": "YPS0030",
+   "name": "Milky Niagara, Other",
+   "rgb": "#455d91",
+   "finish": "opaque"
+  },
+  {
+   "code": "YPS0031",
+   "name": "Milky Pink Yarrow, Other",
+   "rgb": "#8f2574",
+   "finish": "opaque"
+  },
+  {
+   "code": "YPS0032",
+   "name": "Milky Flame, Other",
+   "rgb": "#c95c40",
+   "finish": "opaque"
+  },
+  {
+   "code": "YPS0033",
+   "name": "Milky Greenery, Other",
+   "rgb": "#678264",
+   "finish": "opaque"
+  },
+  {
+   "code": "YPS0034",
+   "name": "Milky Lapis Blue, Other",
+   "rgb": "#283298",
+   "finish": "opaque"
+  },
+  {
+   "code": "YPS0039",
+   "name": "Potters Clay, Transparent",
+   "rgb": "#663a27",
+   "finish": "transparent"
+  },
+  {
+   "code": "YPS0041",
+   "name": "Bodacious, Transparent",
+   "rgb": "#4c2c77",
+   "finish": "transparent"
+  },
+  {
+   "code": "YPS0042",
+   "name": "Aurora Red, Transparent",
+   "rgb": "#cf2128",
+   "finish": "transparent"
+  },
+  {
+   "code": "YPS0043",
+   "name": "Dusty Cedar, Transparent",
+   "rgb": "#482131",
+   "finish": "transparent"
+  },
+  {
+   "code": "YPS0045",
+   "name": "Hazelnut, Transparent",
+   "rgb": "#793e25",
+   "finish": "transparent"
+  },
+  {
+   "code": "YPS0048",
+   "name": "Kale, Transparent",
+   "rgb": "#123927",
+   "finish": "transparent"
+  },
+  {
+   "code": "YPS0053",
+   "name": "Greenery, Transparent",
+   "rgb": "#3b623e",
+   "finish": "transparent"
+  },
+  {
+   "code": "YPS0054",
+   "name": "Lapis Blue, Transparent",
+   "rgb": "#383e8d",
+   "finish": "transparent"
+  },
+  {
+   "code": "YPS0065",
+   "name": "Milky Riverside, Other",
+   "rgb": "#232e8c",
+   "finish": "opaque"
+  },
+  {
+   "code": "YPS0066",
+   "name": "Milky Lush Meadow, Other",
+   "rgb": "#377d64",
+   "finish": "opaque"
+  },
+  {
+   "code": "YPS0067",
+   "name": "Milky Spicy Mustard, Other",
+   "rgb": "#ac8c59",
+   "finish": "opaque"
+  },
+  {
+   "code": "YPS0068",
+   "name": "Milky Shark Skin, Other",
+   "rgb": "#484a4c",
+   "finish": "opaque"
+  },
+  {
+   "code": "YPS0069",
+   "name": "Milky Potters Clay, Other",
+   "rgb": "#6d4f47",
+   "finish": "opaque"
+  },
+  {
+   "code": "YPS0070",
+   "name": "Milky Warm Taupe, Other",
+   "rgb": "#ba9b93",
+   "finish": "opaque"
+  },
+  {
+   "code": "YPS0075",
+   "name": "Hazelnut, Metallic, Metallic",
+   "rgb": "#8c7651",
+   "finish": "metallic"
+  },
+  {
+   "code": "YPS0076",
+   "name": "Pale Dogwood, Metallic, Metallic",
+   "rgb": "#9d8a87",
+   "finish": "metallic"
+  },
+  {
+   "code": "YPS0077",
+   "name": "Primrose Yellow, Metallic, Metallic",
+   "rgb": "#bdc584",
+   "finish": "metallic"
+  },
+  {
+   "code": "YPS0078",
+   "name": "Kale, Metallic, Metallic",
+   "rgb": "#5fa15a",
+   "finish": "metallic"
+  },
+  {
+   "code": "YPS0079",
+   "name": "Island Paradise, Metallic, Metallic",
+   "rgb": "#76c8cc",
+   "finish": "metallic"
+  },
+  {
+   "code": "YPS0080",
+   "name": "Niagara, Metallic, Metallic",
+   "rgb": "#5d7694",
+   "finish": "metallic"
+  },
+  {
+   "code": "YPS0081",
+   "name": "Pink Yarrow, Metallic, Metallic",
+   "rgb": "#b564b4",
+   "finish": "metallic"
+  },
+  {
+   "code": "YPS0082",
+   "name": "Flame, Metallic, Metallic",
+   "rgb": "#d19c60",
+   "finish": "metallic"
+  },
+  {
+   "code": "YPS0083",
+   "name": "Greenery, Metallic, Metallic",
+   "rgb": "#9cb16f",
+   "finish": "metallic"
+  },
+  {
+   "code": "YPS0084",
+   "name": "Lapis Blue, Metallic, Metallic",
+   "rgb": "#3a48b9",
+   "finish": "metallic"
+  }
+ ]
 }

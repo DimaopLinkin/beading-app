@@ -1,0 +1,3971 @@
+{
+  "cat/loom/t24": {
+    "singles": 112,
+    "colors": 10,
+    "deltaE": 3.68,
+    "contrast": 0.854,
+    "corr": 0.845
+  },
+  "cat/loom/t24-catalog": {
+    "singles": 120,
+    "colors": 10,
+    "deltaE": 4.43,
+    "contrast": 0.825,
+    "corr": 0.826
+  },
+  "cat/loom/t24-dither": {
+    "singles": 170,
+    "colors": 10,
+    "deltaE": 4.31,
+    "contrast": 0.882,
+    "corr": 0.821
+  },
+  "cat/loom/t47-balanced": {
+    "singles": 5,
+    "colors": 10,
+    "deltaE": 4.42,
+    "contrast": 0.827,
+    "corr": 0.794
+  },
+  "cat/loom/t47-catalog": {
+    "singles": 4,
+    "colors": 10,
+    "deltaE": 5.14,
+    "contrast": 0.826,
+    "corr": 0.771
+  },
+  "cat/loom/t47-detailed": {
+    "singles": 12,
+    "colors": 9,
+    "deltaE": 4.6,
+    "contrast": 0.831,
+    "corr": 0.787
+  },
+  "cat/loom/t47-simpler": {
+    "singles": 7,
+    "colors": 10,
+    "deltaE": 4.44,
+    "contrast": 0.799,
+    "corr": 0.789
+  },
+  "cat/loom/t52-prefilter": {
+    "singles": 111,
+    "colors": 10,
+    "deltaE": 3.68,
+    "contrast": 0.804,
+    "corr": 0.842
+  },
+  "cat/loom/t53-catalog": {
+    "singles": 38,
+    "colors": 10,
+    "deltaE": 4.95,
+    "contrast": 0.837,
+    "corr": 0.786
+  },
+  "cat/loom/t53-pixels": {
+    "singles": 58,
+    "colors": 10,
+    "deltaE": 4.2,
+    "contrast": 0.831,
+    "corr": 0.808
+  },
+  "cat/loom/t54-faces": {
+    "singles": 5,
+    "colors": 10,
+    "deltaE": 4.42,
+    "contrast": 0.827,
+    "corr": 0.794
+  },
+  "cat/loom/t55-outline": {
+    "singles": 22,
+    "colors": 8,
+    "deltaE": 7.39,
+    "contrast": 1.083,
+    "corr": 0.508
+  },
+  "cat/loom/t55-remove": {
+    "singles": 14,
+    "colors": 10,
+    "deltaE": 4.58,
+    "contrast": 0.836,
+    "corr": 0.741
+  },
+  "cat/loom/t55-simplify": {
+    "singles": 10,
+    "colors": 8,
+    "deltaE": 5.53,
+    "contrast": 0.77,
+    "corr": 0.716
+  },
+  "cat/loom/t57-dither": {
+    "singles": 5,
+    "colors": 10,
+    "deltaE": 4.46,
+    "contrast": 0.826,
+    "corr": 0.792
+  },
+  "cat/loom/t57-dither-catalog": {
+    "singles": 4,
+    "colors": 10,
+    "deltaE": 5.16,
+    "contrast": 0.824,
+    "corr": 0.77
+  },
+  "cat/loom/t62-catalog-all": {
+    "singles": 7,
+    "colors": 10,
+    "deltaE": 4.66,
+    "contrast": 0.834,
+    "corr": 0.79
+  },
+  "cat/loom/t63-contrast": {
+    "singles": 10,
+    "colors": 9,
+    "deltaE": 5.19,
+    "contrast": 0.971,
+    "corr": 0.786
+  },
+  "cat/loom/t63-tones": {
+    "singles": 5,
+    "colors": 10,
+    "deltaE": 4.42,
+    "contrast": 0.827,
+    "corr": 0.794
+  },
+  "cat/loom/t64-detail": {
+    "singles": 6,
+    "colors": 10,
+    "deltaE": 4.58,
+    "contrast": 0.904,
+    "corr": 0.788
+  },
+  "cat/loom/v2-balanced": {
+    "singles": 9,
+    "colors": 9,
+    "deltaE": 5.23,
+    "contrast": 1.053,
+    "corr": 0.794
+  },
+  "cat/loom/v2-detailed": {
+    "singles": 10,
+    "colors": 10,
+    "deltaE": 5.15,
+    "contrast": 1.116,
+    "corr": 0.798
+  },
+  "cat/loom/v2-simpler": {
+    "singles": 7,
+    "colors": 10,
+    "deltaE": 4.44,
+    "contrast": 0.799,
+    "corr": 0.789
+  },
+  "cat/peyote/t24": {
+    "singles": 56,
+    "colors": 10,
+    "deltaE": 3.61,
+    "contrast": 0.85,
+    "corr": 0.843
+  },
+  "cat/peyote/t24-catalog": {
+    "singles": 58,
+    "colors": 10,
+    "deltaE": 4.39,
+    "contrast": 0.78,
+    "corr": 0.826
+  },
+  "cat/peyote/t24-dither": {
+    "singles": 106,
+    "colors": 10,
+    "deltaE": 4.22,
+    "contrast": 0.886,
+    "corr": 0.82
+  },
+  "cat/peyote/t47-balanced": {
+    "singles": 6,
+    "colors": 8,
+    "deltaE": 4.52,
+    "contrast": 0.795,
+    "corr": 0.786
+  },
+  "cat/peyote/t47-catalog": {
+    "singles": 5,
+    "colors": 9,
+    "deltaE": 5.19,
+    "contrast": 0.871,
+    "corr": 0.783
+  },
+  "cat/peyote/t47-detailed": {
+    "singles": 7,
+    "colors": 9,
+    "deltaE": 4.43,
+    "contrast": 0.821,
+    "corr": 0.792
+  },
+  "cat/peyote/t47-simpler": {
+    "singles": 5,
+    "colors": 9,
+    "deltaE": 4.52,
+    "contrast": 0.801,
+    "corr": 0.781
+  },
+  "cat/peyote/t52-prefilter": {
+    "singles": 62,
+    "colors": 10,
+    "deltaE": 3.58,
+    "contrast": 0.816,
+    "corr": 0.842
+  },
+  "cat/peyote/t53-catalog": {
+    "singles": 30,
+    "colors": 10,
+    "deltaE": 5.02,
+    "contrast": 0.881,
+    "corr": 0.792
+  },
+  "cat/peyote/t53-pixels": {
+    "singles": 30,
+    "colors": 8,
+    "deltaE": 4.32,
+    "contrast": 0.825,
+    "corr": 0.802
+  },
+  "cat/peyote/t54-faces": {
+    "singles": 6,
+    "colors": 8,
+    "deltaE": 4.52,
+    "contrast": 0.795,
+    "corr": 0.786
+  },
+  "cat/peyote/t55-outline": {
+    "singles": 8,
+    "colors": 8,
+    "deltaE": 7.47,
+    "contrast": 1.103,
+    "corr": 0.488
+  },
+  "cat/peyote/t55-remove": {
+    "singles": 8,
+    "colors": 9,
+    "deltaE": 4.56,
+    "contrast": 0.812,
+    "corr": 0.74
+  },
+  "cat/peyote/t55-simplify": {
+    "singles": 7,
+    "colors": 8,
+    "deltaE": 5.33,
+    "contrast": 0.76,
+    "corr": 0.722
+  },
+  "cat/peyote/t57-dither": {
+    "singles": 6,
+    "colors": 8,
+    "deltaE": 4.54,
+    "contrast": 0.8,
+    "corr": 0.785
+  },
+  "cat/peyote/t57-dither-catalog": {
+    "singles": 5,
+    "colors": 9,
+    "deltaE": 5.21,
+    "contrast": 0.874,
+    "corr": 0.782
+  },
+  "cat/peyote/t62-catalog-all": {
+    "singles": 3,
+    "colors": 10,
+    "deltaE": 4.85,
+    "contrast": 0.803,
+    "corr": 0.776
+  },
+  "cat/peyote/t63-contrast": {
+    "singles": 7,
+    "colors": 9,
+    "deltaE": 4.99,
+    "contrast": 1.005,
+    "corr": 0.792
+  },
+  "cat/peyote/t63-tones": {
+    "singles": 6,
+    "colors": 8,
+    "deltaE": 4.73,
+    "contrast": 0.881,
+    "corr": 0.781
+  },
+  "cat/peyote/t64-detail": {
+    "singles": 6,
+    "colors": 8,
+    "deltaE": 4.65,
+    "contrast": 0.851,
+    "corr": 0.781
+  },
+  "cat/peyote/v2-balanced": {
+    "singles": 7,
+    "colors": 9,
+    "deltaE": 5.12,
+    "contrast": 1.06,
+    "corr": 0.797
+  },
+  "cat/peyote/v2-detailed": {
+    "singles": 14,
+    "colors": 10,
+    "deltaE": 4.89,
+    "contrast": 1.071,
+    "corr": 0.796
+  },
+  "cat/peyote/v2-simpler": {
+    "singles": 5,
+    "colors": 9,
+    "deltaE": 4.52,
+    "contrast": 0.801,
+    "corr": 0.781
+  },
+  "cat/stitch/t24": {
+    "singles": 312,
+    "colors": 16,
+    "deltaE": 3.23,
+    "contrast": 0.91,
+    "corr": 0.908
+  },
+  "cat/stitch/t24-dither": {
+    "singles": 534,
+    "colors": 16,
+    "deltaE": 4.18,
+    "contrast": 0.96,
+    "corr": 0.875
+  },
+  "cat/stitch/t47-balanced": {
+    "singles": 33,
+    "colors": 14,
+    "deltaE": 3.94,
+    "contrast": 0.871,
+    "corr": 0.872
+  },
+  "cat/stitch/t47-detailed": {
+    "singles": 25,
+    "colors": 14,
+    "deltaE": 3.8,
+    "contrast": 0.877,
+    "corr": 0.879
+  },
+  "cat/stitch/t47-simpler": {
+    "singles": 25,
+    "colors": 12,
+    "deltaE": 4.05,
+    "contrast": 0.845,
+    "corr": 0.866
+  },
+  "cat/stitch/t52-prefilter": {
+    "singles": 305,
+    "colors": 16,
+    "deltaE": 3.17,
+    "contrast": 0.885,
+    "corr": 0.907
+  },
+  "cat/stitch/t53-pixels": {
+    "singles": 150,
+    "colors": 14,
+    "deltaE": 3.7,
+    "contrast": 0.881,
+    "corr": 0.886
+  },
+  "cat/stitch/t54-faces": {
+    "singles": 33,
+    "colors": 14,
+    "deltaE": 3.94,
+    "contrast": 0.871,
+    "corr": 0.872
+  },
+  "cat/stitch/t55-remove": {
+    "singles": 34,
+    "colors": 14,
+    "deltaE": 3.82,
+    "contrast": 0.857,
+    "corr": 0.841
+  },
+  "cat/stitch/t55-simplify": {
+    "singles": 30,
+    "colors": 13,
+    "deltaE": 5.0,
+    "contrast": 0.86,
+    "corr": 0.832
+  },
+  "cat/stitch/t57-dither": {
+    "singles": 35,
+    "colors": 14,
+    "deltaE": 4.01,
+    "contrast": 0.871,
+    "corr": 0.87
+  },
+  "cat/stitch/t63-contrast": {
+    "singles": 38,
+    "colors": 14,
+    "deltaE": 4.28,
+    "contrast": 1.018,
+    "corr": 0.873
+  },
+  "cat/stitch/t63-tones": {
+    "singles": 33,
+    "colors": 14,
+    "deltaE": 3.94,
+    "contrast": 0.871,
+    "corr": 0.872
+  },
+  "cat/stitch/t64-detail": {
+    "singles": 32,
+    "colors": 14,
+    "deltaE": 4.02,
+    "contrast": 0.904,
+    "corr": 0.869
+  },
+  "cat/stitch/v2-balanced": {
+    "singles": 35,
+    "colors": 14,
+    "deltaE": 4.33,
+    "contrast": 1.073,
+    "corr": 0.87
+  },
+  "cat/stitch/v2-detailed": {
+    "singles": 67,
+    "colors": 15,
+    "deltaE": 4.33,
+    "contrast": 1.081,
+    "corr": 0.87
+  },
+  "cat/stitch/v2-simpler": {
+    "singles": 25,
+    "colors": 12,
+    "deltaE": 4.05,
+    "contrast": 0.845,
+    "corr": 0.866
+  },
+  "coffee/loom/t24": {
+    "singles": 92,
+    "colors": 10,
+    "deltaE": 3.8,
+    "contrast": 0.916,
+    "corr": 0.917
+  },
+  "coffee/loom/t24-catalog": {
+    "singles": 94,
+    "colors": 10,
+    "deltaE": 5.13,
+    "contrast": 0.794,
+    "corr": 0.906
+  },
+  "coffee/loom/t24-dither": {
+    "singles": 142,
+    "colors": 10,
+    "deltaE": 4.59,
+    "contrast": 0.938,
+    "corr": 0.903
+  },
+  "coffee/loom/t47-balanced": {
+    "singles": 6,
+    "colors": 8,
+    "deltaE": 5.75,
+    "contrast": 0.951,
+    "corr": 0.88
+  },
+  "coffee/loom/t47-catalog": {
+    "singles": 7,
+    "colors": 9,
+    "deltaE": 6.21,
+    "contrast": 0.855,
+    "corr": 0.876
+  },
+  "coffee/loom/t47-detailed": {
+    "singles": 10,
+    "colors": 10,
+    "deltaE": 5.62,
+    "contrast": 0.96,
+    "corr": 0.884
+  },
+  "coffee/loom/t47-simpler": {
+    "singles": 6,
+    "colors": 8,
+    "deltaE": 5.75,
+    "contrast": 0.945,
+    "corr": 0.878
+  },
+  "coffee/loom/t52-prefilter": {
+    "singles": 86,
+    "colors": 10,
+    "deltaE": 3.85,
+    "contrast": 0.911,
+    "corr": 0.917
+  },
+  "coffee/loom/t53-catalog": {
+    "singles": 56,
+    "colors": 10,
+    "deltaE": 5.8,
+    "contrast": 0.853,
+    "corr": 0.888
+  },
+  "coffee/loom/t53-pixels": {
+    "singles": 37,
+    "colors": 8,
+    "deltaE": 5.38,
+    "contrast": 0.946,
+    "corr": 0.891
+  },
+  "coffee/loom/t54-faces": {
+    "singles": 6,
+    "colors": 8,
+    "deltaE": 5.75,
+    "contrast": 0.951,
+    "corr": 0.88
+  },
+  "coffee/loom/t55-outline": {
+    "singles": 20,
+    "colors": 9,
+    "deltaE": 9.64,
+    "contrast": 1.03,
+    "corr": 0.709
+  },
+  "coffee/loom/t55-remove": {
+    "singles": 11,
+    "colors": 8,
+    "deltaE": 5.81,
+    "contrast": 0.936,
+    "corr": 0.87
+  },
+  "coffee/loom/t55-simplify": {
+    "singles": 11,
+    "colors": 9,
+    "deltaE": 7.18,
+    "contrast": 0.956,
+    "corr": 0.831
+  },
+  "coffee/loom/t57-dither": {
+    "singles": 6,
+    "colors": 8,
+    "deltaE": 5.79,
+    "contrast": 0.953,
+    "corr": 0.88
+  },
+  "coffee/loom/t57-dither-catalog": {
+    "singles": 8,
+    "colors": 10,
+    "deltaE": 6.23,
+    "contrast": 0.853,
+    "corr": 0.875
+  },
+  "coffee/loom/t62-catalog-all": {
+    "singles": 15,
+    "colors": 9,
+    "deltaE": 6.09,
+    "contrast": 0.944,
+    "corr": 0.881
+  },
+  "coffee/loom/t63-contrast": {
+    "singles": 11,
+    "colors": 8,
+    "deltaE": 5.9,
+    "contrast": 1.028,
+    "corr": 0.882
+  },
+  "coffee/loom/t63-tones": {
+    "singles": 10,
+    "colors": 8,
+    "deltaE": 5.89,
+    "contrast": 0.974,
+    "corr": 0.877
+  },
+  "coffee/loom/t64-detail": {
+    "singles": 8,
+    "colors": 8,
+    "deltaE": 5.9,
+    "contrast": 0.982,
+    "corr": 0.879
+  },
+  "coffee/loom/v2-balanced": {
+    "singles": 12,
+    "colors": 9,
+    "deltaE": 5.9,
+    "contrast": 1.048,
+    "corr": 0.884
+  },
+  "coffee/loom/v2-detailed": {
+    "singles": 18,
+    "colors": 10,
+    "deltaE": 5.85,
+    "contrast": 1.077,
+    "corr": 0.881
+  },
+  "coffee/loom/v2-simpler": {
+    "singles": 6,
+    "colors": 8,
+    "deltaE": 5.75,
+    "contrast": 0.945,
+    "corr": 0.878
+  },
+  "coffee/peyote/t24": {
+    "singles": 65,
+    "colors": 10,
+    "deltaE": 3.78,
+    "contrast": 0.916,
+    "corr": 0.917
+  },
+  "coffee/peyote/t24-catalog": {
+    "singles": 57,
+    "colors": 10,
+    "deltaE": 5.04,
+    "contrast": 0.796,
+    "corr": 0.907
+  },
+  "coffee/peyote/t24-dither": {
+    "singles": 101,
+    "colors": 10,
+    "deltaE": 4.56,
+    "contrast": 0.936,
+    "corr": 0.904
+  },
+  "coffee/peyote/t47-balanced": {
+    "singles": 5,
+    "colors": 9,
+    "deltaE": 5.08,
+    "contrast": 0.944,
+    "corr": 0.89
+  },
+  "coffee/peyote/t47-catalog": {
+    "singles": 13,
+    "colors": 10,
+    "deltaE": 6.06,
+    "contrast": 0.844,
+    "corr": 0.886
+  },
+  "coffee/peyote/t47-detailed": {
+    "singles": 4,
+    "colors": 10,
+    "deltaE": 5.46,
+    "contrast": 0.946,
+    "corr": 0.888
+  },
+  "coffee/peyote/t47-simpler": {
+    "singles": 4,
+    "colors": 8,
+    "deltaE": 5.23,
+    "contrast": 0.942,
+    "corr": 0.887
+  },
+  "coffee/peyote/t52-prefilter": {
+    "singles": 69,
+    "colors": 10,
+    "deltaE": 3.82,
+    "contrast": 0.911,
+    "corr": 0.917
+  },
+  "coffee/peyote/t53-catalog": {
+    "singles": 50,
+    "colors": 10,
+    "deltaE": 5.81,
+    "contrast": 0.842,
+    "corr": 0.895
+  },
+  "coffee/peyote/t53-pixels": {
+    "singles": 29,
+    "colors": 9,
+    "deltaE": 4.84,
+    "contrast": 0.949,
+    "corr": 0.896
+  },
+  "coffee/peyote/t54-faces": {
+    "singles": 5,
+    "colors": 9,
+    "deltaE": 5.08,
+    "contrast": 0.944,
+    "corr": 0.89
+  },
+  "coffee/peyote/t55-outline": {
+    "singles": 7,
+    "colors": 9,
+    "deltaE": 8.9,
+    "contrast": 0.991,
+    "corr": 0.704
+  },
+  "coffee/peyote/t55-remove": {
+    "singles": 7,
+    "colors": 8,
+    "deltaE": 5.33,
+    "contrast": 0.945,
+    "corr": 0.885
+  },
+  "coffee/peyote/t55-simplify": {
+    "singles": 5,
+    "colors": 9,
+    "deltaE": 6.2,
+    "contrast": 0.918,
+    "corr": 0.848
+  },
+  "coffee/peyote/t57-dither": {
+    "singles": 5,
+    "colors": 9,
+    "deltaE": 5.13,
+    "contrast": 0.944,
+    "corr": 0.889
+  },
+  "coffee/peyote/t57-dither-catalog": {
+    "singles": 13,
+    "colors": 10,
+    "deltaE": 6.15,
+    "contrast": 0.843,
+    "corr": 0.885
+  },
+  "coffee/peyote/t62-catalog-all": {
+    "singles": 3,
+    "colors": 9,
+    "deltaE": 5.8,
+    "contrast": 0.875,
+    "corr": 0.887
+  },
+  "coffee/peyote/t63-contrast": {
+    "singles": 3,
+    "colors": 8,
+    "deltaE": 6.32,
+    "contrast": 1.039,
+    "corr": 0.877
+  },
+  "coffee/peyote/t63-tones": {
+    "singles": 5,
+    "colors": 9,
+    "deltaE": 5.08,
+    "contrast": 0.944,
+    "corr": 0.89
+  },
+  "coffee/peyote/t64-detail": {
+    "singles": 6,
+    "colors": 9,
+    "deltaE": 5.28,
+    "contrast": 0.968,
+    "corr": 0.887
+  },
+  "coffee/peyote/v2-balanced": {
+    "singles": 3,
+    "colors": 9,
+    "deltaE": 6.3,
+    "contrast": 1.036,
+    "corr": 0.876
+  },
+  "coffee/peyote/v2-detailed": {
+    "singles": 9,
+    "colors": 10,
+    "deltaE": 5.83,
+    "contrast": 1.064,
+    "corr": 0.878
+  },
+  "coffee/peyote/v2-simpler": {
+    "singles": 4,
+    "colors": 8,
+    "deltaE": 5.23,
+    "contrast": 0.942,
+    "corr": 0.887
+  },
+  "coffee/stitch/t24": {
+    "singles": 342,
+    "colors": 16,
+    "deltaE": 2.87,
+    "contrast": 0.947,
+    "corr": 0.949
+  },
+  "coffee/stitch/t24-dither": {
+    "singles": 446,
+    "colors": 16,
+    "deltaE": 3.53,
+    "contrast": 0.954,
+    "corr": 0.94
+  },
+  "coffee/stitch/t47-balanced": {
+    "singles": 37,
+    "colors": 13,
+    "deltaE": 4.27,
+    "contrast": 0.953,
+    "corr": 0.924
+  },
+  "coffee/stitch/t47-detailed": {
+    "singles": 36,
+    "colors": 16,
+    "deltaE": 4.35,
+    "contrast": 0.962,
+    "corr": 0.926
+  },
+  "coffee/stitch/t47-simpler": {
+    "singles": 22,
+    "colors": 12,
+    "deltaE": 4.65,
+    "contrast": 0.946,
+    "corr": 0.92
+  },
+  "coffee/stitch/t52-prefilter": {
+    "singles": 318,
+    "colors": 16,
+    "deltaE": 3.12,
+    "contrast": 0.947,
+    "corr": 0.948
+  },
+  "coffee/stitch/t53-pixels": {
+    "singles": 147,
+    "colors": 13,
+    "deltaE": 3.91,
+    "contrast": 0.955,
+    "corr": 0.932
+  },
+  "coffee/stitch/t54-faces": {
+    "singles": 37,
+    "colors": 13,
+    "deltaE": 4.27,
+    "contrast": 0.953,
+    "corr": 0.924
+  },
+  "coffee/stitch/t55-remove": {
+    "singles": 38,
+    "colors": 14,
+    "deltaE": 4.03,
+    "contrast": 0.956,
+    "corr": 0.924
+  },
+  "coffee/stitch/t55-simplify": {
+    "singles": 21,
+    "colors": 13,
+    "deltaE": 5.87,
+    "contrast": 0.954,
+    "corr": 0.887
+  },
+  "coffee/stitch/t57-dither": {
+    "singles": 39,
+    "colors": 13,
+    "deltaE": 4.36,
+    "contrast": 0.953,
+    "corr": 0.923
+  },
+  "coffee/stitch/t63-contrast": {
+    "singles": 46,
+    "colors": 13,
+    "deltaE": 4.6,
+    "contrast": 1.035,
+    "corr": 0.923
+  },
+  "coffee/stitch/t63-tones": {
+    "singles": 37,
+    "colors": 13,
+    "deltaE": 4.27,
+    "contrast": 0.953,
+    "corr": 0.924
+  },
+  "coffee/stitch/t64-detail": {
+    "singles": 60,
+    "colors": 13,
+    "deltaE": 4.42,
+    "contrast": 0.971,
+    "corr": 0.921
+  },
+  "coffee/stitch/v2-balanced": {
+    "singles": 41,
+    "colors": 13,
+    "deltaE": 4.76,
+    "contrast": 1.05,
+    "corr": 0.921
+  },
+  "coffee/stitch/v2-detailed": {
+    "singles": 76,
+    "colors": 16,
+    "deltaE": 4.96,
+    "contrast": 1.047,
+    "corr": 0.915
+  },
+  "coffee/stitch/v2-simpler": {
+    "singles": 22,
+    "colors": 12,
+    "deltaE": 4.65,
+    "contrast": 0.946,
+    "corr": 0.92
+  },
+  "drawing/loom/t24": {
+    "singles": 19,
+    "colors": 10,
+    "deltaE": 1.54,
+    "contrast": 0.87,
+    "corr": 0.863
+  },
+  "drawing/loom/t24-catalog": {
+    "singles": 23,
+    "colors": 10,
+    "deltaE": 6.24,
+    "contrast": 0.812,
+    "corr": 0.849
+  },
+  "drawing/loom/t24-dither": {
+    "singles": 45,
+    "colors": 10,
+    "deltaE": 1.89,
+    "contrast": 0.883,
+    "corr": 0.857
+  },
+  "drawing/loom/t47-balanced": {
+    "singles": 7,
+    "colors": 9,
+    "deltaE": 2.94,
+    "contrast": 0.907,
+    "corr": 0.81
+  },
+  "drawing/loom/t47-catalog": {
+    "singles": 7,
+    "colors": 9,
+    "deltaE": 7.13,
+    "contrast": 0.874,
+    "corr": 0.818
+  },
+  "drawing/loom/t47-detailed": {
+    "singles": 7,
+    "colors": 10,
+    "deltaE": 2.83,
+    "contrast": 0.909,
+    "corr": 0.81
+  },
+  "drawing/loom/t47-simpler": {
+    "singles": 6,
+    "colors": 9,
+    "deltaE": 2.74,
+    "contrast": 0.824,
+    "corr": 0.825
+  },
+  "drawing/loom/t52-prefilter": {
+    "singles": 22,
+    "colors": 10,
+    "deltaE": 1.4,
+    "contrast": 0.847,
+    "corr": 0.86
+  },
+  "drawing/loom/t53-catalog": {
+    "singles": 9,
+    "colors": 9,
+    "deltaE": 7.11,
+    "contrast": 0.867,
+    "corr": 0.819
+  },
+  "drawing/loom/t53-pixels": {
+    "singles": 11,
+    "colors": 9,
+    "deltaE": 2.94,
+    "contrast": 0.908,
+    "corr": 0.81
+  },
+  "drawing/loom/t54-faces": {
+    "singles": 7,
+    "colors": 9,
+    "deltaE": 2.94,
+    "contrast": 0.907,
+    "corr": 0.81
+  },
+  "drawing/loom/t55-outline": {
+    "singles": 11,
+    "colors": 8,
+    "deltaE": 7.71,
+    "contrast": 1.278,
+    "corr": 0.482
+  },
+  "drawing/loom/t55-remove": {
+    "singles": 6,
+    "colors": 8,
+    "deltaE": 4.18,
+    "contrast": 0.905,
+    "corr": 0.758
+  },
+  "drawing/loom/t55-simplify": {
+    "singles": 7,
+    "colors": 8,
+    "deltaE": 2.93,
+    "contrast": 0.909,
+    "corr": 0.809
+  },
+  "drawing/loom/t57-dither": {
+    "singles": 7,
+    "colors": 9,
+    "deltaE": 2.94,
+    "contrast": 0.907,
+    "corr": 0.81
+  },
+  "drawing/loom/t57-dither-catalog": {
+    "singles": 7,
+    "colors": 9,
+    "deltaE": 7.13,
+    "contrast": 0.874,
+    "corr": 0.818
+  },
+  "drawing/loom/t62-catalog-all": {
+    "singles": 10,
+    "colors": 9,
+    "deltaE": 6.0,
+    "contrast": 0.713,
+    "corr": 0.793
+  },
+  "drawing/loom/t63-contrast": {
+    "singles": 6,
+    "colors": 9,
+    "deltaE": 3.22,
+    "contrast": 0.927,
+    "corr": 0.819
+  },
+  "drawing/loom/t63-tones": {
+    "singles": 7,
+    "colors": 9,
+    "deltaE": 2.94,
+    "contrast": 0.907,
+    "corr": 0.81
+  },
+  "drawing/loom/t64-detail": {
+    "singles": 15,
+    "colors": 9,
+    "deltaE": 3.01,
+    "contrast": 0.933,
+    "corr": 0.804
+  },
+  "drawing/loom/v2-balanced": {
+    "singles": 6,
+    "colors": 8,
+    "deltaE": 3.52,
+    "contrast": 0.94,
+    "corr": 0.822
+  },
+  "drawing/loom/v2-detailed": {
+    "singles": 15,
+    "colors": 10,
+    "deltaE": 2.95,
+    "contrast": 0.923,
+    "corr": 0.825
+  },
+  "drawing/loom/v2-simpler": {
+    "singles": 6,
+    "colors": 9,
+    "deltaE": 2.74,
+    "contrast": 0.824,
+    "corr": 0.825
+  },
+  "drawing/peyote/t24": {
+    "singles": 44,
+    "colors": 10,
+    "deltaE": 1.88,
+    "contrast": 0.893,
+    "corr": 0.862
+  },
+  "drawing/peyote/t24-catalog": {
+    "singles": 25,
+    "colors": 10,
+    "deltaE": 6.37,
+    "contrast": 0.819,
+    "corr": 0.858
+  },
+  "drawing/peyote/t24-dither": {
+    "singles": 52,
+    "colors": 10,
+    "deltaE": 2.19,
+    "contrast": 0.887,
+    "corr": 0.854
+  },
+  "drawing/peyote/t47-balanced": {
+    "singles": 3,
+    "colors": 7,
+    "deltaE": 2.94,
+    "contrast": 0.87,
+    "corr": 0.825
+  },
+  "drawing/peyote/t47-catalog": {
+    "singles": 4,
+    "colors": 10,
+    "deltaE": 7.44,
+    "contrast": 0.875,
+    "corr": 0.813
+  },
+  "drawing/peyote/t47-detailed": {
+    "singles": 1,
+    "colors": 10,
+    "deltaE": 2.69,
+    "contrast": 0.892,
+    "corr": 0.828
+  },
+  "drawing/peyote/t47-simpler": {
+    "singles": 2,
+    "colors": 6,
+    "deltaE": 2.97,
+    "contrast": 0.866,
+    "corr": 0.827
+  },
+  "drawing/peyote/t52-prefilter": {
+    "singles": 43,
+    "colors": 10,
+    "deltaE": 1.8,
+    "contrast": 0.851,
+    "corr": 0.862
+  },
+  "drawing/peyote/t53-catalog": {
+    "singles": 25,
+    "colors": 10,
+    "deltaE": 7.36,
+    "contrast": 0.892,
+    "corr": 0.812
+  },
+  "drawing/peyote/t53-pixels": {
+    "singles": 5,
+    "colors": 8,
+    "deltaE": 2.93,
+    "contrast": 0.871,
+    "corr": 0.825
+  },
+  "drawing/peyote/t54-faces": {
+    "singles": 3,
+    "colors": 7,
+    "deltaE": 2.94,
+    "contrast": 0.87,
+    "corr": 0.825
+  },
+  "drawing/peyote/t55-outline": {
+    "singles": 3,
+    "colors": 6,
+    "deltaE": 7.79,
+    "contrast": 1.036,
+    "corr": 0.621
+  },
+  "drawing/peyote/t55-remove": {
+    "singles": 2,
+    "colors": 7,
+    "deltaE": 4.26,
+    "contrast": 0.875,
+    "corr": 0.777
+  },
+  "drawing/peyote/t55-simplify": {
+    "singles": 2,
+    "colors": 6,
+    "deltaE": 3.26,
+    "contrast": 0.876,
+    "corr": 0.83
+  },
+  "drawing/peyote/t57-dither": {
+    "singles": 3,
+    "colors": 7,
+    "deltaE": 2.94,
+    "contrast": 0.87,
+    "corr": 0.825
+  },
+  "drawing/peyote/t57-dither-catalog": {
+    "singles": 4,
+    "colors": 10,
+    "deltaE": 7.44,
+    "contrast": 0.875,
+    "corr": 0.813
+  },
+  "drawing/peyote/t62-catalog-all": {
+    "singles": 5,
+    "colors": 9,
+    "deltaE": 6.21,
+    "contrast": 0.739,
+    "corr": 0.788
+  },
+  "drawing/peyote/t63-contrast": {
+    "singles": 5,
+    "colors": 8,
+    "deltaE": 3.25,
+    "contrast": 0.961,
+    "corr": 0.834
+  },
+  "drawing/peyote/t63-tones": {
+    "singles": 3,
+    "colors": 7,
+    "deltaE": 2.94,
+    "contrast": 0.87,
+    "corr": 0.825
+  },
+  "drawing/peyote/t64-detail": {
+    "singles": 15,
+    "colors": 8,
+    "deltaE": 2.88,
+    "contrast": 0.879,
+    "corr": 0.825
+  },
+  "drawing/peyote/v2-balanced": {
+    "singles": 5,
+    "colors": 8,
+    "deltaE": 3.63,
+    "contrast": 0.99,
+    "corr": 0.823
+  },
+  "drawing/peyote/v2-detailed": {
+    "singles": 20,
+    "colors": 10,
+    "deltaE": 3.4,
+    "contrast": 1.017,
+    "corr": 0.826
+  },
+  "drawing/peyote/v2-simpler": {
+    "singles": 2,
+    "colors": 6,
+    "deltaE": 2.97,
+    "contrast": 0.866,
+    "corr": 0.827
+  },
+  "drawing/stitch/t24": {
+    "singles": 71,
+    "colors": 16,
+    "deltaE": 0.86,
+    "contrast": 0.917,
+    "corr": 0.912
+  },
+  "drawing/stitch/t24-dither": {
+    "singles": 129,
+    "colors": 16,
+    "deltaE": 1.14,
+    "contrast": 0.921,
+    "corr": 0.909
+  },
+  "drawing/stitch/t47-balanced": {
+    "singles": 21,
+    "colors": 12,
+    "deltaE": 2.12,
+    "contrast": 0.941,
+    "corr": 0.88
+  },
+  "drawing/stitch/t47-detailed": {
+    "singles": 23,
+    "colors": 16,
+    "deltaE": 1.5,
+    "contrast": 0.899,
+    "corr": 0.898
+  },
+  "drawing/stitch/t47-simpler": {
+    "singles": 20,
+    "colors": 12,
+    "deltaE": 1.79,
+    "contrast": 0.87,
+    "corr": 0.888
+  },
+  "drawing/stitch/t52-prefilter": {
+    "singles": 61,
+    "colors": 16,
+    "deltaE": 0.72,
+    "contrast": 0.899,
+    "corr": 0.913
+  },
+  "drawing/stitch/t53-pixels": {
+    "singles": 24,
+    "colors": 12,
+    "deltaE": 2.11,
+    "contrast": 0.942,
+    "corr": 0.881
+  },
+  "drawing/stitch/t54-faces": {
+    "singles": 21,
+    "colors": 12,
+    "deltaE": 2.12,
+    "contrast": 0.941,
+    "corr": 0.88
+  },
+  "drawing/stitch/t55-remove": {
+    "singles": 7,
+    "colors": 13,
+    "deltaE": 3.03,
+    "contrast": 0.917,
+    "corr": 0.857
+  },
+  "drawing/stitch/t55-simplify": {
+    "singles": 8,
+    "colors": 13,
+    "deltaE": 2.14,
+    "contrast": 0.94,
+    "corr": 0.886
+  },
+  "drawing/stitch/t57-dither": {
+    "singles": 21,
+    "colors": 12,
+    "deltaE": 2.12,
+    "contrast": 0.941,
+    "corr": 0.88
+  },
+  "drawing/stitch/t63-contrast": {
+    "singles": 22,
+    "colors": 13,
+    "deltaE": 2.2,
+    "contrast": 0.922,
+    "corr": 0.889
+  },
+  "drawing/stitch/t63-tones": {
+    "singles": 21,
+    "colors": 12,
+    "deltaE": 2.12,
+    "contrast": 0.941,
+    "corr": 0.88
+  },
+  "drawing/stitch/t64-detail": {
+    "singles": 23,
+    "colors": 11,
+    "deltaE": 2.58,
+    "contrast": 1.076,
+    "corr": 0.879
+  },
+  "drawing/stitch/v2-balanced": {
+    "singles": 23,
+    "colors": 13,
+    "deltaE": 2.59,
+    "contrast": 1.011,
+    "corr": 0.883
+  },
+  "drawing/stitch/v2-detailed": {
+    "singles": 32,
+    "colors": 16,
+    "deltaE": 2.25,
+    "contrast": 1.078,
+    "corr": 0.891
+  },
+  "drawing/stitch/v2-simpler": {
+    "singles": 20,
+    "colors": 12,
+    "deltaE": 1.79,
+    "contrast": 0.87,
+    "corr": 0.888
+  },
+  "galaxy/loom/t24": {
+    "singles": 256,
+    "colors": 10,
+    "deltaE": 1.16,
+    "contrast": 0.519,
+    "corr": 0.521
+  },
+  "galaxy/loom/t24-catalog": {
+    "singles": 125,
+    "colors": 10,
+    "deltaE": 5.44,
+    "contrast": 0.341,
+    "corr": 0.473
+  },
+  "galaxy/loom/t24-dither": {
+    "singles": 255,
+    "colors": 10,
+    "deltaE": 1.44,
+    "contrast": 0.492,
+    "corr": 0.508
+  },
+  "galaxy/loom/t47-balanced": {
+    "singles": 13,
+    "colors": 7,
+    "deltaE": 2.19,
+    "contrast": 0.245,
+    "corr": 0.284
+  },
+  "galaxy/loom/t47-catalog": {
+    "singles": 6,
+    "colors": 6,
+    "deltaE": 5.72,
+    "contrast": 0.184,
+    "corr": 0.237
+  },
+  "galaxy/loom/t47-detailed": {
+    "singles": 13,
+    "colors": 8,
+    "deltaE": 2.22,
+    "contrast": 0.29,
+    "corr": 0.32
+  },
+  "galaxy/loom/t47-simpler": {
+    "singles": 4,
+    "colors": 5,
+    "deltaE": 2.19,
+    "contrast": 0.188,
+    "corr": 0.209
+  },
+  "galaxy/loom/t52-prefilter": {
+    "singles": 240,
+    "colors": 10,
+    "deltaE": 1.13,
+    "contrast": 0.521,
+    "corr": 0.524
+  },
+  "galaxy/loom/t53-catalog": {
+    "singles": 11,
+    "colors": 9,
+    "deltaE": 5.64,
+    "contrast": 0.232,
+    "corr": 0.313
+  },
+  "galaxy/loom/t53-pixels": {
+    "singles": 28,
+    "colors": 8,
+    "deltaE": 2.03,
+    "contrast": 0.319,
+    "corr": 0.383
+  },
+  "galaxy/loom/t54-faces": {
+    "singles": 13,
+    "colors": 7,
+    "deltaE": 2.19,
+    "contrast": 0.245,
+    "corr": 0.284
+  },
+  "galaxy/loom/t55-outline": {
+    "singles": 4,
+    "colors": 5,
+    "deltaE": 2.24,
+    "contrast": 0.175,
+    "corr": 0.201
+  },
+  "galaxy/loom/t55-remove": {
+    "singles": 5,
+    "colors": 6,
+    "deltaE": 2.35,
+    "contrast": 0.252,
+    "corr": 0.304
+  },
+  "galaxy/loom/t55-simplify": {
+    "singles": 5,
+    "colors": 6,
+    "deltaE": 2.22,
+    "contrast": 0.196,
+    "corr": 0.226
+  },
+  "galaxy/loom/t57-dither": {
+    "singles": 13,
+    "colors": 7,
+    "deltaE": 2.19,
+    "contrast": 0.245,
+    "corr": 0.284
+  },
+  "galaxy/loom/t57-dither-catalog": {
+    "singles": 6,
+    "colors": 6,
+    "deltaE": 5.72,
+    "contrast": 0.184,
+    "corr": 0.237
+  },
+  "galaxy/loom/t62-catalog-all": {
+    "singles": 6,
+    "colors": 6,
+    "deltaE": 2.46,
+    "contrast": 0.203,
+    "corr": 0.236
+  },
+  "galaxy/loom/t63-contrast": {
+    "singles": 11,
+    "colors": 6,
+    "deltaE": 2.49,
+    "contrast": 0.246,
+    "corr": 0.265
+  },
+  "galaxy/loom/t63-tones": {
+    "singles": 13,
+    "colors": 7,
+    "deltaE": 2.19,
+    "contrast": 0.245,
+    "corr": 0.284
+  },
+  "galaxy/loom/t64-detail": {
+    "singles": 39,
+    "colors": 9,
+    "deltaE": 2.41,
+    "contrast": 0.794,
+    "corr": 0.389
+  },
+  "galaxy/loom/v2-balanced": {
+    "singles": 12,
+    "colors": 6,
+    "deltaE": 2.52,
+    "contrast": 0.237,
+    "corr": 0.262
+  },
+  "galaxy/loom/v2-detailed": {
+    "singles": 43,
+    "colors": 10,
+    "deltaE": 2.9,
+    "contrast": 1.068,
+    "corr": 0.426
+  },
+  "galaxy/loom/v2-simpler": {
+    "singles": 4,
+    "colors": 5,
+    "deltaE": 2.19,
+    "contrast": 0.188,
+    "corr": 0.209
+  },
+  "galaxy/peyote/t24": {
+    "singles": 198,
+    "colors": 10,
+    "deltaE": 1.1,
+    "contrast": 0.534,
+    "corr": 0.528
+  },
+  "galaxy/peyote/t24-catalog": {
+    "singles": 125,
+    "colors": 10,
+    "deltaE": 5.48,
+    "contrast": 0.343,
+    "corr": 0.48
+  },
+  "galaxy/peyote/t24-dither": {
+    "singles": 175,
+    "colors": 10,
+    "deltaE": 1.24,
+    "contrast": 0.543,
+    "corr": 0.521
+  },
+  "galaxy/peyote/t47-balanced": {
+    "singles": 11,
+    "colors": 8,
+    "deltaE": 2.22,
+    "contrast": 0.276,
+    "corr": 0.299
+  },
+  "galaxy/peyote/t47-catalog": {
+    "singles": 5,
+    "colors": 6,
+    "deltaE": 5.76,
+    "contrast": 0.175,
+    "corr": 0.23
+  },
+  "galaxy/peyote/t47-detailed": {
+    "singles": 7,
+    "colors": 6,
+    "deltaE": 2.31,
+    "contrast": 0.229,
+    "corr": 0.277
+  },
+  "galaxy/peyote/t47-simpler": {
+    "singles": 6,
+    "colors": 6,
+    "deltaE": 2.17,
+    "contrast": 0.289,
+    "corr": 0.27
+  },
+  "galaxy/peyote/t52-prefilter": {
+    "singles": 204,
+    "colors": 10,
+    "deltaE": 1.16,
+    "contrast": 0.53,
+    "corr": 0.53
+  },
+  "galaxy/peyote/t53-catalog": {
+    "singles": 23,
+    "colors": 10,
+    "deltaE": 5.63,
+    "contrast": 0.25,
+    "corr": 0.332
+  },
+  "galaxy/peyote/t53-pixels": {
+    "singles": 23,
+    "colors": 8,
+    "deltaE": 2.07,
+    "contrast": 0.367,
+    "corr": 0.392
+  },
+  "galaxy/peyote/t54-faces": {
+    "singles": 11,
+    "colors": 8,
+    "deltaE": 2.22,
+    "contrast": 0.276,
+    "corr": 0.299
+  },
+  "galaxy/peyote/t55-outline": {
+    "singles": 6,
+    "colors": 7,
+    "deltaE": 2.29,
+    "contrast": 0.233,
+    "corr": 0.239
+  },
+  "galaxy/peyote/t55-remove": {
+    "singles": 6,
+    "colors": 7,
+    "deltaE": 2.39,
+    "contrast": 0.348,
+    "corr": 0.341
+  },
+  "galaxy/peyote/t55-simplify": {
+    "singles": 7,
+    "colors": 7,
+    "deltaE": 2.27,
+    "contrast": 0.252,
+    "corr": 0.257
+  },
+  "galaxy/peyote/t57-dither": {
+    "singles": 11,
+    "colors": 8,
+    "deltaE": 2.22,
+    "contrast": 0.276,
+    "corr": 0.299
+  },
+  "galaxy/peyote/t57-dither-catalog": {
+    "singles": 5,
+    "colors": 6,
+    "deltaE": 5.76,
+    "contrast": 0.175,
+    "corr": 0.23
+  },
+  "galaxy/peyote/t62-catalog-all": {
+    "singles": 7,
+    "colors": 9,
+    "deltaE": 2.44,
+    "contrast": 0.283,
+    "corr": 0.276
+  },
+  "galaxy/peyote/t63-contrast": {
+    "singles": 8,
+    "colors": 7,
+    "deltaE": 2.52,
+    "contrast": 0.352,
+    "corr": 0.277
+  },
+  "galaxy/peyote/t63-tones": {
+    "singles": 11,
+    "colors": 8,
+    "deltaE": 2.22,
+    "contrast": 0.276,
+    "corr": 0.299
+  },
+  "galaxy/peyote/t64-detail": {
+    "singles": 35,
+    "colors": 8,
+    "deltaE": 2.53,
+    "contrast": 0.867,
+    "corr": 0.412
+  },
+  "galaxy/peyote/v2-balanced": {
+    "singles": 10,
+    "colors": 6,
+    "deltaE": 2.51,
+    "contrast": 0.314,
+    "corr": 0.286
+  },
+  "galaxy/peyote/v2-detailed": {
+    "singles": 42,
+    "colors": 10,
+    "deltaE": 2.58,
+    "contrast": 0.968,
+    "corr": 0.432
+  },
+  "galaxy/peyote/v2-simpler": {
+    "singles": 6,
+    "colors": 6,
+    "deltaE": 2.17,
+    "contrast": 0.289,
+    "corr": 0.27
+  },
+  "galaxy/stitch/t24": {
+    "singles": 616,
+    "colors": 16,
+    "deltaE": 1.18,
+    "contrast": 0.666,
+    "corr": 0.675
+  },
+  "galaxy/stitch/t24-dither": {
+    "singles": 491,
+    "colors": 16,
+    "deltaE": 1.38,
+    "contrast": 0.699,
+    "corr": 0.66
+  },
+  "galaxy/stitch/t47-balanced": {
+    "singles": 51,
+    "colors": 13,
+    "deltaE": 2.16,
+    "contrast": 0.47,
+    "corr": 0.493
+  },
+  "galaxy/stitch/t47-detailed": {
+    "singles": 53,
+    "colors": 13,
+    "deltaE": 2.18,
+    "contrast": 0.485,
+    "corr": 0.526
+  },
+  "galaxy/stitch/t47-simpler": {
+    "singles": 59,
+    "colors": 12,
+    "deltaE": 2.02,
+    "contrast": 0.502,
+    "corr": 0.522
+  },
+  "galaxy/stitch/t52-prefilter": {
+    "singles": 655,
+    "colors": 16,
+    "deltaE": 1.16,
+    "contrast": 0.658,
+    "corr": 0.674
+  },
+  "galaxy/stitch/t53-pixels": {
+    "singles": 167,
+    "colors": 13,
+    "deltaE": 1.87,
+    "contrast": 0.562,
+    "corr": 0.582
+  },
+  "galaxy/stitch/t54-faces": {
+    "singles": 51,
+    "colors": 13,
+    "deltaE": 2.16,
+    "contrast": 0.47,
+    "corr": 0.493
+  },
+  "galaxy/stitch/t55-remove": {
+    "singles": 26,
+    "colors": 10,
+    "deltaE": 2.51,
+    "contrast": 0.516,
+    "corr": 0.543
+  },
+  "galaxy/stitch/t55-simplify": {
+    "singles": 40,
+    "colors": 12,
+    "deltaE": 2.23,
+    "contrast": 0.419,
+    "corr": 0.458
+  },
+  "galaxy/stitch/t57-dither": {
+    "singles": 51,
+    "colors": 13,
+    "deltaE": 2.16,
+    "contrast": 0.471,
+    "corr": 0.493
+  },
+  "galaxy/stitch/t63-contrast": {
+    "singles": 71,
+    "colors": 12,
+    "deltaE": 2.41,
+    "contrast": 0.599,
+    "corr": 0.523
+  },
+  "galaxy/stitch/t63-tones": {
+    "singles": 51,
+    "colors": 13,
+    "deltaE": 2.16,
+    "contrast": 0.47,
+    "corr": 0.493
+  },
+  "galaxy/stitch/t64-detail": {
+    "singles": 104,
+    "colors": 12,
+    "deltaE": 2.59,
+    "contrast": 1.07,
+    "corr": 0.573
+  },
+  "galaxy/stitch/v2-balanced": {
+    "singles": 64,
+    "colors": 12,
+    "deltaE": 2.46,
+    "contrast": 0.596,
+    "corr": 0.52
+  },
+  "galaxy/stitch/v2-detailed": {
+    "singles": 193,
+    "colors": 16,
+    "deltaE": 2.86,
+    "contrast": 1.264,
+    "corr": 0.59
+  },
+  "galaxy/stitch/v2-simpler": {
+    "singles": 59,
+    "colors": 12,
+    "deltaE": 2.02,
+    "contrast": 0.502,
+    "corr": 0.522
+  },
+  "handwriting/loom/t24": {
+    "singles": 141,
+    "colors": 10,
+    "deltaE": 0.67,
+    "contrast": 0.643,
+    "corr": 0.622
+  },
+  "handwriting/loom/t24-catalog": {
+    "singles": 96,
+    "colors": 8,
+    "deltaE": 1.55,
+    "contrast": 0.658,
+    "corr": 0.613
+  },
+  "handwriting/loom/t24-dither": {
+    "singles": 151,
+    "colors": 10,
+    "deltaE": 0.76,
+    "contrast": 0.646,
+    "corr": 0.619
+  },
+  "handwriting/loom/t47-balanced": {
+    "singles": 1,
+    "colors": 5,
+    "deltaE": 1.64,
+    "contrast": 0.498,
+    "corr": 0.544
+  },
+  "handwriting/loom/t47-catalog": {
+    "singles": 1,
+    "colors": 6,
+    "deltaE": 2.15,
+    "contrast": 0.523,
+    "corr": 0.534
+  },
+  "handwriting/loom/t47-detailed": {
+    "singles": 2,
+    "colors": 5,
+    "deltaE": 1.8,
+    "contrast": 0.528,
+    "corr": 0.534
+  },
+  "handwriting/loom/t47-simpler": {
+    "singles": 0,
+    "colors": 6,
+    "deltaE": 1.5,
+    "contrast": 0.55,
+    "corr": 0.551
+  },
+  "handwriting/loom/t52-prefilter": {
+    "singles": 120,
+    "colors": 10,
+    "deltaE": 0.54,
+    "contrast": 0.591,
+    "corr": 0.621
+  },
+  "handwriting/loom/t53-catalog": {
+    "singles": 55,
+    "colors": 8,
+    "deltaE": 1.94,
+    "contrast": 0.562,
+    "corr": 0.566
+  },
+  "handwriting/loom/t53-pixels": {
+    "singles": 38,
+    "colors": 6,
+    "deltaE": 1.32,
+    "contrast": 0.542,
+    "corr": 0.575
+  },
+  "handwriting/loom/t54-faces": {
+    "singles": 1,
+    "colors": 5,
+    "deltaE": 1.64,
+    "contrast": 0.498,
+    "corr": 0.544
+  },
+  "handwriting/loom/t55-outline": {
+    "singles": 14,
+    "colors": 4,
+    "deltaE": 2.57,
+    "contrast": 0.855,
+    "corr": 0.421
+  },
+  "handwriting/loom/t55-remove": {
+    "singles": 6,
+    "colors": 2,
+    "deltaE": 3.34,
+    "contrast": 0.155,
+    "corr": 0.006
+  },
+  "handwriting/loom/t55-simplify": {
+    "singles": 13,
+    "colors": 4,
+    "deltaE": 2.14,
+    "contrast": 0.452,
+    "corr": 0.49
+  },
+  "handwriting/loom/t57-dither": {
+    "singles": 2,
+    "colors": 5,
+    "deltaE": 1.58,
+    "contrast": 0.504,
+    "corr": 0.546
+  },
+  "handwriting/loom/t57-dither-catalog": {
+    "singles": 2,
+    "colors": 6,
+    "deltaE": 2.14,
+    "contrast": 0.519,
+    "corr": 0.534
+  },
+  "handwriting/loom/t62-catalog-all": {
+    "singles": 1,
+    "colors": 7,
+    "deltaE": 2.17,
+    "contrast": 0.5,
+    "corr": 0.533
+  },
+  "handwriting/loom/t63-contrast": {
+    "singles": 3,
+    "colors": 6,
+    "deltaE": 2.06,
+    "contrast": 0.596,
+    "corr": 0.547
+  },
+  "handwriting/loom/t63-tones": {
+    "singles": 1,
+    "colors": 5,
+    "deltaE": 1.64,
+    "contrast": 0.498,
+    "corr": 0.544
+  },
+  "handwriting/loom/t64-detail": {
+    "singles": 14,
+    "colors": 6,
+    "deltaE": 1.66,
+    "contrast": 0.66,
+    "corr": 0.527
+  },
+  "handwriting/loom/v2-balanced": {
+    "singles": 5,
+    "colors": 6,
+    "deltaE": 2.23,
+    "contrast": 0.621,
+    "corr": 0.543
+  },
+  "handwriting/loom/v2-detailed": {
+    "singles": 36,
+    "colors": 8,
+    "deltaE": 1.96,
+    "contrast": 0.897,
+    "corr": 0.557
+  },
+  "handwriting/loom/v2-simpler": {
+    "singles": 0,
+    "colors": 6,
+    "deltaE": 1.5,
+    "contrast": 0.55,
+    "corr": 0.551
+  },
+  "handwriting/peyote/t24": {
+    "singles": 109,
+    "colors": 10,
+    "deltaE": 0.68,
+    "contrast": 0.66,
+    "corr": 0.623
+  },
+  "handwriting/peyote/t24-catalog": {
+    "singles": 79,
+    "colors": 8,
+    "deltaE": 1.53,
+    "contrast": 0.661,
+    "corr": 0.612
+  },
+  "handwriting/peyote/t24-dither": {
+    "singles": 109,
+    "colors": 10,
+    "deltaE": 0.73,
+    "contrast": 0.655,
+    "corr": 0.62
+  },
+  "handwriting/peyote/t47-balanced": {
+    "singles": 1,
+    "colors": 6,
+    "deltaE": 1.78,
+    "contrast": 0.529,
+    "corr": 0.524
+  },
+  "handwriting/peyote/t47-catalog": {
+    "singles": 2,
+    "colors": 4,
+    "deltaE": 2.3,
+    "contrast": 0.476,
+    "corr": 0.502
+  },
+  "handwriting/peyote/t47-detailed": {
+    "singles": 3,
+    "colors": 5,
+    "deltaE": 1.85,
+    "contrast": 0.517,
+    "corr": 0.529
+  },
+  "handwriting/peyote/t47-simpler": {
+    "singles": 3,
+    "colors": 5,
+    "deltaE": 1.65,
+    "contrast": 0.491,
+    "corr": 0.533
+  },
+  "handwriting/peyote/t52-prefilter": {
+    "singles": 81,
+    "colors": 10,
+    "deltaE": 0.63,
+    "contrast": 0.591,
+    "corr": 0.618
+  },
+  "handwriting/peyote/t53-catalog": {
+    "singles": 25,
+    "colors": 7,
+    "deltaE": 1.9,
+    "contrast": 0.575,
+    "corr": 0.566
+  },
+  "handwriting/peyote/t53-pixels": {
+    "singles": 42,
+    "colors": 7,
+    "deltaE": 1.33,
+    "contrast": 0.565,
+    "corr": 0.573
+  },
+  "handwriting/peyote/t54-faces": {
+    "singles": 1,
+    "colors": 6,
+    "deltaE": 1.78,
+    "contrast": 0.529,
+    "corr": 0.524
+  },
+  "handwriting/peyote/t55-outline": {
+    "singles": 6,
+    "colors": 4,
+    "deltaE": 2.69,
+    "contrast": 0.886,
+    "corr": 0.41
+  },
+  "handwriting/peyote/t55-remove": {
+    "singles": 5,
+    "colors": 4,
+    "deltaE": 3.57,
+    "contrast": 0.471,
+    "corr": -0.025
+  },
+  "handwriting/peyote/t55-simplify": {
+    "singles": 5,
+    "colors": 4,
+    "deltaE": 2.2,
+    "contrast": 0.469,
+    "corr": 0.463
+  },
+  "handwriting/peyote/t57-dither": {
+    "singles": 1,
+    "colors": 6,
+    "deltaE": 1.74,
+    "contrast": 0.525,
+    "corr": 0.527
+  },
+  "handwriting/peyote/t57-dither-catalog": {
+    "singles": 2,
+    "colors": 5,
+    "deltaE": 2.28,
+    "contrast": 0.483,
+    "corr": 0.508
+  },
+  "handwriting/peyote/t62-catalog-all": {
+    "singles": 2,
+    "colors": 5,
+    "deltaE": 2.2,
+    "contrast": 0.488,
+    "corr": 0.509
+  },
+  "handwriting/peyote/t63-contrast": {
+    "singles": 2,
+    "colors": 5,
+    "deltaE": 2.16,
+    "contrast": 0.59,
+    "corr": 0.532
+  },
+  "handwriting/peyote/t63-tones": {
+    "singles": 1,
+    "colors": 6,
+    "deltaE": 1.78,
+    "contrast": 0.529,
+    "corr": 0.524
+  },
+  "handwriting/peyote/t64-detail": {
+    "singles": 6,
+    "colors": 7,
+    "deltaE": 1.8,
+    "contrast": 0.692,
+    "corr": 0.52
+  },
+  "handwriting/peyote/v2-balanced": {
+    "singles": 2,
+    "colors": 5,
+    "deltaE": 2.32,
+    "contrast": 0.649,
+    "corr": 0.53
+  },
+  "handwriting/peyote/v2-detailed": {
+    "singles": 36,
+    "colors": 8,
+    "deltaE": 2.05,
+    "contrast": 0.902,
+    "corr": 0.531
+  },
+  "handwriting/peyote/v2-simpler": {
+    "singles": 3,
+    "colors": 5,
+    "deltaE": 1.65,
+    "contrast": 0.491,
+    "corr": 0.533
+  },
+  "handwriting/stitch/t24": {
+    "singles": 417,
+    "colors": 16,
+    "deltaE": 0.51,
+    "contrast": 0.743,
+    "corr": 0.722
+  },
+  "handwriting/stitch/t24-dither": {
+    "singles": 472,
+    "colors": 16,
+    "deltaE": 0.58,
+    "contrast": 0.738,
+    "corr": 0.721
+  },
+  "handwriting/stitch/t47-balanced": {
+    "singles": 13,
+    "colors": 10,
+    "deltaE": 1.64,
+    "contrast": 0.62,
+    "corr": 0.633
+  },
+  "handwriting/stitch/t47-detailed": {
+    "singles": 21,
+    "colors": 9,
+    "deltaE": 1.62,
+    "contrast": 0.614,
+    "corr": 0.637
+  },
+  "handwriting/stitch/t47-simpler": {
+    "singles": 12,
+    "colors": 8,
+    "deltaE": 1.64,
+    "contrast": 0.572,
+    "corr": 0.639
+  },
+  "handwriting/stitch/t52-prefilter": {
+    "singles": 378,
+    "colors": 16,
+    "deltaE": 0.47,
+    "contrast": 0.681,
+    "corr": 0.719
+  },
+  "handwriting/stitch/t53-pixels": {
+    "singles": 240,
+    "colors": 12,
+    "deltaE": 1.14,
+    "contrast": 0.649,
+    "corr": 0.68
+  },
+  "handwriting/stitch/t54-faces": {
+    "singles": 13,
+    "colors": 10,
+    "deltaE": 1.64,
+    "contrast": 0.62,
+    "corr": 0.633
+  },
+  "handwriting/stitch/t55-remove": {
+    "singles": 35,
+    "colors": 8,
+    "deltaE": 4.1,
+    "contrast": 0.544,
+    "corr": 0.226
+  },
+  "handwriting/stitch/t55-simplify": {
+    "singles": 42,
+    "colors": 8,
+    "deltaE": 2.34,
+    "contrast": 0.588,
+    "corr": 0.57
+  },
+  "handwriting/stitch/t57-dither": {
+    "singles": 13,
+    "colors": 10,
+    "deltaE": 1.64,
+    "contrast": 0.622,
+    "corr": 0.632
+  },
+  "handwriting/stitch/t63-contrast": {
+    "singles": 18,
+    "colors": 9,
+    "deltaE": 2.08,
+    "contrast": 0.669,
+    "corr": 0.635
+  },
+  "handwriting/stitch/t63-tones": {
+    "singles": 13,
+    "colors": 10,
+    "deltaE": 1.64,
+    "contrast": 0.62,
+    "corr": 0.633
+  },
+  "handwriting/stitch/t64-detail": {
+    "singles": 49,
+    "colors": 12,
+    "deltaE": 1.95,
+    "contrast": 0.912,
+    "corr": 0.626
+  },
+  "handwriting/stitch/v2-balanced": {
+    "singles": 23,
+    "colors": 10,
+    "deltaE": 2.19,
+    "contrast": 0.749,
+    "corr": 0.626
+  },
+  "handwriting/stitch/v2-detailed": {
+    "singles": 99,
+    "colors": 13,
+    "deltaE": 1.82,
+    "contrast": 1.04,
+    "corr": 0.648
+  },
+  "handwriting/stitch/v2-simpler": {
+    "singles": 12,
+    "colors": 8,
+    "deltaE": 1.64,
+    "contrast": 0.572,
+    "corr": 0.639
+  },
+  "landscape/loom/t24": {
+    "singles": 19,
+    "colors": 10,
+    "deltaE": 3.23,
+    "contrast": 0.878,
+    "corr": 0.911
+  },
+  "landscape/loom/t24-catalog": {
+    "singles": 20,
+    "colors": 10,
+    "deltaE": 3.86,
+    "contrast": 0.913,
+    "corr": 0.91
+  },
+  "landscape/loom/t24-dither": {
+    "singles": 113,
+    "colors": 10,
+    "deltaE": 4.02,
+    "contrast": 0.95,
+    "corr": 0.887
+  },
+  "landscape/loom/t47-balanced": {
+    "singles": 0,
+    "colors": 8,
+    "deltaE": 2.57,
+    "contrast": 0.958,
+    "corr": 0.914
+  },
+  "landscape/loom/t47-catalog": {
+    "singles": 1,
+    "colors": 9,
+    "deltaE": 3.42,
+    "contrast": 0.956,
+    "corr": 0.915
+  },
+  "landscape/loom/t47-detailed": {
+    "singles": 0,
+    "colors": 7,
+    "deltaE": 2.69,
+    "contrast": 0.97,
+    "corr": 0.912
+  },
+  "landscape/loom/t47-simpler": {
+    "singles": 0,
+    "colors": 7,
+    "deltaE": 2.74,
+    "contrast": 0.955,
+    "corr": 0.913
+  },
+  "landscape/loom/t52-prefilter": {
+    "singles": 19,
+    "colors": 10,
+    "deltaE": 2.94,
+    "contrast": 0.912,
+    "corr": 0.911
+  },
+  "landscape/loom/t53-catalog": {
+    "singles": 3,
+    "colors": 10,
+    "deltaE": 3.37,
+    "contrast": 0.952,
+    "corr": 0.919
+  },
+  "landscape/loom/t53-pixels": {
+    "singles": 0,
+    "colors": 8,
+    "deltaE": 2.57,
+    "contrast": 0.958,
+    "corr": 0.914
+  },
+  "landscape/loom/t54-faces": {
+    "singles": 0,
+    "colors": 8,
+    "deltaE": 2.57,
+    "contrast": 0.958,
+    "corr": 0.914
+  },
+  "landscape/loom/t55-outline": {
+    "singles": 12,
+    "colors": 7,
+    "deltaE": 5.0,
+    "contrast": 0.942,
+    "corr": 0.786
+  },
+  "landscape/loom/t55-remove": {
+    "singles": 0,
+    "colors": 5,
+    "deltaE": 3.25,
+    "contrast": 0.948,
+    "corr": 0.907
+  },
+  "landscape/loom/t55-simplify": {
+    "singles": 0,
+    "colors": 7,
+    "deltaE": 4.07,
+    "contrast": 0.887,
+    "corr": 0.862
+  },
+  "landscape/loom/t57-dither": {
+    "singles": 0,
+    "colors": 8,
+    "deltaE": 2.85,
+    "contrast": 0.958,
+    "corr": 0.909
+  },
+  "landscape/loom/t57-dither-catalog": {
+    "singles": 1,
+    "colors": 9,
+    "deltaE": 3.62,
+    "contrast": 0.96,
+    "corr": 0.911
+  },
+  "landscape/loom/t62-catalog-all": {
+    "singles": 1,
+    "colors": 9,
+    "deltaE": 3.36,
+    "contrast": 0.996,
+    "corr": 0.912
+  },
+  "landscape/loom/t63-contrast": {
+    "singles": 0,
+    "colors": 8,
+    "deltaE": 2.81,
+    "contrast": 1.11,
+    "corr": 0.91
+  },
+  "landscape/loom/t63-tones": {
+    "singles": 0,
+    "colors": 8,
+    "deltaE": 2.57,
+    "contrast": 0.958,
+    "corr": 0.914
+  },
+  "landscape/loom/t64-detail": {
+    "singles": 0,
+    "colors": 8,
+    "deltaE": 2.58,
+    "contrast": 0.96,
+    "corr": 0.912
+  },
+  "landscape/loom/v2-balanced": {
+    "singles": 2,
+    "colors": 9,
+    "deltaE": 3.33,
+    "contrast": 1.178,
+    "corr": 0.896
+  },
+  "landscape/loom/v2-detailed": {
+    "singles": 2,
+    "colors": 8,
+    "deltaE": 3.16,
+    "contrast": 1.166,
+    "corr": 0.905
+  },
+  "landscape/loom/v2-simpler": {
+    "singles": 0,
+    "colors": 7,
+    "deltaE": 2.74,
+    "contrast": 0.955,
+    "corr": 0.913
+  },
+  "landscape/peyote/t24": {
+    "singles": 16,
+    "colors": 10,
+    "deltaE": 3.04,
+    "contrast": 0.911,
+    "corr": 0.901
+  },
+  "landscape/peyote/t24-catalog": {
+    "singles": 22,
+    "colors": 10,
+    "deltaE": 4.02,
+    "contrast": 0.874,
+    "corr": 0.9
+  },
+  "landscape/peyote/t24-dither": {
+    "singles": 75,
+    "colors": 10,
+    "deltaE": 3.76,
+    "contrast": 0.925,
+    "corr": 0.897
+  },
+  "landscape/peyote/t47-balanced": {
+    "singles": 0,
+    "colors": 7,
+    "deltaE": 2.91,
+    "contrast": 0.977,
+    "corr": 0.893
+  },
+  "landscape/peyote/t47-catalog": {
+    "singles": 3,
+    "colors": 9,
+    "deltaE": 3.75,
+    "contrast": 0.979,
+    "corr": 0.891
+  },
+  "landscape/peyote/t47-detailed": {
+    "singles": 0,
+    "colors": 8,
+    "deltaE": 3.22,
+    "contrast": 0.971,
+    "corr": 0.881
+  },
+  "landscape/peyote/t47-simpler": {
+    "singles": 0,
+    "colors": 7,
+    "deltaE": 2.89,
+    "contrast": 0.957,
+    "corr": 0.893
+  },
+  "landscape/peyote/t52-prefilter": {
+    "singles": 13,
+    "colors": 10,
+    "deltaE": 3.06,
+    "contrast": 0.923,
+    "corr": 0.9
+  },
+  "landscape/peyote/t53-catalog": {
+    "singles": 3,
+    "colors": 9,
+    "deltaE": 3.75,
+    "contrast": 0.979,
+    "corr": 0.891
+  },
+  "landscape/peyote/t53-pixels": {
+    "singles": 0,
+    "colors": 7,
+    "deltaE": 2.91,
+    "contrast": 0.977,
+    "corr": 0.893
+  },
+  "landscape/peyote/t54-faces": {
+    "singles": 0,
+    "colors": 7,
+    "deltaE": 2.91,
+    "contrast": 0.977,
+    "corr": 0.893
+  },
+  "landscape/peyote/t55-outline": {
+    "singles": 1,
+    "colors": 8,
+    "deltaE": 4.85,
+    "contrast": 0.978,
+    "corr": 0.792
+  },
+  "landscape/peyote/t55-remove": {
+    "singles": 0,
+    "colors": 7,
+    "deltaE": 2.94,
+    "contrast": 0.972,
+    "corr": 0.893
+  },
+  "landscape/peyote/t55-simplify": {
+    "singles": 0,
+    "colors": 8,
+    "deltaE": 3.74,
+    "contrast": 0.927,
+    "corr": 0.867
+  },
+  "landscape/peyote/t57-dither": {
+    "singles": 0,
+    "colors": 7,
+    "deltaE": 3.21,
+    "contrast": 0.982,
+    "corr": 0.888
+  },
+  "landscape/peyote/t57-dither-catalog": {
+    "singles": 3,
+    "colors": 9,
+    "deltaE": 3.96,
+    "contrast": 0.977,
+    "corr": 0.885
+  },
+  "landscape/peyote/t62-catalog-all": {
+    "singles": 2,
+    "colors": 8,
+    "deltaE": 3.72,
+    "contrast": 1.025,
+    "corr": 0.89
+  },
+  "landscape/peyote/t63-contrast": {
+    "singles": 0,
+    "colors": 8,
+    "deltaE": 3.05,
+    "contrast": 1.11,
+    "corr": 0.891
+  },
+  "landscape/peyote/t63-tones": {
+    "singles": 0,
+    "colors": 7,
+    "deltaE": 2.91,
+    "contrast": 0.977,
+    "corr": 0.893
+  },
+  "landscape/peyote/t64-detail": {
+    "singles": 0,
+    "colors": 7,
+    "deltaE": 2.98,
+    "contrast": 0.996,
+    "corr": 0.889
+  },
+  "landscape/peyote/v2-balanced": {
+    "singles": 0,
+    "colors": 8,
+    "deltaE": 3.5,
+    "contrast": 1.17,
+    "corr": 0.884
+  },
+  "landscape/peyote/v2-detailed": {
+    "singles": 0,
+    "colors": 9,
+    "deltaE": 3.27,
+    "contrast": 1.151,
+    "corr": 0.887
+  },
+  "landscape/peyote/v2-simpler": {
+    "singles": 0,
+    "colors": 7,
+    "deltaE": 2.89,
+    "contrast": 0.957,
+    "corr": 0.893
+  },
+  "landscape/stitch/t24": {
+    "singles": 45,
+    "colors": 16,
+    "deltaE": 1.69,
+    "contrast": 0.962,
+    "corr": 0.959
+  },
+  "landscape/stitch/t24-dither": {
+    "singles": 181,
+    "colors": 16,
+    "deltaE": 1.98,
+    "contrast": 0.967,
+    "corr": 0.955
+  },
+  "landscape/stitch/t47-balanced": {
+    "singles": 7,
+    "colors": 12,
+    "deltaE": 1.69,
+    "contrast": 0.974,
+    "corr": 0.95
+  },
+  "landscape/stitch/t47-detailed": {
+    "singles": 5,
+    "colors": 13,
+    "deltaE": 1.66,
+    "contrast": 0.976,
+    "corr": 0.952
+  },
+  "landscape/stitch/t47-simpler": {
+    "singles": 0,
+    "colors": 10,
+    "deltaE": 1.93,
+    "contrast": 0.967,
+    "corr": 0.943
+  },
+  "landscape/stitch/t52-prefilter": {
+    "singles": 36,
+    "colors": 16,
+    "deltaE": 2.57,
+    "contrast": 0.935,
+    "corr": 0.94
+  },
+  "landscape/stitch/t53-pixels": {
+    "singles": 9,
+    "colors": 13,
+    "deltaE": 1.69,
+    "contrast": 0.973,
+    "corr": 0.951
+  },
+  "landscape/stitch/t54-faces": {
+    "singles": 7,
+    "colors": 12,
+    "deltaE": 1.69,
+    "contrast": 0.974,
+    "corr": 0.95
+  },
+  "landscape/stitch/t55-remove": {
+    "singles": 3,
+    "colors": 11,
+    "deltaE": 2.01,
+    "contrast": 0.972,
+    "corr": 0.942
+  },
+  "landscape/stitch/t55-simplify": {
+    "singles": 5,
+    "colors": 11,
+    "deltaE": 3.58,
+    "contrast": 0.949,
+    "corr": 0.922
+  },
+  "landscape/stitch/t57-dither": {
+    "singles": 7,
+    "colors": 12,
+    "deltaE": 1.95,
+    "contrast": 0.975,
+    "corr": 0.947
+  },
+  "landscape/stitch/t63-contrast": {
+    "singles": 8,
+    "colors": 13,
+    "deltaE": 1.91,
+    "contrast": 1.09,
+    "corr": 0.947
+  },
+  "landscape/stitch/t63-tones": {
+    "singles": 7,
+    "colors": 12,
+    "deltaE": 1.69,
+    "contrast": 0.974,
+    "corr": 0.95
+  },
+  "landscape/stitch/t64-detail": {
+    "singles": 6,
+    "colors": 13,
+    "deltaE": 1.7,
+    "contrast": 0.979,
+    "corr": 0.949
+  },
+  "landscape/stitch/v2-balanced": {
+    "singles": 5,
+    "colors": 12,
+    "deltaE": 2.08,
+    "contrast": 1.131,
+    "corr": 0.941
+  },
+  "landscape/stitch/v2-detailed": {
+    "singles": 8,
+    "colors": 15,
+    "deltaE": 1.77,
+    "contrast": 1.091,
+    "corr": 0.944
+  },
+  "landscape/stitch/v2-simpler": {
+    "singles": 0,
+    "colors": 10,
+    "deltaE": 1.93,
+    "contrast": 0.967,
+    "corr": 0.943
+  },
+  "logo/loom/t24": {
+    "singles": 139,
+    "colors": 10,
+    "deltaE": 1.45,
+    "contrast": 0.916,
+    "corr": 0.917
+  },
+  "logo/loom/t24-catalog": {
+    "singles": 113,
+    "colors": 10,
+    "deltaE": 6.51,
+    "contrast": 0.64,
+    "corr": 0.878
+  },
+  "logo/loom/t24-dither": {
+    "singles": 154,
+    "colors": 10,
+    "deltaE": 1.69,
+    "contrast": 0.913,
+    "corr": 0.91
+  },
+  "logo/loom/t47-balanced": {
+    "singles": 20,
+    "colors": 8,
+    "deltaE": 2.85,
+    "contrast": 0.935,
+    "corr": 0.881
+  },
+  "logo/loom/t47-catalog": {
+    "singles": 36,
+    "colors": 8,
+    "deltaE": 7.03,
+    "contrast": 0.694,
+    "corr": 0.853
+  },
+  "logo/loom/t47-detailed": {
+    "singles": 23,
+    "colors": 10,
+    "deltaE": 2.81,
+    "contrast": 0.928,
+    "corr": 0.881
+  },
+  "logo/loom/t47-simpler": {
+    "singles": 26,
+    "colors": 10,
+    "deltaE": 2.86,
+    "contrast": 0.934,
+    "corr": 0.882
+  },
+  "logo/loom/t52-prefilter": {
+    "singles": 137,
+    "colors": 10,
+    "deltaE": 1.41,
+    "contrast": 0.912,
+    "corr": 0.915
+  },
+  "logo/loom/t53-catalog": {
+    "singles": 100,
+    "colors": 10,
+    "deltaE": 6.73,
+    "contrast": 0.693,
+    "corr": 0.863
+  },
+  "logo/loom/t53-pixels": {
+    "singles": 69,
+    "colors": 9,
+    "deltaE": 2.61,
+    "contrast": 0.948,
+    "corr": 0.888
+  },
+  "logo/loom/t54-faces": {
+    "singles": 20,
+    "colors": 8,
+    "deltaE": 2.85,
+    "contrast": 0.935,
+    "corr": 0.881
+  },
+  "logo/loom/t55-outline": {
+    "singles": 63,
+    "colors": 10,
+    "deltaE": 7.98,
+    "contrast": 1.669,
+    "corr": 0.548
+  },
+  "logo/loom/t55-remove": {
+    "singles": 29,
+    "colors": 8,
+    "deltaE": 2.77,
+    "contrast": 0.634,
+    "corr": 0.504
+  },
+  "logo/loom/t55-simplify": {
+    "singles": 28,
+    "colors": 9,
+    "deltaE": 2.95,
+    "contrast": 0.923,
+    "corr": 0.877
+  },
+  "logo/loom/t57-dither": {
+    "singles": 20,
+    "colors": 8,
+    "deltaE": 2.85,
+    "contrast": 0.935,
+    "corr": 0.881
+  },
+  "logo/loom/t57-dither-catalog": {
+    "singles": 36,
+    "colors": 8,
+    "deltaE": 7.03,
+    "contrast": 0.694,
+    "corr": 0.853
+  },
+  "logo/loom/t62-catalog-all": {
+    "singles": 40,
+    "colors": 9,
+    "deltaE": 4.27,
+    "contrast": 0.876,
+    "corr": 0.876
+  },
+  "logo/loom/t63-contrast": {
+    "singles": 27,
+    "colors": 7,
+    "deltaE": 3.21,
+    "contrast": 0.993,
+    "corr": 0.873
+  },
+  "logo/loom/t63-tones": {
+    "singles": 20,
+    "colors": 8,
+    "deltaE": 2.85,
+    "contrast": 0.935,
+    "corr": 0.881
+  },
+  "logo/loom/t64-detail": {
+    "singles": 25,
+    "colors": 8,
+    "deltaE": 3.25,
+    "contrast": 1.002,
+    "corr": 0.87
+  },
+  "logo/loom/v2-balanced": {
+    "singles": 27,
+    "colors": 7,
+    "deltaE": 3.35,
+    "contrast": 1.014,
+    "corr": 0.873
+  },
+  "logo/loom/v2-detailed": {
+    "singles": 40,
+    "colors": 10,
+    "deltaE": 3.27,
+    "contrast": 1.07,
+    "corr": 0.874
+  },
+  "logo/loom/v2-simpler": {
+    "singles": 26,
+    "colors": 10,
+    "deltaE": 2.86,
+    "contrast": 0.934,
+    "corr": 0.882
+  },
+  "logo/peyote/t24": {
+    "singles": 98,
+    "colors": 10,
+    "deltaE": 1.39,
+    "contrast": 0.908,
+    "corr": 0.914
+  },
+  "logo/peyote/t24-catalog": {
+    "singles": 75,
+    "colors": 10,
+    "deltaE": 6.47,
+    "contrast": 0.624,
+    "corr": 0.878
+  },
+  "logo/peyote/t24-dither": {
+    "singles": 98,
+    "colors": 10,
+    "deltaE": 1.59,
+    "contrast": 0.909,
+    "corr": 0.909
+  },
+  "logo/peyote/t47-balanced": {
+    "singles": 11,
+    "colors": 8,
+    "deltaE": 3.0,
+    "contrast": 0.936,
+    "corr": 0.869
+  },
+  "logo/peyote/t47-catalog": {
+    "singles": 21,
+    "colors": 9,
+    "deltaE": 7.06,
+    "contrast": 0.701,
+    "corr": 0.851
+  },
+  "logo/peyote/t47-detailed": {
+    "singles": 23,
+    "colors": 10,
+    "deltaE": 2.66,
+    "contrast": 0.938,
+    "corr": 0.874
+  },
+  "logo/peyote/t47-simpler": {
+    "singles": 11,
+    "colors": 8,
+    "deltaE": 3.0,
+    "contrast": 0.924,
+    "corr": 0.868
+  },
+  "logo/peyote/t52-prefilter": {
+    "singles": 106,
+    "colors": 10,
+    "deltaE": 1.46,
+    "contrast": 0.906,
+    "corr": 0.911
+  },
+  "logo/peyote/t53-catalog": {
+    "singles": 82,
+    "colors": 10,
+    "deltaE": 6.79,
+    "contrast": 0.711,
+    "corr": 0.865
+  },
+  "logo/peyote/t53-pixels": {
+    "singles": 53,
+    "colors": 8,
+    "deltaE": 2.77,
+    "contrast": 0.955,
+    "corr": 0.882
+  },
+  "logo/peyote/t54-faces": {
+    "singles": 11,
+    "colors": 8,
+    "deltaE": 3.0,
+    "contrast": 0.936,
+    "corr": 0.869
+  },
+  "logo/peyote/t55-outline": {
+    "singles": 29,
+    "colors": 9,
+    "deltaE": 10.08,
+    "contrast": 1.879,
+    "corr": 0.502
+  },
+  "logo/peyote/t55-remove": {
+    "singles": 18,
+    "colors": 10,
+    "deltaE": 2.61,
+    "contrast": 0.682,
+    "corr": 0.535
+  },
+  "logo/peyote/t55-simplify": {
+    "singles": 25,
+    "colors": 8,
+    "deltaE": 2.84,
+    "contrast": 0.93,
+    "corr": 0.877
+  },
+  "logo/peyote/t57-dither": {
+    "singles": 11,
+    "colors": 8,
+    "deltaE": 3.0,
+    "contrast": 0.936,
+    "corr": 0.869
+  },
+  "logo/peyote/t57-dither-catalog": {
+    "singles": 21,
+    "colors": 9,
+    "deltaE": 7.06,
+    "contrast": 0.701,
+    "corr": 0.851
+  },
+  "logo/peyote/t62-catalog-all": {
+    "singles": 17,
+    "colors": 10,
+    "deltaE": 4.21,
+    "contrast": 0.903,
+    "corr": 0.875
+  },
+  "logo/peyote/t63-contrast": {
+    "singles": 19,
+    "colors": 10,
+    "deltaE": 3.0,
+    "contrast": 1.0,
+    "corr": 0.873
+  },
+  "logo/peyote/t63-tones": {
+    "singles": 11,
+    "colors": 8,
+    "deltaE": 3.0,
+    "contrast": 0.936,
+    "corr": 0.869
+  },
+  "logo/peyote/t64-detail": {
+    "singles": 12,
+    "colors": 8,
+    "deltaE": 3.37,
+    "contrast": 1.003,
+    "corr": 0.863
+  },
+  "logo/peyote/v2-balanced": {
+    "singles": 22,
+    "colors": 9,
+    "deltaE": 3.17,
+    "contrast": 1.021,
+    "corr": 0.871
+  },
+  "logo/peyote/v2-detailed": {
+    "singles": 30,
+    "colors": 10,
+    "deltaE": 3.55,
+    "contrast": 1.104,
+    "corr": 0.868
+  },
+  "logo/peyote/v2-simpler": {
+    "singles": 11,
+    "colors": 8,
+    "deltaE": 3.0,
+    "contrast": 0.924,
+    "corr": 0.868
+  },
+  "logo/stitch/t24": {
+    "singles": 422,
+    "colors": 16,
+    "deltaE": 0.88,
+    "contrast": 0.949,
+    "corr": 0.951
+  },
+  "logo/stitch/t24-dither": {
+    "singles": 476,
+    "colors": 16,
+    "deltaE": 1.07,
+    "contrast": 0.952,
+    "corr": 0.947
+  },
+  "logo/stitch/t47-balanced": {
+    "singles": 58,
+    "colors": 13,
+    "deltaE": 2.04,
+    "contrast": 0.973,
+    "corr": 0.928
+  },
+  "logo/stitch/t47-detailed": {
+    "singles": 70,
+    "colors": 14,
+    "deltaE": 2.23,
+    "contrast": 0.977,
+    "corr": 0.923
+  },
+  "logo/stitch/t47-simpler": {
+    "singles": 41,
+    "colors": 11,
+    "deltaE": 2.26,
+    "contrast": 0.968,
+    "corr": 0.925
+  },
+  "logo/stitch/t52-prefilter": {
+    "singles": 384,
+    "colors": 16,
+    "deltaE": 0.82,
+    "contrast": 0.952,
+    "corr": 0.951
+  },
+  "logo/stitch/t53-pixels": {
+    "singles": 194,
+    "colors": 13,
+    "deltaE": 1.76,
+    "contrast": 0.978,
+    "corr": 0.937
+  },
+  "logo/stitch/t54-faces": {
+    "singles": 58,
+    "colors": 13,
+    "deltaE": 2.04,
+    "contrast": 0.973,
+    "corr": 0.928
+  },
+  "logo/stitch/t55-remove": {
+    "singles": 74,
+    "colors": 13,
+    "deltaE": 1.72,
+    "contrast": 0.798,
+    "corr": 0.695
+  },
+  "logo/stitch/t55-simplify": {
+    "singles": 56,
+    "colors": 12,
+    "deltaE": 2.14,
+    "contrast": 0.964,
+    "corr": 0.928
+  },
+  "logo/stitch/t57-dither": {
+    "singles": 58,
+    "colors": 13,
+    "deltaE": 2.05,
+    "contrast": 0.974,
+    "corr": 0.928
+  },
+  "logo/stitch/t63-contrast": {
+    "singles": 54,
+    "colors": 13,
+    "deltaE": 2.19,
+    "contrast": 1.014,
+    "corr": 0.926
+  },
+  "logo/stitch/t63-tones": {
+    "singles": 58,
+    "colors": 13,
+    "deltaE": 2.04,
+    "contrast": 0.973,
+    "corr": 0.928
+  },
+  "logo/stitch/t64-detail": {
+    "singles": 41,
+    "colors": 13,
+    "deltaE": 2.16,
+    "contrast": 1.008,
+    "corr": 0.926
+  },
+  "logo/stitch/v2-balanced": {
+    "singles": 60,
+    "colors": 13,
+    "deltaE": 2.34,
+    "contrast": 1.041,
+    "corr": 0.926
+  },
+  "logo/stitch/v2-detailed": {
+    "singles": 101,
+    "colors": 16,
+    "deltaE": 2.29,
+    "contrast": 1.057,
+    "corr": 0.926
+  },
+  "logo/stitch/v2-simpler": {
+    "singles": 41,
+    "colors": 11,
+    "deltaE": 2.26,
+    "contrast": 0.968,
+    "corr": 0.925
+  },
+  "portrait/loom/t24": {
+    "singles": 110,
+    "colors": 10,
+    "deltaE": 5.73,
+    "contrast": 0.911,
+    "corr": 0.898
+  },
+  "portrait/loom/t24-catalog": {
+    "singles": 107,
+    "colors": 10,
+    "deltaE": 7.16,
+    "contrast": 0.807,
+    "corr": 0.884
+  },
+  "portrait/loom/t24-dither": {
+    "singles": 182,
+    "colors": 10,
+    "deltaE": 6.92,
+    "contrast": 0.932,
+    "corr": 0.885
+  },
+  "portrait/loom/t47-balanced": {
+    "singles": 14,
+    "colors": 10,
+    "deltaE": 7.69,
+    "contrast": 0.956,
+    "corr": 0.871
+  },
+  "portrait/loom/t47-catalog": {
+    "singles": 15,
+    "colors": 10,
+    "deltaE": 7.78,
+    "contrast": 0.85,
+    "corr": 0.87
+  },
+  "portrait/loom/t47-detailed": {
+    "singles": 12,
+    "colors": 10,
+    "deltaE": 7.6,
+    "contrast": 0.932,
+    "corr": 0.87
+  },
+  "portrait/loom/t47-simpler": {
+    "singles": 15,
+    "colors": 10,
+    "deltaE": 7.2,
+    "contrast": 0.934,
+    "corr": 0.877
+  },
+  "portrait/loom/t52-prefilter": {
+    "singles": 119,
+    "colors": 10,
+    "deltaE": 5.64,
+    "contrast": 0.908,
+    "corr": 0.904
+  },
+  "portrait/loom/t53-catalog": {
+    "singles": 65,
+    "colors": 10,
+    "deltaE": 7.31,
+    "contrast": 0.843,
+    "corr": 0.882
+  },
+  "portrait/loom/t53-pixels": {
+    "singles": 73,
+    "colors": 10,
+    "deltaE": 7.05,
+    "contrast": 0.944,
+    "corr": 0.887
+  },
+  "portrait/loom/t54-faces": {
+    "singles": 18,
+    "colors": 10,
+    "deltaE": 7.94,
+    "contrast": 0.918,
+    "corr": 0.861
+  },
+  "portrait/loom/t55-outline": {
+    "singles": 19,
+    "colors": 9,
+    "deltaE": 12.69,
+    "contrast": 1.052,
+    "corr": 0.759
+  },
+  "portrait/loom/t55-remove": {
+    "singles": 14,
+    "colors": 9,
+    "deltaE": 7.78,
+    "contrast": 0.937,
+    "corr": 0.856
+  },
+  "portrait/loom/t55-simplify": {
+    "singles": 15,
+    "colors": 9,
+    "deltaE": 10.76,
+    "contrast": 1.016,
+    "corr": 0.827
+  },
+  "portrait/loom/t57-dither": {
+    "singles": 14,
+    "colors": 10,
+    "deltaE": 7.71,
+    "contrast": 0.955,
+    "corr": 0.87
+  },
+  "portrait/loom/t57-dither-catalog": {
+    "singles": 15,
+    "colors": 10,
+    "deltaE": 7.81,
+    "contrast": 0.852,
+    "corr": 0.87
+  },
+  "portrait/loom/t62-catalog-all": {
+    "singles": 20,
+    "colors": 10,
+    "deltaE": 8.1,
+    "contrast": 0.889,
+    "corr": 0.869
+  },
+  "portrait/loom/t63-contrast": {
+    "singles": 20,
+    "colors": 10,
+    "deltaE": 7.8,
+    "contrast": 1.008,
+    "corr": 0.87
+  },
+  "portrait/loom/t63-tones": {
+    "singles": 16,
+    "colors": 10,
+    "deltaE": 8.35,
+    "contrast": 0.98,
+    "corr": 0.864
+  },
+  "portrait/loom/t64-detail": {
+    "singles": 32,
+    "colors": 10,
+    "deltaE": 7.82,
+    "contrast": 0.954,
+    "corr": 0.867
+  },
+  "portrait/loom/v2-balanced": {
+    "singles": 19,
+    "colors": 10,
+    "deltaE": 8.5,
+    "contrast": 1.016,
+    "corr": 0.859
+  },
+  "portrait/loom/v2-detailed": {
+    "singles": 34,
+    "colors": 10,
+    "deltaE": 8.45,
+    "contrast": 1.021,
+    "corr": 0.853
+  },
+  "portrait/loom/v2-simpler": {
+    "singles": 14,
+    "colors": 10,
+    "deltaE": 7.93,
+    "contrast": 0.907,
+    "corr": 0.861
+  },
+  "portrait/peyote/t24": {
+    "singles": 96,
+    "colors": 10,
+    "deltaE": 5.84,
+    "contrast": 0.906,
+    "corr": 0.895
+  },
+  "portrait/peyote/t24-catalog": {
+    "singles": 87,
+    "colors": 10,
+    "deltaE": 7.17,
+    "contrast": 0.804,
+    "corr": 0.88
+  },
+  "portrait/peyote/t24-dither": {
+    "singles": 134,
+    "colors": 10,
+    "deltaE": 7.23,
+    "contrast": 0.93,
+    "corr": 0.881
+  },
+  "portrait/peyote/t47-balanced": {
+    "singles": 8,
+    "colors": 10,
+    "deltaE": 7.69,
+    "contrast": 0.925,
+    "corr": 0.862
+  },
+  "portrait/peyote/t47-catalog": {
+    "singles": 7,
+    "colors": 10,
+    "deltaE": 7.92,
+    "contrast": 0.831,
+    "corr": 0.862
+  },
+  "portrait/peyote/t47-detailed": {
+    "singles": 12,
+    "colors": 10,
+    "deltaE": 7.1,
+    "contrast": 0.915,
+    "corr": 0.876
+  },
+  "portrait/peyote/t47-simpler": {
+    "singles": 10,
+    "colors": 10,
+    "deltaE": 7.4,
+    "contrast": 0.913,
+    "corr": 0.868
+  },
+  "portrait/peyote/t52-prefilter": {
+    "singles": 96,
+    "colors": 10,
+    "deltaE": 5.74,
+    "contrast": 0.902,
+    "corr": 0.898
+  },
+  "portrait/peyote/t53-catalog": {
+    "singles": 42,
+    "colors": 10,
+    "deltaE": 7.56,
+    "contrast": 0.821,
+    "corr": 0.87
+  },
+  "portrait/peyote/t53-pixels": {
+    "singles": 42,
+    "colors": 10,
+    "deltaE": 7.3,
+    "contrast": 0.914,
+    "corr": 0.874
+  },
+  "portrait/peyote/t54-faces": {
+    "singles": 15,
+    "colors": 10,
+    "deltaE": 8.02,
+    "contrast": 0.915,
+    "corr": 0.853
+  },
+  "portrait/peyote/t55-outline": {
+    "singles": 7,
+    "colors": 10,
+    "deltaE": 13.51,
+    "contrast": 1.04,
+    "corr": 0.728
+  },
+  "portrait/peyote/t55-remove": {
+    "singles": 5,
+    "colors": 9,
+    "deltaE": 7.73,
+    "contrast": 0.934,
+    "corr": 0.848
+  },
+  "portrait/peyote/t55-simplify": {
+    "singles": 7,
+    "colors": 10,
+    "deltaE": 11.3,
+    "contrast": 1.005,
+    "corr": 0.804
+  },
+  "portrait/peyote/t57-dither": {
+    "singles": 8,
+    "colors": 10,
+    "deltaE": 7.69,
+    "contrast": 0.925,
+    "corr": 0.862
+  },
+  "portrait/peyote/t57-dither-catalog": {
+    "singles": 7,
+    "colors": 10,
+    "deltaE": 7.92,
+    "contrast": 0.831,
+    "corr": 0.862
+  },
+  "portrait/peyote/t62-catalog-all": {
+    "singles": 7,
+    "colors": 10,
+    "deltaE": 7.87,
+    "contrast": 0.875,
+    "corr": 0.864
+  },
+  "portrait/peyote/t63-contrast": {
+    "singles": 12,
+    "colors": 10,
+    "deltaE": 7.8,
+    "contrast": 1.026,
+    "corr": 0.866
+  },
+  "portrait/peyote/t63-tones": {
+    "singles": 5,
+    "colors": 10,
+    "deltaE": 9.46,
+    "contrast": 1.114,
+    "corr": 0.855
+  },
+  "portrait/peyote/t64-detail": {
+    "singles": 18,
+    "colors": 10,
+    "deltaE": 8.15,
+    "contrast": 0.932,
+    "corr": 0.853
+  },
+  "portrait/peyote/v2-balanced": {
+    "singles": 19,
+    "colors": 10,
+    "deltaE": 8.77,
+    "contrast": 1.03,
+    "corr": 0.85
+  },
+  "portrait/peyote/v2-detailed": {
+    "singles": 28,
+    "colors": 10,
+    "deltaE": 9.12,
+    "contrast": 1.021,
+    "corr": 0.847
+  },
+  "portrait/peyote/v2-simpler": {
+    "singles": 15,
+    "colors": 10,
+    "deltaE": 8.17,
+    "contrast": 0.908,
+    "corr": 0.85
+  },
+  "portrait/stitch/t24": {
+    "singles": 321,
+    "colors": 16,
+    "deltaE": 4.32,
+    "contrast": 0.954,
+    "corr": 0.942
+  },
+  "portrait/stitch/t24-dither": {
+    "singles": 518,
+    "colors": 16,
+    "deltaE": 5.36,
+    "contrast": 0.963,
+    "corr": 0.93
+  },
+  "portrait/stitch/t47-balanced": {
+    "singles": 75,
+    "colors": 16,
+    "deltaE": 5.6,
+    "contrast": 0.966,
+    "corr": 0.926
+  },
+  "portrait/stitch/t47-detailed": {
+    "singles": 50,
+    "colors": 16,
+    "deltaE": 5.87,
+    "contrast": 0.958,
+    "corr": 0.925
+  },
+  "portrait/stitch/t47-simpler": {
+    "singles": 58,
+    "colors": 16,
+    "deltaE": 5.71,
+    "contrast": 0.952,
+    "corr": 0.924
+  },
+  "portrait/stitch/t52-prefilter": {
+    "singles": 314,
+    "colors": 16,
+    "deltaE": 4.4,
+    "contrast": 0.946,
+    "corr": 0.942
+  },
+  "portrait/stitch/t53-pixels": {
+    "singles": 233,
+    "colors": 16,
+    "deltaE": 5.2,
+    "contrast": 0.958,
+    "corr": 0.934
+  },
+  "portrait/stitch/t54-faces": {
+    "singles": 62,
+    "colors": 16,
+    "deltaE": 5.93,
+    "contrast": 0.96,
+    "corr": 0.923
+  },
+  "portrait/stitch/t55-remove": {
+    "singles": 37,
+    "colors": 15,
+    "deltaE": 5.69,
+    "contrast": 0.963,
+    "corr": 0.915
+  },
+  "portrait/stitch/t55-simplify": {
+    "singles": 48,
+    "colors": 16,
+    "deltaE": 9.45,
+    "contrast": 1.001,
+    "corr": 0.89
+  },
+  "portrait/stitch/t57-dither": {
+    "singles": 77,
+    "colors": 16,
+    "deltaE": 5.65,
+    "contrast": 0.965,
+    "corr": 0.925
+  },
+  "portrait/stitch/t63-contrast": {
+    "singles": 64,
+    "colors": 16,
+    "deltaE": 6.13,
+    "contrast": 1.04,
+    "corr": 0.917
+  },
+  "portrait/stitch/t63-tones": {
+    "singles": 75,
+    "colors": 16,
+    "deltaE": 5.6,
+    "contrast": 0.966,
+    "corr": 0.926
+  },
+  "portrait/stitch/t64-detail": {
+    "singles": 62,
+    "colors": 16,
+    "deltaE": 5.86,
+    "contrast": 0.976,
+    "corr": 0.921
+  },
+  "portrait/stitch/v2-balanced": {
+    "singles": 81,
+    "colors": 16,
+    "deltaE": 6.41,
+    "contrast": 1.04,
+    "corr": 0.914
+  },
+  "portrait/stitch/v2-detailed": {
+    "singles": 90,
+    "colors": 16,
+    "deltaE": 6.77,
+    "contrast": 1.05,
+    "corr": 0.908
+  },
+  "portrait/stitch/v2-simpler": {
+    "singles": 51,
+    "colors": 16,
+    "deltaE": 6.25,
+    "contrast": 0.947,
+    "corr": 0.917
+  },
+  "rocket/loom/t24": {
+    "singles": 21,
+    "colors": 10,
+    "deltaE": 3.2,
+    "contrast": 0.884,
+    "corr": 0.88
+  },
+  "rocket/loom/t24-catalog": {
+    "singles": 21,
+    "colors": 10,
+    "deltaE": 4.74,
+    "contrast": 0.796,
+    "corr": 0.846
+  },
+  "rocket/loom/t24-dither": {
+    "singles": 110,
+    "colors": 10,
+    "deltaE": 3.75,
+    "contrast": 0.915,
+    "corr": 0.861
+  },
+  "rocket/loom/t47-balanced": {
+    "singles": 7,
+    "colors": 10,
+    "deltaE": 4.0,
+    "contrast": 0.887,
+    "corr": 0.852
+  },
+  "rocket/loom/t47-catalog": {
+    "singles": 9,
+    "colors": 10,
+    "deltaE": 4.81,
+    "contrast": 0.788,
+    "corr": 0.835
+  },
+  "rocket/loom/t47-detailed": {
+    "singles": 11,
+    "colors": 10,
+    "deltaE": 4.0,
+    "contrast": 0.901,
+    "corr": 0.853
+  },
+  "rocket/loom/t47-simpler": {
+    "singles": 9,
+    "colors": 9,
+    "deltaE": 4.27,
+    "contrast": 0.895,
+    "corr": 0.831
+  },
+  "rocket/loom/t52-prefilter": {
+    "singles": 22,
+    "colors": 10,
+    "deltaE": 3.3,
+    "contrast": 0.872,
+    "corr": 0.877
+  },
+  "rocket/loom/t53-catalog": {
+    "singles": 23,
+    "colors": 10,
+    "deltaE": 4.71,
+    "contrast": 0.8,
+    "corr": 0.842
+  },
+  "rocket/loom/t53-pixels": {
+    "singles": 14,
+    "colors": 10,
+    "deltaE": 3.92,
+    "contrast": 0.887,
+    "corr": 0.856
+  },
+  "rocket/loom/t54-faces": {
+    "singles": 7,
+    "colors": 10,
+    "deltaE": 4.0,
+    "contrast": 0.887,
+    "corr": 0.852
+  },
+  "rocket/loom/t55-outline": {
+    "singles": 10,
+    "colors": 7,
+    "deltaE": 5.73,
+    "contrast": 0.827,
+    "corr": 0.685
+  },
+  "rocket/loom/t55-remove": {
+    "singles": 6,
+    "colors": 7,
+    "deltaE": 3.09,
+    "contrast": 0.982,
+    "corr": 0.843
+  },
+  "rocket/loom/t55-simplify": {
+    "singles": 1,
+    "colors": 7,
+    "deltaE": 5.09,
+    "contrast": 0.824,
+    "corr": 0.757
+  },
+  "rocket/loom/t57-dither": {
+    "singles": 8,
+    "colors": 10,
+    "deltaE": 4.23,
+    "contrast": 0.889,
+    "corr": 0.84
+  },
+  "rocket/loom/t57-dither-catalog": {
+    "singles": 10,
+    "colors": 10,
+    "deltaE": 5.01,
+    "contrast": 0.798,
+    "corr": 0.831
+  },
+  "rocket/loom/t62-catalog-all": {
+    "singles": 10,
+    "colors": 10,
+    "deltaE": 4.79,
+    "contrast": 0.78,
+    "corr": 0.839
+  },
+  "rocket/loom/t63-contrast": {
+    "singles": 4,
+    "colors": 9,
+    "deltaE": 4.22,
+    "contrast": 1.036,
+    "corr": 0.839
+  },
+  "rocket/loom/t63-tones": {
+    "singles": 7,
+    "colors": 10,
+    "deltaE": 4.09,
+    "contrast": 0.951,
+    "corr": 0.851
+  },
+  "rocket/loom/t64-detail": {
+    "singles": 14,
+    "colors": 10,
+    "deltaE": 4.17,
+    "contrast": 0.926,
+    "corr": 0.845
+  },
+  "rocket/loom/v2-balanced": {
+    "singles": 6,
+    "colors": 9,
+    "deltaE": 4.21,
+    "contrast": 1.027,
+    "corr": 0.834
+  },
+  "rocket/loom/v2-detailed": {
+    "singles": 10,
+    "colors": 10,
+    "deltaE": 4.43,
+    "contrast": 1.138,
+    "corr": 0.832
+  },
+  "rocket/loom/v2-simpler": {
+    "singles": 9,
+    "colors": 9,
+    "deltaE": 4.27,
+    "contrast": 0.895,
+    "corr": 0.831
+  },
+  "rocket/peyote/t24": {
+    "singles": 23,
+    "colors": 10,
+    "deltaE": 3.2,
+    "contrast": 0.88,
+    "corr": 0.88
+  },
+  "rocket/peyote/t24-catalog": {
+    "singles": 37,
+    "colors": 10,
+    "deltaE": 4.56,
+    "contrast": 0.796,
+    "corr": 0.827
+  },
+  "rocket/peyote/t24-dither": {
+    "singles": 64,
+    "colors": 10,
+    "deltaE": 3.69,
+    "contrast": 0.904,
+    "corr": 0.864
+  },
+  "rocket/peyote/t47-balanced": {
+    "singles": 5,
+    "colors": 9,
+    "deltaE": 3.94,
+    "contrast": 0.925,
+    "corr": 0.845
+  },
+  "rocket/peyote/t47-catalog": {
+    "singles": 6,
+    "colors": 10,
+    "deltaE": 4.83,
+    "contrast": 0.846,
+    "corr": 0.816
+  },
+  "rocket/peyote/t47-detailed": {
+    "singles": 5,
+    "colors": 9,
+    "deltaE": 4.11,
+    "contrast": 0.871,
+    "corr": 0.829
+  },
+  "rocket/peyote/t47-simpler": {
+    "singles": 4,
+    "colors": 9,
+    "deltaE": 3.96,
+    "contrast": 0.861,
+    "corr": 0.838
+  },
+  "rocket/peyote/t52-prefilter": {
+    "singles": 16,
+    "colors": 10,
+    "deltaE": 3.12,
+    "contrast": 0.88,
+    "corr": 0.877
+  },
+  "rocket/peyote/t53-catalog": {
+    "singles": 19,
+    "colors": 10,
+    "deltaE": 4.72,
+    "contrast": 0.849,
+    "corr": 0.825
+  },
+  "rocket/peyote/t53-pixels": {
+    "singles": 19,
+    "colors": 9,
+    "deltaE": 3.84,
+    "contrast": 0.921,
+    "corr": 0.851
+  },
+  "rocket/peyote/t54-faces": {
+    "singles": 5,
+    "colors": 9,
+    "deltaE": 3.94,
+    "contrast": 0.925,
+    "corr": 0.845
+  },
+  "rocket/peyote/t55-outline": {
+    "singles": 3,
+    "colors": 8,
+    "deltaE": 5.77,
+    "contrast": 0.786,
+    "corr": 0.643
+  },
+  "rocket/peyote/t55-remove": {
+    "singles": 1,
+    "colors": 8,
+    "deltaE": 3.02,
+    "contrast": 0.972,
+    "corr": 0.847
+  },
+  "rocket/peyote/t55-simplify": {
+    "singles": 1,
+    "colors": 9,
+    "deltaE": 5.0,
+    "contrast": 0.796,
+    "corr": 0.74
+  },
+  "rocket/peyote/t57-dither": {
+    "singles": 5,
+    "colors": 9,
+    "deltaE": 4.16,
+    "contrast": 0.93,
+    "corr": 0.835
+  },
+  "rocket/peyote/t57-dither-catalog": {
+    "singles": 6,
+    "colors": 10,
+    "deltaE": 5.04,
+    "contrast": 0.86,
+    "corr": 0.808
+  },
+  "rocket/peyote/t62-catalog-all": {
+    "singles": 7,
+    "colors": 10,
+    "deltaE": 4.87,
+    "contrast": 0.793,
+    "corr": 0.818
+  },
+  "rocket/peyote/t63-contrast": {
+    "singles": 8,
+    "colors": 10,
+    "deltaE": 4.18,
+    "contrast": 1.013,
+    "corr": 0.837
+  },
+  "rocket/peyote/t63-tones": {
+    "singles": 5,
+    "colors": 9,
+    "deltaE": 4.23,
+    "contrast": 0.967,
+    "corr": 0.834
+  },
+  "rocket/peyote/t64-detail": {
+    "singles": 11,
+    "colors": 9,
+    "deltaE": 4.06,
+    "contrast": 0.982,
+    "corr": 0.845
+  },
+  "rocket/peyote/v2-balanced": {
+    "singles": 11,
+    "colors": 10,
+    "deltaE": 4.21,
+    "contrast": 1.037,
+    "corr": 0.832
+  },
+  "rocket/peyote/v2-detailed": {
+    "singles": 12,
+    "colors": 10,
+    "deltaE": 4.43,
+    "contrast": 1.122,
+    "corr": 0.824
+  },
+  "rocket/peyote/v2-simpler": {
+    "singles": 4,
+    "colors": 9,
+    "deltaE": 3.96,
+    "contrast": 0.861,
+    "corr": 0.838
+  },
+  "rocket/stitch/t24": {
+    "singles": 76,
+    "colors": 16,
+    "deltaE": 2.59,
+    "contrast": 0.924,
+    "corr": 0.924
+  },
+  "rocket/stitch/t24-dither": {
+    "singles": 328,
+    "colors": 16,
+    "deltaE": 3.13,
+    "contrast": 0.969,
+    "corr": 0.903
+  },
+  "rocket/stitch/t47-balanced": {
+    "singles": 9,
+    "colors": 13,
+    "deltaE": 3.32,
+    "contrast": 0.906,
+    "corr": 0.901
+  },
+  "rocket/stitch/t47-detailed": {
+    "singles": 16,
+    "colors": 14,
+    "deltaE": 3.27,
+    "contrast": 0.908,
+    "corr": 0.903
+  },
+  "rocket/stitch/t47-simpler": {
+    "singles": 9,
+    "colors": 14,
+    "deltaE": 3.24,
+    "contrast": 0.907,
+    "corr": 0.907
+  },
+  "rocket/stitch/t52-prefilter": {
+    "singles": 55,
+    "colors": 16,
+    "deltaE": 2.65,
+    "contrast": 0.923,
+    "corr": 0.92
+  },
+  "rocket/stitch/t53-pixels": {
+    "singles": 40,
+    "colors": 13,
+    "deltaE": 3.25,
+    "contrast": 0.907,
+    "corr": 0.904
+  },
+  "rocket/stitch/t54-faces": {
+    "singles": 9,
+    "colors": 13,
+    "deltaE": 3.32,
+    "contrast": 0.906,
+    "corr": 0.901
+  },
+  "rocket/stitch/t55-remove": {
+    "singles": 5,
+    "colors": 12,
+    "deltaE": 2.42,
+    "contrast": 0.951,
+    "corr": 0.922
+  },
+  "rocket/stitch/t55-simplify": {
+    "singles": 8,
+    "colors": 12,
+    "deltaE": 4.62,
+    "contrast": 0.819,
+    "corr": 0.81
+  },
+  "rocket/stitch/t57-dither": {
+    "singles": 10,
+    "colors": 13,
+    "deltaE": 3.47,
+    "contrast": 0.912,
+    "corr": 0.896
+  },
+  "rocket/stitch/t63-contrast": {
+    "singles": 9,
+    "colors": 13,
+    "deltaE": 3.44,
+    "contrast": 1.016,
+    "corr": 0.893
+  },
+  "rocket/stitch/t63-tones": {
+    "singles": 9,
+    "colors": 13,
+    "deltaE": 3.32,
+    "contrast": 0.906,
+    "corr": 0.901
+  },
+  "rocket/stitch/t64-detail": {
+    "singles": 19,
+    "colors": 13,
+    "deltaE": 3.5,
+    "contrast": 0.944,
+    "corr": 0.89
+  },
+  "rocket/stitch/v2-balanced": {
+    "singles": 10,
+    "colors": 14,
+    "deltaE": 3.27,
+    "contrast": 1.023,
+    "corr": 0.9
+  },
+  "rocket/stitch/v2-detailed": {
+    "singles": 34,
+    "colors": 16,
+    "deltaE": 3.51,
+    "contrast": 1.049,
+    "corr": 0.888
+  },
+  "rocket/stitch/v2-simpler": {
+    "singles": 9,
+    "colors": 14,
+    "deltaE": 3.24,
+    "contrast": 0.907,
+    "corr": 0.907
+  }
+}

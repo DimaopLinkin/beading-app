@@ -1,12 +1,16 @@
 import 'dart:async';
 
+import 'package:beading/domain/image_pattern/book_work/page_markup.dart';
 import 'package:beading/domain/image_pattern/book_work/page_viewport.dart';
+import 'package:beading/domain/image_pattern/book_work/pattern_zone.dart';
 import 'package:beading/domain/image_pattern/book_work/ruler_state.dart';
 import 'package:beading/domain/image_pattern/file_store.dart';
 import 'package:beading/presentation/book_work/book_work_cubit.dart';
 import 'package:beading/presentation/book_work/book_work_overlays.dart';
 import 'package:beading/presentation/book_work/book_work_sheets.dart';
 import 'package:beading/presentation/book_work/book_work_state.dart';
+import 'package:beading/presentation/book_work/marker_panel.dart';
+import 'package:beading/presentation/book_work/markup_painter.dart';
 import 'package:beading/presentation/book_work/page_canvas.dart';
 import 'package:beading/presentation/l10n/app_localizations.dart';
 import 'package:beading/presentation/theme/app_icons.dart';
@@ -14,6 +18,7 @@ import 'package:beading/presentation/theme/tokens.dart';
 import 'package:beading/presentation/widgets/glass/glass_bar.dart';
 import 'package:beading/presentation/widgets/glass/glass_panel.dart';
 import 'package:beading/presentation/widgets/glass/glass_surface.dart';
+import 'package:beading/presentation/widgets/measured_size.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -81,7 +86,11 @@ const double _collapsedPanelHeight = 72;
 /// Запас над и под областью страницы для уха и ручки линейки: на первом и последнем ряду им нужно место вне полосы.
 const double _markRoom = rulerMarkSize + 6;
 
-double _panelHeight(BookWorkState state) => state.panelCollapsed ? _collapsedPanelHeight : _bottomPanelHeight;
+double _panelHeight(BookWorkState state) => state.markerEditing
+    ? markerPanelHeight
+    : state.panelCollapsed
+    ? _collapsedPanelHeight
+    : _bottomPanelHeight;
 
 class _Workspace extends StatefulWidget {
   const _Workspace({required this.files});
@@ -93,10 +102,19 @@ class _Workspace extends StatefulWidget {
 }
 
 class _WorkspaceState extends State<_Workspace> {
+  /// Фактическая высота нижней панели вместе с нижним отступом; до первой раскладки берётся оценка.
+  double? _measuredPanel;
+
+  double _panelOf(BookWorkState state) =>
+      _measuredPanel == null ? _panelHeight(state) : _measuredPanel! - MediaQuery.paddingOf(context).bottom;
   final TransformationController _controller = TransformationController();
   String? _shownPageId;
   Size? _shownSize;
   Timer? _settle;
+  final ValueNotifier<LiveStroke?> _live = ValueNotifier<LiveStroke?>(null);
+  final Set<int> _pointers = <int>{};
+  List<double> _strokePoints = <double>[];
+  int? _drawingPointer;
 
   @override
   void initState() {
@@ -118,7 +136,82 @@ class _WorkspaceState extends State<_Workspace> {
   void dispose() {
     _settle?.cancel();
     _controller.dispose();
+    _live.dispose();
     super.dispose();
+  }
+
+  /// Точка экрана в долях ширины страницы.
+  Offset _fraction(Offset local, double width) {
+    final Offset scene = _controller.toScene(local);
+    return Offset(scene.dx / width, scene.dy / width);
+  }
+
+  void _pointerDown(PointerDownEvent event, BookWorkState state, double width) {
+    _pointers.add(event.pointer);
+    if (!state.markerEditing) {
+      return;
+    }
+    if (_pointers.length == 2) {
+      setState(() {});
+    }
+    if (_pointers.length > 1) {
+      // Второй палец: это жест страницы, начатый мазок отбрасываем.
+      _drawingPointer = null;
+      _strokePoints = <double>[];
+      _live.value = null;
+      return;
+    }
+    final BookWorkCubit cubit = context.read<BookWorkCubit>();
+    final Offset f = _fraction(event.localPosition, width);
+    _drawingPointer = event.pointer;
+    _strokePoints = <double>[f.dx, f.dy];
+    if (state.markerEraser) {
+      cubit
+        ..beginErase()
+        ..eraseAlong(_strokePoints);
+    } else {
+      _live.value = LiveStroke(
+        rgb: MarkerPalette.colors[state.markerColor],
+        width: MarkerPalette.widths[state.markerWidth],
+        points: List<double>.of(_strokePoints),
+      );
+    }
+  }
+
+  void _pointerMove(PointerMoveEvent event, BookWorkState state, double width) {
+    if (_drawingPointer != event.pointer || !state.markerEditing) {
+      return;
+    }
+    final Offset f = _fraction(event.localPosition, width);
+    if (state.markerEraser) {
+      context.read<BookWorkCubit>().eraseAlong(<double>[f.dx, f.dy]);
+      return;
+    }
+    _strokePoints = <double>[..._strokePoints, f.dx, f.dy];
+    _live.value = LiveStroke(
+      rgb: MarkerPalette.colors[state.markerColor],
+      width: MarkerPalette.widths[state.markerWidth],
+      points: _strokePoints,
+    );
+  }
+
+  void _pointerUp(PointerEvent event, BookWorkState state, {required bool commit}) {
+    _pointers.remove(event.pointer);
+    if (state.markerEditing && _pointers.length == 1) {
+      setState(() {});
+    }
+    if (_drawingPointer != event.pointer) {
+      return;
+    }
+    _drawingPointer = null;
+    final BookWorkCubit cubit = context.read<BookWorkCubit>();
+    if (state.markerEraser) {
+      cubit.endErase();
+    } else if (commit) {
+      cubit.addStroke(_strokePoints);
+    }
+    _strokePoints = <double>[];
+    _live.value = null;
   }
 
   PageViewport get _viewportNow {
@@ -144,7 +237,7 @@ class _WorkspaceState extends State<_Workspace> {
       viewHeight: view.height,
       contentHeight: state.page.height * k,
       topInset: safe.top + _topBarHeight + _markRoom,
-      bottomInset: safe.bottom + _panelHeight(state) + _markRoom,
+      bottomInset: safe.bottom + _panelOf(state) + _markRoom,
     );
   }
 
@@ -242,25 +335,40 @@ class _WorkspaceState extends State<_Workspace> {
                   return Stack(
                     children: <Widget>[
                       Positioned.fill(
-                        child: InteractiveViewer(
-                          transformationController: _controller,
-                          constrained: false,
-                          alignment: Alignment.topLeft,
-                          minScale: 1,
-                          maxScale: BookWorkScreen.maxZoom,
-                          boundaryMargin: EdgeInsets.fromLTRB(
-                            0,
-                            safe.top + _topBarHeight + _markRoom,
-                            0,
-                            safe.bottom + _panelHeight(state) + _markRoom,
-                          ),
-                          onInteractionEnd: (_) => cubit.setViewport(_viewportNow),
-                          child: PageCanvas(
-                            key: ValueKey<String>('canvas-${state.page.id}'),
-                            files: widget.files,
-                            page: state.page,
-                            ruler: state.work.ruler,
-                            width: view.width,
+                        child: Listener(
+                          behavior: HitTestBehavior.translucent,
+                          onPointerDown: (e) => _pointerDown(e, state, view.width),
+                          onPointerMove: (e) => _pointerMove(e, state, view.width),
+                          onPointerUp: (e) => _pointerUp(e, state, commit: true),
+                          onPointerCancel: (e) => _pointerUp(e, state, commit: false),
+                          child: InteractiveViewer(
+                            // В режиме маркера один палец рисует, а страницу двигают двумя.
+                            panEnabled: !state.markerEditing || _pointers.length > 1,
+                            scaleEnabled: !state.markerEditing || _pointers.length > 1,
+                            transformationController: _controller,
+                            constrained: false,
+                            alignment: Alignment.topLeft,
+                            minScale: 1,
+                            maxScale: BookWorkScreen.maxZoom,
+                            boundaryMargin: EdgeInsets.fromLTRB(
+                              0,
+                              safe.top + _topBarHeight + _markRoom,
+                              0,
+                              safe.bottom + _panelOf(state) + _markRoom,
+                            ),
+                            onInteractionEnd: (_) => cubit.setViewport(_viewportNow),
+                            child: PageCanvas(
+                              key: ValueKey<String>('canvas-${state.page.id}'),
+                              files: widget.files,
+                              page: state.page,
+                              ruler: state.work.ruler,
+                              width: view.width,
+                              showZoneFrame: state.zoneEditing,
+                              markup: state.work.markup,
+                              showMarkup: state.showMarkup,
+                              markerEditing: state.markerEditing,
+                              liveStroke: _live,
+                            ),
                           ),
                         ),
                       ),
@@ -270,13 +378,35 @@ class _WorkspaceState extends State<_Workspace> {
                           final PageViewport now = _viewportNow;
                           final double k = view.width / state.page.width;
                           final RulerState ruler = state.work.ruler;
+                          final double minY = safe.top + _topBarHeight;
+                          final double maxY = view.height - safe.bottom - _panelOf(state);
+                          final double pagePerScreen = 1 / (k * now.scale);
+                          final PatternZone? zone = ruler.zone;
+                          if (state.markerEditing) {
+                            // Размер Stack задаёт этот неразмещённый потомок: пустой, но на весь экран.
+                            return const SizedBox.expand();
+                          }
+                          if (state.zoneEditing && zone != null) {
+                            return ZoneHandles(
+                              zone: zone,
+                              left: zone.left * k * now.scale + now.dx,
+                              right: zone.right * k * now.scale + now.dx,
+                              top: zone.top * k * now.scale + now.dy,
+                              bottom: zone.bottom * k * now.scale + now.dy,
+                              pagePerScreen: pagePerScreen,
+                              width: view.width,
+                              minY: minY,
+                              maxY: maxY,
+                              cubit: cubit,
+                            );
+                          }
                           return RulerMarks(
                             ruler: ruler,
                             rulerTop: ruler.top * k * now.scale + now.dy,
                             rulerBottom: ruler.bottom * k * now.scale + now.dy,
-                            pagePerScreen: 1 / (k * now.scale),
-                            minY: safe.top + _topBarHeight,
-                            maxY: view.height - safe.bottom - _panelHeight(state),
+                            pagePerScreen: pagePerScreen,
+                            minY: minY,
+                            maxY: maxY,
                             cubit: cubit,
                           );
                         },
@@ -304,7 +434,7 @@ class _WorkspaceState extends State<_Workspace> {
                       Positioned(
                         left: 0,
                         right: 0,
-                        bottom: safe.bottom + _panelHeight(state) + context.tokens.spacing.s,
+                        bottom: safe.bottom + _panelOf(state) + context.tokens.spacing.s,
                         child: _PanelFrame(
                           child: Center(
                             heightFactor: 1,
@@ -332,7 +462,20 @@ class _WorkspaceState extends State<_Workspace> {
                         left: 0,
                         right: 0,
                         bottom: 0,
-                        child: _PanelFrame(child: _BottomPanel(state: state)),
+                        child: MeasuredHeight(
+                          onChange: (height) {
+                            if (mounted && _measuredPanel != height) {
+                              setState(() => _measuredPanel = height);
+                            }
+                          },
+                          child: _PanelFrame(
+                            child: state.zoneEditing
+                                ? const _ZoneEditPanel()
+                                : state.markerEditing
+                                ? MarkerPanel(state: state)
+                                : _BottomPanel(state: state),
+                          ),
+                        ),
                       ),
                     ],
                   );
@@ -513,6 +656,18 @@ class _BottomPanel extends StatelessWidget {
                           onPressed: () => showRulerSettingsSheet(context, cubit),
                         ),
                         _IconAction(
+                          key: const ValueKey<String>('edit-zone'),
+                          icon: AppIcons.zoneFrame,
+                          label: l10n.bookWorkZoneTitle,
+                          onPressed: cubit.startZoneEditing,
+                        ),
+                        _IconAction(
+                          key: const ValueKey<String>('start-marker'),
+                          icon: AppIcons.marker,
+                          label: l10n.bookWorkMarker,
+                          onPressed: cubit.startMarker,
+                        ),
+                        _IconAction(
                           icon: AppIcons.notes,
                           label: l10n.bookWorkNotes,
                           onPressed: () => showNotesSheet(context, cubit),
@@ -541,6 +696,58 @@ class _BottomPanel extends StatelessWidget {
                     ),
                   ],
                 ),
+        ),
+      ),
+    );
+  }
+}
+
+/// Нижняя панель, пока выбирают границы схемы: подсказка, «Вся страница» и «Готово».
+class _ZoneEditPanel extends StatelessWidget {
+  const _ZoneEditPanel();
+
+  @override
+  Widget build(BuildContext context) {
+    final AppLocalizations l10n = AppLocalizations.of(context);
+    final AppTokensData tokens = context.tokens;
+    final BookWorkCubit cubit = context.read<BookWorkCubit>();
+    return SafeArea(
+      top: false,
+      child: Padding(
+        padding: EdgeInsets.all(tokens.spacing.s),
+        child: GlassPanel(
+          key: const ValueKey<String>('zone-edit-panel'),
+          density: GlassDensity.dense,
+          padding: EdgeInsets.all(tokens.spacing.s),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: <Widget>[
+              Text(l10n.bookWorkZoneHint, textAlign: TextAlign.center),
+              SizedBox(height: tokens.spacing.s),
+              Row(
+                children: <Widget>[
+                  Expanded(
+                    child: CupertinoButton.tinted(
+                      key: const ValueKey<String>('zone-reset'),
+                      minimumSize: Size.fromHeight(tokens.minTapTarget),
+                      onPressed: cubit.resetZone,
+                      child: Text(l10n.bookWorkZoneReset),
+                    ),
+                  ),
+                  SizedBox(width: tokens.spacing.s),
+                  Expanded(
+                    child: CupertinoButton.filled(
+                      key: const ValueKey<String>('zone-done'),
+                      minimumSize: Size.fromHeight(tokens.minTapTarget),
+                      onPressed: cubit.finishZoneEditing,
+                      child: Text(l10n.bookWorkDone),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
         ),
       ),
     );

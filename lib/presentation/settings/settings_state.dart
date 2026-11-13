@@ -8,6 +8,7 @@ final class SettingsState extends Equatable {
     this.keepScreenAwake = true,
     this.symbolMode = false,
     this.defaultBeadBrand = 'Miyuki',
+    this.defaultFlossBrand = 'Гамма',
     this.userName = 'Настя',
     this.specialDates = const <SpecialDate>[],
     this.loaded = false,
@@ -19,6 +20,7 @@ final class SettingsState extends Equatable {
     keepScreenAwake: SettingKeys.keepScreenAwake.defaultValue,
     symbolMode: SettingKeys.symbolMode.defaultValue,
     defaultBeadBrand: SettingKeys.defaultBeadBrand.defaultValue,
+    defaultFlossBrand: SettingKeys.defaultFlossBrand.defaultValue,
     userName: SettingKeys.userName.defaultValue,
     specialDates: SettingKeys.specialDates.defaultValue,
   );
@@ -26,6 +28,7 @@ final class SettingsState extends Equatable {
   final bool keepScreenAwake;
   final bool symbolMode;
   final String defaultBeadBrand;
+  final String defaultFlossBrand;
   final String userName;
   final List<SpecialDate> specialDates;
   final bool loaded;
@@ -37,6 +40,7 @@ final class SettingsState extends Equatable {
     bool? keepScreenAwake,
     bool? symbolMode,
     String? defaultBeadBrand,
+    String? defaultFlossBrand,
     String? userName,
     List<SpecialDate>? specialDates,
     bool? loaded,
@@ -45,6 +49,7 @@ final class SettingsState extends Equatable {
     keepScreenAwake: keepScreenAwake ?? this.keepScreenAwake,
     symbolMode: symbolMode ?? this.symbolMode,
     defaultBeadBrand: defaultBeadBrand ?? this.defaultBeadBrand,
+    defaultFlossBrand: defaultFlossBrand ?? this.defaultFlossBrand,
     userName: userName ?? this.userName,
     specialDates: specialDates ?? this.specialDates,
     loaded: loaded ?? this.loaded,
@@ -56,6 +61,7 @@ final class SettingsState extends Equatable {
     keepScreenAwake,
     symbolMode,
     defaultBeadBrand,
+    defaultFlossBrand,
     userName,
     specialDates,
     loaded,

@@ -15,7 +15,7 @@ docs/design/
 
 1. Дмитрий пишет Claude Design: **«Возьми следующий промпт из docs/design/CLAUDE_DESIGN.md»**.
 2. Claude Design берёт файл очереди, делает HTML и кладёт в `inbox/` (сам коммитом в ветку `design/<id>` + PR в `dev`, либо Дмитрий кладёт файл руками, если у Claude Design доступ только на чтение).
-3. Тред проекта находит новое: `scripts/design_review.sh`. Ревьюит по чек-листу из [design-prompts.md](../design-prompts.md#3-проверка-макетов-на-соответствие-liquid-glass), пишет замечания в `review-log.md`.
+3. Тред проекта находит новое: `scripts/internal/team/design_review.sh`. Ревьюит по чек-листу из [design-prompts.md](../design-prompts.md#3-проверка-макетов-на-соответствие-liquid-glass), пишет замечания в `review-log.md`.
 4. Замечания есть: `status: rework`, Дмитрий говорит Claude Design ту же фразу, тот делает `v2`. Замечаний нет: файл копируется в `accepted/<имя>.html`, `status: accepted`, токены и компоненты уходят в задачу T01b и экранные задачи.
 
 Изменения в `docs/design/` попадают в `dev` только через PR. Ветка `design/*` вливается через PR, тред мержит его после ревью.

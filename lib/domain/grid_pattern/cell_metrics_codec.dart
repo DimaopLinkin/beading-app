@@ -4,6 +4,8 @@ import 'package:beading/core/failure.dart';
 import 'package:beading/core/result.dart';
 import 'package:beading/domain/grid/bead_size.dart';
 import 'package:beading/domain/grid/cell_metrics.dart';
+import 'package:beading/domain/grid/fabric.dart';
+import 'package:beading/domain/palette/rgb.dart';
 import 'package:equatable/equatable.dart';
 
 /// Произвольный размер ячейки, заданный в миллиметрах (когда нет ни бусины из списка, ни канвы).
@@ -22,11 +24,12 @@ final class CustomCellMetrics extends Equatable implements CellMetrics {
 
 /// Запись размера ячейки в одну строку: JSON `{"kind": …, …параметры}`.
 ///
-/// Виды: `bead` (`shape`, `size` — размер из [BeadSize.values]) и `custom` (`widthMm`, `heightMm`).
-/// Канву для вышивки (`fabric`, T36) добавит своя задача новым видом; формат уже расширяем. Имена видов менять нельзя.
+/// Виды: `bead` (`shape`, `size` — размер из [BeadSize.values]), `custom` (`widthMm`, `heightMm`) и `fabric` (канва для
+/// вышивки: `fabric` — вид, `count`, `over`, `color`). Имена видов менять нельзя.
 abstract final class CellMetricsCodec {
   static const String bead = 'bead';
   static const String custom = 'custom';
+  static const String fabric = 'fabric';
 
   static Result<String> encode(CellMetrics metrics) {
     switch (metrics) {
@@ -34,6 +37,16 @@ abstract final class CellMetricsCodec {
         return Success<String>(jsonEncode(<String, Object?>{'kind': bead, 'shape': shape.name, 'size': sizeCode}));
       case CustomCellMetrics(:final double widthMm, :final double heightMm):
         return Success<String>(jsonEncode(<String, Object?>{'kind': custom, 'widthMm': widthMm, 'heightMm': heightMm}));
+      case Fabric(:final FabricKind kind, :final int count, :final int overCount, :final Rgb color):
+        return Success<String>(
+          jsonEncode(<String, Object?>{
+            'kind': fabric,
+            'fabric': kind.name,
+            'count': count,
+            'over': overCount,
+            'color': color.hex,
+          }),
+        );
       default:
         return Err<String>(ValidationFailure('Нельзя сохранить размер ячейки ${metrics.runtimeType}'));
     }
@@ -64,8 +77,33 @@ abstract final class CellMetricsCodec {
           return Success<CellMetrics>(CustomCellMetrics(widthMm: width.toDouble(), heightMm: height.toDouble()));
         }
         return const Err<CellMetrics>(ValidationFailure('Размеры ячейки должны быть положительными'));
+      case fabric:
+        return _decodeFabric(parsed);
       default:
         return Err<CellMetrics>(ValidationFailure('Неизвестный вид размера ячейки: ${parsed['kind']}'));
     }
+  }
+
+  static Result<CellMetrics> _decodeFabric(Map<String, Object?> parsed) {
+    const Err<CellMetrics> broken = Err<CellMetrics>(ValidationFailure('Канва записана неверно'));
+    FabricKind? kind;
+    for (final FabricKind candidate in FabricKind.values) {
+      if (candidate.name == parsed['fabric']) {
+        kind = candidate;
+      }
+    }
+    final Object? count = parsed['count'];
+    final Object? over = parsed['over'];
+    final Object? color = parsed['color'];
+    if (kind == null || count is! int || over is! int || color is! String) {
+      return broken;
+    }
+    final Rgb rgb;
+    try {
+      rgb = Rgb.fromHex(color);
+    } on FormatException {
+      return broken;
+    }
+    return Fabric.create(kind: kind, count: count, overCount: over, color: rgb);
   }
 }

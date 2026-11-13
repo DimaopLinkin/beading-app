@@ -18,12 +18,14 @@ Future<Widget> bootstrapWithFakes(
   WidgetTester tester, {
   FakeOrientationLock? orientation,
   FakeDesktopWindow? window,
+  ReduceTransparencySource? reduceTransparency,
 }) async => (await tester.runAsync(
   () => bootstrap(
     database: createInMemoryDatabase(),
     orientationLock: orientation ?? FakeOrientationLock(),
     desktopWindow: window ?? FakeDesktopWindow(),
     wakelockController: fakeWakelockController(),
+    reduceTransparencySource: reduceTransparency,
   ),
 ))!;
 
@@ -36,7 +38,7 @@ Future<void> settle(WidgetTester tester) async {
 void main() {
   setUp(() async {
     PackageInfo.setMockInitialValues(
-      appName: 'Бисер',
+      appName: 'Канитель',
       packageName: 'app.beading',
       version: '0.1.0',
       buildNumber: '1',
@@ -112,7 +114,7 @@ void main() {
     await tester.dragUntilVisible(find.text('О приложении'), find.byType(ListView), const Offset(0, -200));
     await tester.tap(find.text('О приложении'));
     await tester.pumpAndSettle();
-    expect(find.text('Каждая бусинка на своём месте. Плети с удовольствием!'), findsOneWidget);
+    expect(find.text('Каждая бусина и каждый крестик на своём месте.'), findsOneWidget);
     await unmountApp(tester);
   });
 
@@ -130,10 +132,10 @@ void main() {
   });
 
   testWidgets('«Уменьшить прозрачность» из системы доходит до стекла', (tester) async {
-    final Widget app = await bootstrapWithFakes(tester);
-    getIt
-      ..unregister<ReduceTransparencySource>()
-      ..registerSingleton<ReduceTransparencySource>(FakeReduceTransparencySource(initial: true));
+    final Widget app = await bootstrapWithFakes(
+      tester,
+      reduceTransparency: FakeReduceTransparencySource(initial: true),
+    );
 
     await tester.pumpWidget(app);
     await tester.pumpAndSettle();
@@ -150,6 +152,8 @@ void main() {
     await tester.pumpAndSettle();
 
     await tester.dragUntilVisible(find.text('Проверка стекла'), find.byType(ListView), const Offset(0, -200));
+    await tester.drag(find.byType(ListView), const Offset(0, -300));
+    await tester.pumpAndSettle();
     await tester.tap(find.text('Проверка стекла'));
     await tester.pump();
     await tester.pump(const Duration(seconds: 1));

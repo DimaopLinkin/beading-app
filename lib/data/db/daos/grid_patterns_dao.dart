@@ -4,7 +4,7 @@ import 'package:drift/drift.dart';
 
 part 'grid_patterns_dao.g.dart';
 
-@DriftAccessor(tables: <Type>[GridPatterns, PatternColors, GridProgressRows])
+@DriftAccessor(tables: <Type>[GridPatterns, PatternColors, GridProgressRows, GridProgressCells])
 class GridPatternsDao extends DatabaseAccessor<AppDatabase> with _$GridPatternsDaoMixin {
   GridPatternsDao(super.attachedDatabase);
 
@@ -20,9 +20,15 @@ class GridPatternsDao extends DatabaseAccessor<AppDatabase> with _$GridPatternsD
   Future<GridPatternRow?> find(String id) => (select(gridPatterns)..where((t) => t.id.equals(id))).getSingleOrNull();
 
   /// Размеры живой схемы проекта без чтения BLOB.
-  Future<({String id, int width, int height})?> summaryByProject(String projectId) async {
+  Future<({String id, int width, int height, String geometry, int drop})?> summaryByProject(String projectId) async {
     final JoinedSelectStatement<GridPatterns, GridPatternRow> query = selectOnly(gridPatterns)
-      ..addColumns(<Expression<Object>>[gridPatterns.id, gridPatterns.width, gridPatterns.height])
+      ..addColumns(<Expression<Object>>[
+        gridPatterns.id,
+        gridPatterns.width,
+        gridPatterns.height,
+        gridPatterns.geometry,
+        gridPatterns.geometryDrop,
+      ])
       ..where(gridPatterns.projectId.equals(projectId) & gridPatterns.deletedAt.isNull());
     final TypedResult? row = await query.getSingleOrNull();
     if (row == null) {
@@ -32,6 +38,8 @@ class GridPatternsDao extends DatabaseAccessor<AppDatabase> with _$GridPatternsD
       id: row.read(gridPatterns.id)!,
       width: row.read(gridPatterns.width)!,
       height: row.read(gridPatterns.height)!,
+      geometry: row.read(gridPatterns.geometry)!,
+      drop: row.read(gridPatterns.geometryDrop)!,
     );
   }
 
@@ -70,6 +78,20 @@ class GridPatternsDao extends DatabaseAccessor<AppDatabase> with _$GridPatternsD
     gridProgressRows,
   )..where((t) => t.gridPatternId.equals(patternId) & t.rowIndex.equals(rowIndex))).getSingleOrNull();
 
+  /// Сигнал сразу и после каждого изменения отметок клеток.
+  Stream<void> watchCellProgressChanges() => customSelect(
+    'SELECT 1',
+    readsFrom: <ResultSetImplementation<dynamic, dynamic>>{gridProgressCells},
+  ).watch();
+
+  /// Блоки отметок клеток (живые).
+  Future<List<GridProgressCellRecord>> aliveProgressCells(String patternId) =>
+      (select(gridProgressCells)..where((t) => t.gridPatternId.equals(patternId) & t.deletedAt.isNull())).get();
+
+  /// Все блоки схемы, включая с надгробием.
+  Future<List<GridProgressCellRecord>> allProgressCells(String patternId) =>
+      (select(gridProgressCells)..where((t) => t.gridPatternId.equals(patternId))).get();
+
   /// Ставит надгробие схеме проекта, её цветам и отметкам рядов.
   Future<void> tombstoneByProject({required String projectId, required int nowMs, required String deviceId}) =>
       transaction(() async {
@@ -79,6 +101,15 @@ class GridPatternsDao extends DatabaseAccessor<AppDatabase> with _$GridPatternsD
         }
         await (update(gridProgressRows)..where((t) => t.gridPatternId.equals(pattern.id) & t.deletedAt.isNull())).write(
           GridProgressRowsCompanion(
+            updatedAt: Value<int>(nowMs),
+            deletedAt: Value<int?>(nowMs),
+            deviceId: Value<String>(deviceId),
+          ),
+        );
+        await (update(
+          gridProgressCells,
+        )..where((t) => t.gridPatternId.equals(pattern.id) & t.deletedAt.isNull())).write(
+          GridProgressCellsCompanion(
             updatedAt: Value<int>(nowMs),
             deletedAt: Value<int?>(nowMs),
             deviceId: Value<String>(deviceId),

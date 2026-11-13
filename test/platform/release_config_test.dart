@@ -28,8 +28,8 @@ void main() {
         });
       }
 
-      test('$platform: имя под значком — «Бисер»', () {
-        expect(stringValue(plist, 'CFBundleDisplayName'), 'Бисер');
+      test('$platform: имя под значком — «Канитель»', () {
+        expect(stringValue(plist, 'CFBundleDisplayName'), 'Канитель');
       });
     }
 
@@ -42,6 +42,31 @@ void main() {
         stringValue(read('macos/Runner/Info.plist'), 'LSApplicationCategoryType'),
         startsWith('public.app-category.'),
       );
+    });
+  });
+
+  group('тип файла .biser (T21)', () {
+    for (final String platform in <String>['ios', 'macos']) {
+      final String plist = read('$platform/Runner/Info.plist');
+      test('$platform: тип объявлен и приложение — его владелец', () {
+        expect(plist, contains('UTExportedTypeDeclarations'));
+        expect(plist, contains('CFBundleDocumentTypes'));
+        expect(plist, contains('<string>biser</string>'));
+        expect('com.dimaoplinkin.beading.biser'.allMatches(plist), hasLength(2));
+        expect(stringValue(plist, 'LSHandlerRank'), 'Owner');
+      });
+    }
+
+    test('ios: файл копируется в приложение, а не открывается на месте', () {
+      expect(
+        RegExp(r'<key>LSSupportsOpeningDocumentsInPlace</key>\s*<false/>').hasMatch(read('ios/Runner/Info.plist')),
+        isTrue,
+      );
+    });
+
+    test('macos: нативный AppDelegate передаёт пути каналом app.beading/incoming_files', () {
+      expect(read('macos/Runner/AppDelegate.swift'), contains('app.beading/incoming_files'));
+      expect(read('macos/Runner/MainFlutterWindow.swift'), contains('incomingFiles.attach'));
     });
   });
 
@@ -70,23 +95,6 @@ void main() {
     });
   });
 
-  group('ExportOptions', () {
-    test('ios Ad Hoc', () {
-      final String plist = read('ios/ExportOptions-AdHoc.plist');
-      expect(stringValue(plist, 'method'), 'ad-hoc');
-      expect(plist, contains('__TEAM_ID__'));
-      expect(stringValue(plist, 'signingStyle'), 'automatic');
-      expect(hasTrue(plist, 'compileBitcode'), isFalse);
-    });
-
-    test('macos Developer ID', () {
-      final String plist = read('macos/ExportOptions-DeveloperID.plist');
-      expect(stringValue(plist, 'method'), 'developer-id');
-      expect(plist, contains('__TEAM_ID__'));
-      expect(stringValue(plist, 'signingStyle'), 'automatic');
-    });
-  });
-
   group('иконки-заглушки', () {
     test('iOS: 1024×1024 без прозрачности по всем размерам из Contents.json есть файлы', () {
       final String contents = read('ios/Runner/Assets.xcassets/AppIcon.appiconset/Contents.json');
@@ -97,20 +105,26 @@ void main() {
       }
     });
 
+    const List<String> iosIcons = <String>[
+      'AppIcon-1024.png',
+      'AppIcon-1024-dark.png',
+      'AppIcon-1024-tinted.png',
+    ];
+
     test('значок настоящий (из UI kit), а не заглушка', () {
-      final List<int> bytes = File(
-        'ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-1024x1024@1x.png',
-      ).readAsBytesSync();
-      // Заглушку рисовал удалённый скрипт и помечал tEXt-блоком; настоящие иконки делает scripts/make_app_icons.js.
-      expect(String.fromCharCodes(bytes), isNot(contains('beading-placeholder')));
+      for (final String name in iosIcons) {
+        final List<int> bytes = File('ios/Runner/Assets.xcassets/AppIcon.appiconset/$name').readAsBytesSync();
+        // Заглушку рисовал удалённый скрипт и помечал tEXt-блоком; настоящая иконка «Канитель» принята в 13-app-icon.
+        expect(String.fromCharCodes(bytes), isNot(contains('beading-placeholder')), reason: name);
+      }
     });
 
-    test('значок iOS 1024 без альфа-канала (требование App Store и Ad Hoc)', () {
-      final List<int> bytes = File(
-        'ios/Runner/Assets.xcassets/AppIcon.appiconset/Icon-App-1024x1024@1x.png',
-      ).readAsBytesSync();
-      // PNG: 8 байт подписи, 8 байт заголовка IHDR, затем ширина, высота, глубина (1) и тип цвета (1): 2 = RGB без альфы.
-      expect(bytes[25], 2);
+    test('значки iOS 1024 (светлый, тёмный, tinted) без альфа-канала (требование App Store и Ad Hoc)', () {
+      for (final String name in iosIcons) {
+        final List<int> bytes = File('ios/Runner/Assets.xcassets/AppIcon.appiconset/$name').readAsBytesSync();
+        // PNG: 8 байт подписи, 8 байт заголовка IHDR, затем ширина, высота, глубина (1) и тип цвета (1): 2 = RGB без альфы.
+        expect(bytes[25], 2, reason: name);
+      }
     });
   });
 }

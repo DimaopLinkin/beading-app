@@ -193,4 +193,24 @@ void largeSchemes() {
     expect(brick.row(0).cells.first, const CellPosition(0, 1));
     expect(brick.row(1).cells.first, const CellPosition(1, 0));
   });
+
+  group('длина ряда и равенство', () {
+    test('maxRowLength: станок и кирпич — ширина, пейот — высота (первый ряд — два столбца разом)', () {
+      expect(ReadingOrder.of(const GridGeometry.rectangular(), columns: 5, rows: 3).maxRowLength, 5);
+      expect(ReadingOrder.of(const GridGeometry.brick(), columns: 5, rows: 3).maxRowLength, 5);
+      expect(ReadingOrder.of(const GridGeometry.peyote(), columns: 5, rows: 3).maxRowLength, 6);
+      expect(ReadingOrder.of(const GridGeometry.peyote(), columns: 1, rows: 3).maxRowLength, 3);
+      expect(ReadingOrder.of(const GridGeometry.peyote(drop: 2), columns: 5, rows: 3).maxRowLength, 3);
+    });
+
+    test('порядок равен по геометрии, размеру и началу', () {
+      final ReadingOrder a = ReadingOrder.of(const GridGeometry.brick(), columns: 5, rows: 3);
+      expect(a, ReadingOrder.of(const GridGeometry.brick(), columns: 5, rows: 3));
+      expect(
+        a,
+        isNot(ReadingOrder.of(const GridGeometry.brick(), columns: 5, rows: 3, start: ReadingStart.bottomLeft)),
+      );
+      expect(a, isNot(ReadingOrder.of(const GridGeometry.rectangular(), columns: 5, rows: 3)));
+    });
+  });
 }

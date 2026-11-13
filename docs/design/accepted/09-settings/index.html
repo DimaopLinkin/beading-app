@@ -1,0 +1,211 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Бисер — Настройки и «О приложении» (09-settings v1)</title>
+<style>
+
+:root{--font:-apple-system,BlinkMacSystemFont,"SF Pro Text","SF Pro",system-ui,sans-serif}
+*{box-sizing:border-box}
+body{margin:0;font-family:var(--font);background:#CFC8BC;color:#1C1A1F}
+body.dp{background:#0B0A0C;color:#F4F0EA}
+.top{position:sticky;top:0;z-index:50;display:flex;gap:12px;align-items:center;flex-wrap:wrap;padding:12px 24px;background:rgba(247,244,239,.92);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-bottom:1px solid rgba(0,0,0,.12)}
+body.dp .top{background:rgba(21,19,22,.92);border-color:rgba(255,255,255,.14)}
+.top h1{margin:0;font-size:18px;flex:1;min-width:220px}
+.seg{display:flex;padding:3px;border-radius:22px;background:rgba(120,110,100,.25)}
+.seg button{border:0;background:transparent;color:inherit;font:600 14px var(--font);padding:9px 16px;border-radius:19px;cursor:pointer;min-height:44px}
+.seg button[aria-pressed="true"]{background:#fff;color:#1C1A1F;box-shadow:0 1px 3px rgba(0,0,0,.2)}
+.stage{padding:28px 24px 40px;display:flex;flex-direction:column;gap:44px}
+.row{display:flex;flex-wrap:wrap;gap:28px;justify-content:center}
+.cell{display:flex;flex-direction:column;gap:10px;align-items:center}
+.cap{font-size:14px;font-weight:600;max-width:428px;text-align:center;opacity:.9}
+.note{max-width:920px;margin:0 auto;font-size:15px;line-height:1.55;padding:0 24px 60px}
+.note h2{font-size:20px;margin:0 0 8px}.note ul{margin:6px 0 12px;padding-left:20px}
+
+.phone{--bg:#F7F4EF;--surf:#FFF;--surf2:#EFEBE4;--ink:#1C1A1F;--ink2:#5F5954;--sep:#E0DAD1;--acc:#B5541C;--onacc:#fff;--acct:#9A4513;--accg:rgba(181,84,28,.16);--danger:#C0362C;
+ --glass:rgba(255,255,255,.55);--dense:rgba(255,255,255,.86);--gb:1px solid rgba(255,255,255,.85);--shadow:0 10px 28px rgba(0,0,0,.18);--scrim:rgba(20,16,12,.38);
+ --sheet:rgba(247,244,239,.84);--sheetsolid:#F7F4EF;--row:#FFFFFF;--rowsep:#E4DED5;
+ --idea:#4A52A6;--ideab:rgba(91,99,183,.14);--prog:#8A5300;--progb:rgba(168,106,0,.16);--done:#27704A;--doneb:rgba(46,125,79,.15);
+ position:relative;width:428px;height:926px;border-radius:52px;overflow:hidden;background:var(--bg);color:var(--ink);border:1px solid rgba(0,0,0,.25);box-shadow:0 18px 40px rgba(0,0,0,.28);flex:none;font-family:var(--font)}
+.phone[data-theme="dark"]{--bg:#151316;--surf:#201D22;--surf2:#2A262D;--ink:#F4F0EA;--ink2:#A9A29B;--sep:#3A353D;--acc:#F0955A;--onacc:#1C1A1F;--acct:#F0955A;--accg:rgba(240,149,90,.22);--danger:#FF7A6E;
+ --glass:rgba(40,38,44,.5);--dense:rgba(28,26,32,.86);--gb:1px solid rgba(255,255,255,.26);--shadow:0 10px 28px rgba(0,0,0,.45);--scrim:rgba(0,0,0,.55);
+ --sheet:rgba(44,40,48,.86);--sheetsolid:#2C2830;--row:#3A353F;--rowsep:#4A4550;
+ --idea:#9BA3EE;--ideab:rgba(155,163,238,.18);--prog:#F2B84B;--progb:rgba(242,184,75,.18);--done:#6FCF97;--doneb:rgba(111,207,151,.18);border-color:rgba(255,255,255,.18)}
+.glass{background:var(--glass);border:var(--gb);box-shadow:var(--shadow);backdrop-filter:blur(24px) saturate(1.6);-webkit-backdrop-filter:blur(24px) saturate(1.6)}
+.home{position:absolute;left:50%;bottom:8px;margin-left:-67px;width:134px;height:5px;border-radius:3px;background:var(--ink);opacity:.5;z-index:30}
+
+/* библиотека (подложка) */
+.lib{--s:1;position:absolute;inset:0;padding:64px 16px 140px;display:flex;flex-direction:column;gap:12px;overflow:hidden}
+.large{flex:none;font-size:calc(34px * var(--s));font-weight:700;letter-spacing:-.4px;padding:0 4px;line-height:1.1}
+.search{flex:none;min-height:44px;border-radius:calc(22px * var(--s));background:var(--surf2);display:flex;align-items:center;gap:10px;padding:calc(8px * var(--s)) 16px;font-size:calc(17px * var(--s));color:var(--ink2)}
+.fr{flex:none;display:flex;flex-wrap:wrap;gap:8px}
+.fl{flex:none;font-size:calc(13px * var(--s));font-weight:700;color:var(--ink2);letter-spacing:.5px;text-transform:uppercase;padding:0 4px;margin-bottom:-4px}
+.chip{display:inline-flex;align-items:center;gap:6px;min-height:44px;padding:calc(8px * var(--s)) calc(16px * var(--s));border-radius:999px;font-size:calc(15px * var(--s));font-weight:600;background:var(--surf2);border:1px solid var(--sep);color:var(--ink);line-height:1.15}
+.chip.sel{background:var(--acc);border-color:var(--acc);color:var(--onacc)}
+.list{display:flex;flex-direction:column;gap:10px}
+.card{display:flex;gap:12px;padding:10px;border-radius:22px;background:var(--surf);border:1px solid var(--sep);min-height:104px}
+.ax .card{flex-direction:column}
+.pv{width:84px;height:84px;border-radius:14px;flex:none;border:1px solid rgba(0,0,0,.12)}
+.ax .pv{width:100%;height:96px}
+.cbody{flex:1;min-width:0;display:flex;flex-direction:column;gap:3px;padding:2px 0}
+.ct{font-size:calc(17px * var(--s));font-weight:600}
+.cs{font-size:calc(14px * var(--s));color:var(--ink2)}
+.st{align-self:flex-start;display:inline-flex;align-items:center;gap:5px;padding:3px 10px 3px 7px;border-radius:13px;font-size:max(13px,calc(13px * var(--s)));font-weight:600}
+.st.idea{color:var(--idea);background:var(--ideab)}.st.prog{color:var(--prog);background:var(--progb)}.st.done{color:var(--done);background:var(--doneb)}
+.bar{height:6px;border-radius:3px;background:var(--surf2);margin-top:auto}.bar i{display:block;height:6px;border-radius:3px;background:var(--prog)}
+.tabbar{position:absolute;left:16px;bottom:26px;display:flex;gap:2px;padding:6px;border-radius:36px;z-index:5}
+.tab{padding:0 13px;height:52px;border-radius:30px;display:flex;align-items:center;gap:7px;font-size:14px;font-weight:600}
+.tab.sel{background:var(--accg);color:var(--acct);padding:0 14px}
+.fab{position:absolute;right:16px;bottom:26px;width:68px;height:68px;border-radius:34px;display:flex;align-items:center;justify-content:center;background:var(--acc);border:var(--gb);box-shadow:var(--shadow);z-index:5}
+.empty{position:absolute;left:0;right:0;top:300px;display:flex;flex-direction:column;align-items:center;gap:14px;text-align:center;padding:0 40px}
+.empty h2{margin:0;font-size:22px}.empty p{margin:0;font-size:16px;color:var(--ink2)}
+.cta{height:52px;padding:0 28px;border-radius:26px;background:var(--acc);color:var(--onacc);display:flex;align-items:center;font-size:17px;font-weight:700}
+
+/* системный page sheet */
+.scrim{position:absolute;inset:0;background:var(--scrim);z-index:10}
+.pagesheet{position:absolute;left:8px;right:8px;bottom:8px;border-radius:38px;background:var(--sheet);backdrop-filter:blur(40px) saturate(1.5);-webkit-backdrop-filter:blur(40px) saturate(1.5);border:var(--gb);box-shadow:0 -2px 30px rgba(0,0,0,.25);z-index:11;display:flex;flex-direction:column;overflow:hidden}
+.pagesheet.med{height:462px}
+.pagesheet.lg{left:0;right:0;bottom:0;top:62px;border-radius:38px 38px 0 0;background:var(--sheetsolid);backdrop-filter:none}
+.grab{flex:none;align-self:center;width:36px;height:5px;border-radius:3px;background:var(--ink2);opacity:.45;margin:6px 0 2px}
+.nav{flex:none;position:relative;height:52px;display:flex;align-items:center;justify-content:center}
+.nav b{font-size:17px;font-weight:600}
+.nav .cancel{position:absolute;left:8px;min-width:44px;height:44px;padding:0 10px;display:flex;align-items:center;font-size:17px;color:var(--acct)}
+.sc{flex:none;margin:6px 16px 10px;display:flex;padding:3px;border-radius:999px;background:rgba(120,110,100,.22)}
+.sc div{flex:1;min-height:44px;display:flex;align-items:center;justify-content:center;border-radius:999px;font-size:15px;font-weight:600;color:var(--ink)}
+.sc .s{background:var(--surf);box-shadow:0 1px 4px rgba(0,0,0,.25);font-weight:700}
+.phone[data-theme="dark"] .sc .s{background:#5A5560;color:#fff}
+.group{margin:0 16px;border-radius:24px;background:var(--row);overflow:hidden}
+.item{display:flex;align-items:center;gap:14px;padding:10px 16px 10px 14px;min-height:68px;position:relative}
+.item+.item::before{content:"";position:absolute;left:72px;right:0;top:0;height:1px;background:var(--rowsep)}
+.item .ic{width:44px;height:44px;border-radius:22px;background:var(--accg);color:var(--acct);display:flex;align-items:center;justify-content:center;flex:none}
+.item b{display:block;font-size:17px;font-weight:600;line-height:1.2}
+.item span.s{font-size:13px;color:var(--ink2);line-height:1.25}
+.item .ch{margin-left:auto;color:var(--ink2);opacity:.6;flex:none}
+.foot{flex:none;margin:10px 32px 0;font-size:13px;color:var(--ink2)}
+/* AX3 внутри листа */
+.axs .nav{height:auto;flex-direction:column;align-items:flex-start;justify-content:flex-start;padding:0 16px 8px}.axs .nav b{font-size:36px;letter-spacing:-.4px;padding:0 4px}
+.axs .nav .cancel{position:static;font-size:30px;min-height:64px;padding:0 4px;margin-left:-4px}
+.axs .sc div{min-height:68px;font-size:28px}
+.axs .item{min-height:128px;gap:18px;padding:16px}
+.axs .item .ic{width:72px;height:72px;border-radius:36px}
+.axs .item b{font-size:32px}.axs .item span.s{font-size:26px}
+.axs .group{border-radius:34px}
+.axs .item+.item::before{left:106px}
+
+/* ---------- 09: добавки ---------- */
+.dense{background:var(--dense);border:var(--gb);box-shadow:var(--shadow);backdrop-filter:blur(32px) saturate(1.4);-webkit-backdrop-filter:blur(32px) saturate(1.4)}
+.mono{font-family:ui-monospace,"SF Mono",Menlo,monospace}
+.stg{--s:1;position:absolute;inset:0;padding:60px 16px 140px;display:flex;flex-direction:column;gap:6px;overflow:hidden;background:var(--bg)}
+.stg .nb{flex:none;display:flex;align-items:center;justify-content:space-between;min-height:44px;margin:0 -6px}
+.stg .big{flex:none;font-size:calc(34px * var(--s));font-weight:700;letter-spacing:-.4px;padding:0 4px 6px;line-height:1.1}
+.sh{flex:none;margin:12px 16px 0;font-size:max(13px,calc(13px * var(--s)));font-weight:600;color:var(--ink2);text-transform:uppercase;letter-spacing:.4px}
+.sf{flex:none;margin:6px 16px 0;font-size:max(13px,calc(13px * var(--s)));color:var(--ink2);line-height:1.35}
+.gp{flex:none;border-radius:22px;background:var(--row);overflow:hidden}
+.r{position:relative;display:flex;align-items:center;gap:12px;min-height:calc(52px * var(--s));padding:8px 16px;font-size:calc(17px * var(--s));line-height:1.2}
+.r+.r::before{content:"";position:absolute;left:16px;right:0;top:0;height:1px;background:var(--rowsep)}
+.r .k{flex:1;min-width:0}
+.r .v{color:var(--ink2);font-size:calc(17px * var(--s));display:flex;align-items:center;gap:4px;flex:none}
+.r .ac{color:var(--acct);font-weight:600}
+.r.dg .k{color:var(--danger)}
+.chv{color:var(--ink2);opacity:.55;display:flex}
+.axg .r{flex-wrap:wrap;min-height:84px}.axg .r .k{flex:1 1 58%}.axg .r:has(.v) .k{flex:1 1 100%}.axg .r .v{flex:0 0 auto}
+.sw{width:51px;height:31px;border-radius:16px;background:rgba(120,110,100,.35);position:relative;flex:none}
+.sw::after{content:"";position:absolute;left:2px;top:2px;width:27px;height:27px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.35)}
+.sw.on{background:#34C759}.sw.on::after{left:22px}
+.stat{display:flex;align-items:center;gap:8px;font-size:calc(15px * var(--s));color:var(--ink2);padding:4px 0}
+.stat.ok{color:var(--ok)}.stat.warn{color:var(--danger)}
+.phone{--ok:#27704A}.phone[data-theme="dark"]{--ok:#6FCF97}
+.spn{width:16px;height:16px;border-radius:50%;border:3px solid var(--rowsep);border-top-color:var(--acc);flex:none}
+.pbar{height:6px;border-radius:3px;background:var(--surf2);margin:2px 0}.pbar i{display:block;height:6px;border-radius:3px;background:var(--acc)}
+.tabbar{position:absolute;left:16px;bottom:26px;display:flex;gap:2px;padding:6px;border-radius:36px;z-index:5}
+.tab{padding:0 18px;height:52px;border-radius:30px;display:flex;align-items:center;gap:7px;font-size:14px;font-weight:600}
+.tab.sel{background:var(--accg);color:var(--acct)}
+.menu{position:absolute;z-index:12;border-radius:18px;background:var(--dense);backdrop-filter:blur(30px) saturate(1.5);-webkit-backdrop-filter:blur(30px) saturate(1.5);border:var(--gb);box-shadow:0 12px 40px rgba(0,0,0,.35);overflow:hidden;width:250px}
+.menu div{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:0 16px;min-height:46px;font-size:17px}
+.menu div+div{border-top:1px solid var(--rowsep)}
+.asw{position:absolute;left:8px;right:8px;bottom:8px;z-index:12;display:flex;flex-direction:column;gap:8px}
+.asw .c{border-radius:30px;background:var(--dense);backdrop-filter:blur(40px) saturate(1.5);-webkit-backdrop-filter:blur(40px) saturate(1.5);border:var(--gb);overflow:hidden;text-align:center}
+.asw .h{padding:14px 20px 10px;font-size:13px;color:var(--ink2);font-weight:600;line-height:1.35}
+.asw .h b{display:block;color:var(--ink);font-size:15px}
+.asw .a{min-height:58px;display:flex;align-items:center;justify-content:center;gap:8px;font-size:20px;color:var(--acct);border-top:1px solid var(--rowsep);padding:0 16px}
+.asw .a.cn{font-weight:700;border-top:none}
+.asw .a.s{font-weight:700}
+.alt{position:absolute;left:50%;top:50%;margin:-110px 0 0 -155px;width:310px;border-radius:30px;background:var(--dense);backdrop-filter:blur(40px) saturate(1.5);-webkit-backdrop-filter:blur(40px) saturate(1.5);border:var(--gb);box-shadow:0 20px 60px rgba(0,0,0,.45);z-index:12;text-align:center;overflow:hidden}
+.alt .m{padding:22px 20px 18px}.alt .m b{display:block;font-size:19px;margin-bottom:4px}.alt .m span{font-size:15px;color:var(--ink);line-height:1.35}
+.alt .a{min-height:56px;display:flex;align-items:center;justify-content:center;border-top:1px solid var(--rowsep);font-size:19px;font-weight:700;color:var(--acct)}
+.about{position:absolute;inset:0;padding:60px 28px 40px;display:flex;flex-direction:column;align-items:center;text-align:center;gap:8px;background:var(--bg)}
+.about .nb{align-self:stretch;display:flex;align-items:center;justify-content:space-between;min-height:44px;margin:0 -16px}
+.about h1{margin:14px 0 0;font-size:34px;letter-spacing:-.4px}
+.about .ver{min-height:44px;display:flex;align-items:center;font-size:17px;color:var(--ink2)}
+.about .tag{font-size:19px;line-height:1.4;max-width:300px;margin-top:6px}
+.about .cr{font-size:13px;color:var(--ink2);line-height:1.45;margin-top:auto;max-width:340px}
+.nbk{display:flex;align-items:center;gap:2px;color:var(--acct);font-size:17px;min-height:44px;padding:0 6px}
+.board h4{margin:10px 16px 4px;font-size:13px;color:var(--acct);font-weight:700}
+</style>
+</head>
+<body>
+<div class="top"><h1>Бисер · Настройки и «О приложении» · 09-settings v1</h1>
+<div class="seg" role="group" aria-label="Тема"><button data-m="light" aria-pressed="true">Светлая</button><button data-m="dark" aria-pressed="false">Тёмная</button><button data-m="both" aria-pressed="false">Обе рядом</button></div></div>
+<div class="stage" id="stage"></div>
+<div class="note"><h2>Решения и оговорки</h2>
+<ul>
+<li><b>Подписи настоящие</b> (из `app_ru.arb`): раздел «Оформление» (Тема: «Как в системе», «Светлая», «Тёмная»), «Работа» («Не гасить экран», «Символы на схеме», «Производитель бисера», «Производитель мулине»), «Данные» («Создать резервную копию», «Восстановить из файла», «Синхронизация с iCloud»), «О приложении» с тагом «Каждая бусинка на своём месте. Плети с удовольствием!». Макет нарисован по тому, как это устроено в реализации (T09): список в стиле inset grouped с большим заголовком, переключатели, строки со стрелкой.</li>
+<li><b>Нативность:</b> заголовок «Настройки» большой, при прокрутке сворачивается в навигационную панель; строки без самодельной графики; выбор темы нативным pull-down меню (UIMenu с галочкой у текущего значения), выбор производителя action sheet'ом (так в реализации), подтверждения и результаты — системными alert и action sheet. Переключатели системные (зелёные, 51 × 31 pt). Нижняя панель вкладок плавающая (стекло), «Ещё» выбрана: настройки живут на вкладке «Ещё» из 02-library.</li>
+<li><b>Резервная копия:</b> «Создать резервную копию» отдаёт один файл `.biser` через системное «Поделиться» (его я не рисовал), «Восстановить из файла» открывает системный выбор файла. Импорт в реализации добавляет проекты, а не заменяет всё, поэтому диалог (экран 6) называется по-настоящему: «В файле проектов: 12», «Уже есть в библиотеке: 3», варианты «Добавить как новые», «Пропустить уже существующие»; итог (экран 7): «Добавлено проектов: 9. Пропущено: 3.».</li>
+<li><b>Синхронизация с iCloud:</b> переключатель и строка статуса под ним. Состояния на экране 5: выключена, синхронизация с прогрессом, нет входа в iCloud (со ссылкой на системные настройки), ошибка с «Повторить». Статус не только цветом: у каждого есть значок и текст. В реализации сейчас пункты резервной копии и синхронизации помечены «Скоро»; здесь нарисовано целевое состояние, когда T21 и T28 будут готовы.</li>
+<li><b>«О приложении»:</b> логотип (иконка из UI kit), название, версия (долгое нажатие открывает скрытый раздел, нажатие на логотип 7 раз пасхалку: в макете это не показано специально), тёплая подпись и мелкая строка с благодарностями и торговыми марками (13 pt, из реальной локализации, сокращена).</li>
+<li><b>AX3 (экран 9):</b> строки растут и переносятся (значение уходит под подпись), минимальная высота строки 84 pt, заголовки секций 24 pt; переключатели остаются системного размера, зона нажатия у строки целиком.</li>
+<li>Оговорки: строка «Показать подсказки снова» (из 04b-ruler-handle) в реализации ещё нет, она добавлена в раздел «Работа»; Mac (окно настроек ⌘,) не рисовался; тема меняется сразу и без перезапуска.</li>
+</ul></div>
+<script>
+const I={chevR:'M9 5l7 7-7 7',chevL:'M15 5l-7 7 7 7',updn:'M8 9l4-4 4 4M8 15l4 4 4-4',check:'M5 12l5 5 9-10',sun:'M12 8a4 4 0 1 0 0 8 4 4 0 0 0 0-8zM12 2v2M12 20v2M2 12h2M20 12h2M5 5l1.5 1.5M17.5 17.5L19 19M5 19l1.5-1.5M17.5 6.5L19 5',moon:'M20 14a8 8 0 1 1-10-10 6.5 6.5 0 0 0 10 10z',half:'M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18zM12 3v18',lib:'M5 5h4v14H5zM11 5h4v14h-4zM17 7l3 1-3 11-3-1z',swatch:'M8 9a4 4 0 1 0 0 .01M16 9a4 4 0 1 0 0 .01M12 16a4 4 0 1 0 0 .01',more:'M6 12h.01M12 12h.01M18 12h.01',warn:'M12 4l9 16H3zM12 10v4M12 17h.01',cloud:'M7 18a4 4 0 0 1-.5-8A6 6 0 0 1 18 11a3.5 3.5 0 0 1-.5 7z'};
+const ic=(n,s=20,w=2.2)=>`<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="${w}" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="${I[n]}"/></svg>`;
+const home='<div class="home"></div>';
+const tabbar=`<div class="tabbar glass"><div class="tab">${ic('lib',22)}Работы</div><div class="tab">${ic('swatch',22)}Каталог</div><div class="tab sel">${ic('more',22)}Ещё</div></div>`;
+const sw=on=>`<div class="sw ${on?'on':''}" role="switch" aria-checked="${on}"></div>`;
+const row=(k,v,o={})=>`<div class="r ${o.cls||''}"><span class="k ${o.ac?'ac':''}">${k}</span>${v!==undefined?`<span class="v">${v}</span>`:''}${o.chev?`<span class="chv">${ic('chevR',18,2.6)}</span>`:''}</div>`;
+const swr=(k,on)=>`<div class="r"><span class="k">${k}</span>${sw(on)}</div>`;
+const icloud=(state)=>{let s='';
+ if(state==='off')s=`${swr('Синхронизация с iCloud',false)}</div><div class="sf">Проекты хранятся только на этом устройстве.</div><div class="gp" style="display:none">`;
+ else if(state==='ok')s=`${swr('Синхронизация с iCloud',true)}<div class="r"><div class="stat ok">${ic('check',18,3)}Синхронизировано · 2 мин назад</div></div>`;
+ else if(state==='run')s=`${swr('Синхронизация с iCloud',true)}<div class="r" style="flex-direction:column;align-items:stretch;gap:2px"><div class="stat"><div class="spn"></div>Синхронизация… 64%</div><div class="pbar"><i style="width:64%"></i></div></div>`;
+ else if(state==='noacc')s=`${swr('Синхронизация с iCloud',true)}<div class="r"><div class="stat warn">${ic('warn',18,2.4)}Нет входа в iCloud</div></div>${row('Открыть настройки iPhone',undefined,{ac:true,chev:true})}`;
+ else if(state==='err')s=`${swr('Синхронизация с iCloud',true)}<div class="r"><div class="stat warn">${ic('warn',18,2.4)}Не удалось синхронизировать</div></div>${row('Повторить',undefined,{ac:true})}`;
+ return s};
+const topH=(title)=>`<div class="nb"><span></span><span></span></div><div class="big">${title}</div>`;
+const mainTop=(s=1)=>`<div class="stg ${s>1?'axg':''}" style="--s:${s}">${topH('Настройки')}
+ <div class="sh">Оформление</div><div class="gp">${row('Тема',`Как в системе ${ic('updn',16,2.4)}`)}</div>
+ <div class="sh">Работа</div><div class="gp">${swr('Не гасить экран',true)}${swr('Символы на схеме',false)}${row('Производитель бисера','Miyuki',{chev:true})}${row('Производитель мулине','DMC',{chev:true})}${row('Показать подсказки снова',undefined,{ac:true})}</div>
+ <div class="sf">«Символы на схеме» показывает буквы в бусинах по умолчанию. Переключить можно и на самой схеме.</div></div>${tabbar}${home}`;
+const mainBottom=(sync)=>`<div class="stg" style="--s:1;padding-top:60px"><div class="sh" style="margin-top:4px">Данные</div><div class="gp">${row('Создать резервную копию',undefined,{ac:true})}${row('Восстановить из файла',undefined,{ac:true})}</div>
+ <div class="sf">Резервная копия — один файл .biser со всеми проектами, схемами, палитрами и прогрессом.</div>
+ <div class="gp" style="margin-top:14px">${icloud(sync)}</div>
+ <div class="gp" style="margin-top:14px">${row('О приложении',undefined,{chev:true})}</div></div>${tabbar}${home}`;
+const logo=`<svg width="128" height="128" viewBox="0 0 120 120" role="img" aria-label="Логотип Бисер"><defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#F3A06A"/><stop offset="1" stop-color="#9C3F14"/></linearGradient><radialGradient id="l1" cx="35%" cy="30%" r="75%"><stop offset="0" stop-color="#FFF"/><stop offset=".25" stop-color="#7FD9D3"/><stop offset="1" stop-color="#1F6F6F"/></radialGradient><radialGradient id="l2" cx="35%" cy="30%" r="75%"><stop offset="0" stop-color="#FFF"/><stop offset=".25" stop-color="#FFE29A"/><stop offset="1" stop-color="#C98A12"/></radialGradient><radialGradient id="l3" cx="35%" cy="30%" r="75%"><stop offset="0" stop-color="#FFF"/><stop offset=".25" stop-color="#F5A3B9"/><stop offset="1" stop-color="#A52B52"/></radialGradient></defs><rect width="120" height="120" rx="27" fill="url(#lg)"/><path d="M-4 92 C30 82 50 40 124 28" fill="none" stroke="#FFF4E6" stroke-width="3" stroke-linecap="round" opacity=".9"/><circle cx="32" cy="76" r="19" fill="url(#l1)"/><circle cx="62" cy="55" r="19" fill="url(#l2)"/><circle cx="92" cy="36" r="19" fill="url(#l3)"/><circle cx="32" cy="76" r="5.5" fill="#9C3F14" opacity=".55"/><circle cx="62" cy="55" r="5.5" fill="#9C3F14" opacity=".55"/><circle cx="92" cy="36" r="5.5" fill="#9C3F14" opacity=".55"/></svg>`;
+const screens=[
+ ['1 · Настройки: оформление и работа',()=>mainTop()],
+ ['2 · Тема: системное меню (pull-down)',()=>mainTop()+`<div class="scrim" style="background:transparent;z-index:11"></div><div class="menu" style="left:158px;top:236px"><div>Как в системе<span style="color:var(--acct)">${ic('check',20,3)}</span></div><div>Светлая<span>${ic('sun',20)}</span></div><div>Тёмная<span>${ic('moon',20)}</span></div></div>`],
+ ['3 · Производитель бисера: action sheet',()=>mainTop()+`<div class="scrim"></div><div class="asw"><div class="c"><div class="h"><b>Производитель бисера</b></div><div class="a s">Miyuki<span>${ic('check',20,3)}</span></div><div class="a">Toho</div></div><div class="c"><div class="a cn">Отмена</div></div></div>`],
+ ['4 · Данные и iCloud: синхронизировано',()=>mainBottom('ok')],
+ ['5 · Состояния синхронизации',()=>`<div class="stg board" style="--s:1;padding-top:56px"><h4>Выключена</h4><div class="gp">${swr('Синхронизация с iCloud',false)}</div><div class="sf">Проекты хранятся только на этом устройстве.</div><h4>Идёт синхронизация</h4><div class="gp">${icloud('run')}</div><h4>Нет входа в iCloud</h4><div class="gp">${icloud('noacc')}</div><h4>Ошибка</h4><div class="gp">${icloud('err')}</div></div>${tabbar}${home}`],
+ ['6 · «Восстановить из файла»: проекты уже есть (action sheet)',()=>mainBottom('ok')+`<div class="scrim"></div><div class="asw"><div class="c"><div class="h"><b>В файле проектов: 12</b>Уже есть в библиотеке: 3</div><div class="a s">Добавить как новые</div><div class="a">Пропустить уже существующие</div></div><div class="c"><div class="a cn">Отмена</div></div></div>`],
+ ['7 · Импорт завершён (alert)',()=>mainBottom('ok')+`<div class="scrim"></div><div class="alt"><div class="m"><b>Готово</b><span>Добавлено проектов: 9. Пропущено: 3.</span></div><div class="a">Понятно</div></div>`],
+ ['8 · «О приложении»',()=>`<div class="about"><div class="nb"><span class="nbk">${ic('chevL',22,2.4)}Настройки</span><span></span></div>${logo}<h1>Бисер</h1><div class="ver">Версия 1.0.0 (24)</div><div class="tag">Каждая бусинка на своём месте. Плети с удовольствием!</div><div class="cr">Цвета ниток DMC: craft-color-codes, MakeBead (makebead.com), лицензия CC BY 4.0. DMC — торговая марка DMC, приложение с ней не связано. Цвета ниток «Гамма» и Anchor: firma-gamma.ru и crosti.ru. «Гамма» и Anchor — торговые марки своих владельцев.</div></div>${home}`],
+ ['9 · Настройки на AX3',()=>mainTop(1.9).replace('<div class="stg" style="--s:1.9">','<div class="stg" style="--s:1.9">')]
+];
+let mode='light';
+function render(){
+ const st=document.getElementById('stage');st.innerHTML='';
+ document.body.classList.toggle('dp',mode==='dark');
+ (mode==='both'?['light','dark']:[mode]).forEach(th=>{
+  const row=document.createElement('div');row.className='row';
+  screens.forEach(s=>{const c=document.createElement('div');c.className='cell';
+   c.innerHTML=`<div class="phone" data-theme="${th}">${s[1]()}</div><div class="cap">${s[0]} · ${th==='dark'?'тёмная':'светлая'}</div>`;row.appendChild(c)});
+  st.appendChild(row)});
+}
+document.querySelectorAll('.seg button').forEach(b=>b.onclick=()=>{mode=b.dataset.m;document.querySelectorAll('.seg button').forEach(x=>x.setAttribute('aria-pressed',x===b));render()});
+render();
+</script>
+</body>
+</html>

@@ -4,6 +4,7 @@ import 'package:beading/core/failure.dart';
 import 'package:beading/domain/events/app_events.dart';
 import 'package:beading/domain/image_pattern/book_work/page_viewport.dart';
 import 'package:beading/domain/image_pattern/book_work/page_work.dart';
+import 'package:beading/domain/image_pattern/book_work/pattern_zone.dart';
 import 'package:beading/domain/image_pattern/book_work/record_book_progress.dart';
 import 'package:beading/domain/image_pattern/book_work/ruler_state.dart';
 import 'package:beading/domain/image_pattern/image_pattern.dart';
@@ -466,6 +467,105 @@ void main() {
       expect(cubit.state.panelCollapsed, isTrue);
       cubit.setPanelCollapsed(collapsed: false);
       expect(cubit.state.panelCollapsed, isFalse);
+    });
+  });
+
+  group('зона схемы', () {
+    const PatternZone zone = PatternZone(top: 100, bottom: 900, left: 10, right: 90);
+
+    test('зона ставит линейку к началу зоны и запоминается', () async {
+      final BookWorkCubit cubit = await loaded();
+
+      cubit.setZone(zone);
+
+      expect(cubit.state.work.ruler.zone, zone);
+      expect(cubit.state.work.ruler.top, 100);
+      await cubit.flush();
+      expect(work.pages['pg-1']!.ruler.zone, zone);
+    });
+
+    test('число рядов считает высоту и шаг, ряды не выходят за зону', () async {
+      final BookWorkCubit cubit = await loaded();
+      cubit.setZone(zone);
+
+      cubit.setRowCount(16);
+      for (int i = 0; i < 30; i++) {
+        cubit.nextRow();
+      }
+
+      expect(cubit.state.work.ruler.height, 50);
+      expect(cubit.state.work.ruler.row, 16);
+      expect(cubit.state.work.ruler.bottom, closeTo(900, 1e-9));
+      expect(cubit.state.isLastRow, isTrue);
+    });
+
+    test('правка ручками: начало и конец выбора, сброс снимает зону', () async {
+      final BookWorkCubit cubit = await loaded();
+
+      cubit.startZoneEditing();
+      expect(cubit.state.zoneEditing, isTrue);
+      expect(cubit.state.work.ruler.zone, const PatternZone(top: 0, bottom: 1000, left: 0, right: 100));
+
+      cubit.finishZoneEditing();
+      expect(cubit.state.zoneEditing, isFalse);
+      expect(cubit.state.work.ruler.zone, isNotNull);
+
+      cubit.resetZone();
+      expect(cubit.state.work.ruler.zone, isNull);
+      expect(cubit.state.work.ruler.rowCount, isNull);
+    });
+
+    test('зона у каждой страницы своя', () async {
+      final BookWorkCubit cubit = await loaded();
+      cubit.setZone(zone);
+
+      cubit.selectPage(1);
+
+      expect(cubit.state.work.ruler.zone, isNull);
+    });
+  });
+
+  group('маркер', () {
+    test('мазок, «Отменить» и «Вернуть»', () async {
+      final BookWorkCubit cubit = await loaded()
+        ..startMarker()
+        ..addStroke(<double>[0.1, 0.1, 0.2, 0.2, 0.3, 0.2]);
+      expect(cubit.state.work.markup.strokes, hasLength(1));
+      cubit.undoMarkup();
+      expect(cubit.state.work.markup.strokes, isEmpty);
+      expect(cubit.state.canRedoMarkup, isTrue);
+      cubit.redoMarkup();
+      expect(cubit.state.work.markup.strokes, hasLength(1));
+    });
+
+    test('ластик стирает мазок одним шагом, очистка страницы отменяется', () async {
+      final BookWorkCubit cubit = await loaded()
+        ..startMarker()
+        ..addStroke(<double>[0.1, 0.1, 0.3, 0.1])
+        ..addStroke(<double>[0.1, 0.5, 0.3, 0.5])
+        ..setMarkerEraser(eraser: true)
+        ..beginErase()
+        ..eraseAlong(<double>[0.2, 0.1])
+        ..endErase();
+      expect(cubit.state.work.markup.strokes, hasLength(1));
+      cubit.undoMarkup();
+      expect(cubit.state.work.markup.strokes, hasLength(2));
+      cubit.clearMarkup();
+      expect(cubit.state.work.markup.isEmpty, isTrue);
+      cubit.undoMarkup();
+      expect(cubit.state.work.markup.strokes, hasLength(2));
+    });
+
+    test('пометки у каждой страницы свои', () async {
+      final BookWorkCubit cubit = await loaded()
+        ..startMarker()
+        ..addStroke(<double>[0.1, 0.1, 0.3, 0.1]);
+      cubit.selectPage(1);
+      await pumpEventQueue();
+      expect(cubit.state.work.markup.isEmpty, isTrue);
+      cubit.selectPage(0);
+      await pumpEventQueue();
+      expect(cubit.state.work.markup.strokes, hasLength(1));
     });
   });
 }

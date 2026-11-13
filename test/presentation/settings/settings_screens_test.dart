@@ -8,12 +8,14 @@ import 'package:beading/presentation/settings/about_screen.dart';
 import 'package:beading/presentation/settings/hidden_settings_screen.dart';
 import 'package:beading/presentation/settings/settings_cubit.dart';
 import 'package:beading/presentation/settings/settings_screen.dart';
+import 'package:beading/presentation/sharing/data_transfer_cubit.dart';
 import 'package:beading/presentation/theme/app_theme.dart';
 import 'package:beading/presentation/theme/theme_mode_cubit.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import '../../support/fake_biser.dart';
 import '../../support/fake_clock.dart';
 import '../../support/fake_settings_repository.dart';
 
@@ -81,8 +83,9 @@ void main() {
         expect(find.text('Производитель бисера'), findsOneWidget);
         expect(find.text('Miyuki'), findsOneWidget);
         expect(find.text('Резервная копия'), findsOneWidget);
-        expect(find.text('Синхронизация с iCloud'), findsOneWidget);
-        expect(find.text('Скоро'), findsNWidgets(2));
+        expect(find.text('Синхронизация'), findsOneWidget);
+        expect(find.text('Скоро'), findsOneWidget);
+        expect(find.text('Не настроена в этой сборке'), findsOneWidget);
         expect(find.text('О приложении'), findsOneWidget);
       });
     }
@@ -129,6 +132,17 @@ void main() {
       expect(find.text('Toho'), findsOneWidget);
     });
 
+    testWidgets('производитель мулине выбирается из списка', (tester) async {
+      await tester.pumpWidget(wrap(SettingsScreen(onOpenAbout: () {})));
+
+      await tester.tap(find.byKey(const ValueKey<String>('default-floss-brand')));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('DMC'));
+      await tester.pumpAndSettle();
+
+      expect(settings.state.defaultFlossBrand, 'DMC');
+    });
+
     testWidgets('ошибка записи показывает предупреждение', (tester) async {
       repo.failWrites = true;
       await tester.pumpWidget(wrap(SettingsScreen(onOpenAbout: () {})));
@@ -137,6 +151,22 @@ void main() {
       await tester.pump();
 
       expect(find.text('Не удалось сохранить настройку. Попробуй ещё раз.'), findsOneWidget);
+    });
+
+    testWidgets('с резервной копией вместо «Скоро» две рабочие строки', (tester) async {
+      final FakeFileSharer sharer = FakeFileSharer();
+      final DataTransferCubit transfer = fakeDataTransfer(sharer: sharer);
+      addTearDown(transfer.close);
+      await tester.pumpWidget(wrap(SettingsScreen(onOpenAbout: () {}, dataTransfer: transfer)));
+
+      expect(find.text('Создать резервную копию'), findsOneWidget);
+      expect(find.text('Восстановить из файла'), findsOneWidget);
+      expect(find.text('Скоро'), findsNothing);
+
+      await tester.tap(find.byKey(const ValueKey<String>('settings-backup')));
+      await tester.pump();
+      await tester.pump();
+      expect(sharer.shared.single.fileName, startsWith('Biser-backup-'));
     });
 
     testWidgets('«О приложении» вызывает переход', (tester) async {
@@ -193,9 +223,10 @@ void main() {
         await tester.pumpWidget(about(themeData: themeData));
         await tester.pump();
 
-        expect(find.text('Бисер'), findsOneWidget);
+        expect(find.text('Канитель'), findsOneWidget);
         expect(find.text('Версия 0.1.0 (3)'), findsOneWidget);
-        expect(find.text('Каждая бусинка на своём месте. Плети с удовольствием!'), findsOneWidget);
+        expect(find.textContaining('CC BY 4.0'), findsOneWidget);
+        expect(find.text('Каждая бусина и каждый крестик на своём месте.'), findsOneWidget);
       });
     }
 

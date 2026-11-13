@@ -195,7 +195,8 @@ void main() {
       final MarkRow mark = MarkRow(patterns: patterns, progress: progress);
       final UnmarkRow unmark = UnmarkRow(patterns: patterns, progress: progress);
 
-      expect((await mark(projectId: 'proj-1', row: 3)).failureOrNull, isA<ValidationFailure>());
+      // Схема 4×3 — пейот с drop 2: ряды плетения — четыре столбца, номера 0–3.
+      expect((await mark(projectId: 'proj-1', row: 4)).failureOrNull, isA<ValidationFailure>());
       expect((await mark(projectId: 'proj-1', row: -1)).failureOrNull, isA<ValidationFailure>());
       expect((await unmark(projectId: 'proj-1', row: 99)).failureOrNull, isA<ValidationFailure>());
       expect(progress.calls, isEmpty);
@@ -211,17 +212,17 @@ void main() {
     test('SetCurrentBead запоминает ряд и бусину, бусина может быть пустой', () async {
       final SetCurrentBead setCurrent = SetCurrentBead(patterns: patterns, progress: progress);
 
-      expect((await setCurrent(projectId: 'proj-1', row: 1, bead: 3)).isSuccess, isTrue);
-      expect((progress.currentRow, progress.currentBead), (1, 3));
+      expect((await setCurrent(projectId: 'proj-1', row: 3, bead: 2)).isSuccess, isTrue);
+      expect((progress.currentRow, progress.currentBead), (3, 2));
       expect((await setCurrent(projectId: 'proj-1', row: 2)).isSuccess, isTrue);
       expect((progress.currentRow, progress.currentBead), (2, null));
     });
 
-    test('SetCurrentBead отклоняет ряд и бусину вне схемы 4×3', () async {
+    test('SetCurrentBead отклоняет ряд и бусину вне схемы (4 ряда плетения по 3 бусины)', () async {
       final SetCurrentBead setCurrent = SetCurrentBead(patterns: patterns, progress: progress);
 
-      expect((await setCurrent(projectId: 'proj-1', row: 3)).failureOrNull, isA<ValidationFailure>());
-      expect((await setCurrent(projectId: 'proj-1', row: 0, bead: 4)).failureOrNull, isA<ValidationFailure>());
+      expect((await setCurrent(projectId: 'proj-1', row: 4)).failureOrNull, isA<ValidationFailure>());
+      expect((await setCurrent(projectId: 'proj-1', row: 0, bead: 3)).failureOrNull, isA<ValidationFailure>());
       expect((await setCurrent(projectId: 'proj-1', row: 0, bead: -1)).failureOrNull, isA<ValidationFailure>());
       expect(progress.calls, isEmpty);
     });

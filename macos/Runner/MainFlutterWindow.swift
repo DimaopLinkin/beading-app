@@ -37,6 +37,7 @@ final class AccessibilityChannel {
 
 class MainFlutterWindow: NSWindow {
   private var accessibilityChannel: AccessibilityChannel?
+  private var imageMasksChannel: ImageMasksChannel?
 
   override func awakeFromNib() {
     let flutterViewController = FlutterViewController()
@@ -46,6 +47,8 @@ class MainFlutterWindow: NSWindow {
 
     RegisterGeneratedPlugins(registry: flutterViewController)
     accessibilityChannel = AccessibilityChannel(messenger: flutterViewController.engine.binaryMessenger)
+    imageMasksChannel = ImageMasksChannel(messenger: flutterViewController.engine.binaryMessenger)
+    AppDelegate.incomingFiles.attach(messenger: flutterViewController.engine.binaryMessenger)
 
     super.awakeFromNib()
   }

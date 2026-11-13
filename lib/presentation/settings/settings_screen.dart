@@ -1,20 +1,38 @@
+import 'dart:async';
+
 import 'package:beading/domain/settings/app_theme_mode.dart';
 import 'package:beading/domain/settings/bead_brands.dart';
+import 'package:beading/domain/settings/floss_brands.dart';
 import 'package:beading/presentation/l10n/app_localizations.dart';
 import 'package:beading/presentation/settings/settings_cubit.dart';
 import 'package:beading/presentation/settings/settings_state.dart';
+import 'package:beading/presentation/sharing/data_transfer_cubit.dart';
+import 'package:beading/presentation/sharing/share_origin.dart';
 import 'package:beading/presentation/theme/theme_mode_cubit.dart';
 import 'package:beading/presentation/theme/tokens.dart';
+import 'package:beading/presentation/widgets/app_list_section.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 /// Экран «Настройки». Нужны [SettingsCubit] и [ThemeModeCubit] выше по дереву.
 ///
-/// Резервная копия и синхронизация — заглушки «Скоро»: T21 и T28 заменят их рабочими пунктами.
+/// Резервная копия работает, если передан [dataTransfer] (T21); синхронизация — заглушка «Скоро» до T28.
 class SettingsScreen extends StatelessWidget {
-  const SettingsScreen({required this.onOpenAbout, this.onOpenGlassCheck, super.key});
+  const SettingsScreen({
+    required this.onOpenAbout,
+    this.onOpenSync,
+    this.onOpenGlassCheck,
+    this.dataTransfer,
+    super.key,
+  });
+
+  /// Резервная копия и восстановление; `null` — пункты «Скоро».
+  final DataTransferCubit? dataTransfer;
 
   final VoidCallback onOpenAbout;
+
+  /// `null` — сборка без синхронизации.
+  final VoidCallback? onOpenSync;
 
   /// Раздел «Для разработки» (проверка стекла на устройстве); `null` в релизной сборке.
   final VoidCallback? onOpenGlassCheck;
@@ -24,86 +42,110 @@ class SettingsScreen extends StatelessWidget {
     final AppLocalizations l10n = AppLocalizations.of(context);
     return CupertinoPageScaffold(
       navigationBar: CupertinoNavigationBar(middle: Text(l10n.settingsTitle)),
-      child: SafeArea(
-        child: BlocBuilder<SettingsCubit, SettingsState>(
-          builder: (context, state) {
-            final SettingsCubit cubit = context.read<SettingsCubit>();
-            return ListView(
-              children: <Widget>[
-                if (state.saveFailed) _SaveFailedBanner(text: l10n.settingsSaveFailed),
-                CupertinoListSection.insetGrouped(
-                  header: Text(l10n.settingsSectionAppearance),
-                  children: <Widget>[_ThemeTile(label: l10n.settingsThemeLabel)],
-                ),
-                CupertinoListSection.insetGrouped(
-                  header: Text(l10n.settingsSectionWork),
-                  children: <Widget>[
-                    CupertinoListTile.notched(
-                      title: Text(l10n.settingsKeepScreenAwake),
-                      trailing: CupertinoSwitch(
-                        key: const ValueKey<String>('keep-screen-awake'),
-                        value: state.keepScreenAwake,
-                        onChanged: (value) => cubit.setKeepScreenAwake(value: value),
-                      ),
+      child: BlocBuilder<SettingsCubit, SettingsState>(
+        builder: (context, state) {
+          final SettingsCubit cubit = context.read<SettingsCubit>();
+          return ListView(
+            children: <Widget>[
+              if (state.saveFailed) _SaveFailedBanner(text: l10n.settingsSaveFailed),
+              AppListSection(
+                header: Text(l10n.settingsSectionAppearance),
+                children: <Widget>[_ThemeTile(label: l10n.settingsThemeLabel)],
+              ),
+              AppListSection(
+                header: Text(l10n.settingsSectionWork),
+                children: <Widget>[
+                  CupertinoListTile.notched(
+                    title: Text(l10n.settingsKeepScreenAwake),
+                    trailing: CupertinoSwitch(
+                      key: const ValueKey<String>('keep-screen-awake'),
+                      value: state.keepScreenAwake,
+                      onChanged: (value) => cubit.setKeepScreenAwake(value: value),
                     ),
-                    CupertinoListTile.notched(
-                      title: Text(l10n.settingsSymbolMode),
-                      trailing: CupertinoSwitch(
-                        key: const ValueKey<String>('symbol-mode'),
-                        value: state.symbolMode,
-                        onChanged: (value) => cubit.setSymbolMode(value: value),
-                      ),
+                  ),
+                  CupertinoListTile.notched(
+                    title: Text(l10n.settingsSymbolMode),
+                    trailing: CupertinoSwitch(
+                      key: const ValueKey<String>('symbol-mode'),
+                      value: state.symbolMode,
+                      onChanged: (value) => cubit.setSymbolMode(value: value),
                     ),
-                    CupertinoListTile.notched(
-                      key: const ValueKey<String>('default-brand'),
-                      title: Text(l10n.settingsDefaultBrand),
-                      additionalInfo: Text(state.defaultBeadBrand),
-                      trailing: const CupertinoListTileChevron(),
-                      onTap: () => _pickBrand(context, cubit, state.defaultBeadBrand),
-                    ),
-                  ],
-                ),
-                CupertinoListSection.insetGrouped(
-                  header: Text(l10n.settingsSectionData),
-                  children: <Widget>[
+                  ),
+                  CupertinoListTile.notched(
+                    key: const ValueKey<String>('default-brand'),
+                    title: Text(l10n.settingsDefaultBrand),
+                    additionalInfo: Text(state.defaultBeadBrand),
+                    trailing: const CupertinoListTileChevron(),
+                    onTap: () => _pickBrand(context, cubit, state.defaultBeadBrand),
+                  ),
+                  CupertinoListTile.notched(
+                    key: const ValueKey<String>('default-floss-brand'),
+                    title: Text(l10n.settingsDefaultFlossBrand),
+                    additionalInfo: Text(state.defaultFlossBrand),
+                    trailing: const CupertinoListTileChevron(),
+                    onTap: () => _pickFlossBrand(context, cubit, state.defaultFlossBrand),
+                  ),
+                ],
+              ),
+              AppListSection(
+                header: Text(l10n.settingsSectionData),
+                children: <Widget>[
+                  if (dataTransfer == null)
                     CupertinoListTile.notched(
                       key: const ValueKey<String>('settings-backup'),
                       title: Text(l10n.settingsBackup),
                       additionalInfo: Text(l10n.settingsSoon),
+                    )
+                  else ...<Widget>[
+                    Builder(
+                      builder: (tileContext) => CupertinoListTile.notched(
+                        key: const ValueKey<String>('settings-backup'),
+                        title: Text(l10n.settingsBackupCreate),
+                        trailing: const CupertinoListTileChevron(),
+                        onTap: () => unawaited(dataTransfer!.backup(origin: shareOriginOf(tileContext))),
+                      ),
                     ),
                     CupertinoListTile.notched(
-                      key: const ValueKey<String>('settings-sync'),
-                      title: Text(l10n.settingsSync),
-                      additionalInfo: Text(l10n.settingsSoon),
+                      key: const ValueKey<String>('settings-restore'),
+                      title: Text(l10n.settingsRestore),
+                      trailing: const CupertinoListTileChevron(),
+                      onTap: () => unawaited(dataTransfer!.pickAndPreview()),
                     ),
                   ],
-                ),
-                CupertinoListSection.insetGrouped(
+                  CupertinoListTile.notched(
+                    key: const ValueKey<String>('settings-sync'),
+                    title: Text(l10n.settingsSync),
+                    additionalInfo: onOpenSync == null ? Text(l10n.settingsSyncOff) : null,
+                    trailing: onOpenSync == null ? null : const CupertinoListTileChevron(),
+                    onTap: onOpenSync,
+                  ),
+                ],
+              ),
+              AppListSection(
+                children: <Widget>[
+                  CupertinoListTile.notched(
+                    key: const ValueKey<String>('settings-about'),
+                    title: Text(l10n.settingsAbout),
+                    trailing: const CupertinoListTileChevron(),
+                    onTap: onOpenAbout,
+                  ),
+                ],
+              ),
+              if (onOpenGlassCheck != null)
+                AppListSection(
+                  header: Text(l10n.settingsSectionDev),
                   children: <Widget>[
                     CupertinoListTile.notched(
-                      key: const ValueKey<String>('settings-about'),
-                      title: Text(l10n.settingsAbout),
+                      key: const ValueKey<String>('settings-glass-check'),
+                      title: Text(l10n.settingsGlassCheck),
                       trailing: const CupertinoListTileChevron(),
-                      onTap: onOpenAbout,
+                      onTap: onOpenGlassCheck,
                     ),
                   ],
                 ),
-                if (onOpenGlassCheck != null)
-                  CupertinoListSection.insetGrouped(
-                    header: Text(l10n.settingsSectionDev),
-                    children: <Widget>[
-                      CupertinoListTile.notched(
-                        key: const ValueKey<String>('settings-glass-check'),
-                        title: Text(l10n.settingsGlassCheck),
-                        trailing: const CupertinoListTileChevron(),
-                        onTap: onOpenGlassCheck,
-                      ),
-                    ],
-                  ),
-              ],
-            );
-          },
-        ),
+            ],
+          );
+        },
       ),
     );
   }
@@ -120,6 +162,31 @@ class SettingsScreen extends StatelessWidget {
               isDefaultAction: brand == current,
               onPressed: () {
                 cubit.setDefaultBeadBrand(brand);
+                Navigator.of(popupContext).pop();
+              },
+              child: Text(brand),
+            ),
+        ],
+        cancelButton: CupertinoActionSheetAction(
+          onPressed: () => Navigator.of(popupContext).pop(),
+          child: Text(l10n.cancel),
+        ),
+      ),
+    );
+  }
+
+  Future<void> _pickFlossBrand(BuildContext context, SettingsCubit cubit, String current) {
+    final AppLocalizations l10n = AppLocalizations.of(context);
+    return showCupertinoModalPopup<void>(
+      context: context,
+      builder: (popupContext) => CupertinoActionSheet(
+        title: Text(l10n.settingsDefaultFlossBrand),
+        actions: <Widget>[
+          for (final String brand in flossBrandChoices)
+            CupertinoActionSheetAction(
+              isDefaultAction: brand == current,
+              onPressed: () {
+                cubit.setDefaultFlossBrand(brand);
                 Navigator.of(popupContext).pop();
               },
               child: Text(brand),

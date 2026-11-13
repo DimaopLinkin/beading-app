@@ -149,8 +149,8 @@ abstract final class EditorCommands {
     if (width < 1 || width > Grid.maxSide || height < 1 || height > Grid.maxSide) {
       return Err<Grid>(ValidationFailure('размер $width×$height вне 1..${Grid.maxSide}'));
     }
-    final int dx = _anchorOffset(anchor, horizontal: true, from: grid.width, to: width);
-    final int dy = _anchorOffset(anchor, horizontal: false, from: grid.height, to: height);
+    final int dx = anchorOffset(anchor, horizontal: true, from: grid.width, to: width);
+    final int dy = anchorOffset(anchor, horizontal: false, from: grid.height, to: height);
     final Uint16List out = Uint16List(width * height);
     for (int row = 0; row < height; row++) {
       final int srcRow = row - dy;
@@ -164,7 +164,8 @@ abstract final class EditorCommands {
     return _checked(width, height, out);
   }
 
-  static int _anchorOffset(ResizeAnchor anchor, {required bool horizontal, required int from, required int to}) {
+  /// Сдвиг содержимого (в ячейках) при смене размера с `from` на `to` по одной оси.
+  static int anchorOffset(ResizeAnchor anchor, {required bool horizontal, required int from, required int to}) {
     final int delta = to - from;
     final int side = switch (anchor) {
       ResizeAnchor.topLeft => horizontal ? 0 : 0,

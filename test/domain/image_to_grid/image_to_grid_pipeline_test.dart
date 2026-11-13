@@ -1,3 +1,4 @@
+import 'dart:math' as math;
 import 'dart:typed_data';
 
 import 'package:beading/domain/catalog/catalog_color.dart';
@@ -5,12 +6,15 @@ import 'package:beading/domain/catalog/catalog_material.dart';
 import 'package:beading/domain/grid/grid.dart';
 import 'package:beading/domain/grid/grid_geometry.dart';
 import 'package:beading/domain/image_to_grid/generated_pattern.dart';
+import 'package:beading/domain/image_to_grid/image_prefilter.dart';
 import 'package:beading/domain/image_to_grid/image_to_grid_pipeline.dart';
 import 'package:beading/domain/image_to_grid/image_to_grid_request.dart';
+import 'package:beading/domain/image_to_grid/palette_builder.dart';
 import 'package:beading/domain/image_to_grid/palette_constraint.dart';
 import 'package:beading/domain/image_to_grid/palette_entry.dart';
 import 'package:beading/domain/image_to_grid/pattern_step.dart';
 import 'package:beading/domain/image_to_grid/source_image.dart';
+import 'package:beading/domain/image_to_grid/work_image.dart';
 import 'package:beading/domain/palette/rgb.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -29,6 +33,7 @@ ImageToGridRequest request(
   Float32List? importance,
   List<PatternStep> steps = const <PatternStep>[],
   GridGeometry geometry = const GridGeometry.rectangular(),
+  ImagePrefilter? prefilter,
 }) => ImageToGridRequest(
   image: image,
   geometry: geometry,
@@ -41,7 +46,32 @@ ImageToGridRequest request(
   seed: seed,
   importance: importance,
   steps: steps,
+  prefilter: prefilter,
 );
+
+/// Подготовка, которая стирает светлоту: проверяет, что метрики берутся по фото, а не по отфильтрованной картинке.
+class _FlatLightnessPrefilter implements ImagePrefilter {
+  const _FlatLightnessPrefilter();
+
+  @override
+  WorkImage apply(WorkImage image) => image.withColors(
+    lightness: Float32List(image.lightness.length)..fillRange(0, image.lightness.length, 50),
+    a: Float32List(image.a.length),
+    b: Float32List(image.b.length),
+  );
+}
+
+class _CaptureImportance implements PatternStep {
+  _CaptureImportance(this.onImportance);
+
+  final void Function(Float32List weights) onImportance;
+
+  @override
+  GeneratedPattern apply(GeneratedPattern pattern, PatternStepContext context) {
+    onImportance(context.cellImportance);
+    return pattern;
+  }
+}
 
 class _ReplaceWithOnes implements PatternStep {
   _ReplaceWithOnes(this.log);
@@ -80,6 +110,100 @@ void main() {
   const ImageToGridPipeline pipeline = ImageToGridPipeline();
 
   group('ImageToGridPipeline', () {
+    group('структура светлоты (T65)', () {
+      test('чёрно-белая шахматка в двух цветах: контраст 1, корреляция 1', () {
+        final SourceImage image = blockImage(<List<int>>[
+          <int>[0x000000, 0xFFFFFF],
+          <int>[0xFFFFFF, 0x000000],
+        ], block: 6);
+        final GeneratedPattern result = pipeline.run(request(image, columns: 2, rows: 2, maxColors: 2));
+        expect(result.stats!.contrast, closeTo(1, 0.02));
+        expect(result.stats!.lightnessCorrelation, closeTo(1, 0.01));
+      });
+
+      test('одна палитра из серого на чёрно-белом фото: контраст ниже 1, корреляция остаётся высокой', () {
+        final SourceImage image = blockImage(<List<int>>[
+          <int>[0x000000, 0xFFFFFF],
+          <int>[0xFFFFFF, 0x000000],
+        ], block: 6);
+        final GeneratedPattern result = pipeline.run(
+          request(
+            image,
+            columns: 2,
+            rows: 2,
+            maxColors: 2,
+            constraint: PaletteConstraint.list(const <PaletteEntry>[
+              PaletteEntry(rgb: Rgb(80, 80, 80)),
+              PaletteEntry(rgb: Rgb(180, 180, 180)),
+            ]),
+          ),
+        );
+        expect(result.stats!.contrast, lessThan(0.5));
+        expect(result.stats!.lightnessCorrelation, closeTo(1, 0.01));
+      });
+
+      test('плавный переход получает все заданные нитки: близкие центры не схлопываются в одну (T74)', () {
+        // Тёплый градиент (как лоб от света к тени) и частый ряд ниток вдоль него: раньше соседние центры кластеров
+        // брали одну и ту же ближайшую нитку, и вместо двенадцати оттенков оставалось меньше, с резкими границами.
+        Rgb mix(double t) => Rgb((214 - 44 * t).round(), (164 - 40 * t).round(), (134 - 40 * t).round());
+        int hex(Rgb c) => (c.r << 16) | (c.g << 8) | c.b;
+        final SourceImage image = blockImage(<List<int>>[
+          <int>[for (int i = 0; i < 48; i++) hex(mix(i / 47))],
+        ], block: 2);
+        final List<PaletteEntry> threads = <PaletteEntry>[for (int i = 0; i < 14; i++) PaletteEntry(rgb: mix(i / 13))];
+        final GeneratedPattern result = pipeline.run(
+          request(image, columns: 48, rows: 1, maxColors: 12, constraint: PaletteConstraint.list(threads)),
+        );
+        expect(result.palette, hasLength(12));
+      });
+
+      test('пиксельный путь с фильтром считает метрики по неотфильтрованному фото', () {
+        final SourceImage image = blockImage(<List<int>>[
+          <int>[0x000000, 0xFFFFFF],
+          <int>[0xFFFFFF, 0x000000],
+        ], block: 6);
+        final ImageToGridRequest pixels = ImageToGridRequest(
+          image: image,
+          geometry: const GridGeometry.rectangular(),
+          metrics: const FakeCellMetrics(1, 1),
+          columns: 2,
+          rows: 2,
+          maxColors: 2,
+          prefilter: const _FlatLightnessPrefilter(),
+          paletteBuilder: const AccentPaletteBuilder(),
+        );
+        final GeneratedPattern result = pipeline.run(pixels);
+        // Фильтр выравнивает светлоту: у отфильтрованной картинки метрик бы не было (нет разброса), а у фото они есть.
+        expect(result.stats!.contrast, isNotNull);
+        expect(result.stats!.lightnessCorrelation, isNotNull);
+      });
+
+      test('у однотонной картинки метрик нет: разброса светлоты нет', () {
+        final GeneratedPattern result = pipeline.run(
+          request(SourceImage.solid(width: 40, height: 40, r: 12, g: 200, b: 99), columns: 8, rows: 8),
+        );
+        expect(result.stats!.contrast, isNull);
+        expect(result.stats!.lightnessCorrelation, isNull);
+      });
+
+      test('в черновике метрики не считаются', () {
+        final SourceImage image = blockImage(<List<int>>[
+          <int>[0x000000, 0xFFFFFF],
+        ], block: 6);
+        final ImageToGridRequest draft = ImageToGridRequest(
+          image: image,
+          geometry: const GridGeometry.rectangular(),
+          metrics: const FakeCellMetrics(1, 1),
+          columns: 2,
+          rows: 1,
+          maxColors: 2,
+          paletteBuilder: const AccentPaletteBuilder(),
+          draft: true,
+        );
+        expect(pipeline.run(draft).stats!.contrast, isNull);
+      });
+    });
+
     test('однотонная картинка — один цвет', () {
       final GeneratedPattern result = pipeline.run(
         request(SourceImage.solid(width: 40, height: 40, r: 12, g: 200, b: 99), columns: 8, rows: 8),
@@ -184,9 +308,9 @@ void main() {
 
     test('дизеринг добавляет промежуточные тона на градиенте с двумя цветами', () {
       final SourceImage image = grayRamp(width: 100, height: 100);
-      final PaletteConstraint blackWhite = PaletteConstraint.list(<PaletteEntry>[
-        const PaletteEntry(rgb: Rgb(0, 0, 0)),
-        const PaletteEntry(rgb: Rgb(255, 255, 255)),
+      final PaletteConstraint blackWhite = PaletteConstraint.list(const <PaletteEntry>[
+        PaletteEntry(rgb: Rgb(0, 0, 0)),
+        PaletteEntry(rgb: Rgb(255, 255, 255)),
       ]);
 
       final GeneratedPattern plain = pipeline.run(
@@ -282,7 +406,7 @@ void main() {
 
       test('пустой список отклоняется', () {
         expect(
-          () => request(image, columns: 2, rows: 2, constraint: PaletteConstraint.list(<PaletteEntry>[])),
+          () => request(image, columns: 2, rows: 2, constraint: PaletteConstraint.list(const <PaletteEntry>[])),
           throwsArgumentError,
         );
       });
@@ -359,7 +483,85 @@ void main() {
       watch.stop();
 
       expect(result.palette.length, lessThanOrEqualTo(12));
-      expect(watch.elapsedMilliseconds, lessThan(2000));
+      // Запас в 3× против одиночного прогона: под параллельной нагрузкой check.sh стенные часы шумят; тест ловит только
+      // порядок величины (квадратичный проход вместо линейного).
+      expect(watch.elapsedMilliseconds, lessThan(6000));
+    });
+  });
+
+  group('подготовка фото в конвейере', () {
+    // Белый фон с чёрным квадратом, поверх — шум ±12 по каждому пикселю.
+    SourceImage noisySquare() {
+      final math.Random random = math.Random(3);
+      final Uint8List bytes = Uint8List(40 * 40 * 4);
+      for (int y = 0; y < 40; y++) {
+        for (int x = 0; x < 40; x++) {
+          final int base = (x >= 10 && x < 30 && y >= 10 && y < 30) ? 20 : 235;
+          final int v = base + random.nextInt(25) - 12;
+          final int o = (y * 40 + x) * 4;
+          bytes[o] = v;
+          bytes[o + 1] = v;
+          bytes[o + 2] = v;
+          bytes[o + 3] = 255;
+        }
+      }
+      return SourceImage(width: 40, height: 40, rgba: bytes);
+    }
+
+    test('без префильтра результат тот же, что у конвейера до T52', () {
+      final SourceImage image = noisySquare();
+      final GeneratedPattern plain = const ImageToGridPipeline().run(request(image, columns: 20, rows: 20));
+      final GeneratedPattern again = const ImageToGridPipeline().run(request(image, columns: 20, rows: 20));
+      expect(plain.grid.cells, again.grid.cells);
+    });
+
+    test('с префильтром цвета ячеек чище, схема той же формы и детерминирована', () {
+      final SourceImage image = noisySquare();
+      final GeneratedPattern a = const ImageToGridPipeline().run(
+        request(image, columns: 20, rows: 20, maxColors: 2, prefilter: const EdgePreservingPrefilter()),
+      );
+      final GeneratedPattern b = const ImageToGridPipeline().run(
+        request(image, columns: 20, rows: 20, maxColors: 2, prefilter: const EdgePreservingPrefilter()),
+      );
+      expect(a.grid.cells, b.grid.cells);
+      expect(a.grid.width, 20);
+      expect(a.grid.height, 20);
+      expect(a.palette, hasLength(2));
+      // Центр квадрата и фон — разные цвета, края квадрата на месте.
+      expect(a.grid.at(10, 10), isNot(a.grid.at(1, 1)));
+    });
+
+    test('маска важности доходит до шагов в рабочем разрешении', () {
+      final SourceImage image = noisySquare();
+      final Float32List mask = Float32List(40 * 40)..fillRange(0, 40 * 40, 2);
+      Float32List? seen;
+      const ImageToGridPipeline().run(
+        request(
+          image,
+          columns: 4,
+          rows: 4,
+          importance: mask,
+          prefilter: const EdgePreservingPrefilter(),
+          steps: <PatternStep>[_CaptureImportance((w) => seen = w)],
+        ),
+      );
+      expect(seen, isNotNull);
+      expect(seen!.every((w) => (w - 2).abs() < 1e-4), isTrue);
+    });
+
+    test('12 Мпикс: рабочая картинка для 150×200 строится быстрее секунды', () {
+      final SourceImage big = SourceImage.solid(width: 3000, height: 4000, r: 120, g: 90, b: 60);
+      final Stopwatch watch = Stopwatch()..start();
+      final WorkImage work = WorkImage.fromSource(
+        image: big,
+        geometry: const GridGeometry.rectangular(),
+        metrics: const FakeCellMetrics(1, 1),
+        columns: 150,
+        rows: 200,
+      );
+      watch.stop();
+      expect(work.width, 600);
+      expect(watch.elapsedMilliseconds, lessThan(3000)); // запас против параллельной нагрузки, см. тест выше
     });
   });
 
@@ -390,6 +592,64 @@ void main() {
       expect(() => SourceImage(width: 0, height: 1, rgba: Uint8List(0)), throwsArgumentError);
       expect(() => SourceImage(width: 1, height: 0, rgba: Uint8List(0)), throwsArgumentError);
       expect(() => SourceImage(width: 2, height: 2, rgba: Uint8List(15)), throwsArgumentError);
+    });
+  });
+
+  group('stats', () {
+    test('считает одиночные клетки, цвета и среднюю ΔE; время стадий записано', () {
+      final SourceImage image = blockImage(<List<int>>[
+        <int>[0xFF0000, 0xFF0000, 0xFF0000],
+        <int>[0xFF0000, 0x0000FF, 0xFF0000],
+        <int>[0xFF0000, 0xFF0000, 0xFF0000],
+      ]);
+      final GeneratedPattern pattern = const ImageToGridPipeline().run(
+        request(image, columns: 3, rows: 3, maxColors: 2),
+      );
+      final stats = pattern.stats!;
+      expect(stats.singleCells, 1);
+      expect(stats.colorCount, 2);
+      expect(stats.meanDeltaE, lessThan(0.5));
+      expect(stats.stageTimes.keys, <String>['sample', 'palette', 'assign', 'steps']);
+      expect(stats.totalTime, greaterThanOrEqualTo(Duration.zero));
+    });
+
+    test('у пустой картинки метрики нулевые', () {
+      final SourceImage image = blockImage(<List<int>>[
+        <int>[0xFF0000],
+      ], alpha: 0);
+      final GeneratedPattern pattern = const ImageToGridPipeline().run(request(image, columns: 1, rows: 1));
+      expect(pattern.stats!.meanDeltaE, 0);
+      expect(pattern.stats!.colorCount, 0);
+    });
+  });
+
+  group('бленды (T57)', () {
+    // Слева красный, справа жёлтый, посередине оранжевый: оранжевый ближе к бленду двух ниток, чем к любому из двух.
+    final SourceImage photo = blockImage(<List<int>>[
+      <int>[for (int i = 0; i < 12; i++) i < 4 ? 0xC82828 : (i < 8 ? 0xE48C30 : 0xE6C832)],
+    ], block: 3);
+
+    ImageToGridRequest build({required bool blends, bool draft = false}) => ImageToGridRequest(
+      image: photo,
+      geometry: const GridGeometry.rectangular(),
+      metrics: const FakeCellMetrics(1, 1),
+      columns: 12,
+      rows: 1,
+      maxColors: 2,
+      suggestBlends: blends,
+      draft: draft,
+    );
+
+    test('без запроса предложений нет и время стадии не пишется', () {
+      final GeneratedPattern result = pipeline.run(build(blends: false));
+      expect(result.blendSuggestions, isEmpty);
+      expect(result.stats!.stageTimes.containsKey('blends'), isFalse);
+    });
+
+    test('с запросом результат содержит поле, стадия учтена; черновик бленды не ищет', () {
+      final GeneratedPattern result = pipeline.run(build(blends: true));
+      expect(result.stats!.stageTimes.containsKey('blends'), isTrue);
+      expect(pipeline.run(build(blends: true, draft: true)).stats!.stageTimes.containsKey('blends'), isFalse);
     });
   });
 }

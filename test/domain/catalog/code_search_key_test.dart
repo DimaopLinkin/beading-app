@@ -19,8 +19,15 @@ void main() {
       expect(codeSearchKey('0049F'), '49f');
     });
 
-    test('разделители убираются до обработки нулей', () {
-      expect(codeSearchKey('DB11-0010'), 'db110010');
+    test('пробелы и дефис после букв убираются до обработки нулей', () {
+      expect(codeSearchKey('DB-0010'), 'db10');
+      expect(codeSearchKey('DB 0010'), 'db10');
+    });
+
+    test('дефис между цифрами сохраняется: DB0106-1 и DB1061 — разные бусины', () {
+      expect(codeSearchKey('DB0106-1'), 'db106-1');
+      expect(codeSearchKey('DB1061'), 'db1061');
+      expect(codeSearchKey('db 106-1'), codeSearchKey('DB0106-1'));
     });
   });
 

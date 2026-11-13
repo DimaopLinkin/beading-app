@@ -55,6 +55,7 @@ class CreateGridPattern {
     Grid? grid,
     PaletteSnapshot? palette,
     String notes = '',
+    GridLayersBlob? layers,
   }) async {
     final Grid cells;
     try {
@@ -91,8 +92,15 @@ class CreateGridPattern {
       metrics: metrics,
       grid: cells,
       palette: colors,
+      layers: layers,
     );
-    final Result<void> saved = await _patterns.save(pattern);
+    Result<void> saved;
+    try {
+      saved = await _patterns.save(pattern);
+    } on Object {
+      // Исключение хранилища не должно оставлять проект без схемы.
+      saved = const Err<void>(StorageFailure('Не удалось записать схему'));
+    }
     if (saved case Err<void>(:final Failure failure)) {
       await _projects.delete(project.id);
       return Err<CreatedGridPattern>(failure);

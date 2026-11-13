@@ -6,10 +6,14 @@ import 'package:beading/core/id_generator.dart';
 import 'package:beading/core/result.dart';
 import 'package:beading/data/db/app_database.dart';
 import 'package:beading/data/db/daos/grid_patterns_dao.dart';
+import 'package:beading/data/grid_pattern/cell_blocks_writer.dart';
 import 'package:beading/data/grid_pattern/grid_pattern_mapper.dart';
 import 'package:beading/data/settings/storage_guard.dart';
 import 'package:beading/domain/grid/grid_codec.dart';
+import 'package:beading/domain/grid/grid_geometry.dart';
+import 'package:beading/domain/grid/reading_order.dart';
 import 'package:beading/domain/grid_pattern/cell_metrics_codec.dart';
+import 'package:beading/domain/grid_pattern/cell_progress.dart';
 import 'package:beading/domain/grid_pattern/grid_geometry_codec.dart';
 import 'package:beading/domain/grid_pattern/grid_pattern.dart';
 import 'package:beading/domain/grid_pattern/grid_pattern_repository.dart';
@@ -45,12 +49,24 @@ class DriftGridPatternRepository implements GridPatternRepository {
 
   @override
   Future<Result<GridPatternSummary>> summaryByProject(String projectId) => _guard<GridPatternSummary>(() async {
-    final ({String id, int width, int height})? found = await _dao.summaryByProject(projectId);
+    final ({String id, int width, int height, String geometry, int drop})? found = await _dao.summaryByProject(
+      projectId,
+    );
     if (found == null) {
       return Err<GridPatternSummary>(NotFoundFailure('У проекта $projectId нет сетки'));
     }
+    final Result<GridGeometry> geometry = GridGeometryCodec.decode(kind: found.geometry, drop: found.drop);
+    if (geometry case Err<GridGeometry>(:final Failure failure)) {
+      return Err<GridPatternSummary>(failure);
+    }
     return Success<GridPatternSummary>(
-      GridPatternSummary(id: found.id, projectId: projectId, width: found.width, height: found.height),
+      GridPatternSummary(
+        id: found.id,
+        projectId: projectId,
+        width: found.width,
+        height: found.height,
+        geometry: geometry.valueOrNull!,
+      ),
     );
   });
 
@@ -108,6 +124,29 @@ class DriftGridPatternRepository implements GridPatternRepository {
     );
   }
 
+  /// При смене размера индексы блоков отметок не меняются (шаг строки блоков фиксирован): клетки вне схемы отбрасываются.
+  Future<void> _resizeCellProgress(
+    String patternId,
+    int oldWidth,
+    int newWidth,
+    int newHeight, {
+    required int now,
+    required String deviceId,
+  }) async {
+    final List<GridProgressCellRecord> rows = await _dao.aliveProgressCells(patternId);
+    if (rows.isEmpty) {
+      return;
+    }
+    final CellProgress before = CellProgress(
+      width: oldWidth,
+      blocks: <int, Uint8List>{for (final GridProgressCellRecord r in rows) r.blockIndex: r.bits},
+    );
+    final Map<int, Uint8List> changes = before
+        .resized(newWidth: newWidth, newHeight: newHeight)
+        .changedBlocksFrom(before);
+    await writeCellBlocks(_dao, ids: _ids, patternId: patternId, blocks: changes, now: now, deviceId: deviceId);
+  }
+
   Future<Result<void>> _write(GridPattern pattern, {required String metrics, required String deviceId}) async {
     final int now = _clock.now().millisecondsSinceEpoch;
     final StoredGeometry geometry = GridGeometryCodec.encode(pattern.geometry);
@@ -141,9 +180,14 @@ class DriftGridPatternRepository implements GridPatternRepository {
     } else if (existing.deletedAt != null || existing.projectId != pattern.projectId) {
       return Err<void>(NotFoundFailure('Сетка ${pattern.id} не найдена'));
     } else {
+      // Номера рядов прогресса — ряды плетения: у пейота это столбцы, у станка и кирпича — ряды сетки.
+      final ReadingOrder order = ReadingOrder.of(pattern.geometry, columns: width, rows: height);
+      final int readingRows = order.rowCount;
       final int? currentRow = existing.currentRow;
-      final bool rowGone = currentRow != null && currentRow >= height;
+      final bool rowGone = currentRow != null && currentRow >= readingRows;
       final int? currentBead = existing.currentBead;
+      final bool beadGone = rowGone || (currentBead != null && currentBead >= order.maxRowLength);
+      final bool cursorTrimmed = beadGone;
       await (_dao.update(_dao.gridPatterns)..where((t) => t.id.equals(pattern.id))).write(
         GridPatternsCompanion(
           geometry: Value<String>(geometry.kind),
@@ -156,15 +200,18 @@ class DriftGridPatternRepository implements GridPatternRepository {
           layers: Value<Uint8List?>(layers?.bytes),
           layersCodecVersion: Value<int?>(layers?.codecVersion),
           currentRow: rowGone ? const Value<int?>(null) : const Value<int?>.absent(),
-          currentBead: rowGone || (currentBead != null && currentBead >= width)
-              ? const Value<int?>(null)
-              : const Value<int?>.absent(),
+          currentBead: beadGone ? const Value<int?>(null) : const Value<int?>.absent(),
+          cursorUpdatedAt: cursorTrimmed ? Value<int?>(now) : const Value<int?>.absent(),
+          cursorDeviceId: cursorTrimmed ? Value<String?>(deviceId) : const Value<String?>.absent(),
           updatedAt: Value<int>(now),
           deviceId: Value<String>(deviceId),
         ),
       );
       await (_dao.update(_dao.gridProgressRows)..where(
-            (t) => t.gridPatternId.equals(pattern.id) & t.rowIndex.isBiggerOrEqualValue(height) & t.deletedAt.isNull(),
+            (t) =>
+                t.gridPatternId.equals(pattern.id) &
+                t.rowIndex.isBiggerOrEqualValue(readingRows) &
+                t.deletedAt.isNull(),
           ))
           .write(
             GridProgressRowsCompanion(
@@ -175,6 +222,9 @@ class DriftGridPatternRepository implements GridPatternRepository {
           );
     }
     await _writePalette(pattern, existing: existing != null, now: now, deviceId: deviceId);
+    if (existing != null && (existing.width != width || existing.height != height)) {
+      await _resizeCellProgress(pattern.id, existing.width, width, height, now: now, deviceId: deviceId);
+    }
     return const Success<void>(null);
   }
 

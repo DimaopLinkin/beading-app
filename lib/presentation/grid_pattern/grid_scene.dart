@@ -42,6 +42,17 @@ final class GridScene {
   /// Размер всей схемы в сцене.
   late final Size size;
 
+  /// Та же раскладка: ячейки лежат в тех же местах (кеши слоёв сравнивают сцены по ней, а не по объекту).
+  bool sameLayout(GridScene other) =>
+      identical(this, other) ||
+      (geometry == other.geometry &&
+          metrics == other.metrics &&
+          columns == other.columns &&
+          rows == other.rows &&
+          pxPerMm == other.pxPerMm &&
+          cellSize == other.cellSize &&
+          size == other.size);
+
   /// Прямоугольник ячейки.
   Rect cellRect(CellPosition cell) {
     final MmPoint center = geometry.cellCenter(metrics, cell);
@@ -98,6 +109,26 @@ final class GridScene {
     for (int column = 0; column < columns; column++) {
       final Path cell = Path()..addRect(cellRect(CellPosition(column, row)));
       path = outline ? Path.combine(PathOperation.union, path, cell) : (path..addPath(cell, Offset.zero));
+    }
+    return path;
+  }
+
+  /// Охватывающий прямоугольник произвольного набора ячеек (например, ряда плетения).
+  Rect cellsBounds(Iterable<CellPosition> cells) {
+    Rect? bounds;
+    for (final CellPosition cell in cells) {
+      final Rect rect = cellRect(cell);
+      bounds = bounds == null ? rect : bounds.expandToInclude(rect);
+    }
+    return bounds ?? Rect.zero;
+  }
+
+  /// Контур набора ячеек: объединение прямоугольников с [outline], иначе просто набор прямоугольников.
+  Path cellsPath(Iterable<CellPosition> cells, {bool outline = false}) {
+    Path path = Path();
+    for (final CellPosition cell in cells) {
+      final Path rect = Path()..addRect(cellRect(cell));
+      path = outline ? Path.combine(PathOperation.union, path, rect) : (path..addPath(rect, Offset.zero));
     }
     return path;
   }

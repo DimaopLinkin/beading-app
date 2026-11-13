@@ -1,10 +1,13 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:beading/core/result.dart';
 import 'package:beading/data/catalog/catalog_asset_source.dart';
 import 'package:beading/data/catalog/catalog_file_parser.dart';
 import 'package:beading/domain/catalog/catalog_file.dart';
+import 'package:beading/domain/catalog/catalog_material.dart';
 import 'package:beading/domain/settings/bead_brands.dart';
+import 'package:beading/domain/settings/floss_brands.dart';
 import 'package:beading/domain/settings/setting_keys.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -18,7 +21,16 @@ void main() {
     expect(files, isNotEmpty);
   });
 
-  const Map<String, int> minimum = <String, int>{'miyuki_delica_11': 40, 'toho_round_11': 30};
+  const Map<String, int> minimum = <String, int>{
+    'miyuki_delica_11': 1300,
+    'toho_round_11': 900,
+    'miyuki_delica_10': 290,
+    'miyuki_delica_15': 230,
+    'miyuki_rocailles_15': 900,
+    'miyuki_rocailles_8': 680,
+    'dmc_floss': 480,
+    'gamma_floss': 200,
+  };
 
   for (final File file in files) {
     final String id = catalogFileId(file.path);
@@ -54,22 +66,39 @@ void main() {
       final CatalogFile catalog = parseCatalogFile(catalogFileId(file.path), file.readAsStringSync()).valueOrNull!;
       for (final c in catalog.colors) {
         expect(ids.add(c.id), isTrue, reason: 'повтор ${c.id} в ${file.path}');
-        expect(finishes, contains(c.finish), reason: '${c.id}: неизвестная отделка ${c.finish}');
+        if (c.material == CatalogMaterial.bead) {
+          expect(finishes, contains(c.finish), reason: '${c.id}: неизвестная отделка ${c.finish}');
+        }
       }
     }
   });
 
+  Set<String> brandsOf(CatalogMaterial material) => <String>{
+    for (final File f in files)
+      if (parseCatalogFile(catalogFileId(f.path), f.readAsStringSync()).valueOrNull! case final CatalogFile c
+          when c.material == material)
+        c.brand,
+  };
+
   test('список брендов в настройках совпадает с брендами бисера в каталоге', () {
-    final Set<String> brands = <String>{
-      for (final File f in files) parseCatalogFile(catalogFileId(f.path), f.readAsStringSync()).valueOrNull!.brand,
-    };
-    expect(beadBrandChoices.toSet(), brands);
+    expect(beadBrandChoices.toSet(), brandsOf(CatalogMaterial.bead));
+  });
+
+  test('список брендов мулине в настройках совпадает с каталогом, бренд по умолчанию есть в нём', () {
+    expect(flossBrandChoices.toSet(), brandsOf(CatalogMaterial.floss));
+    expect(brandsOf(CatalogMaterial.floss), contains(SettingKeys.defaultFlossBrand.defaultValue));
+  });
+
+  test('у каждого файла мулине записано происхождение данных (`source`)', () {
+    for (final File f in files) {
+      final Map<String, Object?> json = jsonDecode(f.readAsStringSync()) as Map<String, Object?>;
+      if (json['material'] == 'floss') {
+        expect(json['source'], isA<String>().having((s) => s.trim(), 'source', isNotEmpty), reason: f.path);
+      }
+    }
   });
 
   test('бренд бисера по умолчанию есть в каталоге', () {
-    final Set<String> brands = <String>{
-      for (final File f in files) parseCatalogFile(catalogFileId(f.path), f.readAsStringSync()).valueOrNull!.brand,
-    };
-    expect(brands, contains(SettingKeys.defaultBeadBrand.defaultValue));
+    expect(brandsOf(CatalogMaterial.bead), contains(SettingKeys.defaultBeadBrand.defaultValue));
   });
 }

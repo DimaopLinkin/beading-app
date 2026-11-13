@@ -212,6 +212,23 @@ void main() {
     await closeScreen(tester, cubit);
   });
 
+  testWidgets('в списке страниц у страницы с пометками есть значок маркера', (tester) async {
+    final BookWorkCubit cubit = await open(tester);
+    cubit
+      ..startMarker()
+      ..addStroke(<double>[0.1, 0.1, 0.2, 0.2])
+      ..finishMarker();
+    await tester.pump();
+
+    await tester.tap(find.text('Страница 1 из 3'));
+    await tester.pumpAndSettle();
+    expect(find.byKey(const ValueKey<String>('page-marked-0')), findsOneWidget);
+    expect(find.byKey(const ValueKey<String>('page-marked-1')), findsNothing);
+    await tester.tap(find.byKey(const ValueKey<String>('page-item-0')));
+    await tester.pumpAndSettle();
+    await closeScreen(tester, cubit);
+  });
+
   testWidgets('открытая страница запоминается и открывается снова', (tester) async {
     final BookWorkCubit first = await open(tester);
     await tester.tap(find.text('Страница 1 из 3'));
@@ -485,6 +502,106 @@ void main() {
     expect(cubit.state.work.ruler.direction, RowDirection.bottomUp);
     await tester.tap(find.text('Готово'));
     await tester.pumpAndSettle();
+    await closeScreen(tester, cubit);
+  });
+
+  testWidgets('границы схемы: кнопка включает ручки, ручка двигает край, «Готово» их убирает', (tester) async {
+    final BookWorkCubit cubit = await open(tester);
+
+    await tester.tap(find.byKey(const ValueKey<String>('edit-zone')));
+    await tester.pump();
+    expect(cubit.state.zoneEditing, isTrue);
+    expect(find.byKey(const ValueKey<String>('zone-frame')), findsOneWidget);
+    expect(find.byKey(const ValueKey<String>('ruler-handle')), findsNothing);
+
+    await tester.drag(find.byKey(const ValueKey<String>('zone-handle-top')), const Offset(0, 60));
+    await tester.pump();
+    expect(cubit.state.work.ruler.zone!.top, greaterThan(0));
+    // Первый ряд встаёт к новому верху схемы.
+    expect(cubit.state.work.ruler.top, cubit.state.work.ruler.zone!.top);
+
+    await tester.drag(find.byKey(const ValueKey<String>('zone-handle-left')), const Offset(40, 0));
+    await tester.pump();
+    expect(cubit.state.work.ruler.zone!.left, greaterThan(0));
+
+    await tester.tap(find.byKey(const ValueKey<String>('zone-done')));
+    await tester.pump();
+    expect(cubit.state.zoneEditing, isFalse);
+    expect(find.byKey(const ValueKey<String>('zone-frame')), findsNothing);
+    expect(cubit.state.work.ruler.zone, isNotNull);
+    await closeScreen(tester, cubit);
+  });
+
+  testWidgets('маркер: палец рисует мазок, «Готово» возвращает линейку', (tester) async {
+    final BookWorkCubit cubit = await open(tester);
+    await tester.tap(find.byKey(const ValueKey<String>('start-marker')));
+    await tester.pump();
+    expect(cubit.state.markerEditing, isTrue);
+    expect(find.byKey(const ValueKey<String>('ruler-handle')), findsNothing);
+
+    final TestGesture finger = await tester.startGesture(const Offset(400, 500));
+    await finger.moveBy(const Offset(40, 10));
+    await finger.moveBy(const Offset(40, 10));
+    await finger.up();
+    await tester.pump();
+    expect(cubit.state.work.markup.strokes, hasLength(1));
+    expect(cubit.state.canUndoMarkup, isTrue);
+
+    await tester.tap(find.byKey(const ValueKey<String>('marker-done')));
+    await tester.pump();
+    expect(cubit.state.markerEditing, isFalse);
+    expect(cubit.state.work.markup.strokes, hasLength(1));
+    await closeScreen(tester, cubit);
+  });
+
+  testWidgets('«Вся страница» в режиме границ снимает зону', (tester) async {
+    final BookWorkCubit cubit = await open(tester);
+    await tester.tap(find.byKey(const ValueKey<String>('edit-zone')));
+    await tester.pump();
+
+    await tester.tap(find.byKey(const ValueKey<String>('zone-reset')));
+    await tester.pump();
+
+    expect(cubit.state.zoneEditing, isFalse);
+    expect(cubit.state.work.ruler.zone, isNull);
+    await closeScreen(tester, cubit);
+  });
+
+  testWidgets('лист линейки: число рядов в зоне задаёт высоту и шаг', (tester) async {
+    final BookWorkCubit cubit = await open(tester);
+    await tester.tap(find.bySemanticsLabel('Настройка линейки'));
+    await tester.pumpAndSettle();
+    expect(find.text('Рядов в схеме'), findsOneWidget);
+
+    await tester.tap(find.byKey(const ValueKey<String>('row-count-more')));
+    await tester.pump();
+    final int first = cubit.state.work.ruler.rowCount!;
+    expect(first, greaterThan(0));
+    expect(cubit.state.work.ruler.height, closeTo(300 / first, 1e-6));
+
+    await tester.tap(find.byKey(const ValueKey<String>('row-count-more')));
+    await tester.pump();
+    expect(cubit.state.work.ruler.rowCount, first + 1);
+
+    await tester.tap(find.byKey(const ValueKey<String>('row-count-manual')));
+    await tester.pump();
+    expect(cubit.state.work.ruler.rowCount, isNull);
+
+    await tester.tap(find.text('Готово'));
+    await tester.pumpAndSettle();
+    await closeScreen(tester, cubit);
+  });
+
+  testWidgets('лист линейки: «Обвести схему на фото» закрывает лист и включает ручки', (tester) async {
+    final BookWorkCubit cubit = await open(tester);
+    await tester.tap(find.bySemanticsLabel('Настройка линейки'));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.byKey(const ValueKey<String>('zone-edit')));
+    await tester.pumpAndSettle();
+
+    expect(cubit.state.zoneEditing, isTrue);
+    expect(find.text('Рядов в схеме'), findsNothing);
     await closeScreen(tester, cubit);
   });
 }

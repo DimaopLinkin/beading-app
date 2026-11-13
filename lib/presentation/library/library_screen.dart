@@ -1,6 +1,7 @@
 import 'dart:math' as math;
 
 import 'package:beading/domain/projects/craft.dart';
+import 'package:beading/domain/projects/load_project_preview.dart';
 import 'package:beading/domain/projects/project.dart';
 import 'package:beading/presentation/l10n/app_localizations.dart';
 import 'package:beading/presentation/library/filter_chip_bar.dart';
@@ -24,10 +25,12 @@ class LibraryScreen extends StatefulWidget {
   const LibraryScreen({
     required this.newProjects,
     required this.thumbnails,
+    this.loadPreview,
     this.onOpenProject,
     this.onOpenSettings,
     this.onOpenCatalog,
     this.onOpenMaterials,
+    this.onShareFile,
     super.key,
   });
 
@@ -35,6 +38,9 @@ class LibraryScreen extends StatefulWidget {
 
   final NewProjectRegistry newProjects;
   final ProjectThumbnailRegistry thumbnails;
+
+  /// Картинка и процент готовности на карточках; в тестах можно не задавать.
+  final LoadProjectPreview? loadPreview;
   final void Function(BuildContext context, Project project)? onOpenProject;
 
   /// Открывает настройки; `null` — кнопки нет.
@@ -45,6 +51,9 @@ class LibraryScreen extends StatefulWidget {
 
   /// Открывает материалы проекта; `null` — пункта нет. Предлагается только бисерным схемам из приложения.
   final void Function(BuildContext context, Project project)? onOpenMaterials;
+
+  /// «Поделиться файлом проекта» (T21); `null` — пункта нет.
+  final void Function(BuildContext context, Project project)? onShareFile;
 
   @override
   State<LibraryScreen> createState() => _LibraryScreenState();
@@ -120,6 +129,11 @@ class _LibraryScreenState extends State<LibraryScreen> {
             onPressed: () => Navigator.of(sheetContext).pop('duplicate'),
             child: Text(l10n.projectDuplicate),
           ),
+          if (widget.onShareFile != null)
+            CupertinoActionSheetAction(
+              onPressed: () => Navigator.of(sheetContext).pop('share'),
+              child: Text(l10n.projectShareFile),
+            ),
           CupertinoActionSheetAction(
             isDestructiveAction: true,
             onPressed: () => Navigator.of(sheetContext).pop('delete'),
@@ -142,6 +156,8 @@ class _LibraryScreenState extends State<LibraryScreen> {
         await _rename(project);
       case 'duplicate':
         await cubit.duplicate(project.id);
+      case 'share':
+        widget.onShareFile!(context, project);
       case 'delete':
         await _confirmDelete(project);
     }
@@ -351,6 +367,7 @@ class _LibraryScreenState extends State<LibraryScreen> {
                   child: ProjectCard(
                     project: project,
                     thumbnails: widget.thumbnails,
+                    loadPreview: widget.loadPreview,
                     onTap: widget.onOpenProject == null ? null : () => widget.onOpenProject!(context, project),
                     onLongPress: () => _showActions(project),
                   ),

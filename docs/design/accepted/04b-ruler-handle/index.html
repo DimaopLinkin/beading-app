@@ -1,0 +1,259 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Бисер — Линейка: ручка высоты и зона схемы (04b-ruler-handle v1)</title>
+<style>
+
+:root{--font:-apple-system,BlinkMacSystemFont,"SF Pro Text","SF Pro",system-ui,sans-serif}
+*{box-sizing:border-box}
+body{margin:0;font-family:var(--font);background:#CFC8BC;color:#1C1A1F}
+body.dp{background:#0B0A0C;color:#F4F0EA}
+.top{position:sticky;top:0;z-index:50;display:flex;gap:12px;align-items:center;flex-wrap:wrap;padding:12px 24px;background:rgba(247,244,239,.92);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-bottom:1px solid rgba(0,0,0,.12)}
+body.dp .top{background:rgba(21,19,22,.92);border-color:rgba(255,255,255,.14)}
+.top h1{margin:0;font-size:18px;flex:1;min-width:220px}
+.seg{display:flex;padding:3px;border-radius:22px;background:rgba(120,110,100,.25)}
+.seg button{border:0;background:transparent;color:inherit;font:600 14px var(--font);padding:9px 16px;border-radius:19px;cursor:pointer;min-height:44px}
+.seg button[aria-pressed="true"]{background:#fff;color:#1C1A1F;box-shadow:0 1px 3px rgba(0,0,0,.2)}
+.stage{padding:28px 24px 40px;display:flex;flex-direction:column;gap:44px}
+.row{display:flex;flex-wrap:wrap;gap:28px;justify-content:center}
+.cell{display:flex;flex-direction:column;gap:10px;align-items:center}
+.cap{font-size:14px;font-weight:600;max-width:428px;text-align:center;opacity:.9}
+.note{max-width:920px;margin:0 auto;font-size:15px;line-height:1.55;padding:0 24px 60px}
+.note h2{font-size:20px;margin:0 0 8px}
+.note ul{margin:6px 0 12px;padding-left:20px}
+.fig{display:flex;gap:18px;align-items:center;flex-wrap:wrap;margin:14px 0}
+.mini{position:relative;width:130px;height:230px;border-radius:18px;background:#2A2420;overflow:hidden;border:1px solid rgba(0,0,0,.3)}
+.mini .pg{position:absolute;left:12px;right:12px;top:0;height:400px;background:repeating-linear-gradient(0deg,#5FC4BF 0 7px,#D94F70 7px 14px);opacity:.9}
+.mini .rl{position:absolute;left:0;right:0;height:14px;background:rgba(181,84,28,.3);box-shadow:0 0 0 2px #151316,0 0 0 4px #fff}
+.mini .pn{position:absolute;left:8px;right:8px;bottom:8px;height:44px;border-radius:22px;background:rgba(255,255,255,.85)}
+.mini .vl{position:absolute;left:0;right:0;top:0;background:rgba(247,244,239,.62)}
+.mini .lb{position:absolute;left:0;right:0;top:6px;text-align:center;font-size:13px;font-weight:700;color:#1C1A1F}
+
+.phone{--bg:#F7F4EF;--surf:#FFF;--surf2:#EFEBE4;--ink:#1C1A1F;--ink2:#5F5954;--sep:#E0DAD1;--acc:#B5541C;--onacc:#fff;--acct:#9A4513;--accg:rgba(181,84,28,.16);--danger:#C0362C;--veil:rgba(247,244,239,.62);
+ --glass:rgba(255,255,255,.55);--dense:rgba(255,255,255,.86);--gb:1px solid rgba(255,255,255,.85);--shadow:0 10px 28px rgba(0,0,0,.18);
+ position:relative;width:428px;height:926px;border-radius:52px;overflow:hidden;background:#2A2420;color:var(--ink);border:1px solid rgba(0,0,0,.25);box-shadow:0 18px 40px rgba(0,0,0,.28);flex:none;font-family:var(--font)}
+.phone[data-theme="dark"]{--bg:#151316;--surf:#201D22;--surf2:#2A262D;--ink:#F4F0EA;--ink2:#A9A29B;--sep:#3A353D;--acc:#F0955A;--onacc:#1C1A1F;--acct:#F0955A;--accg:rgba(240,149,90,.18);--danger:#FF7A6E;--veil:rgba(21,19,22,.62);
+ --glass:rgba(40,38,44,.5);--dense:rgba(28,26,32,.86);--gb:1px solid rgba(255,255,255,.26);--shadow:0 10px 28px rgba(0,0,0,.45);border-color:rgba(255,255,255,.18)}
+.glass{background:var(--glass);border:var(--gb);box-shadow:var(--shadow);backdrop-filter:blur(24px) saturate(1.6);-webkit-backdrop-filter:blur(24px) saturate(1.6)}
+.dense{background:var(--dense);border:var(--gb);box-shadow:var(--shadow);backdrop-filter:blur(32px) saturate(1.4);-webkit-backdrop-filter:blur(32px) saturate(1.4)}
+.bar{position:absolute;left:12px;right:12px;top:54px;height:60px;border-radius:30px;display:flex;align-items:center;justify-content:space-between;padding:0 8px;z-index:6}
+.bar .t{text-align:center;line-height:1.2}.bar .t b{display:block;font-size:17px;font-weight:700}
+.bar .t span{font-size:13px;color:var(--acct);font-weight:600;display:flex;align-items:center;justify-content:center;gap:2px}
+.tb{min-width:44px;height:44px;border-radius:22px;display:flex;align-items:center;justify-content:center;gap:2px;font-size:16px;font-weight:600;color:var(--acct);padding:0 10px}
+.home{position:absolute;left:50%;bottom:8px;margin-left:-67px;width:134px;height:5px;border-radius:3px;background:var(--ink);opacity:.5;z-index:9}
+
+/* page photo */
+.view{position:absolute;inset:0;overflow:hidden}
+.pgx{position:absolute;background:#F3ECDD;box-shadow:0 8px 24px rgba(0,0,0,.4)}
+.pgx .ln{position:absolute;height:5px;border-radius:2px;background:#8C8374;opacity:.55}
+.chart{position:absolute;display:grid}
+.chart i{display:block;border-radius:50%;border:1px solid rgba(0,0,0,.2);transform:scale(.86)}
+.rn{position:absolute;text-align:right;color:#6D6558;font-weight:600}
+.veil{position:absolute;left:0;right:0;background:var(--veil);z-index:2}
+.rul{position:absolute;left:0;right:0;z-index:3;background:rgba(181,84,28,.16);box-shadow:0 0 0 2px #151316,0 0 0 4.5px #fff,0 0 0 5.5px #151316}
+.phone[data-theme="dark"] .rul{background:rgba(240,149,90,.18)}
+/* метка и ручка вынесены за границы текущего ряда: «ухо» над/под линейкой и ручка у правого края */
+.ear{position:absolute;left:8px;z-index:4;height:30px;min-width:76px;padding:0 12px;border-radius:15px;background:var(--acc);color:var(--onacc);font-size:15px;font-weight:700;display:flex;align-items:center;justify-content:center;border:2px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,.35)}
+.grip{position:absolute;right:8px;z-index:4;width:64px;height:30px;border-radius:15px;background:var(--acc);color:var(--onacc);display:flex;align-items:center;justify-content:center;border:2px solid #fff;box-shadow:0 2px 6px rgba(0,0,0,.35)}
+.zi{position:absolute;right:12px;top:124px;display:flex;gap:8px;z-index:6}
+.zi div{height:44px;border-radius:22px;display:flex;align-items:center;padding:0 16px;font-size:15px;font-weight:700}
+.zi .ind{color:var(--ink2);font-family:ui-monospace,"SF Mono",Menlo,monospace}
+.zi .btn{color:var(--acct)}
+.banner{position:absolute;left:24px;right:24px;top:124px;height:56px;border-radius:28px;display:flex;align-items:center;gap:12px;padding:0 20px 0 10px;font-size:16px;font-weight:600;z-index:6}
+.banner i{width:36px;height:36px;border-radius:18px;background:radial-gradient(circle at 35% 30%,#fff 0 12%,#F2B84B 14% 60%,#B5541C 100%);flex:none}
+.toast{position:absolute;left:24px;right:24px;bottom:124px;height:52px;border-radius:26px;display:flex;align-items:center;justify-content:space-between;padding:0 8px 0 20px;font-size:16px;font-weight:600;z-index:7}
+
+/* bottom panel (150 pt) */
+.bot{position:absolute;left:12px;right:12px;bottom:28px;border-radius:38px;padding:6px 12px 12px;display:flex;flex-direction:column;gap:6px;z-index:7}
+.gr{align-self:center;width:36px;height:5px;border-radius:3px;background:var(--ink2);opacity:.55;margin:2px 0 0}
+.r1{display:flex;align-items:center;gap:8px;padding:0 4px 0 10px}
+.cnt{font:600 40px/1.05 ui-monospace,"SF Mono",Menlo,monospace;font-variant-numeric:tabular-nums;flex:1}
+.cnt small{font:400 17px var(--font);color:var(--ink2)}
+.ib{width:48px;height:48px;border-radius:24px;background:var(--surf2);display:flex;align-items:center;justify-content:center;position:relative;color:var(--ink)}
+.ib .bd{position:absolute;right:-2px;top:-2px;min-width:22px;height:22px;border-radius:11px;background:var(--acc);color:var(--onacc);font-size:13px;font-weight:700;display:flex;align-items:center;justify-content:center;border:2px solid var(--dense)}
+.r2{display:flex;gap:10px}
+.b1{width:72px;height:64px;border-radius:32px;background:var(--surf2);display:flex;align-items:center;justify-content:center;color:var(--ink)}
+.b2{flex:1;height:64px;border-radius:32px;background:var(--acc);color:var(--onacc);display:flex;align-items:center;justify-content:center;gap:8px;font-size:19px;font-weight:700}
+.mini-bot{position:absolute;left:12px;right:12px;bottom:28px;height:72px;border-radius:36px;display:flex;align-items:center;gap:8px;padding:0 8px;z-index:7}
+.mini-bot .cnt{font-size:32px;text-align:center}
+.mini-bot .sb{width:56px;height:56px;border-radius:28px;background:var(--surf2);display:flex;align-items:center;justify-content:center;color:var(--ink)}
+.mini-bot .sb.a{background:var(--acc);color:var(--onacc)}
+/* sheet */
+.scrim{position:absolute;inset:0;background:rgba(0,0,0,.22);z-index:7}
+.sheet{position:absolute;left:8px;right:8px;bottom:8px;border-radius:44px;padding:10px 18px 28px;display:flex;flex-direction:column;gap:8px;z-index:8}
+.grab{width:40px;height:5px;border-radius:3px;background:var(--ink2);opacity:.55;align-self:center}
+.sh{display:flex;align-items:center;justify-content:space-between;padding:0 2px}
+.sh b{font-size:22px}.sh .tb{padding:0 6px}
+.fl{font-size:13px;font-weight:700;color:var(--ink2);text-transform:uppercase;letter-spacing:.6px;margin-top:2px}
+.cardf{background:var(--surf);border-radius:18px;padding:10px 12px;display:flex;flex-direction:column;gap:6px}
+.sg{display:flex;padding:3px;border-radius:22px;background:var(--surf2)}
+.sg div{flex:1;min-height:44px;display:flex;align-items:center;justify-content:center;gap:6px;border-radius:19px;font-size:16px;font-weight:600}
+.sg .s{background:var(--bg);font-weight:700;box-shadow:0 0 0 1px var(--sep)}
+.step{display:flex;align-items:center;gap:12px}
+.step .pm{width:44px;height:44px;border-radius:22px;background:var(--surf2);display:flex;align-items:center;justify-content:center}
+.step .v{flex:1;text-align:center;font-size:19px;font-weight:700}
+.help{font-size:13px;color:var(--ink2)}
+.sw{display:flex;gap:12px}
+.sw i{width:44px;height:44px;border-radius:22px;display:block;border:1px solid rgba(0,0,0,.2)}
+.sw i.sel{box-shadow:0 0 0 2px #151316,0 0 0 4.5px #fff,0 0 0 5.5px #151316}
+.sl{position:relative;height:40px;display:flex;align-items:center}
+.sl .tr{flex:1;height:8px;border-radius:4px;background:var(--surf2)}
+.sl .fi{position:absolute;left:0;height:8px;border-radius:4px;background:var(--acc)}
+.sl .th{position:absolute;width:32px;height:32px;border-radius:16px;background:#fff;border:2px solid var(--acc);margin-left:-16px}
+.vv{font-weight:700;font-size:16px;font-variant-numeric:tabular-nums}
+.note1{background:var(--surf);border-radius:20px;padding:12px 14px;display:flex;flex-direction:column;gap:4px;font-size:17px}
+.note1 .m{font-size:13px;color:var(--ink2);display:flex;gap:8px;align-items:center}
+.tag{padding:2px 8px;border-radius:10px;background:var(--accg);color:var(--acct);font-weight:700;font-size:13px}
+.addrow{display:flex;gap:10px;align-items:center}
+.inp{flex:1;height:52px;border-radius:26px;background:var(--surf);border:2px solid var(--acc);padding:0 18px;display:flex;align-items:center;font-size:17px;color:var(--ink2)}
+.send{width:52px;height:52px;border-radius:26px;background:var(--acc);color:var(--onacc);display:flex;align-items:center;justify-content:center}
+
+/* ---------- 04b: добавки ---------- */
+.hdl{position:absolute;right:10px;z-index:5;height:44px;min-width:104px;padding:0 16px 0 12px;border-radius:22px;background:var(--acc);color:var(--onacc);display:flex;align-items:center;justify-content:center;gap:6px;font-size:15px;font-weight:700;border:2px solid #fff;box-shadow:0 3px 10px rgba(0,0,0,.35)}
+.hdl::before{content:"";position:absolute;right:40px;top:-11px;width:0;height:0;border-left:8px solid transparent;border-right:8px solid transparent;border-bottom:10px solid var(--acc)}
+.hdl.drag{transform:scale(1.06);box-shadow:0 0 0 7px rgba(181,84,28,.3),0 4px 14px rgba(0,0,0,.4)}
+.phone[data-theme="dark"] .hdl.drag{box-shadow:0 0 0 7px rgba(240,149,90,.3),0 4px 14px rgba(0,0,0,.5)}
+.touch{position:absolute;z-index:6;width:58px;height:58px;margin:-29px 0 0 -29px;border-radius:50%;background:rgba(40,40,40,.28);border:2px solid rgba(255,255,255,.8)}
+.tip{position:absolute;left:30px;right:30px;z-index:9;border-radius:24px;padding:14px 12px 14px 18px;display:flex;gap:10px;align-items:flex-start}
+.tip::before{content:"";position:absolute;right:56px;top:-9px;width:18px;height:18px;transform:rotate(45deg);background:var(--dense);border-left:var(--gb);border-top:var(--gb)}
+.tip b{display:block;font-size:17px;margin-bottom:2px}
+.tip span{font-size:15px;line-height:1.35;color:var(--ink)}
+.tip .xx{flex:none;width:44px;height:44px;margin:-8px -2px 0 0;border-radius:22px;display:flex;align-items:center;justify-content:center;color:var(--ink2)}
+.loupe{position:absolute;z-index:9;width:150px;height:150px;border-radius:50%;overflow:hidden;border:3px solid #fff;box-shadow:0 8px 24px rgba(0,0,0,.45);background:#F3ECDD}
+.lpb{position:absolute;z-index:10;height:34px;padding:0 14px;border-radius:17px;background:var(--acc);color:var(--onacc);font-size:15px;font-weight:700;display:flex;align-items:center;border:2px solid #fff;white-space:nowrap}
+.lpg{position:absolute;display:grid;gap:0}
+.lpg i{display:block;border-radius:50%;border:1px solid rgba(0,0,0,.25);transform:scale(.86)}
+.lpr{position:absolute;left:0;right:0;background:rgba(181,84,28,.2);box-shadow:0 0 0 2px #151316,0 0 0 4.5px #fff,0 0 0 5.5px #151316}
+.cropdim{position:absolute;inset:0;z-index:3;pointer-events:none}
+.ch{position:absolute;z-index:5;border-radius:15px;background:var(--acc);color:var(--onacc);border:2px solid #fff;box-shadow:0 2px 8px rgba(0,0,0,.4);display:flex;align-items:center;justify-content:center}
+.chv{width:60px;height:32px}.chh{width:32px;height:60px}
+.cbar{position:absolute;left:12px;right:12px;bottom:28px;border-radius:38px;padding:12px;display:flex;flex-direction:column;gap:10px;z-index:7}
+.cbar .tx{font-size:15px;text-align:center;color:var(--ink);padding:2px 8px 0}
+.cbar .rr{display:flex;gap:8px}
+.cbar .a{flex:1;height:60px;border-radius:30px;background:var(--surf2);display:flex;align-items:center;justify-content:center;font-size:17px;font-weight:700;color:var(--ink)}
+.cbar .a.p{background:var(--acc);color:var(--onacc)}
+.ib.hi{box-shadow:0 0 0 2px #151316,0 0 0 4.5px #fff,0 0 0 5.5px #151316}
+.bot .r1 .ib{width:44px;height:44px;border-radius:22px}
+.bot .r1{gap:4px;padding-left:8px}.bot .cnt{white-space:nowrap;letter-spacing:-1.5px}.bot .cnt small{letter-spacing:0}
+.ax .bot .r1 .ib{width:64px;height:64px;border-radius:32px}
+/* большой лист */
+.sheet.big{top:62px;bottom:0;left:0;right:0;border-radius:38px 38px 0 0;padding:8px 16px 40px;gap:10px;overflow:hidden}
+.grp{background:var(--surf);border-radius:20px;padding:4px 14px;display:flex;flex-direction:column}
+.rw{display:flex;align-items:center;gap:12px;min-height:52px;font-size:17px}
+.rw+.rw{border-top:1px solid var(--sep)}
+.rw .k{flex:1}.rw .v{color:var(--ink2);font-variant-numeric:tabular-nums}
+.rw.dis{opacity:.45}
+.rw .lk{display:flex;align-items:center;gap:10px;color:var(--acct);font-weight:700;flex:1}
+.sw2{width:51px;height:31px;border-radius:16px;background:rgba(120,110,100,.35);position:relative;flex:none}
+.sw2::after{content:"";position:absolute;left:2px;top:2px;width:27px;height:27px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.35)}
+.sw2.on{background:#34C759}.sw2.on::after{left:22px}
+.stp{display:flex;align-items:center;gap:0;border-radius:10px;background:var(--surf2)}
+.stp div{width:44px;height:36px;display:flex;align-items:center;justify-content:center}
+.stp div+div{border-left:1px solid var(--sep)}
+.ax .ear{height:56px;min-width:140px;font-size:28px;border-radius:28px}
+.ax .hdl{height:84px;min-width:220px;font-size:30px;border-radius:42px;gap:10px;padding:0 24px}
+.ax .hdl::before{right:80px;top:-13px;border-left-width:11px;border-right-width:11px;border-bottom-width:13px}
+.ax .tip{padding:20px 14px 20px 22px;border-radius:34px}.ax .tip b{font-size:32px}.ax .tip span{font-size:28px}
+.ax .tip .xx{width:64px;height:64px}
+.ax .bar{height:104px;border-radius:40px}.ax .bar .t b{font-size:26px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:190px}.ax .bar .t span{font-size:20px;white-space:nowrap}
+.ax .tb{min-width:56px;height:56px;font-size:24px}
+.ax .bot{padding:10px}.ax .cnt{font-size:54px}.ax .cnt small{font-size:34px}
+.ax .r1{flex-wrap:wrap;gap:8px}
+.ax .ib{width:64px;height:64px;border-radius:32px}
+.ax .b1{width:88px;height:80px;border-radius:40px}.ax .b2{height:80px;border-radius:40px;font-size:28px}
+.ax .lpb{height:56px;font-size:26px;border-radius:28px}
+</style>
+</head>
+<body>
+<div class="top"><h1>Бисер · Линейка: ручка высоты и зона схемы · 04b-ruler-handle v1</h1>
+<div class="seg" role="group" aria-label="Тема"><button data-m="light" aria-pressed="true">Светлая</button><button data-m="dark" aria-pressed="false">Тёмная</button><button data-m="both" aria-pressed="false">Обе рядом</button></div></div>
+<div class="stage" id="stage"></div>
+<div class="note"><h2>Решения и оговорки</h2>
+<ul>
+<li><b>Ручка высоты стала подписанной.</b> Вместо пилюли со стрелками без подписи: капсула 104 × 44 pt с иконкой «↕» и подписью «Высота» (15 pt, жирный). Она висит под правым краем линейки на «язычке» (треугольник, касающийся нижней границы линейки), поэтому видно, что она от этой границы. Зона нажатия вся капсула (44 pt высотой, шире 100 pt).</li>
+<li><b>Палец не закрывает то, что настраивают.</b> Ручка сидит у правого края страницы, где поле, а при перетаскивании над пальцем появляется лупа 150 pt со 2-кратным увеличением, смещённая вверх и влево от пальца: на ней видны ряды и границы линейки, и подпись «Высота: 2 ряда». Сама ручка при перетаскивании увеличивается (×1,06) и получает кольцо; её подпись заменяется текущим значением. Кружок на экране 3 это палец (в самом приложении его нет).</li>
+<li><b>Подсказка при первом открытии линейки:</b> всплывающая подсказка в духе TipKit (popover со стрелкой к ручке): заголовок «Высота ряда», текст «Потяните за ручку, чтобы подогнать высоту ряда под книгу», кнопка ✕ 44 pt. Она появляется один раз, когда линейка открыта впервые (через ~1 с после появления линейки), исчезает при перетаскивании ручки (действие выполнено), по ✕ и при закрытии экрана; повторно не показывается. Вернуть её можно в «Настройки → Подсказки → Показать снова». Материал подсказки плотное стекло (системный), на ней нет кнопок кроме ✕.</li>
+<li><b>AX3:</b> ручка 220 × 84 pt с подписью 30 pt, «ухо» ряда 56 pt, подсказка с шрифтом 28–32 pt, нижняя панель перестраивается (счётчик 54 pt, кнопки 80 pt). Лупа и её подпись тоже растут.</li>
+<li><b>Зона схемы на странице (B02):</b> режим «Обвести схему»: рамка с двойным контуром и четырьмя ручками по серединам сторон (верх и низ ↕, лево и право ↔, 60 × 32 pt, зона нажатия 44 pt), всё вне рамки притушено (чёрная вуаль 55%), внизу панель с подсказкой и кнопками «Вся страница» и «Готово». Вход: значок рамки в нижней панели (выделен на экране 7) и кнопка «Обвести схему на странице» в листе «Линейка».</li>
+<li><b>Раздел «Схема на странице» в листе «Линейка»:</b> счётчик «Рядов в схеме» (− число +) и переключатель «Задавать вручную». Автоматический режим (экран 8): по числу рядов высота и шаг считаются сами и показаны в строках только для чтения («авто»), ручные поля недоступны. Ручной режим (экран 9): счётчик затенён, высота и шаг редактируются. Из-за новых разделов лист открывается на large (во всю высоту), поэтому линейка за ним не видна; на medium-детенте остались бы только переключатель направления и цвет.</li>
+<li>Оговорки: рамка схемы нарисована на ровно прямоугольной странице (поворот страницы и перспектива не затронуты); в самом режиме нет жеста щипка (рамка меняется только ручками); Mac и клавиатура не рисовались; тексты подсказки и подписи ручки предложены мной, их стоит сверить с продуктом.</li>
+</ul></div>
+<script>
+const I={
+ chevL:'M15 5l-7 7 7 7',chevR:'M9 5l7 7-7 7',chevUp:'M6 15l6-6 6 6',chevDn:'M6 9l6 6 6-6',chevUD:'M8 9l4-4 4 4M8 15l4 4 4-4',chevLR:'M9 8l-4 4 4 4M15 8l4 4-4 4',more:'M5 12h.01M12 12h.01M19 12h.01',
+ sliders:'M4 7h10M18 7h2M4 17h2M10 17h10M14 4v6M6 14v6',noteI:'M6 4h9l4 4v12H6zM14 4v5h5M9 13h6M9 16h4',frame:'M8 4H5a1 1 0 0 0-1 1v3M16 4h3a1 1 0 0 1 1 1v3M8 20H5a1 1 0 0 1-1-1v-3M16 20h3a1 1 0 0 0 1-1v-3M9 9h6v6H9z',
+ plus:'M12 6v12M6 12h12',minus:'M6 12h12',x:'M7 7l10 10M17 7L7 17',check:'M5 12l5 5 9-10',arrUp:'M12 19V5M6 11l6-6 6 6',arrDn:'M12 5v14M6 13l6 6 6-6',hand:'M7 11V6a1.5 1.5 0 0 1 3 0v5M10 10V4.5a1.5 1.5 0 0 1 3 0V10M13 10V5.5a1.5 1.5 0 0 1 3 0V11M16 11V8.5a1.5 1.5 0 0 1 3 0V15a6 6 0 0 1-6 6h-1a6 6 0 0 1-5-3l-2-3a1.5 1.5 0 0 1 2.4-1.8L7 14'
+};
+const ic=(n,s=24,w=2.2)=>`<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="${w}" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="${I[n]}"/></svg>`;
+const PAL=['#D94F70','#F2B84B','#5FC4BF','#5B63B7','#F4F0EA'];
+const COLS=22,ROWS=38;
+/* o: s,left,y0,row,rr, hdl:'rest'|'drag'|null, ax */
+function view(o){
+ const s=o.s,cell=16*s,g=28*s,ch=90*s,pw=(28+352+20)*s,ph=(90+ROWS*16+30)*s;
+ const p=o.row-1;const top=o.y0-(ch+(p+.5)*cell);const left=o.left;
+ let cells='',nums='';
+ for(let r=0;r<ROWS;r++){nums+=`<div class="rn" style="left:0;width:${g-6*s}px;top:${ch+r*cell}px;height:${cell}px;line-height:${cell}px;font-size:${9*s}px">${r+1}</div>`;
+  for(let c=0;c<COLS;c++){const d=Math.abs(c-10.5)+Math.abs((r%14)-6.5);cells+=`<i style="background:${PAL[Math.floor(d)%5]}"></i>`}}
+ const lines=[14,26,38,50].map((t,i)=>`<i class="ln" style="left:${28*s}px;top:${t*s}px;width:${(200+i*40)*s}px;height:${5*s}px"></i>`).join('');
+ const pad=4;const rulTop=top+ch+p*cell-pad,rulH=o.rr*cell+2*pad,rulBot=rulTop+rulH;
+ const ax=!!o.ax;const earH=ax?56:30,hH=ax?84:44;
+ const earY=rulTop-6-earH,hy=rulBot+(ax?16:8);
+ let h=`<div class="view"><div class="pgx" style="left:${left}px;top:${top}px;width:${pw}px;height:${ph}px">${lines}${nums}<div class="chart" style="left:${g}px;top:${ch}px;grid-template-columns:repeat(${COLS},${cell}px);grid-auto-rows:${cell}px">${cells}</div></div>
+  <div class="veil" style="top:0;height:${rulTop}px"></div><div class="rul" style="top:${rulTop}px;height:${rulH}px"></div><div class="ear" style="top:${earY}px">Ряд ${o.row}</div>`;
+ if(o.hdl){h+=`<div class="hdl ${o.hdl==='drag'?'drag':''}" style="top:${hy}px" aria-label="Высота ряда: потяните">${ic('chevUD',ax?36:22,2.8)}${o.hdl==='drag'?o.rr+' '+(o.rr===1?'ряд':'ряда'):'Высота'}</div>`}
+ return {html:h+'</div>',rulTop,rulBot,hy,hH};
+}
+const topbar=()=>`<div class="bar glass"><div class="tb">${ic('chevL',22)}Назад</div><div class="t"><b>Браслет «Рябина»</b><span>Страница 4 из 12${ic('chevDn',14,3)}</span></div><div class="tb" aria-label="Ещё">${ic('more',24,3)}</div></div>`;
+const panel=(hiFrame)=>`<div class="bot dense"><div class="gr"></div><div class="r1"><div class="cnt">Ряд 17 <small>из 38</small></div><div class="ib ${hiFrame?'hi':''}" aria-label="Обвести схему">${ic('frame',22)}</div><div class="ib" aria-label="Настройки линейки">${ic('sliders',22)}</div><div class="ib" aria-label="Заметки">${ic('noteI',22)}</div></div><div class="r2"><div class="b1" aria-label="Назад на ряд">${ic('chevUp',30,2.6)}</div><div class="b2">${ic('chevDn',26,2.6)}Следующий ряд</div></div></div>`;
+const tip=(y)=>`<div class="tip dense" style="top:${y}px"><div style="flex:1"><b>Высота ряда</b><span>Потяните за ручку, чтобы подогнать высоту ряда под книгу</span></div><div class="xx" aria-label="Закрыть подсказку">${ic('x',20,2.6)}</div></div>`;
+function loupe(rr,x,y,ax){const cell=ax?30:26,cols=7,rows=6,w=cols*cell,h=rows*cell;let b='';
+ for(let r=0;r<rows;r++)for(let c=0;c<cols;c++){const d=Math.abs(c-3)+Math.abs((r%6)-2.5);b+=`<i style="background:${PAL[Math.floor(d)%5]}"></i>`}
+ const size=ax?190:150;
+ return `<div class="loupe" style="left:${x}px;top:${y}px;width:${size}px;height:${size}px"><div class="lpg" style="left:${(size-w)/2}px;top:${(size-h)/2}px;grid-template-columns:repeat(${cols},${cell}px);grid-auto-rows:${cell}px">${b}</div><div class="lpr" style="top:${(size-h)/2+cell*1}px;height:${cell*rr+2}px"></div></div>
+ <div class="lpb" style="left:${x+size/2-70}px;top:${y+size+(ax?-18:-14)}px">Высота: ${rr} ${rr===1?'ряд':'ряда'}</div>`}
+const cropMode=()=>{const L=40,T=170,R=388,B=640;const mx=(L+R)/2,my=(T+B)/2;
+ return `<div class="view"><div class="pgx" style="left:20px;top:150px;width:388px;height:560px">${[14,26,38,50].map((t,i)=>`<i class="ln" style="left:24px;top:${t}px;width:${200+i*20}px"></i>`).join('')}<div class="chart" style="left:24px;top:80px;grid-template-columns:repeat(22,15px);grid-auto-rows:15px">${Array.from({length:22*32},(_,k)=>{const r=Math.floor(k/22),c=k%22,d=Math.abs(c-10.5)+Math.abs((r%14)-6.5);return `<i style="background:${PAL[Math.floor(d)%5]}"></i>`}).join('')}</div></div></div>
+ <svg class="cropdim" width="428" height="926" viewBox="0 0 428 926" aria-hidden="true"><path fill-rule="evenodd" fill="rgba(0,0,0,.55)" d="M0 0H428V926H0Z M${L} ${T}H${R}V${B}H${L}Z"/><rect x="${L}" y="${T}" width="${R-L}" height="${B-T}" fill="none" stroke="#151316" stroke-width="5.5"/><rect x="${L}" y="${T}" width="${R-L}" height="${B-T}" fill="none" stroke="#fff" stroke-width="2.5"/></svg>
+ <div class="ch chv" style="left:${mx-30}px;top:${T-16}px">${ic('chevUD',22,2.8)}</div><div class="ch chv" style="left:${mx-30}px;top:${B-16}px">${ic('chevUD',22,2.8)}</div><div class="ch chh" style="left:${L-16}px;top:${my-30}px">${ic('chevLR',22,2.8)}</div><div class="ch chh" style="left:${R-16}px;top:${my-30}px">${ic('chevLR',22,2.8)}</div>
+ <div class="bar glass"><div class="tb">Отмена</div><div class="t"><b>Обвести схему</b><span>Рядов в схеме: 38</span></div><div class="tb" style="visibility:hidden">·</div></div>
+ <div class="cbar dense"><div class="tx">Потяните за края рамки, чтобы обвести только схему</div><div class="rr"><div class="a">Вся страница</div><div class="a p">${ic('check',22,3)}&nbsp;Готово</div></div></div><div class="home"></div>`};
+const sheetBig=(manual)=>`<div class="scrim"></div><div class="sheet big dense"><div class="grab"></div><div class="sh"><b>Линейка</b><div class="tb">Готово</div></div>
+ <div class="fl">Схема на странице</div>
+ <div class="grp"><div class="rw"><div class="lk">${ic('frame',22)}Обвести схему на странице</div><span style="color:var(--ink2)">${ic('chevR',18,2.4)}</span></div>
+  <div class="rw ${manual?'dis':''}"><span class="k">Рядов в схеме</span><div class="stp"><div>${ic('minus',18,2.6)}</div><div style="width:56px;font-weight:700;font-size:17px">38</div><div>${ic('plus',18,2.6)}</div></div></div>
+  <div class="rw"><span class="k">Задавать вручную</span><div class="sw2 ${manual?'on':''}" role="switch" aria-checked="${manual}"></div></div></div>
+ <div class="help" style="padding:0 6px">${manual?'Высоту и шаг задаёте вы. Число рядов не используется.':'Высота и шаг считаются по числу рядов в обведённой схеме: 16,0 pt на ряд.'}</div>
+ <div class="fl">Высота и шаг</div>
+ <div class="grp"><div class="rw ${manual?'':'dis'}"><span class="k">Высота ряда</span>${manual?'<div class="stp"><div>'+ic('minus',18,2.6)+'</div><div style="width:64px;font-weight:700;font-size:15px">1 ряд</div><div>'+ic('plus',18,2.6)+'</div></div>':'<span class="v">1 ряд · авто</span>'}</div>
+  <div class="rw ${manual?'':'dis'}"><span class="k">Шаг сдвига</span>${manual?'<div class="stp"><div>'+ic('minus',18,2.6)+'</div><div style="width:64px;font-weight:700;font-size:15px">1 ряд</div><div>'+ic('plus',18,2.6)+'</div></div>':'<span class="v">1 ряд · авто</span>'}</div></div>
+ <div class="fl">Направление рядов</div><div class="sg"><div class="s">${ic('arrDn',18)}Сверху вниз</div><div>${ic('arrUp',18)}Снизу вверх</div></div>
+ <div class="fl">Цвет подсветки</div><div class="grp" style="padding:10px 14px"><div class="sw">${['#B5541C','#1F7A7A','#5B63B7','#D94F70','#2E7D4F'].map((c,i)=>`<i class="${i===0?'sel':''}" style="background:${c}"></i>`).join('')}</div></div>
+ </div><div class="home"></div>`;
+const screens=[
+ ['1 · Ручка высоты: покой (подпись «Высота»)',()=>{const v=view({s:.86,left:52,y0:340,row:17,rr:1,hdl:'rest'});return v.html+topbar()+panel()+'<div class="home"></div>'}],
+ ['2 · Подсказка при первом открытии (popover, TipKit-подобная)',()=>{const v=view({s:.86,left:52,y0:340,row:17,rr:1,hdl:'rest'});return v.html+topbar()+tip(v.hy+54)+panel()+'<div class="home"></div>'}],
+ ['3 · Перетаскивание: лупа и подпись «Высота: 2 ряда»',()=>{const v=view({s:.86,left:52,y0:340,row:17,rr:2,hdl:'drag'});return v.html+`<div class="touch" style="left:380px;top:${v.hy+34}px"></div>`+loupe(2,40,v.rulBot+120,false)+topbar()+panel()+'<div class="home"></div>'}],
+ ['4 · AX3: подсказка и ручка',()=>{const v=view({s:.86,left:52,y0:300,row:17,rr:1,hdl:'rest',ax:true});return `<div class="ax">`+v.html+topbar()+tip(v.hy+110)+panel()+`</div><div class="home"></div>`}],
+ ['5 · AX3: перетаскивание с лупой',()=>{const v=view({s:.86,left:52,y0:300,row:17,rr:2,hdl:'drag',ax:true});return `<div class="ax">`+v.html+`<div class="touch" style="left:396px;top:${v.hy+64}px"></div>`+loupe(2,6,v.rulBot+50,true)+topbar()+panel()+`</div><div class="home"></div>`}],
+ ['6 · Режим «Обвести схему»: рамка и четыре ручки',()=>cropMode()],
+ ['7 · Вход в режим: значок рамки в нижней панели',()=>{const v=view({s:.86,left:52,y0:340,row:17,rr:1,hdl:'rest'});return v.html+topbar()+panel(true)+'<div class="home"></div>'}],
+ ['8 · Лист «Линейка»: «Схема на странице», авто-режим',()=>{const v=view({s:.86,left:52,y0:340,row:17,rr:1});return v.html+topbar()+sheetBig(false)}],
+ ['9 · Лист «Линейка»: «Задавать вручную»',()=>{const v=view({s:.86,left:52,y0:340,row:17,rr:1});return v.html+topbar()+sheetBig(true)}]
+];
+let mode='light';
+function render(){
+ const st=document.getElementById('stage');st.innerHTML='';
+ document.body.classList.toggle('dp',mode==='dark');
+ (mode==='both'?['light','dark']:[mode]).forEach(th=>{
+  const row=document.createElement('div');row.className='row';
+  screens.forEach(s=>{const c=document.createElement('div');c.className='cell';
+   c.innerHTML=`<div class="phone" data-theme="${th}">${s[1]()}</div><div class="cap">${s[0]} · ${th==='dark'?'тёмная':'светлая'}</div>`;row.appendChild(c)});
+  st.appendChild(row)});
+}
+document.querySelectorAll('.seg button').forEach(b=>b.onclick=()=>{mode=b.dataset.m;document.querySelectorAll('.seg button').forEach(x=>x.setAttribute('aria-pressed',x===b));render()});
+render();
+</script>
+</body>
+</html>

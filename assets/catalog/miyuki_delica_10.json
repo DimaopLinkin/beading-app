@@ -1,0 +1,1792 @@
+{
+ "version": 2,
+ "material": "bead",
+ "brand": "Miyuki",
+ "series": "Delica",
+ "sizeCode": "10/0",
+ "source": "adamaszczos/beadloo-assets@3ed19b1247e3bc315b646dbcc4de691c996dccfb",
+ "colors": [
+  {
+   "code": "DBM0001",
+   "name": "Gray, Opaque, Metallic",
+   "rgb": "#494951",
+   "finish": "metallic"
+  },
+  {
+   "code": "DBM0002",
+   "name": "Iridescent, Opaque, Metallic",
+   "rgb": "#23272e",
+   "finish": "metallic"
+  },
+  {
+   "code": "DBM0003",
+   "name": "Iridescent, Opaque, Metallic",
+   "rgb": "#404b46",
+   "finish": "metallic"
+  },
+  {
+   "code": "DBM0004",
+   "name": "Iridescent, Opaque, Metallic",
+   "rgb": "#342b33",
+   "finish": "metallic"
+  },
+  {
+   "code": "DBM0005",
+   "name": "Iridescent, Opaque, Rainbow",
+   "rgb": "#5d6162",
+   "finish": "rainbow"
+  },
+  {
+   "code": "DBM0007",
+   "name": "Brown, Opaque, Metallic",
+   "rgb": "#42413e",
+   "finish": "metallic"
+  },
+  {
+   "code": "DBM0010",
+   "name": "Black, Opaque",
+   "rgb": "#3a3a3b",
+   "finish": "opaque"
+  },
+  {
+   "code": "DBM0011",
+   "name": "Green, Opaque, Metallic",
+   "rgb": "#534d35",
+   "finish": "metallic"
+  },
+  {
+   "code": "DBM0012",
+   "name": "Purple, Opaque, Metallic",
+   "rgb": "#4b3032",
+   "finish": "metallic"
+  },
+  {
+   "code": "DBM0021",
+   "name": "Silver, Opaque, Plating",
+   "rgb": "#88827e",
+   "finish": "galvanized"
+  },
+  {
+   "code": "DBM0022",
+   "name": "Gold, Opaque, Metallic",
+   "rgb": "#776250",
+   "finish": "metallic"
+  },
+  {
+   "code": "DBM0022L",
+   "name": "Gold, Transparent, Metallic",
+   "rgb": "#725032",
+   "finish": "metallic"
+  },
+  {
+   "code": "DBM0023",
+   "name": "Iridescent, Opaque, Metallic",
+   "rgb": "#57483d",
+   "finish": "metallic"
+  },
+  {
+   "code": "DBM0027",
+   "name": "Green, Opaque, Metallic",
+   "rgb": "#394743",
+   "finish": "metallic"
+  },
+  {
+   "code": "DBM0029",
+   "name": "Iridescent, Opaque, Plating, Rainbow",
+   "rgb": "#816c62",
+   "finish": "galvanized"
+  },
+  {
+   "code": "DBM0031",
+   "name": "Gold, Opaque, Plating",
+   "rgb": "#c09a63",
+   "finish": "galvanized"
+  },
+  {
+   "code": "DBM0033",
+   "name": "Gold, Transparent, Goldline",
+   "rgb": "#b58753",
+   "finish": "gold_lined"
+  },
+  {
+   "code": "DBM0034",
+   "name": "Gold, Opaque, Plating",
+   "rgb": "#ae8f66",
+   "finish": "galvanized"
+  },
+  {
+   "code": "DBM0035",
+   "name": "Silver, Transparent, Galvanized",
+   "rgb": "#a79f8f",
+   "finish": "galvanized"
+  },
+  {
+   "code": "DBM0037",
+   "name": "Pink, Transparent, Copperline",
+   "rgb": "#9b766b",
+   "finish": "gold_lined"
+  },
+  {
+   "code": "DBM0038",
+   "name": "Silver, Opaque, Plating",
+   "rgb": "#938f8c",
+   "finish": "galvanized"
+  },
+  {
+   "code": "DBM0041",
+   "name": "Silver, Transparent, Silverline",
+   "rgb": "#b9afa6",
+   "finish": "silver_lined"
+  },
+  {
+   "code": "DBM0042",
+   "name": "Gold, Transparent, Silverline",
+   "rgb": "#b0834a",
+   "finish": "silver_lined"
+  },
+  {
+   "code": "DBM0043",
+   "name": "Red, Transparent, Silverline",
+   "rgb": "#aa271a",
+   "finish": "silver_lined"
+  },
+  {
+   "code": "DBM0044",
+   "name": "Blue, Transparent, Silverline",
+   "rgb": "#548398",
+   "finish": "silver_lined"
+  },
+  {
+   "code": "DBM0045",
+   "name": "Orange, Transparent, Silverline",
+   "rgb": "#cc631d",
+   "finish": "silver_lined"
+  },
+  {
+   "code": "DBM0046",
+   "name": "Green, Transparent, Silverline",
+   "rgb": "#366439",
+   "finish": "silver_lined"
+  },
+  {
+   "code": "DBM0047",
+   "name": "Blue, Transparent, Silverline",
+   "rgb": "#52478e",
+   "finish": "silver_lined"
+  },
+  {
+   "code": "DBM0048",
+   "name": "Gray, Transparent, Silverline",
+   "rgb": "#6e6d66",
+   "finish": "silver_lined"
+  },
+  {
+   "code": "DBM0051",
+   "name": "Crystal, Transparent, Rainbow",
+   "rgb": "#acadba",
+   "finish": "rainbow"
+  },
+  {
+   "code": "DBM0052",
+   "name": "Crystal, Transparent, Color-Lined, Rainbow",
+   "rgb": "#ead3c2",
+   "finish": "inside_dyed"
+  },
+  {
+   "code": "DBM0053",
+   "name": "Yellow, Transparent, Color-Lined, Rainbow",
+   "rgb": "#efc650",
+   "finish": "inside_dyed"
+  },
+  {
+   "code": "DBM0054",
+   "name": "Brown, Orange, Transparent, Color-Lined, Rainbow",
+   "rgb": "#b17966",
+   "finish": "inside_dyed"
+  },
+  {
+   "code": "DBM0055",
+   "name": "Pink, Transparent, Color-Lined, Rainbow",
+   "rgb": "#e7bfdc",
+   "finish": "inside_dyed"
+  },
+  {
+   "code": "DBM0056",
+   "name": "Pink, Purple, Transparent, Color-Lined, Rainbow",
+   "rgb": "#866a84",
+   "finish": "inside_dyed"
+  },
+  {
+   "code": "DBM0057",
+   "name": "Blue, Transparent, Color-Lined, Rainbow",
+   "rgb": "#499abf",
+   "finish": "inside_dyed"
+  },
+  {
+   "code": "DBM0058",
+   "name": "Blue, Transparent, Color-Lined, Rainbow",
+   "rgb": "#598298",
+   "finish": "inside_dyed"
+  },
+  {
+   "code": "DBM0059",
+   "name": "Purple, Transparent, Color-Lined, Rainbow",
+   "rgb": "#66677b",
+   "finish": "inside_dyed"
+  },
+  {
+   "code": "DBM0060",
+   "name": "Green, Transparent, Color-Lined, Rainbow",
+   "rgb": "#688e91",
+   "finish": "inside_dyed"
+  },
+  {
+   "code": "DBM0062",
+   "name": "Pink, Red, Transparent, Color-Lined, Luster",
+   "rgb": "#94414d",
+   "finish": "inside_dyed"
+  },
+  {
+   "code": "DBM0063",
+   "name": "Blue, Purple, Transparent, Color-Lined, Rainbow",
+   "rgb": "#5a69b5",
+   "finish": "inside_dyed"
+  },
+  {
+   "code": "DBM0064",
+   "name": "Brown, Transparent, Color-Lined, Luster",
+   "rgb": "#6d635e",
+   "finish": "inside_dyed"
+  },
+  {
+   "code": "DBM0065",
+   "name": "Brown, Transparent, Color-Lined, Luster",
+   "rgb": "#98612d",
+   "finish": "inside_dyed"
+  },
+  {
+   "code": "DBM0066",
+   "name": "Crystal, Transparent, Color-Lined, Rainbow",
+   "rgb": "#cdcac9",
+   "finish": "inside_dyed"
+  },
+  {
+   "code": "DBM0070",
+   "name": "Pink, Transparent, Color-Lined, Luster",
+   "rgb": "#c26167",
+   "finish": "inside_dyed"
+  },
+  {
+   "code": "DBM0079",
+   "name": "Green, Transparent, Color-Lined, Luster",
+   "rgb": "#4b989d",
+   "finish": "inside_dyed"
+  },
+  {
+   "code": "DBM0083",
+   "name": "Crystal, Iridescent, Transparent, Color-Lined",
+   "rgb": "#94c6d6",
+   "finish": "inside_dyed"
+  },
+  {
+   "code": "DBM0084",
+   "name": "Green, Transparent, Color-Lined, Rainbow",
+   "rgb": "#778b8d",
+   "finish": "inside_dyed"
+  },
+  {
+   "code": "DBM0089",
+   "name": "Green, Iridescent, Transparent, Color-Lined, Rainbow",
+   "rgb": "#807a7d",
+   "finish": "inside_dyed"
+  },
+  {
+   "code": "DBM0100",
+   "name": "Brown, Transparent, Rainbow",
+   "rgb": "#c78958",
+   "finish": "rainbow"
+  },
+  {
+   "code": "DBM0101",
+   "name": "Brown, Transparent, Glazed Luster",
+   "rgb": "#ad7a55",
+   "finish": "luster"
+  },
+  {
+   "code": "DBM0103",
+   "name": "Brown, Transparent, Gold Luster, Rainbow",
+   "rgb": "#6c4b49",
+   "finish": "rainbow"
+  },
+  {
+   "code": "DBM0105",
+   "name": "Purple, Red, Transparent, Gold Luster",
+   "rgb": "#663838",
+   "finish": "luster"
+  },
+  {
+   "code": "DBM0106",
+   "name": "Pink, Transparent, Glazed Luster",
+   "rgb": "#c97473",
+   "finish": "luster"
+  },
+  {
+   "code": "DBM0107",
+   "name": "Blue, Gray, Transparent, Gold Luster, Rainbow",
+   "rgb": "#7f8385",
+   "finish": "rainbow"
+  },
+  {
+   "code": "DBM0108",
+   "name": "Purple, Transparent, Gold Luster",
+   "rgb": "#8a6363",
+   "finish": "luster"
+  },
+  {
+   "code": "DBM0110",
+   "name": "Blue, Transparent, Glazed Luster, Rainbow",
+   "rgb": "#8e9eaa",
+   "finish": "rainbow"
+  },
+  {
+   "code": "DBM0111",
+   "name": "Blue, Transparent, Glazed Luster, Rainbow",
+   "rgb": "#5d6773",
+   "finish": "rainbow"
+  },
+  {
+   "code": "DBM0114",
+   "name": "Gray, Transparent, Gold Luster",
+   "rgb": "#848890",
+   "finish": "luster"
+  },
+  {
+   "code": "DBM0141",
+   "name": "Crystal, Transparent",
+   "rgb": "#afaeb7",
+   "finish": "transparent"
+  },
+  {
+   "code": "DBM0144",
+   "name": "Brown, Transparent, Silverline",
+   "rgb": "#693a22",
+   "finish": "silver_lined"
+  },
+  {
+   "code": "DBM0145",
+   "name": "Yellow, Transparent, Silverline",
+   "rgb": "#b9a12e",
+   "finish": "silver_lined"
+  },
+  {
+   "code": "DBM0146",
+   "name": "Purple, Transparent, Silverline",
+   "rgb": "#755a58",
+   "finish": "silver_lined"
+  },
+  {
+   "code": "DBM0147",
+   "name": "Green, Transparent, Silverline",
+   "rgb": "#adb050",
+   "finish": "silver_lined"
+  },
+  {
+   "code": "DBM0148",
+   "name": "Green, Transparent, Silverline",
+   "rgb": "#3b5f45",
+   "finish": "silver_lined"
+  },
+  {
+   "code": "DBM0149",
+   "name": "Blue, Transparent, Silverline",
+   "rgb": "#5993ad",
+   "finish": "silver_lined"
+  },
+  {
+   "code": "DBM0150",
+   "name": "Brown, Transparent, Silverline",
+   "rgb": "#655042",
+   "finish": "silver_lined"
+  },
+  {
+   "code": "DBM0151",
+   "name": "Orange, Transparent, Rainbow",
+   "rgb": "#eb6d3e",
+   "finish": "rainbow"
+  },
+  {
+   "code": "DBM0152",
+   "name": "Green, Transparent, Rainbow",
+   "rgb": "#4d8173",
+   "finish": "rainbow"
+  },
+  {
+   "code": "DBM0157",
+   "name": "Beige, Opaque, Rainbow",
+   "rgb": "#ddbf94",
+   "finish": "rainbow"
+  },
+  {
+   "code": "DBM0158",
+   "name": "Purple, Opaque, Rainbow",
+   "rgb": "#947b88",
+   "finish": "rainbow"
+  },
+  {
+   "code": "DBM0160",
+   "name": "Yellow, Opaque, Rainbow",
+   "rgb": "#f1da24",
+   "finish": "rainbow"
+  },
+  {
+   "code": "DBM0161",
+   "name": "Orange, Opaque, Rainbow",
+   "rgb": "#ee5437",
+   "finish": "rainbow"
+  },
+  {
+   "code": "DBM0162",
+   "name": "Red, Opaque, Rainbow",
+   "rgb": "#bd4c66",
+   "finish": "rainbow"
+  },
+  {
+   "code": "DBM0163",
+   "name": "Green, Opaque, Rainbow",
+   "rgb": "#5b885b",
+   "finish": "rainbow"
+  },
+  {
+   "code": "DBM0164",
+   "name": "Blue, Opaque, Rainbow",
+   "rgb": "#4ea4cc",
+   "finish": "rainbow"
+  },
+  {
+   "code": "DBM0165",
+   "name": "Blue, Opaque, Rainbow",
+   "rgb": "#595aa6",
+   "finish": "rainbow"
+  },
+  {
+   "code": "DBM0166",
+   "name": "Green, Opaque, Rainbow",
+   "rgb": "#46979a",
+   "finish": "rainbow"
+  },
+  {
+   "code": "DBM0170",
+   "name": "Brown, Transparent, Rainbow",
+   "rgb": "#70504d",
+   "finish": "rainbow"
+  },
+  {
+   "code": "DBM0171",
+   "name": "Yellow, Transparent, Rainbow",
+   "rgb": "#dbb63b",
+   "finish": "rainbow"
+  },
+  {
+   "code": "DBM0172",
+   "name": "Red, Transparent, Rainbow",
+   "rgb": "#b6232f",
+   "finish": "rainbow"
+  },
+  {
+   "code": "DBM0173",
+   "name": "Purple, Transparent, Rainbow",
+   "rgb": "#998290",
+   "finish": "rainbow"
+  },
+  {
+   "code": "DBM0174",
+   "name": "Green, Transparent, Rainbow",
+   "rgb": "#a1b152",
+   "finish": "rainbow"
+  },
+  {
+   "code": "DBM0175",
+   "name": "Green, Transparent, Rainbow",
+   "rgb": "#5b7e76",
+   "finish": "rainbow"
+  },
+  {
+   "code": "DBM0176",
+   "name": "Blue, Transparent, Rainbow",
+   "rgb": "#4f97d7",
+   "finish": "rainbow"
+  },
+  {
+   "code": "DBM0177",
+   "name": "Blue, Transparent, Rainbow",
+   "rgb": "#3f74a2",
+   "finish": "rainbow"
+  },
+  {
+   "code": "DBM0178",
+   "name": "Blue, Transparent, Rainbow",
+   "rgb": "#474193",
+   "finish": "rainbow"
+  },
+  {
+   "code": "DBM0179",
+   "name": "Gray, Transparent, Rainbow",
+   "rgb": "#727b80",
+   "finish": "rainbow"
+  },
+  {
+   "code": "DBM0180",
+   "name": "Brown, Transparent, Rainbow",
+   "rgb": "#5a555a",
+   "finish": "rainbow"
+  },
+  {
+   "code": "DBM0191",
+   "name": "Pink, Alabaster, Copperline",
+   "rgb": "#9d7e7a",
+   "finish": "gold_lined"
+  },
+  {
+   "code": "DBM0200",
+   "name": "White, Opaque",
+   "rgb": "#dcdadd",
+   "finish": "opaque"
+  },
+  {
+   "code": "DBM0201",
+   "name": "White, Opaque, Luster",
+   "rgb": "#dddadc",
+   "finish": "luster"
+  },
+  {
+   "code": "DBM0202",
+   "name": "White, Opaque, Rainbow",
+   "rgb": "#dbd4d4",
+   "finish": "rainbow"
+  },
+  {
+   "code": "DBM0203",
+   "name": "Beige, Opaque, Glazed Luster",
+   "rgb": "#dbc7a8",
+   "finish": "luster"
+  },
+  {
+   "code": "DBM0204",
+   "name": "Beige, Opaque, Glazed Luster",
+   "rgb": "#dbb292",
+   "finish": "luster"
+  },
+  {
+   "code": "DBM0205",
+   "name": "Beige, Opaque, Glazed Luster",
+   "rgb": "#c59977",
+   "finish": "luster"
+  },
+  {
+   "code": "DBM0207",
+   "name": "Pink, Opaque, Gold Luster, Rainbow",
+   "rgb": "#de968c",
+   "finish": "rainbow"
+  },
+  {
+   "code": "DBM0211",
+   "name": "White, Opaque, Glazed Luster",
+   "rgb": "#c3bbac",
+   "finish": "luster"
+  },
+  {
+   "code": "DBM0214",
+   "name": "Red, Opaque, Luster",
+   "rgb": "#a92a3c",
+   "finish": "luster"
+  },
+  {
+   "code": "DBM0216",
+   "name": "Blue, Opaque, Luster",
+   "rgb": "#4b4899",
+   "finish": "luster"
+  },
+  {
+   "code": "DBM0217",
+   "name": "Blue, Opaque, Glazed Luster",
+   "rgb": "#5d9aaf",
+   "finish": "luster"
+  },
+  {
+   "code": "DBM0221",
+   "name": "Silver, Alabaster, Silverline",
+   "rgb": "#c0b7b0",
+   "finish": "silver_lined"
+  },
+  {
+   "code": "DBM0222",
+   "name": "Crystal, Alabaster, Rainbow",
+   "rgb": "#d8d4d6",
+   "finish": "rainbow"
+  },
+  {
+   "code": "DBM0230",
+   "name": "Gold, Alabaster, Goldline",
+   "rgb": "#b8916b",
+   "finish": "gold_lined"
+  },
+  {
+   "code": "DBM0231",
+   "name": "White, Alabaster, Luster",
+   "rgb": "#bbbdc5",
+   "finish": "luster"
+  },
+  {
+   "code": "DBM0232",
+   "name": "Yellow, Alabaster, Color-Lined, Luster",
+   "rgb": "#ecd982",
+   "finish": "inside_dyed"
+  },
+  {
+   "code": "DBM0233",
+   "name": "Orange, Yellow, Alabaster, Color-Lined, Luster",
+   "rgb": "#f4b65b",
+   "finish": "inside_dyed"
+  },
+  {
+   "code": "DBM0234",
+   "name": "Pink, Alabaster, Color-Lined, Luster",
+   "rgb": "#e4b5b7",
+   "finish": "inside_dyed"
+  },
+  {
+   "code": "DBM0235",
+   "name": "Pink, Alabaster, Color-Lined, Luster",
+   "rgb": "#da6b64",
+   "finish": "inside_dyed"
+  },
+  {
+   "code": "DBM0237",
+   "name": "Green, Alabaster, Color-Lined, Luster",
+   "rgb": "#6db9a1",
+   "finish": "inside_dyed"
+  },
+  {
+   "code": "DBM0239",
+   "name": "Blue, Alabaster, Color-Lined, Luster",
+   "rgb": "#71c5e2",
+   "finish": "inside_dyed"
+  },
+  {
+   "code": "DBM0240",
+   "name": "Blue, Alabaster, Color-Lined, Luster",
+   "rgb": "#637ecd",
+   "finish": "inside_dyed"
+  },
+  {
+   "code": "DBM0243",
+   "name": "Blue, Alabaster, Color-Lined, Luster",
+   "rgb": "#5f6ea1",
+   "finish": "inside_dyed"
+  },
+  {
+   "code": "DBM0249",
+   "name": "Purple, Alabaster, Color-Lined, Luster",
+   "rgb": "#8570b9",
+   "finish": "inside_dyed"
+  },
+  {
+   "code": "DBM0254",
+   "name": "Brown, Opaque, Gold Luster",
+   "rgb": "#79746f",
+   "finish": "luster"
+  },
+  {
+   "code": "DBM0271",
+   "name": "Gray, Transparent, Color-Lined, Luster",
+   "rgb": "#9a9ba4",
+   "finish": "inside_dyed"
+  },
+  {
+   "code": "DBM0286",
+   "name": "Blue, Transparent, Color-Lined, Luster",
+   "rgb": "#293b4a",
+   "finish": "inside_dyed"
+  },
+  {
+   "code": "DBM0287",
+   "name": "Brown, Transparent, Color-Lined, Luster",
+   "rgb": "#7f7568",
+   "finish": "inside_dyed"
+  },
+  {
+   "code": "DBM0301",
+   "name": "Gray, Opaque, Frosted (Matte), Luster",
+   "rgb": "#3a3f4d",
+   "finish": "matte"
+  },
+  {
+   "code": "DBM0307",
+   "name": "Gray, Opaque, Frosted (Matte), Luster",
+   "rgb": "#5f6165",
+   "finish": "matte"
+  },
+  {
+   "code": "DBM0310",
+   "name": "Black, Opaque, Frosted (Matte)",
+   "rgb": "#242424",
+   "finish": "matte"
+  },
+  {
+   "code": "DBM0312",
+   "name": "Purple, Opaque, Frosted (Matte), Metallic",
+   "rgb": "#473534",
+   "finish": "metallic"
+  },
+  {
+   "code": "DBM0321",
+   "name": "Silver, Opaque, Frosted (Matte), Plating",
+   "rgb": "#867e79",
+   "finish": "galvanized"
+  },
+  {
+   "code": "DBM0322",
+   "name": "Brown, Opaque, Frosted (Matte), Metallic",
+   "rgb": "#5c4a3a",
+   "finish": "metallic"
+  },
+  {
+   "code": "DBM0323",
+   "name": "Purple, Opaque, Frosted (Matte), Metallic",
+   "rgb": "#3e3339",
+   "finish": "metallic"
+  },
+  {
+   "code": "DBM0324",
+   "name": "Green, Opaque, Frosted (Matte), Metallic",
+   "rgb": "#697a78",
+   "finish": "metallic"
+  },
+  {
+   "code": "DBM0325",
+   "name": "Blue, Opaque, Frosted (Matte), Metallic",
+   "rgb": "#383b4b",
+   "finish": "metallic"
+  },
+  {
+   "code": "DBM0327",
+   "name": "Green, Opaque, Frosted (Matte), Metallic",
+   "rgb": "#2b332a",
+   "finish": "metallic"
+  },
+  {
+   "code": "DBM0331",
+   "name": "Gold, Opaque, Frosted (Matte), Plating",
+   "rgb": "#dbad73",
+   "finish": "galvanized"
+  },
+  {
+   "code": "DBM0351",
+   "name": "White, Opaque, Frosted (Matte), Rainbow",
+   "rgb": "#dddbde",
+   "finish": "matte"
+  },
+  {
+   "code": "DBM0352",
+   "name": "White, Opaque, Frosted (Matte), Glazed Luster",
+   "rgb": "#dfcba8",
+   "finish": "matte"
+  },
+  {
+   "code": "DBM0361",
+   "name": "Blue, Opaque, Frosted (Matte), Luster",
+   "rgb": "#514f8f",
+   "finish": "matte"
+  },
+  {
+   "code": "DBM0362",
+   "name": "Red, Opaque, Frosted (Matte), Luster",
+   "rgb": "#ad3248",
+   "finish": "matte"
+  },
+  {
+   "code": "DBM0373",
+   "name": "Green, Opaque, Frosted (Matte), Gold Luster, Rainbow",
+   "rgb": "#5b6d63",
+   "finish": "matte"
+  },
+  {
+   "code": "DBM0376",
+   "name": "Blue, Opaque, Frosted (Matte), Gold Luster, Rainbow",
+   "rgb": "#58667d",
+   "finish": "matte"
+  },
+  {
+   "code": "DBM0380",
+   "name": "Iridescent, Transparent, Frosted (Matte), Glazed Luster, Rainbow",
+   "rgb": "#816c63",
+   "finish": "matte"
+  },
+  {
+   "code": "DBM0410",
+   "name": "Gold, Transparent, Galvanized, Outside-Dyed",
+   "rgb": "#bc9669",
+   "finish": "galvanized"
+  },
+  {
+   "code": "DBM0501",
+   "name": "Gold, Iridescent, Opaque, Plating, Rainbow",
+   "rgb": "#b79462",
+   "finish": "galvanized"
+  },
+  {
+   "code": "DBM0602",
+   "name": "Red, Transparent, Outside-Dyed, Silverline",
+   "rgb": "#952222",
+   "finish": "silver_lined"
+  },
+  {
+   "code": "DBM0603",
+   "name": "Red, Transparent, Outside-Dyed, Silverline",
+   "rgb": "#722a21",
+   "finish": "silver_lined"
+  },
+  {
+   "code": "DBM0605",
+   "name": "Green, Transparent, Outside-Dyed, Silverline",
+   "rgb": "#27523a",
+   "finish": "silver_lined"
+  },
+  {
+   "code": "DBM0608",
+   "name": "Blue, Transparent, Outside-Dyed, Silverline",
+   "rgb": "#273d4d",
+   "finish": "silver_lined"
+  },
+  {
+   "code": "DBM0610",
+   "name": "Blue, Purple, Transparent, Outside-Dyed, Silverline",
+   "rgb": "#37265e",
+   "finish": "silver_lined"
+  },
+  {
+   "code": "DBM0611",
+   "name": "Purple, Transparent, Outside-Dyed, Silverline",
+   "rgb": "#5c5054",
+   "finish": "silver_lined"
+  },
+  {
+   "code": "DBM0621",
+   "name": "Gold, Alabaster, Outside-Dyed, Silverline",
+   "rgb": "#c58d5b",
+   "finish": "silver_lined"
+  },
+  {
+   "code": "DBM0622",
+   "name": "Orange, Alabaster, Outside-Dyed, Silverline",
+   "rgb": "#ae6555",
+   "finish": "silver_lined"
+  },
+  {
+   "code": "DBM0623",
+   "name": "Yellow, Alabaster, Outside-Dyed, Silverline",
+   "rgb": "#cbb571",
+   "finish": "silver_lined"
+  },
+  {
+   "code": "DBM0624",
+   "name": "Pink, Alabaster, Outside-Dyed, Silverline",
+   "rgb": "#c38fa1",
+   "finish": "silver_lined"
+  },
+  {
+   "code": "DBM0625",
+   "name": "Pink, Alabaster, Outside-Dyed, Silverline",
+   "rgb": "#bc6a82",
+   "finish": "silver_lined"
+  },
+  {
+   "code": "DBM0626",
+   "name": "Alabaster, Outside-Dyed, Silverline",
+   "rgb": "#5bcdb5",
+   "finish": "silver_lined"
+  },
+  {
+   "code": "DBM0628",
+   "name": "Blue, Alabaster, Outside-Dyed, Silverline",
+   "rgb": "#6a9eb9",
+   "finish": "silver_lined"
+  },
+  {
+   "code": "DBM0629",
+   "name": "Purple, Alabaster, Outside-Dyed, Silverline",
+   "rgb": "#9e81ac",
+   "finish": "silver_lined"
+  },
+  {
+   "code": "DBM0630",
+   "name": "Gray, Alabaster, Outside-Dyed, Silverline",
+   "rgb": "#7d7976",
+   "finish": "silver_lined"
+  },
+  {
+   "code": "DBM0635",
+   "name": "White, Silk",
+   "rgb": "#bebec6",
+   "finish": "opaque"
+  },
+  {
+   "code": "DBM0670",
+   "name": "White, Silk, Rainbow",
+   "rgb": "#b5b5be",
+   "finish": "rainbow"
+  },
+  {
+   "code": "DBM0673",
+   "name": "White, Silk, Glazed Luster",
+   "rgb": "#d2bba1",
+   "finish": "luster"
+  },
+  {
+   "code": "DBM0683",
+   "name": "Red, Transparent, Outside-Dyed, Silverline",
+   "rgb": "#ab3c2f",
+   "finish": "silver_lined"
+  },
+  {
+   "code": "DBM0694",
+   "name": "Purple, Transparent, Outside-Dyed, Silverline",
+   "rgb": "#63629b",
+   "finish": "silver_lined"
+  },
+  {
+   "code": "DBM0702",
+   "name": "Brown, Transparent",
+   "rgb": "#bd7024",
+   "finish": "transparent"
+  },
+  {
+   "code": "DBM0703",
+   "name": "Orange, Transparent",
+   "rgb": "#e7560a",
+   "finish": "transparent"
+  },
+  {
+   "code": "DBM0704",
+   "name": "Red, Transparent",
+   "rgb": "#af0c0f",
+   "finish": "transparent"
+  },
+  {
+   "code": "DBM0705",
+   "name": "Green, Transparent",
+   "rgb": "#0e411a",
+   "finish": "transparent"
+  },
+  {
+   "code": "DBM0706",
+   "name": "Blue, Transparent",
+   "rgb": "#1878c9",
+   "finish": "transparent"
+  },
+  {
+   "code": "DBM0707",
+   "name": "Blue, Transparent",
+   "rgb": "#362177",
+   "finish": "transparent"
+  },
+  {
+   "code": "DBM0708",
+   "name": "Gray, Transparent",
+   "rgb": "#393b3b",
+   "finish": "transparent"
+  },
+  {
+   "code": "DBM0709",
+   "name": "Brown, Transparent",
+   "rgb": "#502617",
+   "finish": "transparent"
+  },
+  {
+   "code": "DBM0710",
+   "name": "Yellow, Transparent",
+   "rgb": "#dcb111",
+   "finish": "transparent"
+  },
+  {
+   "code": "DBM0711",
+   "name": "Purple, Transparent",
+   "rgb": "#5c3d47",
+   "finish": "transparent"
+  },
+  {
+   "code": "DBM0712",
+   "name": "Green, Transparent",
+   "rgb": "#8d9811",
+   "finish": "transparent"
+  },
+  {
+   "code": "DBM0713",
+   "name": "Green, Transparent",
+   "rgb": "#152b1c",
+   "finish": "transparent"
+  },
+  {
+   "code": "DBM0714",
+   "name": "Blue, Transparent",
+   "rgb": "#0c396d",
+   "finish": "transparent"
+  },
+  {
+   "code": "DBM0715",
+   "name": "Brown, Transparent",
+   "rgb": "#3f332d",
+   "finish": "transparent"
+  },
+  {
+   "code": "DBM0721",
+   "name": "Yellow, Opaque",
+   "rgb": "#eed80b",
+   "finish": "opaque"
+  },
+  {
+   "code": "DBM0722",
+   "name": "Orange, Opaque",
+   "rgb": "#f3550f",
+   "finish": "opaque"
+  },
+  {
+   "code": "DBM0723",
+   "name": "Red, Opaque",
+   "rgb": "#ad111d",
+   "finish": "opaque"
+  },
+  {
+   "code": "DBM0724",
+   "name": "Green, Opaque",
+   "rgb": "#467a3f",
+   "finish": "opaque"
+  },
+  {
+   "code": "DBM0725",
+   "name": "Blue, Opaque",
+   "rgb": "#45a3d2",
+   "finish": "opaque"
+  },
+  {
+   "code": "DBM0726",
+   "name": "Blue, Opaque",
+   "rgb": "#2d1f7e",
+   "finish": "opaque"
+  },
+  {
+   "code": "DBM0728",
+   "name": "Purple, Opaque",
+   "rgb": "#937786",
+   "finish": "opaque"
+  },
+  {
+   "code": "DBM0729",
+   "name": "Green, Opaque",
+   "rgb": "#3f999b",
+   "finish": "opaque"
+  },
+  {
+   "code": "DBM0732",
+   "name": "Beige, White, Opaque",
+   "rgb": "#e7c6a2",
+   "finish": "opaque"
+  },
+  {
+   "code": "DBM0741",
+   "name": "Crystal, Transparent, Frosted (Matte)",
+   "rgb": "#c4c3d0",
+   "finish": "matte"
+  },
+  {
+   "code": "DBM0851",
+   "name": "Crystal, Transparent, Frosted (Matte), Rainbow",
+   "rgb": "#cecdd4",
+   "finish": "matte"
+  },
+  {
+   "code": "DBM0852",
+   "name": "Brown, Transparent, Frosted (Matte), Rainbow",
+   "rgb": "#d29460",
+   "finish": "matte"
+  },
+  {
+   "code": "DBM0853",
+   "name": "Brown, Transparent, Frosted (Matte), Rainbow",
+   "rgb": "#6a4b49",
+   "finish": "matte"
+  },
+  {
+   "code": "DBM0854",
+   "name": "Yellow, Transparent, Frosted (Matte), Rainbow",
+   "rgb": "#e8c74c",
+   "finish": "matte"
+  },
+  {
+   "code": "DBM0855",
+   "name": "Orange, Transparent, Frosted (Matte), Rainbow",
+   "rgb": "#f17445",
+   "finish": "matte"
+  },
+  {
+   "code": "DBM0856",
+   "name": "Pink, Red, Transparent, Frosted (Matte), Rainbow",
+   "rgb": "#c3404e",
+   "finish": "matte"
+  },
+  {
+   "code": "DBM0857",
+   "name": "Purple, Transparent, Frosted (Matte), Rainbow",
+   "rgb": "#80697c",
+   "finish": "matte"
+  },
+  {
+   "code": "DBM0858",
+   "name": "Green, Transparent, Frosted (Matte), Rainbow",
+   "rgb": "#43735d",
+   "finish": "matte"
+  },
+  {
+   "code": "DBM0859",
+   "name": "Green, Transparent, Frosted (Matte), Rainbow",
+   "rgb": "#436465",
+   "finish": "matte"
+  },
+  {
+   "code": "DBM0860",
+   "name": "Green, Transparent, Frosted (Matte), Rainbow",
+   "rgb": "#a6b75d",
+   "finish": "matte"
+  },
+  {
+   "code": "DBM0861",
+   "name": "Blue, Transparent, Frosted (Matte), Rainbow",
+   "rgb": "#4e93d8",
+   "finish": "matte"
+  },
+  {
+   "code": "DBM0862",
+   "name": "Blue, Transparent, Frosted (Matte), Rainbow",
+   "rgb": "#336599",
+   "finish": "matte"
+  },
+  {
+   "code": "DBM0863",
+   "name": "Gray, Transparent, Frosted (Matte), Rainbow",
+   "rgb": "#636a71",
+   "finish": "matte"
+  },
+  {
+   "code": "DBM0864",
+   "name": "Blue, Transparent, Frosted (Matte), Rainbow",
+   "rgb": "#57509f",
+   "finish": "matte"
+  },
+  {
+   "code": "DBM0865",
+   "name": "Brown, Transparent, Frosted (Matte), Rainbow",
+   "rgb": "#5d5a62",
+   "finish": "matte"
+  },
+  {
+   "code": "DBM0869",
+   "name": "Purple, Transparent, Frosted (Matte), Rainbow",
+   "rgb": "#61515d",
+   "finish": "matte"
+  },
+  {
+   "code": "DBM0872",
+   "name": "Orange, Opaque, Frosted (Matte), Rainbow",
+   "rgb": "#f0694a",
+   "finish": "matte"
+  },
+  {
+   "code": "DBM0874",
+   "name": "Pink, Red, Opaque, Frosted (Matte), Rainbow",
+   "rgb": "#b1445b",
+   "finish": "matte"
+  },
+  {
+   "code": "DBM0875",
+   "name": "Purple, Opaque, Frosted (Matte), Rainbow",
+   "rgb": "#8e7a8b",
+   "finish": "matte"
+  },
+  {
+   "code": "DBM0877",
+   "name": "Green, Opaque, Frosted (Matte), Rainbow",
+   "rgb": "#659476",
+   "finish": "matte"
+  },
+  {
+   "code": "DBM0878",
+   "name": "Green, Opaque, Frosted (Matte), Rainbow",
+   "rgb": "#58a5ab",
+   "finish": "matte"
+  },
+  {
+   "code": "DBM0879",
+   "name": "Blue, Opaque, Frosted (Matte), Rainbow",
+   "rgb": "#55abd8",
+   "finish": "matte"
+  },
+  {
+   "code": "DBM0880",
+   "name": "Blue, Opaque, Frosted (Matte), Rainbow",
+   "rgb": "#525090",
+   "finish": "matte"
+  },
+  {
+   "code": "DBM0883",
+   "name": "White, Opaque, Frosted (Matte), Rainbow",
+   "rgb": "#e4c6a0",
+   "finish": "matte"
+  },
+  {
+   "code": "DBM0902",
+   "name": "Pink, Transparent, Color-Lined, Luster",
+   "rgb": "#9b5976",
+   "finish": "inside_dyed"
+  },
+  {
+   "code": "DBM0903",
+   "name": "Green, Transparent, Color-Lined, Luster",
+   "rgb": "#9e9e6f",
+   "finish": "inside_dyed"
+  },
+  {
+   "code": "DBM0905",
+   "name": "Blue, Transparent, Color-Lined, Luster",
+   "rgb": "#5e93b8",
+   "finish": "inside_dyed"
+  },
+  {
+   "code": "DBM0906",
+   "name": "Purple, Transparent, Color-Lined, Luster",
+   "rgb": "#7b6a9f",
+   "finish": "inside_dyed"
+  },
+  {
+   "code": "DBM0907",
+   "name": "Gold, Transparent, Color-Lined, Luster",
+   "rgb": "#856f5d",
+   "finish": "inside_dyed"
+  },
+  {
+   "code": "DBM0912",
+   "name": "Purple, Transparent, Color-Lined, Luster",
+   "rgb": "#786367",
+   "finish": "inside_dyed"
+  },
+  {
+   "code": "DBM0914",
+   "name": "Pink, Transparent, Color-Lined, Luster",
+   "rgb": "#b86e8a",
+   "finish": "inside_dyed"
+  },
+  {
+   "code": "DBM0915",
+   "name": "Brown, Transparent, Color-Lined, Luster",
+   "rgb": "#784c40",
+   "finish": "inside_dyed"
+  },
+  {
+   "code": "DBM0922",
+   "name": "Purple, Transparent, Color-Lined, Luster",
+   "rgb": "#857597",
+   "finish": "inside_dyed"
+  },
+  {
+   "code": "DBM0924",
+   "name": "Red, Transparent, Color-Lined, Luster",
+   "rgb": "#9a6976",
+   "finish": "inside_dyed"
+  },
+  {
+   "code": "DBM1104",
+   "name": "Purple, Transparent",
+   "rgb": "#47343a",
+   "finish": "transparent"
+  },
+  {
+   "code": "DBM1204",
+   "name": "Purple, Transparent, Silverline",
+   "rgb": "#503937",
+   "finish": "silver_lined"
+  },
+  {
+   "code": "DBM1244",
+   "name": "Purple, Transparent, Rainbow",
+   "rgb": "#746d75",
+   "finish": "rainbow"
+  },
+  {
+   "code": "DBM1831",
+   "name": "Silver, Transparent, Duracoat, Galvanized, Outside-Dyed",
+   "rgb": "#a69b7e",
+   "finish": "galvanized"
+  },
+  {
+   "code": "DBM1831F",
+   "name": "Silver, White, Transparent, Duracoat, Frosted (Matte), Galvanized, Outside-Dyed",
+   "rgb": "#b7a886",
+   "finish": "galvanized"
+  },
+  {
+   "code": "DBM1832",
+   "name": "Gold, Transparent, Duracoat, Galvanized, Outside-Dyed",
+   "rgb": "#ad8340",
+   "finish": "galvanized"
+  },
+  {
+   "code": "DBM1832F",
+   "name": "Brown, Gold, Transparent, Duracoat, Frosted (Matte), Galvanized, Outside-Dyed",
+   "rgb": "#d8a35b",
+   "finish": "galvanized"
+  },
+  {
+   "code": "DBM1833",
+   "name": "Gold, Transparent, Duracoat, Galvanized, Outside-Dyed",
+   "rgb": "#ba8340",
+   "finish": "galvanized"
+  },
+  {
+   "code": "DBM1833F",
+   "name": "Brown, Gold, Transparent, Duracoat, Frosted (Matte), Galvanized, Outside-Dyed",
+   "rgb": "#c17834",
+   "finish": "galvanized"
+  },
+  {
+   "code": "DBM1834",
+   "name": "Gold, Transparent, Duracoat, Galvanized, Outside-Dyed",
+   "rgb": "#a48057",
+   "finish": "galvanized"
+  },
+  {
+   "code": "DBM1834F",
+   "name": "Brown, Gold, Transparent, Duracoat, Frosted (Matte), Galvanized, Outside-Dyed",
+   "rgb": "#8d6144",
+   "finish": "galvanized"
+  },
+  {
+   "code": "DBM1835",
+   "name": "Yellow, Transparent, Duracoat, Galvanized, Outside-Dyed",
+   "rgb": "#ad9c38",
+   "finish": "galvanized"
+  },
+  {
+   "code": "DBM1836",
+   "name": "Orange, Transparent, Duracoat, Galvanized, Outside-Dyed",
+   "rgb": "#b67c54",
+   "finish": "galvanized"
+  },
+  {
+   "code": "DBM1837",
+   "name": "Orange, Transparent, Duracoat, Galvanized, Outside-Dyed",
+   "rgb": "#a35542",
+   "finish": "galvanized"
+  },
+  {
+   "code": "DBM1838",
+   "name": "Red, Transparent, Duracoat, Galvanized, Outside-Dyed",
+   "rgb": "#9a3432",
+   "finish": "galvanized"
+  },
+  {
+   "code": "DBM1839",
+   "name": "Pink, Transparent, Duracoat, Galvanized, Outside-Dyed",
+   "rgb": "#ae6f72",
+   "finish": "galvanized"
+  },
+  {
+   "code": "DBM1840",
+   "name": "Pink, Transparent, Duracoat, Galvanized, Outside-Dyed",
+   "rgb": "#955170",
+   "finish": "galvanized"
+  },
+  {
+   "code": "DBM1841",
+   "name": "Pink, Transparent, Duracoat, Galvanized, Outside-Dyed",
+   "rgb": "#8f212e",
+   "finish": "galvanized"
+  },
+  {
+   "code": "DBM1842",
+   "name": "Brown, Transparent, Duracoat, Galvanized, Outside-Dyed",
+   "rgb": "#9f5e51",
+   "finish": "galvanized"
+  },
+  {
+   "code": "DBM1843",
+   "name": "Brown, Transparent, Duracoat, Galvanized, Outside-Dyed",
+   "rgb": "#785752",
+   "finish": "galvanized"
+  },
+  {
+   "code": "DBM1844",
+   "name": "Green, Transparent, Duracoat, Galvanized, Outside-Dyed",
+   "rgb": "#6aa172",
+   "finish": "galvanized"
+  },
+  {
+   "code": "DBM1845",
+   "name": "Green, Transparent, Duracoat, Galvanized, Outside-Dyed",
+   "rgb": "#597863",
+   "finish": "galvanized"
+  },
+  {
+   "code": "DBM1846",
+   "name": "Blue, Transparent, Duracoat, Galvanized, Outside-Dyed",
+   "rgb": "#6b8584",
+   "finish": "galvanized"
+  },
+  {
+   "code": "DBM1847",
+   "name": "Blue, Transparent, Duracoat, Galvanized, Outside-Dyed",
+   "rgb": "#246b6f",
+   "finish": "galvanized"
+  },
+  {
+   "code": "DBM1848",
+   "name": "Pink, Transparent, Duracoat, Galvanized, Outside-Dyed",
+   "rgb": "#a86a8a",
+   "finish": "galvanized"
+  },
+  {
+   "code": "DBM1849",
+   "name": "Pink, Transparent, Duracoat, Galvanized, Outside-Dyed",
+   "rgb": "#8f5269",
+   "finish": "galvanized"
+  },
+  {
+   "code": "DBM1850",
+   "name": "Purple, Transparent, Duracoat, Galvanized, Outside-Dyed",
+   "rgb": "#6c4f65",
+   "finish": "galvanized"
+  },
+  {
+   "code": "DBM1851",
+   "name": "Silver, Transparent, Duracoat, Galvanized, Outside-Dyed",
+   "rgb": "#88806b",
+   "finish": "galvanized"
+  },
+  {
+   "code": "DBM1852",
+   "name": "Silver, Transparent, Duracoat, Galvanized, Outside-Dyed",
+   "rgb": "#665846",
+   "finish": "galvanized"
+  },
+  {
+   "code": "DBM2031",
+   "name": "Yellow, Transparent, Color-Lined, Luster",
+   "rgb": "#9fee40",
+   "finish": "inside_dyed"
+  },
+  {
+   "code": "DBM2032",
+   "name": "Orange, Transparent, Color-Lined, Luster",
+   "rgb": "#f9cb48",
+   "finish": "inside_dyed"
+  },
+  {
+   "code": "DBM2033",
+   "name": "Orange, Transparent, Color-Lined, Luster",
+   "rgb": "#f9a961",
+   "finish": "inside_dyed"
+  },
+  {
+   "code": "DBM2034",
+   "name": "Pink, Transparent, Color-Lined, Luster",
+   "rgb": "#f7897b",
+   "finish": "inside_dyed"
+  },
+  {
+   "code": "DBM2035",
+   "name": "Pink, Transparent, Color-Lined, Luster",
+   "rgb": "#f7269e",
+   "finish": "inside_dyed"
+  },
+  {
+   "code": "DBM2036",
+   "name": "Pink, Transparent, Color-Lined, Luster",
+   "rgb": "#f85cbd",
+   "finish": "inside_dyed"
+  },
+  {
+   "code": "DBM2037",
+   "name": "Purple, Transparent, Color-Lined, Luster",
+   "rgb": "#c068ab",
+   "finish": "inside_dyed"
+  },
+  {
+   "code": "DBM2038",
+   "name": "Purple, Transparent, Color-Lined, Luster",
+   "rgb": "#a75eb2",
+   "finish": "inside_dyed"
+  },
+  {
+   "code": "DBM2039",
+   "name": "Blue, Transparent, Color-Lined, Luster",
+   "rgb": "#48a6dd",
+   "finish": "inside_dyed"
+  },
+  {
+   "code": "DBM2040",
+   "name": "Green, Transparent, Color-Lined, Luster",
+   "rgb": "#1ae265",
+   "finish": "inside_dyed"
+  },
+  {
+   "code": "DBMC0001",
+   "name": "Opaque, Metallic",
+   "rgb": "#6c6767",
+   "finish": "metallic"
+  },
+  {
+   "code": "DBMC0002",
+   "name": "Opaque, Metallic",
+   "rgb": "#4e687a",
+   "finish": "metallic"
+  },
+  {
+   "code": "DBMC0005",
+   "name": "Opaque, Rainbow",
+   "rgb": "#657371",
+   "finish": "rainbow"
+  },
+  {
+   "code": "DBMC0007",
+   "name": "Opaque, Metallic",
+   "rgb": "#60554c",
+   "finish": "metallic"
+  },
+  {
+   "code": "DBMC0010",
+   "name": "Opaque",
+   "rgb": "#1f1c1d",
+   "finish": "opaque"
+  },
+  {
+   "code": "DBMC0012",
+   "name": "Opaque, Metallic",
+   "rgb": "#87636c",
+   "finish": "metallic"
+  },
+  {
+   "code": "DBMC0021",
+   "name": "Opaque, Plating",
+   "rgb": "#b7afa4",
+   "finish": "galvanized"
+  },
+  {
+   "code": "DBMC0022",
+   "name": "Opaque, Metallic",
+   "rgb": "#88745a",
+   "finish": "metallic"
+  },
+  {
+   "code": "DBMC0023",
+   "name": "Opaque, Metallic",
+   "rgb": "#807682",
+   "finish": "metallic"
+  },
+  {
+   "code": "DBMC0027",
+   "name": "Opaque, Metallic",
+   "rgb": "#808756",
+   "finish": "metallic"
+  },
+  {
+   "code": "DBMC0029",
+   "name": "Opaque, Plating, Rainbow",
+   "rgb": "#b88d5a",
+   "finish": "galvanized"
+  },
+  {
+   "code": "DBMC0031",
+   "name": "Opaque, Plating",
+   "rgb": "#f6e185",
+   "finish": "galvanized"
+  },
+  {
+   "code": "DBMC0033",
+   "name": "Transparent, Goldline",
+   "rgb": "#e8b849",
+   "finish": "gold_lined"
+  },
+  {
+   "code": "DBMC0034",
+   "name": "Opaque, Plating",
+   "rgb": "#ddb264",
+   "finish": "galvanized"
+  },
+  {
+   "code": "DBMC0035",
+   "name": "Transparent, Galvanized",
+   "rgb": "#bbaf97",
+   "finish": "galvanized"
+  },
+  {
+   "code": "DBMC0038",
+   "name": "Opaque, Plating",
+   "rgb": "#d8c2a7",
+   "finish": "galvanized"
+  },
+  {
+   "code": "DBMC0041",
+   "name": "Transparent, Silverline",
+   "rgb": "#d3cbc1",
+   "finish": "silver_lined"
+  },
+  {
+   "code": "DBMC0042",
+   "name": "Transparent, Silverline",
+   "rgb": "#e59e27",
+   "finish": "silver_lined"
+  },
+  {
+   "code": "DBMC0043",
+   "name": "Transparent, Silverline",
+   "rgb": "#d93221",
+   "finish": "silver_lined"
+  },
+  {
+   "code": "DBMC0044",
+   "name": "Transparent, Silverline",
+   "rgb": "#4ca4ce",
+   "finish": "silver_lined"
+  },
+  {
+   "code": "DBMC0051",
+   "name": "Transparent, Rainbow",
+   "rgb": "#e2dcd7",
+   "finish": "rainbow"
+  },
+  {
+   "code": "DBMC0089",
+   "name": "Transparent, Color-Lined, Rainbow",
+   "rgb": "#b19a76",
+   "finish": "inside_dyed"
+  },
+  {
+   "code": "DBMC0100",
+   "name": "Transparent, Rainbow",
+   "rgb": "#f1c356",
+   "finish": "rainbow"
+  },
+  {
+   "code": "DBMC0103",
+   "name": "Transparent, Gold Luster, Rainbow",
+   "rgb": "#a16a58",
+   "finish": "rainbow"
+  },
+  {
+   "code": "DBMC0108",
+   "name": "Transparent, Gold Luster",
+   "rgb": "#b175a1",
+   "finish": "luster"
+  },
+  {
+   "code": "DBMC0111",
+   "name": "Transparent, Glazed Luster, Rainbow",
+   "rgb": "#af9aac",
+   "finish": "rainbow"
+  },
+  {
+   "code": "DBMC0115",
+   "name": "Transparent, Gold Luster",
+   "rgb": "#d0997b",
+   "finish": "luster"
+  },
+  {
+   "code": "DBMC0121",
+   "name": "Transparent, Gold Luster",
+   "rgb": "#ca7a36",
+   "finish": "luster"
+  },
+  {
+   "code": "DBMC0141",
+   "name": "Transparent",
+   "rgb": "#e0dede",
+   "finish": "transparent"
+  },
+  {
+   "code": "DBMC0146",
+   "name": "Transparent, Silverline",
+   "rgb": "#b18a89",
+   "finish": "silver_lined"
+  },
+  {
+   "code": "DBMC0147",
+   "name": "Transparent, Silverline",
+   "rgb": "#cbca21",
+   "finish": "silver_lined"
+  },
+  {
+   "code": "DBMC0172",
+   "name": "Transparent, Rainbow",
+   "rgb": "#f45544",
+   "finish": "rainbow"
+  },
+  {
+   "code": "DBMC0173",
+   "name": "Transparent, Rainbow",
+   "rgb": "#b7888b",
+   "finish": "rainbow"
+  },
+  {
+   "code": "DBMC0174",
+   "name": "Transparent, Rainbow",
+   "rgb": "#d4d52a",
+   "finish": "rainbow"
+  },
+  {
+   "code": "DBMC0176",
+   "name": "Transparent, Rainbow",
+   "rgb": "#5abcea",
+   "finish": "rainbow"
+  },
+  {
+   "code": "DBMC0254",
+   "name": "Opaque, Gold Luster",
+   "rgb": "#ab9572",
+   "finish": "luster"
+  },
+  {
+   "code": "DBMC0501",
+   "name": "Opaque, Plating, Rainbow",
+   "rgb": "#cfa240",
+   "finish": "galvanized"
+  },
+  {
+   "code": "DBMC0702",
+   "name": "Transparent",
+   "rgb": "#f3c141",
+   "finish": "transparent"
+  },
+  {
+   "code": "DBMC0704",
+   "name": "Transparent",
+   "rgb": "#f42b16",
+   "finish": "transparent"
+  },
+  {
+   "code": "DBMC0706",
+   "name": "Transparent",
+   "rgb": "#49b9eb",
+   "finish": "transparent"
+  },
+  {
+   "code": "DBMC0711",
+   "name": "Transparent",
+   "rgb": "#d6a8b4",
+   "finish": "transparent"
+  },
+  {
+   "code": "DBMC0712",
+   "name": "Transparent",
+   "rgb": "#d6d90c",
+   "finish": "transparent"
+  }
+ ]
+}

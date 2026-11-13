@@ -1,9 +1,11 @@
 import 'package:beading/core/failure.dart';
 import 'package:beading/domain/grid/bead_size.dart';
 import 'package:beading/domain/grid/cell_metrics.dart';
+import 'package:beading/domain/grid/fabric.dart';
 import 'package:beading/domain/grid/grid_geometry.dart';
 import 'package:beading/domain/grid_pattern/cell_metrics_codec.dart';
 import 'package:beading/domain/grid_pattern/grid_geometry_codec.dart';
+import 'package:beading/domain/palette/rgb.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import '../grid/fake_cell_metrics.dart';
@@ -33,6 +35,53 @@ void main() {
     test('неизвестный вид и drop меньше 1 — ValidationFailure', () {
       expect(GridGeometryCodec.decode(kind: 'hex', drop: 1).failureOrNull, isA<ValidationFailure>());
       expect(GridGeometryCodec.decode(kind: 'peyote', drop: 0).failureOrNull, isA<ValidationFailure>());
+    });
+  });
+
+  group('CellMetricsCodec: канва', () {
+    test('канва записывается видом fabric и читается тем же объектом', () {
+      final List<Fabric> all = <Fabric>[
+        Fabric.create(kind: FabricKind.aida, count: 14).valueOrNull!,
+        Fabric.create(kind: FabricKind.evenweave, count: 28, color: const Rgb(240, 230, 200)).valueOrNull!,
+        Fabric.create(kind: FabricKind.linen, count: 32, overCount: 1).valueOrNull!,
+      ];
+      for (final Fabric fabric in all) {
+        final String stored = CellMetricsCodec.encode(fabric).valueOrNull!;
+        expect(CellMetricsCodec.decode(stored).valueOrNull, fabric);
+      }
+    });
+
+    test('формат зафиксирован', () {
+      final Fabric f = Fabric.create(kind: FabricKind.linen, count: 32, color: const Rgb(1, 2, 3)).valueOrNull!;
+      expect(
+        CellMetricsCodec.encode(f).valueOrNull,
+        '{"kind":"fabric","fabric":"linen","count":32,"over":2,"color":"#010203"}',
+      );
+    });
+
+    test('старые виды bead и custom читаются по-прежнему', () {
+      expect(
+        CellMetricsCodec.decode('{"kind":"bead","shape":"delica","size":"11/0"}').valueOrNull,
+        BeadSize.delica11,
+      );
+      expect(
+        CellMetricsCodec.decode('{"kind":"custom","widthMm":2,"heightMm":3}').valueOrNull,
+        const CustomCellMetrics(widthMm: 2, heightMm: 3),
+      );
+    });
+
+    test('неверная канва — ValidationFailure', () {
+      for (final String bad in <String>[
+        '{"kind":"fabric","fabric":"silk","count":14,"over":1,"color":"#ffffff"}',
+        '{"kind":"fabric","fabric":"aida","count":99,"over":1,"color":"#ffffff"}',
+        '{"kind":"fabric","fabric":"aida","count":14,"over":1,"color":"белый"}',
+        '{"kind":"fabric","fabric":"aida","count":"14","over":1,"color":"#ffffff"}',
+        '{"kind":"fabric","fabric":"aida","count":14,"over":2,"color":"#ffffff"}',
+        '{"kind":"fabric","fabric":"aida","count":14.5,"over":1,"color":"#ffffff"}',
+        '{"kind":"fabric","fabric":"aida","count":14}',
+      ]) {
+        expect(CellMetricsCodec.decode(bad).failureOrNull, isA<ValidationFailure>(), reason: bad);
+      }
     });
   });
 

@@ -1,16 +1,16 @@
+import 'dart:async';
 import 'dart:math' as math;
 
 import 'package:beading/domain/catalog/catalog_color.dart';
-import 'package:beading/domain/catalog/use_cases/find_similar_colors.dart';
+import 'package:beading/domain/palette/catalog_ref.dart';
 import 'package:beading/presentation/catalog/catalog_cubit.dart';
 import 'package:beading/presentation/catalog/catalog_labels.dart';
+import 'package:beading/presentation/catalog/color_detail_sheet.dart';
 import 'package:beading/presentation/l10n/app_localizations.dart';
 import 'package:beading/presentation/theme/tokens.dart';
 import 'package:beading/presentation/widgets/color_swatch.dart';
-import 'package:beading/presentation/widgets/glass/glass_sheet.dart';
-import 'package:beading/presentation/widgets/glass/glass_surface.dart';
-import 'package:beading/presentation/widgets/min_tap_target.dart';
 import 'package:beading/presentation/widgets/pill_chip.dart';
+import 'package:beading/presentation/widgets/stock_stepper.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -41,10 +41,7 @@ class _CatalogScreenState extends State<CatalogScreen> {
 
   Future<void> _openSheet(CatalogCubit cubit, CatalogColor color) async {
     final Future<void> selecting = cubit.select(color);
-    await showCupertinoModalPopup<void>(
-      context: context,
-      builder: (_) => BlocProvider<CatalogCubit>.value(value: cubit, child: const _ColorSheet()),
-    );
+    await showColorDetailSheet(context, cubit);
     cubit.clearSelection();
     await selecting;
   }
@@ -61,7 +58,8 @@ class _CatalogScreenState extends State<CatalogScreen> {
             previous.status != current.status ||
             previous.tabs != current.tabs ||
             previous.tab != current.tab ||
-            previous.colors != current.colors,
+            previous.colors != current.colors ||
+            previous.stock != current.stock,
         builder: (context, state) {
           final double width = MediaQuery.sizeOf(context).width;
           final double side = math.max(tokens.spacing.l, (width - CatalogScreen.maxContentWidth) / 2);
@@ -168,7 +166,13 @@ class _CatalogScreenState extends State<CatalogScreen> {
               itemCount: state.colors.length,
               itemBuilder: (context, index) {
                 final CatalogColor color = state.colors[index];
-                return _ColorTile(key: ValueKey<String>('color-${color.id}'), color: color, onTap: () => onPick(color));
+                return _ColorTile(
+                  key: ValueKey<String>('color-${color.id}'),
+                  color: color,
+                  onTap: () => onPick(color),
+                  have: state.stock[CatalogRef(brand: color.brand, code: color.code)],
+                  unit: context.read<CatalogCubit>().stockUnit ?? StockUnit.skeins,
+                );
               },
             ),
           ),
@@ -179,9 +183,13 @@ class _CatalogScreenState extends State<CatalogScreen> {
 
 /// Образец с артикулом и названием. Непрозрачная плитка: стекло только на слое управления.
 class _ColorTile extends StatelessWidget {
-  const _ColorTile({required this.color, required this.onTap, super.key});
+  const _ColorTile({required this.color, required this.onTap, this.have, this.unit = StockUnit.skeins, super.key});
 
   final CatalogColor color;
+
+  /// Сколько в запасе (мотков или граммов по [unit]); `null` — этого цвета в запасе нет.
+  final double? have;
+  final StockUnit unit;
   final VoidCallback onTap;
 
   @override
@@ -191,7 +199,9 @@ class _ColorTile extends StatelessWidget {
     final TextStyle base = CupertinoTheme.of(context).textTheme.textStyle;
     return Semantics(
       button: true,
-      label: l10n.catalogItemSemantic(color.code, color.name),
+      label: have == null
+          ? l10n.catalogItemSemantic(color.code, color.name)
+          : '${l10n.catalogItemSemantic(color.code, color.name)}, ${l10n.catalogStockBadgeSemantic(StockStepper.amountText(l10n, have!, unit: unit))}',
       excludeSemantics: true,
       onTap: onTap,
       child: GestureDetector(
@@ -208,7 +218,33 @@ class _ColorTile extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
                 Expanded(
-                  child: Center(child: ColorSwatchView(rgb: color.rgb, size: 56)),
+                  child: Stack(
+                    children: <Widget>[
+                      Center(child: ColorSwatchView(rgb: color.rgb, size: 56)),
+                      if (have != null)
+                        Positioned(
+                          top: 0,
+                          right: 0,
+                          child: DecoratedBox(
+                            decoration: BoxDecoration(
+                              color: CupertinoColors.systemGreen.resolveFrom(context),
+                              borderRadius: BorderRadius.circular(tokens.radius.s),
+                            ),
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                              child: Text(
+                                StockStepper.amountText(l10n, have!, unit: unit),
+                                style: base.copyWith(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w600,
+                                  color: CupertinoColors.white,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ),
+                    ],
+                  ),
                 ),
                 SizedBox(height: tokens.spacing.xs),
                 Text(
@@ -223,219 +259,6 @@ class _ColorTile extends StatelessWidget {
                   overflow: TextOverflow.ellipsis,
                   style: base.copyWith(fontSize: 13, color: CupertinoColors.secondaryLabel.resolveFrom(context)),
                 ),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-/// Лист цвета: крупный образец, откуда он, и пять похожих с мерой похожести.
-class _ColorSheet extends StatelessWidget {
-  const _ColorSheet();
-
-  @override
-  Widget build(BuildContext context) {
-    final AppTokensData tokens = context.tokens;
-    final double maxHeight = MediaQuery.sizeOf(context).height * 0.85;
-    return Align(
-      alignment: Alignment.bottomCenter,
-      child: ConstrainedBox(
-        constraints: BoxConstraints(maxHeight: maxHeight, maxWidth: 560),
-        child: GlassSheet(
-          density: GlassDensity.dense,
-          child: BlocBuilder<CatalogCubit, CatalogState>(
-            buildWhen: (previous, current) => previous.selection != current.selection && current.selection != null,
-            builder: (context, state) {
-              final SimilarSelection? selection = state.selection;
-              if (selection == null) return const SizedBox.shrink();
-              return Flexible(
-                child: SingleChildScrollView(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    mainAxisSize: MainAxisSize.min,
-                    children: <Widget>[
-                      _SheetHeader(color: selection.source),
-                      SizedBox(height: tokens.spacing.l),
-                      _SimilarList(selection: selection),
-                      SizedBox(height: tokens.spacing.m),
-                      Text(
-                        AppLocalizations.of(context).catalogColorApproximate,
-                        style: CupertinoTheme.of(context).textTheme.textStyle.copyWith(
-                          fontSize: 13,
-                          color: CupertinoColors.secondaryLabel.resolveFrom(context),
-                        ),
-                      ),
-                      CupertinoButton(
-                        onPressed: () => Navigator.of(context).pop(),
-                        child: Text(AppLocalizations.of(context).catalogClose),
-                      ),
-                    ],
-                  ),
-                ),
-              );
-            },
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _SheetHeader extends StatelessWidget {
-  const _SheetHeader({required this.color});
-
-  final CatalogColor color;
-
-  @override
-  Widget build(BuildContext context) {
-    final AppLocalizations l10n = AppLocalizations.of(context);
-    final AppTokensData tokens = context.tokens;
-    final TextStyle base = CupertinoTheme.of(context).textTheme.textStyle;
-    final Color secondary = CupertinoColors.secondaryLabel.resolveFrom(context);
-    return Semantics(
-      header: true,
-      container: true,
-      label: l10n.catalogItemSemantic(color.code, color.name),
-      child: Row(
-        children: <Widget>[
-          ColorSwatchView(rgb: color.rgb, size: 72),
-          SizedBox(width: tokens.spacing.l),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: <Widget>[
-                Text(color.code, style: base.copyWith(fontSize: 22, fontWeight: FontWeight.w700)),
-                Text(color.name, style: base.copyWith(fontSize: 17)),
-                Text(color.origin(l10n), style: base.copyWith(fontSize: 15, color: secondary)),
-                Text(color.rgb.hex, style: base.copyWith(fontSize: 15, color: secondary)),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _SimilarList extends StatelessWidget {
-  const _SimilarList({required this.selection});
-
-  final SimilarSelection selection;
-
-  @override
-  Widget build(BuildContext context) {
-    final AppLocalizations l10n = AppLocalizations.of(context);
-    final AppTokensData tokens = context.tokens;
-    final TextStyle base = CupertinoTheme.of(context).textTheme.textStyle;
-    final Color secondary = CupertinoColors.secondaryLabel.resolveFrom(context);
-
-    final List<SimilarColor>? matches = selection.matches;
-    final Widget content;
-    if (selection.failure != null) {
-      content = Text(l10n.catalogSimilarFailed, style: base.copyWith(color: secondary));
-    } else if (matches == null) {
-      content = const Center(child: CupertinoActivityIndicator());
-    } else if (matches.isEmpty) {
-      content = Text(l10n.catalogSimilarNone, style: base.copyWith(color: secondary));
-    } else {
-      content = Column(
-        children: <Widget>[
-          for (final SimilarColor match in matches)
-            _SimilarRow(
-              match: match,
-              onTap: () => context.read<CatalogCubit>().select(match.color),
-            ),
-        ],
-      );
-    }
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      mainAxisSize: MainAxisSize.min,
-      children: <Widget>[
-        Text(
-          l10n.catalogSimilarTitle,
-          style: base.copyWith(fontSize: 13, color: secondary, fontWeight: FontWeight.w600),
-        ),
-        SizedBox(height: tokens.spacing.s),
-        content,
-      ],
-    );
-  }
-}
-
-class _SimilarRow extends StatelessWidget {
-  const _SimilarRow({required this.match, required this.onTap});
-
-  final SimilarColor match;
-  final VoidCallback onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    final AppLocalizations l10n = AppLocalizations.of(context);
-    final AppTokensData tokens = context.tokens;
-    final TextStyle base = CupertinoTheme.of(context).textTheme.textStyle;
-    final Color secondary = CupertinoColors.secondaryLabel.resolveFrom(context);
-    final CatalogColor color = match.color;
-    final String level = match.similarity.level.label(l10n);
-    final bool large = MediaQuery.textScalerOf(context).scale(1) > 1.3;
-    Widget measure(CrossAxisAlignment alignment) => Column(
-      crossAxisAlignment: alignment,
-      children: <Widget>[
-        Text(
-          l10n.catalogSimilarityPercent(match.similarity.percent),
-          style: base.merge(tokens.counterTextStyle).copyWith(fontSize: 17, fontWeight: FontWeight.w600),
-        ),
-        Text(level, style: base.copyWith(fontSize: 13, color: secondary)),
-      ],
-    );
-    return Semantics(
-      button: true,
-      label: l10n.catalogSimilaritySemantic(color.code, color.name, match.similarity.percent, level),
-      excludeSemantics: true,
-      onTap: onTap,
-      child: GestureDetector(
-        behavior: HitTestBehavior.opaque,
-        onTap: onTap,
-        child: MinTapTarget(
-          child: Padding(
-            padding: EdgeInsets.symmetric(vertical: tokens.spacing.xs),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: <Widget>[
-                Row(
-                  children: <Widget>[
-                    ColorSwatchView(rgb: color.rgb, size: 36),
-                    SizedBox(width: tokens.spacing.m),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: <Widget>[
-                          Text(
-                            '${color.brand} ${color.code}',
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: base.copyWith(fontSize: 15, fontWeight: FontWeight.w600),
-                          ),
-                          Text(
-                            color.name,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: base.copyWith(fontSize: 13, color: secondary),
-                          ),
-                        ],
-                      ),
-                    ),
-                    if (!large) ...<Widget>[SizedBox(width: tokens.spacing.m), measure(CrossAxisAlignment.end)],
-                  ],
-                ),
-                if (large)
-                  Padding(
-                    padding: EdgeInsets.only(left: 36 + tokens.spacing.m),
-                    child: measure(CrossAxisAlignment.start),
-                  ),
               ],
             ),
           ),

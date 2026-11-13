@@ -1,18 +1,26 @@
 import 'package:beading/data/db/app_database.steps.dart';
+import 'package:beading/data/db/daos/bead_stock_dao.dart';
 import 'package:beading/data/db/daos/book_work_dao.dart';
 import 'package:beading/data/db/daos/catalog_dao.dart';
 import 'package:beading/data/db/daos/easter_egg_log_dao.dart';
+import 'package:beading/data/db/daos/floss_stock_dao.dart';
 import 'package:beading/data/db/daos/grid_patterns_dao.dart';
 import 'package:beading/data/db/daos/image_patterns_dao.dart';
 import 'package:beading/data/db/daos/projects_dao.dart';
 import 'package:beading/data/db/daos/settings_dao.dart';
+import 'package:beading/data/db/daos/work_sessions_dao.dart';
+import 'package:beading/data/db/sync_triggers.dart';
+import 'package:beading/data/db/tables/bead_stock_table.dart';
 import 'package:beading/data/db/tables/book_work_tables.dart';
 import 'package:beading/data/db/tables/catalog_tables.dart';
 import 'package:beading/data/db/tables/easter_egg_log_table.dart';
+import 'package:beading/data/db/tables/floss_stock_table.dart';
 import 'package:beading/data/db/tables/grid_pattern_tables.dart';
 import 'package:beading/data/db/tables/image_pattern_tables.dart';
 import 'package:beading/data/db/tables/projects_table.dart';
 import 'package:beading/data/db/tables/settings_table.dart';
+import 'package:beading/data/db/tables/sync_tables.dart';
+import 'package:beading/data/db/tables/work_sessions_table.dart';
 import 'package:drift/drift.dart';
 
 part 'app_database.g.dart';
@@ -28,21 +36,43 @@ part 'app_database.g.dart';
     GridPatterns,
     PatternColors,
     GridProgressRows,
+    GridProgressCells,
     CatalogColors,
     CatalogSources,
     PageWorkStates,
     BookWorkStates,
+    WorkSessions,
+    FlossStock,
+    BeadStock,
+    SyncOutbox,
+    SyncShadow,
+    SyncApplying,
   ],
-  daos: <Type>[SettingsDao, ProjectsDao, EasterEggLogDao, ImagePatternsDao, GridPatternsDao, CatalogDao, BookWorkDao],
+  daos: <Type>[
+    SettingsDao,
+    ProjectsDao,
+    EasterEggLogDao,
+    ImagePatternsDao,
+    GridPatternsDao,
+    CatalogDao,
+    BookWorkDao,
+    WorkSessionsDao,
+    FlossStockDao,
+    BeadStockDao,
+  ],
 )
 class AppDatabase extends _$AppDatabase {
   AppDatabase(super.e);
 
   @override
-  int get schemaVersion => 8;
+  int get schemaVersion => 16;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
+    onCreate: (m) async {
+      await m.createAll();
+      await _createSyncTriggers();
+    },
     onUpgrade: stepByStep(
       from1To2: (m, schema) async {
         await m.createTable(schema.projects);
@@ -74,7 +104,46 @@ class AppDatabase extends _$AppDatabase {
       from7To8: (m, schema) async {
         await m.addColumn(schema.pageWorkStates, schema.pageWorkStates.rowDirection);
       },
+      // v9 (T19): сессии работы над проектом.
+      from8To9: (m, schema) => m.createTable(schema.workSessions),
+      // v10 (B02): зона схемы на странице и число рядов в ней.
+      from9To10: (m, schema) async {
+        await m.addColumn(schema.pageWorkStates, schema.pageWorkStates.zoneTop);
+        await m.addColumn(schema.pageWorkStates, schema.pageWorkStates.zoneBottom);
+        await m.addColumn(schema.pageWorkStates, schema.pageWorkStates.zoneLeft);
+        await m.addColumn(schema.pageWorkStates, schema.pageWorkStates.zoneRight);
+        await m.addColumn(schema.pageWorkStates, schema.pageWorkStates.rowCount);
+      },
+      // v11 (T38): прогресс вышивки по клеткам.
+      from10To11: (m, schema) => m.createTable(schema.gridProgressCells),
+      // v12 (T45): пометки маркером на странице схемы из книги.
+      from11To12: (m, schema) => m.addColumn(schema.pageWorkStates, schema.pageWorkStates.markup),
+
+      from12To13: (m, schema) => m.createTable(schema.flossStock),
+      // v14 (T26б): очередь изменений, теневая копия и флаг применения для синхронизации, триггеры очереди.
+      from13To14: (m, schema) async {
+        await m.createTable(schema.syncOutbox);
+        await m.createTable(schema.syncShadow);
+        await m.createTable(schema.syncApplying);
+        await _createSyncTriggers(SyncTriggers.statementsBeforeBeadStock);
+      },
+      // v15 (T26б): время и устройство позиции «остановилась здесь» отдельно от записи сетки.
+      from14To15: (m, schema) async {
+        await m.addColumn(schema.gridPatterns, schema.gridPatterns.cursorUpdatedAt);
+        await m.addColumn(schema.gridPatterns, schema.gridPatterns.cursorDeviceId);
+      },
+      // v16 (A-bead-stock): запас бисера; триггеры очереди пересоздаются, чтобы охватить новую таблицу.
+      from15To16: (m, schema) async {
+        await m.createTable(schema.beadStock);
+        await _createSyncTriggers();
+      },
     ),
     beforeOpen: (details) => customStatement('PRAGMA foreign_keys = ON'),
   );
+
+  Future<void> _createSyncTriggers([List<String>? statements]) async {
+    for (final String sql in statements ?? SyncTriggers.statements) {
+      await customStatement(sql);
+    }
+  }
 }

@@ -2,8 +2,10 @@ import 'dart:async';
 
 import 'package:beading/core/result.dart';
 import 'package:beading/domain/image_pattern/book_work/book_work_repository.dart';
+import 'package:beading/domain/image_pattern/book_work/page_markup.dart';
 import 'package:beading/domain/image_pattern/book_work/page_viewport.dart';
 import 'package:beading/domain/image_pattern/book_work/page_work.dart';
+import 'package:beading/domain/image_pattern/book_work/pattern_zone.dart';
 import 'package:beading/domain/image_pattern/book_work/record_book_progress.dart';
 import 'package:beading/domain/image_pattern/book_work/ruler_state.dart';
 import 'package:beading/domain/image_pattern/image_pattern.dart';
@@ -100,7 +102,7 @@ class BookWorkCubit extends Cubit<BookWorkState> {
     if (saved == null) {
       return PageWork(pageId: page.id, ruler: RulerState.initial(height));
     }
-    return saved.copyWith(ruler: saved.ruler.fit(height));
+    return saved.copyWith(ruler: saved.ruler.fit(height, imageWidth: page.width.toDouble()));
   }
 
   /// Следующий ряд: линейка на шаг по направлению рядов. Если сдвинуться некуда, ничего не происходит.
@@ -165,6 +167,193 @@ class BookWorkCubit extends Cubit<BookWorkState> {
     _schedule();
   }
 
+  /// Начинает выбор границ схемы: зона по умолчанию — вся страница, ручки двигают её края.
+  // --- Маркер (T45) ---
+
+  /// Сколько шагов «Отменить» помним: пометки живут в памяти целиком, поэтому предел небольшой.
+  static const int _maxMarkupHistory = 30;
+
+  /// Точки ближе этого (доля ширины страницы) в мазок не попадают: файл меньше, линия та же.
+  static const double _minPointGap = 0.0008;
+
+  PageMarkup? _eraseSnapshot;
+
+  void startMarker() {
+    if (!state.isReady || state.markerEditing) {
+      return;
+    }
+    emit(
+      state.copyWith(
+        markerEditing: true,
+        zoneEditing: false,
+        showMarkup: true,
+        markerEraser: false,
+        markupUndo: const <PageMarkup>[],
+        markupRedo: const <PageMarkup>[],
+        clearUndo: true,
+      ),
+    );
+  }
+
+  void finishMarker() {
+    if (state.markerEditing) {
+      emit(state.copyWith(markerEditing: false));
+    }
+  }
+
+  void setMarkerColor(int index) {
+    if (index >= 0 && index < MarkerPalette.colors.length) {
+      emit(state.copyWith(markerColor: index, markerEraser: false));
+    }
+  }
+
+  void setMarkerWidth(int index) {
+    if (index >= 0 && index < MarkerPalette.widths.length) {
+      emit(state.copyWith(markerWidth: index));
+    }
+  }
+
+  void setMarkerEraser({required bool eraser}) {
+    if (eraser != state.markerEraser) {
+      emit(state.copyWith(markerEraser: eraser));
+    }
+  }
+
+  void toggleShowMarkup() => emit(state.copyWith(showMarkup: !state.showMarkup));
+
+  /// Мазок закончен: [points] — пары `x, y` в долях ширины страницы.
+  void addStroke(List<double> points) {
+    if (!state.isReady || points.length < 2) {
+      return;
+    }
+    final List<double> kept = <double>[points[0], points[1]];
+    for (int i = 2; i + 1 < points.length; i += 2) {
+      final double dx = points[i] - kept[kept.length - 2];
+      final double dy = points[i + 1] - kept[kept.length - 1];
+      final bool last = i + 3 >= points.length;
+      if (last || dx * dx + dy * dy >= _minPointGap * _minPointGap) {
+        kept
+          ..add(points[i])
+          ..add(points[i + 1]);
+      }
+    }
+    _changeMarkup(
+      state.work.markup.withStroke(
+        MarkerStroke(
+          rgb: MarkerPalette.colors[state.markerColor],
+          width: MarkerPalette.widths[state.markerWidth],
+          points: kept,
+        ),
+      ),
+    );
+  }
+
+  /// Начало жеста ластика: до его конца всё стёртое считается одним шагом «Отменить».
+  void beginErase() => _eraseSnapshot = state.isReady ? state.work.markup : null;
+
+  /// Стирает мазки, которых касаются [points] кругом ластика (радиус от толщины маркера).
+  void eraseAlong(List<double> points) {
+    if (!state.isReady) {
+      return;
+    }
+    final PageMarkup before = state.work.markup;
+    final PageMarkup after = before.erasing(
+      points,
+      MarkerPalette.widths[state.markerWidth] * MarkerPalette.eraserScale,
+    );
+    if (!identical(after, before)) {
+      _replaceWork(state.work.copyWith(markup: after));
+    }
+  }
+
+  void endErase() {
+    final PageMarkup? snapshot = _eraseSnapshot;
+    _eraseSnapshot = null;
+    if (snapshot != null && state.isReady && !identical(snapshot, state.work.markup)) {
+      emit(state.copyWith(markupUndo: _pushed(state.markupUndo, snapshot), markupRedo: const <PageMarkup>[]));
+    }
+  }
+
+  void undoMarkup() {
+    if (!state.isReady || !state.canUndoMarkup) {
+      return;
+    }
+    final PageMarkup previous = state.markupUndo.last;
+    final PageMarkup current = state.work.markup;
+    _replaceWork(state.work.copyWith(markup: previous));
+    emit(
+      state.copyWith(
+        markupUndo: state.markupUndo.sublist(0, state.markupUndo.length - 1),
+        markupRedo: _pushed(state.markupRedo, current),
+      ),
+    );
+  }
+
+  void redoMarkup() {
+    if (!state.isReady || !state.canRedoMarkup) {
+      return;
+    }
+    final PageMarkup next = state.markupRedo.last;
+    final PageMarkup current = state.work.markup;
+    _replaceWork(state.work.copyWith(markup: next));
+    emit(
+      state.copyWith(
+        markupRedo: state.markupRedo.sublist(0, state.markupRedo.length - 1),
+        markupUndo: _pushed(state.markupUndo, current),
+      ),
+    );
+  }
+
+  /// «Очистить страницу»: пометки уходят, но «Отменить» их возвращает.
+  void clearMarkup() {
+    if (state.isReady && !state.work.markup.isEmpty) {
+      _changeMarkup(const PageMarkup.empty());
+    }
+  }
+
+  void _changeMarkup(PageMarkup next) {
+    final PageMarkup before = state.work.markup;
+    _replaceWork(state.work.copyWith(markup: next));
+    emit(state.copyWith(markupUndo: _pushed(state.markupUndo, before), markupRedo: const <PageMarkup>[]));
+  }
+
+  static List<PageMarkup> _pushed(List<PageMarkup> stack, PageMarkup entry) {
+    final List<PageMarkup> next = <PageMarkup>[...stack, entry];
+    return next.length > _maxMarkupHistory ? next.sublist(next.length - _maxMarkupHistory) : next;
+  }
+
+  void startZoneEditing() {
+    if (!state.isReady || state.zoneEditing) {
+      return;
+    }
+    if (state.work.ruler.zone == null) {
+      setZone(PatternZone.full(state.page.width.toDouble(), state.page.height.toDouble()));
+    }
+    emit(state.copyWith(zoneEditing: true, markerEditing: false, clearUndo: true));
+  }
+
+  void finishZoneEditing() {
+    if (state.zoneEditing) {
+      emit(state.copyWith(zoneEditing: false));
+    }
+  }
+
+  /// Границы схемы на текущей странице. На первом ряду линейка встаёт к началу зоны.
+  void setZone(PatternZone zone) => _applyRuler(
+    state.work.ruler.withZone(zone, state.page.height.toDouble(), imageWidth: state.page.width.toDouble()),
+    progress: false,
+  );
+
+  /// Схема на всю страницу: зона и число рядов снимаются.
+  void resetZone() {
+    _applyRuler(state.work.ruler.withoutZone(state.page.height.toDouble()), progress: false);
+    finishZoneEditing();
+  }
+
+  /// Сколько рядов в зоне: высота и шаг считаются сами. `null` — задавать вручную.
+  void setRowCount(int? count) =>
+      _applyRuler(state.work.ruler.withRowCount(count, state.page.height.toDouble()), progress: false);
+
   void setRulerHeight(double value) =>
       _applyRuler(state.work.ruler.withHeight(value, state.page.height.toDouble()), progress: false);
 
@@ -187,7 +376,14 @@ class BookWorkCubit extends Cubit<BookWorkState> {
       return;
     }
     _currentPageDirty = true;
-    emit(state.copyWith(pageIndex: index, clearUndo: true));
+    emit(
+      state.copyWith(
+        pageIndex: index,
+        clearUndo: true,
+        markupUndo: const <PageMarkup>[],
+        markupRedo: const <PageMarkup>[],
+      ),
+    );
     _schedule();
   }
 
