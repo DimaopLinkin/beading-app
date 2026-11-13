@@ -10,7 +10,6 @@ import 'package:beading/app/platform/desktop_window.dart';
 import 'package:beading/app/platform/orientation_lock.dart';
 import 'package:beading/app/startup_failure_app.dart';
 import 'package:beading/core/result.dart';
-import 'package:beading/data/catalog/catalog_seeder.dart';
 import 'package:beading/data/db/app_database.dart';
 import 'package:beading/data/db/open_database.dart';
 import 'package:beading/data/sync/secure_session_storage.dart';
@@ -45,7 +44,7 @@ Future<Widget> bootstrap({
   // Живёт всё время работы приложения.
   AppLifecycleBinding(wakelock);
   // Битый файл каталога не должен мешать запуску: остальные файлы загружены, ошибка уходит в журнал.
-  final Result<void> seeded = await getIt<CatalogSeeder>().seed();
+  final Result<void> seeded = await dependencies.catalog.seeder.seed();
   if (seeded case Err<void>(:final failure)) {
     debugPrint('Каталог загружен не полностью: ${failure.message}');
   }

@@ -81,6 +81,9 @@ void main() {
       "INSERT INTO floss_stock (id, created_at, updated_at, device_id, brand, code, skeins) VALUES ('f1', 1, 1, 'phone', 'dmc', '310', 2.5)",
     );
     await phone.sql(
+      "INSERT INTO bead_stock (id, created_at, updated_at, device_id, brand, code, grams) VALUES ('b1', 1, 1, 'phone', 'Miyuki', 'DB0010', 15.0)",
+    );
+    await phone.sql(
       "INSERT INTO settings (\"key\", value, created_at, updated_at, device_id) VALUES ('theme', 'dark', 1, 1, 'phone')",
     );
     await phone.sql(
@@ -100,7 +103,7 @@ void main() {
       expect(await phone.outbox(), isEmpty);
 
       final SyncReport first = await phone.sync(remote);
-      expect(first.pushed, 8);
+      expect(first.pushed, 9);
       expect(await phone.outbox(), isEmpty);
       expect(
         remote.rows.keys,
@@ -111,6 +114,7 @@ void main() {
           'progress_row/p1:5',
           'progress_cell/p1:3',
           'floss_stock/dmc:310',
+          'bead_stock/Miyuki:DB0010',
           'setting/theme',
           'work_session/ws1',
         ]),
@@ -122,7 +126,7 @@ void main() {
       );
 
       final SyncReport second = await mac.sync(remote);
-      expect(second.applied, 8);
+      expect(second.applied, 9);
       expect(await mac.outbox(), isEmpty, reason: 'принятое не уходит обратно');
 
       final List<Row> grid = await mac.rows('SELECT * FROM grid_patterns');
@@ -136,6 +140,7 @@ void main() {
       expect((await mac.rows('SELECT row_index FROM grid_progress_rows')).single['row_index'], 5);
       expect((await mac.rows('SELECT block_index FROM grid_progress_cells')).single['block_index'], 3);
       expect((await mac.rows('SELECT skeins FROM floss_stock')).single['skeins'], 2.5);
+      expect((await mac.rows('SELECT grams FROM bead_stock')).single['grams'], 15.0);
       expect((await mac.rows('SELECT value FROM settings WHERE "key" = \'theme\'')).single['value'], 'dark');
       expect(
         await mac.rows('SELECT 1 FROM settings WHERE "key" = \'local.deviceId\' AND value = \'phone-secret\''),

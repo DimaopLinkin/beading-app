@@ -18,6 +18,7 @@ import 'package:beading/domain/projects/craft.dart';
 import 'package:beading/domain/settings/floss_brands.dart';
 import 'package:beading/presentation/grid_pattern/grid_pattern_view.dart';
 import 'package:beading/presentation/grid_pattern/grid_view_options.dart';
+import 'package:beading/presentation/image_to_grid/full_preview_screen.dart';
 import 'package:beading/presentation/image_to_grid/image_wizard_cubit.dart';
 import 'package:beading/presentation/image_to_grid/image_wizard_state.dart';
 import 'package:beading/presentation/image_to_grid/importance_brush_mode.dart';
@@ -47,14 +48,34 @@ class ImageWizardScreen extends StatelessWidget {
       listenWhen: (previous, current) => current.step == ImageWizardStep.done && previous.step != ImageWizardStep.done,
       listener: (context, state) => Navigator.of(context).maybePop(state.projectId),
       builder: (context, state) => CupertinoPageScaffold(
-        navigationBar: CupertinoNavigationBar(
-          middle: Text(l10n.imageWizardTitle),
-          leading: CupertinoButton(
-            padding: EdgeInsets.zero,
-            onPressed: state.step == ImageWizardStep.saving ? null : () => Navigator.of(context).maybePop(),
-            child: Text(l10n.imageWizardCancel),
-          ),
-        ),
+        navigationBar: state.brushing && state.step == ImageWizardStep.edit
+            // Режим кисти (макет 12): одна панель навигации, «Отмена» и «Готово» кисти в ней.
+            ? CupertinoNavigationBar(
+                middle: Text(l10n.imageWizardBrushTitle),
+                leading: CupertinoButton(
+                  key: const ValueKey<String>('brush-cancel'),
+                  padding: EdgeInsets.zero,
+                  onPressed: context.read<ImageWizardCubit>().cancelBrush,
+                  child: Text(l10n.imageWizardCancel),
+                ),
+                trailing: CupertinoButton(
+                  key: const ValueKey<String>('brush-done'),
+                  padding: EdgeInsets.zero,
+                  onPressed: context.read<ImageWizardCubit>().finishBrush,
+                  child: Text(
+                    l10n.imageWizardBrushDone,
+                    style: const TextStyle(fontWeight: FontWeight.w600),
+                  ),
+                ),
+              )
+            : CupertinoNavigationBar(
+                middle: Text(l10n.imageWizardTitle),
+                leading: CupertinoButton(
+                  padding: EdgeInsets.zero,
+                  onPressed: state.step == ImageWizardStep.saving ? null : () => Navigator.of(context).maybePop(),
+                  child: Text(l10n.imageWizardCancel),
+                ),
+              ),
         child: SafeArea(
           child: switch (state.step) {
             ImageWizardStep.pickSource || ImageWizardStep.done => Stack(
@@ -242,6 +263,7 @@ class _Problem extends StatelessWidget {
     final Color color = CupertinoColors.systemRed.resolveFrom(context);
     final AppTokensData tokens = context.tokens;
     return Padding(
+      key: const ValueKey<String>('wizard-problem'),
       padding: EdgeInsets.only(bottom: tokens.spacing.m),
       child: Semantics(
         liveRegion: true,
@@ -367,15 +389,15 @@ class _EditState extends State<_Edit> {
               SizedBox(height: gap),
               Text(l10n.imageWizardCompareHint, textAlign: TextAlign.center, style: caption),
               SizedBox(height: gap),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
+              Wrap(
+                alignment: WrapAlignment.center,
+                spacing: gap,
                 children: <Widget>[
                   _IconAction(
                     icon: CupertinoIcons.rotate_right,
                     label: l10n.imageWizardRotate,
                     onPressed: cubit.rotate,
                   ),
-                  SizedBox(width: gap),
                   _IconAction(
                     icon: CupertinoIcons.crop,
                     label: l10n.imageWizardCrop,
@@ -547,10 +569,10 @@ class _EditState extends State<_Edit> {
                     GenerationPreset.detailed => _PresetChoice.detailed,
                   },
                   children: <_PresetChoice, Widget>{
-                    _PresetChoice.asIs: _SegmentLabel(l10n.imageWizardPresetAsIs),
                     _PresetChoice.simpler: _SegmentLabel(l10n.imageWizardPresetSimpler),
                     _PresetChoice.balanced: _SegmentLabel(l10n.imageWizardPresetBalanced),
                     _PresetChoice.detailed: _SegmentLabel(l10n.imageWizardPresetDetailed),
+                    _PresetChoice.asIs: _SegmentLabel(l10n.imageWizardPresetAsIs),
                   },
                   onValueChanged: (value) {
                     if (value != null) {
@@ -756,11 +778,15 @@ class _EditState extends State<_Edit> {
                 onChanged: cubit.setName,
                 textInputAction: TextInputAction.done,
               ),
-              SizedBox(height: gap),
-              _Problem(state.problem),
             ],
           ),
         ),
+        // Ошибка стоит рядом с кнопкой: внизу прокручиваемого списка её не видно, и кнопка казалась сломанной.
+        if (state.problem != null)
+          Padding(
+            padding: EdgeInsets.fromLTRB(gap, gap / 2, gap, 0),
+            child: _Problem(state.problem),
+          ),
         Padding(
           padding: EdgeInsets.fromLTRB(gap, gap / 2, gap, gap),
           child: SizedBox(
@@ -805,7 +831,7 @@ String _beadLabel(AppLocalizations l10n, BeadSize size) {
 }
 
 /// Выбор детальности в мастере: «как на фото» (T24 без предустановки) и три предустановки.
-enum _PresetChoice { asIs, simpler, balanced, detailed }
+enum _PresetChoice { simpler, balanced, detailed, asIs }
 
 class _SegmentLabel extends StatelessWidget {
   const _SegmentLabel(this.text);
@@ -861,29 +887,149 @@ class _SliderRow extends StatelessWidget {
   final ValueChanged<int> onChanged;
 
   @override
-  Widget build(BuildContext context) => Padding(
-    padding: EdgeInsets.only(bottom: context.tokens.spacing.s),
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: <Widget>[
-        Row(
-          children: <Widget>[
-            Expanded(
-              child: Text(title, style: const TextStyle(fontWeight: FontWeight.w600)),
-            ),
-            Text('$value', key: ValueKey<String>('slider-value-$title')),
-          ],
-        ),
-        CupertinoSlider(
-          value: value.toDouble(),
-          min: min.toDouble(),
-          max: max.toDouble(),
-          divisions: max - min,
-          onChanged: (v) => onChanged(v.round()),
-        ),
-      ],
-    ),
+  Widget build(BuildContext context) => _StepSlider(
+    title: title,
+    value: value.toDouble(),
+    min: min.toDouble(),
+    max: max.toDouble(),
+    step: 1,
+    valueKey: ValueKey<String>('slider-value-$title'),
+    sliderKey: ValueKey<String>('slider-$title'),
+    id: 'slider-$title',
+    format: (v) => '${v.round()}',
+    onChanged: (v) => onChanged(v.round()),
   );
+}
+
+/// Строка «название, значение с кнопками − и +» и ползунок на всю ширину (T71). Тап по значению открывает ввод с
+/// клавиатуры: значение приводится к шагу и границам, как у ползунка.
+class _StepSlider extends StatelessWidget {
+  const _StepSlider({
+    required this.title,
+    required this.value,
+    required this.min,
+    required this.max,
+    required this.step,
+    required this.format,
+    required this.onChanged,
+    required this.valueKey,
+    required this.sliderKey,
+    required this.id,
+    this.sliderValue,
+  });
+
+  final String title;
+  final double value;
+
+  /// Положение ползунка, если оно отличается от [value] (например, ширина в сантиметрах прижимается к шагу).
+  final double? sliderValue;
+  final double min;
+  final double max;
+  final double step;
+  final String Function(double value) format;
+  final ValueChanged<double> onChanged;
+  final Key valueKey;
+  final Key sliderKey;
+
+  /// Основа ключей кнопок − и +.
+  final String id;
+
+  double _snap(double v) => ((v / step).round() * step).clamp(min, max);
+
+  Future<void> _type(BuildContext context) async {
+    final AppLocalizations l10n = AppLocalizations.of(context);
+    final TextEditingController controller = TextEditingController(text: format(value));
+    final String? entered = await showCupertinoDialog<String>(
+      context: context,
+      builder: (dialog) => CupertinoAlertDialog(
+        title: Text(title),
+        content: Padding(
+          padding: const EdgeInsets.only(top: 12),
+          child: CupertinoTextField(
+            key: const ValueKey<String>('step-slider-input'),
+            controller: controller,
+            autofocus: true,
+            keyboardType: const TextInputType.numberWithOptions(decimal: true),
+            textAlign: TextAlign.center,
+            onSubmitted: (text) => Navigator.of(dialog).pop(text),
+          ),
+        ),
+        actions: <Widget>[
+          CupertinoDialogAction(onPressed: () => Navigator.of(dialog).pop(), child: Text(l10n.imageWizardCancel)),
+          CupertinoDialogAction(
+            isDefaultAction: true,
+            onPressed: () => Navigator.of(dialog).pop(controller.text),
+            child: Text(l10n.imageWizardApply),
+          ),
+        ],
+      ),
+    );
+    controller.dispose();
+    final double? parsed = entered == null ? null : double.tryParse(entered.trim().replaceAll(',', '.'));
+    if (parsed != null) {
+      onChanged(_snap(parsed));
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final AppLocalizations l10n = AppLocalizations.of(context);
+    final double tap = context.tokens.minTapTarget;
+    final double at = sliderValue ?? value;
+    final bool canDecrease = at > min + 1e-9;
+    final bool canIncrease = at < max - 1e-9;
+    final int divisions = ((max - min) / step).round();
+    return Padding(
+      padding: EdgeInsets.only(bottom: context.tokens.spacing.s),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: <Widget>[
+          Row(
+            children: <Widget>[
+              Expanded(
+                child: Text(title, style: const TextStyle(fontWeight: FontWeight.w600)),
+              ),
+              CupertinoButton(
+                key: ValueKey<String>('$id-minus'),
+                padding: EdgeInsets.zero,
+                minimumSize: Size.square(tap),
+                onPressed: canDecrease ? () => onChanged(_snap((sliderValue ?? value) - step)) : null,
+                child: Semantics(
+                  label: l10n.imageWizardDecrease(title),
+                  child: const Icon(CupertinoIcons.minus_circle),
+                ),
+              ),
+              CupertinoButton(
+                key: valueKey,
+                padding: EdgeInsets.zero,
+                minimumSize: Size(tap, tap),
+                onPressed: () => _type(context),
+                child: Text(
+                  format(value),
+                  style: const TextStyle(fontFeatures: <FontFeature>[FontFeature.tabularFigures()]),
+                ),
+              ),
+              CupertinoButton(
+                key: ValueKey<String>('$id-plus'),
+                padding: EdgeInsets.zero,
+                minimumSize: Size.square(tap),
+                onPressed: canIncrease ? () => onChanged(_snap((sliderValue ?? value) + step)) : null,
+                child: Semantics(label: l10n.imageWizardIncrease(title), child: const Icon(CupertinoIcons.plus_circle)),
+              ),
+            ],
+          ),
+          CupertinoSlider(
+            key: sliderKey,
+            value: (sliderValue ?? value).clamp(min, max),
+            min: min,
+            max: max,
+            divisions: divisions,
+            onChanged: (v) => onChanged(_snap(v)),
+          ),
+        ],
+      ),
+    );
+  }
 }
 
 class _IconAction extends StatelessWidget {
@@ -961,6 +1107,7 @@ class _Preview extends StatelessWidget {
         GestureDetector(
           key: const ValueKey<String>('wizard-preview'),
           behavior: HitTestBehavior.opaque,
+          onTap: grid == null ? null : () => showFullPreview(context),
           onLongPressStart: (_) => cubit.setComparing(value: true),
           onLongPressEnd: (_) => cubit.setComparing(value: false),
           onLongPressCancel: () => cubit.setComparing(value: false),
@@ -974,6 +1121,22 @@ class _Preview extends StatelessWidget {
                 child: Stack(
                   children: <Widget>[
                     Positioned.fill(child: Center(child: content)),
+                    if (grid != null)
+                      Positioned(
+                        bottom: 0,
+                        right: 0,
+                        child: CupertinoButton(
+                          key: const ValueKey<String>('wizard-preview-open'),
+                          padding: EdgeInsets.all(tokens.spacing.s),
+                          minimumSize: Size.square(tokens.minTapTarget),
+                          onPressed: () => showFullPreview(context),
+                          child: Semantics(
+                            label: l10n.imageWizardFullPreviewOpen,
+                            button: true,
+                            child: const Icon(CupertinoIcons.arrow_up_left_arrow_down_right),
+                          ),
+                        ),
+                      ),
                     if (state.calculating)
                       Positioned(
                         top: tokens.spacing.s,
@@ -1019,8 +1182,10 @@ class _Preview extends StatelessWidget {
                       grid.height,
                       _cm(shown!.fabric.cmForCells(grid.width)),
                       _cm(shown.fabric.cmForCells(grid.height)),
+                      state.preview!.palette.length,
+                      _fabricLabel(l10n, shown.fabric),
                     )
-                  : l10n.imageWizardSize(grid.width, grid.height),
+                  : l10n.imageWizardSize(grid.width, grid.height, state.preview!.palette.length),
               key: const ValueKey<String>('wizard-size'),
               style: TextStyle(fontSize: 13, color: CupertinoColors.secondaryLabel.resolveFrom(context)),
             ),
@@ -1105,20 +1270,17 @@ class _WidthCmRow extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
-          Row(
-            children: <Widget>[
-              Expanded(
-                child: Text(l10n.imageWizardWidthCm, style: const TextStyle(fontWeight: FontWeight.w600)),
-              ),
-              Text(l10n.imageWizardCm(_cm(shownCm)), key: const ValueKey<String>('wizard-width-cm')),
-            ],
-          ),
-          CupertinoSlider(
-            key: const ValueKey<String>('wizard-width-cm-slider'),
-            value: ImageToGridSettings.snapCm(settings.widthCm),
+          _StepSlider(
+            title: l10n.imageWizardWidthCm,
+            value: shownCm,
+            sliderValue: snapped,
             min: min,
             max: max,
-            divisions: ((max - min) / ImageToGridSettings.stitchCmStep).round(),
+            step: ImageToGridSettings.stitchCmStep,
+            valueKey: const ValueKey<String>('wizard-width-cm'),
+            sliderKey: const ValueKey<String>('wizard-width-cm-slider'),
+            id: 'wizard-width-cm',
+            format: (v) => l10n.imageWizardCm(_cm(v)),
             onChanged: onChanged,
           ),
           Text(

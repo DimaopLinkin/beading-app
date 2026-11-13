@@ -3,6 +3,8 @@ import 'dart:typed_data';
 import 'package:beading/core/clock.dart';
 import 'package:beading/core/failure.dart';
 import 'package:beading/core/result.dart';
+import 'package:beading/domain/bead_stock/bead_stock_entry.dart';
+import 'package:beading/domain/bead_stock/bead_stock_repository.dart';
 import 'package:beading/domain/floss_stock/floss_stock_entry.dart';
 import 'package:beading/domain/floss_stock/floss_stock_repository.dart';
 import 'package:beading/domain/grid_pattern/cell_progress.dart';
@@ -48,7 +50,9 @@ class ExportProjects {
     required Clock clock,
     required AppInfoProvider appInfo,
     FlossStockRepository? flossStock,
+    BeadStockRepository? beadStock,
   }) : _flossStock = flossStock,
+       _beadStock = beadStock,
        _projects = projects,
        _grids = grids,
        _progress = progress,
@@ -75,6 +79,7 @@ class ExportProjects {
   final Clock _clock;
   final AppInfoProvider _appInfo;
   final FlossStockRepository? _flossStock;
+  final BeadStockRepository? _beadStock;
 
   /// Один проект.
   Future<Result<BiserExport>> project(String id) async {
@@ -122,6 +127,14 @@ class ExportProjects {
       }
       stock = loaded.valueOrNull!;
     }
+    List<BeadStockEntry> beadStock = const <BeadStockEntry>[];
+    if (kind == BiserKind.backup && _beadStock != null) {
+      final Result<List<BeadStockEntry>> loaded = await _beadStock.all();
+      if (loaded case Err<List<BeadStockEntry>>(:final Failure failure)) {
+        return Err<BiserExport>(failure);
+      }
+      beadStock = loaded.valueOrNull!;
+    }
     final AppInfo info = await _appInfo.load();
     final Result<Uint8List> bytes = _codec.encode(
       BiserBundle(
@@ -131,6 +144,7 @@ class ExportProjects {
         projects: items,
         files: files,
         flossStock: stock,
+        beadStock: beadStock,
       ),
     );
     return bytes.map((b) => BiserExport(bytes: b, fileName: '$baseName.$extension', projectCount: items.length));

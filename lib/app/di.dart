@@ -5,11 +5,7 @@ import 'package:beading/app/platform/desktop_window.dart';
 import 'package:beading/app/platform/orientation_lock.dart';
 import 'package:beading/core/clock.dart';
 import 'package:beading/core/id_generator.dart';
-import 'package:beading/data/catalog/catalog_asset_source.dart';
-import 'package:beading/data/catalog/catalog_seeder.dart';
-import 'package:beading/data/catalog/drift_catalog_repository.dart';
 import 'package:beading/data/db/app_database.dart';
-import 'package:beading/data/floss_stock/drift_floss_stock_repository.dart';
 import 'package:beading/data/grid_pattern/drift_cell_progress_store.dart';
 import 'package:beading/data/grid_pattern/drift_grid_pattern_repository.dart';
 import 'package:beading/data/grid_pattern/drift_grid_progress_store.dart';
@@ -30,9 +26,8 @@ import 'package:beading/data/sharing/share_plus_file_sharer.dart';
 import 'package:beading/data/sharing/zip_biser_codec.dart';
 import 'package:beading/data/stitch_import/xml_oxs_decoder.dart';
 import 'package:beading/data/weaving/drift_work_session_repository.dart';
-import 'package:beading/domain/catalog/catalog_material.dart';
+import 'package:beading/domain/bead_stock/bead_stock_repository.dart';
 import 'package:beading/domain/catalog/catalog_repository.dart';
-import 'package:beading/domain/catalog/use_cases/find_similar_colors.dart';
 import 'package:beading/domain/events/app_events.dart';
 import 'package:beading/domain/floss_stock/floss_stock_repository.dart';
 import 'package:beading/domain/grid_pattern/cell_progress_store.dart';
@@ -93,7 +88,6 @@ import 'package:beading/domain/weaving/work_session_content_cleaner.dart';
 import 'package:beading/domain/weaving/work_session_repository.dart';
 import 'package:beading/domain/weaving/work_session_tracker.dart';
 import 'package:beading/presentation/book_work/book_work_cubit.dart';
-import 'package:beading/presentation/catalog/catalog_cubit.dart';
 import 'package:beading/presentation/editor/editor_cubit.dart';
 import 'package:beading/presentation/editor/new_grid_cubit.dart';
 import 'package:beading/presentation/editor/new_stitch_cubit.dart';
@@ -117,17 +111,9 @@ final GetIt getIt = GetIt.instance;
 /// повторный вызов сначала сбрасывает прежние регистрации.
 ///
 /// [database] — готовая база (в тестах — в памяти); без неё открывается файл в Application Support.
-/// [catalogAssets] подменяет файлы каталога (в тестах).
-/// Длинная сторона картинки в мастере «картинка → схема», пикселей.
-/// Имя регистрации каталога ниток: каталог бисера — безымянная регистрация.
-const String flossCatalogInstance = 'floss-catalog';
-
-const int _wizardImageMaxSide = 2048;
-
 Future<void> configureDependencies(
   AppDependencies dependencies, {
   GetIt? locator,
-  CatalogAssetSource? catalogAssets,
 }) async {
   final GetIt container = locator ?? getIt;
   await container.reset();
@@ -211,7 +197,7 @@ Future<void> configureDependencies(
       () => ImageWizardCubit(
         source: container<BookImageSource>(),
         // Генератору хватает 2048: поворот и обрезка отзываются быстрее, пик памяти и маска Vision меньше. Книги — 4096.
-        processor: const UiImageProcessor(maxSide: _wizardImageMaxSide),
+        processor: const UiImageProcessor(maxSide: wizardImageMaxSide),
         decoder: container<ImageDecoder>(),
         runner: container<ImageToGridRunner>(),
         masks: container<ImageMasks>(),
@@ -399,31 +385,7 @@ Future<void> configureDependencies(
         ],
       ),
     )
-    ..registerLazySingleton<CatalogAssetSource>(() => catalogAssets ?? BundleCatalogAssetSource())
-    ..registerLazySingleton<CatalogSeeder>(
-      () => CatalogSeeder(dao: db.catalogDao, assets: container<CatalogAssetSource>()),
-    )
-    ..registerLazySingleton<CatalogRepository>(() => DriftCatalogRepository(db.catalogDao))
-    ..registerFactory<FindSimilarColors>(() => FindSimilarColors(container<CatalogRepository>()))
-    ..registerFactory<CatalogCubit>(
-      () => CatalogCubit(
-        catalog: container<CatalogRepository>(),
-        findSimilar: container<FindSimilarColors>(),
-        settings: container<SettingsRepository>(),
-        brandSetting: SettingKeys.defaultBeadBrand,
-      ),
-    )
-    ..registerFactory<CatalogCubit>(
-      () => CatalogCubit(
-        catalog: container<CatalogRepository>(),
-        findSimilar: container<FindSimilarColors>(),
-        settings: container<SettingsRepository>(),
-        material: CatalogMaterial.floss,
-        brandSetting: SettingKeys.defaultFlossBrand,
-        stock: container<FlossStockRepository>(),
-      ),
-      instanceName: flossCatalogInstance,
-    )
+    ..registerLazySingleton<CatalogRepository>(() => dependencies.catalog.repository)
     ..registerFactory<PatternTemplateCubit>(
       () => PatternTemplateCubit(
         catalog: container<CatalogRepository>(),
@@ -434,14 +396,8 @@ Future<void> configureDependencies(
     )
     ..registerLazySingleton<TextSharer>(SharePlusTextSharer.new)
     ..registerFactory<LoadProjectMaterials>(() => LoadProjectMaterials(container<GridPatternRepository>()))
-    ..registerLazySingleton<FlossStockRepository>(
-      () => DriftFlossStockRepository(
-        dao: db.flossStockDao,
-        deviceIds: container<DeviceIdProvider>(),
-        clock: container<Clock>(),
-        ids: container<IdGenerator>(),
-      ),
-    )
+    ..registerLazySingleton<FlossStockRepository>(() => dependencies.catalog.flossStock)
+    ..registerLazySingleton<BeadStockRepository>(() => dependencies.catalog.beadStock)
     ..registerFactory<LoadProjectFloss>(
       () => LoadProjectFloss(container<GridPatternRepository>(), progress: container<CellProgressStore>()),
     )
@@ -480,6 +436,7 @@ Future<void> configureDependencies(
         clock: container<Clock>(),
         appInfo: container<AppInfoProvider>(),
         flossStock: container<FlossStockRepository>(),
+        beadStock: container<BeadStockRepository>(),
       ),
     )
     ..registerFactory<ImportBiser>(
@@ -496,6 +453,7 @@ Future<void> configureDependencies(
         ids: container<IdGenerator>(),
         unitOfWork: container<UnitOfWork>(),
         flossStock: container<FlossStockRepository>(),
+        beadStock: container<BeadStockRepository>(),
       ),
     )
     ..registerLazySingleton<OxsDecoder>(() => const XmlOxsDecoder())

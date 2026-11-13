@@ -288,7 +288,7 @@ class ImageWizardCubit extends Cubit<ImageWizardState> {
       if (png == null) {
         return null;
       }
-      final SourceImage? image = (await _decoder.decode(png.png)).valueOrNull;
+      final SourceImage? image = (await _decoder.decode(png.png, maxSide: wizardImageMaxSide)).valueOrNull;
       return image == null ? null : (png: png.png, image: image);
     } on Object {
       return null;
@@ -297,8 +297,8 @@ class ImageWizardCubit extends Cubit<ImageWizardState> {
 
   void setTechnique(Technique technique) => _change(state.settings.copyWith(technique: technique));
 
-  /// Бисер или вышивка. Ширина, число цветов и контуры возвращаются к значениям по умолчанию ремесла: вышивка крупнее
-  /// бисера (ориентир A09 — около 150 крестиков и 30 цветов), и контуры-бэкстич для неё хорошо работают с самого начала.
+  /// Бисер или вышивка. Ширина и число цветов возвращаются к значениям по умолчанию ремесла: вышивка крупнее
+  /// бисера (60 см и 50 цветов, T71). Контуры-бэкстич по умолчанию выключены.
   void setCraft(Craft craft) {
     final ImageToGridSettings now = state.settings;
     if (now.craft == craft) {
@@ -308,9 +308,9 @@ class ImageWizardCubit extends Cubit<ImageWizardState> {
       craft == Craft.crossStitch
           ? now.copyWith(
               technique: Technique.defaultFor(craft),
-              columns: ImageToGridSettings.defaultStitchColumns,
+              columns: now.fabric.cellsForCm(ImageToGridSettings.defaultStitchWidthCm),
               maxColors: ImageToGridSettings.defaultStitchColors,
-              backstitch: true,
+              backstitch: false,
             )
           : now.copyWith(
               technique: Technique.defaultFor(craft),
@@ -636,8 +636,9 @@ class ImageWizardCubit extends Cubit<ImageWizardState> {
       );
       _hintKey = key;
       emit(state.copyWith(sizeHint: hint, clearSizeHint: hint == null));
-      // Размер по умолчанию берётся из подсказки, пока его никто не менял (T66).
-      if (hint != null && !_sizeTouched) {
+      // Размер по умолчанию берётся из подсказки, пока его никто не менял (T66). У вышивки по умолчанию 60 см и
+      // 50 цветов (T71): подсказка только предлагается кнопкой «Применить».
+      if (hint != null && !_sizeTouched && base.craft == Craft.beading) {
         _change(
           state.settings.copyWith(
             columns: hint.columns,
@@ -767,12 +768,18 @@ class ImageWizardCubit extends Cubit<ImageWizardState> {
       return;
     }
     emit(state.copyWith(step: ImageWizardStep.saving, clearProblem: true));
-    final Result<Project> created = await _create(
-      name: state.name,
-      technique: state.settings.technique,
-      metrics: state.settings.metrics,
-      pattern: pattern,
-    );
+    Result<Project> created;
+    try {
+      created = await _create(
+        name: state.name,
+        technique: state.settings.technique,
+        metrics: state.settings.metrics,
+        pattern: pattern,
+      );
+    } on Object {
+      // Сбой драйвера или нехватка памяти на огромной схеме: без этого мастер навсегда остался бы в «Сохраняю…».
+      created = const Err<Project>(StorageFailure('Не удалось записать схему'));
+    }
     if (isClosed) {
       return;
     }

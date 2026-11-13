@@ -57,7 +57,7 @@ final class ImageToGridSettings extends Equatable {
     this.outline = false,
     this.fabric = Fabric.standard,
     this.backstitch = false,
-    this.blends = false,
+    this.blends = true,
   });
 
   static const int defaultColumns = 40;
@@ -74,11 +74,9 @@ final class ImageToGridSettings extends Equatable {
   /// Вышивка большая: 200 см на самой мелкой канве (Аида 20) — около 1575 крестиков; выше потолок не нужен.
   static const int maxStitchColumns = 1600;
 
-  /// Бюджет таблицы цен «клетка × цвет» (4 байта на число): больше схема — меньше цветов в расчёте, иначе вышивка
-  /// 200 × 80 см не поместится в память телефона.
-  static const int costBudget = 32 * 1000 * 1000;
-  static const int defaultStitchColumns = 150;
-  static const int defaultStitchColors = 30;
+  /// Ширина вышивки по умолчанию, см (T71); число крестиков зависит от канвы.
+  static const double defaultStitchWidthCm = 60;
+  static const int defaultStitchColors = 50;
   static const int defaultMaxColors = 8;
   static const int minColors = 2;
 
@@ -210,27 +208,22 @@ final class ImageToGridSettings extends Equatable {
   static double snapCm(double cm) =>
       ((cm / stitchCmStep).round() * stitchCmStep).clamp(minStitchWidthCm, maxStitchWidthCm);
 
-  /// Число рядов, при котором схема повторяет пропорции [image]. У вышивки высота в сантиметрах округляется до
-  /// шага [stitchCmStep] (50 × 35 см, а не 50 × 37): картинка чуть растягивается, не больше чем на полшага.
-  int rowsFor(SourceImage image) {
-    final int natural = GridSizing.rowsForColumns(
+  /// Число рядов, при котором схема повторяет пропорции [image]. Высота не округляется до шага [stitchCmStep]:
+  /// округление искажало пропорции (на узкой вышивке 10 × 3 см превращалась в 10 × 5), а меняется должен только масштаб.
+  int rowsFor(SourceImage image) => math.min(
+    Grid.maxSide,
+    GridSizing.rowsForColumns(
       imageWidth: image.width,
       imageHeight: image.height,
       geometry: geometry,
       metrics: metrics,
       columns: columns,
-    );
-    if (craft != Craft.crossStitch) {
-      return math.min(Grid.maxSide, natural);
-    }
-    final double cm = fabric.cmForCells(natural);
-    final double snapped = ((cm / stitchCmStep).round() * stitchCmStep).clamp(stitchCmStep, double.infinity);
-    return math.min(Grid.maxSide, fabric.cellsForCm(snapped));
-  }
+    ),
+  );
 
-  /// Сколько цветов реально берёт расчёт для схемы в [rows] рядов: не больше [maxColors] и не больше, чем влезает в
-  /// [costBudget].
-  int colorsFor(int rows) => math.max(minColors, math.min(maxColors, costBudget ~/ (columns * rows)));
+  /// Сколько цветов берёт расчёт для схемы в [rows] рядов: сколько задано, [maxColors]. У огромных схем таблица цен
+  /// разреженная (`CellCosts.denseBudget`, T70), поэтому цвета больше не урезаются.
+  int colorsFor(int rows) => maxColors;
 
   /// Материал каталога под ремесло: бисер или мулине.
   CatalogMaterial get material => craft == Craft.crossStitch ? CatalogMaterial.floss : CatalogMaterial.bead;

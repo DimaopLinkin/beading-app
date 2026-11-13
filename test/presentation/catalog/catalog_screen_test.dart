@@ -1,3 +1,4 @@
+import 'package:beading/core/failure.dart';
 import 'package:beading/domain/catalog/catalog_color.dart';
 import 'package:beading/domain/catalog/catalog_material.dart';
 import 'package:beading/domain/catalog/use_cases/find_similar_colors.dart';
@@ -11,6 +12,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import '../../support/fake_bead_stock.dart';
 import '../../support/fake_catalog_repository.dart';
 import '../../support/fake_floss_stock.dart';
 import '../../support/fake_settings_repository.dart';
@@ -286,13 +288,104 @@ void main() {
       expect(find.text('1 мот.'), findsWidgets);
     });
 
-    testWidgets('каталог бисера без запаса: нет «Мой запас»', (tester) async {
+    testWidgets('лист цвета: счётчик меняется сразу, а ошибка записи видна и число возвращается', (tester) async {
+      final (CatalogCubit cubit, FakeFlossStockRepository stock) = await pumpFloss(tester);
+
+      await tester.tap(find.text('310'));
+      await tester.pumpAndSettle();
+      stock.failNextWrite = const StorageFailure('disk');
+      await tester.tap(find.byKey(const ValueKey<String>('stock-more')));
+      await tester.pump();
+      await tester.pump();
+      await tester.pumpAndSettle();
+
+      expect(find.text('Не удалось сохранить запас ниток'), findsOneWidget);
+      expect(find.text('0 мот.'), findsWidgets);
+      expect(stock.snapshot, isEmpty);
+      expect(cubit.state.stockWriteFailure, isNotNull);
+    });
+
+    testWidgets('каталог без запаса: нет «Мой запас»', (tester) async {
       await pumpScreen(tester);
 
       await tester.tap(find.text('DB0010'));
       await tester.pumpAndSettle();
 
       expect(find.text('Мой запас'), findsNothing);
+    });
+  });
+
+  group('каталог бисера с запасом', () {
+    const CatalogRef delica10 = CatalogRef(brand: 'Miyuki', code: 'DB0010');
+
+    Future<(CatalogCubit, FakeBeadStockRepository)> pumpBeads(
+      WidgetTester tester, {
+      Map<CatalogRef, double> initial = const <CatalogRef, double>{},
+    }) async {
+      tester.view
+        ..physicalSize = const Size(430, 932)
+        ..devicePixelRatio = 1;
+      addTearDown(tester.view.reset);
+      final FakeBeadStockRepository stock = FakeBeadStockRepository(initial: initial);
+      final CatalogCubit cubit = CatalogCubit(
+        catalog: catalog,
+        findSimilar: FindSimilarColors(catalog),
+        settings: settings,
+        brandSetting: SettingKeys.defaultBeadBrand,
+        beadStock: stock,
+      );
+      addTearDown(cubit.close);
+      await tester.pumpWidget(
+        CupertinoApp(
+          theme: AppTheme.light,
+          builder: AppTheme.builder,
+          localizationsDelegates: AppLocalizations.localizationsDelegates,
+          supportedLocales: AppLocalizations.supportedLocales,
+          locale: const Locale('ru'),
+          home: BlocProvider<CatalogCubit>.value(value: cubit, child: const CatalogScreen()),
+        ),
+      );
+      await cubit.start();
+      await tester.pump();
+      await tester.pump();
+      return (cubit, stock);
+    }
+
+    testWidgets('у бисера из запаса — значок с граммами', (tester) async {
+      await pumpBeads(tester, initial: <CatalogRef, double>{delica10: 15});
+
+      expect(find.text('15 г'), findsOneWidget);
+      expect(tester.takeException(), isNull);
+    });
+
+    testWidgets('в листе цвета есть «Мой запас» в граммах, «+» добавляет 5 г', (tester) async {
+      final (CatalogCubit cubit, FakeBeadStockRepository stock) = await pumpBeads(tester);
+
+      await tester.tap(find.text('DB0010'));
+      await tester.pumpAndSettle();
+      expect(find.text('Мой запас'), findsOneWidget);
+      expect(find.text('0 г'), findsOneWidget);
+      await tester.tap(find.byKey(const ValueKey<String>('stock-more')));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const ValueKey<String>('stock-more')));
+      await tester.pumpAndSettle();
+
+      expect(stock.snapshot[delica10], 10);
+      expect(cubit.state.stock[delica10], 10);
+      expect(find.text('10 г'), findsWidgets);
+    });
+
+    testWidgets('ошибка записи запаса бисера видна под счётчиком', (tester) async {
+      final (CatalogCubit _, FakeBeadStockRepository stock) = await pumpBeads(tester);
+
+      await tester.tap(find.text('DB0010'));
+      await tester.pumpAndSettle();
+      stock.failNextWrite = const StorageFailure('disk');
+      await tester.tap(find.byKey(const ValueKey<String>('stock-more')));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Не удалось сохранить запас бисера'), findsOneWidget);
+      expect(find.text('0 г'), findsWidgets);
     });
   });
 }
