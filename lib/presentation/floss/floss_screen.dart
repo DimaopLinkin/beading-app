@@ -3,6 +3,7 @@ import 'dart:math' as math;
 
 import 'package:beading/core/failure.dart';
 import 'package:beading/domain/floss_stock/floss_shortage.dart';
+import 'package:beading/domain/image_pattern/pdf_rasterizer.dart';
 import 'package:beading/domain/materials/floss_estimate.dart';
 import 'package:beading/domain/sharing/file_sharer.dart';
 import 'package:beading/domain/sharing/text_sharer.dart';
@@ -23,7 +24,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 /// Расход мулине для вышивки: канва, список покупок по ниткам, таблица по цветам схемы и «Поделиться».
 /// Ждёт [FlossCubit] в дереве выше.
 class FlossScreen extends StatefulWidget {
-  const FlossScreen({required this.sharer, required this.fileSharer, super.key});
+  const FlossScreen({required this.sharer, required this.fileSharer, this.rasterizer, super.key});
 
   static const String routePath = '/projects/:projectId/floss';
 
@@ -33,6 +34,9 @@ class FlossScreen extends StatefulWidget {
 
   final TextSharer sharer;
   final FileSharer fileSharer;
+
+  /// Для просмотра PDF перед печатью; без него файл сразу уходит в «Поделиться».
+  final PdfRasterizer? rasterizer;
 
   @override
   State<FlossScreen> createState() => _FlossScreenState();
@@ -55,6 +59,7 @@ class _FlossScreenState extends State<FlossScreen> {
         summary: () async => (await cubit.printSummary()).valueOrNull,
         build: cubit.exportPdf,
         fileSharer: widget.fileSharer,
+        rasterizer: widget.rasterizer,
         originKey: _printKey,
       );
     } finally {
