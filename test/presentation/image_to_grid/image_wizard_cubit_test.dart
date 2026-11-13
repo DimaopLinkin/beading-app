@@ -110,7 +110,7 @@ class _FakeDecoder implements ImageDecoder {
 
 GeneratedPattern _pattern(int marker) => GeneratedPattern(
   grid: Grid.fromCells(width: 2, height: 1, cells: const <int>[1, 1]),
-  palette: <PaletteEntry>[PaletteEntry(rgb: Rgb(marker, 0, 0))],
+  palette: <PaletteEntry>[PaletteEntry(rgb: Rgb(marker % 256, 0, 0))],
 );
 
 void main() {
@@ -765,13 +765,16 @@ void main() {
     });
     tearDown(() => cubit.close());
 
-    test('переход на вышивку ставит большие ширину и число цветов, канву и контуры', () {
+    test('переход на вышивку: 60 см, 50 цветов, бленды включены, контуры выключены (T71)', () {
       cubit.setCraft(Craft.crossStitch);
       final ImageToGridSettings s = cubit.state.settings;
       expect(s.technique, Technique.crossStitch);
-      expect(s.columns, ImageToGridSettings.defaultStitchColumns);
-      expect(s.maxColors, ImageToGridSettings.defaultStitchColors);
-      expect(s.backstitch, isTrue);
+      expect(s.widthCm, closeTo(60, 0.2));
+      expect(s.maxColors, 50);
+      expect(s.backstitch, isFalse);
+      expect(s.blends, isTrue);
+      expect(s.preset, GenerationPreset.detailed);
+      expect(s.outline, isFalse);
       cubit.setCraft(Craft.beading);
       expect(cubit.state.settings.technique, Technique.loom);
       expect(cubit.state.settings.columns, ImageToGridSettings.defaultColumns);
@@ -796,7 +799,8 @@ void main() {
       final ImageToGridRequest request = runner.requests.last;
       expect(request.constraint.candidates, hasLength(2));
       expect(request.metrics, Fabric.standard);
-      expect(request.backstitch, isTrue);
+      expect(request.backstitch, isFalse);
+      expect(request.applyBlends, isTrue);
     });
 
     test('цвет канвы и бленды попадают в настройки', () {
