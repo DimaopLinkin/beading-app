@@ -137,6 +137,13 @@ void main() {
       expect(all.every((s) => s.runes.length == 1 && s.trim() == s), isTrue);
     });
 
+    test('нет квадратов с полосами: их не отличить друг от друга (T80)', () {
+      for (final String s in <String>['▤', '▥', '▦', '▧', '▨', '▩']) {
+        expect(assigner.symbols, isNot(contains(s)));
+        expect(SymbolAssigner.avoided, contains(s));
+      }
+    });
+
     test('нет мелких и похожих знаков', () {
       expect(assigner.symbols.toSet().intersection(SymbolAssigner.avoided), isEmpty);
     });

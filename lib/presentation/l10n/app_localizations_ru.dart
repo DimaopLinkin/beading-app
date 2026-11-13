@@ -2060,10 +2060,48 @@ class AppLocalizationsRu extends AppLocalizations {
   String get flossPrint => 'Распечатать схему (PDF)';
 
   @override
-  String get flossPrintHint => 'Листы A4, 10 крестиков = 3 см, номера по краям через 10 клеток, справа цвета и знаки.';
+  String get flossPrintHint =>
+      'Масштаб 10 крестиков = 3 см, номера по краям через 10 клеток, легенда с номерами для игольницы отдельным листом.';
 
   @override
   String get flossPrintFailed => 'Не удалось собрать PDF. Попробуйте ещё раз.';
+
+  @override
+  String get printSheetTitle => 'Печать схемы';
+
+  @override
+  String get printPaper => 'Формат листа';
+
+  @override
+  String printPages(int total, int sheets, int legend) {
+    return 'Страниц: $total (схема $sheets + легенда $legend)';
+  }
+
+  @override
+  String get printScaleHint => 'Масштаб всегда 10 крестиков = 3 см, легенда всегда на листе A4.';
+
+  @override
+  String get printSlots => 'Мест на стойке для игл';
+
+  @override
+  String get printSlotsHint =>
+      'В легенде каждый цвет получает номер места. Если цветов больше, нумерация продолжается на следующей стойке: «2-7» — вторая стойка, седьмое место.';
+
+  @override
+  String printSlotsOne(int count) {
+    return 'У вас $count цветов: хватит одной стойки.';
+  }
+
+  @override
+  String printSlotsMany(int racks, int slots) {
+    return 'Цветов больше мест: нужно стоек — $racks по $slots мест.';
+  }
+
+  @override
+  String get printBuild => 'Собрать PDF';
+
+  @override
+  String get printBuilding => 'Собираю PDF…';
 
   @override
   String get flossShoppingTitle => 'Что купить';

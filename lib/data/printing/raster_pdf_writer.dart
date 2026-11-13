@@ -4,25 +4,30 @@ import 'dart:typed_data';
 
 /// Страница растра: RGB, 8 бит на канал, без прозрачности.
 final class RasterPage {
-  const RasterPage({required this.width, required this.height, required this.rgb});
+  const RasterPage({
+    required this.width,
+    required this.height,
+    required this.rgb,
+    required this.widthMm,
+    required this.heightMm,
+  });
 
   final int width;
   final int height;
+
+  /// Размер листа в PDF, миллиметры.
+  final int widthMm;
+  final int heightMm;
   final Uint8List rgb;
 }
 
 /// Собирает PDF, где каждая страница — одна картинка на весь лист. Растр сжимается Flate; шрифты и пакеты не нужны.
 final class RasterPdfWriter {
-  const RasterPdfWriter({required this.pageWidthMm, required this.pageHeightMm});
-
-  final double pageWidthMm;
-  final double pageHeightMm;
+  const RasterPdfWriter();
 
   static const double _ptPerMm = 72 / 25.4;
 
   Uint8List build(List<RasterPage> pages) {
-    final double w = pageWidthMm * _ptPerMm;
-    final double h = pageHeightMm * _ptPerMm;
     final BytesBuilder out = BytesBuilder(copy: false);
     final List<int> offsets = <int>[];
     int length = 0;
@@ -48,6 +53,8 @@ final class RasterPdfWriter {
     text('<< /Type /Pages /Kids [$kids] /Count ${pages.length} >>\nendobj\n');
     for (int i = 0; i < pages.length; i++) {
       final int page = 3 + i * 3;
+      final double w = pages[i].widthMm * _ptPerMm;
+      final double h = pages[i].heightMm * _ptPerMm;
       startObject(page);
       text(
         '<< /Type /Page /Parent 2 0 R /MediaBox [0 0 ${w.toStringAsFixed(2)} ${h.toStringAsFixed(2)}] '

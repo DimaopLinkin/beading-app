@@ -3592,7 +3592,7 @@ abstract class AppLocalizations {
   /// Пояснение к печати схемы
   ///
   /// In ru, this message translates to:
-  /// **'Листы A4, 10 крестиков = 3 см, номера по краям через 10 клеток, справа цвета и знаки.'**
+  /// **'Масштаб 10 крестиков = 3 см, номера по краям через 10 клеток, легенда с номерами для игольницы отдельным листом.'**
   String get flossPrintHint;
 
   /// Ошибка сборки PDF схемы
@@ -3600,6 +3600,66 @@ abstract class AppLocalizations {
   /// In ru, this message translates to:
   /// **'Не удалось собрать PDF. Попробуйте ещё раз.'**
   String get flossPrintFailed;
+
+  /// Заголовок листа настроек печати
+  ///
+  /// In ru, this message translates to:
+  /// **'Печать схемы'**
+  String get printSheetTitle;
+
+  /// Подпись выбора формата A4–A2
+  ///
+  /// In ru, this message translates to:
+  /// **'Формат листа'**
+  String get printPaper;
+
+  /// Сколько страниц получится
+  ///
+  /// In ru, this message translates to:
+  /// **'Страниц: {total} (схема {sheets} + легенда {legend})'**
+  String printPages(int total, int sheets, int legend);
+
+  /// Пояснение к масштабу
+  ///
+  /// In ru, this message translates to:
+  /// **'Масштаб всегда 10 крестиков = 3 см, легенда всегда на листе A4.'**
+  String get printScaleHint;
+
+  /// Подпись настройки стойки
+  ///
+  /// In ru, this message translates to:
+  /// **'Мест на стойке для игл'**
+  String get printSlots;
+
+  /// Пояснение к стойке игл
+  ///
+  /// In ru, this message translates to:
+  /// **'В легенде каждый цвет получает номер места. Если цветов больше, нумерация продолжается на следующей стойке: «2-7» — вторая стойка, седьмое место.'**
+  String get printSlotsHint;
+
+  /// Цвета помещаются на одну стойку
+  ///
+  /// In ru, this message translates to:
+  /// **'У вас {count} цветов: хватит одной стойки.'**
+  String printSlotsOne(int count);
+
+  /// Нужно несколько стоек
+  ///
+  /// In ru, this message translates to:
+  /// **'Цветов больше мест: нужно стоек — {racks} по {slots} мест.'**
+  String printSlotsMany(int racks, int slots);
+
+  /// Кнопка сборки PDF
+  ///
+  /// In ru, this message translates to:
+  /// **'Собрать PDF'**
+  String get printBuild;
+
+  /// Ожидание сборки PDF
+  ///
+  /// In ru, this message translates to:
+  /// **'Собираю PDF…'**
+  String get printBuilding;
 
   /// Заголовок списка покупок мулине
   ///

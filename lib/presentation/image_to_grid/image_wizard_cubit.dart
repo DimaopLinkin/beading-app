@@ -28,6 +28,7 @@ import 'package:beading/domain/image_to_grid/image_to_grid_settings.dart';
 import 'package:beading/domain/image_to_grid/importance_brush.dart';
 import 'package:beading/domain/image_to_grid/palette_from_generated.dart';
 import 'package:beading/domain/image_to_grid/pattern_floss.dart';
+import 'package:beading/domain/image_to_grid/printable_generated.dart';
 import 'package:beading/domain/image_to_grid/size_purpose.dart';
 import 'package:beading/domain/image_to_grid/size_suggester.dart';
 import 'package:beading/domain/image_to_grid/source_image.dart';
@@ -35,6 +36,10 @@ import 'package:beading/domain/image_to_grid/use_cases/create_pattern_from_image
 import 'package:beading/domain/image_to_grid/use_cases/replace_pattern_from_image.dart';
 import 'package:beading/domain/palette/palette_snapshot.dart';
 import 'package:beading/domain/palette/rgb.dart';
+import 'package:beading/domain/printing/pattern_printer.dart';
+import 'package:beading/domain/printing/print_options.dart';
+import 'package:beading/domain/printing/print_options_store.dart';
+import 'package:beading/domain/printing/use_cases/export_pattern_pdf.dart';
 import 'package:beading/domain/projects/craft.dart';
 import 'package:beading/domain/projects/project.dart';
 import 'package:beading/domain/projects/project_repository.dart';
@@ -61,6 +66,7 @@ class ImageWizardCubit extends Cubit<ImageWizardState> {
     ReplacePatternFromImage? replacePattern,
     ProjectRepository? projects,
     GridPatternRepository? patterns,
+    PatternPrinter? printer,
     Duration debounce = const Duration(milliseconds: 300),
     bool sizeHints = false,
   }) : _source = source,
@@ -75,6 +81,7 @@ class ImageWizardCubit extends Cubit<ImageWizardState> {
        _replace = replacePattern,
        _projects = projects,
        _patterns = patterns,
+       _printer = printer,
        _debounce = debounce,
        _sizeHints = sizeHints,
        super(const ImageWizardState());
@@ -93,6 +100,9 @@ class ImageWizardCubit extends Cubit<ImageWizardState> {
   final ReplacePatternFromImage? _replace;
   final ProjectRepository? _projects;
   final GridPatternRepository? _patterns;
+
+  /// Печать схемы до сохранения (T80); без принтера кнопки печати в мастере нет.
+  final PatternPrinter? _printer;
   final Duration _debounce;
 
   /// Считать ли подсказку размера в фоне (T61); тесты с управляемым запуском конвейера её отключают.
@@ -830,6 +840,37 @@ class ImageWizardCubit extends Cubit<ImageWizardState> {
             ),
     );
     if (palette != null) unawaited(_computeHint());
+  }
+
+  bool get canPrint =>
+      _printer != null && state.flossEstimate != null && state.previewSettings?.craft == Craft.crossStitch;
+
+  /// Размер показанной схемы для окна настроек печати.
+  PrintSummary? get printSummary {
+    final GeneratedPattern? pattern = state.preview;
+    final PaletteSnapshot? palette = state.previewPalette;
+    if (pattern == null || palette == null) return null;
+    return PrintSummary(columns: pattern.grid.width, rows: pattern.grid.height, colors: palette.length);
+  }
+
+  Future<PrintOptions> loadPrintOptions() => PrintOptionsStore(_settings).load();
+
+  /// PDF показанной схемы (T80): настройки запоминаются, схема не сохраняется.
+  Future<Result<PatternPdf>> exportPdf(PrintOptions options) async {
+    final PatternPrinter? printer = _printer;
+    final GeneratedPattern? pattern = state.preview;
+    final PaletteSnapshot? palette = state.previewPalette;
+    final ImageToGridSettings? settings = state.previewSettings;
+    final GridPattern? printable = pattern == null || palette == null || settings == null
+        ? null
+        : printablePatternOf(pattern, palette, settings.metrics);
+    if (printer == null || printable == null) {
+      return const Err<PatternPdf>(ValidationFailure('Схема ещё не посчитана'));
+    }
+    await PrintOptionsStore(_settings).save(options);
+    final String title = state.name.trim().isEmpty ? 'Схема' : state.name.trim();
+    final Result<Uint8List> pdf = await printer.renderPdf(title: title, pattern: printable, options: options);
+    return pdf.map((bytes) => PatternPdf(fileName: '${ExportPatternPdf.fileNameOf(title)}.pdf', bytes: bytes));
   }
 
   /// Сохраняет посчитанную схему проектом. Кнопка доступна, только когда [ImageWizardState.canSave].
