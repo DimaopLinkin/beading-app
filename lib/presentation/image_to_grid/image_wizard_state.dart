@@ -7,6 +7,7 @@ import 'package:beading/domain/image_to_grid/image_mask_set.dart';
 import 'package:beading/domain/image_to_grid/image_to_grid_settings.dart';
 import 'package:beading/domain/image_to_grid/importance_brush.dart';
 import 'package:beading/domain/image_to_grid/size_suggester.dart';
+import 'package:beading/domain/materials/floss_estimate.dart';
 import 'package:beading/domain/palette/palette_snapshot.dart';
 import 'package:beading/domain/projects/craft.dart';
 import 'package:equatable/equatable.dart';
@@ -29,6 +30,7 @@ class ImageWizardState extends Equatable {
     this.preview,
     this.previewPalette,
     this.previewSettings,
+    this.flossEstimate,
     this.calculating = false,
     this.catalogColors = 0,
     this.flossBrand = '',
@@ -69,6 +71,9 @@ class ImageWizardState extends Equatable {
   /// Палитра показанной схемы и параметры, с которыми она посчитана: рисуем именно по ним, а не по текущим.
   final PaletteSnapshot? previewPalette;
   final ImageToGridSettings? previewSettings;
+
+  /// Расход мулине показанной схемы вышивки (T77); `null` — бисер или схемы ещё нет.
+  final FlossEstimate? flossEstimate;
 
   /// Идёт расчёт: показанная схема может не совпадать с текущими параметрами.
   final bool calculating;
@@ -164,6 +169,7 @@ class ImageWizardState extends Equatable {
     GeneratedPattern? preview,
     PaletteSnapshot? previewPalette,
     ImageToGridSettings? previewSettings,
+    FlossEstimate? flossEstimate,
     bool? calculating,
     int? catalogColors,
     String? flossBrand,
@@ -197,6 +203,7 @@ class ImageWizardState extends Equatable {
     preview: clearPreview ? null : (preview ?? this.preview),
     previewPalette: clearPreview ? null : (previewPalette ?? this.previewPalette),
     previewSettings: clearPreview ? null : (previewSettings ?? this.previewSettings),
+    flossEstimate: clearPreview ? null : (flossEstimate ?? this.flossEstimate),
     calculating: calculating ?? this.calculating,
     catalogColors: catalogColors ?? this.catalogColors,
     flossBrand: flossBrand ?? this.flossBrand,
@@ -229,6 +236,7 @@ class ImageWizardState extends Equatable {
     preview,
     previewPalette,
     previewSettings,
+    flossEstimate,
     calculating,
     catalogColors,
     flossBrand,

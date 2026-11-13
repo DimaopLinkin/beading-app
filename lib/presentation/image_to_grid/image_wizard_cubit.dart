@@ -23,6 +23,7 @@ import 'package:beading/domain/image_to_grid/image_to_grid_runner.dart';
 import 'package:beading/domain/image_to_grid/image_to_grid_settings.dart';
 import 'package:beading/domain/image_to_grid/importance_brush.dart';
 import 'package:beading/domain/image_to_grid/palette_from_generated.dart';
+import 'package:beading/domain/image_to_grid/pattern_floss.dart';
 import 'package:beading/domain/image_to_grid/size_purpose.dart';
 import 'package:beading/domain/image_to_grid/size_suggester.dart';
 import 'package:beading/domain/image_to_grid/source_image.dart';
@@ -750,6 +751,7 @@ class ImageWizardCubit extends Cubit<ImageWizardState> {
               preview: pattern,
               previewPalette: palette,
               previewSettings: settings,
+              flossEstimate: pattern == null ? null : estimateFlossForGenerated(pattern, palette, settings.metrics),
               calculating: false,
               clearProblem: true,
             ),

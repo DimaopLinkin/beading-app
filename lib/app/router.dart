@@ -8,6 +8,7 @@ import 'package:beading/domain/projects/craft.dart';
 import 'package:beading/domain/projects/load_project_preview.dart';
 import 'package:beading/domain/projects/project.dart';
 import 'package:beading/domain/settings/settings_repository.dart';
+import 'package:beading/domain/sharing/file_sharer.dart';
 import 'package:beading/domain/sharing/text_sharer.dart';
 import 'package:beading/presentation/book_work/book_work_cubit.dart';
 import 'package:beading/presentation/book_work/book_work_screen.dart';
@@ -184,7 +185,7 @@ GoRouter createRouter(AppDependencies dependencies, {bool showDeveloperTools = !
       path: FlossScreen.routePath,
       builder: (_, state) => BlocProvider<FlossCubit>(
         create: (_) => getIt<FlossCubit>(param1: state.pathParameters['projectId'])..load(),
-        child: FlossScreen(sharer: getIt<TextSharer>()),
+        child: FlossScreen(sharer: getIt<TextSharer>(), fileSharer: getIt<FileSharer>()),
       ),
     ),
     GoRoute(

@@ -2905,6 +2905,12 @@ abstract class AppLocalizations {
   /// **'Детально'**
   String get imageWizardPresetDetailed;
 
+  /// Строка мастера вышивки: открывает список ниток и канвы к покупке
+  ///
+  /// In ru, this message translates to:
+  /// **'Список закупки'**
+  String get imageWizardShopping;
+
   /// Строка параметров и заголовок режима кисти
   ///
   /// In ru, this message translates to:
@@ -3534,6 +3540,24 @@ abstract class AppLocalizations {
   /// In ru, this message translates to:
   /// **'Кусок канвы: {width} × {height} см (вышивка {stitchedWidth} × {stitchedHeight} см и поля по {margin} см)'**
   String flossFabricNeed(String width, String height, String stitchedWidth, String stitchedHeight, String margin);
+
+  /// Строка экрана мулине: собирает PDF схемы для печати
+  ///
+  /// In ru, this message translates to:
+  /// **'Распечатать схему (PDF)'**
+  String get flossPrint;
+
+  /// Пояснение к печати схемы
+  ///
+  /// In ru, this message translates to:
+  /// **'Листы A4, 10 крестиков = 3 см, номера по краям через 10 клеток, справа цвета и знаки.'**
+  String get flossPrintHint;
+
+  /// Ошибка сборки PDF схемы
+  ///
+  /// In ru, this message translates to:
+  /// **'Не удалось собрать PDF. Попробуйте ещё раз.'**
+  String get flossPrintFailed;
 
   /// Заголовок списка покупок мулине
   ///

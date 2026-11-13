@@ -18,6 +18,7 @@ abstract final class AppIcons {
   static const IconData notes = CupertinoIcons.doc_text;
   static const IconData pages = CupertinoIcons.square_on_square;
   static const IconData share = CupertinoIcons.share;
+  static const IconData print = CupertinoIcons.printer;
   static const IconData catalog = CupertinoIcons.color_filter;
   static const IconData thread = CupertinoIcons.bag;
   static const IconData selected = CupertinoIcons.checkmark;

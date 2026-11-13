@@ -1624,6 +1624,9 @@ class AppLocalizationsRu extends AppLocalizations {
   String get imageWizardPresetDetailed => 'Детально';
 
   @override
+  String get imageWizardShopping => 'Список закупки';
+
+  @override
   String get imageWizardBrushTitle => 'Выделить важное';
 
   @override
@@ -2029,6 +2032,15 @@ class AppLocalizationsRu extends AppLocalizations {
   String flossFabricNeed(String width, String height, String stitchedWidth, String stitchedHeight, String margin) {
     return 'Кусок канвы: $width × $height см (вышивка $stitchedWidth × $stitchedHeight см и поля по $margin см)';
   }
+
+  @override
+  String get flossPrint => 'Распечатать схему (PDF)';
+
+  @override
+  String get flossPrintHint => 'Листы A4, 10 крестиков = 3 см, номера по краям через 10 клеток, справа цвета и знаки.';
+
+  @override
+  String get flossPrintFailed => 'Не удалось собрать PDF. Попробуйте ещё раз.';
 
   @override
   String get flossShoppingTitle => 'Что купить';

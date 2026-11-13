@@ -2,8 +2,11 @@ import 'dart:async';
 import 'dart:math' as math;
 
 import 'package:beading/core/failure.dart';
+import 'package:beading/core/result.dart';
 import 'package:beading/domain/floss_stock/floss_shortage.dart';
 import 'package:beading/domain/materials/floss_estimate.dart';
+import 'package:beading/domain/printing/use_cases/export_pattern_pdf.dart';
+import 'package:beading/domain/sharing/file_sharer.dart';
 import 'package:beading/domain/sharing/text_sharer.dart';
 import 'package:beading/presentation/floss/floss_cubit.dart';
 import 'package:beading/presentation/floss/floss_format.dart';
@@ -21,7 +24,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 /// Расход мулине для вышивки: канва, список покупок по ниткам, таблица по цветам схемы и «Поделиться».
 /// Ждёт [FlossCubit] в дереве выше.
 class FlossScreen extends StatefulWidget {
-  const FlossScreen({required this.sharer, super.key});
+  const FlossScreen({required this.sharer, required this.fileSharer, super.key});
 
   static const String routePath = '/projects/:projectId/floss';
 
@@ -30,6 +33,7 @@ class FlossScreen extends StatefulWidget {
   static const double maxContentWidth = 720;
 
   final TextSharer sharer;
+  final FileSharer fileSharer;
 
   @override
   State<FlossScreen> createState() => _FlossScreenState();
@@ -37,6 +41,47 @@ class FlossScreen extends StatefulWidget {
 
 class _FlossScreenState extends State<FlossScreen> {
   final GlobalKey _shareKey = GlobalKey();
+  final GlobalKey _printKey = GlobalKey();
+  bool _printing = false;
+
+  /// Собирает PDF схемы и отдаёт его листу «Поделиться» (там «Напечатать» и «Сохранить в Файлы»).
+  Future<void> _print() async {
+    if (_printing) return;
+    final AppLocalizations l10n = AppLocalizations.of(context);
+    setState(() => _printing = true);
+    final Result<PatternPdf> pdf = await context.read<FlossCubit>().exportPdf();
+    if (!mounted) return;
+    Result<void> shared = const Success<void>(null);
+    if (pdf case Success<PatternPdf>(:final PatternPdf value)) {
+      final RenderObject? box = _printKey.currentContext?.findRenderObject();
+      final ShareOrigin? origin = box is RenderBox && box.hasSize
+          ? ShareOrigin(
+              left: box.localToGlobal(Offset.zero).dx,
+              top: box.localToGlobal(Offset.zero).dy,
+              width: box.size.width,
+              height: box.size.height,
+            )
+          : null;
+      shared = await widget.fileSharer.shareFile(bytes: value.bytes, fileName: value.fileName, origin: origin);
+    }
+    if (!mounted) return;
+    setState(() => _printing = false);
+    if (pdf.isSuccess && shared.isSuccess) return;
+    await showCupertinoDialog<void>(
+      context: context,
+      builder: (dialogContext) => CupertinoAlertDialog(
+        title: Text(l10n.actionFailedTitle),
+        content: Text(pdf.isSuccess ? l10n.shareFailed : l10n.flossPrintFailed),
+        actions: <Widget>[
+          CupertinoDialogAction(
+            isDefaultAction: true,
+            onPressed: () => Navigator.of(dialogContext).pop(),
+            child: Text(l10n.commonOk),
+          ),
+        ],
+      ),
+    );
+  }
 
   ShareOrigin? _shareOrigin() {
     final RenderObject? box = _shareKey.currentContext?.findRenderObject();
@@ -253,6 +298,22 @@ class _FlossScreenState extends State<FlossScreen> {
           section(
             _Header(state: state, format: format),
             top: tokens.spacing.s,
+          ),
+          section(
+            AppListSection(
+              margin: EdgeInsets.zero,
+              footer: Text(l10n.flossPrintHint, style: base.copyWith(fontSize: 13, color: secondary)),
+              children: <Widget>[
+                CupertinoListTile.notched(
+                  key: _printKey,
+                  title: Text(l10n.flossPrint),
+                  leading: const Icon(AppIcons.print),
+                  trailing: _printing ? const CupertinoActivityIndicator() : const CupertinoListTileChevron(),
+                  onTap: () => unawaited(_print()),
+                ),
+              ],
+            ),
+            top: tokens.spacing.m,
           ),
           section(heading(l10n.flossShoppingTitle), top: tokens.spacing.l),
           section(
