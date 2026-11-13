@@ -122,7 +122,7 @@ void main() {
         expect(result, <int>[1]);
       });
 
-      test('без надбавки (chromaPenalty: 0) — чистый ΔE2000, как до T71', () {
+      test('без надбавки (chromaPenalty: 0) — чистый ΔE2000, как до T74', () {
         final List<int> result = const ColorAssigner(chromaPenalty: 0).assign(
           cells: <Rgb?>[shadedSkin],
           columns: 1,
