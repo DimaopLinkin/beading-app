@@ -8,7 +8,7 @@ cd "$(dirname "$0")/../.."
 types=(added changed fixed removed internal)
 declare -A titles=([added]='Добавлено' [changed]='Изменено' [fixed]='Исправлено' [removed]='Удалено' [internal]='Внутреннее')
 
-fragments() { find changelog.d -maxdepth 1 -name 'T*.md' | sort -V; }
+fragments() { find changelog.d -maxdepth 1 -name '*.md' ! -name README.md ! -name '_template.md' | sort -V; }
 field() { awk -v k="$2" '/^---$/{n++; next} n==1 && $1==k":" {print $2; exit}' "$1"; }
 section() {  # section <файл> <заголовок> — строки списка под заголовком
   awk -v h="## $2" '$0==h {on=1; next} /^## / {on=0} on && /^- / {print}' "$1"
