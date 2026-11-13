@@ -252,7 +252,6 @@ void main() {
       expect(request.constraint.candidates, hasLength(2));
       final ImageToGridRequest beads = const ImageToGridSettings(
         backstitch: true,
-        blends: true,
         outline: true,
       ).toRequest(image: image, catalog: catalog);
       expect(beads.backstitch, isFalse);

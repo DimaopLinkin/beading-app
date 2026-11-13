@@ -2587,11 +2587,11 @@ abstract class AppLocalizations {
   /// **'Считаю схему…'**
   String get imageWizardCalculating;
 
-  /// Размер получившейся схемы: ширина × высота
+  /// Размер получившейся схемы: ширина × высота и число цветов
   ///
   /// In ru, this message translates to:
-  /// **'{columns} × {rows} бусин'**
-  String imageWizardSize(int columns, int rows);
+  /// **'{columns} × {rows} бусин, {colors, plural, one{{colors} цвет} few{{colors} цвета} many{{colors} цветов} other{{colors} цветов}}'**
+  String imageWizardSize(int columns, int rows, int colors);
 
   /// Заголовок выбора техники
   ///
@@ -2610,6 +2610,24 @@ abstract class AppLocalizations {
   /// In ru, this message translates to:
   /// **'Ширина схемы'**
   String get imageWizardWidth;
+
+  /// Подпись кнопки «−» у ползунка
+  ///
+  /// In ru, this message translates to:
+  /// **'Уменьшить: {title}'**
+  String imageWizardDecrease(String title);
+
+  /// Подпись кнопки «+» у ползунка
+  ///
+  /// In ru, this message translates to:
+  /// **'Увеличить: {title}'**
+  String imageWizardIncrease(String title);
+
+  /// Кнопка подтверждения числа, введённого с клавиатуры
+  ///
+  /// In ru, this message translates to:
+  /// **'Готово'**
+  String get imageWizardApply;
 
   /// Заголовок ползунка числа цветов
   ///
@@ -3070,8 +3088,8 @@ abstract class AppLocalizations {
   /// Размер схемы вышивки: клетки и сантиметры
   ///
   /// In ru, this message translates to:
-  /// **'{columns} × {rows} крестиков, {width} × {height} см'**
-  String imageWizardSizeStitch(int columns, int rows, String width, String height);
+  /// **'{columns} × {rows} крестиков, {width} × {height} см, {colors, plural, one{{colors} цвет} few{{colors} цвета} many{{colors} цветов} other{{colors} цветов}}, {fabric}'**
+  String imageWizardSizeStitch(int columns, int rows, String width, String height, int colors, String fabric);
 
   /// Пояснение под ползунком ширины вышивки: сколько крестиков и какая плотность канвы
   ///

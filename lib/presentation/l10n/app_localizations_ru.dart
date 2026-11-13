@@ -1437,8 +1437,16 @@ class AppLocalizationsRu extends AppLocalizations {
   String get imageWizardCalculating => 'Считаю схему…';
 
   @override
-  String imageWizardSize(int columns, int rows) {
-    return '$columns × $rows бусин';
+  String imageWizardSize(int columns, int rows, int colors) {
+    String _temp0 = intl.Intl.pluralLogic(
+      colors,
+      locale: localeName,
+      other: '$colors цветов',
+      many: '$colors цветов',
+      few: '$colors цвета',
+      one: '$colors цвет',
+    );
+    return '$columns × $rows бусин, $_temp0';
   }
 
   @override
@@ -1449,6 +1457,19 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get imageWizardWidth => 'Ширина схемы';
+
+  @override
+  String imageWizardDecrease(String title) {
+    return 'Уменьшить: $title';
+  }
+
+  @override
+  String imageWizardIncrease(String title) {
+    return 'Увеличить: $title';
+  }
+
+  @override
+  String get imageWizardApply => 'Готово';
 
   @override
   String get imageWizardColorCount => 'Цветов в схеме';
@@ -1710,8 +1731,16 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
-  String imageWizardSizeStitch(int columns, int rows, String width, String height) {
-    return '$columns × $rows крестиков, $width × $height см';
+  String imageWizardSizeStitch(int columns, int rows, String width, String height, int colors, String fabric) {
+    String _temp0 = intl.Intl.pluralLogic(
+      colors,
+      locale: localeName,
+      other: '$colors цветов',
+      many: '$colors цветов',
+      few: '$colors цвета',
+      one: '$colors цвет',
+    );
+    return '$columns × $rows крестиков, $width × $height см, $_temp0, $fabric';
   }
 
   @override

@@ -57,7 +57,7 @@ final class ImageToGridSettings extends Equatable {
     this.outline = false,
     this.fabric = Fabric.standard,
     this.backstitch = false,
-    this.blends = false,
+    this.blends = true,
   });
 
   static const int defaultColumns = 40;
@@ -74,8 +74,9 @@ final class ImageToGridSettings extends Equatable {
   /// Вышивка большая: 200 см на самой мелкой канве (Аида 20) — около 1575 крестиков; выше потолок не нужен.
   static const int maxStitchColumns = 1600;
 
-  static const int defaultStitchColumns = 150;
-  static const int defaultStitchColors = 30;
+  /// Ширина вышивки по умолчанию, см (T71); число крестиков зависит от канвы.
+  static const double defaultStitchWidthCm = 60;
+  static const int defaultStitchColors = 50;
   static const int defaultMaxColors = 8;
   static const int minColors = 2;
 
