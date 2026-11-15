@@ -96,6 +96,9 @@ void main() {
     final StatsRange year = StatsRange.of(StatsPeriod.year, now, offset: -1);
     expect(year.start, DateTime(2025));
     expect(year.end, DateTime(2026));
+    final StatsRange jan = StatsRange.of(StatsPeriod.month, DateTime(2026, 1, 5), offset: -1);
+    expect(jan.start, DateTime(2025, 12));
+    expect(jan.end, DateTime(2026));
   });
 
   test('в период попадает только время внутри него', () {
@@ -124,5 +127,27 @@ void main() {
     );
     expect(by['a'], const Duration(hours: 2));
     expect(by['b'], const Duration(minutes: 20));
+  });
+
+  test('самая долгая работа — непрерывная: пересекающиеся сессии склеены', () {
+    final WorkStats r = calc.compute(
+      <WorkSession>[
+        s('a', DateTime(2026, 11, 10, 10), const Duration(hours: 1), id: '1'),
+        s('b', DateTime(2026, 11, 10, 10, 30), const Duration(hours: 1), id: '2'),
+      ],
+      all,
+      now,
+    );
+    expect(r.longestSession, const Duration(hours: 1, minutes: 30));
+  });
+
+  test('сессия 23:30–00:30 делится поровну', () {
+    final WorkStats r = calc.compute(
+      <WorkSession>[s('a', DateTime(2026, 3, 28, 23, 30), const Duration(hours: 1))],
+      all,
+      now,
+    );
+    expect(r.perDay[DateTime(2026, 3, 28)], const Duration(minutes: 30));
+    expect(r.perDay[DateTime(2026, 3, 29)], const Duration(minutes: 30));
   });
 }

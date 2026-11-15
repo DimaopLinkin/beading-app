@@ -15,8 +15,7 @@ class WorkStatsCalculator {
   final Duration maxSession;
 
   WorkStats compute(List<WorkSession> sessions, StatsRange range, DateTime now) {
-    final List<_Span> own = _spans(sessions, now);
-    final List<_Span> merged = _merge(_clip(own, range));
+    final List<_Span> merged = _merge(_clip(_spans(sessions, now), range));
     final Map<DateTime, Duration> perDay = <DateTime, Duration>{};
     for (final _Span span in merged) {
       _splitByDay(span, perDay);
@@ -24,7 +23,8 @@ class WorkStatsCalculator {
     final Duration total = perDay.values.fold(Duration.zero, (a, b) => a + b);
     final int days = perDay.length;
     Duration longest = Duration.zero;
-    for (final _Span span in _clip(own, range)) {
+    // Самая долгая непрерывная работа: пересекающиеся сессии склеены.
+    for (final _Span span in merged) {
       if (span.length > longest) {
         longest = span.length;
       }

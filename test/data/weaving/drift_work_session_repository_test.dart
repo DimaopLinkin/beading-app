@@ -135,6 +135,11 @@ void main() {
       db.projects,
     )..where((t) => t.id.equals('p2'))).write(const ProjectsCompanion(deletedAt: Value<int?>(5)));
     expect((await repository.all()).valueOrNull!.map((s) => s.projectId), <String>['p1']);
+    final WorkSession dead = (await repository.start('p1', DateTime.utc(2026, 11, 11))).valueOrNull!;
+    await (db.update(
+      db.workSessions,
+    )..where((t) => t.id.equals(dead.id))).write(const WorkSessionsCompanion(deletedAt: Value<int?>(5)));
+    expect((await repository.all()).valueOrNull, hasLength(1));
     final List<WorkSession> first = await repository.watchAll().first;
     expect(first.map((s) => s.projectId), <String>['p1']);
   });

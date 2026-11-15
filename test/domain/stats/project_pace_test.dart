@@ -17,4 +17,9 @@ void main() {
   test('всё сделано: оценки нет', () {
     expect(ProjectPace.estimate(done: 1000, total: 1000, worked: const Duration(hours: 5)), isNull);
   });
+
+  test('ровно два часа уже достаточно, пустая схема — оценки нет', () {
+    expect(ProjectPace.estimate(done: 10, total: 100, worked: const Duration(hours: 2)), isNotNull);
+    expect(ProjectPace.estimate(done: 0, total: 0, worked: const Duration(hours: 5)), isNull);
+  });
 }
