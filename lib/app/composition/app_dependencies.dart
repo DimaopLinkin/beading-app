@@ -15,8 +15,6 @@ import 'package:beading/domain/projects/project_content_cleaner.dart';
 import 'package:beading/domain/projects/project_content_cloner.dart';
 
 /// Корень графа зависимостей (ADR-0007): держит модули фич, создаётся в `bootstrap` и передаётся через конструкторы.
-///
-/// Пока миграция идёт, ещё не переведённые фичи собирает `di.dart`, беря ядро отсюда.
 final class AppDependencies {
   AppDependencies({required this.core, this.sync, CatalogAssetSource? catalogAssets})
     : catalog = CatalogModule(core: core, assets: catalogAssets),
