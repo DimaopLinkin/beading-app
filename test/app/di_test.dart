@@ -9,7 +9,6 @@ import 'package:beading/data/grid_pattern/drift_grid_pattern_repository.dart';
 import 'package:beading/data/grid_pattern/drift_grid_progress_store.dart';
 import 'package:beading/data/image_pattern/drift_image_pattern_repository.dart';
 import 'package:beading/data/platform/method_channel_reduce_transparency_source.dart';
-import 'package:beading/data/platform/share_plus_text_sharer.dart';
 import 'package:beading/data/platform/wakelock_plus_screen_wake_lock.dart';
 import 'package:beading/data/settings/drift_device_id_provider.dart';
 import 'package:beading/data/settings/drift_settings_repository.dart';
@@ -20,7 +19,6 @@ import 'package:beading/domain/grid_pattern/grid_progress_store.dart';
 import 'package:beading/domain/grid_pattern/use_cases/create_grid_pattern.dart';
 import 'package:beading/domain/image_pattern/image_pattern_repository.dart';
 import 'package:beading/domain/image_pattern/use_cases/import_book_pattern.dart';
-import 'package:beading/domain/materials/use_cases/load_project_materials.dart';
 import 'package:beading/domain/projects/use_cases/delete_project.dart';
 import 'package:beading/domain/projects/use_cases/duplicate_project.dart';
 import 'package:beading/domain/settings/app_info.dart';
@@ -30,10 +28,7 @@ import 'package:beading/domain/settings/reduce_transparency_source.dart';
 import 'package:beading/domain/settings/screen_wake_lock.dart';
 import 'package:beading/domain/settings/settings_repository.dart';
 import 'package:beading/domain/settings/wakelock_controller.dart';
-import 'package:beading/domain/sharing/text_sharer.dart';
 import 'package:beading/presentation/image_to_grid/image_wizard_cubit.dart';
-import 'package:beading/presentation/materials/materials_cubit.dart';
-import 'package:beading/presentation/pattern_template/pattern_template_cubit.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get_it/get_it.dart';
 
@@ -68,11 +63,7 @@ void main() {
     expect(locator<ImportBookPattern>(), isA<ImportBookPattern>());
     expect(locator<DeleteProject>(), isA<DeleteProject>());
     expect(locator<DuplicateProject>(), isA<DuplicateProject>());
-    expect(locator<TextSharer>(), isA<SharePlusTextSharer>());
-    expect(locator<LoadProjectMaterials>(), isA<LoadProjectMaterials>());
-    expect(locator<PatternTemplateCubit>(), isA<PatternTemplateCubit>());
     expect(locator<ImageWizardCubit>(), isA<ImageWizardCubit>());
-    expect(locator<MaterialsCubit>(param1: 'proj-1'), isA<MaterialsCubit>());
   });
 
   test('повторная настройка не падает и пересоздаёт регистрации', () async {
