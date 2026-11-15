@@ -60,4 +60,39 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.byKey(const ValueKey<String>('sync-sign-in')), findsOneWidget);
   });
+
+  testWidgets('замена данных на устройстве требует подтверждения; «Отмена» ничего не меняет', (tester) async {
+    final FakeStore store = FakeStore()..owner = 'other';
+    store.edit(rec('project', 'p1', at: 5));
+    final _Session session = _Session()..userId = 'u1';
+    final SyncCubit cubit = SyncCubit(
+      session: session,
+      engine: SyncEngine(store: store, remote: FakeRemote(), schema: testSchema()),
+      clock: FakeClock(DateTime(2026, 11, 13, 9, 5)),
+      isNetworkError: (_) => false,
+    );
+    addTearDown(cubit.close);
+    await cubit.syncNow();
+    await tester.pumpWidget(
+      CupertinoApp(
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
+        home: BlocProvider<SyncCubit>.value(value: cubit, child: const SyncScreen()),
+      ),
+    );
+
+    await tester.tap(find.byKey(const ValueKey<String>('sync-replace')));
+    await tester.pumpAndSettle();
+    expect(find.textContaining('нельзя отменить'), findsOneWidget);
+    await tester.tap(find.text('Отмена'));
+    await tester.pumpAndSettle();
+    expect(store.rows, isNotEmpty);
+    expect(store.owner, 'other');
+
+    await tester.tap(find.byKey(const ValueKey<String>('sync-replace')));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Заменить'));
+    await tester.pumpAndSettle();
+    expect(store.owner, 'u1');
+  });
 }

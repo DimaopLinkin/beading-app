@@ -145,4 +145,14 @@ void main() {
     expect(await store.readOwner(), 'u1');
     await cubit.close();
   });
+
+  test('замена данных без ошибки «чужой аккаунт» ничего не делает', () async {
+    final SyncCubit cubit = build(_Session(userId: 'u1'));
+    store.edit(rec('project', 'p1', at: 5));
+    await cubit.syncNow();
+    await cubit.replaceLocalData();
+    expect(store.rows, isNotEmpty);
+    expect(await store.readOwner(), 'u1');
+    await cubit.close();
+  });
 }
