@@ -16,6 +16,7 @@ import 'package:beading/domain/grid_pattern/use_cases/save_grid_pattern.dart';
 import 'package:beading/domain/grid_pattern/use_cases/shift_progress.dart';
 import 'package:beading/domain/printing/pattern_printer.dart';
 import 'package:beading/domain/printing/use_cases/export_pattern_pdf.dart';
+import 'package:beading/domain/projects/load_project_preview.dart';
 import 'package:beading/domain/settings/setting_keys.dart';
 import 'package:beading/presentation/editor/editor_cubit.dart';
 import 'package:beading/presentation/editor/editor_screen.dart';
@@ -72,6 +73,10 @@ final class GridModule {
 
   ExportPatternPdf exportPatternPdf() =>
       ExportPatternPdf(projects: _projects.repository, patterns: patterns, printer: printer);
+
+  /// Предпросмотр карточки проекта в библиотеке: читает схему, прогресс и файлы.
+  LoadProjectPreview loadProjectPreview() =>
+      LoadProjectPreview(patterns: patterns, rows: progress, cells: cellProgress, files: _core.fileStore);
 
   CreateGridPattern createGridPattern() => CreateGridPattern(
     createProject: _projects.createProject(),
