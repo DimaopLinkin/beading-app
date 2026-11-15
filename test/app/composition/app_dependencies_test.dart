@@ -13,6 +13,10 @@ import 'package:beading/data/settings/drift_settings_repository.dart';
 import 'package:beading/data/settings/package_info_app_info_provider.dart';
 import 'package:beading/domain/catalog/use_cases/find_similar_colors.dart';
 import 'package:beading/domain/events/app_events.dart';
+import 'package:beading/domain/projects/craft.dart';
+import 'package:beading/domain/projects/load_project_preview.dart';
+import 'package:beading/domain/projects/use_cases/delete_project.dart';
+import 'package:beading/domain/projects/use_cases/duplicate_project.dart';
 import 'package:beading/domain/settings/app_events_secret_tap_handler.dart';
 import 'package:beading/presentation/book_work/book_work_cubit.dart';
 import 'package:beading/presentation/book_work/book_work_screen.dart';
@@ -20,7 +24,9 @@ import 'package:beading/presentation/catalog/catalog_cubit.dart';
 import 'package:beading/presentation/easter_eggs/compliment_banner_cubit.dart';
 import 'package:beading/presentation/image_to_grid/image_wizard_cubit.dart';
 import 'package:beading/presentation/import_book/import_book_cubit.dart';
+import 'package:beading/presentation/library/library_cubit.dart';
 import 'package:beading/presentation/settings/settings_cubit.dart';
+import 'package:beading/presentation/sharing/data_transfer_cubit.dart';
 import 'package:beading/presentation/theme/theme_mode_cubit.dart';
 import 'package:beading/presentation/weaving/weave_screen.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -277,6 +283,47 @@ void main() {
       ].whereType<GoRoute>().map((r) => r.path).toList();
 
       expect(paths, <String>[AppRoutes.importBook, BookWorkScreen.routePath, AppRoutes.imageToGrid]);
+    });
+  });
+
+  group('SharingModule и библиотека', () {
+    late AppDependencies dependencies;
+
+    setUp(() {
+      dependencies = AppDependencies(core: CoreModule(database: createInMemoryDatabase()));
+    });
+
+    tearDown(() => dependencies.dispose());
+
+    test('сценарии обмена создаются заново, кубит обмена один на приложение', () {
+      expect(dependencies.sharing.exportProjects(), isNot(same(dependencies.sharing.exportProjects())));
+      expect(dependencies.sharing.importBiser(), isNot(same(dependencies.sharing.importBiser())));
+      expect(dependencies.sharing.importOxs(), isNot(same(dependencies.sharing.importOxs())));
+      expect(dependencies.sharing.dataTransferCubit, same(dependencies.sharing.dataTransferCubit));
+      expect(dependencies.sharing.incomingFiles, same(dependencies.sharing.incomingFiles));
+    });
+
+    test('dispose закрывает созданный кубит обмена', () async {
+      final DataTransferCubit cubit = dependencies.sharing.dataTransferCubit;
+
+      await dependencies.dispose();
+
+      expect(cubit.isClosed, isTrue);
+    });
+
+    test('реестры библиотеки создаются один раз, пункты «Нового проекта» уже заполнены', () {
+      expect(dependencies.projects.newProjectRegistry, same(dependencies.projects.newProjectRegistry));
+      expect(dependencies.projects.thumbnailRegistry, same(dependencies.projects.thumbnailRegistry));
+      expect(dependencies.projects.newProjectRegistry.entriesFor(Craft.beading), isNotEmpty);
+    });
+
+    test('кубит библиотеки и сценарии удаления и копирования собираются со всеми фичами', () async {
+      final LibraryCubit library = dependencies.projects.libraryCubit();
+
+      expect(dependencies.projects.deleteProject(), isA<DeleteProject>());
+      expect(dependencies.projects.duplicateProject(), isA<DuplicateProject>());
+      expect(dependencies.grid.loadProjectPreview(), isA<LoadProjectPreview>());
+      await library.close();
     });
   });
 }

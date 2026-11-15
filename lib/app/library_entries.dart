@@ -1,4 +1,4 @@
-import 'package:beading/app/router.dart';
+import 'package:beading/app/composition/app_routes.dart';
 import 'package:beading/domain/projects/craft.dart';
 import 'package:beading/presentation/library/new_project_entry.dart';
 import 'package:beading/presentation/theme/app_icons.dart';

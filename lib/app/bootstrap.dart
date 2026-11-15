@@ -4,7 +4,6 @@ import 'package:beading/app/app.dart';
 import 'package:beading/app/composition/app_dependencies.dart';
 import 'package:beading/app/composition/core_module.dart';
 import 'package:beading/app/composition/sync_module.dart';
-import 'package:beading/app/di.dart';
 import 'package:beading/app/platform/app_lifecycle_binding.dart';
 import 'package:beading/app/platform/desktop_window.dart';
 import 'package:beading/app/platform/orientation_lock.dart';
@@ -36,10 +35,9 @@ Future<Widget> bootstrap({
   );
   final SyncModule? sync = await _openSync(core);
   final AppDependencies dependencies = AppDependencies(core: core, sync: sync);
-  await configureDependencies(dependencies);
-  await (orientationLock ?? getIt<OrientationLock>()).lockPortrait();
-  await (desktopWindow ?? getIt<DesktopWindow>()).configure(const DesktopWindowConfig());
-  final WakelockController wakelock = wakelockController ?? getIt<WakelockController>();
+  await (orientationLock ?? core.orientationLock).lockPortrait();
+  await (desktopWindow ?? core.desktopWindow).configure(const DesktopWindowConfig());
+  final WakelockController wakelock = wakelockController ?? core.wakelock;
   await wakelock.start();
   // Живёт всё время работы приложения.
   AppLifecycleBinding(wakelock);

@@ -1,15 +1,13 @@
+import 'package:beading/app/app.dart';
 import 'package:beading/app/bootstrap.dart';
-import 'package:beading/app/di.dart';
 import 'package:beading/data/db/app_database.dart';
 import 'package:beading/domain/events/app_events.dart';
 import 'package:beading/domain/settings/setting_keys.dart';
-import 'package:beading/domain/settings/settings_repository.dart';
 import 'package:beading/domain/settings/special_date.dart';
 import 'package:beading/presentation/easter_eggs/compliment_overlay.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:get_it/get_it.dart';
 
 import '../support/fake_platform.dart';
 import '../support/in_memory_database.dart';
@@ -34,17 +32,14 @@ Future<void> _waitForBanner(WidgetTester tester) async {
 }
 
 void main() {
-  setUp(() async {
-    await GetIt.instance.reset();
-    rootBundle.clear();
-  });
+  setUp(rootBundle.clear);
 
   testWidgets('в особую дату при запуске показывается баннер, который сам исчезает через 5 секунд', (tester) async {
     final AppDatabase database = createInMemoryDatabase();
     final DateTime today = DateTime.now();
     final Widget app = await _bootstrap(tester, database);
     await tester.runAsync(
-      () => getIt<SettingsRepository>().write(SettingKeys.specialDates, <SpecialDate>[
+      () => (app as BeadingApp).dependencies.core.settings.write(SettingKeys.specialDates, <SpecialDate>[
         SpecialDate(label: 'тест', month: today.month, day: today.day),
       ]),
     );
@@ -62,10 +57,11 @@ void main() {
   });
 
   testWidgets('секрет показывает комплимент по событию из шины', (tester) async {
-    await tester.pumpWidget(await _bootstrap(tester, createInMemoryDatabase()));
+    final Widget app = await _bootstrap(tester, createInMemoryDatabase());
+    await tester.pumpWidget(app);
     await tester.pump();
 
-    getIt<AppEvents>().publish(const SecretTapped());
+    (app as BeadingApp).dependencies.core.events.publish(const SecretTapped());
     await _waitForBanner(tester);
 
     expect(find.byType(ComplimentBanner), findsOneWidget);

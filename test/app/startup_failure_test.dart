@@ -3,7 +3,6 @@ import 'package:beading/app/platform/orientation_lock.dart';
 import 'package:beading/app/startup_failure_app.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:get_it/get_it.dart';
 
 import '../support/fake_platform.dart';
 import '../support/in_memory_database.dart';
@@ -14,10 +13,6 @@ final class _BrokenOrientationLock implements OrientationLock {
 }
 
 void main() {
-  setUp(() async {
-    await GetIt.instance.reset();
-  });
-
   testWidgets('экран ошибки запуска объясняет, что случилось, и показывает текст ошибки', (tester) async {
     await tester.pumpWidget(StartupFailureApp(error: StateError('миграция упала')));
     await tester.pumpAndSettle();
