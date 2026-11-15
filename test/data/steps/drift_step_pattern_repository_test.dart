@@ -1,5 +1,4 @@
 import 'package:beading/core/failure.dart';
-import 'package:beading/core/id_generator.dart';
 import 'package:beading/data/db/app_database.dart';
 import 'package:beading/data/settings/drift_device_id_provider.dart';
 import 'package:beading/data/steps/drift_step_pattern_repository.dart';
@@ -104,10 +103,10 @@ void main() {
       id: 'pat',
       projectId: 'proj',
       sections: pattern().sections,
-      images: <StepImage>[const StepImage(id: 'i1', path: 'a', width: 1, height: 1)],
+      images: const <StepImage>[StepImage(id: 'i1', path: 'a', width: 1, height: 1)],
     );
     await db.customStatement('PRAGMA foreign_keys = OFF');
-    await db.customStatement('CREATE TRIGGER boom BEFORE INSERT ON step_images BEGIN SELECT RAISE(ABORT, \'x\'); END');
+    await db.customStatement('CREATE TRIGGER boom BEFORE INSERT ON step_images BEGIN SELECT RAISE(ABORT, "x"); END');
     final result = await repository.save(broken.copyWith(sections: pattern(text: 'новый').sections));
     expect(result.isFailure, isTrue);
     expect((await repository.getByProject('proj')).valueOrNull!.sections.single.steps.first.text, 'старый');

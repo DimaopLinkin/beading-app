@@ -120,7 +120,7 @@ final class StepsProgress extends Equatable {
     int done = 0;
     bool reached = finished;
     for (final StepSection section in pattern.sections) {
-      final int perPass = section.steps.fold<int>(0, (int sum, InstructionStep s) => sum + s.repeat.passes);
+      final int perPass = section.steps.fold<int>(0, (sum, s) => sum + s.repeat.passes);
       total += section.repeat.passes * perPass;
       if (finished) {
         done = total;

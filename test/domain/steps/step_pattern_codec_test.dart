@@ -21,12 +21,12 @@ StepPattern sample() => StepPattern(
       finish: 'matte',
     ),
   ],
-  sections: <StepSection>[
+  sections: const <StepSection>[
     StepSection(
       id: 'a',
       title: 'Основа',
-      repeat: const Repeat.times(3),
-      steps: const <InstructionStep>[
+      repeat: Repeat.times(3),
+      steps: <InstructionStep>[
         InstructionStep(
           id: 's1',
           text: 'Нанижи «3 × A»\nи закрепи',
