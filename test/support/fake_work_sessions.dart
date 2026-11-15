@@ -56,6 +56,12 @@ class FakeWorkSessionRepository implements WorkSessionRepository {
       Success<List<WorkSession>>(sessions.values.where((s) => s.projectId == projectId).toList());
 
   @override
+  Future<Result<List<WorkSession>>> all() async => Success<List<WorkSession>>(sessions.values.toList());
+
+  @override
+  Stream<List<WorkSession>> watchAll() => Stream<List<WorkSession>>.value(sessions.values.toList());
+
+  @override
   Future<Result<Duration>> totalFor(String projectId) async => Success<Duration>(
     sessions.values.where((s) => s.projectId == projectId).fold<Duration>(Duration.zero, (a, s) => a + s.duration),
   );
