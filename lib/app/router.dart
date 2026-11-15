@@ -52,7 +52,10 @@ GoRouter createRouter(AppDependencies dependencies, {bool showDeveloperTools = !
         child: LibraryScreen(
           newProjects: dependencies.projects.newProjectRegistry,
           thumbnails: dependencies.projects.thumbnailRegistry,
-          loadPreview: dependencies.grid.loadProjectPreview(),
+          loadPreview: dependencies.grid.loadProjectPreview(
+            steps: dependencies.steps.patterns,
+            stepsProgress: dependencies.steps.progress,
+          ),
           onOpenSettings: () => context.push(AppRoutes.settings),
           onOpenCatalog: () => unawaited(_chooseCatalog(context)),
           onEditInGenerator: (context, project) => unawaited(_editInGenerator(context, project)),

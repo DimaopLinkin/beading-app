@@ -12,6 +12,9 @@ import 'package:beading/domain/grid_pattern/stitch_counters.dart';
 import 'package:beading/domain/image_pattern/file_store.dart';
 import 'package:beading/domain/projects/craft.dart';
 import 'package:beading/domain/projects/project.dart';
+import 'package:beading/domain/steps/step_pattern.dart';
+import 'package:beading/domain/steps/step_pattern_repository.dart';
+import 'package:beading/domain/steps/steps_progress.dart';
 import 'package:equatable/equatable.dart';
 
 /// Что показать на карточке проекта в списке: картинка и процент готовности.
@@ -54,22 +57,30 @@ class LoadProjectPreview {
     required GridProgressStore rows,
     required CellProgressStore cells,
     required FileStore files,
+    StepPatternRepository? steps,
+    StepsProgressStore? stepsProgress,
   }) : _patterns = patterns,
        _rows = rows,
        _cells = cells,
-       _files = files;
+       _files = files,
+       _steps = steps,
+       _stepsProgress = stepsProgress;
 
   final GridPatternRepository _patterns;
   final GridProgressStore _rows;
   final CellProgressStore _cells;
   final FileStore _files;
 
+  /// Инструкции (T33a); без них карточка пошагового проекта рисует значок ремесла.
+  final StepPatternRepository? _steps;
+  final StepsProgressStore? _stepsProgress;
+
   Future<ProjectPreview> call(Project project) async {
     try {
       return switch (project.contentKind) {
         ContentKind.grid => await _grid(project),
         ContentKind.image => await _image(project),
-        ContentKind.steps => const ProjectPreview(),
+        ContentKind.steps => await _stepsPreview(project),
       };
     } on Object {
       return const ProjectPreview();
@@ -105,5 +116,41 @@ class LoadProjectPreview {
       return const ProjectPreview();
     }
     return ProjectPreview(cover: (await _files.read(path)).valueOrNull);
+  }
+
+  /// Картинка текущего шага (иначе первая картинка инструкции) и доля пройденного.
+  Future<ProjectPreview> _stepsPreview(Project project) async {
+    final StepPatternRepository? repository = _steps;
+    if (repository == null) {
+      return const ProjectPreview();
+    }
+    final StepPattern? pattern = (await repository.getByProject(project.id)).valueOrNull;
+    if (pattern == null) {
+      return const ProjectPreview();
+    }
+    final StepsProgress progress =
+        (await _stepsProgress?.load(pattern.id))?.valueOrNull ?? StepsProgress.start(pattern);
+    String? imageId;
+    for (final StepImage image in pattern.images) {
+      imageId ??= image.id;
+    }
+    outer:
+    for (final InstructionStep step in pattern.allSteps) {
+      if (step.id == progress.stepId && step.imageIds.isNotEmpty) {
+        imageId = step.imageIds.first;
+        break outer;
+      }
+    }
+    String? path;
+    for (final StepImage image in pattern.images) {
+      if (image.id == imageId) {
+        path = image.path;
+      }
+    }
+    Uint8List? cover;
+    if (path != null) {
+      cover = (await _files.read(path)).valueOrNull;
+    }
+    return ProjectPreview(progress: progress.fraction(pattern), cover: cover);
   }
 }

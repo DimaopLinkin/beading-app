@@ -8,6 +8,7 @@ import 'package:beading/data/db/daos/grid_patterns_dao.dart';
 import 'package:beading/data/db/daos/image_patterns_dao.dart';
 import 'package:beading/data/db/daos/projects_dao.dart';
 import 'package:beading/data/db/daos/settings_dao.dart';
+import 'package:beading/data/db/daos/step_patterns_dao.dart';
 import 'package:beading/data/db/daos/work_sessions_dao.dart';
 import 'package:beading/data/db/sync_triggers.dart';
 import 'package:beading/data/db/tables/bead_stock_table.dart';
@@ -19,6 +20,7 @@ import 'package:beading/data/db/tables/grid_pattern_tables.dart';
 import 'package:beading/data/db/tables/image_pattern_tables.dart';
 import 'package:beading/data/db/tables/projects_table.dart';
 import 'package:beading/data/db/tables/settings_table.dart';
+import 'package:beading/data/db/tables/step_pattern_tables.dart';
 import 'package:beading/data/db/tables/sync_tables.dart';
 import 'package:beading/data/db/tables/work_sessions_table.dart';
 import 'package:drift/drift.dart';
@@ -44,6 +46,9 @@ part 'app_database.g.dart';
     WorkSessions,
     FlossStock,
     BeadStock,
+    StepPatterns,
+    StepImages,
+    StepProgressRows,
     SyncOutbox,
     SyncShadow,
     SyncApplying,
@@ -59,13 +64,14 @@ part 'app_database.g.dart';
     WorkSessionsDao,
     FlossStockDao,
     BeadStockDao,
+    StepPatternsDao,
   ],
 )
 class AppDatabase extends _$AppDatabase {
   AppDatabase(super.e);
 
   @override
-  int get schemaVersion => 16;
+  int get schemaVersion => 17;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -136,6 +142,12 @@ class AppDatabase extends _$AppDatabase {
       from15To16: (m, schema) async {
         await m.createTable(schema.beadStock);
         await _createSyncTriggers();
+      },
+      // v17 (T33a): пошаговые инструкции, их картинки и курсор прогресса. Триггеры очереди придут с мапперами (T33b).
+      from16To17: (m, schema) async {
+        await m.createTable(schema.stepPatterns);
+        await m.createTable(schema.stepImages);
+        await m.createTable(schema.stepProgress);
       },
     ),
     beforeOpen: (details) => customStatement('PRAGMA foreign_keys = ON'),

@@ -7,6 +7,7 @@ import 'package:beading/app/composition/image_to_grid_module.dart';
 import 'package:beading/app/composition/projects_module.dart';
 import 'package:beading/app/composition/settings_module.dart';
 import 'package:beading/app/composition/sharing_module.dart';
+import 'package:beading/app/composition/steps_module.dart';
 import 'package:beading/app/composition/stitching_module.dart';
 import 'package:beading/app/composition/sync_module.dart';
 import 'package:beading/app/composition/weaving_module.dart';
@@ -28,9 +29,11 @@ final class AppDependencies {
         grid.contentCleaner,
         imageToGrid.contentCleaner,
         weaving.contentCleaner,
+        steps.contentCleaner,
       ],
-      cloners: () => <ProjectContentCloner>[book.contentCloner, grid.contentCloner],
+      cloners: () => <ProjectContentCloner>[book.contentCloner, grid.contentCloner, steps.contentCloner],
     );
+    steps = StepsModule(core: core, projects: projects);
     grid = GridModule(core: core, projects: projects, catalog: catalog);
     weaving = WeavingModule(core: core, projects: projects, grid: grid);
     stitching = StitchingModule(
@@ -56,6 +59,7 @@ final class AppDependencies {
   final CoreModule core;
   final CatalogModule catalog;
   late final ProjectsModule projects;
+  late final StepsModule steps;
   late final GridModule grid;
   late final WeavingModule weaving;
   late final StitchingModule stitching;
