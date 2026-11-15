@@ -195,7 +195,13 @@ final class StepsProgress extends Equatable {
         return StepsProgress(sectionId: section.id, sectionPass: 1, stepId: section.steps.first.id, stepPass: 1);
       }
     }
-    return StepsProgress(sectionId: sectionId, sectionPass: sectionPass, stepId: stepId, stepPass: stepPass, finished: true);
+    return StepsProgress(
+      sectionId: sectionId,
+      sectionPass: sectionPass,
+      stepId: stepId,
+      stepPass: stepPass,
+      finished: true,
+    );
   }
 
   static StepsProgress? _last(StepPattern pattern) {

@@ -78,8 +78,7 @@ abstract final class StepPatternCodec {
         for (final Object? rawStep in _list(s['steps'], 'шаги')) {
           final Map<String, Object?> st = _map(rawStep, 'шаг');
           final List<StepBead> beads = <StepBead>[
-            for (final Object? rb in _list(st['beads'], 'бусины'))
-              _bead(_map(rb, 'бусина'), palette.length),
+            for (final Object? rb in _list(st['beads'], 'бусины')) _bead(_map(rb, 'бусина'), palette.length),
           ];
           steps.add(
             InstructionStep(
@@ -174,8 +173,7 @@ abstract final class StepPatternCodec {
   static Map<String, Object?> _map(Object? v, String what) =>
       v is Map<String, Object?> ? v : throw _BadDocument('$what не объект');
 
-  static List<Object?> _list(Object? v, String what) =>
-      v is List<Object?> ? v : throw _BadDocument('$what не список');
+  static List<Object?> _list(Object? v, String what) => v is List<Object?> ? v : throw _BadDocument('$what не список');
 
   static int _int(Object? v, String what) => v is int ? v : throw _BadDocument('$what не число');
 

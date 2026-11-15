@@ -252,4 +252,28 @@ void main() {
       expect((queued.entity, queued.syncId), ('bead_stock', 'Miyuki:DB0010'));
     },
   );
+
+  test('миграция v16→v17 не трогает проекты и создаёт пустые таблицы инструкций без триггеров очереди', () async {
+    final SchemaVerifier verifier = SchemaVerifier(GeneratedHelper());
+    final InitializedSchema old = await verifier.schemaAt(16);
+    old.rawDatabase.execute(
+      'INSERT INTO projects (id, name, technique, content_kind, last_worked_at, created_at, updated_at, device_id) '
+      "VALUES ('proj', 'П', 'offLoom', 'steps', 0, 1, 1, 'd')",
+    );
+
+    final AppDatabase db = AppDatabase(old.newConnection());
+    addTearDown(db.close);
+    await verifier.migrateAndValidate(db, 17);
+
+    expect(await db.select(db.projects).get(), hasLength(1));
+    expect(await db.select(db.stepPatterns).get(), isEmpty);
+    expect(await db.select(db.stepImages).get(), isEmpty);
+    expect(await db.select(db.stepProgressRows).get(), isEmpty);
+    await db.customStatement(
+      'INSERT INTO step_patterns (id, created_at, updated_at, device_id, project_id, body, body_version) '
+      "VALUES ('s1', 1, 1, 'd', 'proj', '{}', 1)",
+    );
+    // Триггеры очереди для инструкций придут с мапперами синхронизации (T33b).
+    expect(await db.select(db.syncOutbox).get(), isEmpty);
+  });
 }

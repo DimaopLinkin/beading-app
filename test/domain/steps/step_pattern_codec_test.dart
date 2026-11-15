@@ -58,7 +58,10 @@ void main() {
       id: 'p',
       projectId: 'pr',
       sections: <StepSection>[
-        StepSection(id: 'a', steps: <InstructionStep>[InstructionStep(id: 's')]),
+        StepSection(
+          id: 'a',
+          steps: <InstructionStep>[InstructionStep(id: 's')],
+        ),
       ],
     );
     expect(
@@ -81,7 +84,8 @@ void main() {
 
   test('повторяющийся id шага — ValidationFailure', () {
     final Map<String, Object?> doc = jsonDecode(StepPatternCodec.encode(sample())) as Map<String, Object?>;
-    final List<Object?> steps = ((doc['sections']! as List<Object?>).first! as Map<String, Object?>)['steps']! as List<Object?>;
+    final List<Object?> steps =
+        ((doc['sections']! as List<Object?>).first! as Map<String, Object?>)['steps']! as List<Object?>;
     (steps[1]! as Map<String, Object?>)['id'] = 's1';
     expect(
       StepPatternCodec.decode(jsonEncode(doc), id: 'p', projectId: 'pr').failureOrNull,
