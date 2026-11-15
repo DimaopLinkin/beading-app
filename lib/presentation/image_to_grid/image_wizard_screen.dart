@@ -680,6 +680,14 @@ class _EditState extends State<_Edit> {
                         }
                       },
                     ),
+                    if (settings.paletteSource == PaletteSource.catalog)
+                      _SwitchRow(
+                        switchKey: const ValueKey<String>('wizard-stash'),
+                        title: l10n.imageWizardStash,
+                        hint: l10n.imageWizardStashHint,
+                        value: settings.onlyStash,
+                        onChanged: (value) => cubit.setOnlyStash(value: value),
+                      ),
                     if (settings.paletteSource == PaletteSource.catalog && settings.craft == Craft.beading) ...<Widget>[
                       SizedBox(height: tokens.spacing.s),
                       Text(l10n.imageWizardBeadSeries, style: caption),
@@ -711,7 +719,16 @@ class _EditState extends State<_Edit> {
                           ),
                         ),
                     ],
-                    if (state.catalogMissing)
+                    if (state.stashEmpty)
+                      Padding(
+                        padding: EdgeInsets.only(top: tokens.spacing.s),
+                        child: Text(
+                          l10n.imageWizardStashEmpty,
+                          key: const ValueKey<String>('wizard-stash-empty'),
+                          style: caption,
+                        ),
+                      )
+                    else if (state.catalogMissing)
                       Padding(
                         padding: EdgeInsets.only(top: tokens.spacing.s),
                         child: Text(
@@ -725,7 +742,9 @@ class _EditState extends State<_Edit> {
                       Padding(
                         padding: EdgeInsets.only(top: tokens.spacing.s),
                         child: Text(
-                          l10n.imageWizardCatalogFew(state.catalogColors, settings.maxColors),
+                          settings.onlyStash
+                              ? l10n.imageWizardStashFew(state.catalogColors, settings.maxColors)
+                              : l10n.imageWizardCatalogFew(state.catalogColors, settings.maxColors),
                           key: const ValueKey<String>('wizard-catalog-few'),
                           style: caption,
                         ),

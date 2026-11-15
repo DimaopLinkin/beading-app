@@ -3,11 +3,15 @@ import 'dart:typed_data';
 
 import 'package:beading/core/failure.dart';
 import 'package:beading/core/result.dart';
+import 'package:beading/domain/bead_stock/bead_stock_entry.dart';
+import 'package:beading/domain/bead_stock/bead_stock_repository.dart';
 import 'package:beading/domain/catalog/bead_finish_group.dart';
 import 'package:beading/domain/catalog/bead_series.dart';
 import 'package:beading/domain/catalog/catalog_color.dart';
 import 'package:beading/domain/catalog/catalog_material.dart';
 import 'package:beading/domain/catalog/catalog_repository.dart';
+import 'package:beading/domain/floss_stock/floss_stock_entry.dart';
+import 'package:beading/domain/floss_stock/floss_stock_repository.dart';
 import 'package:beading/domain/grid/bead_size.dart';
 import 'package:beading/domain/grid/cell_metrics.dart';
 import 'package:beading/domain/grid/fabric.dart';
@@ -34,6 +38,7 @@ import 'package:beading/domain/image_to_grid/size_suggester.dart';
 import 'package:beading/domain/image_to_grid/source_image.dart';
 import 'package:beading/domain/image_to_grid/use_cases/create_pattern_from_image.dart';
 import 'package:beading/domain/image_to_grid/use_cases/replace_pattern_from_image.dart';
+import 'package:beading/domain/palette/catalog_ref.dart';
 import 'package:beading/domain/palette/palette_snapshot.dart';
 import 'package:beading/domain/palette/rgb.dart';
 import 'package:beading/domain/printing/pattern_printer.dart';
@@ -62,6 +67,8 @@ class ImageWizardCubit extends Cubit<ImageWizardState> {
     required CatalogRepository catalog,
     required SettingsRepository settings,
     required CreatePatternFromImage createPattern,
+    FlossStockRepository? flossStock,
+    BeadStockRepository? beadStock,
     ImageRecipeStore? recipes,
     ReplacePatternFromImage? replacePattern,
     ProjectRepository? projects,
@@ -77,6 +84,8 @@ class ImageWizardCubit extends Cubit<ImageWizardState> {
        _catalog = catalog,
        _settings = settings,
        _create = createPattern,
+       _flossStock = flossStock,
+       _beadStock = beadStock,
        _recipes = recipes,
        _replace = replacePattern,
        _projects = projects,
@@ -95,6 +104,10 @@ class ImageWizardCubit extends Cubit<ImageWizardState> {
   final SettingsRepository _settings;
   final CreatePatternFromImage _create;
 
+  /// Запасы мулине и бисера для режима «только из запаса» (T34); без них запас пуст.
+  final FlossStockRepository? _flossStock;
+  final BeadStockRepository? _beadStock;
+
   /// Нужны для правки готовой схемы (T79); без них мастер только создаёт новые.
   final ImageRecipeStore? _recipes;
   final ReplacePatternFromImage? _replace;
@@ -111,6 +124,9 @@ class ImageWizardCubit extends Cubit<ImageWizardState> {
   List<CatalogColor> _catalogColors = const <CatalogColor>[];
   String _brand = '';
   String _flossBrand = '';
+
+  /// Что есть в запасе (T34): читается один раз при открытии мастера.
+  Set<CatalogRef> _stash = const <CatalogRef>{};
 
   /// Картинка после поворота и обрезки, в пикселях для конвейера.
   SourceImage? _image;
@@ -152,9 +168,15 @@ class ImageWizardCubit extends Cubit<ImageWizardState> {
     final Result<List<CatalogColor>> floss = await _catalog.search(material: CatalogMaterial.floss);
     final Result<String> brand = await _settings.read(SettingKeys.defaultBeadBrand);
     final Result<String> flossBrand = await _settings.read(SettingKeys.defaultFlossBrand);
+    final Result<List<FlossStockEntry>>? flossStock = await _flossStock?.all();
+    final Result<List<BeadStockEntry>>? beadStock = await _beadStock?.all();
     if (isClosed) {
       return;
     }
+    _stash = <CatalogRef>{
+      for (final FlossStockEntry entry in flossStock?.valueOrNull ?? const <FlossStockEntry>[]) entry.ref,
+      for (final BeadStockEntry entry in beadStock?.valueOrNull ?? const <BeadStockEntry>[]) entry.ref,
+    };
     _catalogColors = <CatalogColor>[
       ...?colors.valueOrNull,
       ...?floss.valueOrNull,
@@ -437,6 +459,9 @@ class ImageWizardCubit extends Cubit<ImageWizardState> {
 
   /// Заменить области «посередине» двух ниток блендом (T57).
   void setBlends({required bool value}) => _change(state.settings.copyWith(blends: value));
+
+  /// Брать цвета только из запаса (T34).
+  void setOnlyStash({required bool value}) => _change(state.settings.copyWith(onlyStash: value));
 
   void setBeadSize(BeadSize size) => _change(state.settings.copyWith(beadSize: size));
 
@@ -743,7 +768,7 @@ class ImageWizardCubit extends Cubit<ImageWizardState> {
   String _brandFor(ImageToGridSettings settings) => settings.craft == Craft.crossStitch ? _flossBrand : _brand;
 
   int _countCatalog(ImageToGridSettings settings) =>
-      settings.catalogFor(_catalogColors, brand: _brandFor(settings)).length;
+      settings.catalogFor(_catalogColors, brand: _brandFor(settings), stash: _stash).length;
 
   /// Запрашивает расчёт; быстрые правки подряд сливаются в один полный расчёт после паузы.
   ///
@@ -781,6 +806,13 @@ class ImageWizardCubit extends Cubit<ImageWizardState> {
       return;
     }
     final ImageToGridSettings settings = state.settings;
+    if (state.stashEmpty) {
+      // В запасе нет ни одного подходящего цвета: показываем подсказку, а не рисуем схему из чужих цветов (T34).
+      if (!draft && calculation == _calculation && !isClosed) {
+        emit(state.copyWith(calculating: false));
+      }
+      return;
+    }
     if (draft) {
       _draftRunning = true;
     }
@@ -791,6 +823,7 @@ class ImageWizardCubit extends Cubit<ImageWizardState> {
           image: image,
           catalog: _catalogColors,
           brand: _brandFor(settings),
+          stash: _stash,
           importance: _importance,
           masks: settings.useMasks ? state.masks : null,
           subjectMask: _subjectMask,

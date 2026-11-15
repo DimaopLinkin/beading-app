@@ -53,6 +53,8 @@ final class ImageToGridModule {
     masks: MethodChannelImageMasks(),
     catalog: _catalog.repository,
     settings: _core.settings,
+    flossStock: _catalog.flossStock,
+    beadStock: _catalog.beadStock,
     createPattern: CreatePatternFromImage(_grid.createGridPattern()),
     recipes: recipes,
     replacePattern: ReplacePatternFromImage(
