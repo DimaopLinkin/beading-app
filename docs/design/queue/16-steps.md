@@ -1,5 +1,5 @@
 ---
-id: 15-steps
+id: 16-steps
 title: Пошаговые инструкции для маршрутных техник бисера (ADR-0008, T33)
 status: todo
 depends: 05-weaving
