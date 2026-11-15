@@ -1,7 +1,9 @@
+import 'package:beading/app/composition/book_module.dart';
 import 'package:beading/app/composition/catalog_module.dart';
 import 'package:beading/app/composition/core_module.dart';
 import 'package:beading/app/composition/easter_eggs_module.dart';
 import 'package:beading/app/composition/grid_module.dart';
+import 'package:beading/app/composition/image_to_grid_module.dart';
 import 'package:beading/app/composition/projects_module.dart';
 import 'package:beading/app/composition/settings_module.dart';
 import 'package:beading/app/composition/stitching_module.dart';
@@ -27,6 +29,8 @@ final class AppDependencies {
       weaving: weaving,
       catalog: catalog,
     );
+    book = BookModule(core: core, projects: projects);
+    imageToGrid = ImageToGridModule(core: core, projects: projects, grid: grid, catalog: catalog);
   }
 
   final CoreModule core;
@@ -35,6 +39,8 @@ final class AppDependencies {
   late final GridModule grid;
   late final WeavingModule weaving;
   late final StitchingModule stitching;
+  late final BookModule book;
+  late final ImageToGridModule imageToGrid;
   final EasterEggsModule easterEggs;
   final SettingsModule settings;
 
