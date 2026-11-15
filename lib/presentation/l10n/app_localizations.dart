@@ -283,6 +283,36 @@ abstract class AppLocalizations {
   /// **'На другом устройстве версия новее. Обновите приложение, чтобы получить все данные.'**
   String get syncProblemNeedsAppUpdate;
 
+  /// No description provided for @syncReplaceLocal.
+  ///
+  /// In ru, this message translates to:
+  /// **'Заменить данные на устройстве'**
+  String get syncReplaceLocal;
+
+  /// No description provided for @syncReplaceLocalHint.
+  ///
+  /// In ru, this message translates to:
+  /// **'Данные этого устройства пропадут, придут данные вошедшего аккаунта'**
+  String get syncReplaceLocalHint;
+
+  /// No description provided for @syncReplaceLocalConfirm.
+  ///
+  /// In ru, this message translates to:
+  /// **'Проекты и запасы на этом устройстве будут заменены данными вошедшего аккаунта. Данные другого аккаунта на сервере не изменятся. Это нельзя отменить.'**
+  String get syncReplaceLocalConfirm;
+
+  /// No description provided for @syncReplaceLocalAction.
+  ///
+  /// In ru, this message translates to:
+  /// **'Заменить'**
+  String get syncReplaceLocalAction;
+
+  /// No description provided for @syncCancel.
+  ///
+  /// In ru, this message translates to:
+  /// **'Отмена'**
+  String get syncCancel;
+
   /// No description provided for @syncProblemFailed.
   ///
   /// In ru, this message translates to:

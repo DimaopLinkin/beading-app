@@ -15,10 +15,12 @@ class SyncCubit extends Cubit<SyncState> {
     required Clock clock,
     required bool Function(Object error) isNetworkError,
     this.interval = const Duration(minutes: 1),
+    Stream<void>? wakes,
   }) : _session = session,
        _engine = engine,
        _clock = clock,
        _isNetworkError = isNetworkError,
+       _wakes = wakes,
        super(SyncState(email: session.userId == null ? null : session.email ?? ''));
 
   final SyncSession _session;
@@ -26,14 +28,27 @@ class SyncCubit extends Cubit<SyncState> {
   final Clock _clock;
   final bool Function(Object error) _isNetworkError;
   final Duration interval;
+  final Stream<void>? _wakes;
+  StreamSubscription<void>? _wakeSub;
   Timer? _timer;
+  Timer? _debounce;
+
+  /// Событие пришло во время цикла: после него нужен ещё один.
+  bool _again = false;
 
   void start() {
     _timer ??= Timer.periodic(interval, (_) => unawaited(syncNow()));
+    _wakeSub ??= _wakes?.listen((_) => _wake());
     unawaited(syncNow());
   }
 
   Future<void> onResumed() => syncNow();
+
+  /// Короткая пауза склеивает пачку событий (свой же push тоже приходит событием).
+  void _wake() {
+    _debounce?.cancel();
+    _debounce = Timer(const Duration(seconds: 1), () => unawaited(syncNow()));
+  }
 
   Future<void> signIn({required String email, required String password}) async {
     if (state.busy) return;
@@ -57,6 +72,15 @@ class SyncCubit extends Cubit<SyncState> {
     await syncNow();
   }
 
+  /// Чужие данные на устройстве заменяются данными вошедшего аккаунта, затем идёт обычный цикл.
+  Future<void> replaceLocalData() async {
+    if (state.busy) return;
+    emit(state.copyWith(busy: true));
+    await _engine.discardLocalData();
+    emit(state.copyWith(busy: false, problem: null));
+    await syncNow();
+  }
+
   Future<void> signOut() async {
     await _session.signOut();
     emit(const SyncState());
@@ -64,7 +88,11 @@ class SyncCubit extends Cubit<SyncState> {
 
   Future<void> syncNow() async {
     final String? userId = _session.userId;
-    if (userId == null || state.busy || isClosed) return;
+    if (userId == null || isClosed) return;
+    if (state.busy) {
+      _again = true;
+      return;
+    }
     emit(state.copyWith(busy: true, email: _session.email ?? state.email ?? ''));
     try {
       final SyncReport report = await _engine.run(userId: userId);
@@ -77,17 +105,25 @@ class SyncCubit extends Cubit<SyncState> {
         ),
       );
     } on SyncOwnerMismatch {
+      _again = false;
       if (!isClosed) emit(state.copyWith(busy: false, problem: SyncProblem.ownerMismatch));
     } on Object catch (error) {
       if (!isClosed) {
         emit(state.copyWith(busy: false, problem: _isNetworkError(error) ? SyncProblem.offline : SyncProblem.failed));
       }
     }
+    if (_again && !isClosed) {
+      final bool failed = state.problem != null;
+      _again = false;
+      if (!failed) await syncNow();
+    }
   }
 
   @override
   Future<void> close() {
     _timer?.cancel();
+    _debounce?.cancel();
+    unawaited(_wakeSub?.cancel());
     return super.close();
   }
 }

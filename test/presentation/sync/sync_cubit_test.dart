@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:beading/core/clock.dart';
@@ -37,9 +38,11 @@ class _Session implements SyncSession {
 
 class _ThrowingRemote extends FakeRemote {
   Exception? error;
+  int pullCalls = 0;
 
   @override
   Future<SyncPage> pullSince(int cursor, {int limit = 500}) {
+    pullCalls++;
     if (error != null) throw error!;
     return super.pullSince(cursor, limit: limit);
   }
@@ -108,5 +111,38 @@ void main() {
     expect(signed.state, const SyncState());
     await cubit.close();
     await signed.close();
+  });
+
+  test('событие от сервера запускает цикл; пачка событий склеивается', () async {
+    final StreamController<void> wakes = StreamController<void>.broadcast();
+    final SyncCubit cubit = SyncCubit(
+      session: _Session(userId: 'u1'),
+      engine: SyncEngine(store: store, remote: remote, schema: testSchema()),
+      clock: _Clock(),
+      isNetworkError: (_) => false,
+      wakes: wakes.stream,
+      interval: const Duration(hours: 1),
+    )..start();
+    await Future<void>.delayed(const Duration(milliseconds: 50));
+    final int before = remote.pullCalls;
+    wakes
+      ..add(null)
+      ..add(null)
+      ..add(null);
+    await Future<void>.delayed(const Duration(milliseconds: 1300));
+    expect(remote.pullCalls, before + 1);
+    await cubit.close();
+    await wakes.close();
+  });
+
+  test('замена данных на устройстве снимает ошибку чужого аккаунта', () async {
+    final SyncCubit cubit = build(_Session(userId: 'u1'));
+    await store.writeOwner('other');
+    await cubit.syncNow();
+    expect(cubit.state.problem, SyncProblem.ownerMismatch);
+    await cubit.replaceLocalData();
+    expect(cubit.state.problem, isNull);
+    expect(await store.readOwner(), 'u1');
+    await cubit.close();
   });
 }
