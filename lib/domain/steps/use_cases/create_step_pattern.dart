@@ -66,6 +66,9 @@ class CreateStepPattern {
     required String templateId,
     Technique technique = Technique.offLoom,
   }) async {
+    if (technique.craft != Craft.beading) {
+      return const Err<Project>(ValidationFailure('Инструкции только для бисера'));
+    }
     final Result<StepTemplate> found = await _templates.get(templateId);
     if (found case Err<StepTemplate>(:final Failure failure)) {
       return Err<Project>(failure);
@@ -127,6 +130,9 @@ class CreateStepPattern {
     required List<Uint8List> photos,
     Technique technique = Technique.offLoom,
   }) async {
+    if (technique.craft != Craft.beading) {
+      return const Err<Project>(ValidationFailure('Инструкции только для бисера'));
+    }
     if (photos.isEmpty) {
       return const Err<Project>(ValidationFailure('Нужна хотя бы одна фотография'));
     }

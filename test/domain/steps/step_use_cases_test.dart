@@ -243,6 +243,75 @@ void main() {
     });
   });
 
+  group('SaveStepPattern и курсор', () {
+    const StepPattern base = StepPattern(
+      id: 'p',
+      projectId: 'pr',
+      sections: <StepSection>[
+        StepSection(
+          id: 'a',
+          steps: <InstructionStep>[
+            InstructionStep(id: 's1'),
+            InstructionStep(id: 's2'),
+            InstructionStep(id: 's3'),
+          ],
+        ),
+      ],
+    );
+
+    test('удаление шага под курсором сдвигает курсор на следующий', () async {
+      patterns.byProject['pr'] = base;
+      await progress.save('p', const StepsProgress(sectionId: 'a', sectionPass: 1, stepId: 's2', stepPass: 1));
+      final StepPattern after = base.copyWith(
+        sections: <StepSection>[
+          base.sections.single.copyWith(
+            steps: <InstructionStep>[base.sections.single.steps[0], base.sections.single.steps[2]],
+          ),
+        ],
+      );
+
+      await SaveStepPattern(patterns: patterns, files: files, progress: progress)(after);
+
+      expect(progress.byPattern['p']!.stepId, 's3');
+    });
+
+    test('без сохранённого курсора запись прогресса не создаётся', () async {
+      patterns.byProject['pr'] = base;
+      await SaveStepPattern(patterns: patterns, files: files, progress: progress)(base);
+      expect(progress.byPattern, isEmpty);
+      final StepNavigation nav = StepNavigation(progress);
+      await nav.reconcile(before: base, after: base);
+      expect(progress.byPattern, isEmpty);
+    });
+
+    test('документ, который не прочитать (повторный id, бусина вне палитры), не сохраняется', () async {
+      final SaveStepPattern save = SaveStepPattern(patterns: patterns, files: files);
+      final StepPattern duplicateIds = base.copyWith(
+        sections: <StepSection>[
+          base.sections.single.copyWith(
+            steps: const <InstructionStep>[
+              InstructionStep(id: 's1'),
+              InstructionStep(id: 's1'),
+            ],
+          ),
+        ],
+      );
+      final StepPattern badBead = base.copyWith(
+        sections: <StepSection>[
+          base.sections.single.copyWith(
+            steps: const <InstructionStep>[
+              InstructionStep(id: 's1', beads: <StepBead>[StepBead(colorIndex: 3, count: 1)]),
+            ],
+          ),
+        ],
+      );
+
+      expect((await save(duplicateIds)).failureOrNull, isA<ValidationFailure>());
+      expect((await save(badBead)).failureOrNull, isA<ValidationFailure>());
+      expect(patterns.byProject, isEmpty);
+    });
+  });
+
   group('StepNavigation', () {
     const StepPattern pattern = StepPattern(
       id: 'p',

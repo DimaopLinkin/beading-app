@@ -116,6 +116,9 @@ final class StepsProgress extends Equatable {
 
   /// Доля пройденного, 0..1. Шаг и секция «до нужной длины» считаются за один проход.
   double fraction(StepPattern pattern) {
+    if (!finished && _Pos.locate(pattern, this) == null) {
+      return 0; // курсор указывает на несуществующий шаг: честнее не обещать готовности
+    }
     int total = 0;
     int done = 0;
     bool reached = finished;
@@ -160,7 +163,13 @@ final class StepsProgress extends Equatable {
     if (alive.contains(stepId)) {
       final StepsProgress moved = jumpTo(after, stepId);
       // Секция шага могла смениться (шаг перенесли): проходы секции начинаем заново только в этом случае.
-      return moved.sectionId == sectionId ? _copy(stepId: stepId) : moved._copyPass(stepPass);
+      final _Pos pos = _Pos.locate(after, moved)!;
+      final int pass = pos.step.repeat.isUntilDone ? stepPass : stepPass.clamp(1, pos.step.repeat.passes);
+      if (moved.sectionId != sectionId) {
+        return moved._copyPass(pass);
+      }
+      final int sPass = pos.section.repeat.isUntilDone ? sectionPass : sectionPass.clamp(1, pos.section.repeat.passes);
+      return StepsProgress(sectionId: sectionId, sectionPass: sPass, stepId: stepId, stepPass: pass);
     }
     bool seen = false;
     for (final InstructionStep step in before.allSteps) {

@@ -12,7 +12,12 @@ import 'package:beading/domain/steps/use_cases/step_navigation.dart';
 
 /// Пошаговые инструкции для техник без сетки (ADR-0008). Маршрутов и экранов пока нет: их добавят T33c и T33d.
 final class StepsModule {
-  StepsModule({required CoreModule core, required ProjectsModule projects}) : _core = core, _projects = projects;
+  StepsModule({
+    required CoreModule core,
+    required ProjectsModule projects,
+    this.templates = const EmptyStepTemplateSource(),
+  }) : _core = core,
+       _projects = projects;
 
   final CoreModule _core;
   final ProjectsModule _projects;
@@ -42,11 +47,11 @@ final class StepsModule {
   );
 
   /// Встроенные шаблоны. Реализацию на ассетах подключит T33e; до того шаблонов нет.
-  StepTemplateSource templates = const EmptyStepTemplateSource();
+  final StepTemplateSource templates;
 
   StepNavigation navigation() => StepNavigation(progress);
 
-  SaveStepPattern savePattern() => SaveStepPattern(patterns: patterns, files: _core.fileStore);
+  SaveStepPattern savePattern() => SaveStepPattern(patterns: patterns, files: _core.fileStore, progress: progress);
 
   /// [processor] нужен только для «из фото»; экраны создания (T33d) передают его из платформенного слоя.
   CreateStepPattern createPattern(ImageProcessor processor) => CreateStepPattern(

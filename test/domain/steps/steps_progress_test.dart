@@ -202,4 +202,33 @@ void main() {
       expect(at('a', 1, 's2', 1).reconcile(before: before, after: after).finished, isTrue);
     });
   });
+
+  group('устаревший курсор и смена повторов', () {
+    final StepPattern p = pattern(<StepSection>[
+      StepSection(id: 'a', steps: <InstructionStep>[step('s1'), step('s2')]),
+    ]);
+
+    test('fraction при курсоре на несуществующий шаг или секцию — 0, а не «готово»', () {
+      expect(at('нет', 1, 's1', 1).fraction(p), 0);
+      expect(at('a', 1, 'нет', 1).fraction(p), 0);
+    });
+
+    test('reconcile ограничивает проходы новым числом повторов', () {
+      final StepPattern before = pattern(<StepSection>[
+        StepSection(
+          id: 'a',
+          repeat: const Repeat.times(10),
+          steps: <InstructionStep>[step('s1', const Repeat.times(10))],
+        ),
+      ]);
+      final StepPattern after = pattern(<StepSection>[
+        StepSection(
+          id: 'a',
+          repeat: const Repeat.times(3),
+          steps: <InstructionStep>[step('s1', const Repeat.times(2))],
+        ),
+      ]);
+      expect(at('a', 8, 's1', 9).reconcile(before: before, after: after), at('a', 3, 's1', 2));
+    });
+  });
 }

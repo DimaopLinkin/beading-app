@@ -27,8 +27,17 @@ class StepNavigation {
       _move(pattern, (p) => p.jumpTo(pattern, stepId));
 
   /// После правки инструкции: курсор под удалённым шагом уходит на ближайший оставшийся.
-  Future<Result<StepsProgress>> reconcile({required StepPattern before, required StepPattern after}) =>
-      _move(after, (p) => p.reconcile(before: before, after: after));
+  Future<Result<StepsProgress>> reconcile({required StepPattern before, required StepPattern after}) async {
+    final Result<StepsProgress?> loaded = await _store.load(after.id);
+    if (loaded case Err<StepsProgress?>(:final failure)) {
+      return Err<StepsProgress>(failure);
+    }
+    final StepsProgress? saved = loaded.valueOrNull;
+    if (saved == null) {
+      return Success<StepsProgress>(StepsProgress.start(after)); // работу не начинали: записывать нечего
+    }
+    return _move(after, (p) => p.reconcile(before: before, after: after));
+  }
 
   Future<Result<StepsProgress>> _move(StepPattern pattern, StepsProgress Function(StepsProgress) step) async {
     final Result<StepsProgress> now = await current(pattern);

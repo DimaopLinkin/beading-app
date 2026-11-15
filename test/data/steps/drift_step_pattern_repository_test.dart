@@ -145,4 +145,39 @@ void main() {
     final StepProgressRow row = (await db.select(db.stepProgressRows).get()).single;
     expect(row.updatedAt, greaterThan(row.createdAt));
   });
+
+  test('после удаления тот же id оживает, а другой id для проекта отклоняется', () async {
+    await repository.save(pattern());
+    await repository.deleteByProject('proj');
+
+    final StepPattern other = StepPattern(id: 'другой', projectId: 'proj', sections: pattern().sections);
+    expect((await repository.save(other)).failureOrNull, isA<ValidationFailure>());
+
+    expect((await repository.save(pattern(text: 'снова'))).isSuccess, isTrue);
+    expect((await repository.getByProject('proj')).valueOrNull!.sections.single.steps.first.text, 'снова');
+  });
+
+  test('template_id обновляется при замене, размер картинки при том же пути тоже', () async {
+    await repository.save(pattern(images: <StepImage>[img1]));
+    final StepPattern changed = StepPattern(
+      id: 'pat',
+      projectId: 'proj',
+      sections: pattern(images: <StepImage>[img1]).sections,
+      images: const <StepImage>[StepImage(id: 'i1', path: 'step_patterns/pat/i1.png', width: 99, height: 98)],
+    );
+    await repository.save(changed);
+
+    expect((await db.select(db.stepPatterns).get()).single.templateId, isNull);
+    expect((await repository.getByProject('proj')).valueOrNull!.images.single.width, 99);
+  });
+
+  test('курсор нельзя записать для удалённой инструкции', () async {
+    await repository.save(pattern());
+    await repository.deleteByProject('proj');
+    final result = await progress.save(
+      'pat',
+      const StepsProgress(sectionId: 'a', sectionPass: 1, stepId: 's1', stepPass: 1),
+    );
+    expect(result.failureOrNull, isA<NotFoundFailure>());
+  });
 }

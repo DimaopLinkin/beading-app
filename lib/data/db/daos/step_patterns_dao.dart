@@ -8,6 +8,9 @@ part 'step_patterns_dao.g.dart';
 class StepPatternsDao extends DatabaseAccessor<AppDatabase> with _$StepPatternsDaoMixin {
   StepPatternsDao(super.attachedDatabase);
 
+  Future<StepPatternRow?> aliveById(String id) =>
+      (select(stepPatterns)..where((t) => t.id.equals(id) & t.deletedAt.isNull())).getSingleOrNull();
+
   /// Живая инструкция проекта.
   Future<StepPatternRow?> findAliveByProject(String projectId) =>
       (select(stepPatterns)..where((t) => t.projectId.equals(projectId) & t.deletedAt.isNull())).getSingleOrNull();

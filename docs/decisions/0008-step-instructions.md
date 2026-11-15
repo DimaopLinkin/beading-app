@@ -66,7 +66,7 @@ SQLite-триггеры outbox добавляются в `sync_triggers.dart` в
 
 ### Слои и модули
 
-- `domain/steps/`: сущности, `StepPatternRepository`, `StepsProgressStore`, `StepTemplateSource`, use cases (`CreateStepPattern`, `SaveStepPattern`, `AdvanceStep`, `MoveStepCursor`), `StepPatternContentCleaner/Cloner`, превью (картинка текущего шага или первая картинка).
+- `domain/steps/`: сущности, `StepPatternRepository`, `StepsProgressStore`, `StepTemplateSource`, use cases (`CreateStepPattern`, `SaveStepPattern`, `StepNavigation` (next, previous, skipRepeat, jumpTo, reconcile)), `StepPatternContentCleaner/Cloner`, превью (картинка текущего шага или первая картинка).
 - `data/steps/`: `DriftStepPatternRepository`, `StepPatternCodec`, `AssetStepTemplateSource`; `data/db/tables/step_pattern_tables.dart`, DAO; мапперы в `data/sync/sync_entity_mappers.dart`.
 - `presentation/steps/`: `template_library/`, `work/` (`StepsWorkCubit`), `editor/` (`StepsEditorCubit`).
 - `app/composition/steps_module.dart` (`StepsModule`): репозиторий, cleaner и cloner в списки `AppDependencies`, маршруты, пункт `NewProjectEntry` «Пошаговая инструкция» (`craft=beading`); `router.dart` открывает `ContentKind.steps` → `AppRoutes.steps(id)`; `LoadProjectPreview` получает провайдер превью steps.

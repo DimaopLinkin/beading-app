@@ -1,4 +1,5 @@
 import 'package:beading/core/clock.dart';
+import 'package:beading/core/failure.dart';
 import 'package:beading/core/result.dart';
 import 'package:beading/data/db/app_database.dart';
 import 'package:beading/data/db/daos/step_patterns_dao.dart';
@@ -40,9 +41,16 @@ class DriftStepsProgressStore implements StepsProgressStore {
       return Err<void>(failure);
     }
     final String deviceId = device.valueOrNull!;
-    return guardStorage<void>(() {
+    final Result<bool> alive = await guardStorage<bool>(() async => await _dao.aliveById(patternId) != null);
+    if (alive case Err<bool>(:final Failure failure)) {
+      return Err<void>(failure);
+    }
+    if (alive.valueOrNull != true) {
+      return Err<void>(NotFoundFailure('Инструкция $patternId удалена или не создана'));
+    }
+    return guardStorage<void>(() async {
       final int now = _clock.now().millisecondsSinceEpoch;
-      return _dao.upsertProgress(
+      await _dao.upsertProgress(
         StepProgressRowsCompanion.insert(
           id: patternId,
           sectionId: progress.sectionId,

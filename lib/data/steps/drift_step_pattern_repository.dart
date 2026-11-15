@@ -44,7 +44,22 @@ class DriftStepPatternRepository implements StepPatternRepository {
   }
 
   @override
-  Future<Result<void>> save(StepPattern pattern) => _withDeviceId(
+  Future<Result<void>> save(StepPattern pattern) async {
+    // `project_id` уникален и среди надгробий: другой `id` для того же проекта — ошибка, тот же `id` оживляет запись.
+    final Result<StepPatternRow?> found = await guardStorage<StepPatternRow?>(
+      () => _dao.findAnyByProject(pattern.projectId),
+    );
+    if (found case Err<StepPatternRow?>(:final Failure failure)) {
+      return Err<void>(failure);
+    }
+    final StepPatternRow? existing = found.valueOrNull;
+    if (existing != null && existing.id != pattern.id) {
+      return Err<void>(ValidationFailure('У проекта ${pattern.projectId} уже есть инструкция ${existing.id}'));
+    }
+    return _write(pattern);
+  }
+
+  Future<Result<void>> _write(StepPattern pattern) => _withDeviceId(
     (deviceId) => guardStorage<void>(() {
       final int now = _clock.now().millisecondsSinceEpoch;
       final String body = StepPatternCodec.encode(pattern);
@@ -63,6 +78,7 @@ class DriftStepPatternRepository implements StepPatternRepository {
           update: StepPatternsCompanion(
             body: Value<String>(body),
             bodyVersion: const Value<int>(StepPatternCodec.version),
+            templateId: Value<String?>(pattern.templateId),
             updatedAt: Value<int>(now),
             deletedAt: const Value<int?>(null),
             deviceId: Value<String>(deviceId),
@@ -81,7 +97,11 @@ class DriftStepPatternRepository implements StepPatternRepository {
         final Map<String, StepImageRow> byId = <String, StepImageRow>{for (final StepImageRow r in existing) r.id: r};
         for (final StepImage image in pattern.images) {
           final StepImageRow? old = byId[image.id];
-          if (old != null && old.deletedAt == null && old.path == image.path) {
+          if (old != null &&
+              old.deletedAt == null &&
+              old.path == image.path &&
+              old.width == image.width &&
+              old.height == image.height) {
             continue; // не менялась
           }
           await _dao.upsertImage(
