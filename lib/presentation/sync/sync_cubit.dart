@@ -74,7 +74,8 @@ class SyncCubit extends Cubit<SyncState> {
 
   /// Чужие данные на устройстве заменяются данными вошедшего аккаунта, затем идёт обычный цикл.
   Future<void> replaceLocalData() async {
-    if (state.busy) return;
+    // Только после явного выбора на экране «чужой аккаунт»: без этой ошибки данные устройства не трогаются.
+    if (state.busy || state.problem != SyncProblem.ownerMismatch) return;
     emit(state.copyWith(busy: true));
     await _engine.discardLocalData();
     emit(state.copyWith(busy: false, problem: null));
