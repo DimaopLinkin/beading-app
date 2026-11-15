@@ -12,6 +12,10 @@ abstract interface class SyncStore {
   /// Отпечаток версий, с которым работал прошлый цикл (см. [SyncSchema.fingerprint]).
   Future<String?> readFingerprint();
 
+  /// Забывает привязку к аккаунту и прячет проекты и запасы на устройстве (кроме настроек), ничего не отправляя.
+  /// Нужен, когда на устройстве чужие данные и пользователь выбрал «заменить данными аккаунта».
+  Future<void> discardLocalData();
+
   /// Сбрасывает курсор в 0 и запоминает новый [fingerprint].
   Future<void> resetCursor(String fingerprint);
 

@@ -36,6 +36,30 @@ class DriftSyncStore implements SyncStore {
     <Object?>[key, value],
   );
 
+  /// Надгробия с `updated_at = 0`: любая серверная версия новее и вернёт запись. Очередь и копии сервера сбрасываются.
+  @override
+  Future<void> discardLocalData() => _db.transaction(() async {
+    await ctx.run('INSERT OR IGNORE INTO sync_applying (flag) VALUES (1)');
+    for (final String entity in const <String>['project', 'floss_stock', 'bead_stock']) {
+      final SyncEntityMapper m = _mappers[entity]!;
+      for (final String id in await m.allSyncIds()) {
+        await m.apply(
+          SyncRecord(
+            entity: entity,
+            syncId: id,
+            updatedAt: 0,
+            deletedAt: 0,
+            deviceId: 'local',
+          ),
+        );
+      }
+    }
+    await ctx.run('DELETE FROM sync_applying');
+    await ctx.run('DELETE FROM sync_outbox');
+    await ctx.run('DELETE FROM sync_shadow');
+    await ctx.run('DELETE FROM settings WHERE "key" IN (?, ?, ?)', <Object?>[_ownerKey, _cursorKey, _fingerprintKey]);
+  });
+
   @override
   Future<String?> readOwner() => _getLocal(_ownerKey);
 
@@ -45,6 +69,10 @@ class DriftSyncStore implements SyncStore {
     await _setLocal(_ownerKey, userId);
     for (final SyncEntityMapper m in _mappers.values) {
       for (final String id in await m.allSyncIds()) {
+        // Спрятанное «заменой данных» (updated_at = 0) на сервер не отправляется.
+        if ((await m.read(id))?.updatedAt == 0) {
+          continue;
+        }
         await ctx.run('INSERT INTO sync_outbox (entity, sync_id) VALUES (?, ?) ON CONFLICT DO NOTHING', <Object?>[
           m.entity,
           id,

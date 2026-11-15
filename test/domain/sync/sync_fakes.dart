@@ -98,6 +98,16 @@ class FakeStore implements SyncStore {
   }
 
   @override
+  Future<void> discardLocalData() async {
+    rows.clear();
+    shadow.clear();
+    outbox.clear();
+    owner = null;
+    cursor = 0;
+    fingerprint = null;
+  }
+
+  @override
   Future<String?> readOwner() async => owner;
 
   @override

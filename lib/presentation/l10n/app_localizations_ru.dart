@@ -109,6 +109,22 @@ class AppLocalizationsRu extends AppLocalizations {
       'На другом устройстве версия новее. Обновите приложение, чтобы получить все данные.';
 
   @override
+  String get syncReplaceLocal => 'Заменить данные на устройстве';
+
+  @override
+  String get syncReplaceLocalHint => 'Данные этого устройства пропадут, придут данные вошедшего аккаунта';
+
+  @override
+  String get syncReplaceLocalConfirm =>
+      'Проекты и запасы на этом устройстве будут заменены данными вошедшего аккаунта. Данные другого аккаунта на сервере не изменятся. Это нельзя отменить.';
+
+  @override
+  String get syncReplaceLocalAction => 'Заменить';
+
+  @override
+  String get syncCancel => 'Отмена';
+
+  @override
   String get syncProblemFailed => 'Не получилось синхронизировать. Попробуйте ещё раз.';
 
   @override
