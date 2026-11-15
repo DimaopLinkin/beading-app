@@ -18,7 +18,6 @@ import 'package:beading/domain/grid_pattern/grid_pattern_repository.dart';
 import 'package:beading/domain/grid_pattern/grid_progress_store.dart';
 import 'package:beading/domain/grid_pattern/use_cases/create_grid_pattern.dart';
 import 'package:beading/domain/image_pattern/image_pattern_repository.dart';
-import 'package:beading/domain/image_pattern/use_cases/import_book_pattern.dart';
 import 'package:beading/domain/projects/use_cases/delete_project.dart';
 import 'package:beading/domain/projects/use_cases/duplicate_project.dart';
 import 'package:beading/domain/settings/app_info.dart';
@@ -28,7 +27,6 @@ import 'package:beading/domain/settings/reduce_transparency_source.dart';
 import 'package:beading/domain/settings/screen_wake_lock.dart';
 import 'package:beading/domain/settings/settings_repository.dart';
 import 'package:beading/domain/settings/wakelock_controller.dart';
-import 'package:beading/presentation/image_to_grid/image_wizard_cubit.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:get_it/get_it.dart';
 
@@ -60,10 +58,8 @@ void main() {
     expect(locator<GridPatternRepository>(), isA<DriftGridPatternRepository>());
     expect(locator<GridProgressStore>(), isA<DriftGridProgressStore>());
     expect(locator<CreateGridPattern>(), isA<CreateGridPattern>());
-    expect(locator<ImportBookPattern>(), isA<ImportBookPattern>());
     expect(locator<DeleteProject>(), isA<DeleteProject>());
     expect(locator<DuplicateProject>(), isA<DuplicateProject>());
-    expect(locator<ImageWizardCubit>(), isA<ImageWizardCubit>());
   });
 
   test('повторная настройка не падает и пересоздаёт регистрации', () async {

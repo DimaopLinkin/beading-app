@@ -14,8 +14,12 @@ import 'package:beading/data/settings/package_info_app_info_provider.dart';
 import 'package:beading/domain/catalog/use_cases/find_similar_colors.dart';
 import 'package:beading/domain/events/app_events.dart';
 import 'package:beading/domain/settings/app_events_secret_tap_handler.dart';
+import 'package:beading/presentation/book_work/book_work_cubit.dart';
+import 'package:beading/presentation/book_work/book_work_screen.dart';
 import 'package:beading/presentation/catalog/catalog_cubit.dart';
 import 'package:beading/presentation/easter_eggs/compliment_banner_cubit.dart';
+import 'package:beading/presentation/image_to_grid/image_wizard_cubit.dart';
+import 'package:beading/presentation/import_book/import_book_cubit.dart';
 import 'package:beading/presentation/settings/settings_cubit.dart';
 import 'package:beading/presentation/theme/theme_mode_cubit.dart';
 import 'package:beading/presentation/weaving/weave_screen.dart';
@@ -230,6 +234,49 @@ void main() {
 
       expect(paths.toSet(), hasLength(paths.length));
       expect(paths, containsAll(<String>[AppRoutes.newGrid, AppRoutes.patternTemplate, WeaveScreen.routePath]));
+    });
+  });
+
+  group('BookModule и ImageToGridModule', () {
+    late AppDependencies dependencies;
+
+    setUp(() {
+      dependencies = AppDependencies(core: CoreModule(database: createInMemoryDatabase()));
+    });
+
+    tearDown(() => dependencies.dispose());
+
+    test('хранилища книг создаются один раз', () {
+      expect(dependencies.book.imagePatterns, same(dependencies.book.imagePatterns));
+      expect(dependencies.book.bookWork, same(dependencies.book.bookWork));
+      expect(dependencies.imageToGrid.recipes, same(dependencies.imageToGrid.recipes));
+    });
+
+    test('кубиты книги и мастера — новые на каждый вызов, со своими раннерами', () async {
+      final ImportBookCubit importA = dependencies.book.importBookCubit();
+      final ImportBookCubit importB = dependencies.book.importBookCubit();
+      final ImageWizardCubit wizardA = dependencies.imageToGrid.imageWizardCubit();
+      final ImageWizardCubit wizardB = dependencies.imageToGrid.imageWizardCubit();
+      final BookWorkCubit work = dependencies.book.bookWorkCubit('p');
+
+      expect(importA, isNot(same(importB)));
+      expect(wizardA, isNot(same(wizardB)));
+      await Future.wait(<Future<void>>[
+        importA.close(),
+        importB.close(),
+        wizardA.close(),
+        wizardB.close(),
+        work.close(),
+      ]);
+    });
+
+    test('маршруты: импорт книги, работа по книге и мастер', () {
+      final List<String> paths = <RouteBase>[
+        ...dependencies.book.routes(),
+        ...dependencies.imageToGrid.routes(),
+      ].whereType<GoRoute>().map((r) => r.path).toList();
+
+      expect(paths, <String>[AppRoutes.importBook, BookWorkScreen.routePath, AppRoutes.imageToGrid]);
     });
   });
 }

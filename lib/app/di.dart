@@ -6,14 +6,6 @@ import 'package:beading/app/platform/orientation_lock.dart';
 import 'package:beading/core/clock.dart';
 import 'package:beading/core/id_generator.dart';
 import 'package:beading/data/db/app_database.dart';
-import 'package:beading/data/image_pattern/drift_book_work_repository.dart';
-import 'package:beading/data/image_pattern/drift_image_pattern_repository.dart';
-import 'package:beading/data/image_pattern/pdfrx_pdf_rasterizer.dart';
-import 'package:beading/data/image_pattern/picker_book_image_source.dart';
-import 'package:beading/data/image_pattern/ui_image_processor.dart';
-import 'package:beading/data/image_to_grid/isolate_image_to_grid_runner.dart';
-import 'package:beading/data/image_to_grid/ui_image_decoder.dart';
-import 'package:beading/data/platform/method_channel_image_masks.dart';
 import 'package:beading/data/sharing/drift_unit_of_work.dart';
 import 'package:beading/data/sharing/file_picker_biser_picker.dart';
 import 'package:beading/data/sharing/platform_incoming_biser_files.dart';
@@ -33,16 +25,6 @@ import 'package:beading/domain/image_pattern/book_work/record_book_progress.dart
 import 'package:beading/domain/image_pattern/file_store.dart';
 import 'package:beading/domain/image_pattern/image_pattern_content.dart';
 import 'package:beading/domain/image_pattern/image_pattern_repository.dart';
-import 'package:beading/domain/image_pattern/image_processor.dart';
-import 'package:beading/domain/image_pattern/pdf_rasterizer.dart';
-import 'package:beading/domain/image_pattern/picked_book_file.dart';
-import 'package:beading/domain/image_pattern/use_cases/import_book_pattern.dart';
-import 'package:beading/domain/image_to_grid/image_decoder.dart';
-import 'package:beading/domain/image_to_grid/image_masks.dart';
-import 'package:beading/domain/image_to_grid/image_recipe.dart';
-import 'package:beading/domain/image_to_grid/image_to_grid_runner.dart';
-import 'package:beading/domain/image_to_grid/use_cases/create_pattern_from_image.dart';
-import 'package:beading/domain/image_to_grid/use_cases/replace_pattern_from_image.dart';
 import 'package:beading/domain/printing/pattern_printer.dart';
 import 'package:beading/domain/printing/use_cases/export_pattern_pdf.dart';
 import 'package:beading/domain/projects/load_project_preview.dart';
@@ -72,9 +54,6 @@ import 'package:beading/domain/stitch_import/import_oxs.dart';
 import 'package:beading/domain/stitch_import/oxs_pattern.dart';
 import 'package:beading/domain/weaving/work_session_content_cleaner.dart';
 import 'package:beading/domain/weaving/work_session_repository.dart';
-import 'package:beading/presentation/book_work/book_work_cubit.dart';
-import 'package:beading/presentation/image_to_grid/image_wizard_cubit.dart';
-import 'package:beading/presentation/import_book/import_book_cubit.dart';
 import 'package:beading/presentation/library/library_cubit.dart';
 import 'package:beading/presentation/library/new_project_entry.dart';
 import 'package:beading/presentation/library/project_thumbnail_provider.dart';
@@ -116,6 +95,10 @@ Future<void> configureDependencies(
     ..registerFactory<UpdateNotes>(() => dependencies.projects.updateNotes())
     ..registerFactory<WatchProjects>(() => dependencies.projects.watchProjects())
     ..registerFactory<RecordBookProgress>(() => dependencies.projects.recordBookProgress())
+    ..registerLazySingleton<ImagePatternRepository>(() => dependencies.book.imagePatterns)
+    ..registerLazySingleton<BookWorkRepository>(() => dependencies.book.bookWork)
+    ..registerLazySingleton<ImagePatternContentCleaner>(() => dependencies.book.contentCleaner)
+    ..registerLazySingleton<ImagePatternContentCloner>(() => dependencies.book.contentCloner)
     ..registerLazySingleton<GridPatternRepository>(() => dependencies.grid.patterns)
     ..registerLazySingleton<GridProgressStore>(() => dependencies.grid.progress)
     ..registerLazySingleton<CellProgressStore>(() => dependencies.grid.cellProgress)
@@ -124,101 +107,15 @@ Future<void> configureDependencies(
     ..registerFactory<CreateGridPattern>(() => dependencies.grid.createGridPattern())
     ..registerLazySingleton<WorkSessionRepository>(() => dependencies.weaving.sessions)
     ..registerLazySingleton<WorkSessionContentCleaner>(() => dependencies.weaving.contentCleaner)
-    ..registerLazySingleton<ImageProcessor>(UiImageProcessor.new)
-    ..registerLazySingleton<ImageToGridRunner>(IsolateImageToGridRunner.new)
-    ..registerLazySingleton<PdfRasterizer>(PdfrxPdfRasterizer.new)
-    ..registerLazySingleton<BookImageSource>(PickerBookImageSource.new)
-    ..registerLazySingleton<ImagePatternRepository>(
-      () => DriftImagePatternRepository(
-        dao: db.imagePatternsDao,
-        deviceIds: container<DeviceIdProvider>(),
-        clock: container<Clock>(),
-      ),
-    )
-    ..registerLazySingleton<ImagePatternContentCleaner>(
-      () => ImagePatternContentCleaner(
-        patterns: container<ImagePatternRepository>(),
-        files: container<FileStore>(),
-      ),
-    )
-    ..registerLazySingleton<ImagePatternContentCloner>(
-      () => ImagePatternContentCloner(
-        patterns: container<ImagePatternRepository>(),
-        projects: container<ProjectRepository>(),
-        files: container<FileStore>(),
-        ids: container<IdGenerator>(),
-      ),
-    )
-    ..registerFactory<ImportBookPattern>(
-      () => ImportBookPattern(
-        createProject: container<CreateProject>(),
-        projects: container<ProjectRepository>(),
-        patterns: container<ImagePatternRepository>(),
-        processor: container<ImageProcessor>(),
-        files: container<FileStore>(),
-        ids: container<IdGenerator>(),
-      ),
-    )
-    ..registerFactory<ImportBookCubit>(
-      () => ImportBookCubit(
-        source: container<BookImageSource>(),
-        rasterizer: container<PdfRasterizer>(),
-        importBookPattern: container<ImportBookPattern>(),
-      ),
-    )
-    ..registerLazySingleton<ImageDecoder>(UiImageDecoder.new)
-    ..registerLazySingleton<ImageMasks>(MethodChannelImageMasks.new)
-    ..registerFactory<ImageWizardCubit>(
-      () => ImageWizardCubit(
-        source: container<BookImageSource>(),
-        // Генератору хватает 2048: поворот и обрезка отзываются быстрее, пик памяти и маска Vision меньше. Книги — 4096.
-        processor: const UiImageProcessor(maxSide: wizardImageMaxSide),
-        decoder: container<ImageDecoder>(),
-        runner: container<ImageToGridRunner>(),
-        masks: container<ImageMasks>(),
-        catalog: container<CatalogRepository>(),
-        settings: container<SettingsRepository>(),
-        createPattern: CreatePatternFromImage(container<CreateGridPattern>()),
-        recipes: container<ImageRecipeStore>(),
-        replacePattern: ReplacePatternFromImage(
-          patterns: container<GridPatternRepository>(),
-          rows: container<GridProgressStore>(),
-          cells: container<CellProgressStore>(),
-          projects: container<ProjectRepository>(),
-        ),
-        projects: container<ProjectRepository>(),
-        patterns: container<GridPatternRepository>(),
-        printer: container<PatternPrinter>(),
-        sizeHints: true,
-      ),
-    )
-    ..registerLazySingleton<ImageRecipeStore>(() => ImageRecipeStore(container<FileStore>()))
-    ..registerLazySingleton<BookWorkRepository>(
-      () => DriftBookWorkRepository(
-        dao: db.bookWorkDao,
-        deviceIds: container<DeviceIdProvider>(),
-        clock: container<Clock>(),
-      ),
-    )
     ..registerFactory<DeleteProject>(
       () => DeleteProject(
         container<ProjectRepository>(),
         cleaners: <ProjectContentCleaner>[
           container<ImagePatternContentCleaner>(),
           container<GridPatternContentCleaner>(),
-          ImageRecipeContentCleaner(container<ImageRecipeStore>()),
+          dependencies.imageToGrid.contentCleaner,
           container<WorkSessionContentCleaner>(),
         ],
-      ),
-    )
-    ..registerFactoryParam<BookWorkCubit, String, void>(
-      (projectId, _) => BookWorkCubit(
-        projectId: projectId,
-        projects: container<ProjectRepository>(),
-        patterns: container<ImagePatternRepository>(),
-        work: container<BookWorkRepository>(),
-        recordProgress: container<RecordBookProgress>(),
-        updateNotes: container<UpdateNotes>(),
       ),
     )
     ..registerFactory<DuplicateProject>(
