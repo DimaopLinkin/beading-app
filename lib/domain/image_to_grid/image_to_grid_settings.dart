@@ -25,6 +25,7 @@ import 'package:beading/domain/image_to_grid/palette_constraint.dart';
 import 'package:beading/domain/image_to_grid/pattern_step.dart';
 import 'package:beading/domain/image_to_grid/source_image.dart';
 import 'package:beading/domain/image_to_grid/technique_geometry.dart';
+import 'package:beading/domain/palette/catalog_ref.dart';
 import 'package:beading/domain/palette/rgb.dart';
 import 'package:beading/domain/projects/craft.dart';
 import 'package:equatable/equatable.dart';
@@ -58,6 +59,7 @@ final class ImageToGridSettings extends Equatable {
     this.fabric = Fabric.standard,
     this.backstitch = false,
     this.blends = true,
+    this.onlyStash = false,
   });
 
   static const int defaultColumns = 40;
@@ -106,6 +108,10 @@ final class ImageToGridSettings extends Equatable {
 
   /// Заменить области «посередине» двух ниток блендом (T57, только вышивка).
   final bool blends;
+
+  /// Брать цвета только из запаса пользовательницы (T34): мулине и бисер, которые у неё есть. Действует в режиме
+  /// каталога; нехватка цветов в запасе не превращается в свободную палитру.
+  final bool onlyStash;
 
   Craft get craft => technique.craft;
 
@@ -174,6 +180,7 @@ final class ImageToGridSettings extends Equatable {
     Fabric? fabric,
     bool? backstitch,
     bool? blends,
+    bool? onlyStash,
   }) => ImageToGridSettings(
     technique: technique ?? this.technique,
     beadSize: beadSize ?? this.beadSize,
@@ -194,6 +201,7 @@ final class ImageToGridSettings extends Equatable {
     fabric: fabric ?? this.fabric,
     backstitch: backstitch ?? this.backstitch,
     blends: blends ?? this.blends,
+    onlyStash: onlyStash ?? this.onlyStash,
   );
 
   static int _clampColumns(int columns, Technique technique, Fabric fabric) {
@@ -234,11 +242,21 @@ final class ImageToGridSettings extends Equatable {
   /// Подходящие под ремесло позиции [catalog]. Бисер: размер, одна серия (выбранная или по [brand]; пустой бренд —
   /// Delica) и группы отделок; позиция с неизвестной отделкой проходит (T62). Мулине: размера нет, годится любая
   /// позиция бренда [brand] (пустой — любого).
-  List<CatalogColor> catalogFor(List<CatalogColor> catalog, {String brand = ''}) {
+  ///
+  /// С [onlyStash] остаются только позиции из [stash] (T34). У мулине бренд тогда не сужает выбор: запас может быть
+  /// из нескольких брендов, а нужны все нитки, что есть. Без [stash] при [onlyStash] запас считается пустым.
+  List<CatalogColor> catalogFor(
+    List<CatalogColor> catalog, {
+    String brand = '',
+    Set<CatalogRef> stash = const <CatalogRef>{},
+  }) {
+    bool inStash(CatalogColor color) => !onlyStash || stash.contains(color.ref);
     if (craft == Craft.crossStitch) {
       return <CatalogColor>[
         for (final CatalogColor color in catalog)
-          if (color.material == CatalogMaterial.floss && (brand.isEmpty || color.brand == brand)) color,
+          if (color.material == CatalogMaterial.floss &&
+              (onlyStash ? inStash(color) : (brand.isEmpty || color.brand == brand)))
+            color,
       ];
     }
     final BeadSeries series = seriesFor(brand);
@@ -249,7 +267,8 @@ final class ImageToGridSettings extends Equatable {
             color.brand == series.brand &&
             color.series == series.catalogSeries &&
             color.sizeCode == beadSize.sizeCode &&
-            (color.finish == null || finishes.contains(color.finish)))
+            (color.finish == null || finishes.contains(color.finish)) &&
+            inStash(color))
           color,
     ];
   }
@@ -259,6 +278,7 @@ final class ImageToGridSettings extends Equatable {
     required SourceImage image,
     List<CatalogColor> catalog = const <CatalogColor>[],
     String brand = '',
+    Set<CatalogRef> stash = const <CatalogRef>{},
     Float32List? importance,
     ImageMaskSet? masks,
     int seed = 0,
@@ -266,7 +286,8 @@ final class ImageToGridSettings extends Equatable {
     bool measure = false,
     Uint8List? subjectMask,
   }) {
-    final List<CatalogColor> allowed = catalogFor(catalog, brand: brand);
+    final List<CatalogColor> allowed = catalogFor(catalog, brand: brand, stash: stash);
+    // Пустой запас сюда не доходит: мастер при onlyStash и пустом отборе схему не считает (T34).
     final bool useCatalog = paletteSource == PaletteSource.catalog && allowed.isNotEmpty;
     // «Плавные переходы» с предустановкой — упорядоченный дизеринг только в градиентах последним шагом (T57); без
     // предустановки остаётся путь T24 с Флойдом — Стейнбергом.
@@ -340,5 +361,6 @@ final class ImageToGridSettings extends Equatable {
     fabric,
     backstitch,
     blends,
+    onlyStash,
   ];
 }

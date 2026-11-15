@@ -12,6 +12,7 @@ import 'package:beading/domain/image_to_grid/image_to_grid_request.dart';
 import 'package:beading/domain/image_to_grid/image_to_grid_settings.dart';
 import 'package:beading/domain/image_to_grid/source_image.dart';
 import 'package:beading/domain/image_to_grid/technique_geometry.dart';
+import 'package:beading/domain/palette/catalog_ref.dart';
 import 'package:beading/domain/palette/rgb.dart';
 import 'package:beading/domain/projects/craft.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -77,6 +78,34 @@ void main() {
       expect(s.catalogFor(catalog).map((c) => c.code), <String>['DB0010', 'DB0011', 'DB0012']);
       expect(s.catalogFor(catalog, brand: 'Toho').map((c) => c.code), <String>['T-1']);
       expect(s.copyWith(beadSize: BeadSize.delica15).catalogFor(catalog), isEmpty);
+    });
+
+    test('«только из запаса» оставляет бисер из запаса и не трогает остальное (T34)', () {
+      final ImageToGridSettings s = const ImageToGridSettings().copyWith(onlyStash: true);
+      final Set<CatalogRef> stash = <CatalogRef>{
+        const CatalogRef(brand: 'Miyuki', code: 'DB0011'),
+        const CatalogRef(brand: 'Miyuki', code: 'DB0013'),
+      };
+      // DB0013 прозрачный: отделка по умолчанию его не пускает, запас этого не отменяет.
+      expect(s.catalogFor(catalog, stash: stash).map((c) => c.code), <String>['DB0011']);
+      expect(s.catalogFor(catalog), isEmpty);
+      expect(const ImageToGridSettings().catalogFor(catalog, stash: stash).length, 3);
+    });
+
+    test('«только из запаса» для мулине берёт нитки любых брендов, что есть в запасе (T34)', () {
+      final List<CatalogColor> floss = <CatalogColor>[
+        catalogColor('310', 'Чёрный', '#000000', brand: 'DMC', material: CatalogMaterial.floss),
+        catalogColor('403', 'Чёрный', '#010101', brand: 'Anchor', material: CatalogMaterial.floss),
+        catalogColor('666', 'Красный', '#FF0000', brand: 'DMC', material: CatalogMaterial.floss),
+      ];
+      final ImageToGridSettings s = const ImageToGridSettings(
+        technique: Technique.crossStitch,
+      ).copyWith(onlyStash: true);
+      final Set<CatalogRef> stash = <CatalogRef>{
+        const CatalogRef(brand: 'DMC', code: '310'),
+        const CatalogRef(brand: 'Anchor', code: '403'),
+      };
+      expect(s.catalogFor(floss, brand: 'DMC', stash: stash).map((c) => c.code), <String>['310', '403']);
     });
 
     test('выбор серии в мастере сильнее бренда по умолчанию', () {

@@ -7,6 +7,7 @@ import 'package:beading/domain/catalog/bead_finish_group.dart';
 import 'package:beading/domain/catalog/bead_series.dart';
 import 'package:beading/domain/catalog/catalog_color.dart';
 import 'package:beading/domain/catalog/catalog_material.dart';
+import 'package:beading/domain/floss_stock/floss_stock_repository.dart';
 import 'package:beading/domain/grid/bead_size.dart';
 import 'package:beading/domain/grid/fabric.dart';
 import 'package:beading/domain/grid/grid.dart';
@@ -31,6 +32,7 @@ import 'package:beading/domain/image_to_grid/size_suggester.dart';
 import 'package:beading/domain/image_to_grid/source_image.dart';
 import 'package:beading/domain/image_to_grid/use_cases/create_pattern_from_image.dart';
 import 'package:beading/domain/image_to_grid/use_cases/replace_pattern_from_image.dart';
+import 'package:beading/domain/palette/catalog_ref.dart';
 import 'package:beading/domain/palette/rgb.dart';
 import 'package:beading/domain/projects/craft.dart';
 import 'package:beading/domain/projects/project.dart';
@@ -44,6 +46,7 @@ import 'package:flutter_test/flutter_test.dart';
 import '../../support/biser_device.dart' show sampleProject;
 import '../../support/fake_catalog_repository.dart';
 import '../../support/fake_clock.dart';
+import '../../support/fake_floss_stock.dart';
 import '../../support/fake_grid_pattern.dart';
 import '../../support/fake_image_masks.dart';
 import '../../support/fake_image_pattern.dart';
@@ -129,7 +132,11 @@ void main() {
   late FakeCatalogRepository catalog;
   late ImageWizardCubit cubit;
 
-  ImageWizardCubit build({Duration debounce = const Duration(milliseconds: 300), bool sizeHints = false}) {
+  ImageWizardCubit build({
+    Duration debounce = const Duration(milliseconds: 300),
+    bool sizeHints = false,
+    FlossStockRepository? flossStock,
+  }) {
     final FakeIdGenerator ids = FakeIdGenerator();
     return ImageWizardCubit(
       source: source,
@@ -139,6 +146,7 @@ void main() {
       masks: masks,
       catalog: catalog,
       settings: settings,
+      flossStock: flossStock,
       createPattern: CreatePatternFromImage(
         CreateGridPattern(
           createProject: CreateProject(repository: projects, ids: ids, clock: FakeClock(DateTime.utc(2026))),
@@ -656,6 +664,49 @@ void main() {
       await cubit.start();
       await openPhoto();
       expect(runner.requests.last.constraint.candidates, hasLength(1));
+    });
+  });
+
+  group('только из запаса (T34)', () {
+    final List<CatalogColor> floss = <CatalogColor>[
+      catalogColor('310', 'Чёрный', '#000000', brand: 'DMC', material: CatalogMaterial.floss),
+      catalogColor('666', 'Красный', '#FF0000', brand: 'DMC', material: CatalogMaterial.floss),
+      catalogColor('403', 'Чёрный', '#010101', brand: 'Anchor', material: CatalogMaterial.floss),
+    ];
+
+    test('схема собирается только из ниток запаса, любых брендов', () async {
+      catalog = FakeCatalogRepository(floss);
+      await settings.write(SettingKeys.defaultFlossBrand, 'DMC');
+      cubit = build(
+        debounce: Duration.zero,
+        flossStock: FakeFlossStockRepository(
+          initial: <CatalogRef, double>{
+            const CatalogRef(brand: 'DMC', code: '666'): 1,
+            const CatalogRef(brand: 'Anchor', code: '403'): 2,
+          },
+        ),
+      );
+      addTearDown(cubit.close);
+      await cubit.start(craft: Craft.crossStitch);
+      expect(cubit.state.catalogColors, 2); // бренд DMC без запаса
+      cubit.setOnlyStash(value: true);
+      expect(cubit.state.catalogColors, 2);
+      await openPhoto();
+      expect(runner.requests.last.constraint.candidates!.map((e) => e.catalog!.code), <String>['666', '403']);
+    });
+
+    test('пустой запас: схему не считают и не подменяют свободной палитрой', () async {
+      catalog = FakeCatalogRepository(floss);
+      cubit = build(debounce: Duration.zero, flossStock: FakeFlossStockRepository());
+      addTearDown(cubit.close);
+      await cubit.start(craft: Craft.crossStitch);
+      await openPhoto();
+      final int before = runner.requests.length;
+      cubit.setOnlyStash(value: true);
+      expect(cubit.state.stashEmpty, isTrue);
+      await Future<void>.delayed(Duration.zero);
+      expect(runner.requests.length, before);
+      expect(cubit.state.calculating, isFalse);
     });
   });
 

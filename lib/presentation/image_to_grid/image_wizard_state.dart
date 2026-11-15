@@ -156,9 +156,12 @@ class ImageWizardState extends Equatable {
   /// В режиме каталога нечего подбирать: под размер или бренд нет цветов, схема подбирается свободно.
   bool get catalogMissing => settings.paletteSource == PaletteSource.catalog && catalogColors == 0;
 
+  /// «Только из запаса» включён, а подходящих цветов в запасе нет: схему не считают (T34).
+  bool get stashEmpty => settings.onlyStash && settings.paletteSource == PaletteSource.catalog && catalogColors == 0;
+
   /// Каталог после отбора по серии и отделкам беднее числа цветов в схеме (T62): мастер предупреждает.
   bool get catalogShort =>
-      settings.craft == Craft.beading &&
+      (settings.craft == Craft.beading || settings.onlyStash) &&
       settings.paletteSource == PaletteSource.catalog &&
       catalogColors > 0 &&
       catalogColors < settings.maxColors;

@@ -240,6 +240,9 @@ void main() {
 
       final Finder reset = find.byKey(const ValueKey<String>('wizard-brush-reset'));
       await tester.scrollUntilVisible(reset, 200, scrollable: find.byType(Scrollable).last);
+      // Кнопка у нижнего края может оказаться под панелью: подтягиваем её выше.
+      await tester.drag(find.byType(Scrollable).last, const Offset(0, -150));
+      await tester.pumpAndSettle();
       await tester.tap(reset);
       await tester.pumpAndSettle();
       expect(cubit.state.brush.isEmpty, isTrue);

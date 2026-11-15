@@ -38,6 +38,7 @@ void main() {
       fabric: Fabric.standard.withColor(const Rgb(10, 20, 30)),
       backstitch: true,
       blends: false,
+      onlyStash: true,
     ),
   );
 

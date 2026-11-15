@@ -3277,6 +3277,30 @@ abstract class AppLocalizations {
   /// **'{count, plural, one{{count} стежок контура} few{{count} стежка контура} many{{count} стежков контура} other{{count} стежков контура}}'**
   String imageWizardBackstitchCount(int count);
 
+  /// Переключатель: брать цвета только из запаса ниток или бисера
+  ///
+  /// In ru, this message translates to:
+  /// **'Только из моего запаса'**
+  String get imageWizardStash;
+
+  /// Пояснение к переключателю «Только из моего запаса»
+  ///
+  /// In ru, this message translates to:
+  /// **'Схема соберётся из тех ниток и бисера, что у тебя уже есть. Запас меняется в «Моём запасе».'**
+  String get imageWizardStashHint;
+
+  /// Пояснение, когда в запасе нет ни одного подходящего цвета
+  ///
+  /// In ru, this message translates to:
+  /// **'В запасе нет подходящих цветов, поэтому схему не из чего собирать. Добавь нитки или бисер в «Мой запас» или выключи переключатель.'**
+  String get imageWizardStashEmpty;
+
+  /// Пояснение, когда в запасе меньше цветов, чем в схеме
+  ///
+  /// In ru, this message translates to:
+  /// **'В запасе подходит всего {available} цветов, а в схеме их до {wanted}: она получится из того, что есть.'**
+  String imageWizardStashFew(int available, int wanted);
+
   /// Переключатель бленда мулине
   ///
   /// In ru, this message translates to:

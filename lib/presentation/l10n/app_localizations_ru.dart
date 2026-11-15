@@ -1857,6 +1857,22 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
+  String get imageWizardStash => 'Только из моего запаса';
+
+  @override
+  String get imageWizardStashHint =>
+      'Схема соберётся из тех ниток и бисера, что у тебя уже есть. Запас меняется в «Моём запасе».';
+
+  @override
+  String get imageWizardStashEmpty =>
+      'В запасе нет подходящих цветов, поэтому схему не из чего собирать. Добавь нитки или бисер в «Мой запас» или выключи переключатель.';
+
+  @override
+  String imageWizardStashFew(int available, int wanted) {
+    return 'В запасе подходит всего $available цветов, а в схеме их до $wanted: она получится из того, что есть.';
+  }
+
+  @override
   String get imageWizardBlends => 'Бленды из двух ниток';
 
   @override
