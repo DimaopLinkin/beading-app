@@ -8,6 +8,7 @@ import 'package:beading/domain/projects/craft.dart';
 import 'package:beading/domain/projects/project.dart';
 import 'package:beading/domain/weaving/work_session.dart';
 import 'package:beading/domain/weaving/work_session_content_cleaner.dart';
+import 'package:drift/drift.dart' show Value;
 import 'package:flutter_test/flutter_test.dart';
 
 import '../../support/fake_clock.dart';
@@ -125,5 +126,16 @@ void main() {
     );
     expect((await cleaner.remove(project)).isSuccess, isTrue);
     expect((await repository.byProject('p1')).valueOrNull, isEmpty);
+  });
+
+  test('all и watchAll отдают сессии живых проектов, без удалённых', () async {
+    await repository.start('p1', DateTime.utc(2026, 11, 10, 9));
+    await repository.start('p2', DateTime.utc(2026, 11, 10, 11));
+    await (db.update(
+      db.projects,
+    )..where((t) => t.id.equals('p2'))).write(const ProjectsCompanion(deletedAt: Value<int?>(5)));
+    expect((await repository.all()).valueOrNull!.map((s) => s.projectId), <String>['p1']);
+    final List<WorkSession> first = await repository.watchAll().first;
+    expect(first.map((s) => s.projectId), <String>['p1']);
   });
 }
