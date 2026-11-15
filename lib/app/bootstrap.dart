@@ -1,6 +1,9 @@
+import 'dart:async';
+
 import 'package:beading/app/app.dart';
 import 'package:beading/app/composition/app_dependencies.dart';
 import 'package:beading/app/composition/core_module.dart';
+import 'package:beading/app/composition/sync_module.dart';
 import 'package:beading/app/di.dart';
 import 'package:beading/app/platform/app_lifecycle_binding.dart';
 import 'package:beading/app/platform/desktop_window.dart';
@@ -9,9 +12,11 @@ import 'package:beading/app/startup_failure_app.dart';
 import 'package:beading/core/result.dart';
 import 'package:beading/data/db/app_database.dart';
 import 'package:beading/data/db/open_database.dart';
+import 'package:beading/data/sync/secure_session_storage.dart';
 import 'package:beading/domain/settings/reduce_transparency_source.dart';
 import 'package:beading/domain/settings/wakelock_controller.dart';
 import 'package:flutter/widgets.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 /// Готовит приложение к запуску и возвращает корневой виджет.
 ///
@@ -25,9 +30,12 @@ Future<Widget> bootstrap({
   ReduceTransparencySource? reduceTransparencySource,
 }) async {
   WidgetsFlutterBinding.ensureInitialized();
-  final AppDependencies dependencies = AppDependencies(
-    core: CoreModule(database: database ?? await openAppDatabase(), reduceTransparency: reduceTransparencySource),
+  final CoreModule core = CoreModule(
+    database: database ?? await openAppDatabase(),
+    reduceTransparency: reduceTransparencySource,
   );
+  final SyncModule? sync = await _openSync(core);
+  final AppDependencies dependencies = AppDependencies(core: core, sync: sync);
   await configureDependencies(dependencies);
   await (orientationLock ?? getIt<OrientationLock>()).lockPortrait();
   await (desktopWindow ?? getIt<DesktopWindow>()).configure(const DesktopWindowConfig());
@@ -40,7 +48,28 @@ Future<Widget> bootstrap({
   if (seeded case Err<void>(:final failure)) {
     debugPrint('Каталог загружен не полностью: ${failure.message}');
   }
+  if (sync != null) {
+    AppLifecycleListener(onResume: () => unawaited(sync.controller.onResumed()));
+    sync.controller.start();
+  }
   return BeadingApp(dependencies: dependencies);
+}
+
+/// Адрес и ключ Supabase передаются при сборке (`--dart-define`) и в репозиторий не попадают.
+/// Без них (и в тестах) синхронизации нет.
+const String _supabaseUrl = String.fromEnvironment('SUPABASE_URL');
+const String _supabaseKey = String.fromEnvironment('SUPABASE_PUBLISHABLE_KEY');
+
+Future<SyncModule?> _openSync(CoreModule core) async {
+  if (_supabaseUrl.isEmpty || _supabaseKey.isEmpty) {
+    return null;
+  }
+  final Supabase supabase = await Supabase.initialize(
+    url: _supabaseUrl,
+    publishableKey: _supabaseKey,
+    authOptions: FlutterAuthClientOptions(localStorage: SecureSessionStorage()),
+  );
+  return SyncModule(core: core, client: supabase.client);
 }
 
 /// [bootstrap], который не бросает: если запуск не удался (база не открылась, миграция упала), возвращает экран

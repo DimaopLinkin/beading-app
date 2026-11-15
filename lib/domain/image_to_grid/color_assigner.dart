@@ -1,3 +1,4 @@
+import 'dart:math' as math;
 import 'dart:typed_data';
 
 import 'package:beading/domain/palette/lab.dart';
@@ -7,8 +8,19 @@ import 'package:beading/domain/palette/rgb.dart';
 ///
 /// Работает по индексам ячеек и соседству «вправо, вниз»: для пейота и кирпичного стежка это приближение (ошибка
 /// уходит в соседей по сетке, а не по мм), на результат глаз его не видит.
+///
+/// Надбавка за потерю насыщенности (T74): нитка заметно бледнее клетки (на [_chromaSlack] и больше по C*) получает
+/// к ΔE2000 добавку [chromaPenalty] × недостача. Иначе затенённая кожа уходит в серо-бежевую нитку, которая по ΔE2000
+/// ближе, но рядом с тёплой кожей читается тёмным грязным пятном, и добавление цветов этого не лечит: в каталоге
+/// между ними просто нет нитки. Серые клетки и нитки насыщеннее клетки надбавку не получают. В дизеринге надбавки нет:
+/// ошибка там накапливается, и сдвиг выбора в сторону насыщенных ниток уводит её в разнос.
 final class ColorAssigner {
-  const ColorAssigner();
+  const ColorAssigner({this.chromaPenalty = 1});
+
+  /// Вес надбавки за потерю насыщенности; 0 — чистый ΔE2000.
+  final double chromaPenalty;
+
+  static const double _chromaSlack = 3;
 
   /// Значения `1..palette.length`; `0` — у пустых ячеек (`null`).
   Uint16List assign({
@@ -24,7 +36,7 @@ final class ColorAssigner {
     if (!dither) {
       for (int i = 0; i < result.length; i++) {
         final Rgb? color = cells[i];
-        if (color != null) result[i] = _nearest(Lab.fromRgb(color), paletteLab) + 1;
+        if (color != null) result[i] = _nearest(Lab.fromRgb(color), paletteLab, chromaPenalty) + 1;
       }
       return result;
     }
@@ -42,7 +54,7 @@ final class ColorAssigner {
           base.a + error[index * 3 + 1],
           base.b + error[index * 3 + 2],
         );
-        final int chosen = _nearest(wanted, paletteLab);
+        final int chosen = _nearest(wanted, paletteLab, 0);
         result[index] = chosen + 1;
         final Lab picked = paletteLab[chosen];
         final double dl = wanted.l - picked.l;
@@ -67,11 +79,13 @@ final class ColorAssigner {
     return result;
   }
 
-  static int _nearest(Lab target, List<Lab> palette) {
+  static int _nearest(Lab target, List<Lab> palette, double chromaPenalty) {
+    final double chroma = _chroma(target);
     int best = 0;
     double bestDistance = double.infinity;
     for (int i = 0; i < palette.length; i++) {
-      final double d = deltaE2000(target, palette[i]);
+      final double loss = chroma - _chroma(palette[i]) - _chromaSlack;
+      final double d = deltaE2000(target, palette[i]) + (loss > 0 ? chromaPenalty * loss : 0);
       if (d < bestDistance) {
         bestDistance = d;
         best = i;
@@ -79,4 +93,6 @@ final class ColorAssigner {
     }
     return best;
   }
+
+  static double _chroma(Lab c) => math.sqrt(c.a * c.a + c.b * c.b);
 }

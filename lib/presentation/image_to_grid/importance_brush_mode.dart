@@ -113,7 +113,6 @@ class _ImportanceBrushModeState extends State<ImportanceBrushMode> {
   @override
   Widget build(BuildContext context) {
     final AppLocalizations l10n = AppLocalizations.of(context);
-    final ImageWizardCubit cubit = context.read<ImageWizardCubit>();
     final ImageWizardState state = widget.state;
     final AppTokensData tokens = context.tokens;
     final TextStyle caption = TextStyle(fontSize: 13, color: CupertinoColors.secondaryLabel.resolveFrom(context));
@@ -121,38 +120,12 @@ class _ImportanceBrushModeState extends State<ImportanceBrushMode> {
     final MediaQueryData media = MediaQuery.of(context);
     // Mac и планшет: панель кисти в боковой колонке слева, справа картинка.
     final bool wide = media.size.width >= 700;
-    final Widget panel = _BrushPanel(
-      state: state,
-      large: media.textScaler.scale(13) >= 20,
-    );
+    final Widget panel = _BrushPanel(state: state);
     return Column(
       children: <Widget>[
         Padding(
-          padding: EdgeInsets.symmetric(horizontal: tokens.spacing.s),
-          child: Row(
-            children: <Widget>[
-              CupertinoButton(
-                key: const ValueKey<String>('brush-cancel'),
-                padding: EdgeInsets.zero,
-                minimumSize: Size.square(tokens.minTapTarget),
-                onPressed: cubit.cancelBrush,
-                child: Text(l10n.imageWizardCancel),
-              ),
-              Expanded(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: <Widget>[
-                    Text(
-                      l10n.imageWizardBrushTitle,
-                      style: CupertinoTheme.of(context).textTheme.navTitleTextStyle,
-                    ),
-                    Text(l10n.imageWizardBrushHint, style: caption, textAlign: TextAlign.center),
-                  ],
-                ),
-              ),
-              SizedBox(width: tokens.minTapTarget + 16),
-            ],
-          ),
+          padding: EdgeInsets.symmetric(horizontal: tokens.spacing.m, vertical: tokens.spacing.xs),
+          child: Text(l10n.imageWizardBrushHint, style: caption, textAlign: TextAlign.center),
         ),
         Expanded(
           child: Flex(
@@ -266,8 +239,10 @@ class _ImportanceBrushModeState extends State<ImportanceBrushMode> {
                     child: Text(l10n.imageWizardBrushEmpty, style: caption, textAlign: TextAlign.center),
                   ),
                 ConstrainedBox(
-                  constraints: BoxConstraints(maxHeight: media.size.height * 0.55),
-                  child: SingleChildScrollView(child: panel),
+                  constraints: BoxConstraints(maxHeight: media.size.height * 0.45),
+                  child: SingleChildScrollView(
+                    child: SizedBox(width: double.infinity, child: panel),
+                  ),
                 ),
               ],
             ],
@@ -279,25 +254,24 @@ class _ImportanceBrushModeState extends State<ImportanceBrushMode> {
 }
 
 class _BrushPanel extends StatelessWidget {
-  const _BrushPanel({required this.state, required this.large});
+  const _BrushPanel({required this.state});
 
   final ImageWizardState state;
-
-  /// Очень крупный шрифт (AX3): кнопки выше, по две в ряд, размеры уходят в меню.
-  final bool large;
 
   @override
   Widget build(BuildContext context) {
     final AppLocalizations l10n = AppLocalizations.of(context);
     final ImageWizardCubit cubit = context.read<ImageWizardCubit>();
     final AppTokensData tokens = context.tokens;
+    final Color accent = tokens.accent.resolveFrom(context);
     final List<String> sizeNames = <String>[
       l10n.imageWizardBrushSmall,
       l10n.imageWizardBrushMedium,
       l10n.imageWizardBrushLarge,
     ];
     return Container(
-      padding: EdgeInsets.all(tokens.spacing.s),
+      key: const ValueKey<String>('brush-panel'),
+      padding: EdgeInsets.fromLTRB(tokens.spacing.m, tokens.spacing.s, tokens.spacing.m, tokens.spacing.s),
       decoration: BoxDecoration(
         color: CupertinoColors.secondarySystemBackground.resolveFrom(context),
         border: Border(top: BorderSide(color: CupertinoColors.separator.resolveFrom(context), width: 0.5)),
@@ -311,7 +285,7 @@ class _BrushPanel extends StatelessWidget {
               child: Row(
                 children: <Widget>[
                   Expanded(
-                    child: Text(l10n.imageWizardBrushShowAuto, style: const TextStyle(fontSize: 13)),
+                    child: Text(l10n.imageWizardBrushShowAuto, style: const TextStyle(fontSize: 15)),
                   ),
                   CupertinoSwitch(
                     key: const ValueKey<String>('brush-show-auto'),
@@ -321,117 +295,64 @@ class _BrushPanel extends StatelessWidget {
                 ],
               ),
             ),
-          ..._layout(<Widget>[
-            _BrushButton(
-              key: const ValueKey<String>('brush-draw'),
-              icon: CupertinoIcons.paintbrush,
-              label: l10n.imageWizardBrushBrush,
-              selected: !state.brushEraser,
-              minHeight: large ? _largeButton : null,
-              onPressed: () => cubit.setBrushEraser(eraser: false),
-            ),
-            _BrushButton(
-              key: const ValueKey<String>('brush-eraser'),
-              icon: CupertinoIcons.delete_left,
-              label: l10n.imageWizardBrushEraser,
-              selected: state.brushEraser,
-              minHeight: large ? _largeButton : null,
-              onPressed: () => cubit.setBrushEraser(eraser: true),
-            ),
-            if (large)
-              _BrushButton(
-                key: const ValueKey<String>('brush-size-menu'),
-                iconWidget: Container(
-                  width: 8 + ImageWizardState.brushSizes[state.brushSize] * 200,
-                  height: 8 + ImageWizardState.brushSizes[state.brushSize] * 200,
-                  decoration: const BoxDecoration(shape: BoxShape.circle, color: _amber),
-                ),
-                label: l10n.imageWizardBrushSizeMenu(sizeNames[state.brushSize]),
-                minHeight: _largeButton,
-                onPressed: () => _pickSize(context, cubit, sizeNames),
-              )
-            else
+          SizedBox(height: tokens.spacing.xs),
+          CupertinoSlidingSegmentedControl<bool>(
+            key: const ValueKey<String>('brush-tool'),
+            groupValue: state.brushEraser,
+            onValueChanged: (eraser) => cubit.setBrushEraser(eraser: eraser ?? false),
+            children: <bool, Widget>{
+              false: _Segment(
+                key: const ValueKey<String>('brush-draw'),
+                icon: CupertinoIcons.paintbrush,
+                label: l10n.imageWizardBrushBrush,
+                color: !state.brushEraser ? accent : null,
+              ),
+              true: _Segment(
+                key: const ValueKey<String>('brush-eraser'),
+                icon: CupertinoIcons.delete_left,
+                label: l10n.imageWizardBrushEraser,
+                color: state.brushEraser ? accent : null,
+              ),
+            },
+          ),
+          SizedBox(height: tokens.spacing.xs),
+          CupertinoSlidingSegmentedControl<int>(
+            key: const ValueKey<String>('brush-size'),
+            groupValue: state.brushSize,
+            onValueChanged: (i) => cubit.setBrushSize(i ?? state.brushSize),
+            children: <int, Widget>{
               for (final (int i, String name) in sizeNames.indexed)
-                _BrushButton(
+                i: _Segment(
                   key: ValueKey<String>('brush-size-$i'),
                   iconWidget: Container(
-                    width: 8 + ImageWizardState.brushSizes[i] * 200,
-                    height: 8 + ImageWizardState.brushSizes[i] * 200,
+                    width: 8 + ImageWizardState.brushSizes[i] * 100,
+                    height: 8 + ImageWizardState.brushSizes[i] * 100,
                     decoration: const BoxDecoration(shape: BoxShape.circle, color: _amber),
                   ),
                   label: name,
-                  selected: state.brushSize == i,
-                  onPressed: () => cubit.setBrushSize(i),
                 ),
-            _BrushButton(
-              key: const ValueKey<String>('brush-clear'),
-              icon: CupertinoIcons.trash,
-              label: l10n.imageWizardBrushClear,
-              minHeight: large ? _largeButton : null,
-              onPressed: state.brush.isEmpty ? null : () => _confirmClear(context, cubit),
-            ),
-            _BrushButton(
-              key: const ValueKey<String>('brush-undo'),
-              icon: CupertinoIcons.arrow_uturn_left,
-              label: l10n.imageWizardBrushUndo,
-              minHeight: large ? _largeButton : null,
-              onPressed: state.canUndoBrush ? cubit.undoBrush : null,
-            ),
-          ], tokens),
-          SizedBox(height: tokens.spacing.xs),
-          Center(
-            child: CupertinoButton.filled(
-              key: const ValueKey<String>('brush-done'),
-              minimumSize: Size(large ? 200 : 96, large ? _largeButton : tokens.minTapTarget),
-              onPressed: cubit.finishBrush,
-              child: Text(l10n.imageWizardBrushDone),
-            ),
+            },
+          ),
+          Wrap(
+            alignment: WrapAlignment.spaceBetween,
+            children: <Widget>[
+              CupertinoButton(
+                key: const ValueKey<String>('brush-clear'),
+                padding: EdgeInsets.zero,
+                minimumSize: Size.square(tokens.minTapTarget),
+                onPressed: state.brush.isEmpty ? null : () => _confirmClear(context, cubit),
+                child: Text(l10n.imageWizardBrushClear, style: const TextStyle(fontSize: 15)),
+              ),
+              CupertinoButton(
+                key: const ValueKey<String>('brush-undo'),
+                padding: EdgeInsets.zero,
+                minimumSize: Size.square(tokens.minTapTarget),
+                onPressed: state.canUndoBrush ? cubit.undoBrush : null,
+                child: Text(l10n.imageWizardBrushUndo, style: const TextStyle(fontSize: 15)),
+              ),
+            ],
           ),
         ],
-      ),
-    );
-  }
-
-  static const double _largeButton = 84;
-
-  /// Кнопки в ряд с переносом; при крупном шрифте сеткой по две в ряд.
-  List<Widget> _layout(List<Widget> buttons, AppTokensData tokens) {
-    if (!large) {
-      return <Widget>[
-        Wrap(alignment: WrapAlignment.spaceEvenly, spacing: tokens.spacing.xs, children: buttons),
-      ];
-    }
-    return <Widget>[
-      for (int i = 0; i < buttons.length; i += 2)
-        Row(
-          children: <Widget>[
-            Expanded(child: buttons[i]),
-            Expanded(child: i + 1 < buttons.length ? buttons[i + 1] : const SizedBox.shrink()),
-          ],
-        ),
-    ];
-  }
-
-  Future<void> _pickSize(BuildContext context, ImageWizardCubit cubit, List<String> names) {
-    final AppLocalizations l10n = AppLocalizations.of(context);
-    return showCupertinoModalPopup<void>(
-      context: context,
-      builder: (sheet) => CupertinoActionSheet(
-        actions: <Widget>[
-          for (final (int i, String name) in names.indexed)
-            CupertinoActionSheetAction(
-              isDefaultAction: state.brushSize == i,
-              onPressed: () {
-                cubit.setBrushSize(i);
-                Navigator.of(sheet).pop();
-              },
-              child: Text(name),
-            ),
-        ],
-        cancelButton: CupertinoActionSheetAction(
-          onPressed: () => Navigator.of(sheet).pop(),
-          child: Text(l10n.imageWizardCancel),
-        ),
       ),
     );
   }
@@ -462,69 +383,39 @@ class _BrushPanel extends StatelessWidget {
   }
 }
 
-class _BrushButton extends StatelessWidget {
-  const _BrushButton({
-    required this.label,
-    required this.onPressed,
-    this.icon,
-    this.iconWidget,
-    this.selected = false,
-    this.minHeight,
-    super.key,
-  });
+/// Содержимое сегмента панели кисти: значок и подпись в одну строку (в макете 12 это `sc3`).
+class _Segment extends StatelessWidget {
+  const _Segment({required this.label, this.icon, this.iconWidget, this.color, super.key});
 
-  final double? minHeight;
   final String label;
-  final VoidCallback? onPressed;
   final IconData? icon;
   final Widget? iconWidget;
-  final bool selected;
+  final Color? color;
 
   @override
   Widget build(BuildContext context) {
-    final AppTokensData tokens = context.tokens;
-    final Color accent = tokens.accent.resolveFrom(context);
-    final bool enabled = onPressed != null;
-    final Color color = enabled
-        ? CupertinoColors.label.resolveFrom(context)
-        : CupertinoColors.tertiaryLabel.resolveFrom(context);
-    return Semantics(
-      button: true,
-      enabled: enabled,
-      selected: selected,
-      label: label,
-      excludeSemantics: true,
-      onTap: onPressed,
-      child: GestureDetector(
-        behavior: HitTestBehavior.opaque,
-        onTap: onPressed,
-        child: ConstrainedBox(
-          constraints: BoxConstraints(minWidth: tokens.minTapTarget, minHeight: minHeight ?? tokens.minTapTarget),
-          child: DecoratedBox(
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(tokens.radius.s),
-              border: Border.all(color: selected ? accent : const Color(0x00000000), width: 2),
-            ),
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: <Widget>[
-                  SizedBox(
-                    height: 24,
-                    child: Center(child: iconWidget ?? Icon(icon, size: 22, color: selected ? accent : color)),
-                  ),
-                  Text(
-                    label,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(fontSize: 13, color: selected ? accent : color),
-                  ),
-                ],
-              ),
+    final Color tone = color ?? CupertinoColors.label.resolveFrom(context);
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 8),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        mainAxisSize: MainAxisSize.min,
+        children: <Widget>[
+          SizedBox(
+            width: 22,
+            height: 22,
+            child: Center(child: iconWidget ?? Icon(icon, size: 20, color: tone)),
+          ),
+          const SizedBox(width: 6),
+          Flexible(
+            child: Text(
+              label,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(fontSize: 15, color: tone),
             ),
           ),
-        ),
+        ],
       ),
     );
   }

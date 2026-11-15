@@ -158,12 +158,18 @@ final class FlossEstimate extends Equatable implements MaterialEstimate {
     required List<FlossMaterialLine> lines,
     required List<FlossPurchaseLine> purchases,
     List<BeadPurchaseLine> beads = const <BeadPurchaseLine>[],
-  }) : lines = List<FlossMaterialLine>.unmodifiable(lines),
+    int paletteSize = 0,
+  }) : _paletteSize = paletteSize,
+       lines = List<FlossMaterialLine>.unmodifiable(lines),
        purchases = List<FlossPurchaseLine>.unmodifiable(purchases),
        beads = List<BeadPurchaseLine>.unmodifiable(beads);
 
   final Fabric fabric;
   final FabricNeed fabricNeed;
+  final int _paletteSize;
+
+  /// Цветов в палитре схемы (с неиспользованными); номера мест на стойке считаются от него.
+  int get paletteSize => _paletteSize > 0 ? _paletteSize : lines.fold(0, (m, l) => l.colorIndex > m ? l.colorIndex : m);
 
   @override
   final double reserve;
@@ -186,7 +192,7 @@ final class FlossEstimate extends Equatable implements MaterialEstimate {
   int get totalSkeinsWithReserve => purchases.fold(0, (sum, l) => sum + l.skeinsWithReserve);
 
   @override
-  List<Object?> get props => <Object?>[fabric, fabricNeed, reserve, lines, purchases, beads];
+  List<Object?> get props => <Object?>[fabric, fabricNeed, reserve, lines, purchases, beads, _paletteSize];
 }
 
 /// Расход мулине: крестики, неполные крестики, бэкстич и узелки по сложениям, запас, мотки и канва.
@@ -350,6 +356,7 @@ final class FlossEstimator implements MaterialEstimator {
         marginCm: fabricMarginCm,
       ),
       reserve: reserve,
+      paletteSize: palette.length,
       lines: lines,
       beads: <BeadPurchaseLine>[
         for (final CatalogRef ref in (beadCounts.keys.toList()..sort(_compareRefs)))

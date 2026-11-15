@@ -11,7 +11,11 @@ flutter run --release -d macos     # на этот Mac
 flutter build macos --release      # только собрать .app: build/macos/Build/Products/Release/
 ```
 
-Когда появится синхронизация, ключи Supabase передаются так же, без файлов в git: `--dart-define=SUPABASE_URL=… --dart-define=SUPABASE_ANON_KEY=…` (точные имена будут в задаче синхронизации).
+Синхронизация (Supabase): адрес и публичный ключ передаются при сборке, в git их нет. Без них приложение собирается и работает локально, строка «Синхронизация» в настройках пишет «Не настроена в этой сборке»:
+
+```bash
+flutter run --release --dart-define=SUPABASE_URL=https://<ref>.supabase.co --dart-define=SUPABASE_PUBLISHABLE_KEY=sb_publishable_…
+```
 
 ## Передать сборку ей
 

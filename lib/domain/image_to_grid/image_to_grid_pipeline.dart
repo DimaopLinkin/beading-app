@@ -87,7 +87,12 @@ final class ImageToGridPipeline {
     times['sample'] = lap();
     final List<PaletteEntry> palette = _choosePalette(request, cells);
     times['palette'] = lap();
-    final Uint16List values = assigner.assign(
+    // Надбавка за потерю насыщенности нужна только с каталогом: у свободной палитры цвета взяты с самого фото, и
+    // пробелов между оттенками, ради которых она есть (T74), там нет.
+    final ColorAssigner chosenAssigner = request.constraint.candidates == null
+        ? const ColorAssigner(chromaPenalty: 0)
+        : assigner;
+    final Uint16List values = chosenAssigner.assign(
       cells: cells.colors,
       columns: cells.columns,
       rows: cells.rows,
@@ -493,18 +498,44 @@ final class ImageToGridPipeline {
 
     if (candidates == null) return <PaletteEntry>{for (final Rgb mean in means) PaletteEntry(rgb: mean)}.toList();
 
-    // Ограничение: каждому центру — ближайшая допустимая позиция, повторы схлопываются.
+    // Ограничение: каждому центру — ближайшая ещё не занятая допустимая позиция (T74). Раньше соседние центры плавного
+    // перехода (лоб, щека, небо) схлопывались в одну нитку, и вместо градиента оставались два пятна с резкой границей;
+    // теперь занятая нитка уступает следующей по близости, если та не дальше [_snapSlackDeltaE] от лучшей.
+    // Крупные кластеры выбирают первыми: их лучшая нитка важнее.
     final NearestColorMatcher<PaletteEntry> matcher = NearestColorMatcher<PaletteEntry>(
       candidates,
       rgbOf: (e) => e.rgb,
     );
-    final List<PaletteEntry> chosen = <PaletteEntry>[];
-    for (final Rgb mean in means) {
-      final PaletteEntry entry = matcher.nearest(mean, count: 1).single.item;
-      if (!chosen.contains(entry)) chosen.add(entry);
+    List<PaletteEntry> snap(List<Lab> centers, List<double> weights) {
+      final List<int> bySize = <int>[for (int c = 0; c < centers.length; c++) c]
+        ..sort((x, y) => weights[x] != weights[y] ? weights[y].compareTo(weights[x]) : x.compareTo(y));
+      final Set<PaletteEntry> taken = <PaletteEntry>{};
+      final List<PaletteEntry?> pick = List<PaletteEntry?>.filled(centers.length, null);
+      for (final int c in bySize) {
+        final List<ColorMatch<PaletteEntry>> near = matcher.nearest(centers[c].toRgb(), count: _snapCandidates);
+        for (final ColorMatch<PaletteEntry> match in near) {
+          if (match.deltaE > near.first.deltaE + _snapSlackDeltaE) break;
+          if (taken.add(match.item)) {
+            pick[c] = match.item;
+            break;
+          }
+        }
+      }
+      return <PaletteEntry>[for (final PaletteEntry? e in pick) ?e];
     }
+
+    final List<PaletteEntry> chosen = snap(
+      <Lab>[for (final Rgb m in means) Lab.fromRgb(m)],
+      <double>[for (int c = 0; c < clusters; c++) counts[c].toDouble()],
+    );
     return chosen;
   }
+
+  /// Сколько ближайших ниток смотрит центр кластера, если лучшая уже занята.
+  static const int _snapCandidates = 6;
+
+  /// Насколько (ΔE2000) запасная нитка может быть дальше лучшей: дальше — это уже чужой цвет, центр пропускается.
+  static const double _snapSlackDeltaE = 6;
 
   /// Убирает цвета, которых нет в сетке, и упорядочивает палитру: чаще встречающиеся первыми.
   GeneratedPattern _compact(Uint16List values, List<PaletteEntry> palette, SampledCells cells) =>

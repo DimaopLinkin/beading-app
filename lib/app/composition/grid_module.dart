@@ -5,6 +5,7 @@ import 'package:beading/app/composition/projects_module.dart';
 import 'package:beading/data/grid_pattern/drift_cell_progress_store.dart';
 import 'package:beading/data/grid_pattern/drift_grid_pattern_repository.dart';
 import 'package:beading/data/grid_pattern/drift_grid_progress_store.dart';
+import 'package:beading/data/printing/pdf_pattern_printer.dart';
 import 'package:beading/domain/grid_pattern/cell_progress_store.dart';
 import 'package:beading/domain/grid_pattern/grid_pattern_content.dart';
 import 'package:beading/domain/grid_pattern/grid_pattern_repository.dart';
@@ -13,6 +14,8 @@ import 'package:beading/domain/grid_pattern/use_cases/cell_progress_commands.dar
 import 'package:beading/domain/grid_pattern/use_cases/create_grid_pattern.dart';
 import 'package:beading/domain/grid_pattern/use_cases/save_grid_pattern.dart';
 import 'package:beading/domain/grid_pattern/use_cases/shift_progress.dart';
+import 'package:beading/domain/printing/pattern_printer.dart';
+import 'package:beading/domain/printing/use_cases/export_pattern_pdf.dart';
 import 'package:beading/domain/settings/setting_keys.dart';
 import 'package:beading/presentation/editor/editor_cubit.dart';
 import 'package:beading/presentation/editor/editor_screen.dart';
@@ -64,6 +67,11 @@ final class GridModule {
   late final GridPatternContentCleaner contentCleaner = GridPatternContentCleaner(patterns);
 
   late final GridPatternContentCloner contentCloner = GridPatternContentCloner(patterns: patterns, ids: _core.ids);
+
+  final PatternPrinter printer = const PdfPatternPrinter();
+
+  ExportPatternPdf exportPatternPdf() =>
+      ExportPatternPdf(projects: _projects.repository, patterns: patterns, printer: printer);
 
   CreateGridPattern createGridPattern() => CreateGridPattern(
     createProject: _projects.createProject(),

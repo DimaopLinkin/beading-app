@@ -4,7 +4,9 @@ import 'package:beading/app/composition/core_module.dart';
 import 'package:beading/app/composition/grid_module.dart';
 import 'package:beading/app/composition/projects_module.dart';
 import 'package:beading/app/composition/weaving_module.dart';
+import 'package:beading/data/image_pattern/pdfrx_pdf_rasterizer.dart';
 import 'package:beading/domain/materials/use_cases/load_project_floss.dart';
+import 'package:beading/domain/printing/print_options_store.dart';
 import 'package:beading/presentation/floss/floss_cubit.dart';
 import 'package:beading/presentation/floss/floss_screen.dart';
 import 'package:beading/presentation/stitching/stitch_cubit.dart';
@@ -53,6 +55,8 @@ final class StitchingModule {
   FlossCubit flossCubit(String projectId) => FlossCubit(
     projectId: projectId,
     loadFloss: loadProjectFloss(),
+    exportPdf: _grid.exportPatternPdf(),
+    printOptions: PrintOptionsStore(_core.settings),
     projects: _projects.repository,
     stock: _catalog.flossStock,
   );
@@ -69,7 +73,11 @@ final class StitchingModule {
       path: FlossScreen.routePath,
       builder: (_, state) => BlocProvider<FlossCubit>(
         create: (_) => flossCubit(state.pathParameters['projectId']!)..load(),
-        child: FlossScreen(sharer: _core.textSharer),
+        child: FlossScreen(
+          sharer: _core.textSharer,
+          fileSharer: _core.fileSharer,
+          rasterizer: PdfrxPdfRasterizer(),
+        ),
       ),
     ),
   ];

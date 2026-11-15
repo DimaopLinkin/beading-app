@@ -804,6 +804,7 @@ class _ColorsList extends StatelessWidget {
         return _ColorRow(
           key: ValueKey<String>('stitch-color-$i'),
           color: palette[i],
+          slot: state.printOptions.slotLabel(i, palette.length),
           count: count,
           highlighted: state.highlight == i + 1,
           closeOnTap: closeOnTap,
@@ -816,6 +817,7 @@ class _ColorsList extends StatelessWidget {
 class _ColorRow extends StatelessWidget {
   const _ColorRow({
     required this.color,
+    required this.slot,
     required this.count,
     required this.highlighted,
     required this.closeOnTap,
@@ -825,6 +827,9 @@ class _ColorRow extends StatelessWidget {
   final bool closeOnTap;
 
   final PatternColor color;
+
+  /// Номер места на стойке для игл, как в легенде PDF.
+  final String slot;
   final ColorCount count;
   final bool highlighted;
 
@@ -835,14 +840,34 @@ class _ColorRow extends StatelessWidget {
     final bool finished = count.remaining == 0;
     return CupertinoListTile(
       backgroundColor: highlighted ? CupertinoColors.systemFill.resolveFrom(context) : null,
-      leading: ColorSwatchView(rgb: color.rgb, radius: 6),
-      title: Text('${color.symbol == null ? '' : '${color.symbol}  '}${StitchLegendView.threadLabel(color)}'),
-      subtitle: Text(color.name),
-      additionalInfo: Text(finished ? l10n.stitchColorFinished : l10n.stitchRemaining(count.remaining)),
+      leadingSize: 84,
+      leading: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: <Widget>[
+          SizedBox(
+            width: 40,
+            child: Text(
+              slot,
+              key: ValueKey<String>('stitch-color-slot-${count.color}'),
+              textAlign: TextAlign.end,
+              style: const TextStyle(fontWeight: FontWeight.w600),
+            ),
+          ),
+          const SizedBox(width: 8),
+          LegendSwatch(color: color),
+        ],
+      ),
+      title: Text(StitchLegendView.threadLabel(color)),
+      subtitle: finished
+          ? Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[Text(color.name), Text(l10n.stitchColorFinished)],
+            )
+          : Text(color.name),
+      additionalInfo: Text(l10n.stitchColorProgress(count.done, count.total)),
       trailing: Row(
         mainAxisSize: MainAxisSize.min,
         children: <Widget>[
-          if (closeOnTap) Text(l10n.stitchColorProgress(count.done, count.total)),
           CupertinoButton(
             key: ValueKey<String>('stitch-mark-color-${count.color}'),
             padding: EdgeInsets.zero,

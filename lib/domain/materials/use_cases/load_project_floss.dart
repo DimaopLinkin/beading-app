@@ -57,7 +57,11 @@ final class LoadProjectFloss {
         }
         try {
           return Success<FlossEstimate>(
-            FlossEstimator(fabric: metrics, layers: layers, reserve: reserve).estimate(grid, pattern.palette),
+            FlossEstimator(
+              fabric: metrics,
+              layers: layers,
+              reserve: reserve,
+            ).estimate(grid, pattern.palette.withLegibleSymbols()),
           );
         } on ArgumentError catch (e) {
           return Err<FlossEstimate>(ValidationFailure('${e.message}'));

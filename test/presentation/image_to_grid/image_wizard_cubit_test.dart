@@ -19,15 +19,18 @@ import 'package:beading/domain/image_to_grid/generation_preset.dart';
 import 'package:beading/domain/image_to_grid/generation_stats.dart';
 import 'package:beading/domain/image_to_grid/image_decoder.dart';
 import 'package:beading/domain/image_to_grid/image_mask_set.dart';
+import 'package:beading/domain/image_to_grid/image_recipe.dart';
 import 'package:beading/domain/image_to_grid/image_to_grid_request.dart';
 import 'package:beading/domain/image_to_grid/image_to_grid_runner.dart';
 import 'package:beading/domain/image_to_grid/image_to_grid_settings.dart';
+import 'package:beading/domain/image_to_grid/importance_brush.dart';
 import 'package:beading/domain/image_to_grid/ordered_dither_step.dart';
 import 'package:beading/domain/image_to_grid/palette_entry.dart';
 import 'package:beading/domain/image_to_grid/size_purpose.dart';
 import 'package:beading/domain/image_to_grid/size_suggester.dart';
 import 'package:beading/domain/image_to_grid/source_image.dart';
 import 'package:beading/domain/image_to_grid/use_cases/create_pattern_from_image.dart';
+import 'package:beading/domain/image_to_grid/use_cases/replace_pattern_from_image.dart';
 import 'package:beading/domain/palette/rgb.dart';
 import 'package:beading/domain/projects/craft.dart';
 import 'package:beading/domain/projects/project.dart';
@@ -38,6 +41,7 @@ import 'package:beading/presentation/image_to_grid/image_wizard_state.dart';
 import 'package:fake_async/fake_async.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import '../../support/biser_device.dart' show sampleProject;
 import '../../support/fake_catalog_repository.dart';
 import '../../support/fake_clock.dart';
 import '../../support/fake_grid_pattern.dart';
@@ -97,10 +101,12 @@ class _AutoRunner implements ImageToGridRunner {
 class _FakeDecoder implements ImageDecoder {
   Failure? failure;
   int calls = 0;
+  int? lastMaxSide;
 
   @override
   Future<Result<SourceImage>> decode(Uint8List bytes, {int maxSide = 1024}) async {
     calls++;
+    lastMaxSide = maxSide;
     if (failure != null) return Err<SourceImage>(failure!);
     return Success<SourceImage>(SourceImage.solid(width: 20, height: 40, r: 200, g: 10, b: 10));
   }
@@ -108,7 +114,7 @@ class _FakeDecoder implements ImageDecoder {
 
 GeneratedPattern _pattern(int marker) => GeneratedPattern(
   grid: Grid.fromCells(width: 2, height: 1, cells: const <int>[1, 1]),
-  palette: <PaletteEntry>[PaletteEntry(rgb: Rgb(marker, 0, 0))],
+  palette: <PaletteEntry>[PaletteEntry(rgb: Rgb(marker % 256, 0, 0))],
 );
 
 void main() {
@@ -169,6 +175,14 @@ void main() {
     runner.completers.last.complete(_pattern(1));
     await Future<void>.delayed(Duration.zero);
   }
+
+  test('фото декодируется в 2048 пикселей по длинной стороне, а не в 1024 по умолчанию (T70)', () async {
+    cubit = build(debounce: Duration.zero);
+    await openPhoto();
+    expect(decoder.lastMaxSide, wizardImageMaxSide);
+    expect(wizardImageMaxSide, 2048);
+    await cubit.close();
+  });
 
   group('маски (T48)', () {
     setUp(() => cubit = build(debounce: Duration.zero));
@@ -732,6 +746,16 @@ void main() {
       expect(cubit.state.problem, ImageWizardProblem.saveFailed);
       expect(cubit.state.canSave, isTrue);
     });
+
+    test('исключение при записи не оставляет мастер в «Сохраняю…»: возврат к правке с сообщением', () async {
+      await openPhoto();
+      patterns.throwNextSave = StateError('sqlite');
+      await cubit.save();
+      expect(cubit.state.step, ImageWizardStep.edit);
+      expect(cubit.state.problem, ImageWizardProblem.saveFailed);
+      expect(cubit.state.canSave, isTrue);
+      expect(projects.projects.keys.toSet().difference(projects.deleted), isEmpty);
+    });
   });
 
   group('вышивка (T46)', () {
@@ -745,13 +769,16 @@ void main() {
     });
     tearDown(() => cubit.close());
 
-    test('переход на вышивку ставит большие ширину и число цветов, канву и контуры', () {
+    test('переход на вышивку: 60 см, 50 цветов, бленды включены, контуры выключены (T71)', () {
       cubit.setCraft(Craft.crossStitch);
       final ImageToGridSettings s = cubit.state.settings;
       expect(s.technique, Technique.crossStitch);
-      expect(s.columns, ImageToGridSettings.defaultStitchColumns);
-      expect(s.maxColors, ImageToGridSettings.defaultStitchColors);
-      expect(s.backstitch, isTrue);
+      expect(s.widthCm, closeTo(60, 0.2));
+      expect(s.maxColors, 50);
+      expect(s.backstitch, isFalse);
+      expect(s.blends, isTrue);
+      expect(s.preset, GenerationPreset.detailed);
+      expect(s.outline, isFalse);
       cubit.setCraft(Craft.beading);
       expect(cubit.state.settings.technique, Technique.loom);
       expect(cubit.state.settings.columns, ImageToGridSettings.defaultColumns);
@@ -776,7 +803,8 @@ void main() {
       final ImageToGridRequest request = runner.requests.last;
       expect(request.constraint.candidates, hasLength(2));
       expect(request.metrics, Fabric.standard);
-      expect(request.backstitch, isTrue);
+      expect(request.backstitch, isFalse);
+      expect(request.applyBlends, isTrue);
     });
 
     test('цвет канвы и бленды попадают в настройки', () {
@@ -1012,5 +1040,157 @@ void main() {
     expect(cubit.state.realistic, isTrue);
     cubit.setRealistic(value: false);
     expect(cubit.state.realistic, isFalse);
+  });
+
+  group('правка готовой схемы (T79)', () {
+    late FakeFileStore files;
+    late FakeGridProgressStore rows;
+    late FakeCellProgressStore cells;
+    late ImageRecipeStore recipes;
+
+    ImageWizardCubit buildEditor() {
+      final FakeIdGenerator ids = FakeIdGenerator();
+      return ImageWizardCubit(
+        source: source,
+        processor: processor,
+        decoder: decoder,
+        runner: runner,
+        masks: masks,
+        catalog: catalog,
+        settings: settings,
+        createPattern: CreatePatternFromImage(
+          CreateGridPattern(
+            createProject: CreateProject(repository: projects, ids: ids, clock: FakeClock(DateTime.utc(2026))),
+            projects: projects,
+            patterns: patterns,
+            ids: ids,
+          ),
+        ),
+        recipes: recipes,
+        replacePattern: ReplacePatternFromImage(
+          patterns: patterns,
+          rows: rows,
+          cells: cells,
+          projects: projects,
+        ),
+        projects: projects,
+        patterns: patterns,
+        debounce: Duration.zero,
+      );
+    }
+
+    setUp(() {
+      files = FakeFileStore();
+      rows = FakeGridProgressStore();
+      cells = FakeCellProgressStore();
+      recipes = ImageRecipeStore(files);
+      projects.projects['proj-1'] = sampleProject('proj-1', name: 'Розы');
+      patterns.byProject['proj-1'] = sampleGridPattern();
+    });
+
+    Future<void> settle() async {
+      for (int i = 0; i < 20; i++) {
+        await Future<void>.delayed(Duration.zero);
+      }
+    }
+
+    test('сохранение нового проекта запоминает рецепт: фото, поворот и параметры', () async {
+      cubit = buildEditor();
+      addTearDown(cubit.close);
+      await openPhoto();
+      cubit.setColumns(33);
+      runner.completers.last.complete(_pattern(2));
+      await settle();
+      cubit.setName('Новая');
+      await cubit.save();
+      final ImageRecipe? saved = await recipes.load(cubit.state.projectId!);
+      expect(saved, isNotNull);
+      expect(saved!.settings.columns, 33);
+      expect(saved.source, Uint8List.fromList(<int>[1, 2]));
+    });
+
+    test('с рецептом схема открывается с прежними параметрами и сразу считается', () async {
+      await recipes.save(
+        'proj-1',
+        ImageRecipe(
+          source: Uint8List.fromList(<int>[9, 9]),
+          quarterTurns: 1,
+          crop: const CropRect(left: 0, top: 0, right: 0.5, bottom: 1),
+          brush: ImportanceBrush.empty,
+          settings: const ImageToGridSettings(technique: Technique.peyote, columns: 50, maxColors: 5),
+        ),
+      );
+      cubit = buildEditor();
+      addTearDown(cubit.close);
+      await cubit.startEditing('proj-1');
+      await settle();
+      expect(cubit.state.step, ImageWizardStep.edit);
+      expect(cubit.state.editing, isTrue);
+      expect(cubit.state.name, 'Розы');
+      expect(cubit.state.quarterTurns, 1);
+      expect(cubit.state.settings.columns, 50);
+      expect(runner.requests, isNotEmpty);
+    });
+
+    test('сохранение правки заменяет сетку того же проекта и не создаёт нового', () async {
+      await recipes.save(
+        'proj-1',
+        ImageRecipe(
+          source: Uint8List.fromList(<int>[9, 9]),
+          quarterTurns: 0,
+          crop: CropRect.full,
+          brush: ImportanceBrush.empty,
+          settings: const ImageToGridSettings(technique: Technique.peyote),
+        ),
+      );
+      cubit = buildEditor();
+      addTearDown(cubit.close);
+      await cubit.startEditing('proj-1');
+      await settle();
+      runner.completers.last.complete(_pattern(5));
+      await settle();
+      cubit.setName('Розы 2');
+      await cubit.save();
+      expect(cubit.state.projectId, 'proj-1');
+      expect(projects.projects.length, 1);
+      expect(projects.projects['proj-1']!.name, 'Розы 2');
+      expect(patterns.byProject['proj-1']!.id, 'pat-1');
+      expect(patterns.byProject['proj-1']!.grid.width, 2);
+    });
+
+    test('без рецепта остаётся выбор фото, размер и техника берутся из схемы', () async {
+      patterns.byProject['proj-1'] = sampleGridPattern().copyWith(
+        grid: Grid.fromCells(width: 12, height: 1, cells: List<int>.filled(12, 1)),
+      );
+      cubit = buildEditor();
+      addTearDown(cubit.close);
+      await cubit.startEditing('proj-1');
+      await settle();
+      expect(cubit.state.step, ImageWizardStep.pickSource);
+      expect(cubit.state.settings.technique, Technique.peyote);
+      expect(cubit.state.settings.columns, 12);
+      expect(cubit.state.name, 'Розы');
+    });
+
+    test('есть отметки — это видно, а «как новую» создаёт второй проект и не трогает прежний', () async {
+      rows.rows.add(0);
+      cubit = buildEditor();
+      addTearDown(cubit.close);
+      await cubit.startEditing('proj-1');
+      await settle();
+      expect(await cubit.editingHasProgress(), isTrue);
+      await openPhoto();
+      await cubit.save(asCopy: true);
+      expect(projects.projects.length, 2);
+      expect(cubit.state.projectId, isNot('proj-1'));
+      expect(patterns.byProject['proj-1']!.grid.width, 4);
+    });
+
+    test('неизвестный проект: ошибка, мастер не открывается', () async {
+      cubit = buildEditor();
+      addTearDown(cubit.close);
+      await cubit.startEditing('нет');
+      expect(cubit.state.problem, ImageWizardProblem.sourceUnavailable);
+    });
   });
 }

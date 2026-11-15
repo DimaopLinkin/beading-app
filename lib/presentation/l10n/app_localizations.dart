@@ -184,8 +184,110 @@ abstract class AppLocalizations {
   /// No description provided for @settingsSync.
   ///
   /// In ru, this message translates to:
-  /// **'Синхронизация с iCloud'**
+  /// **'Синхронизация'**
   String get settingsSync;
+
+  /// No description provided for @settingsSyncOff.
+  ///
+  /// In ru, this message translates to:
+  /// **'Не настроена в этой сборке'**
+  String get settingsSyncOff;
+
+  /// No description provided for @syncAccount.
+  ///
+  /// In ru, this message translates to:
+  /// **'Аккаунт'**
+  String get syncAccount;
+
+  /// No description provided for @syncEmail.
+  ///
+  /// In ru, this message translates to:
+  /// **'Почта'**
+  String get syncEmail;
+
+  /// No description provided for @syncPassword.
+  ///
+  /// In ru, this message translates to:
+  /// **'Пароль'**
+  String get syncPassword;
+
+  /// No description provided for @syncSignIn.
+  ///
+  /// In ru, this message translates to:
+  /// **'Войти'**
+  String get syncSignIn;
+
+  /// No description provided for @syncSignOut.
+  ///
+  /// In ru, this message translates to:
+  /// **'Выйти'**
+  String get syncSignOut;
+
+  /// No description provided for @syncNow.
+  ///
+  /// In ru, this message translates to:
+  /// **'Синхронизировать сейчас'**
+  String get syncNow;
+
+  /// No description provided for @syncSignedOutHint.
+  ///
+  /// In ru, this message translates to:
+  /// **'Войдите, чтобы работы, прогресс и запас ниток были на всех ваших устройствах. Без входа приложение работает как раньше.'**
+  String get syncSignedOutHint;
+
+  /// No description provided for @syncBusy.
+  ///
+  /// In ru, this message translates to:
+  /// **'Синхронизируем…'**
+  String get syncBusy;
+
+  /// No description provided for @syncNever.
+  ///
+  /// In ru, this message translates to:
+  /// **'Ещё не синхронизировалось'**
+  String get syncNever;
+
+  /// No description provided for @syncUpdatedAt.
+  ///
+  /// In ru, this message translates to:
+  /// **'Обновлено в {time}'**
+  String syncUpdatedAt(String time);
+
+  /// No description provided for @syncProblemInvalidCredentials.
+  ///
+  /// In ru, this message translates to:
+  /// **'Неверная почта или пароль'**
+  String get syncProblemInvalidCredentials;
+
+  /// No description provided for @syncProblemOffline.
+  ///
+  /// In ru, this message translates to:
+  /// **'Нет сети. Приложение работает без синхронизации, изменения отправятся позже.'**
+  String get syncProblemOffline;
+
+  /// No description provided for @syncProblemServer.
+  ///
+  /// In ru, this message translates to:
+  /// **'Сервер синхронизации не отвечает. Возможно, он на паузе.'**
+  String get syncProblemServer;
+
+  /// No description provided for @syncProblemOwnerMismatch.
+  ///
+  /// In ru, this message translates to:
+  /// **'На устройстве данные другого аккаунта. Войдите под прежним аккаунтом.'**
+  String get syncProblemOwnerMismatch;
+
+  /// No description provided for @syncProblemNeedsAppUpdate.
+  ///
+  /// In ru, this message translates to:
+  /// **'На другом устройстве версия новее. Обновите приложение, чтобы получить все данные.'**
+  String get syncProblemNeedsAppUpdate;
+
+  /// No description provided for @syncProblemFailed.
+  ///
+  /// In ru, this message translates to:
+  /// **'Не получилось синхронизировать. Попробуйте ещё раз.'**
+  String get syncProblemFailed;
 
   /// No description provided for @settingsSoon.
   ///
@@ -210,6 +312,12 @@ abstract class AppLocalizations {
   /// In ru, this message translates to:
   /// **'Поделиться файлом'**
   String get projectShareFile;
+
+  /// Действие над схемой: открыть её в мастере «Схема из картинки» и изменить
+  ///
+  /// In ru, this message translates to:
+  /// **'Изменить в генераторе'**
+  String get projectEditInGenerator;
 
   /// No description provided for @ok.
   ///
@@ -2587,11 +2695,11 @@ abstract class AppLocalizations {
   /// **'Считаю схему…'**
   String get imageWizardCalculating;
 
-  /// Размер получившейся схемы: ширина × высота
+  /// Размер получившейся схемы: ширина × высота и число цветов
   ///
   /// In ru, this message translates to:
-  /// **'{columns} × {rows} бусин'**
-  String imageWizardSize(int columns, int rows);
+  /// **'{columns} × {rows} бусин, {colors, plural, one{{colors} цвет} few{{colors} цвета} many{{colors} цветов} other{{colors} цветов}}'**
+  String imageWizardSize(int columns, int rows, int colors);
 
   /// Заголовок выбора техники
   ///
@@ -2610,6 +2718,24 @@ abstract class AppLocalizations {
   /// In ru, this message translates to:
   /// **'Ширина схемы'**
   String get imageWizardWidth;
+
+  /// Подпись кнопки «−» у ползунка
+  ///
+  /// In ru, this message translates to:
+  /// **'Уменьшить: {title}'**
+  String imageWizardDecrease(String title);
+
+  /// Подпись кнопки «+» у ползунка
+  ///
+  /// In ru, this message translates to:
+  /// **'Увеличить: {title}'**
+  String imageWizardIncrease(String title);
+
+  /// Кнопка подтверждения числа, введённого с клавиатуры
+  ///
+  /// In ru, this message translates to:
+  /// **'Готово'**
+  String get imageWizardApply;
 
   /// Заголовок ползунка числа цветов
   ///
@@ -2784,6 +2910,12 @@ abstract class AppLocalizations {
   /// In ru, this message translates to:
   /// **'Детально'**
   String get imageWizardPresetDetailed;
+
+  /// Строка мастера вышивки: открывает список ниток и канвы к покупке
+  ///
+  /// In ru, this message translates to:
+  /// **'Список закупки'**
+  String get imageWizardShopping;
 
   /// Строка параметров и заголовок режима кисти
   ///
@@ -3070,8 +3202,8 @@ abstract class AppLocalizations {
   /// Размер схемы вышивки: клетки и сантиметры
   ///
   /// In ru, this message translates to:
-  /// **'{columns} × {rows} крестиков, {width} × {height} см'**
-  String imageWizardSizeStitch(int columns, int rows, String width, String height);
+  /// **'{columns} × {rows} крестиков, {width} × {height} см, {colors, plural, one{{colors} цвет} few{{colors} цвета} many{{colors} цветов} other{{colors} цветов}}, {fabric}'**
+  String imageWizardSizeStitch(int columns, int rows, String width, String height, int colors, String fabric);
 
   /// Пояснение под ползунком ширины вышивки: сколько крестиков и какая плотность канвы
   ///
@@ -3138,6 +3270,42 @@ abstract class AppLocalizations {
   /// In ru, this message translates to:
   /// **'Сохранить схему'**
   String get imageWizardSave;
+
+  /// Заголовок мастера, когда в нём правят уже сохранённую схему
+  ///
+  /// In ru, this message translates to:
+  /// **'Изменить схему'**
+  String get imageWizardEditTitle;
+
+  /// Главная кнопка мастера при правке сохранённой схемы
+  ///
+  /// In ru, this message translates to:
+  /// **'Сохранить изменения'**
+  String get imageWizardSaveChanges;
+
+  /// Подсказка на первом шаге правки схемы, созданной без сохранённого фото
+  ///
+  /// In ru, this message translates to:
+  /// **'Исходного фото у этой схемы не сохранилось. Выберите его снова: размер, канва и техника останутся как были.'**
+  String get imageWizardEditNoPhoto;
+
+  /// Заголовок вопроса при сохранении изменений схемы, по которой уже работали
+  ///
+  /// In ru, this message translates to:
+  /// **'У схемы есть отметки'**
+  String get imageWizardProgressTitle;
+
+  /// Пояснение к вопросу при сохранении изменений схемы с отметками
+  ///
+  /// In ru, this message translates to:
+  /// **'Новая схема не совпадёт с прежней, и отметки к ней не подойдут. Сохранить изменения как новую схему? Прежняя останется как есть.'**
+  String get imageWizardProgressMessage;
+
+  /// Кнопка: сохранить изменённую схему отдельным проектом
+  ///
+  /// In ru, this message translates to:
+  /// **'Сохранить как новую'**
+  String get imageWizardSaveAsCopy;
 
   /// Индикатор сохранения
   ///
@@ -3415,6 +3583,96 @@ abstract class AppLocalizations {
   /// **'Кусок канвы: {width} × {height} см (вышивка {stitchedWidth} × {stitchedHeight} см и поля по {margin} см)'**
   String flossFabricNeed(String width, String height, String stitchedWidth, String stitchedHeight, String margin);
 
+  /// Строка экрана мулине: собирает PDF схемы для печати
+  ///
+  /// In ru, this message translates to:
+  /// **'Распечатать схему (PDF)'**
+  String get flossPrint;
+
+  /// Пояснение к печати схемы
+  ///
+  /// In ru, this message translates to:
+  /// **'Масштаб 10 крестиков = 3 см, номера по краям через 10 клеток, легенда с номерами для игольницы отдельным листом.'**
+  String get flossPrintHint;
+
+  /// Ошибка сборки PDF схемы
+  ///
+  /// In ru, this message translates to:
+  /// **'Не удалось собрать PDF. Попробуйте ещё раз.'**
+  String get flossPrintFailed;
+
+  /// Заголовок листа настроек печати
+  ///
+  /// In ru, this message translates to:
+  /// **'Печать схемы'**
+  String get printSheetTitle;
+
+  /// Подпись выбора формата A4–A2
+  ///
+  /// In ru, this message translates to:
+  /// **'Формат листа'**
+  String get printPaper;
+
+  /// Сколько страниц получится
+  ///
+  /// In ru, this message translates to:
+  /// **'Страниц: {total} (схема {sheets} + легенда {legend})'**
+  String printPages(int total, int sheets, int legend);
+
+  /// Пояснение к масштабу
+  ///
+  /// In ru, this message translates to:
+  /// **'Масштаб всегда 10 крестиков = 3 см, легенда всегда на листе A4.'**
+  String get printScaleHint;
+
+  /// Подпись настройки стойки
+  ///
+  /// In ru, this message translates to:
+  /// **'Мест на стойке для игл'**
+  String get printSlots;
+
+  /// Пояснение к стойке игл
+  ///
+  /// In ru, this message translates to:
+  /// **'В легенде каждый цвет получает номер места. Если цветов больше, нумерация продолжается на следующей стойке: «2-7» — вторая стойка, седьмое место.'**
+  String get printSlotsHint;
+
+  /// Цвета помещаются на одну стойку
+  ///
+  /// In ru, this message translates to:
+  /// **'У вас {count} цветов: хватит одной стойки.'**
+  String printSlotsOne(int count);
+
+  /// Нужно несколько стоек
+  ///
+  /// In ru, this message translates to:
+  /// **'Цветов больше мест: нужно стоек — {racks} по {slots} мест.'**
+  String printSlotsMany(int racks, int slots);
+
+  /// Заголовок просмотра PDF, пока страницы не открылись
+  ///
+  /// In ru, this message translates to:
+  /// **'Просмотр PDF'**
+  String get printPreviewTitle;
+
+  /// Заголовок просмотра PDF
+  ///
+  /// In ru, this message translates to:
+  /// **'Страница {page} из {count}'**
+  String printPreviewPage(int page, int count);
+
+  /// Кнопка сборки PDF
+  ///
+  /// In ru, this message translates to:
+  /// **'Собрать PDF'**
+  String get printBuild;
+
+  /// Ожидание сборки PDF
+  ///
+  /// In ru, this message translates to:
+  /// **'Собираю PDF…'**
+  String get printBuilding;
+
   /// Заголовок списка покупок мулине
   ///
   /// In ru, this message translates to:
@@ -3642,6 +3900,18 @@ abstract class AppLocalizations {
   /// In ru, this message translates to:
   /// **'Больше'**
   String get flossStockMore;
+
+  /// Число граммов бисера в запасе
+  ///
+  /// In ru, this message translates to:
+  /// **'{amount} г'**
+  String beadStockAmount(String amount);
+
+  /// Ошибка записи запаса бисера
+  ///
+  /// In ru, this message translates to:
+  /// **'Не удалось сохранить запас бисера'**
+  String get beadStockWriteFailed;
 
   /// Кнопка листа запаса: убрать нитку из запаса
   ///

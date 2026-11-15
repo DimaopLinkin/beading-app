@@ -1,10 +1,10 @@
 import 'dart:async';
+import 'dart:math' as math;
 import 'dart:typed_data';
 import 'dart:ui' as ui;
 
 import 'package:beading/domain/image_pattern/crop_rect.dart';
 import 'package:beading/presentation/l10n/app_localizations.dart';
-import 'package:beading/presentation/theme/tokens.dart';
 import 'package:flutter/cupertino.dart';
 
 /// Экран обрезки: картинка с рамкой, края которой тянутся пальцем. Возвращает [CropRect] или `null` при отмене.
@@ -33,11 +33,18 @@ class CropEditor extends StatefulWidget {
 
 class _CropEditorState extends State<CropEditor> {
   static const double _minSide = 0.05;
-  static const double _grab = 28;
+
+  /// Радиус захвата вокруг края рамки: зона касания 2 × 24 = 48 pt, не меньше 44 pt по HIG. Она выходит за пределы
+  /// картинки, поэтому рамку, прижатую к краю, можно взять и снаружи.
+  static const double _grab = 24;
+
+  /// Поле вокруг картинки, в котором ещё ловятся касания и рисуются ручки.
+  static const double _margin = 28;
 
   late CropRect _crop = widget.initial;
   late final Future<ui.Image> _image = _decode();
-  String? _edge;
+  String? _horizontal;
+  String? _vertical;
 
   Future<ui.Image> _decode() async {
     final ui.Codec codec = await ui.instantiateImageCodec(widget.bytes);
@@ -46,46 +53,50 @@ class _CropEditorState extends State<CropEditor> {
     return image;
   }
 
+  /// Какие края берёт касание в [position] (в пикселях картинки): угол даёт сразу два края.
   void _start(Offset position, Size size) {
-    final Map<String, double> distances = <String, double>{
-      'left': (position.dx - _crop.left * size.width).abs(),
-      'right': (position.dx - _crop.right * size.width).abs(),
-      'top': (position.dy - _crop.top * size.height).abs(),
-      'bottom': (position.dy - _crop.bottom * size.height).abs(),
-    };
-    final MapEntry<String, double> nearest = distances.entries.reduce((a, b) => a.value <= b.value ? a : b);
-    _edge = nearest.value <= _grab ? nearest.key : null;
+    final double left = _crop.left * size.width;
+    final double right = _crop.right * size.width;
+    final double top = _crop.top * size.height;
+    final double bottom = _crop.bottom * size.height;
+    final bool withinX = position.dx >= left - _grab && position.dx <= right + _grab;
+    final bool withinY = position.dy >= top - _grab && position.dy <= bottom + _grab;
+    final double dLeft = (position.dx - left).abs();
+    final double dRight = (position.dx - right).abs();
+    final double dTop = (position.dy - top).abs();
+    final double dBottom = (position.dy - bottom).abs();
+    final bool leftCloser = dLeft == dRight ? position.dx < (left + right) / 2 : dLeft < dRight;
+    final bool topCloser = dTop == dBottom ? position.dy < (top + bottom) / 2 : dTop < dBottom;
+    final double nearX = leftCloser ? dLeft : dRight;
+    final double nearY = topCloser ? dTop : dBottom;
+    _horizontal = withinY && nearX <= _grab ? (leftCloser ? 'left' : 'right') : null;
+    _vertical = withinX && nearY <= _grab ? (topCloser ? 'top' : 'bottom') : null;
   }
 
-  void _update(Offset position, Size size) {
-    final String? edge = _edge;
-    if (edge == null) {
+  void _update(Offset delta, Size size) {
+    final String? horizontal = _horizontal;
+    final String? vertical = _vertical;
+    if (horizontal == null && vertical == null) {
       return;
     }
-    final double x = (position.dx / size.width).clamp(0, 1);
-    final double y = (position.dy / size.height).clamp(0, 1);
+    final double dx = delta.dx / size.width;
+    final double dy = delta.dy / size.height;
     setState(() {
-      _crop = switch (edge) {
-        'left' => CropRect(
-          left: x.clamp(0, _crop.right - _minSide),
-          top: _crop.top,
-          right: _crop.right,
-          bottom: _crop.bottom,
-        ),
-        'right' => CropRect(
-          left: _crop.left,
-          top: _crop.top,
-          right: x.clamp(_crop.left + _minSide, 1),
-          bottom: _crop.bottom,
-        ),
-        'top' => CropRect(
-          left: _crop.left,
-          top: y.clamp(0, _crop.bottom - _minSide),
-          right: _crop.right,
-          bottom: _crop.bottom,
-        ),
-        _ => CropRect(left: _crop.left, top: _crop.top, right: _crop.right, bottom: y.clamp(_crop.top + _minSide, 1)),
-      };
+      double left = _crop.left;
+      double right = _crop.right;
+      double top = _crop.top;
+      double bottom = _crop.bottom;
+      if (horizontal == 'left') {
+        left = (left + dx).clamp(0, right - _minSide);
+      } else if (horizontal == 'right') {
+        right = (right + dx).clamp(left + _minSide, 1);
+      }
+      if (vertical == 'top') {
+        top = (top + dy).clamp(0, bottom - _minSide);
+      } else if (vertical == 'bottom') {
+        bottom = (bottom + dy).clamp(top + _minSide, 1);
+      }
+      _crop = CropRect(left: left, top: top, right: right, bottom: bottom);
     });
   }
 
@@ -98,7 +109,6 @@ class _CropEditorState extends State<CropEditor> {
   @override
   Widget build(BuildContext context) {
     final AppLocalizations l10n = AppLocalizations.of(context);
-    final AppTokensData tokens = context.tokens;
     return CupertinoPageScaffold(
       backgroundColor: CupertinoColors.systemBackground.resolveFrom(context),
       navigationBar: CupertinoNavigationBar(
@@ -118,46 +128,51 @@ class _CropEditorState extends State<CropEditor> {
         child: Column(
           children: <Widget>[
             Expanded(
-              child: Padding(
-                padding: EdgeInsets.all(tokens.spacing.l),
-                child: FutureBuilder<ui.Image>(
-                  future: _image,
-                  builder: (context, snapshot) {
-                    final ui.Image? image = snapshot.data;
-                    if (image == null) {
-                      return const Center(child: CupertinoActivityIndicator());
-                    }
-                    final bool swap = widget.quarterTurns.isOdd;
-                    final double ratio = swap ? image.height / image.width : image.width / image.height;
-                    return Center(
-                      child: AspectRatio(
-                        aspectRatio: ratio,
-                        child: LayoutBuilder(
-                          builder: (context, constraints) {
-                            final Size size = constraints.biggest;
-                            return GestureDetector(
-                              behavior: HitTestBehavior.opaque,
-                              onPanStart: (d) => _start(d.localPosition, size),
-                              onPanUpdate: (d) => _update(d.localPosition, size),
-                              child: Stack(
-                                fit: StackFit.expand,
-                                children: <Widget>[
-                                  RotatedBox(
-                                    quarterTurns: widget.quarterTurns,
-                                    child: Image.memory(widget.bytes, fit: BoxFit.fill, gaplessPlayback: true),
-                                  ),
-                                  CustomPaint(
-                                    painter: _CropPainter(_crop, CupertinoColors.activeBlue.resolveFrom(context)),
-                                  ),
-                                ],
-                              ),
-                            );
-                          },
+              child: FutureBuilder<ui.Image>(
+                future: _image,
+                builder: (context, snapshot) {
+                  final ui.Image? image = snapshot.data;
+                  if (image == null) {
+                    return const Center(child: CupertinoActivityIndicator());
+                  }
+                  final bool swap = widget.quarterTurns.isOdd;
+                  final double ratio = swap ? image.height / image.width : image.width / image.height;
+                  return LayoutBuilder(
+                    builder: (context, constraints) {
+                      final Size available = Size(
+                        math.max(1, constraints.maxWidth - 2 * _margin),
+                        math.max(1, constraints.maxHeight - 2 * _margin),
+                      );
+                      final Size size = available.width / available.height > ratio
+                          ? Size(available.height * ratio, available.height)
+                          : Size(available.width, available.width / ratio);
+                      final Color accent = CupertinoColors.activeBlue.resolveFrom(context);
+                      // Жест ловится на всей области, а не только на картинке: рамку у края берут и снаружи.
+                      return GestureDetector(
+                        behavior: HitTestBehavior.opaque,
+                        onPanStart: (d) => _start(d.localPosition - _origin(constraints.biggest, size), size),
+                        onPanUpdate: (d) => _update(d.delta, size),
+                        child: Center(
+                          child: SizedBox(
+                            width: size.width,
+                            height: size.height,
+                            child: Stack(
+                              clipBehavior: Clip.none,
+                              fit: StackFit.expand,
+                              children: <Widget>[
+                                RotatedBox(
+                                  quarterTurns: widget.quarterTurns,
+                                  child: Image.memory(widget.bytes, fit: BoxFit.fill, gaplessPlayback: true),
+                                ),
+                                CustomPaint(painter: _CropPainter(_crop, accent)),
+                              ],
+                            ),
+                          ),
                         ),
-                      ),
-                    );
-                  },
-                ),
+                      );
+                    },
+                  );
+                },
               ),
             ),
             CupertinoButton(
@@ -169,6 +184,8 @@ class _CropEditorState extends State<CropEditor> {
       ),
     );
   }
+
+  Offset _origin(Size area, Size image) => Offset((area.width - image.width) / 2, (area.height - image.height) / 2);
 }
 
 class _CropPainter extends CustomPainter {
@@ -198,6 +215,23 @@ class _CropPainter extends CustomPainter {
           ..style = PaintingStyle.stroke
           ..strokeWidth = 2,
       );
+    // Явные «хваталки»: уголки и середины сторон, они рисуются и за пределами картинки, если рамка у края.
+    final Paint handle = Paint()..color = accent;
+    final Paint rim = Paint()..color = const Color(0xFFFFFFFF);
+    for (final Offset point in <Offset>[
+      inner.topLeft,
+      inner.topRight,
+      inner.bottomLeft,
+      inner.bottomRight,
+      inner.topCenter,
+      inner.bottomCenter,
+      inner.centerLeft,
+      inner.centerRight,
+    ]) {
+      canvas
+        ..drawCircle(point, 8, rim)
+        ..drawCircle(point, 6, handle);
+    }
   }
 
   @override

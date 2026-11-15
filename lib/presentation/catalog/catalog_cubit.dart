@@ -2,6 +2,8 @@ import 'dart:async';
 
 import 'package:beading/core/failure.dart';
 import 'package:beading/core/result.dart';
+import 'package:beading/domain/bead_stock/bead_stock_entry.dart';
+import 'package:beading/domain/bead_stock/bead_stock_repository.dart';
 import 'package:beading/domain/catalog/catalog_color.dart';
 import 'package:beading/domain/catalog/catalog_material.dart';
 import 'package:beading/domain/catalog/catalog_repository.dart';
@@ -11,6 +13,7 @@ import 'package:beading/domain/floss_stock/floss_stock_repository.dart';
 import 'package:beading/domain/palette/catalog_ref.dart';
 import 'package:beading/domain/settings/setting_key.dart';
 import 'package:beading/domain/settings/settings_repository.dart';
+import 'package:beading/presentation/widgets/stock_stepper.dart';
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -55,11 +58,15 @@ class CatalogState extends Equatable {
     this.colors = const <CatalogColor>[],
     this.selection,
     this.stock = const <CatalogRef, double>{},
+    this.stockWriteFailure,
   });
 
   final CatalogStatus status;
 
-  /// Запас мулине: мотков по ниткам; пусто, если запас не ведётся (каталог бисера).
+  /// Последняя запись запаса не удалась; `null` — запись прошла или ещё не было.
+  final Failure? stockWriteFailure;
+
+  /// Запас: мотков по ниткам или граммов по бисеру (см. [CatalogCubit.stockUnit]); пусто, если запас не ведётся.
   final Map<CatalogRef, double> stock;
 
   /// Вкладки материала: серии брендов.
@@ -83,8 +90,10 @@ class CatalogState extends Equatable {
     List<CatalogColor>? colors,
     SimilarSelection? Function()? selection,
     Map<CatalogRef, double>? stock,
+    Failure? Function()? stockWriteFailure,
   }) => CatalogState(
     stock: stock ?? this.stock,
+    stockWriteFailure: stockWriteFailure == null ? this.stockWriteFailure : stockWriteFailure(),
     status: status ?? this.status,
     tabs: tabs ?? this.tabs,
     tab: tab == null ? this.tab : tab(),
@@ -94,7 +103,7 @@ class CatalogState extends Equatable {
   );
 
   @override
-  List<Object?> get props => <Object?>[status, tabs, tab, query, colors, selection, stock];
+  List<Object?> get props => <Object?>[status, tabs, tab, query, colors, selection, stock, stockWriteFailure];
 }
 
 /// Каталог цветов: вкладки брендов, поиск по артикулу и названию, «подобрать похожий».
@@ -106,8 +115,10 @@ class CatalogCubit extends Cubit<CatalogState> {
     this.material = CatalogMaterial.bead,
     SettingKey<String>? brandSetting,
     FlossStockRepository? stock,
+    BeadStockRepository? beadStock,
   }) : _catalog = catalog,
        _stock = stock,
+       _beadStock = beadStock,
        _findSimilar = findSimilar,
        _settings = settings,
        _brandSetting = brandSetting,
@@ -116,22 +127,43 @@ class CatalogCubit extends Cubit<CatalogState> {
       if (isClosed) return;
       emit(state.copyWith(stock: <CatalogRef, double>{for (final FlossStockEntry e in entries) e.ref: e.skeins}));
     });
+    _beadStockSub = beadStock?.watchAll().listen((entries) {
+      if (isClosed) return;
+      emit(state.copyWith(stock: <CatalogRef, double>{for (final BeadStockEntry e in entries) e.ref: e.grams}));
+    });
   }
 
   final FlossStockRepository? _stock;
+  final BeadStockRepository? _beadStock;
   StreamSubscription<List<FlossStockEntry>>? _stockSub;
+  StreamSubscription<List<BeadStockEntry>>? _beadStockSub;
 
-  /// Ведётся ли запас ниток: в каталоге есть «мой запас».
-  bool get hasStock => _stock != null;
+  /// Ведётся ли запас: в каталоге есть «мой запас».
+  bool get hasStock => stockUnit != null;
 
-  /// Записывает, сколько мотков [color] осталось ([skeins] ≤ 0 — убрать из запаса).
-  Future<void> setStock(CatalogColor color, double skeins) async {
-    await _stock?.setSkeins(CatalogRef(brand: color.brand, code: color.code), skeins);
+  /// В чём считается запас этого каталога: мотки ниток, граммы бисера; `null` — запас не ведётся.
+  StockUnit? get stockUnit => _stock != null ? StockUnit.skeins : (_beadStock != null ? StockUnit.grams : null);
+
+  /// Записывает, сколько мотков или граммов [color] осталось ([amount] ≤ 0 — убрать из запаса). Ошибка записи не
+  /// теряется: она ложится в [CatalogState.stockWriteFailure], пока не пройдёт следующая запись.
+  Future<void> setStock(CatalogColor color, double amount) async {
+    final CatalogRef ref = CatalogRef(brand: color.brand, code: color.code);
+    final Result<void> result;
+    if (_stock != null) {
+      result = await _stock.setSkeins(ref, amount);
+    } else if (_beadStock != null) {
+      result = await _beadStock.setGrams(ref, amount);
+    } else {
+      return;
+    }
+    if (isClosed) return;
+    emit(state.copyWith(stockWriteFailure: () => result is Err<void> ? result.failure : null));
   }
 
   @override
   Future<void> close() {
     unawaited(_stockSub?.cancel());
+    unawaited(_beadStockSub?.cancel());
     return super.close();
   }
 

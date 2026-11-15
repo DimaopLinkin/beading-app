@@ -47,6 +47,42 @@ void main() {
     });
   }
 
+  testWidgets('рамку у края берут снаружи картинки и за угол сразу двумя краями', (tester) async {
+    final png = (await tester.runAsync(() => redBluePng(width: 40, height: 40)))!;
+    CropRect? result;
+    await tester.pumpWidget(
+      CupertinoApp(
+        builder: AppTheme.builder,
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
+        home: Builder(
+          builder: (context) => CupertinoButton(
+            onPressed: () async =>
+                result = await showCropEditor(context, bytes: png, quarterTurns: 0, initial: CropRect.full),
+            child: const Text('открыть'),
+          ),
+        ),
+      ),
+    );
+    await tester.tap(find.text('открыть'));
+    await tester.pump(const Duration(milliseconds: 500));
+    await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 100)));
+    await tester.pumpAndSettle();
+
+    final Rect box = tester.getRect(find.byType(Image));
+    // Касание на 15 pt левее и выше картинки: это угол рамки, тянем его внутрь.
+    await tester.dragFrom(box.topLeft - const Offset(15, 15), Offset(box.width / 4, box.height / 4));
+    await tester.pump();
+    await tester.tap(find.text('Готово'));
+    await tester.pumpAndSettle();
+
+    expect(result, isNotNull);
+    expect(result!.left, closeTo(0.25, 0.05));
+    expect(result!.top, closeTo(0.25, 0.05));
+    expect(result!.right, 1);
+    expect(result!.bottom, 1);
+  });
+
   testWidgets('отмена не возвращает рамку', (tester) async {
     final png = (await tester.runAsync(redBluePng))!;
     CropRect? result = CropRect.full;

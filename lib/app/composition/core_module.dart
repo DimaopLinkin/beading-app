@@ -10,6 +10,7 @@ import 'package:beading/data/platform/wakelock_plus_screen_wake_lock.dart';
 import 'package:beading/data/settings/drift_device_id_provider.dart';
 import 'package:beading/data/settings/drift_settings_repository.dart';
 import 'package:beading/data/settings/repository_keep_screen_awake_setting.dart';
+import 'package:beading/data/sharing/share_plus_file_sharer.dart';
 import 'package:beading/domain/events/app_events.dart';
 import 'package:beading/domain/image_pattern/file_store.dart';
 import 'package:beading/domain/settings/device_id_provider.dart';
@@ -18,6 +19,7 @@ import 'package:beading/domain/settings/reduce_transparency_source.dart';
 import 'package:beading/domain/settings/screen_wake_lock.dart';
 import 'package:beading/domain/settings/settings_repository.dart';
 import 'package:beading/domain/settings/wakelock_controller.dart';
+import 'package:beading/domain/sharing/file_sharer.dart';
 import 'package:beading/domain/sharing/text_sharer.dart';
 
 /// Ядро графа зависимостей (ADR-0007): база, время, идентификаторы, настройки, события, файлы и платформенные адаптеры.
@@ -34,13 +36,15 @@ final class CoreModule {
     ScreenWakeLock? screenWakeLock,
     ReduceTransparencySource? reduceTransparency,
     TextSharer? textSharer,
+    FileSharer? fileSharer,
   }) : _clock = clock,
        _fileStore = fileStore,
        _orientationLock = orientationLock,
        _desktopWindow = desktopWindow,
        _screenWakeLock = screenWakeLock,
        _reduceTransparency = reduceTransparency,
-       _textSharer = textSharer;
+       _textSharer = textSharer,
+       _fileSharer = fileSharer;
 
   final AppDatabase database;
   final Clock? _clock;
@@ -50,6 +54,7 @@ final class CoreModule {
   final ScreenWakeLock? _screenWakeLock;
   final ReduceTransparencySource? _reduceTransparency;
   final TextSharer? _textSharer;
+  final FileSharer? _fileSharer;
 
   late final Clock clock = _clock ?? const SystemClock();
 
@@ -75,6 +80,8 @@ final class CoreModule {
 
   late final ReduceTransparencySource reduceTransparency =
       _reduceTransparency ?? MethodChannelReduceTransparencySource();
+
+  late final FileSharer fileSharer = _fileSharer ?? SharePlusFileSharer();
 
   late final TextSharer textSharer = _textSharer ?? SharePlusTextSharer();
 

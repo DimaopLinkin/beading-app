@@ -367,6 +367,14 @@ void main() {
     await tester.pumpAndSettle();
     expect(find.text('Что осталось по цветам'), findsOneWidget);
     expect(find.text('0 из 50'), findsNWidgets(2));
+    // Номер места на стойке, как в легенде PDF (T82): по порядку цветов палитры.
+    expect(find.byKey(const ValueKey<String>('stitch-color-slot-0')), findsOneWidget);
+    expect(tester.widget<Text>(find.byKey(const ValueKey<String>('stitch-color-slot-0'))).data, '1');
+    expect(tester.widget<Text>(find.byKey(const ValueKey<String>('stitch-color-slot-1'))).data, '2');
+    expect(
+      find.descendant(of: find.byType(CupertinoListTile), matching: find.textContaining('Осталось')),
+      findsNothing,
+    );
     await tester.tap(find.byKey(const ValueKey<String>('stitch-mark-color-0')));
     await tester.pump();
     expect(find.text('Цвет готов'), findsOneWidget);

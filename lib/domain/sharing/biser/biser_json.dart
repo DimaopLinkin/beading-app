@@ -3,6 +3,7 @@ import 'dart:typed_data';
 
 import 'package:beading/core/failure.dart';
 import 'package:beading/core/result.dart';
+import 'package:beading/domain/bead_stock/bead_stock_entry.dart';
 import 'package:beading/domain/floss_stock/floss_stock_entry.dart';
 import 'package:beading/domain/grid/cell_metrics.dart';
 import 'package:beading/domain/grid/grid.dart';
@@ -53,6 +54,18 @@ abstract final class BiserJson {
               'brand': e.ref.brand,
               'code': e.ref.code,
               'skeins': e.skeins,
+              'updatedAt': e.updatedAt!.toUtc().millisecondsSinceEpoch,
+            },
+      ],
+    // Необязательное поле формата 4: запас бисера в граммах.
+    if (bundle.beadStock.isNotEmpty)
+      'beadStock': <Object?>[
+        for (final BeadStockEntry e in bundle.beadStock)
+          if (e.updatedAt != null)
+            <String, Object?>{
+              'brand': e.ref.brand,
+              'code': e.ref.code,
+              'grams': e.grams,
               'updatedAt': e.updatedAt!.toUtc().millisecondsSinceEpoch,
             },
       ],
@@ -216,6 +229,34 @@ abstract final class BiserJson {
         );
       }
     }
+    final List<BeadStockEntry> beads = <BeadStockEntry>[];
+    final Set<CatalogRef> seenBeads = <CatalogRef>{};
+    if (root['beadStock'] != null) {
+      for (final Object? raw in _list(root['beadStock'], 'запас бисера')) {
+        final Map<String, Object?> e = _map(raw, 'цвет запаса бисера');
+        final double grams = _double(e['grams'], 'число граммов');
+        if (!grams.isFinite || grams <= 0 || grams > 9999) {
+          throw const _BadBiser('Файл повреждён: число граммов в запасе бисера неверно');
+        }
+        final CatalogRef ref = CatalogRef(
+          brand: _string(e['brand'], 'бренд бисера'),
+          code: _string(e['code'], 'артикул бисера'),
+        );
+        if (!seenBeads.add(ref)) {
+          throw _BadBiser('В запасе бисера дважды цвет $ref');
+        }
+        beads.add(
+          BeadStockEntry(
+            ref: ref,
+            grams: grams,
+            updatedAt: DateTime.fromMillisecondsSinceEpoch(
+              _int(e['updatedAt'], 'время записи запаса бисера'),
+              isUtc: true,
+            ),
+          ),
+        );
+      }
+    }
     return BiserBundle(
       kind: kind,
       exportedAt: DateTime.fromMillisecondsSinceEpoch(_int(root['exportedAt'], 'время экспорта'), isUtc: true),
@@ -223,6 +264,7 @@ abstract final class BiserJson {
       projects: projects,
       files: files,
       flossStock: stock,
+      beadStock: beads,
       formatVersion: version,
     );
   }

@@ -53,6 +53,9 @@ class FakeGridPatternRepository implements GridPatternRepository {
   final Map<String, GridPattern> byProject = <String, GridPattern>{};
   final StreamController<void> _changes = StreamController<void>.broadcast(sync: true);
   Failure? failNextSave;
+
+  /// Следующая запись бросает исключение (а не возвращает ошибку), как при сбое драйвера на устройстве.
+  Error? throwNextSave;
   final List<String> deletedProjects = <String>[];
 
   @override
@@ -87,6 +90,11 @@ class FakeGridPatternRepository implements GridPatternRepository {
 
   @override
   Future<Result<void>> save(GridPattern pattern) async {
+    final Error? thrown = throwNextSave;
+    if (thrown != null) {
+      throwNextSave = null;
+      throw thrown;
+    }
     final Failure? failure = failNextSave;
     if (failure != null) {
       failNextSave = null;

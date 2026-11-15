@@ -32,6 +32,33 @@ void main() {
       expect(image.height, 18);
     });
 
+    test('у крупной схемы масштаб не больше, чем пикселей исходника на ячейку (T70)', () {
+      final SourceImage narrow = SourceImage.solid(width: 600, height: 400, r: 10, g: 20, b: 30);
+      final WorkImage low = work(narrow, columns: 1500, rows: 1000);
+      expect(low.scale, 1);
+      expect(low.width, 1500);
+      final WorkImage half = work(narrow, columns: 300, rows: 200);
+      expect(half.scale, 2);
+      // Мелкая схема считается как раньше, даже если исходник растягивается.
+      expect(work(narrow, columns: 200, rows: 100).scale, 4);
+      final WorkImage draft = WorkImage.fromSource(
+        image: narrow,
+        geometry: const GridGeometry.rectangular(),
+        metrics: const FakeCellMetrics(1, 1),
+        columns: 500,
+        rows: 300,
+        scale: WorkImage.draftScale,
+      );
+      expect(draft.scale, 1);
+    });
+
+    test('у широкого исходника масштаб прежний: 4000 пикселей на 300 столбцов — 3', () {
+      final SourceImage wide = SourceImage.solid(width: 4000, height: 4000, r: 10, g: 20, b: 30);
+      final WorkImage image = work(wide, columns: 300, rows: 300);
+      expect(image.scale, 3);
+      expect(image.width, 900);
+    });
+
     test('масштаб падает с размером схемы', () {
       expect(WorkImage.scaleFor(columns: 50, rows: 50), 6);
       expect(WorkImage.scaleFor(columns: 100, rows: 100), 5);

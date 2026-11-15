@@ -3,6 +3,7 @@ import 'dart:typed_data';
 
 import 'package:beading/core/failure.dart';
 import 'package:beading/core/result.dart';
+import 'package:beading/domain/bead_stock/bead_stock_entry.dart';
 import 'package:beading/domain/floss_stock/floss_stock_entry.dart';
 import 'package:beading/domain/image_pattern/book_work/page_work.dart';
 import 'package:beading/domain/image_pattern/book_work/ruler_state.dart';
@@ -97,6 +98,50 @@ void main() {
       expect(parse(manifest(<Object?>[entry(skeins: 0)]), none).failureOrNull, isA<ValidationFailure>());
       expect(parse(manifest(<Object?>[entry(skeins: 1000)]), none).failureOrNull, isA<ValidationFailure>());
       expect(parse(manifest(<Object?>[entry(skeins: 'много')]), none).failureOrNull, isA<ValidationFailure>());
+      expect(parse(manifest(<Object?>[entry(), entry()]), none).failureOrNull, isA<ValidationFailure>());
+      expect(parse(manifest(<Object?>[entry(at: null)]), none).failureOrNull, isA<ValidationFailure>());
+      expect(parse(manifest(<Object?>[entry()]), none).failureOrNull, isNull);
+    });
+  });
+
+  group('запас бисера (версия 4)', () {
+    final BiserBundle withBeads = BiserBundle(
+      kind: BiserKind.backup,
+      exportedAt: DateTime.utc(2026),
+      appVersion: '1',
+      projects: const <BiserProject>[],
+      beadStock: <BeadStockEntry>[
+        BeadStockEntry(
+          ref: const CatalogRef(brand: 'Miyuki', code: 'DB0010'),
+          grams: 15,
+          updatedAt: DateTime.utc(2026, 11, 12),
+        ),
+      ],
+    );
+
+    test('пишется версия 4 и запас бисера читается обратно', () {
+      expect(manifestOf(withBeads)['version'], 4);
+      expect(parse(BiserJson.encode(withBeads), const <String, Uint8List>{}).valueOrNull, withBeads);
+    });
+
+    test('файл версии 3 без запаса бисера читается: запаса бисера нет', () {
+      final Map<String, Object?> manifest = manifestOf(randomBundle(3, projects: 1))..['version'] = 3;
+      expect(parse(manifest, randomBundle(3, projects: 1).files).valueOrNull!.beadStock, isEmpty);
+    });
+
+    test('кривой запас бисера отвергается: граммы, дубль, нет времени', () {
+      Map<String, Object?> manifest(List<Object?> stock) => manifestOf(withBeads)..['beadStock'] = stock;
+      Map<String, Object?> entry({Object? grams = 1, String code = 'DB0010', Object? at = 1}) => <String, Object?>{
+        'brand': 'Miyuki',
+        'code': code,
+        'grams': grams,
+        'updatedAt': at,
+      };
+      const Map<String, Uint8List> none = <String, Uint8List>{};
+
+      expect(parse(manifest(<Object?>[entry(grams: 0)]), none).failureOrNull, isA<ValidationFailure>());
+      expect(parse(manifest(<Object?>[entry(grams: 10000)]), none).failureOrNull, isA<ValidationFailure>());
+      expect(parse(manifest(<Object?>[entry(grams: 'много')]), none).failureOrNull, isA<ValidationFailure>());
       expect(parse(manifest(<Object?>[entry(), entry()]), none).failureOrNull, isA<ValidationFailure>());
       expect(parse(manifest(<Object?>[entry(at: null)]), none).failureOrNull, isA<ValidationFailure>());
       expect(parse(manifest(<Object?>[entry()]), none).failureOrNull, isNull);

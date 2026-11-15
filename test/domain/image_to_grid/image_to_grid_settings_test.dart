@@ -207,18 +207,26 @@ void main() {
       expect(ImageToGridSettings.snapCm(999), 200);
     });
 
-    test('высота вышивки округляется до 5 см', () {
-      final SourceImage image = SourceImage.solid(width: 300, height: 220, r: 0, g: 0, b: 0);
-      final ImageToGridSettings s = stitch.copyWith(columns: stitch.fabric.cellsForCm(50));
-      final double heightCm = s.fabric.cmForCells(s.rowsFor(image));
-      expect(heightCm % 5, anyOf(closeTo(0, 0.1), closeTo(5, 0.1)));
+    test('пропорции вышивки не зависят от ширины: высота считается по картинке, без округления до 5 см', () {
+      final SourceImage image = SourceImage.solid(width: 300, height: 120, r: 0, g: 0, b: 0);
+      for (final double cm in <double>[5, 10, 15, 30, 50, 100, 200]) {
+        final ImageToGridSettings s = stitch.copyWith(columns: stitch.fabric.cellsForCm(cm));
+        final double ratio = s.columns / s.rowsFor(image);
+        expect(ratio, closeTo(300 / 120, 0.06), reason: 'ширина $cm см');
+      }
     });
 
-    test('огромная схема берёт меньше цветов, чтобы поместиться в память', () {
-      final ImageToGridSettings s = stitch.copyWith(columns: stitch.fabric.cellsForCm(200), maxColors: 120);
-      final int rows = stitch.fabric.cellsForCm(80);
-      expect(s.colorsFor(rows), lessThan(120));
-      expect(s.columns * rows * s.colorsFor(rows), lessThanOrEqualTo(ImageToGridSettings.costBudget));
+    test('огромная схема не теряет цвета: сколько задано, столько и в расчёте (T70)', () {
+      final Fabric aida20 = Fabric.create(kind: FabricKind.aida, count: 20).valueOrNull!;
+      final ImageToGridSettings s = stitch.copyWith(
+        fabric: aida20,
+        columns: aida20.cellsForCm(200),
+        maxColors: 120,
+      );
+      final SourceImage photo = SourceImage.solid(width: 603, height: 1024, r: 10, g: 20, b: 30);
+      expect(s.columns, 1575);
+      expect(s.toRequest(image: photo).maxColors, 120);
+      expect(s.colorsFor(s.rowsFor(photo)), 120);
       expect(stitch.copyWith(columns: 150, maxColors: 30).colorsFor(100), 30);
     });
 
@@ -244,7 +252,6 @@ void main() {
       expect(request.constraint.candidates, hasLength(2));
       final ImageToGridRequest beads = const ImageToGridSettings(
         backstitch: true,
-        blends: true,
         outline: true,
       ).toRequest(image: image, catalog: catalog);
       expect(beads.backstitch, isFalse);

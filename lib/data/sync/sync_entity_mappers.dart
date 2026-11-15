@@ -7,6 +7,7 @@ import 'package:beading/domain/sync/sync_record.dart';
 List<SyncEntityMapper> buildSyncMappers(SyncDbContext ctx) => <SyncEntityMapper>[
   ProjectMapper(ctx),
   FlossStockMapper(ctx),
+  BeadStockMapper(ctx),
   SettingMapper(ctx),
   ImagePatternMapper(ctx),
   GridPatternMapper(ctx),
@@ -154,6 +155,60 @@ class FlossStockMapper extends SyncEntityMapper {
       await ctx.run(
         'UPDATE floss_stock SET skeins=?, updated_at=?, deleted_at=NULL, device_id=? WHERE brand=? AND code=?',
         <Object?>[r.data['skeins'], r.updatedAt, r.deviceId, brand, code],
+      );
+    }
+  }
+}
+
+class BeadStockMapper extends SyncEntityMapper {
+  BeadStockMapper(super.ctx);
+
+  @override
+  String get entity => 'bead_stock';
+
+  @override
+  int get rank => 0;
+
+  @override
+  String? parentKey(SyncRecord record) => null;
+
+  @override
+  Future<List<String>> allSyncIds() async => <String>[
+    for (final Row r in await ctx.query('SELECT brand, code FROM bead_stock')) "${r['brand']}:${r['code']}",
+  ];
+
+  (String, String) _split(String syncId) {
+    final int i = syncId.indexOf(':');
+    return (syncId.substring(0, i), syncId.substring(i + 1));
+  }
+
+  @override
+  Future<SyncRecord?> read(String syncId) async {
+    final (String brand, String code) = _split(syncId);
+    final Row? r = await ctx.first('SELECT * FROM bead_stock WHERE brand = ? AND code = ?', <Object?>[brand, code]);
+    return r == null ? null : build(syncId, r, <String, Object?>{'grams': r['grams']});
+  }
+
+  @override
+  Future<void> apply(SyncRecord r) async {
+    final (String brand, String code) = _split(r.syncId);
+    if (r.isDeleted) {
+      await tombstone('bead_stock', 'brand = ? AND code = ?', <Object?>[brand, code], r);
+      return;
+    }
+    final Row? existing = await ctx.first('SELECT 1 AS x FROM bead_stock WHERE brand = ? AND code = ?', <Object?>[
+      brand,
+      code,
+    ]);
+    if (existing == null) {
+      await ctx.run(
+        'INSERT INTO bead_stock (id, brand, code, grams, $_common) VALUES (?,?,?,?,?,?,NULL,?)',
+        <Object?>[ctx.ids.next(), brand, code, r.data['grams'], createdAt(r), r.updatedAt, r.deviceId],
+      );
+    } else {
+      await ctx.run(
+        'UPDATE bead_stock SET grams=?, updated_at=?, deleted_at=NULL, device_id=? WHERE brand=? AND code=?',
+        <Object?>[r.data['grams'], r.updatedAt, r.deviceId, brand, code],
       );
     }
   }

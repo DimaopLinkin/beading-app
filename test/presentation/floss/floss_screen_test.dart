@@ -4,24 +4,34 @@ import 'package:beading/domain/grid/fabric.dart';
 import 'package:beading/domain/grid/grid.dart';
 import 'package:beading/domain/grid/grid_geometry.dart';
 import 'package:beading/domain/grid_pattern/grid_pattern.dart';
+import 'package:beading/domain/image_pattern/pdf_rasterizer.dart';
 import 'package:beading/domain/materials/use_cases/load_project_floss.dart';
 import 'package:beading/domain/palette/catalog_ref.dart';
 import 'package:beading/domain/palette/palette_snapshot.dart';
 import 'package:beading/domain/palette/pattern_color.dart';
 import 'package:beading/domain/palette/rgb.dart';
+import 'package:beading/domain/printing/print_options.dart';
+import 'package:beading/domain/printing/print_options_store.dart';
+import 'package:beading/domain/printing/use_cases/export_pattern_pdf.dart';
 import 'package:beading/domain/projects/craft.dart';
 import 'package:beading/domain/projects/project.dart';
 import 'package:beading/presentation/floss/floss_cubit.dart';
 import 'package:beading/presentation/floss/floss_screen.dart';
+import 'package:beading/presentation/grid_pattern/stitch_legend_view.dart';
 import 'package:beading/presentation/l10n/app_localizations.dart';
+import 'package:beading/presentation/theme/app_icons.dart';
 import 'package:beading/presentation/theme/app_theme.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 
+import '../../support/fake_biser.dart';
 import '../../support/fake_floss_stock.dart';
 import '../../support/fake_grid_pattern.dart';
+import '../../support/fake_image_pattern.dart';
+import '../../support/fake_pattern_printer.dart';
 import '../../support/fake_project_repository.dart';
+import '../../support/fake_settings_repository.dart';
 import '../../support/fake_text_sharer.dart';
 
 Project _stitchProject() => Project(
@@ -70,6 +80,9 @@ void main() {
   late FakeProjectRepository projects;
   late FakeGridPatternRepository patterns;
   late FakeTextSharer sharer;
+  late FakeFileSharer fileSharer;
+  late FakePatternPrinter printer;
+  late FakeSettingsRepository settings;
   late FakeFlossStockRepository stock;
   late FakeCellProgressStore progress;
 
@@ -77,6 +90,9 @@ void main() {
     projects = FakeProjectRepository()..projects['proj-1'] = _stitchProject();
     patterns = FakeGridPatternRepository()..byProject['proj-1'] = _pattern();
     sharer = FakeTextSharer();
+    fileSharer = FakeFileSharer();
+    printer = FakePatternPrinter();
+    settings = FakeSettingsRepository();
     stock = FakeFlossStockRepository();
     progress = FakeCellProgressStore(width: 20);
   });
@@ -85,6 +101,8 @@ void main() {
     final FlossCubit cubit = FlossCubit(
       projectId: 'proj-1',
       loadFloss: LoadProjectFloss(patterns, progress: progress),
+      exportPdf: ExportPatternPdf(projects: projects, patterns: patterns, printer: printer),
+      printOptions: PrintOptionsStore(settings),
       projects: projects,
       stock: stock,
     );
@@ -92,7 +110,11 @@ void main() {
     return cubit;
   }
 
-  Future<void> pumpScreen(WidgetTester tester, {CupertinoThemeData theme = AppTheme.light}) async {
+  Future<void> pumpScreen(
+    WidgetTester tester, {
+    CupertinoThemeData theme = AppTheme.light,
+    PdfRasterizer? rasterizer,
+  }) async {
     tester.view
       ..physicalSize = const Size(430, 1200)
       ..devicePixelRatio = 1;
@@ -107,7 +129,7 @@ void main() {
         locale: const Locale('ru'),
         home: BlocProvider<FlossCubit>.value(
           value: cubit,
-          child: FlossScreen(sharer: sharer),
+          child: FlossScreen(sharer: sharer, fileSharer: fileSharer, rasterizer: rasterizer),
         ),
       ),
     );
@@ -238,6 +260,102 @@ void main() {
     expect(share.text, contains('2. Гамма 3095 — 1 моток'));
     expect(share.text, contains('Итого: 2 мотка'));
     expect(share.origin, isNotNull);
+  });
+
+  testWidgets(
+    'печать: лист настроек показывает страницы, формат и места запоминаются, PDF уходит в «Поделиться» (T76, T80)',
+    (
+      tester,
+    ) async {
+      await pumpScreen(tester);
+
+      await tester.tap(find.text('Распечатать схему (PDF)'));
+      await tester.pumpAndSettle();
+      expect(find.text('Печать схемы'), findsOneWidget);
+      expect(find.textContaining('Страниц: 2 (схема 1 + легенда 1)'), findsOneWidget);
+
+      await tester.tap(find.text('A3'));
+      await tester.tap(find.byKey(const ValueKey<String>('print-slots-minus')));
+      await tester.pumpAndSettle();
+      expect(find.text('45'), findsOneWidget);
+      await tester.tap(find.byKey(const ValueKey<String>('print-build')));
+      await tester.pumpAndSettle();
+
+      expect(printer.calls.single.title, 'Котик');
+      expect(printer.calls.single.options, const PrintOptions(paper: PrintPaper.a3, slotsPerRack: 45));
+      final share = fileSharer.shared.single;
+      expect(share.fileName, 'Котик.pdf');
+      expect(share.origin, isNotNull);
+      expect(await PrintOptionsStore(settings).load(), const PrintOptions(paper: PrintPaper.a3, slotsPerRack: 45));
+
+      // Следующая печать начинается с запомненных настроек.
+      await tester.tap(find.text('Распечатать схему (PDF)'));
+      await tester.pumpAndSettle();
+      expect(find.text('45'), findsOneWidget);
+    },
+  );
+
+  testWidgets('окно «Нитки»: номер места и образец с символом; места берутся из настройки вышивки (T83)', (
+    tester,
+  ) async {
+    await PrintOptionsStore(settings).save(const PrintOptions(slotsPerRack: 80), projectId: 'proj-1');
+    await pumpScreen(tester);
+
+    final Finder first = find.byKey(const ValueKey<String>('floss-color-slot-1'), skipOffstage: false);
+    expect(tester.widget<Text>(first).data, '1');
+    expect(
+      tester.widget<Text>(find.byKey(const ValueKey<String>('floss-color-slot-2'), skipOffstage: false)).data,
+      '2',
+    );
+    expect(find.byType(LegendSwatch, skipOffstage: false), findsWidgets);
+    final FlossCubit cubit = tester.element(find.byType(FlossScreen)).read<FlossCubit>();
+    expect(cubit.state.printOptions.slotsPerRack, 80);
+  });
+
+  testWidgets('просмотр PDF: сначала страницы, «Поделиться» из просмотра отдаёт файл (T81)', (tester) async {
+    final FakePdfRasterizer rasterizer = FakePdfRasterizer()..pages = 3;
+    await pumpScreen(tester, rasterizer: rasterizer);
+
+    await tester.tap(find.text('Распечатать схему (PDF)'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey<String>('print-build')));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Страница 1 из 3'), findsOneWidget);
+    expect(fileSharer.shared, isEmpty, reason: 'сначала просмотр');
+    await tester.drag(find.byType(PageView), const Offset(-600, 0));
+    await tester.pumpAndSettle();
+    expect(find.text('Страница 2 из 3'), findsOneWidget);
+
+    await tester.tap(find.byIcon(AppIcons.share));
+    await tester.pumpAndSettle();
+    expect(fileSharer.shared.single.fileName, 'Котик.pdf');
+    expect(fileSharer.shared.single.origin, isNotNull);
+  });
+
+  testWidgets('ошибка сборки PDF: понятное сообщение, файл не отдаётся (T76)', (tester) async {
+    printer.failure = const UnexpectedFailure('boom');
+    await pumpScreen(tester);
+
+    await tester.tap(find.text('Распечатать схему (PDF)'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.byKey(const ValueKey<String>('print-build')));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Не удалось собрать PDF. Попробуйте ещё раз.'), findsOneWidget);
+    expect(fileSharer.shared, isEmpty);
+  });
+
+  testWidgets('отмена в листе настроек ничего не собирает', (tester) async {
+    await pumpScreen(tester);
+
+    await tester.tap(find.text('Распечатать схему (PDF)'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Отмена'));
+    await tester.pumpAndSettle();
+
+    expect(printer.calls, isEmpty);
+    expect(fileSharer.shared, isEmpty);
   });
 
   testWidgets('бисерная схема: сообщение, что мулине считается только для канвы', (tester) async {

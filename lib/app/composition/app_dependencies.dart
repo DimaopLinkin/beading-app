@@ -5,6 +5,7 @@ import 'package:beading/app/composition/grid_module.dart';
 import 'package:beading/app/composition/projects_module.dart';
 import 'package:beading/app/composition/settings_module.dart';
 import 'package:beading/app/composition/stitching_module.dart';
+import 'package:beading/app/composition/sync_module.dart';
 import 'package:beading/app/composition/weaving_module.dart';
 import 'package:beading/data/catalog/catalog_asset_source.dart';
 
@@ -12,7 +13,7 @@ import 'package:beading/data/catalog/catalog_asset_source.dart';
 ///
 /// Пока миграция идёт, ещё не переведённые фичи собирает `di.dart`, беря ядро отсюда.
 final class AppDependencies {
-  AppDependencies({required this.core, CatalogAssetSource? catalogAssets})
+  AppDependencies({required this.core, this.sync, CatalogAssetSource? catalogAssets})
     : catalog = CatalogModule(core: core, assets: catalogAssets),
       projects = ProjectsModule(core: core),
       easterEggs = EasterEggsModule(core: core),
@@ -37,6 +38,9 @@ final class AppDependencies {
   final EasterEggsModule easterEggs;
   final SettingsModule settings;
 
+  /// `null`, если сборка не знает адрес Supabase: синхронизации нет, приложение работает локально.
+  final SyncModule? sync;
+
   bool _disposed = false;
 
   /// Закрывает объекты приложения в обратном порядке создания. Повторный вызов ничего не делает.
@@ -45,6 +49,7 @@ final class AppDependencies {
       return;
     }
     _disposed = true;
+    await sync?.dispose();
     await easterEggs.dispose();
     await core.dispose();
   }

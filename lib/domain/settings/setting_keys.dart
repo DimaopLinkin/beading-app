@@ -52,6 +52,14 @@ abstract final class SettingKeys {
     decode: _identity,
   );
 
+  /// Настройки печати схемы (формат листа и мест на стойке игл), строкой `a4:50`; разбирает `PrintOptions.decode`.
+  static const SettingKey<String> printOptions = SettingKey<String>(
+    name: 'printOptions',
+    defaultValue: 'a4:50',
+    encode: _identity,
+    decode: _identity,
+  );
+
   /// Имя пользовательницы в текстах комплиментов (`{name}`).
   static const SettingKey<String> userName = SettingKey<String>(
     name: 'userName',

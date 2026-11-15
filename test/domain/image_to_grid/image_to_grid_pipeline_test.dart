@@ -142,6 +142,21 @@ void main() {
         expect(result.stats!.lightnessCorrelation, closeTo(1, 0.01));
       });
 
+      test('плавный переход получает все заданные нитки: близкие центры не схлопываются в одну (T74)', () {
+        // Тёплый градиент (как лоб от света к тени) и частый ряд ниток вдоль него: раньше соседние центры кластеров
+        // брали одну и ту же ближайшую нитку, и вместо двенадцати оттенков оставалось меньше, с резкими границами.
+        Rgb mix(double t) => Rgb((214 - 44 * t).round(), (164 - 40 * t).round(), (134 - 40 * t).round());
+        int hex(Rgb c) => (c.r << 16) | (c.g << 8) | c.b;
+        final SourceImage image = blockImage(<List<int>>[
+          <int>[for (int i = 0; i < 48; i++) hex(mix(i / 47))],
+        ], block: 2);
+        final List<PaletteEntry> threads = <PaletteEntry>[for (int i = 0; i < 14; i++) PaletteEntry(rgb: mix(i / 13))];
+        final GeneratedPattern result = pipeline.run(
+          request(image, columns: 48, rows: 1, maxColors: 12, constraint: PaletteConstraint.list(threads)),
+        );
+        expect(result.palette, hasLength(12));
+      });
+
       test('пиксельный путь с фильтром считает метрики по неотфильтрованному фото', () {
         final SourceImage image = blockImage(<List<int>>[
           <int>[0x000000, 0xFFFFFF],

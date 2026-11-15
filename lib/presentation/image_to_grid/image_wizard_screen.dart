@@ -7,6 +7,7 @@ import 'package:beading/domain/grid/bead_size.dart';
 import 'package:beading/domain/grid/fabric.dart';
 import 'package:beading/domain/grid/grid.dart';
 import 'package:beading/domain/image_pattern/crop_rect.dart';
+import 'package:beading/domain/image_pattern/pdf_rasterizer.dart';
 import 'package:beading/domain/image_to_grid/background_stage.dart';
 import 'package:beading/domain/image_to_grid/face_size_advisor.dart';
 import 'package:beading/domain/image_to_grid/generation_preset.dart';
@@ -16,8 +17,10 @@ import 'package:beading/domain/image_to_grid/size_suggester.dart';
 import 'package:beading/domain/palette/rgb.dart';
 import 'package:beading/domain/projects/craft.dart';
 import 'package:beading/domain/settings/floss_brands.dart';
+import 'package:beading/domain/sharing/file_sharer.dart';
 import 'package:beading/presentation/grid_pattern/grid_pattern_view.dart';
 import 'package:beading/presentation/grid_pattern/grid_view_options.dart';
+import 'package:beading/presentation/image_to_grid/floss_shopping_sheet.dart';
 import 'package:beading/presentation/image_to_grid/full_preview_screen.dart';
 import 'package:beading/presentation/image_to_grid/image_wizard_cubit.dart';
 import 'package:beading/presentation/image_to_grid/image_wizard_state.dart';
@@ -25,6 +28,7 @@ import 'package:beading/presentation/image_to_grid/importance_brush_mode.dart';
 import 'package:beading/presentation/import_book/crop_editor.dart';
 import 'package:beading/presentation/l10n/app_localizations.dart';
 import 'package:beading/presentation/library/project_labels.dart';
+import 'package:beading/presentation/printing/print_flow.dart';
 import 'package:beading/presentation/theme/app_icons.dart';
 import 'package:beading/presentation/theme/tokens.dart';
 import 'package:beading/presentation/widgets/app_list_section.dart';
@@ -33,13 +37,17 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 
 /// Мастер «Схема из картинки». Закрывается с id созданного проекта.
 class ImageWizardScreen extends StatelessWidget {
-  const ImageWizardScreen({this.cameraAvailable, super.key});
+  const ImageWizardScreen({this.cameraAvailable, this.fileSharer, this.rasterizer, super.key});
 
   /// Адрес экрана в роутере.
   static const String routePath = '/generate/image';
 
   /// Камера есть только на iPhone: на Mac `image_picker` её не поддерживает. `null` — решить по платформе.
   final bool? cameraAvailable;
+
+  /// Лист «Поделиться» для PDF схемы (T80); без него печати в мастере нет.
+  final FileSharer? fileSharer;
+  final PdfRasterizer? rasterizer;
 
   @override
   Widget build(BuildContext context) {
@@ -48,14 +56,34 @@ class ImageWizardScreen extends StatelessWidget {
       listenWhen: (previous, current) => current.step == ImageWizardStep.done && previous.step != ImageWizardStep.done,
       listener: (context, state) => Navigator.of(context).maybePop(state.projectId),
       builder: (context, state) => CupertinoPageScaffold(
-        navigationBar: CupertinoNavigationBar(
-          middle: Text(l10n.imageWizardTitle),
-          leading: CupertinoButton(
-            padding: EdgeInsets.zero,
-            onPressed: state.step == ImageWizardStep.saving ? null : () => Navigator.of(context).maybePop(),
-            child: Text(l10n.imageWizardCancel),
-          ),
-        ),
+        navigationBar: state.brushing && state.step == ImageWizardStep.edit
+            // Режим кисти (макет 12): одна панель навигации, «Отмена» и «Готово» кисти в ней.
+            ? CupertinoNavigationBar(
+                middle: Text(l10n.imageWizardBrushTitle),
+                leading: CupertinoButton(
+                  key: const ValueKey<String>('brush-cancel'),
+                  padding: EdgeInsets.zero,
+                  onPressed: context.read<ImageWizardCubit>().cancelBrush,
+                  child: Text(l10n.imageWizardCancel),
+                ),
+                trailing: CupertinoButton(
+                  key: const ValueKey<String>('brush-done'),
+                  padding: EdgeInsets.zero,
+                  onPressed: context.read<ImageWizardCubit>().finishBrush,
+                  child: Text(
+                    l10n.imageWizardBrushDone,
+                    style: const TextStyle(fontWeight: FontWeight.w600),
+                  ),
+                ),
+              )
+            : CupertinoNavigationBar(
+                middle: Text(state.editing ? l10n.imageWizardEditTitle : l10n.imageWizardTitle),
+                leading: CupertinoButton(
+                  padding: EdgeInsets.zero,
+                  onPressed: state.step == ImageWizardStep.saving ? null : () => Navigator.of(context).maybePop(),
+                  child: Text(l10n.imageWizardCancel),
+                ),
+              ),
         child: SafeArea(
           child: switch (state.step) {
             ImageWizardStep.pickSource || ImageWizardStep.done => Stack(
@@ -66,7 +94,10 @@ class ImageWizardScreen extends StatelessWidget {
             ),
             ImageWizardStep.edit || ImageWizardStep.saving => Stack(
               children: <Widget>[
-                if (state.brushing) ImportanceBrushMode(state: state) else _Edit(state: state),
+                if (state.brushing)
+                  ImportanceBrushMode(state: state)
+                else
+                  _Edit(state: state, fileSharer: fileSharer, rasterizer: rasterizer),
                 if (state.step == ImageWizardStep.saving) _Busy(text: l10n.imageWizardSaving),
               ],
             ),
@@ -243,6 +274,7 @@ class _Problem extends StatelessWidget {
     final Color color = CupertinoColors.systemRed.resolveFrom(context);
     final AppTokensData tokens = context.tokens;
     return Padding(
+      key: const ValueKey<String>('wizard-problem'),
       padding: EdgeInsets.only(bottom: tokens.spacing.m),
       child: Semantics(
         liveRegion: true,
@@ -303,7 +335,7 @@ class _PickSource extends StatelessWidget {
     return ListView(
       padding: EdgeInsets.all(context.tokens.spacing.l),
       children: <Widget>[
-        Text(l10n.imageWizardPickHint, textAlign: TextAlign.center),
+        Text(state.editing ? l10n.imageWizardEditNoPhoto : l10n.imageWizardPickHint, textAlign: TextAlign.center),
         SizedBox(height: gap),
         _Problem(state.problem),
         if (cameraAvailable)
@@ -330,9 +362,11 @@ class _PickSource extends StatelessWidget {
 }
 
 class _Edit extends StatefulWidget {
-  const _Edit({required this.state});
+  const _Edit({required this.state, this.fileSharer, this.rasterizer});
 
   final ImageWizardState state;
+  final FileSharer? fileSharer;
+  final PdfRasterizer? rasterizer;
 
   @override
   State<_Edit> createState() => _EditState();
@@ -368,15 +402,15 @@ class _EditState extends State<_Edit> {
               SizedBox(height: gap),
               Text(l10n.imageWizardCompareHint, textAlign: TextAlign.center, style: caption),
               SizedBox(height: gap),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
+              Wrap(
+                alignment: WrapAlignment.center,
+                spacing: gap,
                 children: <Widget>[
                   _IconAction(
                     icon: CupertinoIcons.rotate_right,
                     label: l10n.imageWizardRotate,
                     onPressed: cubit.rotate,
                   ),
-                  SizedBox(width: gap),
                   _IconAction(
                     icon: CupertinoIcons.crop,
                     label: l10n.imageWizardCrop,
@@ -404,22 +438,23 @@ class _EditState extends State<_Edit> {
                 ),
               ],
               SizedBox(height: gap),
-              _Section(
-                title: l10n.imageWizardCraft,
-                child: CupertinoSlidingSegmentedControl<Craft>(
-                  key: const ValueKey<String>('wizard-craft'),
-                  groupValue: settings.craft,
-                  children: <Craft, Widget>{
-                    Craft.beading: _SegmentLabel(l10n.imageWizardCraftBeading),
-                    Craft.crossStitch: _SegmentLabel(l10n.imageWizardCraftStitch),
-                  },
-                  onValueChanged: (value) {
-                    if (value != null) {
-                      cubit.setCraft(value);
-                    }
-                  },
+              if (!state.editing)
+                _Section(
+                  title: l10n.imageWizardCraft,
+                  child: CupertinoSlidingSegmentedControl<Craft>(
+                    key: const ValueKey<String>('wizard-craft'),
+                    groupValue: settings.craft,
+                    children: <Craft, Widget>{
+                      Craft.beading: _SegmentLabel(l10n.imageWizardCraftBeading),
+                      Craft.crossStitch: _SegmentLabel(l10n.imageWizardCraftStitch),
+                    },
+                    onValueChanged: (value) {
+                      if (value != null) {
+                        cubit.setCraft(value);
+                      }
+                    },
+                  ),
                 ),
-              ),
               AppListSection(
                 margin: EdgeInsets.zero,
                 children: <Widget>[
@@ -427,19 +462,21 @@ class _EditState extends State<_Edit> {
                     key: const ValueKey<String>('wizard-technique'),
                     title: Text(l10n.imageWizardTechnique),
                     additionalInfo: Text(settings.technique.label(l10n)),
-                    trailing: const CupertinoListTileChevron(),
-                    onTap: () async {
-                      final Technique? chosen = await _pick<Technique>(
-                        context,
-                        title: l10n.imageWizardTechnique,
-                        values: ImageToGridSettings.techniquesOf(settings.craft),
-                        label: (t) => t.label(l10n),
-                        cancel: l10n.imageWizardCancel,
-                      );
-                      if (chosen != null) {
-                        cubit.setTechnique(chosen);
-                      }
-                    },
+                    trailing: state.editing ? null : const CupertinoListTileChevron(),
+                    onTap: state.editing
+                        ? null
+                        : () async {
+                            final Technique? chosen = await _pick<Technique>(
+                              context,
+                              title: l10n.imageWizardTechnique,
+                              values: ImageToGridSettings.techniquesOf(settings.craft),
+                              label: (t) => t.label(l10n),
+                              cancel: l10n.imageWizardCancel,
+                            );
+                            if (chosen != null) {
+                              cubit.setTechnique(chosen);
+                            }
+                          },
                   ),
                   if (settings.craft == Craft.crossStitch) ...<Widget>[
                     CupertinoListTile.notched(
@@ -548,10 +585,10 @@ class _EditState extends State<_Edit> {
                     GenerationPreset.detailed => _PresetChoice.detailed,
                   },
                   children: <_PresetChoice, Widget>{
-                    _PresetChoice.asIs: _SegmentLabel(l10n.imageWizardPresetAsIs),
                     _PresetChoice.simpler: _SegmentLabel(l10n.imageWizardPresetSimpler),
                     _PresetChoice.balanced: _SegmentLabel(l10n.imageWizardPresetBalanced),
                     _PresetChoice.detailed: _SegmentLabel(l10n.imageWizardPresetDetailed),
+                    _PresetChoice.asIs: _SegmentLabel(l10n.imageWizardPresetAsIs),
                   },
                   onValueChanged: (value) {
                     if (value != null) {
@@ -696,6 +733,38 @@ class _EditState extends State<_Edit> {
                   ],
                 ),
               ),
+              if (state.flossEstimate != null && state.previewSettings?.craft == Craft.crossStitch) ...<Widget>[
+                SizedBox(height: gap),
+                AppListSection(
+                  margin: EdgeInsets.zero,
+                  children: <Widget>[
+                    CupertinoListTile.notched(
+                      key: const ValueKey<String>('wizard-shopping'),
+                      title: Text(l10n.imageWizardShopping),
+                      additionalInfo: Text(l10n.flossSkeins(state.flossEstimate!.totalSkeins)),
+                      trailing: const CupertinoListTileChevron(),
+                      onTap: () => unawaited(showFlossShoppingSheet(context, state.flossEstimate!)),
+                    ),
+                    if (cubit.canPrint && widget.fileSharer != null)
+                      CupertinoListTile.notched(
+                        key: const ValueKey<String>('wizard-print'),
+                        title: Text(l10n.flossPrint),
+                        leading: const Icon(AppIcons.print),
+                        trailing: const CupertinoListTileChevron(),
+                        onTap: () => unawaited(
+                          runPrintFlow(
+                            context,
+                            loadOptions: cubit.loadPrintOptions,
+                            summary: () async => cubit.printSummary,
+                            build: cubit.exportPdf,
+                            fileSharer: widget.fileSharer!,
+                            rasterizer: widget.rasterizer,
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
+              ],
               SizedBox(height: gap),
               AppListSection(
                 margin: EdgeInsets.zero,
@@ -757,19 +826,23 @@ class _EditState extends State<_Edit> {
                 onChanged: cubit.setName,
                 textInputAction: TextInputAction.done,
               ),
-              SizedBox(height: gap),
-              _Problem(state.problem),
             ],
           ),
         ),
+        // Ошибка стоит рядом с кнопкой: внизу прокручиваемого списка её не видно, и кнопка казалась сломанной.
+        if (state.problem != null)
+          Padding(
+            padding: EdgeInsets.fromLTRB(gap, gap / 2, gap, 0),
+            child: _Problem(state.problem),
+          ),
         Padding(
           padding: EdgeInsets.fromLTRB(gap, gap / 2, gap, gap),
           child: SizedBox(
             width: double.infinity,
             child: CupertinoButton.filled(
               key: const ValueKey<String>('wizard-save'),
-              onPressed: state.canSave ? cubit.save : null,
-              child: Text(l10n.imageWizardSave),
+              onPressed: state.canSave ? () => unawaited(_save(context, cubit, state)) : null,
+              child: Text(state.editing ? l10n.imageWizardSaveChanges : l10n.imageWizardSave),
             ),
           ),
         ),
@@ -806,7 +879,7 @@ String _beadLabel(AppLocalizations l10n, BeadSize size) {
 }
 
 /// Выбор детальности в мастере: «как на фото» (T24 без предустановки) и три предустановки.
-enum _PresetChoice { asIs, simpler, balanced, detailed }
+enum _PresetChoice { simpler, balanced, detailed, asIs }
 
 class _SegmentLabel extends StatelessWidget {
   const _SegmentLabel(this.text);
@@ -862,29 +935,149 @@ class _SliderRow extends StatelessWidget {
   final ValueChanged<int> onChanged;
 
   @override
-  Widget build(BuildContext context) => Padding(
-    padding: EdgeInsets.only(bottom: context.tokens.spacing.s),
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: <Widget>[
-        Row(
-          children: <Widget>[
-            Expanded(
-              child: Text(title, style: const TextStyle(fontWeight: FontWeight.w600)),
-            ),
-            Text('$value', key: ValueKey<String>('slider-value-$title')),
-          ],
-        ),
-        CupertinoSlider(
-          value: value.toDouble(),
-          min: min.toDouble(),
-          max: max.toDouble(),
-          divisions: max - min,
-          onChanged: (v) => onChanged(v.round()),
-        ),
-      ],
-    ),
+  Widget build(BuildContext context) => _StepSlider(
+    title: title,
+    value: value.toDouble(),
+    min: min.toDouble(),
+    max: max.toDouble(),
+    step: 1,
+    valueKey: ValueKey<String>('slider-value-$title'),
+    sliderKey: ValueKey<String>('slider-$title'),
+    id: 'slider-$title',
+    format: (v) => '${v.round()}',
+    onChanged: (v) => onChanged(v.round()),
   );
+}
+
+/// Строка «название, значение с кнопками − и +» и ползунок на всю ширину (T71). Тап по значению открывает ввод с
+/// клавиатуры: значение приводится к шагу и границам, как у ползунка.
+class _StepSlider extends StatelessWidget {
+  const _StepSlider({
+    required this.title,
+    required this.value,
+    required this.min,
+    required this.max,
+    required this.step,
+    required this.format,
+    required this.onChanged,
+    required this.valueKey,
+    required this.sliderKey,
+    required this.id,
+    this.sliderValue,
+  });
+
+  final String title;
+  final double value;
+
+  /// Положение ползунка, если оно отличается от [value] (например, ширина в сантиметрах прижимается к шагу).
+  final double? sliderValue;
+  final double min;
+  final double max;
+  final double step;
+  final String Function(double value) format;
+  final ValueChanged<double> onChanged;
+  final Key valueKey;
+  final Key sliderKey;
+
+  /// Основа ключей кнопок − и +.
+  final String id;
+
+  double _snap(double v) => ((v / step).round() * step).clamp(min, max);
+
+  Future<void> _type(BuildContext context) async {
+    final AppLocalizations l10n = AppLocalizations.of(context);
+    final TextEditingController controller = TextEditingController(text: format(value));
+    final String? entered = await showCupertinoDialog<String>(
+      context: context,
+      builder: (dialog) => CupertinoAlertDialog(
+        title: Text(title),
+        content: Padding(
+          padding: const EdgeInsets.only(top: 12),
+          child: CupertinoTextField(
+            key: const ValueKey<String>('step-slider-input'),
+            controller: controller,
+            autofocus: true,
+            keyboardType: const TextInputType.numberWithOptions(decimal: true),
+            textAlign: TextAlign.center,
+            onSubmitted: (text) => Navigator.of(dialog).pop(text),
+          ),
+        ),
+        actions: <Widget>[
+          CupertinoDialogAction(onPressed: () => Navigator.of(dialog).pop(), child: Text(l10n.imageWizardCancel)),
+          CupertinoDialogAction(
+            isDefaultAction: true,
+            onPressed: () => Navigator.of(dialog).pop(controller.text),
+            child: Text(l10n.imageWizardApply),
+          ),
+        ],
+      ),
+    );
+    controller.dispose();
+    final double? parsed = entered == null ? null : double.tryParse(entered.trim().replaceAll(',', '.'));
+    if (parsed != null) {
+      onChanged(_snap(parsed));
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final AppLocalizations l10n = AppLocalizations.of(context);
+    final double tap = context.tokens.minTapTarget;
+    final double at = sliderValue ?? value;
+    final bool canDecrease = at > min + 1e-9;
+    final bool canIncrease = at < max - 1e-9;
+    final int divisions = ((max - min) / step).round();
+    return Padding(
+      padding: EdgeInsets.only(bottom: context.tokens.spacing.s),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: <Widget>[
+          Row(
+            children: <Widget>[
+              Expanded(
+                child: Text(title, style: const TextStyle(fontWeight: FontWeight.w600)),
+              ),
+              CupertinoButton(
+                key: ValueKey<String>('$id-minus'),
+                padding: EdgeInsets.zero,
+                minimumSize: Size.square(tap),
+                onPressed: canDecrease ? () => onChanged(_snap((sliderValue ?? value) - step)) : null,
+                child: Semantics(
+                  label: l10n.imageWizardDecrease(title),
+                  child: const Icon(CupertinoIcons.minus_circle),
+                ),
+              ),
+              CupertinoButton(
+                key: valueKey,
+                padding: EdgeInsets.zero,
+                minimumSize: Size(tap, tap),
+                onPressed: () => _type(context),
+                child: Text(
+                  format(value),
+                  style: const TextStyle(fontFeatures: <FontFeature>[FontFeature.tabularFigures()]),
+                ),
+              ),
+              CupertinoButton(
+                key: ValueKey<String>('$id-plus'),
+                padding: EdgeInsets.zero,
+                minimumSize: Size.square(tap),
+                onPressed: canIncrease ? () => onChanged(_snap((sliderValue ?? value) + step)) : null,
+                child: Semantics(label: l10n.imageWizardIncrease(title), child: const Icon(CupertinoIcons.plus_circle)),
+              ),
+            ],
+          ),
+          CupertinoSlider(
+            key: sliderKey,
+            value: (sliderValue ?? value).clamp(min, max),
+            min: min,
+            max: max,
+            divisions: divisions,
+            onChanged: (v) => onChanged(_snap(v)),
+          ),
+        ],
+      ),
+    );
+  }
 }
 
 class _IconAction extends StatelessWidget {
@@ -1037,8 +1230,10 @@ class _Preview extends StatelessWidget {
                       grid.height,
                       _cm(shown!.fabric.cmForCells(grid.width)),
                       _cm(shown.fabric.cmForCells(grid.height)),
+                      state.preview!.palette.length,
+                      _fabricLabel(l10n, shown.fabric),
                     )
-                  : l10n.imageWizardSize(grid.width, grid.height),
+                  : l10n.imageWizardSize(grid.width, grid.height, state.preview!.palette.length),
               key: const ValueKey<String>('wizard-size'),
               style: TextStyle(fontSize: 13, color: CupertinoColors.secondaryLabel.resolveFrom(context)),
             ),
@@ -1123,20 +1318,17 @@ class _WidthCmRow extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
-          Row(
-            children: <Widget>[
-              Expanded(
-                child: Text(l10n.imageWizardWidthCm, style: const TextStyle(fontWeight: FontWeight.w600)),
-              ),
-              Text(l10n.imageWizardCm(_cm(shownCm)), key: const ValueKey<String>('wizard-width-cm')),
-            ],
-          ),
-          CupertinoSlider(
-            key: const ValueKey<String>('wizard-width-cm-slider'),
-            value: ImageToGridSettings.snapCm(settings.widthCm),
+          _StepSlider(
+            title: l10n.imageWizardWidthCm,
+            value: shownCm,
+            sliderValue: snapped,
             min: min,
             max: max,
-            divisions: ((max - min) / ImageToGridSettings.stitchCmStep).round(),
+            step: ImageToGridSettings.stitchCmStep,
+            valueKey: const ValueKey<String>('wizard-width-cm'),
+            sliderKey: const ValueKey<String>('wizard-width-cm-slider'),
+            id: 'wizard-width-cm',
+            format: (v) => l10n.imageWizardCm(_cm(v)),
             onChanged: onChanged,
           ),
           Text(
@@ -1189,4 +1381,37 @@ class _SwitchRow extends StatelessWidget {
       ],
     ),
   );
+}
+
+/// Сохраняет схему. Если правят схему, по которой уже есть отметки, предлагает только копию: новая сетка к отметкам
+/// прежней не подойдёт.
+Future<void> _save(BuildContext context, ImageWizardCubit cubit, ImageWizardState state) async {
+  if (!state.editing || !await cubit.editingHasProgress()) {
+    await cubit.save();
+    return;
+  }
+  if (!context.mounted) return;
+  final AppLocalizations l10n = AppLocalizations.of(context);
+  final bool? copy = await showCupertinoDialog<bool>(
+    context: context,
+    builder: (dialogContext) => CupertinoAlertDialog(
+      key: const ValueKey<String>('wizard-progress-dialog'),
+      title: Text(l10n.imageWizardProgressTitle),
+      content: Text(l10n.imageWizardProgressMessage),
+      actions: <Widget>[
+        CupertinoDialogAction(
+          onPressed: () => Navigator.of(dialogContext).pop(false),
+          child: Text(l10n.imageWizardCancel),
+        ),
+        CupertinoDialogAction(
+          isDefaultAction: true,
+          onPressed: () => Navigator.of(dialogContext).pop(true),
+          child: Text(l10n.imageWizardSaveAsCopy),
+        ),
+      ],
+    ),
+  );
+  if (copy ?? false) {
+    await cubit.save(asCopy: true);
+  }
 }

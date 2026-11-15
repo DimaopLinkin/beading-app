@@ -17,9 +17,9 @@ import 'package:beading/data/platform/method_channel_image_masks.dart';
 import 'package:beading/data/sharing/drift_unit_of_work.dart';
 import 'package:beading/data/sharing/file_picker_biser_picker.dart';
 import 'package:beading/data/sharing/platform_incoming_biser_files.dart';
-import 'package:beading/data/sharing/share_plus_file_sharer.dart';
 import 'package:beading/data/sharing/zip_biser_codec.dart';
 import 'package:beading/data/stitch_import/xml_oxs_decoder.dart';
+import 'package:beading/domain/bead_stock/bead_stock_repository.dart';
 import 'package:beading/domain/catalog/catalog_repository.dart';
 import 'package:beading/domain/events/app_events.dart';
 import 'package:beading/domain/floss_stock/floss_stock_repository.dart';
@@ -39,8 +39,12 @@ import 'package:beading/domain/image_pattern/picked_book_file.dart';
 import 'package:beading/domain/image_pattern/use_cases/import_book_pattern.dart';
 import 'package:beading/domain/image_to_grid/image_decoder.dart';
 import 'package:beading/domain/image_to_grid/image_masks.dart';
+import 'package:beading/domain/image_to_grid/image_recipe.dart';
 import 'package:beading/domain/image_to_grid/image_to_grid_runner.dart';
 import 'package:beading/domain/image_to_grid/use_cases/create_pattern_from_image.dart';
+import 'package:beading/domain/image_to_grid/use_cases/replace_pattern_from_image.dart';
+import 'package:beading/domain/printing/pattern_printer.dart';
+import 'package:beading/domain/printing/use_cases/export_pattern_pdf.dart';
 import 'package:beading/domain/projects/load_project_preview.dart';
 import 'package:beading/domain/projects/project_content_cleaner.dart';
 import 'package:beading/domain/projects/project_content_cloner.dart';
@@ -84,9 +88,6 @@ final GetIt getIt = GetIt.instance;
 /// повторный вызов сначала сбрасывает прежние регистрации.
 ///
 /// [database] — готовая база (в тестах — в памяти); без неё открывается файл в Application Support.
-/// Длинная сторона картинки в мастере «картинка → схема», пикселей.
-const int _wizardImageMaxSide = 2048;
-
 Future<void> configureDependencies(
   AppDependencies dependencies, {
   GetIt? locator,
@@ -171,16 +172,27 @@ Future<void> configureDependencies(
       () => ImageWizardCubit(
         source: container<BookImageSource>(),
         // Генератору хватает 2048: поворот и обрезка отзываются быстрее, пик памяти и маска Vision меньше. Книги — 4096.
-        processor: const UiImageProcessor(maxSide: _wizardImageMaxSide),
+        processor: const UiImageProcessor(maxSide: wizardImageMaxSide),
         decoder: container<ImageDecoder>(),
         runner: container<ImageToGridRunner>(),
         masks: container<ImageMasks>(),
         catalog: container<CatalogRepository>(),
         settings: container<SettingsRepository>(),
         createPattern: CreatePatternFromImage(container<CreateGridPattern>()),
+        recipes: container<ImageRecipeStore>(),
+        replacePattern: ReplacePatternFromImage(
+          patterns: container<GridPatternRepository>(),
+          rows: container<GridProgressStore>(),
+          cells: container<CellProgressStore>(),
+          projects: container<ProjectRepository>(),
+        ),
+        projects: container<ProjectRepository>(),
+        patterns: container<GridPatternRepository>(),
+        printer: container<PatternPrinter>(),
         sizeHints: true,
       ),
     )
+    ..registerLazySingleton<ImageRecipeStore>(() => ImageRecipeStore(container<FileStore>()))
     ..registerLazySingleton<BookWorkRepository>(
       () => DriftBookWorkRepository(
         dao: db.bookWorkDao,
@@ -194,6 +206,7 @@ Future<void> configureDependencies(
         cleaners: <ProjectContentCleaner>[
           container<ImagePatternContentCleaner>(),
           container<GridPatternContentCleaner>(),
+          ImageRecipeContentCleaner(container<ImageRecipeStore>()),
           container<WorkSessionContentCleaner>(),
         ],
       ),
@@ -221,10 +234,13 @@ Future<void> configureDependencies(
     )
     ..registerLazySingleton<CatalogRepository>(() => dependencies.catalog.repository)
     ..registerLazySingleton<FlossStockRepository>(() => dependencies.catalog.flossStock)
+    ..registerLazySingleton<BeadStockRepository>(() => dependencies.catalog.beadStock)
+    ..registerLazySingleton<PatternPrinter>(() => dependencies.grid.printer)
+    ..registerFactory<ExportPatternPdf>(() => dependencies.grid.exportPatternPdf())
     // Экспорт/импорт .biser и резервная копия (T21).
     ..registerLazySingleton<BiserCodec>(() => const ZipBiserCodec())
     ..registerLazySingleton<UnitOfWork>(() => DriftUnitOfWork(db))
-    ..registerLazySingleton<FileSharer>(SharePlusFileSharer.new)
+    ..registerLazySingleton<FileSharer>(() => core.fileSharer)
     ..registerLazySingleton<BiserFilePicker>(() => const FilePickerBiserPicker())
     ..registerLazySingleton<IncomingBiserFiles>(PlatformIncomingBiserFiles.new)
     ..registerFactory<ExportProjects>(
@@ -241,6 +257,7 @@ Future<void> configureDependencies(
         clock: container<Clock>(),
         appInfo: container<AppInfoProvider>(),
         flossStock: container<FlossStockRepository>(),
+        beadStock: container<BeadStockRepository>(),
       ),
     )
     ..registerFactory<ImportBiser>(
@@ -257,6 +274,7 @@ Future<void> configureDependencies(
         ids: container<IdGenerator>(),
         unitOfWork: container<UnitOfWork>(),
         flossStock: container<FlossStockRepository>(),
+        beadStock: container<BeadStockRepository>(),
       ),
     )
     ..registerLazySingleton<OxsDecoder>(() => const XmlOxsDecoder())
