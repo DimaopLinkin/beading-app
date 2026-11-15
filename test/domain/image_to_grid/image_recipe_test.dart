@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:beading/domain/catalog/bead_finish_group.dart';
@@ -45,6 +46,14 @@ void main() {
   test('рецепт записывается и читается без потерь', () {
     final ImageRecipe? back = ImageRecipeCodec.decode(ImageRecipeCodec.encode(recipe), recipe.source);
     expect(back, recipe);
+  });
+
+  test('старый рецепт без ключа запаса читается с выключенным запасом (T34)', () {
+    final Map<String, Object?> json = jsonDecode(ImageRecipeCodec.encode(recipe)) as Map<String, Object?>;
+    (json['settings']! as Map<String, Object?>).remove('stash');
+    final ImageRecipe? old = ImageRecipeCodec.decode(jsonEncode(json), recipe.source);
+    expect(old, isNotNull);
+    expect(old!.settings.onlyStash, isFalse);
   });
 
   test('рецепт без предустановки остаётся без неё', () {

@@ -3298,7 +3298,7 @@ abstract class AppLocalizations {
   /// Пояснение, когда в запасе меньше цветов, чем в схеме
   ///
   /// In ru, this message translates to:
-  /// **'В запасе подходит всего {available} цветов, а в схеме их до {wanted}: она получится из того, что есть.'**
+  /// **'В запасе подходит всего {available, plural, one{{available} цвет} few{{available} цвета} many{{available} цветов} other{{available} цветов}}, а в схеме их до {wanted}: она получится из того, что есть.'**
   String imageWizardStashFew(int available, int wanted);
 
   /// Переключатель бленда мулине

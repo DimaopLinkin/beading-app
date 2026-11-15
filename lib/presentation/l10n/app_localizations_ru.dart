@@ -1869,7 +1869,15 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String imageWizardStashFew(int available, int wanted) {
-    return 'В запасе подходит всего $available цветов, а в схеме их до $wanted: она получится из того, что есть.';
+    String _temp0 = intl.Intl.pluralLogic(
+      available,
+      locale: localeName,
+      other: '$available цветов',
+      many: '$available цветов',
+      few: '$available цвета',
+      one: '$available цвет',
+    );
+    return 'В запасе подходит всего $_temp0, а в схеме их до $wanted: она получится из того, что есть.';
   }
 
   @override

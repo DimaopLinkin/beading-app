@@ -1210,7 +1210,7 @@
   "@imageWizardStashHint": {"description": "Пояснение к переключателю «Только из моего запаса»"},
   "imageWizardStashEmpty": "В запасе нет подходящих цветов, поэтому схему не из чего собирать. Добавь нитки или бисер в «Мой запас» или выключи переключатель.",
   "@imageWizardStashEmpty": {"description": "Пояснение, когда в запасе нет ни одного подходящего цвета"},
-  "imageWizardStashFew": "В запасе подходит всего {available} цветов, а в схеме их до {wanted}: она получится из того, что есть.",
+  "imageWizardStashFew": "В запасе подходит всего {available, plural, one{{available} цвет} few{{available} цвета} many{{available} цветов} other{{available} цветов}}, а в схеме их до {wanted}: она получится из того, что есть.",
   "@imageWizardStashFew": {"description": "Пояснение, когда в запасе меньше цветов, чем в схеме", "placeholders": {"available": {"type": "int"}, "wanted": {"type": "int"}}},
   "imageWizardBlends": "Бленды из двух ниток",
   "@imageWizardBlends": {"description": "Переключатель бленда мулине"},
