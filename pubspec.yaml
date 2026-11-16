@@ -42,6 +42,7 @@ flutter:
   assets:
     - assets/compliments/
     - assets/catalog/
+    - assets/step_templates/
 
 dev_dependencies:
   flutter_test:

@@ -4,6 +4,7 @@ import 'package:beading/app/composition/core_module.dart';
 import 'package:beading/app/composition/projects_module.dart';
 import 'package:beading/data/image_pattern/picker_book_image_source.dart';
 import 'package:beading/data/image_pattern/ui_image_processor.dart';
+import 'package:beading/data/steps/asset_step_template_source.dart';
 import 'package:beading/data/steps/drift_step_pattern_repository.dart';
 import 'package:beading/data/steps/drift_steps_progress_store.dart';
 import 'package:beading/domain/catalog/catalog_color.dart';
@@ -35,8 +36,9 @@ final class StepsModule {
     required CoreModule core,
     required ProjectsModule projects,
     required CatalogModule catalog,
-    this.templates = const EmptyStepTemplateSource(),
-  }) : _core = core,
+    StepTemplateSource? templates,
+  }) : templates = templates ?? AssetStepTemplateSource(),
+       _core = core,
        _projects = projects,
        _catalog = catalog;
 
@@ -74,7 +76,7 @@ final class StepsModule {
     ids: _core.ids,
   );
 
-  /// Встроенные шаблоны. Реализацию на ассетах подключит T33e; до того шаблонов нет.
+  /// Встроенные шаблоны из `assets/step_templates` (T33e).
   final StepTemplateSource templates;
 
   StepNavigation navigation() => StepNavigation(progress);
