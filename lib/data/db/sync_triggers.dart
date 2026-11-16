@@ -21,8 +21,21 @@ abstract final class SyncTriggers {
   /// Триггеры, существовавшие до появления запаса бисера (схема v14–v15): шаг миграции v13→v14 ещё не знает
   /// таблицу `bead_stock`.
   static List<String> get statementsBeforeBeadStock => <String>[
-    for (final String sql in statements)
+    for (final String sql in statementsBeforeSteps)
       if (!sql.contains(' ON bead_stock ')) sql,
+  ];
+
+  /// Триггеры до появления инструкций (схема v14–v17): таблиц `step_*` в этих версиях ещё нет.
+  static List<String> get statementsBeforeSteps => <String>[
+    for (final String sql in statements)
+      if (!sql.contains(' ON step_')) sql,
+  ];
+
+  /// Ставит в очередь инструкции, созданные до появления триггеров (миграция v17→v18).
+  static const List<String> enqueueExistingSteps = <String>[
+    "INSERT OR IGNORE INTO sync_outbox (entity, sync_id) SELECT 'step_pattern', project_id FROM step_patterns",
+    "INSERT OR IGNORE INTO sync_outbox (entity, sync_id) SELECT 'step_image', (SELECT project_id FROM step_patterns WHERE id = i.pattern_id) || ':' || i.id FROM step_images i",
+    "INSERT OR IGNORE INTO sync_outbox (entity, sync_id) SELECT 'step_progress', (SELECT project_id FROM step_patterns WHERE id = g.id) FROM step_progress g",
   ];
 
   /// Все выражения для создания (и пересоздания) триггеров.
@@ -89,6 +102,15 @@ abstract final class SyncTriggers {
       'image_pattern_page',
       "${_projectOfImagePattern('NEW.pattern_id')} || ':' || NEW.position",
     );
+
+    // Инструкции (T33b): документ, картинки (файл в Storage) и курсор — три сущности со своими ключами.
+    both('step_patterns', 'step_pattern', 'NEW.project_id');
+    both(
+      'step_images',
+      'step_image',
+      "(SELECT project_id FROM step_patterns WHERE id = NEW.pattern_id) || ':' || NEW.id",
+    );
+    both('step_progress', 'step_progress', '(SELECT project_id FROM step_patterns WHERE id = NEW.id)');
 
     const String pageKey =
         "(SELECT (SELECT project_id FROM image_patterns WHERE id = p.pattern_id) || ':' || p.position FROM image_pattern_pages p WHERE p.id = NEW.id)";

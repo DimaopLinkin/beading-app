@@ -71,7 +71,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase(super.e);
 
   @override
-  int get schemaVersion => 17;
+  int get schemaVersion => 18;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -141,13 +141,20 @@ class AppDatabase extends _$AppDatabase {
       // v16 (A-bead-stock): запас бисера; триггеры очереди пересоздаются, чтобы охватить новую таблицу.
       from15To16: (m, schema) async {
         await m.createTable(schema.beadStock);
-        await _createSyncTriggers();
+        await _createSyncTriggers(SyncTriggers.statementsBeforeSteps);
       },
       // v17 (T33a): пошаговые инструкции, их картинки и курсор прогресса. Триггеры очереди придут с мапперами (T33b).
       from16To17: (m, schema) async {
         await m.createTable(schema.stepPatterns);
         await m.createTable(schema.stepImages);
         await m.createTable(schema.stepProgress);
+      },
+      // v18 (T33b): триггеры очереди для инструкций; уже созданные инструкции уходят в очередь целиком.
+      from17To18: (m, schema) async {
+        await _createSyncTriggers();
+        for (final String sql in SyncTriggers.enqueueExistingSteps) {
+          await customStatement(sql);
+        }
       },
     ),
     beforeOpen: (details) => customStatement('PRAGMA foreign_keys = ON'),
