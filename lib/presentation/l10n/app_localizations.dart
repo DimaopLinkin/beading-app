@@ -3301,6 +3301,24 @@ abstract class AppLocalizations {
   /// **'В запасе подходит всего {available, plural, one{{available} цвет} few{{available} цвета} many{{available} цветов} other{{available} цветов}}, а в схеме их до {wanted}: она получится из того, что есть.'**
   String imageWizardStashFew(int available, int wanted);
 
+  /// Переключатель смешанной техники: полукрест поверх креста
+  ///
+  /// In ru, this message translates to:
+  /// **'Смешанные стежки'**
+  String get imageWizardMixed;
+
+  /// Пояснение к смешанным стежкам
+  ///
+  /// In ru, this message translates to:
+  /// **'Сверху на полный крест кладётся полукрест другой нитки из этой же схемы: плавные переходы без новых цветов. Шьётся дольше.'**
+  String get imageWizardMixedHint;
+
+  /// Сколько полукрестов предложено
+  ///
+  /// In ru, this message translates to:
+  /// **'{count, plural, one{Один полукрест} few{{count} полукреста} many{{count} полукрестов} other{{count} полукрестов}} сверху крестов.'**
+  String imageWizardMixedCount(int count);
+
   /// Переключатель бленда мулине
   ///
   /// In ru, this message translates to:

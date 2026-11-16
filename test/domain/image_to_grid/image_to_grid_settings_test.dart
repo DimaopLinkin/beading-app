@@ -108,6 +108,14 @@ void main() {
       expect(s.catalogFor(floss, brand: 'DMC', stash: stash).map((c) => c.code), <String>['310', '403']);
     });
 
+    test('смешанные стежки включаются только у обычного креста (T72)', () {
+      const ImageToGridSettings stitch = ImageToGridSettings(technique: Technique.crossStitch, mixedStitches: true);
+      expect(stitch.toRequest(image: image).overlays, isTrue);
+      expect(stitch.copyWith(mixedStitches: false).toRequest(image: image).overlays, isFalse);
+      expect(stitch.copyWith(technique: Technique.tent).toRequest(image: image).overlays, isFalse);
+      expect(const ImageToGridSettings(mixedStitches: true).toRequest(image: image).overlays, isFalse);
+    });
+
     test('выбор серии в мастере сильнее бренда по умолчанию', () {
       const ImageToGridSettings s = ImageToGridSettings(beadSeries: BeadSeries.round);
       expect(s.catalogFor(catalog, brand: 'Miyuki').map((c) => c.code), <String>['T-1']);

@@ -653,6 +653,16 @@ class _EditState extends State<_Edit> {
                   value: settings.backstitch,
                   onChanged: (value) => cubit.setBackstitch(value: value),
                 ),
+                if (settings.technique == Technique.crossStitch)
+                  _SwitchRow(
+                    switchKey: const ValueKey<String>('wizard-mixed'),
+                    title: l10n.imageWizardMixed,
+                    hint: state.preview == null || !settings.mixedStitches || state.calculating
+                        ? l10n.imageWizardMixedHint
+                        : '${l10n.imageWizardMixedHint}\n${l10n.imageWizardMixedCount(state.preview!.partials.length)}',
+                    value: settings.mixedStitches,
+                    onChanged: (value) => cubit.setMixedStitches(value: value),
+                  ),
                 if ((state.preview?.blendSuggestions.isNotEmpty ?? false) || settings.blends)
                   _SwitchRow(
                     switchKey: const ValueKey<String>('wizard-blends'),

@@ -24,6 +24,9 @@ enum StitchOrientation { topLeft, topRight, bottomLeft, bottomRight, slash, back
 
 /// Неполный крестик в клетке `(column, row)`. Цвет — значение сетки, то есть `palette[color - 1]`.
 ///
+/// Неполный крестик может лежать и на пустой клетке, и поверх полного креста в закрашенной (смешанная техника, T72:
+/// полукрест другой нитки сверху).
+///
 /// В клетке может быть несколько неполных крестиков, но не два одного вида с одной ориентацией: это ключ [key].
 final class PartialStitch extends Equatable implements Comparable<PartialStitch> {
   PartialStitch({

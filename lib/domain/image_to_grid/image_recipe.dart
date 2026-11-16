@@ -71,6 +71,7 @@ abstract final class ImageRecipeCodec {
         'backstitch': s.backstitch,
         'blends': s.blends,
         'stash': s.onlyStash,
+        'mixed': s.mixedStitches,
       },
     });
   }
@@ -109,6 +110,7 @@ abstract final class ImageRecipeCodec {
         backstitch: s['backstitch']! as bool,
         blends: s['blends']! as bool,
         onlyStash: (s['stash'] as bool?) ?? false,
+        mixedStitches: (s['mixed'] as bool?) ?? false,
       );
       return ImageRecipe(
         source: source,

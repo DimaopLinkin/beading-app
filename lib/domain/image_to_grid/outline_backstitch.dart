@@ -33,7 +33,7 @@ final class OutlineBackstitch {
   const OutlineBackstitch({
     this.contrast = 22,
     this.minLength = 4,
-    this.tolerance = 0.75,
+    this.tolerance = 1.25,
     this.maxStitch = 6,
     this.weakRatio = 0.5,
     this.hysteresis = 2,
@@ -42,6 +42,9 @@ final class OutlineBackstitch {
     this.budget = 0.07,
     this.minBudget = 24,
     this.featureBoost = 2,
+    this.gap = 2.5,
+    this.spur = 2,
+    this.minComponent = 6,
   }) : assert(contrast > 0, 'порог контраста положителен'),
        assert(minLength >= 1, 'минимум одна клетка'),
        assert(tolerance >= 0, 'допуск неотрицателен'),
@@ -51,7 +54,10 @@ final class OutlineBackstitch {
        assert(outsideWeight > 0 && outsideWeight <= 1, 'вес вне объекта — от 0 до 1'),
        assert(budget > 0, 'бюджет положителен'),
        assert(minBudget >= 0, 'минимальный бюджет неотрицателен'),
-       assert(featureBoost >= 1, 'усиление черт не ослабляет');
+       assert(featureBoost >= 1, 'усиление черт не ослабляет'),
+       assert(gap >= 0, 'разрыв неотрицателен'),
+       assert(spur >= 0, 'отросток неотрицателен'),
+       assert(minComponent >= 1, 'минимум одна клетка');
 
   /// Порог контраста ΔE2000 между средними цветами соседних клеток для «сильной» границы.
   final double contrast;
@@ -85,6 +91,16 @@ final class OutlineBackstitch {
 
   /// Во сколько раз контраст границ у черт лица ([build]`.features`) считается сильнее; светлая сторона им не мешает.
   final double featureBoost;
+
+  /// Разрыв между концами двух линий (в клетках), который склеивается в одну линию (T73): контур не рвётся там, где
+  /// контраст на пару клеток просел.
+  final double gap;
+
+  /// Боковые отростки короче этого (в клетках) на развилке срезаются: от них остаются «усики» и рваные края.
+  final int spur;
+
+  /// Связная линия короче этого (в клетках, с учётом склеек) отбрасывается; у черт лица порог мягче (3).
+  final int minComponent;
 
   /// Линии контуров цвета [color] (значение сетки, от 1). [subject] — маска объекта по клеткам (`1` — объект, как в
   /// T55) или `null`; [features] — клетки черт лица (`1`) или `null`; [work] и [regions] описывают ту же схему: [regions.columns] и [regions.rows] равны размеру [grid].
@@ -183,6 +199,9 @@ final class OutlineBackstitch {
       link(edgeNodes[key]!.$1, edgeNodes[key]!.$2);
     }
 
+    _pruneSpurs(links);
+    final Set<(int, int)> bridged = _bridgeGaps(links, stride);
+
     // Узлы у черт лица: короткие обводки глаз и бровей не отбрасываются как обрывки (от двух клеток).
     final Set<int> featureNodes = <int>{};
     if (features != null) {
@@ -193,6 +212,7 @@ final class OutlineBackstitch {
         featureNodes.addAll(<int>[node(x, y), node(x + 1, y), node(x, y + 1), node(x + 1, y + 1)]);
       }
     }
+    _dropShortComponents(links, featureNodes, bridged, stride);
     final List<List<int>> chains = <List<int>>[
       for (final List<int> chain in _chains(links))
         if (chain.length - 1 >= minLength || (chain.length - 1 >= 3 && chain.every(featureNodes.contains))) chain,
@@ -241,6 +261,126 @@ final class OutlineBackstitch {
       for (final LineStitch l in lines) l.key: l,
     };
     return unique.values.toList()..sort();
+  }
+
+  /// Срезает короткие отростки: от конца до развилки не больше [spur] отрезков.
+  void _pruneSpurs(Map<int, Set<int>> links) {
+    if (spur == 0) return;
+    final List<int> ends = <int>[
+      for (final int n in links.keys.toList()..sort())
+        if (links[n]!.length == 1) n,
+    ];
+    for (final int start in ends) {
+      final List<int> path = <int>[start];
+      int previous = -1;
+      int current = start;
+      while (path.length <= spur + 1) {
+        final Set<int> next = links[current]!;
+        if (current != start && next.length != 2) break;
+        final int following = next.firstWhere((n) => n != previous, orElse: () => -1);
+        if (following < 0) break;
+        previous = current;
+        current = following;
+        path.add(current);
+      }
+      // Дошли до развилки (узел с тремя связями и больше) за не больше [spur] шагов: срезаем отросток до неё.
+      if (path.length - 1 <= spur && links[current]!.length >= 3) {
+        for (int i = 0; i + 1 < path.length; i++) {
+          links[path[i]]!.remove(path[i + 1]);
+          links[path[i + 1]]!.remove(path[i]);
+        }
+        links.removeWhere((_, v) => v.isEmpty);
+      }
+    }
+  }
+
+  /// Склеивает ближайшие друг к другу концы разных линий, если между ними не больше [gap] клеток (T73).
+  Set<(int, int)> _bridgeGaps(Map<int, Set<int>> links, int stride) {
+    final Set<(int, int)> bridged = <(int, int)>{};
+    if (gap == 0) return bridged;
+    final Map<int, int> component = _components(links);
+    final List<int> ends = <int>[
+      for (final int n in links.keys.toList()..sort())
+        if (links[n]!.length == 1) n,
+    ];
+    final Set<int> used = <int>{};
+    // Все пары концов разных линий в пределах [gap], ближайшие первыми.
+    final List<(double, int, int)> pairs = <(double, int, int)>[];
+    for (int i = 0; i < ends.length; i++) {
+      for (int j = i + 1; j < ends.length; j++) {
+        if (component[ends[i]] == component[ends[j]]) continue;
+        final double d = _nodeDistance(ends[i], ends[j], stride);
+        if (d <= gap) pairs.add((d, ends[i], ends[j]));
+      }
+    }
+    pairs.sort(
+      (a, b) => a.$1 != b.$1
+          ? a.$1.compareTo(b.$1)
+          : a.$2 != b.$2
+          ? a.$2.compareTo(b.$2)
+          : a.$3.compareTo(b.$3),
+    );
+    for (final (double, int, int) pair in pairs) {
+      if (used.contains(pair.$2) || used.contains(pair.$3)) continue;
+      used
+        ..add(pair.$2)
+        ..add(pair.$3);
+      links[pair.$2]!.add(pair.$3);
+      links[pair.$3]!.add(pair.$2);
+      bridged.add(pair.$2 < pair.$3 ? (pair.$2, pair.$3) : (pair.$3, pair.$2));
+    }
+    return bridged;
+  }
+
+  static double _nodeDistance(int p, int q, int stride) {
+    final double dx = ((p % stride) - (q % stride)).toDouble();
+    final double dy = ((p ~/ stride) - (q ~/ stride)).toDouble();
+    return math.sqrt(dx * dx + dy * dy);
+  }
+
+  /// Отбрасывает связные линии короче [minComponent] (у черт лица — короче трёх).
+  void _dropShortComponents(
+    Map<int, Set<int>> links,
+    Set<int> featureNodes,
+    Set<(int, int)> bridged,
+    int stride,
+  ) {
+    final Map<int, int> component = _components(links);
+    final Map<int, double> length = <int, double>{};
+    final Map<int, bool> onlyFeatures = <int, bool>{};
+    for (final int n in links.keys) {
+      final int c = component[n]!;
+      for (final int m in links[n]!) {
+        if (m < n) continue;
+        length[c] = (length[c] ?? 0) + (bridged.contains((n, m)) ? _nodeDistance(n, m, stride) : 1);
+      }
+      onlyFeatures[c] = (onlyFeatures[c] ?? true) && featureNodes.contains(n);
+    }
+    final Set<int> drop = <int>{
+      for (final MapEntry<int, double> e in length.entries)
+        if (e.value < (onlyFeatures[e.key]! ? 3 : minComponent)) e.key,
+    };
+    for (final int n in links.keys.toList()) {
+      if (drop.contains(component[n])) links.remove(n);
+    }
+  }
+
+  /// Номер связной линии для каждого узла.
+  static Map<int, int> _components(Map<int, Set<int>> links) {
+    final Map<int, int> out = <int, int>{};
+    for (final int start in links.keys.toList()..sort()) {
+      if (out.containsKey(start)) continue;
+      out[start] = start;
+      final List<int> stack = <int>[start];
+      while (stack.isNotEmpty) {
+        for (final int m in links[stack.removeLast()]!) {
+          if (out.containsKey(m)) continue;
+          out[m] = start;
+          stack.add(m);
+        }
+      }
+    }
+    return out;
   }
 
   /// Самый тёмный из цветов, которые есть в сетке: цвет для контура; `null`, если сетка пуста.

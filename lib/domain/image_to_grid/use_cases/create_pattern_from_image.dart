@@ -62,6 +62,7 @@ class CreatePatternFromImage {
         rows: pattern.grid.height,
         defaultSpec: spec,
         lines: pattern.lines,
+        partials: pattern.partials,
       ),
     );
   }
