@@ -9,8 +9,14 @@ import 'package:beading/domain/steps/step_template.dart';
 import 'package:beading/domain/steps/use_cases/create_step_pattern.dart';
 import 'package:beading/domain/steps/use_cases/save_step_pattern.dart';
 import 'package:beading/domain/steps/use_cases/step_navigation.dart';
+import 'package:beading/domain/weaving/work_session_tracker.dart';
+import 'package:beading/presentation/steps/steps_work_cubit.dart';
+import 'package:beading/presentation/steps/steps_work_screen.dart';
+import 'package:flutter/widgets.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 
-/// Пошаговые инструкции для техник без сетки (ADR-0008). Маршрутов и экранов пока нет: их добавят T33c и T33d.
+/// Пошаговые инструкции для техник без сетки (ADR-0008). Экран работы (T33c) и маршрут; создание и редактор добавит T33d.
 final class StepsModule {
   StepsModule({
     required CoreModule core,
@@ -63,4 +69,34 @@ final class StepsModule {
     files: _core.fileStore,
     ids: _core.ids,
   );
+
+  StepsWorkCubit workCubit(String projectId, WorkSessionTracker tracker) => StepsWorkCubit(
+    projectId: projectId,
+    projects: _projects.repository,
+    patterns: patterns,
+    navigation: navigation(),
+    recordProgress: _projects.recordBookProgress(),
+    changeStatus: _projects.changeProjectStatus(),
+    tracker: tracker,
+  );
+
+  /// [workSessionTracker] даёт счётчик времени (общий с плетением и вышиванием); [onOpenStats] — лист «Статистика проекта».
+  List<RouteBase> routes({
+    required WorkSessionTracker Function() workSessionTracker,
+    void Function(BuildContext context, String projectId)? onOpenStats,
+  }) => <RouteBase>[
+    GoRoute(
+      path: StepsWorkScreen.routePath,
+      builder: (context, state) {
+        final String projectId = state.pathParameters['projectId']!;
+        return BlocProvider<StepsWorkCubit>(
+          create: (_) => workCubit(projectId, workSessionTracker())..load(),
+          child: StepsWorkScreen(
+            files: _core.fileStore,
+            onOpenStats: onOpenStats == null ? null : () => onOpenStats(context, projectId),
+          ),
+        );
+      },
+    ),
+  ];
 }

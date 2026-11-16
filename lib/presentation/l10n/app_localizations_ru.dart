@@ -2742,4 +2742,105 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get statsNoTimeText => 'Время появится, когда откроешь экран вышивания или плетения.';
+
+  @override
+  String get stepsLoadFailed => 'Не получилось открыть инструкцию. Попробуй ещё раз.';
+
+  @override
+  String get stepsClose => 'Закрыть';
+
+  @override
+  String stepsSectionOf(int n, int total) {
+    return 'Секция $n из $total';
+  }
+
+  @override
+  String stepsSectionTitled(int n, int total, String title) {
+    return 'Секция $n из $total · $title';
+  }
+
+  @override
+  String stepsStepOf(int n, int total) {
+    return 'Шаг $n из $total';
+  }
+
+  @override
+  String stepsRepeatOf(int n, int total) {
+    return 'повтор $n из $total';
+  }
+
+  @override
+  String stepsRepeatOpen(int n) {
+    return '$n-й повтор';
+  }
+
+  @override
+  String get stepsNext => 'Готово, дальше';
+
+  @override
+  String get stepsBack => 'Назад';
+
+  @override
+  String get stepsEnough => 'Достаточно';
+
+  @override
+  String get stepsFinishWork => 'Готово: отметить работу законченной';
+
+  @override
+  String get stepsWorkDone => 'Работа закончена';
+
+  @override
+  String get stepsList => 'Список шагов';
+
+  @override
+  String get stepsEmpty => 'В инструкции пока нет шагов.';
+
+  @override
+  String get stepsNoText => 'Только фото';
+
+  @override
+  String get stepsImageFailed => 'Фото не загрузилось';
+
+  @override
+  String get stepsRetry => 'Повторить';
+
+  @override
+  String stepsImageCounter(int n, int total) {
+    return '$n из $total';
+  }
+
+  @override
+  String stepsBeadChip(int count, String letter, String name) {
+    return '$count × $letter, $name';
+  }
+
+  @override
+  String get stepsSaveFailed => 'Не получилось записать, где ты остановилась. Попробую ещё раз.';
+
+  @override
+  String stepsSectionProgress(int done, int total) {
+    return '$done из $total';
+  }
+
+  @override
+  String stepsRepeatTimes(int n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$n раз',
+      many: '$n раз',
+      few: '$n раза',
+      one: '$n раз',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get stepsRepeatUntilDone => 'до нужной длины';
+
+  @override
+  String get stepsStepDone => 'пройден';
+
+  @override
+  String get stepsStatsSemantic => 'Время работы';
 }
