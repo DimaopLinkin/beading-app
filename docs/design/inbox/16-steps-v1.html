@@ -1,0 +1,480 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Канитель — Пошаговые инструкции (16-steps v1)</title>
+<style>
+
+
+:root{--font:-apple-system,BlinkMacSystemFont,"SF Pro Text","SF Pro",system-ui,sans-serif}
+*{box-sizing:border-box}
+body{margin:0;font-family:var(--font);background:#CFC8BC;color:#1C1A1F}
+body.dp{background:#0B0A0C;color:#F4F0EA}
+.top{position:sticky;top:0;z-index:50;display:flex;gap:12px;align-items:center;flex-wrap:wrap;padding:12px 24px;background:rgba(247,244,239,.92);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-bottom:1px solid rgba(0,0,0,.12)}
+body.dp .top{background:rgba(21,19,22,.92);border-color:rgba(255,255,255,.14)}
+.top h1{margin:0;font-size:18px;flex:1;min-width:220px}
+.seg{display:flex;padding:3px;border-radius:22px;background:rgba(120,110,100,.25)}
+.seg button{border:0;background:transparent;color:inherit;font:600 14px var(--font);padding:9px 16px;border-radius:19px;cursor:pointer;min-height:44px}
+.seg button[aria-pressed="true"]{background:#fff;color:#1C1A1F;box-shadow:0 1px 3px rgba(0,0,0,.2)}
+.stage{padding:28px 24px 40px;display:flex;flex-direction:column;gap:44px}
+.row{display:flex;flex-wrap:wrap;gap:28px;justify-content:center}
+.cell{display:flex;flex-direction:column;gap:10px;align-items:center}
+.cap{font-size:14px;font-weight:600;max-width:428px;text-align:center;opacity:.9}
+.note{max-width:920px;margin:0 auto;font-size:15px;line-height:1.55;padding:0 24px 60px}
+.note h2{font-size:20px;margin:0 0 8px}.note ul{margin:6px 0 12px;padding-left:20px}
+
+.phone{--bg:#F7F4EF;--surf:#FFF;--surf2:#EFEBE4;--ink:#1C1A1F;--ink2:#5F5954;--sep:#E0DAD1;--acc:#B5541C;--onacc:#fff;--acct:#9A4513;--accg:rgba(181,84,28,.16);--danger:#C0362C;
+ --glass:rgba(255,255,255,.55);--dense:rgba(255,255,255,.86);--gb:1px solid rgba(255,255,255,.85);--shadow:0 10px 28px rgba(0,0,0,.18);--scrim:rgba(20,16,12,.38);
+ --sheet:rgba(247,244,239,.84);--sheetsolid:#F7F4EF;--row:#FFFFFF;--rowsep:#E4DED5;
+ --idea:#4A52A6;--ideab:rgba(91,99,183,.14);--prog:#8A5300;--progb:rgba(168,106,0,.16);--done:#27704A;--doneb:rgba(46,125,79,.15);
+ position:relative;width:428px;height:926px;border-radius:52px;overflow:hidden;background:var(--bg);color:var(--ink);border:1px solid rgba(0,0,0,.25);box-shadow:0 18px 40px rgba(0,0,0,.28);flex:none;font-family:var(--font)}
+.phone[data-theme="dark"]{--bg:#151316;--surf:#201D22;--surf2:#2A262D;--ink:#F4F0EA;--ink2:#A9A29B;--sep:#3A353D;--acc:#F0955A;--onacc:#1C1A1F;--acct:#F0955A;--accg:rgba(240,149,90,.22);--danger:#FF7A6E;
+ --glass:rgba(40,38,44,.5);--dense:rgba(28,26,32,.86);--gb:1px solid rgba(255,255,255,.26);--shadow:0 10px 28px rgba(0,0,0,.45);--scrim:rgba(0,0,0,.55);
+ --sheet:rgba(44,40,48,.86);--sheetsolid:#2C2830;--row:#3A353F;--rowsep:#4A4550;
+ --idea:#9BA3EE;--ideab:rgba(155,163,238,.18);--prog:#F2B84B;--progb:rgba(242,184,75,.18);--done:#6FCF97;--doneb:rgba(111,207,151,.18);border-color:rgba(255,255,255,.18)}
+.glass{background:var(--glass);border:var(--gb);box-shadow:var(--shadow);backdrop-filter:blur(24px) saturate(1.6);-webkit-backdrop-filter:blur(24px) saturate(1.6)}
+.home{position:absolute;left:50%;bottom:8px;margin-left:-67px;width:134px;height:5px;border-radius:3px;background:var(--ink);opacity:.5;z-index:30}
+
+/* библиотека (подложка) */
+.lib{--s:1;position:absolute;inset:0;padding:64px 16px 140px;display:flex;flex-direction:column;gap:12px;overflow:hidden}
+.large{flex:none;font-size:calc(34px * var(--s));font-weight:700;letter-spacing:-.4px;padding:0 4px;line-height:1.1}
+.search{flex:none;min-height:44px;border-radius:calc(22px * var(--s));background:var(--surf2);display:flex;align-items:center;gap:10px;padding:calc(8px * var(--s)) 16px;font-size:calc(17px * var(--s));color:var(--ink2)}
+.fr{flex:none;display:flex;flex-wrap:wrap;gap:8px}
+.fl{flex:none;font-size:calc(13px * var(--s));font-weight:700;color:var(--ink2);letter-spacing:.5px;text-transform:uppercase;padding:0 4px;margin-bottom:-4px}
+.chip{display:inline-flex;align-items:center;gap:6px;min-height:44px;padding:calc(8px * var(--s)) calc(16px * var(--s));border-radius:999px;font-size:calc(15px * var(--s));font-weight:600;background:var(--surf2);border:1px solid var(--sep);color:var(--ink);line-height:1.15}
+.chip.sel{background:var(--acc);border-color:var(--acc);color:var(--onacc)}
+.list{display:flex;flex-direction:column;gap:10px}
+.card{display:flex;gap:12px;padding:10px;border-radius:22px;background:var(--surf);border:1px solid var(--sep);min-height:104px}
+.ax .card{flex-direction:column}
+.pv{width:84px;height:84px;border-radius:14px;flex:none;border:1px solid rgba(0,0,0,.12)}
+.ax .pv{width:100%;height:96px}
+.cbody{flex:1;min-width:0;display:flex;flex-direction:column;gap:3px;padding:2px 0}
+.ct{font-size:calc(17px * var(--s));font-weight:600}
+.cs{font-size:calc(14px * var(--s));color:var(--ink2)}
+.st{align-self:flex-start;display:inline-flex;align-items:center;gap:5px;padding:3px 10px 3px 7px;border-radius:13px;font-size:max(13px,calc(13px * var(--s)));font-weight:600}
+.st.idea{color:var(--idea);background:var(--ideab)}.st.prog{color:var(--prog);background:var(--progb)}.st.done{color:var(--done);background:var(--doneb)}
+.bar{height:6px;border-radius:3px;background:var(--surf2);margin-top:auto}.bar i{display:block;height:6px;border-radius:3px;background:var(--prog)}
+.tabbar{position:absolute;left:16px;bottom:26px;display:flex;gap:2px;padding:6px;border-radius:36px;z-index:5}
+.tab{padding:0 13px;height:52px;border-radius:30px;display:flex;align-items:center;gap:7px;font-size:14px;font-weight:600}
+.tab.sel{background:var(--accg);color:var(--acct);padding:0 14px}
+.fab{position:absolute;right:16px;bottom:26px;width:68px;height:68px;border-radius:34px;display:flex;align-items:center;justify-content:center;background:var(--acc);border:var(--gb);box-shadow:var(--shadow);z-index:5}
+.empty{position:absolute;left:0;right:0;top:300px;display:flex;flex-direction:column;align-items:center;gap:14px;text-align:center;padding:0 40px}
+.empty h2{margin:0;font-size:22px}.empty p{margin:0;font-size:16px;color:var(--ink2)}
+.cta{height:52px;padding:0 28px;border-radius:26px;background:var(--acc);color:var(--onacc);display:flex;align-items:center;font-size:17px;font-weight:700}
+
+/* системный page sheet */
+.scrim{position:absolute;inset:0;background:var(--scrim);z-index:10}
+.pagesheet{position:absolute;left:8px;right:8px;bottom:8px;border-radius:38px;background:var(--sheet);backdrop-filter:blur(40px) saturate(1.5);-webkit-backdrop-filter:blur(40px) saturate(1.5);border:var(--gb);box-shadow:0 -2px 30px rgba(0,0,0,.25);z-index:11;display:flex;flex-direction:column;overflow:hidden}
+.pagesheet.med{height:462px}
+.pagesheet.lg{left:0;right:0;bottom:0;top:62px;border-radius:38px 38px 0 0;background:var(--sheetsolid);backdrop-filter:none}
+.grab{flex:none;align-self:center;width:36px;height:5px;border-radius:3px;background:var(--ink2);opacity:.45;margin:6px 0 2px}
+.nav{flex:none;position:relative;height:52px;display:flex;align-items:center;justify-content:center}
+.nav b{font-size:17px;font-weight:600}
+.nav .cancel{position:absolute;left:8px;min-width:44px;height:44px;padding:0 10px;display:flex;align-items:center;font-size:17px;color:var(--acct)}
+.sc{flex:none;margin:6px 16px 10px;display:flex;padding:3px;border-radius:999px;background:rgba(120,110,100,.22)}
+.sc div{flex:1;min-height:44px;display:flex;align-items:center;justify-content:center;border-radius:999px;font-size:15px;font-weight:600;color:var(--ink)}
+.sc .s{background:var(--surf);box-shadow:0 1px 4px rgba(0,0,0,.25);font-weight:700}
+.phone[data-theme="dark"] .sc .s{background:#5A5560;color:#fff}
+.group{margin:0 16px;border-radius:24px;background:var(--row);overflow:hidden}
+.item{display:flex;align-items:center;gap:14px;padding:10px 16px 10px 14px;min-height:68px;position:relative}
+.item+.item::before{content:"";position:absolute;left:72px;right:0;top:0;height:1px;background:var(--rowsep)}
+.item .ic{width:44px;height:44px;border-radius:22px;background:var(--accg);color:var(--acct);display:flex;align-items:center;justify-content:center;flex:none}
+.item b{display:block;font-size:17px;font-weight:600;line-height:1.2}
+.item span.s{font-size:13px;color:var(--ink2);line-height:1.25}
+.item .ch{margin-left:auto;color:var(--ink2);opacity:.6;flex:none}
+.foot{flex:none;margin:10px 32px 0;font-size:13px;color:var(--ink2)}
+/* AX3 внутри листа */
+.axs .nav{height:auto;flex-direction:column;align-items:flex-start;justify-content:flex-start;padding:0 16px 8px}.axs .nav b{font-size:36px;letter-spacing:-.4px;padding:0 4px}
+.axs .nav .cancel{position:static;font-size:30px;min-height:64px;padding:0 4px;margin-left:-4px}
+.axs .sc div{min-height:68px;font-size:28px}
+.axs .item{min-height:128px;gap:18px;padding:16px}
+.axs .item .ic{width:72px;height:72px;border-radius:36px}
+.axs .item b{font-size:32px}.axs .item span.s{font-size:26px}
+.axs .group{border-radius:34px}
+.axs .item+.item::before{left:106px}
+
+/* ---------- 09: добавки ---------- */
+.dense{background:var(--dense);border:var(--gb);box-shadow:var(--shadow);backdrop-filter:blur(32px) saturate(1.4);-webkit-backdrop-filter:blur(32px) saturate(1.4)}
+.mono{font-family:ui-monospace,"SF Mono",Menlo,monospace}
+.stg{--s:1;position:absolute;inset:0;padding:60px 16px 140px;display:flex;flex-direction:column;gap:6px;overflow:hidden;background:var(--bg)}
+.stg .nb{flex:none;display:flex;align-items:center;justify-content:space-between;min-height:44px;margin:0 -6px}
+.stg .big{flex:none;font-size:calc(34px * var(--s));font-weight:700;letter-spacing:-.4px;padding:0 4px 6px;line-height:1.1}
+.sh{flex:none;margin:12px 16px 0;font-size:max(13px,calc(13px * var(--s)));font-weight:600;color:var(--ink2);text-transform:uppercase;letter-spacing:.4px}
+.sf{flex:none;margin:6px 16px 0;font-size:max(13px,calc(13px * var(--s)));color:var(--ink2);line-height:1.35}
+.gp{flex:none;border-radius:22px;background:var(--row);overflow:hidden}
+.r{position:relative;display:flex;align-items:center;gap:12px;min-height:calc(52px * var(--s));padding:8px 16px;font-size:calc(17px * var(--s));line-height:1.2}
+.r+.r::before{content:"";position:absolute;left:16px;right:0;top:0;height:1px;background:var(--rowsep)}
+.r .k{flex:1;min-width:0}
+.r .v{color:var(--ink2);font-size:calc(17px * var(--s));display:flex;align-items:center;gap:4px;flex:none}
+.r .ac{color:var(--acct);font-weight:600}
+.r.dg .k{color:var(--danger)}
+.chv{color:var(--ink2);opacity:.55;display:flex}
+.axg .r{flex-wrap:wrap;min-height:84px}.axg .r .k{flex:1 1 58%}.axg .r:has(.v) .k{flex:1 1 100%}.axg .r .v{flex:0 0 auto}
+.sw{width:51px;height:31px;border-radius:16px;background:rgba(120,110,100,.35);position:relative;flex:none}
+.sw::after{content:"";position:absolute;left:2px;top:2px;width:27px;height:27px;border-radius:50%;background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.35)}
+.sw.on{background:#34C759}.sw.on::after{left:22px}
+.stat{display:flex;align-items:center;gap:8px;font-size:calc(15px * var(--s));color:var(--ink2);padding:4px 0}
+.stat.ok{color:var(--ok)}.stat.warn{color:var(--danger)}
+.phone{--ok:#27704A}.phone[data-theme="dark"]{--ok:#6FCF97}
+.spn{width:16px;height:16px;border-radius:50%;border:3px solid var(--rowsep);border-top-color:var(--acc);flex:none}
+.pbar{height:6px;border-radius:3px;background:var(--surf2);margin:2px 0}.pbar i{display:block;height:6px;border-radius:3px;background:var(--acc)}
+.tabbar{position:absolute;left:16px;bottom:26px;display:flex;gap:2px;padding:6px;border-radius:36px;z-index:5}
+.tab{padding:0 18px;height:52px;border-radius:30px;display:flex;align-items:center;gap:7px;font-size:14px;font-weight:600}
+.tab.sel{background:var(--accg);color:var(--acct)}
+.menu{position:absolute;z-index:12;border-radius:18px;background:var(--dense);backdrop-filter:blur(30px) saturate(1.5);-webkit-backdrop-filter:blur(30px) saturate(1.5);border:var(--gb);box-shadow:0 12px 40px rgba(0,0,0,.35);overflow:hidden;width:250px}
+.menu div{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:0 16px;min-height:46px;font-size:17px}
+.menu div+div{border-top:1px solid var(--rowsep)}
+.asw{position:absolute;left:8px;right:8px;bottom:8px;z-index:12;display:flex;flex-direction:column;gap:8px}
+.asw .c{border-radius:30px;background:var(--dense);backdrop-filter:blur(40px) saturate(1.5);-webkit-backdrop-filter:blur(40px) saturate(1.5);border:var(--gb);overflow:hidden;text-align:center}
+.asw .h{padding:14px 20px 10px;font-size:13px;color:var(--ink2);font-weight:600;line-height:1.35}
+.asw .h b{display:block;color:var(--ink);font-size:15px}
+.asw .a{min-height:58px;display:flex;align-items:center;justify-content:center;gap:8px;font-size:20px;color:var(--acct);border-top:1px solid var(--rowsep);padding:0 16px}
+.asw .a.cn{font-weight:700;border-top:none}
+.asw .a.s{font-weight:700}
+.alt{position:absolute;left:50%;top:50%;margin:-110px 0 0 -155px;width:310px;border-radius:30px;background:var(--dense);backdrop-filter:blur(40px) saturate(1.5);-webkit-backdrop-filter:blur(40px) saturate(1.5);border:var(--gb);box-shadow:0 20px 60px rgba(0,0,0,.45);z-index:12;text-align:center;overflow:hidden}
+.alt .m{padding:22px 20px 18px}.alt .m b{display:block;font-size:19px;margin-bottom:4px}.alt .m span{font-size:15px;color:var(--ink);line-height:1.35}
+.alt .a{min-height:56px;display:flex;align-items:center;justify-content:center;border-top:1px solid var(--rowsep);font-size:19px;font-weight:700;color:var(--acct)}
+.about{position:absolute;inset:0;padding:60px 28px 40px;display:flex;flex-direction:column;align-items:center;text-align:center;gap:8px;background:var(--bg)}
+.about .nb{align-self:stretch;display:flex;align-items:center;justify-content:space-between;min-height:44px;margin:0 -16px}
+.about h1{margin:14px 0 0;font-size:34px;letter-spacing:-.4px}
+.about .ver{min-height:44px;display:flex;align-items:center;font-size:17px;color:var(--ink2)}
+.about .tag{font-size:19px;line-height:1.4;max-width:300px;margin-top:6px}
+.about .cr{font-size:13px;color:var(--ink2);line-height:1.45;margin-top:auto;max-width:340px}
+.nbk{display:flex;align-items:center;gap:2px;color:var(--acct);font-size:17px;min-height:44px;padding:0 6px}
+.board h4{margin:10px 16px 4px;font-size:13px;color:var(--acct);font-weight:700}
+
+/* ---------- 16: добавки ---------- */
+.sc2{--s:1;--t:1;position:absolute;inset:0;background:var(--bg);overflow:hidden}
+.cb2{position:absolute;left:12px;right:12px;top:54px;height:62px;border-radius:31px;display:flex;align-items:center;gap:6px;padding:0 8px 4px;z-index:8;overflow:hidden}
+.cb2 .ib{width:44px;height:44px;border-radius:22px;display:flex;align-items:center;justify-content:center;color:var(--ink);flex:none}
+.cb2 .mid{flex:1;min-width:0;text-align:center;line-height:1.2}
+.cb2 .mid b{display:block;font-size:16px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cb2 .mid span{font-size:13px;color:var(--ink2)}
+.cb2 .trk{position:absolute;left:24px;right:24px;bottom:6px;height:3px;border-radius:2px;background:var(--sep)}
+.cb2 .trk i{display:block;height:3px;border-radius:2px;background:var(--acc)}
+.sph{position:absolute;left:0;right:0;top:126px;height:300px;overflow:hidden;background:#C9BFB0}
+.sph.sm{height:210px}
+.sph>svg{display:block;width:100%;height:100%}
+.pgd{position:absolute;left:50%;transform:translateX(-50%);bottom:12px;display:flex;gap:8px;padding:8px 11px;border-radius:15px;background:rgba(0,0,0,.38)}
+.pgd i{width:8px;height:8px;border-radius:4px;background:rgba(255,255,255,.55)}.pgd i.a{background:#fff}
+.pgn{position:absolute;top:12px;right:12px;padding:6px 12px;border-radius:14px;font-size:14px;font-weight:700;color:var(--ink)}
+.hint{position:absolute;left:12px;bottom:12px;padding:7px 12px;border-radius:14px;font-size:14px;font-weight:600;color:var(--ink)}
+.fail{position:absolute;inset:0;background:var(--surf2);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;color:var(--ink2);text-align:center;padding:0 40px}
+.fail b{font-size:18px;color:var(--ink)}.fail span{font-size:15px}
+.fail .rt{margin-top:6px;min-height:44px;padding:0 22px;border-radius:22px;border:2px solid var(--acc);color:var(--acct);display:flex;align-items:center;font-size:16px;font-weight:700}
+.stx{position:absolute;left:20px;right:20px;display:flex;flex-direction:column;gap:12px}
+.stx .lb{font-size:13px;font-weight:600;color:var(--ink2);text-transform:uppercase;letter-spacing:.4px}
+.stx h2{margin:0;font-size:calc(25px * var(--t));line-height:1.15;letter-spacing:-.2px}
+.stx p{margin:0;font-size:calc(20px * var(--t));line-height:1.32}
+.bch{display:flex;flex-wrap:wrap;gap:8px}
+.bc{display:inline-flex;align-items:center;gap:8px;min-height:44px;padding:0 16px 0 8px;border-radius:22px;background:var(--surf);border:1px solid var(--sep);font-size:calc(18px * var(--t));font-weight:700;font-variant-numeric:tabular-nums}
+.bc i{width:28px;height:28px;border-radius:50%;flex:none;box-shadow:inset 0 0 0 1px rgba(0,0,0,.28)}
+.rp{display:flex;align-items:center;gap:12px;min-height:56px;padding:8px 16px;border-radius:20px;background:var(--surf);border:1px solid var(--sep);font-size:18px;font-weight:700;white-space:nowrap}
+.rp .sg10{flex:1;display:flex;gap:3px}
+.rp .sg10 i{flex:1;height:10px;border-radius:5px;background:var(--surf2)}
+.rp .sg10 i.d{background:var(--acc)}.rp .sg10 i.c{background:var(--accg);box-shadow:inset 0 0 0 2px var(--acc)}
+.rp .en{margin-left:auto;min-height:44px;padding:0 20px;border-radius:22px;background:var(--acc);color:var(--onacc);display:flex;align-items:center;font-size:17px;font-weight:700}
+.dock{position:absolute;left:12px;right:12px;bottom:24px;display:flex;gap:8px;padding:8px;border-radius:44px;z-index:8}
+.dock.col{flex-direction:column;border-radius:38px}
+.bn{height:64px;border-radius:32px;display:flex;align-items:center;justify-content:center;gap:6px;font-size:18px;font-weight:700;white-space:nowrap}
+.bn.sec{background:var(--surf);border:1px solid var(--sep);color:var(--ink);min-width:116px;padding:0 18px}
+.bn.pri{flex:1;background:var(--acc);color:var(--onacc);font-size:20px}
+.dock.col .bn{height:58px;flex:none}.dock.col .bn.pri{font-size:17px}.dock.col .bn.sec{min-width:0}
+.done-mark{width:72px;height:72px;border-radius:36px;background:var(--doneb);color:var(--done);display:flex;align-items:center;justify-content:center}
+.tl2{font-size:17px;font-weight:600;color:var(--acct);min-height:44px;display:flex;align-items:center}
+/* листы */
+.nav .dn{position:absolute;right:8px;min-width:44px;height:44px;padding:0 10px;display:flex;align-items:center;font-size:17px;font-weight:600;color:var(--acct)}
+.nav .cancel.ib2{padding:0 4px 0 0}
+.sbd{flex:1;min-height:0;overflow:hidden;padding-bottom:20px;position:relative}
+.sh3{margin:16px 20px 6px;font-size:13px;font-weight:600;color:var(--ink2);text-transform:uppercase;letter-spacing:.4px;display:flex;justify-content:space-between;gap:10px;align-items:baseline}
+.sh3 em{font-style:normal;text-transform:none;letter-spacing:0;font-weight:600}
+.sr{position:relative;display:flex;align-items:center;gap:12px;min-height:56px;padding:8px 16px}
+.sr+.sr::before{content:"";position:absolute;left:56px;right:0;top:0;height:1px;background:var(--rowsep)}
+.sr .ck{width:28px;height:28px;border-radius:50%;flex:none;display:flex;align-items:center;justify-content:center;box-shadow:inset 0 0 0 2px var(--ink2);opacity:.9}
+.sr.d .ck{background:var(--acc);color:var(--onacc);box-shadow:none;opacity:1}
+.sr.c{background:var(--accg)}
+.sr.c .ck{box-shadow:inset 0 0 0 3px var(--acc);opacity:1}
+.sr.c .ck::after{content:"";width:10px;height:10px;border-radius:50%;background:var(--acc)}
+.sr .tx{flex:1;min-width:0}.sr .tx b{display:block;font-size:17px;font-weight:600;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sr .tx span{font-size:13px;color:var(--ink2);line-height:1.25}
+.sr .gr{width:44px;height:44px;margin:-8px -10px -8px 0;display:flex;align-items:center;justify-content:center;color:var(--ink2);flex:none}
+.sr .ch{color:var(--ink2);opacity:.6;flex:none;display:flex}
+.sr .dots{display:flex;gap:4px;margin-top:3px}.sr .dots i{width:12px;height:12px;border-radius:50%;box-shadow:inset 0 0 0 1px rgba(0,0,0,.28)}
+.sr.lift{background:var(--surf);border-radius:18px;box-shadow:0 12px 30px rgba(0,0,0,.35);transform:scale(1.02);z-index:3}
+.dl2{height:3px;border-radius:2px;background:var(--acc);margin:0 16px;position:relative;z-index:2}
+.sec3{display:flex;align-items:center;gap:8px;min-height:56px;padding:8px 8px 8px 16px}
+.sec3 b{font-size:17px;flex:1;min-width:0}
+.pill2{min-height:44px;padding:0 14px;border-radius:22px;background:var(--surf2);display:flex;align-items:center;gap:6px;font-size:15px;font-weight:600;color:var(--ink);white-space:nowrap}
+.ib3{width:44px;height:44px;display:flex;align-items:center;justify-content:center;color:var(--acct);flex:none}
+.addr{display:flex;align-items:center;gap:10px;min-height:52px;padding:8px 16px;font-size:17px;font-weight:600;color:var(--acct)}
+.gp2{margin:0 16px;border-radius:22px;background:var(--row);overflow:hidden}
+/* карточки шаблонов */
+.tg2{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:0 16px}
+.tcd{border-radius:22px;background:var(--surf);border:1px solid var(--sep);overflow:hidden}
+.tcd .im{height:112px;overflow:hidden;background:#C9BFB0}.tcd .im>svg{display:block;width:100%;height:100%}
+.tcd .bd{padding:10px 12px 12px}.tcd b{display:block;font-size:17px;line-height:1.2}
+.tcd span{display:block;font-size:13px;color:var(--ink2);margin-top:3px;line-height:1.3}
+.sk{background:var(--surf2);border-radius:8px}
+.spin{width:22px;height:22px;border-radius:50%;border:3px solid var(--sep);border-top-color:var(--acc)}
+/* поля */
+.fld{padding:12px 16px;font-size:17px;min-height:52px;display:flex;align-items:center}
+.ta{align-items:flex-start;min-height:132px;line-height:1.4}
+.phr{display:flex;gap:10px;padding:12px 16px;overflow:hidden}
+.pt{position:relative;width:96px;height:96px;border-radius:14px;overflow:hidden;flex:none;background:#C9BFB0}.pt>svg{display:block;width:100%;height:100%}
+.pt .nb{position:absolute;left:6px;top:6px;min-width:24px;height:24px;border-radius:12px;background:rgba(0,0,0,.62);color:#fff;font-size:13px;font-weight:700;display:flex;align-items:center;justify-content:center}
+.pt .rm{position:absolute;right:0;top:0;width:44px;height:44px;display:flex;align-items:center;justify-content:center}
+.pt .rm b{width:26px;height:26px;border-radius:13px;background:rgba(0,0,0,.62);color:#fff;display:flex;align-items:center;justify-content:center}
+.pt.add{border:2px dashed var(--sep);background:none;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;font-size:13px;color:var(--acct);font-weight:600}
+.stp2{display:flex;align-items:center;border-radius:22px;background:var(--surf2);height:44px;flex:none}
+.stp2 div{width:44px;height:44px;display:flex;align-items:center;justify-content:center;color:var(--acct)}
+.stp2 span{min-width:34px;text-align:center;font-size:17px;font-weight:700;font-variant-numeric:tabular-nums}
+.stp2.bad{box-shadow:0 0 0 2px var(--danger)}
+.errm{display:flex;gap:8px;align-items:flex-start;margin:8px 20px 0;font-size:14px;line-height:1.3;color:var(--danger);font-weight:600}
+.tinyst{display:flex;align-items:center;gap:5px;font-size:13px;color:var(--ink2);justify-content:center}
+.tinyst.er{color:var(--danger)}
+.banner{position:absolute;left:12px;right:12px;bottom:34px;min-height:60px;border-radius:30px;display:flex;align-items:center;gap:8px;padding:8px 8px 8px 20px;z-index:9;font-size:16px}
+.banner span{flex:1;min-width:0;line-height:1.25}
+.banner .und{min-height:44px;padding:0 18px;border-radius:22px;background:var(--acc);color:var(--onacc);display:flex;align-items:center;font-weight:700}
+.scb{position:absolute;right:3px;width:4px;border-radius:2px;background:var(--ink2);opacity:.5}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.gc{border-radius:22px;background:var(--surf);border:1px solid var(--sep);overflow:hidden}
+.gc .im{height:148px;background:#C9BFB0;overflow:hidden}.gc .im>svg{display:block;width:100%;height:100%}
+.gc .bd{padding:10px 12px 12px}.gc b{display:block;font-size:16px;line-height:1.2}.gc span.s{display:block;font-size:13px;color:var(--ink2);margin-top:3px;line-height:1.3}
+.cb3{position:absolute;left:12px;right:12px;top:54px;height:56px;display:flex;align-items:center;justify-content:space-between;z-index:7}
+.cb3 .nbk{display:flex;align-items:center;color:var(--acct);font-size:17px;min-height:44px;gap:2px}
+.cb3 .ct2{text-align:center;line-height:1.2}.cb3 .ct2 b{display:block;font-size:17px}
+.cb3 .rt2{color:var(--acct);font-size:17px;font-weight:600;min-height:44px;display:flex;align-items:center;padding:0 6px}
+.edt{position:absolute;inset:0;padding:110px 0 30px;overflow:hidden;background:var(--bg)}
+/* mac */
+.mw .phone{height:auto;border-radius:14px;box-shadow:none;border:none;background:none;overflow:visible}
+.mac{height:700px;border-radius:14px;overflow:hidden;position:relative;background:var(--bg);color:var(--ink);border:1px solid rgba(0,0,0,.3);box-shadow:0 18px 40px rgba(0,0,0,.28);font-family:var(--font);--t:1}
+.mac .tlg{position:absolute;left:16px;top:16px;display:flex;gap:8px;z-index:3}.mac .tlg i{width:12px;height:12px;border-radius:50%;display:block}
+.mac .tbar{position:absolute;left:0;right:0;top:0;height:52px;display:flex;align-items:center;justify-content:space-between;padding:0 16px 0 88px;border-bottom:1px solid var(--sep);background:var(--bg);z-index:2}
+.mac .tbar b{font-size:15px}.mac .tbar .sub{font-size:13px;color:var(--ink2)}
+.mac .sb{position:absolute;left:0;top:52px;bottom:0;width:300px;border-right:1px solid var(--sep);background:var(--surf2);overflow:hidden;padding:6px 0}
+.mac .sb .sh3{margin:12px 16px 4px}
+.mac .sb .sr{min-height:46px;padding:6px 12px 6px 14px}.mac .sb .sr+.sr::before{left:50px}
+.mac .mn{position:absolute;top:52px;bottom:0;right:0;overflow:hidden}
+.mac .sph{position:absolute;top:20px;left:28px;right:28px;height:300px;border-radius:16px}
+.mac .stx{left:28px;right:28px}
+.mac .dkm{position:absolute;left:28px;right:28px;bottom:20px;display:flex;gap:8px}
+.mac .dkm .bn{height:56px;font-size:17px}.mac .dkm .bn.pri{flex:1}
+.mac .ib{width:44px;height:44px;border-radius:22px;display:flex;align-items:center;justify-content:center;color:var(--ink)}
+.mac .frm{position:absolute;left:0;right:0;top:0;bottom:0;padding:16px 28px;overflow:hidden}
+.fm2{max-width:640px}
+.fm2 .gp2{margin:0}.fm2 .sh3{margin:16px 4px 6px}
+.fm2 .sc{margin:0}
+</style>
+</head>
+<body>
+<div class="top"><h1>Канитель · Пошаговые инструкции · 16-steps v1</h1>
+<div class="seg" role="group" aria-label="Тема"><button data-m="light" aria-pressed="true">Светлая</button><button data-m="dark" aria-pressed="false">Тёмная</button><button data-m="both" aria-pressed="false">Обе рядом</button></div></div>
+<div class="stage" id="stage"></div>
+<div class="note"><h2>Решения и оговорки</h2>
+<ul>
+<li><b>Один экран для всех маршрутных техник.</b> Главный экран «инструкция в работе» (B) похож по духу на плетение: крупная зона шага сверху, управление внизу в зоне большого пальца. Стекло только у верхней панели и нижней панели кнопок; фото и текст шага непрозрачные. Кнопки внутри стеклянной нижней панели залиты (акцент / нейтральная заливка), поэтому «стекло на стекле» нет.</li>
+<li><b>Прогресс — одна позиция «я здесь».</b> Всё до текущего шага отмечено галочкой; в списке шагов текущий выделен кольцом с точкой и подсветкой строки (не только цветом). В панели: «Секция 2 из 3 · Ёлочка» и тонкая линия общего прогресса; над текстом: «Шаг 12 из 21». Внутри секции с повтором: «повтор 4 из 10» + 10 сегментов (пройдено, текущий, впереди). Для повтора «до нужной длины»: «4-й повтор» без общего числа и кнопка «Достаточно» (после неё идём дальше).</li>
+<li><b>Нумерация шагов.</b> «Шаг 12 из 21» считает шаги, как их написала мастерица, а не развёрнутые повторы: секция «Ёлочка» (шаги 8–16) повторяется 10 раз, но шагов в ней по-прежнему 9. Прогресс показывает и номер шага, и номер повтора.</li>
+<li><b>Бусины.</b> Чип «3 × A»: кружок цвета бусины из палитры работы + число + буква палитры; цвет бусины не меняется темой (кружок ровный, с тонкой тёмной обводкой для светлых цветов, например «Жемчуг»). Буквы нужны, чтобы различать похожие цвета, а не только цветом.</li>
+<li><b>Фото шага</b> во всю ширину, непрозрачное, щипок и двойное касание увеличивают (показано подсказкой на первом экране). Несколько фото — системный page control + счётчик «2 из 3» (свайп влево/вправо по фото). Фото на макете условные: нарисованные заглушки, не фотографии. Заглушка «Фото не загрузилось» с кнопкой «Повторить» (B9).</li>
+<li><b>Размер текста шага:</b> два размера показаны (обычный 20 pt, крупный 28 pt, B3); регулируется системным размером текста или в настройках (кнопка «Aa» в верхней панели в макет не вынесена, чтобы не перегружать панель). Свайп по тексту — назад/вперёд; кнопки дублируют свайп. Экран не гаснет (в макете ничего не нарисовано, это поведение).</li>
+<li><b>Нижняя панель.</b> «Назад» (нейтральная) и «Готово, дальше» (акцент, 64 pt), зазор 8 pt, подписи 18–20 pt. Для последнего шага панель в два ряда: «Готово: отметить работу законченной» и под ней «Назад», потому что длинная подпись в один ряд не помещается без уменьшения шрифта.</li>
+<li><b>Список шагов</b> (B10) — системный page sheet (large), группы по секциям, свёрнутые секции с disclosure-стрелкой (пройденная секция показывает «7 из 7»), касание строки переходит к шагу. На Mac список — боковая колонка слева (B11), в узком окне 520 pt она скрывается за кнопкой «список» на панели окна (B12).</li>
+<li><b>Редактор (C).</b> Автосохранение без кнопки «Сохранить»: ненавязчивая строка «Сохранено» с галочкой под названием; при ошибке — «Не сохранено: проверьте повтор». Секции и шаги переставляются перетаскиванием за рукоятку справа в режиме «Изменить» (C2); у секции — «Повтор N раз» (системное меню/степпер), «…» с меню (переименовать, дублировать, удалить). Удаление шага без диалога: баннер «Шаг удалён · Отменить» (C9). Ошибка «повтор 0» показана рамкой, иконкой и текстом (не только цветом) (C6).</li>
+<li><b>Фото в редакторе:</b> плитки 96 pt с порядковым номером и крестиком (зона нажатия 44 pt), «Добавить» открывает системное меню «Снять фото / Выбрать из галереи» (C5); порядок меняется перетаскиванием.</li>
+<li><b>Бусины в шаге</b> выбираются из каталога/палитры работы, как в редакторе схем: строка «A · Рубин» + количество (степпер) и «Добавить бусины из каталога». Повтор шага: системный сегмент «Один раз / N раз / До нужной длины» + число.</li>
+<li><b>Карточка в библиотеке (D)</b>: превью = фото текущего шага (или первое), подпись «Шаг 12 из 21 · секция 2»; показана и в списке, и в сетке 2 колонки рядом со схемами. Статус «В работе» тем же значком, что у схем.</li>
+<li><b>Тон текстов:</b> «Готово, дальше», «Назад», «Достаточно», «Работа закончена»; без смайлов, без «поделиться / оценить / зарегистрироваться».</li>
+<li><b>Нестандартное:</b> степпер 44 pt (системный UIStepper 32 pt мелковат для мокрых пальцев), сегменты повторов (10 штук; это индикатор, не контрол), чипы бусин, нижняя панель из двух кнопок на стекле, плитки фото. Остальное системное: page sheet, сегменты, формы-группы, меню, баннер, page control, disclosure.</li>
+<li>Оговорки: AX3 не рисовался (крупный текст шага показан двумя размерами, остальное интерфейс 17 pt); шаблоны (Крестик/RAW, Ёлочка, Сетка, Жгут) условные; иллюстрации и фото шагов — схематичные заглушки; SF Symbols (<span class="mono">list.bullet</span>, <span class="mono">repeat</span>, <span class="mono">photo</span>, <span class="mono">camera</span>, <span class="mono">trash</span>, <span class="mono">line.3.horizontal</span>) нарисованы приближённо.</li>
+</ul></div>
+<script>
+/* ---------- данные ---------- */
+const BC={A:['#D8506F','#8E1E3A'],B:['#58B7C0','#1C5F68'],C:['#F3D27A','#A97A1C'],D:['#FFFFFF','#CFC6B4']};
+const BF={A:'#B5233F',B:'#2C8A94',C:'#D9A83A',D:'#EFE9DC'};
+const PN={A:'Рубин',B:'Бирюза',C:'Золото',D:'Жемчуг'};
+const SECS=[{t:'Основа',a:1,z:7},{t:'Ёлочка',a:8,z:16,rep:10},{t:'Концовка',a:17,z:21}];
+const ST=[
+ null,
+ {t:'Нить и игла',x:'Отмерь нить около 1,5 м и вдень в иглу. Конец оставь длиннее, около 15 см.',b:[],ph:'needle'},
+ {t:'Первое кольцо',x:'Набери 6 бусин и сведи в кольцо. Закрепи узлом.',b:[[6,'A']],ph:'ring'},
+ {t:'Закрепи',x:'Проведи иглу ещё раз через первые две бусины кольца.',b:[],ph:'ring'},
+ {t:'Опорный ряд',x:'Набери 3 бусины и пройди иглой через бусину кольца.',b:[[3,'B']],ph:'row'},
+ {t:'Опорный ряд, второй',x:'Повтори набор и пройди через следующую бусину кольца.',b:[[3,'B']],ph:'row'},
+ {t:'Замкни ряд',x:'Пройди через первые две бусины ряда. Нить натяни, но не сильно.',b:[],ph:'row'},
+ {t:'Проверь кольцо',x:'Кольцо должно лежать ровно, бусины одной высоты.',b:[],ph:'ring'},
+ {t:'Основание ветки',x:'Набери 3 бусины и пройди иглой через бусину предыдущей ветки.',b:[[3,'A']],ph:'tree1'},
+ {t:'Первый ярус',x:'Набери 2 бусины B и 1 бусину C. Вернись иглой через вторую B.',b:[[2,'B'],[1,'C']],ph:'tree1'},
+ {t:'Второй ярус',x:'Набери 2 бусины B и пройди иглой через C.',b:[[2,'B']],ph:'tree2'},
+ {t:'Верхушка',x:'Набери 1 бусину C и пройди через соседнюю бусину.',b:[[1,'C']],ph:'tree2'},
+ {t:'Боковая ветка',x:'Набери 3 бусины A, затем 1 бусину C и снова 3 бусины A. Пройди иглой через бусину ствола.',b:[[6,'A'],[1,'C']],ph:'tree2'},
+ {t:'Подтяни ветку',x:'Подтяни нить так, чтобы ветка встала ровно. Бусины не должны отгибаться.',b:[],ph:'tree3'},
+ {t:'Второй ствол',x:'Пройди иглой через две бусины ствола вверх.',b:[],ph:'tree3'},
+ {t:'К следующей ёлочке',x:'Набери 3 бусины A и начни ветку заново.',b:[[3,'A']],ph:'tree3'},
+ {t:'Последняя ветка',x:'Сделай ещё одну ветку и закрепи нить в основании.',b:[[3,'A'],[1,'C']],ph:'tree3'},
+ {t:'Замкни браслет',x:'Соедини оба конца и пройди иглой через крайние бусины.',b:[],ph:'row'},
+ {t:'Закрепи нить',x:'Сделай два-три узелка между бусинами и спрячь конец внутри.',b:[],ph:'needle'},
+ {t:'Застёжка',x:'Пришей застёжку, пройдя нитью дважды через каждое кольцо.',b:[[2,'D']],ph:'ring'},
+ {t:'Подрежь конец',x:'Аккуратно подрежь оставшийся конец нити у самой бусины.',b:[],ph:'needle'},
+ {t:'Проверь длину',x:'Примерь браслет на запястье. Он должен свободно двигаться.',b:[],ph:'full'}
+];
+const secOf=i=>SECS.findIndex(s=>i>=s.a&&i<=s.z);
+/* ---------- иконки ---------- */
+const I={chevL:'M15 5l-7 7 7 7',chevR:'M9 5l7 7-7 7',chevD:'M6 9l6 6 6-6',list:'M9 6h11M9 12h11M9 18h11M4.5 6h.01M4.5 12h.01M4.5 18h.01',check:'M5 12l5 5 9-10',plus:'M12 5v14M5 12h14',minus:'M5 12h14',photo:'M4 6h16v12H4zM4 16l5-5 4 4 3-3 4 4',camera:'M3 8h4l2-3h6l2 3h4v11H3zM12 11a3.2 3.2 0 1 0 0 .01',grip:'M5 8h14M5 12h14M5 16h14',trash:'M5 7h14M9 7V4h6v3M7 7l1 13h8l1-13',more:'M6 12h.01M12 12h.01M18 12h.01',close:'M6 6l12 12M18 6L6 18',warn:'M12 4l9 16H3zM12 10v4M12 17v.01',repeat:'M17 3l3 3-3 3M4 11V9a3 3 0 0 1 3-3h13M7 21l-3-3 3-3M20 13v2a3 3 0 0 1-3 3H4',doc:'M6 3h8l4 4v14H6zM14 3v4h4M9 12h6M9 16h6',search:'M11 5a6 6 0 1 0 0 12 6 6 0 0 0 0-12zM20 20l-4-4',lib:'M5 5h4v14H5zM11 5h4v14h-4zM17 7l3 1-3 11-3-1z',swatch:'M8 9a4 4 0 1 0 0 .01M16 9a4 4 0 1 0 0 .01M12 16a4 4 0 1 0 0 .01',cloud:'M7 18a4 4 0 0 1-.5-8 5.5 5.5 0 0 1 10.6 1A3.5 3.5 0 0 1 17 18z',img2:'M4 4l16 16M4 6v12h14M8 6h12v10',sidebar:'M4 5h16v14H4zM9 5v14'};
+const ic=(n,s=22,w=2.2)=>`<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="${w}" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="${I[n]}"/></svg>`;
+const home='<div class="home"></div>';
+/* ---------- «фото» шагов: схематичные заглушки ---------- */
+let UID=0;
+function scene(kind,w,h){
+ const u='q'+(UID++),R=h*.075,B=[];let th='';
+ const P=(x,y,k,r)=>B.push([x,y,k,r||R]);
+ if(kind==='ring'){const n=6;for(let i=0;i<n;i++){const a=i/n*Math.PI*2-Math.PI/2;P(w/2+Math.cos(a)*h*.2,h/2+Math.sin(a)*h*.2,'A',R*1.08)}th=`<circle cx="${w/2}" cy="${h/2}" r="${h*.2}" fill="none" stroke="#7B7164" stroke-width="2"/>`}
+ else if(kind==='row'){for(let i=0;i<8;i++){const t=i/7;P(w*.14+t*w*.72,h*.64-Math.sin(t*Math.PI)*h*.2,i%2?'A':'B',R)}th=`<path d="M${w*.1} ${h*.66} Q${w*.5} ${h*.2} ${w*.9} ${h*.66}" fill="none" stroke="#7B7164" stroke-width="2"/>`}
+ else if(kind==='needle'){th=`<path d="M${w*.12} ${h*.7} Q${w*.4} ${h*.3} ${w*.62} ${h*.5}" fill="none" stroke="#7B7164" stroke-width="2"/><path d="M${w*.12} ${h*.78} L${w*.9} ${h*.3}" stroke="#E4E7EB" stroke-width="3" stroke-linecap="round"/>`;P(w*.5,h*.54,'A');P(w*.62,h*.47,'A');P(w*.74,h*.4,'B')}
+ else if(kind.startsWith('tree')||kind==='full'){const lv=kind==='tree1'?1:kind==='tree2'?2:3,cx=w/2;
+  th=`<path d="M${cx} ${h*.9} L${cx} ${h*.1}" stroke="#7B7164" stroke-width="2"/>`;
+  for(let i=0;i<6;i++)P(cx,h*.86-i*h*.12,'C',R*.95);
+  for(let l=0;l<lv;l++){const y=h*.74-l*h*.2,n=3-l;for(let s=1;s<=n;s++)for(const d of [-1,1])P(cx+d*s*R*2.05,y+s*R*.35,l%2?'B':'A',R*.95)}
+  if(kind==='full'){P(cx,h*.1,'D',R)}}
+ else if(kind==='grid'){for(let r=0;r<3;r++)for(let c=0;c<4;c++)P(w*.26+c*R*2.1+(r%2)*R,h*.28+r*R*2.1,(r+c)%2?'B':'A',R*.98)}
+ else if(kind==='rope'){for(let i=0;i<10;i++){const t=i/9;P(w*.12+t*w*.76,h*.78-t*h*.5+Math.sin(t*14)*h*.06,i%3===0?'C':'A',R)}th=`<path d="M${w*.1} ${h*.8} L${w*.9} ${h*.26}" stroke="#7B7164" stroke-width="2" fill="none"/>`}
+ else if(kind==='raw'){const cx=w/2,cy=h/2;for(const [dx,dy] of [[-1,0],[1,0],[0,-1],[0,1]])P(cx+dx*R*1.15,cy+dy*R*1.15,dx?'A':'B',R);P(cx+R*2.3,cy,'C',R);P(cx-R*2.3,cy,'C',R)}
+ const defs=Object.keys(BC).map(k=>`<radialGradient id="${u}${k}" cx=".34" cy=".3" r=".85"><stop offset="0" stop-color="${BC[k][0]}"/><stop offset="1" stop-color="${BC[k][1]}"/></radialGradient>`).join('');
+ const bs=B.map(b=>`<circle cx="${b[0].toFixed(1)}" cy="${b[1].toFixed(1)}" r="${(b[3]*1.0).toFixed(1)}" fill="url(#${u}${b[2]})"/><circle cx="${b[0].toFixed(1)}" cy="${b[1].toFixed(1)}" r="${(b[3]*.3).toFixed(1)}" fill="rgba(0,0,0,.4)"/><ellipse cx="${(b[0]-b[3]*.35).toFixed(1)}" cy="${(b[1]-b[3]*.4).toFixed(1)}" rx="${(b[3]*.2).toFixed(1)}" ry="${(b[3]*.12).toFixed(1)}" fill="rgba(255,255,255,.75)"/>`).join('');
+ return `<svg viewBox="0 0 ${w} ${h}" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg"><defs>${defs}<linearGradient id="${u}bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#D6CDBF"/><stop offset="1" stop-color="#B6AB9B"/></linearGradient><pattern id="${u}p" width="14" height="14" patternUnits="userSpaceOnUse"><path d="M0 7H14M7 0V14" stroke="rgba(80,60,40,.07)" stroke-width="1"/></pattern></defs><rect width="${w}" height="${h}" fill="url(#${u}bg)"/><rect width="${w}" height="${h}" fill="url(#${u}p)"/>${th}${bs}</svg>`;
+}
+const chips=b=>b.length?`<div class="bch">${b.map(x=>`<span class="bc"><i style="background:${BF[x[1]]}"></i>${x[0]} × ${x[1]}</span>`).join('')}</div>`:'';
+const dotsOf=b=>b.length?`<div class="dots">${[...new Set(b.map(x=>x[1]))].map(k=>`<i style="background:${BF[k]}"></i>`).join('')}</div>`:'';
+/* ---------- B: экран шага ---------- */
+function topPanel(i,o={}){const s=secOf(i),pc=Math.round((o.done?21:i-1)/21*100);
+ return `<div class="cb2 glass"><div class="ib" aria-label="К работам">${ic('chevL',24,2.4)}</div><div class="mid"><b>Ёлочка, браслет</b><span>${o.done?'Работа закончена':`Секция ${s+1} из 3 · ${SECS[s].t}`}</span></div><div class="ib" aria-label="Список шагов">${ic('list',24,2.2)}</div><div class="trk"><i style="width:${pc}%"></i></div></div>`}
+function repRow(o){
+ if(o.open)return `<div class="rp"><span>${o.open}-й повтор</span><span class="en">Достаточно</span></div>`;
+ if(!o.rep)return '';
+ const n=o.rep[1],k=o.rep[0];return `<div class="rp">${ic('repeat',22,2.2)}<span>Повтор ${k} из ${n}</span><div class="sg10">${Array.from({length:n},(_,j)=>`<i class="${j<k-1?'d':j===k-1?'c':''}"></i>`).join('')}</div></div>`}
+function dockNorm(first){return `<div class="dock glass">${first?'':`<div class="bn sec">${ic('chevL',22,2.6)}Назад</div>`}<div class="bn pri">Готово, дальше</div></div>`}
+function stepScreen(i,o={}){
+ const st=ST[i],t=o.sz==='l'?1.4:1,photo=o.photo||'one';
+ const ph=photo==='none'?'':`<div class="sph ${o.sz==='l'?'sm':''}">${photo==='fail'?`<div class="fail">${ic('img2',44,1.8)}<b>Фото не загрузилось</b><span>Текст шага виден. Фото загрузится, когда появится связь.</span><div class="rt">Повторить</div></div>`:scene(st.ph,428,o.sz==='l'?210:300)}${photo==='pager'?`<div class="pgn dense">2 из 3</div><div class="pgd"><i></i><i class="a"></i><i></i></div>`:''}${o.hint?`<div class="hint dense">${ic('photo',16,2.2)}&nbsp; Щипок или двойное касание — увеличить</div>`:''}</div>`;
+ const top=photo==='none'?136:(o.sz==='l'?126+210+14:126+300+14);
+ const last=o.last;
+ return `<div class="sc2" style="--t:${t}">${topPanel(i,o)}${ph}<div class="stx" style="top:${top}px"><div class="lb">Шаг ${i} из 21</div><h2>${st.t}</h2><p>${st.x}</p>${chips(st.b)}${repRow(o)}</div>${last?`<div class="dock glass col"><div class="bn pri">Готово: отметить работу законченной</div><div class="bn sec">${ic('chevL',22,2.6)}Назад</div></div>`:dockNorm(i===1)}${home}</div>`}
+function doneScreen(){
+ return `<div class="sc2">${topPanel(21,{done:1})}<div class="sph">${scene('full',428,300)}</div><div class="stx" style="top:442px"><div class="done-mark">${ic('check',40,2.6)}</div><h2 style="margin-top:4px">Работа закончена</h2><p>Все шаги пройдены. Браслет готов.</p><div class="tl2">Вернуть в работу</div></div><div class="dock glass"><div class="bn sec">${ic('chevL',22,2.6)}Назад</div><div class="bn pri">К моим работам</div></div>${home}</div>`}
+/* ---------- B10: список шагов ---------- */
+function sRow(i,state){const st=ST[i];return `<div class="sr ${state}"><div class="ck">${state==='d'?ic('check',16,3.2):''}</div><div class="tx"><b>${i}. ${st.t}</b><span>${st.b.length?st.b.map(x=>x[0]+' × '+x[1]).join(', '):'без бусин'}</span></div></div>`}
+function collapsed(sec,txt,done){return `<div class="sr ${done?'d':''}" style="min-height:60px"><div class="ck">${done?ic('check',16,3.2):''}</div><div class="tx"><b>Секция ${sec+1} · ${SECS[sec].t}</b><span>${txt}</span></div><span class="ch">${ic('chevR',20,2.4)}</span></div>`}
+function stepsSheet(){
+ let r='';for(let i=8;i<=16;i++)r+=sRow(i,i<12?'d':i===12?'c':'');
+ return `<div class="scrim"></div><div class="pagesheet lg"><div class="grab"></div><div class="nav"><b>Шаги</b><span class="dn">Готово</span></div><div class="sbd"><div class="gp2" style="margin-top:6px">${collapsed(0,'7 из 7 шагов',true)}</div><div class="sh3">Секция 2 · Ёлочка<em>повтор 4 из 10</em></div><div class="gp2">${r}</div><div class="sh3">Дальше</div><div class="gp2">${collapsed(2,'5 шагов',false)}</div></div></div>`}
+/* ---------- A: новая инструкция ---------- */
+const TPL=[['Крестик (RAW)','проще','14 шагов','raw'],['Ёлочка','средне','21 шаг','tree3'],['Сетка','проще','12 шагов','grid'],['Жгут','сложнее','28 шагов','rope']];
+const dif=d=>d==='проще'?'●○○':d==='средне'?'●●○':'●●●';
+const libBg=()=>`<div class="lib"><div class="large">Мои работы</div><div class="search"><span style="display:flex">${ic('search',20)}</span>Поиск по названию</div></div>`;
+function newSheet(kind){
+ const top=`<div class="group"><div class="item"><div class="ic">${ic('doc',22,2)}</div><div><b>Пустая</b><span class="s">Начать с первой секции</span></div><span class="ch">${ic('chevR',20,2.4)}</span></div><div class="item"><div class="ic">${ic('camera',22,2)}</div><div><b>Из фото</b><span class="s">По одному фото на шаг: из камеры или галереи</span></div><span class="ch">${ic('chevR',20,2.4)}</span></div></div>`;
+ let sec='';
+ if(kind==='tpl')sec=`<div class="sh3">Шаблоны техник</div><div class="tg2">${TPL.map(t=>`<div class="tcd"><div class="im">${scene(t[3],200,112)}</div><div class="bd"><b>${t[0]}</b><span>${dif(t[1])} ${t[1]}<br>${t[2]}</span></div></div>`).join('')}</div>`;
+ else if(kind==='empty')sec=`<div class="sh3">Шаблоны техник</div><div class="gp2"><div class="fld" style="color:var(--ink2);font-size:16px;line-height:1.35;min-height:84px">Шаблонов пока нет. Начни с пустой инструкции или с фото.</div></div>`;
+ else sec=`<div class="sh3">Шаблоны техник</div><div class="tg2">${[0,1,2,3].map(()=>`<div class="tcd"><div class="im" style="background:var(--surf2)"></div><div class="bd"><div class="sk" style="height:18px;width:70%"></div><div class="sk" style="height:13px;width:50%;margin-top:8px"></div><div class="sk" style="height:13px;width:40%;margin-top:6px"></div></div></div>`).join('')}</div><div style="display:flex;align-items:center;justify-content:center;gap:10px;margin-top:16px;font-size:15px;color:var(--ink2)"><span class="spin"></span>Загружаем шаблоны…</div>`;
+ return libBg()+`<div class="scrim"></div><div class="pagesheet lg"><div class="grab"></div><div class="nav"><span class="cancel">Отмена</span><b>Пошаговая инструкция</b></div><div class="sbd"><div style="height:6px"></div>${top}${sec}</div></div>`}
+function tplPreview(){
+ let r='';const secs=[[0,'Основа',[1,2,3,4]],[1,'Ёлочка · повтор 10 раз',[8,9,10,11]],[2,'Концовка',[17,18]]];
+ secs.forEach(s=>{r+=`<div class="sh3">Секция ${s[0]+1} · ${s[1]}</div><div class="gp2">${s[2].map(i=>`<div class="sr"><div class="tx"><b>${i}. ${ST[i].t}</b><span>${ST[i].b.length?ST[i].b.map(x=>x[0]+' × '+x[1]).join(', '):'без бусин'}</span></div></div>`).join('')}</div>`});
+ return libBg()+`<div class="scrim"></div><div class="pagesheet lg"><div class="grab"></div><div class="nav"><span class="cancel ib2">${ic('chevL',22,2.4)}Назад</span><b>Ёлочка</b></div><div class="sbd" style="margin-bottom:104px"><div style="padding:6px 16px 0"><div class="tcd"><div class="im" style="height:150px">${scene('tree3',380,150)}</div><div class="bd"><span style="margin:0;font-size:15px">${dif('средне')} средне · 21 шаг · 3 секции</span><span style="font-size:15px;margin-top:6px">Бусины: A, B, C. Цвета подставишь из своей палитры.</span></div></div></div>${r}<div class="sh3"><em>…и ещё 15 шагов</em></div></div><div class="dock glass" style="z-index:12;left:16px;right:16px;bottom:24px"><div class="bn pri">Создать</div></div></div>`}
+/* ---------- C: редактор ---------- */
+const savedTxt=(ok=true)=>ok?`<div class="tinyst">${ic('check',13,3)}Сохранено</div>`:`<div class="tinyst er">${ic('warn',13,2.4)}Не сохранено: проверьте повтор</div>`;
+function edBar(title,ok,rt,back){return `<div class="cb3"><div class="nbk">${ic('chevL',22,2.4)}${back}</div><div class="ct2"><b>${title}</b>${savedTxt(ok)}</div><div class="rt2">${rt}</div></div>`}
+function eRow(i,edit,lift){const st=ST[i];return `<div class="sr ${lift?'lift':''}"><div class="tx"><b>${i}. ${st.t}</b><span>${st.b.length?st.b.map(x=>x[0]+' × '+x[1]).join(', '):'без бусин'}</span>${dotsOf(st.b)}</div>${edit?`<div class="gr" aria-label="Перетащить">${ic('grip',22,2)}</div>`:`<span class="ch">${ic('chevR',20,2.4)}</span>`}</div>`}
+function secHead(n,t,rep,edit){return `<div class="sec3">${edit?`<div class="ib3" style="color:var(--ink2);margin-left:-8px">${ic('grip',22,2)}</div>`:''}<b>Секция ${n} · ${t}</b>${rep?`<span class="pill2">${ic('repeat',18,2.2)}${rep} раз</span>`:''}<div class="ib3" aria-label="Меню секции">${ic('more',24,3)}</div></div>`}
+function listEd(opt){
+ const e=opt.edit;let r='';
+ r+=secHead(1,'Основа',0,e)+`<div class="gp2">${[1,2,3].map(i=>eRow(i,e)).join('')}<div class="addr">${ic('plus',20,2.6)}Добавить шаг</div></div>`;
+ if(opt.drag)r+=secHead(2,'Ёлочка',10,e)+`<div class="gp2">${eRow(8,e)}${eRow(9,e)}<div class="dl2"></div>${eRow(10,e,1)}${eRow(11,e)}</div>`;
+ else if(opt.del)r+=secHead(2,'Ёлочка',10,e)+`<div class="gp2">${[8,9,10,11,12].map(i=>eRow(i,e)).join('')}<div class="addr">${ic('plus',20,2.6)}Добавить шаг</div></div>`;
+ else r+=secHead(2,'Ёлочка',10,e)+`<div class="gp2">${[8,9,10,11,12,13].map(i=>eRow(i,e)).join('')}<div class="addr">${ic('plus',20,2.6)}Добавить шаг</div></div>`;
+ r+=`<div class="gp2" style="margin-top:14px"><div class="addr">${ic('plus',20,2.6)}Добавить секцию</div></div>`;
+ return `<div class="edt">${edBar('Ёлочка, браслет',true,e?'Готово':'Изменить','Мои работы')}${r}<div class="scb" style="top:130px;height:260px"></div>${opt.del?`<div class="banner dense"><span>Шаг «Подтяни ветку» удалён</span><div class="und">Отменить</div></div>`:''}</div>${home}`}
+const phTile=(k,n,rm=true)=>`<div class="pt">${scene(k,96,96)}<div class="nb">${n}</div>${rm?`<div class="rm" aria-label="Удалить фото"><b>${ic('close',14,3)}</b></div>`:''}</div>`;
+function stepEd(part,opt={}){
+ const st=ST[12];let body='';
+ if(part==='a')body=`<div class="sh3">Название</div><div class="gp2"><div class="fld">${st.t}</div></div><div class="sh3">Текст шага</div><div class="gp2"><div class="fld ta">${st.x}</div></div><div class="sh3">Фото<em>порядок — перетаскиванием</em></div><div class="gp2"><div class="phr">${phTile('tree2',1)}${phTile('tree3',2)}<div class="pt add">${ic('plus',24,2.4)}Добавить</div></div></div>${opt.menu?`<div class="menu" style="left:150px;top:530px;width:262px"><div>Снять фото<span>${ic('camera',20,2)}</span></div><div>Выбрать из галереи<span>${ic('photo',20,2)}</span></div></div>`:''}`;
+ else{const bad=opt.bad,seg=`<div class="sc" style="margin:0"><div>Один раз</div><div class="s">N раз</div><div>До длины</div></div>`;
+  body=`<div class="sh3">Бусины</div><div class="gp2">${[[6,'A'],[1,'C']].map(x=>`<div class="r" style="min-height:60px"><span class="bc" style="border:0;background:none;padding:0 4px 0 0;font-size:17px"><i style="background:${BF[x[1]]}"></i>${x[1]} · ${PN[x[1]]}</span><span style="margin-left:auto" class="stp2"><div>${ic('minus',18,2.6)}</div><span>${x[0]}</span><div>${ic('plus',18,2.6)}</div></span></div>`).join('')}<div class="addr">${ic('plus',20,2.6)}Добавить бусины из каталога</div></div><div class="sh3">Повтор шага</div><div class="gp2" style="padding:10px 12px">${seg}</div><div class="gp2" style="margin-top:10px"><div class="r" style="min-height:64px"><span>Повторить</span><span style="margin-left:auto" class="stp2 ${bad?'bad':''}"><div>${ic('minus',18,2.6)}</div><span>${bad?0:3}</span><div>${ic('plus',18,2.6)}</div></span><span style="color:var(--ink2)">раз</span></div></div>${bad?`<div class="errm">${ic('warn',18,2.4)}Нужно хотя бы 1 раз. Пока число не исправлено, изменения не сохраняются.</div>`:`<div class="sf" style="margin:8px 20px 0">Шаг подряд повторяется указанное число раз.</div>`}<div class="gp2" style="margin-top:22px"><div class="addr" style="color:var(--danger);justify-content:center">${ic('trash',20,2.2)}Удалить шаг</div></div>`}
+ return `<div class="edt">${edBar('Шаг 12',!opt.bad,'','Ёлочка')}${body}</div>${home}`}
+function emptyEd(){return `<div class="edt">${edBar('Новая инструкция',true,'','Мои работы')}<div class="empty" style="top:230px">${`<div class="done-mark" style="background:var(--accg);color:var(--acct)">${ic('list',36,2)}</div>`}<h2>Пока нет шагов</h2><p>Добавь первую секцию и шаги к ней. Можно начать с шаблона.</p><div class="cta">Добавить секцию</div><div class="tl2">Выбрать шаблон</div></div></div>${home}`}
+function longEd(){
+ const names=['Основа','Ёлочка','Концовка','Застёжка','Проверка','Запасные'];let r='';
+ names.forEach((n,k)=>{if(k===1){r+=secHead(2,'Ёлочка',10)+`<div class="gp2">${[8,9,10].map(i=>eRow(i)).join('')}<div class="sr" style="min-height:48px;justify-content:center;color:var(--ink2);font-size:15px">ещё 6 шагов</div></div>`}else r+=`<div class="gp2" style="margin-top:10px"><div class="sr" style="min-height:64px"><div class="tx"><b>Секция ${k+1} · ${n}</b><span>${[7,9,5,4,3,2][k]} шагов</span></div><span class="ch">${ic('chevD',20,2.4)}</span></div></div>`});
+ r+=`<div class="gp2" style="margin-top:14px"><div class="addr">${ic('plus',20,2.6)}Добавить секцию</div></div>`;
+ return `<div class="edt">${edBar('Ёлочка, браслет',true,'Изменить','Мои работы')}${r}<div class="scb" style="top:420px;height:70px"></div></div>${home}`}
+/* ---------- D: библиотека ---------- */
+function thumbX(a,b,c){return `background:linear-gradient(45deg,transparent 45%,${a} 45% 55%,transparent 55%) 0 0/12px 12px,linear-gradient(-45deg,transparent 45%,${a} 45% 55%,transparent 55%) 0 0/12px 12px,${c}`}
+function thumbB(a,b,c){return `background:radial-gradient(circle,${a} 0 36%,transparent 38%) 0 0/14px 14px,radial-gradient(circle,${b} 0 36%,transparent 38%) 7px 7px/14px 14px,${c}`}
+const tabbar=`<div class="tabbar glass"><div class="tab sel">${ic('lib',22)}Работы</div><div class="tab">${ic('swatch',22)}Каталог</div><div class="tab">${ic('more',22)}Ещё</div></div><div class="fab" aria-label="Новый проект">${ic('plus',32,2.6).replace('currentColor','var(--onacc)')}</div>`;
+const LIBI=[
+ {n:'Ёлочка, браслет',s:'Шаг 12 из 21 · секция 2',t:'Инструкция',st:'prog',img:'tree2'},
+ {n:'Закат над озером',s:'Вышивка · 3 420 из 19 200',t:'В работе',st:'prog',css:thumbX('#F2B84B','#D94F70','#2A1A50')},
+ {n:'Браслет «Рябина»',s:'Бисер · ряд 42 из 120',t:'В работе',st:'prog',css:thumbB('#E8547A','#F2B84B','#3A1230')}];
+function libD(grid){
+ const stt=x=>`<span class="st ${x.st}">${x.t}</span>`;
+ const body=grid?`<div class="grid2">${LIBI.map(x=>`<div class="gc"><div class="im" ${x.css?`style="${x.css}"`:''}>${x.img?scene(x.img,200,148):''}</div><div class="bd"><b>${x.n}</b><span class="s">${x.s}</span></div></div>`).join('')}</div>`:`<div class="list">${LIBI.map(x=>`<div class="card"><div class="pv" style="${x.css||''};overflow:hidden">${x.img?scene(x.img,84,84):''}</div><div class="cbody"><div class="ct">${x.n}</div><div class="cs">${x.s}</div></div></div>`).join('')}</div>`;
+ return `<div class="lib"><div class="large">Мои работы</div><div class="search"><span style="display:flex">${ic('search',20)}</span>Поиск по названию</div>${body}</div>${tabbar}${home}`}
+/* ---------- Mac ---------- */
+function macStep(th,w){
+ const wide=w>=800,mw=wide?w-300:w;
+ let sb='';
+ if(wide){sb=`<div class="sb">${collapsed(0,'7 из 7 шагов',true)}<div class="sh3">Секция 2 · Ёлочка<em>4 из 10</em></div>${[8,9,10,11,12,13,14,15,16].map(i=>sRow(i,i<12?'d':i===12?'c':'')).join('')}${collapsed(2,'5 шагов',false)}</div>`}
+ const ph=Math.round(mw*.5>220?220:mw*.5);
+ return `<div class="mw"><div class="phone" data-theme="${th}" style="width:${w}px"><div class="mac" style="width:${w}px"><div class="tlg"><i style="background:#FF5F57"></i><i style="background:#FEBC2E"></i><i style="background:#28C840"></i></div><div class="tbar"><div style="display:flex;align-items:center;gap:8px">${wide?'':`<span class="ib" style="margin-left:-6px" aria-label="Список шагов">${ic('sidebar',22,2)}</span>`}<b>Ёлочка, браслет</b></div><span class="sub">Секция 2 из 3 · шаг 12 из 21</span></div>${sb}<div class="mn" style="left:${wide?300:0}px;width:${mw}px"><div class="sph" style="height:${ph}px">${scene('tree2',mw-56,ph)}</div><div class="stx" style="top:${ph+40}px"><div class="lb">Шаг 12 из 21</div><h2>${ST[12].t}</h2><p>${ST[12].x}</p>${chips(ST[12].b)}${repRow({rep:[4,10]})}</div><div class="dkm"><div class="bn sec">${ic('chevL',22,2.6)}Назад</div><div class="bn pri">Готово, дальше</div></div></div></div></div></div>`}
+function macEd(th){
+ const sb=`<div class="sb" style="background:var(--surf2)"><div class="sec3" style="padding-left:14px"><b>Секция 1 · Основа</b></div>${[1,2,3].map(i=>sRow(i,'')).join('')}<div class="sec3" style="padding-left:14px"><b>Секция 2 · Ёлочка</b><span class="pill2">${ic('repeat',18,2.2)}10 раз</span></div>${[8,9,10,11,12,13].map(i=>sRow(i,i===12?'c':'')).join('')}<div class="addr">${ic('plus',20,2.6)}Добавить шаг</div><div class="addr">${ic('plus',20,2.6)}Добавить секцию</div></div>`;
+ const st=ST[12];
+ return `<div class="mw"><div class="phone" data-theme="${th}" style="width:1000px"><div class="mac" style="width:1000px"><div class="tlg"><i style="background:#FF5F57"></i><i style="background:#FEBC2E"></i><i style="background:#28C840"></i></div><div class="tbar"><b>Ёлочка, браслет</b><span class="sub" style="display:flex;align-items:center;gap:5px">${ic('check',13,3)}Сохранено</span></div>${sb}<div class="mn" style="left:300px;width:700px"><div class="frm"><div class="fm2"><div class="sh3">Название</div><div class="gp2"><div class="fld">${st.t}</div></div><div class="sh3">Текст шага</div><div class="gp2"><div class="fld ta" style="min-height:96px">${st.x}</div></div><div class="sh3">Фото<em>порядок — перетаскиванием</em></div><div class="gp2"><div class="phr">${phTile('tree2',1)}${phTile('tree3',2)}<div class="pt add">${ic('plus',24,2.4)}Добавить</div></div></div><div class="sh3">Бусины</div><div class="gp2">${[[6,'A'],[1,'C']].map(x=>`<div class="r" style="min-height:56px"><span class="bc" style="border:0;background:none;padding:0 4px 0 0;font-size:17px"><i style="background:${BF[x[1]]}"></i>${x[1]} · ${PN[x[1]]}</span><span style="margin-left:auto" class="stp2"><div>${ic('minus',18,2.6)}</div><span>${x[0]}</span><div>${ic('plus',18,2.6)}</div></span></div>`).join('')}</div><div class="sh3">Повтор шага</div><div class="sc" style="width:360px"><div>Один раз</div><div class="s">N раз</div><div>До длины</div></div></div></div></div></div></div></div>`}
+/* ---------- сборка ---------- */
+const screens=[
+ ['A1 · Новая инструкция: «Пустая», «Из фото», шаблоны техник',()=>newSheet('tpl')+home],
+ ['A2 · Просмотр шаблона «Ёлочка» (только чтение) и «Создать»',()=>tplPreview()+home],
+ ['A3 · Нет шаблонов: пусто',()=>newSheet('empty')+home],
+ ['A4 · Шаблоны загружаются',()=>newSheet('load')+home],
+ ['B1 · Первый шаг: фото, текст, бусины; подсказка про зум',()=>stepScreen(1,{hint:1})],
+ ['B2 · Середина секции: «Повтор 4 из 10», чипы бусин',()=>stepScreen(12,{rep:[4,10]})],
+ ['B3 · Крупный текст шага (28 pt)',()=>stepScreen(12,{rep:[4,10],sz:'l'})],
+ ['B4 · Шаг без фото',()=>stepScreen(4,{photo:'none'})],
+ ['B5 · Несколько фото: пейджер «2 из 3»',()=>stepScreen(12,{photo:'pager',rep:[4,10]})],
+ ['B6 · Повтор «до нужной длины»: «4-й повтор», «Достаточно»',()=>stepScreen(9,{open:4})],
+ ['B7 · Последний шаг: «Готово: отметить работу законченной»',()=>stepScreen(21,{last:1})],
+ ['B8 · Работа закончена',()=>doneScreen()],
+ ['B9 · Фото не загрузилось: заглушка и «Повторить»',()=>stepScreen(12,{photo:'fail',rep:[4,10]})],
+ ['B10 · Список шагов (page sheet): галочки, текущий, свёрнутые секции',()=>stepScreen(12,{rep:[4,10]})+stepsSheet()],
+ ['C1 · Редактор: секции и шаги, «Сохранено», повтор секции',()=>listEd({})],
+ ['C2 · Режим «Изменить»: перетаскивание шага (линия вставки)',()=>listEd({edit:1,drag:1})],
+ ['C3 · Шаг: название, текст, фото с порядком',()=>stepEd('a')],
+ ['C4 · Шаг: бусины из палитры, повтор «N раз»',()=>stepEd('b')],
+ ['C5 · «Добавить фото»: системное меню (камера / галерея)',()=>stepEd('a',{menu:1})],
+ ['C6 · Ошибка: повтор 0 (рамка, иконка, текст)',()=>stepEd('b',{bad:1})],
+ ['C7 · Пустая инструкция',()=>emptyEd()],
+ ['C8 · Длинная инструкция: секции свёрнуты',()=>longEd()],
+ ['C9 · Удаление шага: баннер «Отменить»',()=>listEd({del:1})],
+ ['D1 · Библиотека, список: карточка инструкции рядом со схемами',()=>libD(0)],
+ ['D2 · Библиотека, сетка 2 колонки',()=>libD(1)]
+];
+let mode='light';
+function render(){
+ const st=document.getElementById('stage');st.innerHTML='';
+ document.body.classList.toggle('dp',mode==='dark');
+ const ths=mode==='both'?['light','dark']:[mode];
+ ths.forEach(t=>{
+  const row=document.createElement('div');row.className='row';
+  screens.forEach(s=>{const c=document.createElement('div');c.className='cell';
+   c.innerHTML=`<div class="phone" data-theme="${t}">${s[1]()}</div><div class="cap">${s[0]} · ${t==='dark'?'тёмная':'светлая'}</div>`;row.appendChild(c)});
+  st.appendChild(row)});
+ ths.forEach(t=>{const row=document.createElement('div');row.className='row';row.style.overflowX='auto';
+  row.innerHTML=[['B11 · macOS, окно 1000 pt: список шагов слева, шаг справа',macStep(t,1000)],['B12 · macOS, окно 520 pt: список скрыт (кнопка на панели)',macStep(t,520)],['C10 · macOS, редактор: структура слева, шаг справа',macEd(t)]].map(m=>`<div style="display:flex;flex-direction:column;gap:10px;align-items:center">${m[1]}<div class="cap">${m[0]} · ${t==='dark'?'тёмная':'светлая'}</div></div>`).join('');st.appendChild(row)});
+}
+document.querySelectorAll('.seg button').forEach(b=>b.onclick=()=>{mode=b.dataset.m;document.querySelectorAll('.seg button').forEach(x=>x.setAttribute('aria-pressed',x===b));render()});
+render();
+</script>
+</body>
+</html>
