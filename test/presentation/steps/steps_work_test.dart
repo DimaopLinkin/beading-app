@@ -207,6 +207,45 @@ void main() {
       await cubit.close();
     });
 
+    test('курсор на удалённом шаге: начинаем сначала, а не показываем «пусто»', () async {
+      store.byPattern['sp1'] = const StepsProgress(sectionId: 's1', sectionPass: 1, stepId: 'нет-такого', stepPass: 1);
+      final StepsWorkCubit cubit = await loaded();
+      expect(cubit.state.step!.id, 'a');
+      await cubit.close();
+    });
+
+    test('после «Достаточно» на последнем шаге работу всё равно можно отметить законченной', () async {
+      patterns.byProject[projectId] = StepPattern(
+        id: 'sp1',
+        projectId: projectId,
+        sections: const <StepSection>[
+          StepSection(
+            id: 's',
+            steps: <InstructionStep>[InstructionStep(id: 'x', repeat: Repeat.untilDone())],
+          ),
+        ],
+      );
+      final StepsWorkCubit cubit = await loaded();
+      cubit.skipRepeat();
+      await Future<void>.delayed(const Duration(milliseconds: 20));
+      expect(cubit.state.finished, isTrue);
+      expect(cubit.state.projectDone, isFalse);
+      await cubit.finishWork();
+      expect(cubit.state.projectDone, isTrue);
+      await cubit.close();
+    });
+
+    test('уже готовый проект: finishWork доводит курсор до конца и статус не трогает', () async {
+      await projects.get(projectId).then((p) => projects.save(p.valueOrNull!.copyWith(status: ProjectStatus.done)));
+      final StepsWorkCubit cubit = await loaded();
+      expect(cubit.state.projectDone, isTrue);
+      cubit.jumpTo('c');
+      await Future<void>.delayed(const Duration(milliseconds: 20));
+      await cubit.finishWork();
+      expect(cubit.state.finished, isTrue);
+      await cubit.close();
+    });
+
     test('пустая инструкция: действия ничего не меняют', () async {
       patterns.byProject[projectId] = StepPattern(id: 'sp1', projectId: projectId, sections: const <StepSection>[]);
       final StepsWorkCubit cubit = await loaded();
@@ -341,6 +380,42 @@ void main() {
       await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 20)));
       await tester.pump();
       expect(find.text('Работа закончена'), findsOneWidget);
+      await closeScreen(tester, cubit);
+    });
+
+    testWidgets('свайп влево по тексту — следующий шаг, вправо — назад', (tester) async {
+      final StepsWorkCubit cubit = await open(tester);
+      await tester.fling(find.byKey(const ValueKey<String>('steps-swipe-area')), const Offset(-300, 0), 1000);
+      await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 20)));
+      await tester.pump();
+      expect(find.text('повтор 2 из 3'), findsOneWidget);
+      await tester.fling(find.byKey(const ValueKey<String>('steps-swipe-area')), const Offset(300, 0), 1000);
+      await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 20)));
+      await tester.pump();
+      expect(find.text('повтор 1 из 3'), findsOneWidget);
+      await closeScreen(tester, cubit);
+    });
+
+    testWidgets('курсор за последним шагом, проект не готов: кнопка «Готово: отметить…» остаётся', (tester) async {
+      patterns.byProject[projectId] = StepPattern(
+        id: 'sp1',
+        projectId: projectId,
+        sections: const <StepSection>[
+          StepSection(
+            id: 's',
+            steps: <InstructionStep>[InstructionStep(id: 'x', text: 'Последний')],
+          ),
+        ],
+      );
+      store.byPattern['sp1'] = const StepsProgress(
+        sectionId: 's',
+        sectionPass: 1,
+        stepId: 'x',
+        stepPass: 1,
+        finished: true,
+      );
+      final StepsWorkCubit cubit = await open(tester);
+      expect(find.byKey(const ValueKey<String>('steps-finish')), findsOneWidget);
       await closeScreen(tester, cubit);
     });
 

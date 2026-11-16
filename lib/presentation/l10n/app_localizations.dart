@@ -4720,7 +4720,7 @@ abstract class AppLocalizations {
   /// Список шагов: повтор секции или шага
   ///
   /// In ru, this message translates to:
-  /// **'{n} раз'**
+  /// **'{n, plural, one{{n} раз} few{{n} раза} many{{n} раз} other{{n} раз}}'**
   String stepsRepeatTimes(int n);
 
   /// Список шагов: повтор без счёта
@@ -4728,6 +4728,12 @@ abstract class AppLocalizations {
   /// In ru, this message translates to:
   /// **'до нужной длины'**
   String get stepsRepeatUntilDone;
+
+  /// VoiceOver: шаг в списке уже пройден
+  ///
+  /// In ru, this message translates to:
+  /// **'пройден'**
+  String get stepsStepDone;
 
   /// VoiceOver: кнопка статистики
   ///

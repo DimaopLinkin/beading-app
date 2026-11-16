@@ -62,17 +62,26 @@ class StepsWorkCubit extends Cubit<StepsWorkState> {
       emit(state.copyWith(status: StepsWorkStatus.failed));
       return;
     }
+    final StepPattern found = pattern.valueOrNull!;
+    StepsProgress at = progress.valueOrNull!;
+    if (!at.finished && !_hasStep(found, at)) {
+      at = StepsProgress.start(found); // курсор на удалённом шаге (правка на другом устройстве): начинаем сначала
+    }
     emit(
       state.copyWith(
         status: StepsWorkStatus.ready,
         projectName: project.valueOrNull!.name,
         projectDone: project.valueOrNull!.status == ProjectStatus.done,
-        pattern: pattern.valueOrNull,
-        progress: progress.valueOrNull,
+        pattern: found,
+        progress: at,
       ),
     );
     unawaited(_tracker.start(_projectId));
   }
+
+  static bool _hasStep(StepPattern pattern, StepsProgress progress) => pattern.sections.any(
+    (s) => s.id == progress.sectionId && s.steps.any((st) => st.id == progress.stepId),
+  );
 
   /// «Готово, дальше». На последнем шаге работа заканчивается: проект при этом не меняется, это отдельная кнопка.
   void next() => _move(_navigation.next);
@@ -85,21 +94,31 @@ class StepsWorkCubit extends Cubit<StepsWorkState> {
   /// Касание шага в списке.
   void jumpTo(String stepId) => _move((p) => _navigation.jumpTo(p, stepId));
 
-  /// «Работа закончена»: последний шаг пройден, проект отмечается готовым.
+  bool _finishing = false;
+
+  /// «Работа закончена»: курсор уходит за последний шаг (если ещё не там), проект отмечается готовым.
+  /// У проекта, уже отмеченного готовым, статус не трогаем.
   Future<void> finishWork() async {
-    if (!state.isReady || state.projectDone) {
+    if (!state.isReady || state.isEmpty || _finishing) {
       return;
     }
-    if (!state.finished) {
-      _move(_navigation.next);
-    }
-    _writes = _writes.then((_) async {
-      final Result<Project> changed = await _changeStatus(_projectId, ProjectStatus.done);
-      if (!isClosed && changed.isSuccess) {
-        emit(state.copyWith(projectDone: true));
+    _finishing = true;
+    try {
+      if (!state.finished) {
+        _move(_navigation.skipRepeat); // на последнем шаге то же, что next, а «до нужной длины» заканчивает
       }
-    });
-    await _writes;
+      await _writes;
+      if (state.projectDone || isClosed) {
+        return;
+      }
+      final Result<Project> changed = await _changeStatus(_projectId, ProjectStatus.done);
+      if (isClosed) {
+        return;
+      }
+      emit(changed.isSuccess ? state.copyWith(projectDone: true) : state.copyWith(saveFailed: true));
+    } finally {
+      _finishing = false;
+    }
   }
 
   void _move(Future<Result<StepsProgress>> Function(StepPattern pattern) move) {

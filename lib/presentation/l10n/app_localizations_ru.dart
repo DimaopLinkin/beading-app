@@ -2824,11 +2824,22 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String stepsRepeatTimes(int n) {
-    return '$n раз';
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$n раз',
+      many: '$n раз',
+      few: '$n раза',
+      one: '$n раз',
+    );
+    return '$_temp0';
   }
 
   @override
   String get stepsRepeatUntilDone => 'до нужной длины';
+
+  @override
+  String get stepsStepDone => 'пройден';
 
   @override
   String get stepsStatsSemantic => 'Время работы';

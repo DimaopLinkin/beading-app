@@ -60,7 +60,7 @@ class StepsWorkState extends Equatable {
   int get stepNumber => pattern!.allSteps.toList().indexWhere((s) => s.id == progress!.stepId) + 1;
 
   /// Все шаги пройдены.
-  bool get finished => progress?.finished ?? false;
+  bool get finished => !isEmpty && (progress?.finished ?? false);
 
   /// Шаг последний: «дальше» закончит работу.
   bool get isLastStep => isReady && !finished && progress!.next(pattern!).finished;

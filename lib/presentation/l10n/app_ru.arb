@@ -1688,10 +1688,12 @@
   "@stepsSaveFailed": {"description": "Предупреждение: курсор не записался"},
   "stepsSectionProgress": "{done} из {total}",
   "@stepsSectionProgress": {"description": "Список шагов: сколько шагов секции пройдено", "placeholders": {"done": {"type": "int"}, "total": {"type": "int"}}},
-  "stepsRepeatTimes": "{n} раз",
+  "stepsRepeatTimes": "{n, plural, one{{n} раз} few{{n} раза} many{{n} раз} other{{n} раз}}",
   "@stepsRepeatTimes": {"description": "Список шагов: повтор секции или шага", "placeholders": {"n": {"type": "int"}}},
   "stepsRepeatUntilDone": "до нужной длины",
   "@stepsRepeatUntilDone": {"description": "Список шагов: повтор без счёта"},
+  "stepsStepDone": "пройден",
+  "@stepsStepDone": {"description": "VoiceOver: шаг в списке уже пройден"},
   "stepsStatsSemantic": "Время работы",
   "@stepsStatsSemantic": {"description": "VoiceOver: кнопка статистики"}
 }

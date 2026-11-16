@@ -132,6 +132,7 @@ class _StepRow extends StatelessWidget {
     return Semantics(
       button: true,
       selected: current,
+      value: done ? l10n.stepsStepDone : null,
       child: GestureDetector(
         behavior: HitTestBehavior.opaque,
         onTap: () {

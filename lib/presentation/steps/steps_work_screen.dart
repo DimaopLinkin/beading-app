@@ -78,6 +78,7 @@ class _WorkspaceState extends State<_Workspace> with WidgetsBindingObserver {
   static const double _bottomPanelHeight = 150;
 
   double? _panelHeight;
+  double? _topHeight;
 
   @override
   void initState() {
@@ -123,7 +124,7 @@ class _WorkspaceState extends State<_Workspace> with WidgetsBindingObserver {
                 child: _StepBody(
                   state: state,
                   files: widget.files,
-                  topInset: safe.top + _topBarHeight,
+                  topInset: _topHeight ?? safe.top + _topBarHeight,
                   bottomInset: _panelHeight ?? safe.bottom + _bottomPanelHeight,
                 ),
               ),
@@ -131,15 +132,22 @@ class _WorkspaceState extends State<_Workspace> with WidgetsBindingObserver {
                 left: 0,
                 right: 0,
                 top: 0,
-                child: _PanelFrame(
-                  child: _TopBar(state: state, onOpenStats: widget.onOpenStats),
+                child: MeasuredHeight(
+                  onChange: (height) {
+                    if (mounted && _topHeight != height) {
+                      setState(() => _topHeight = height);
+                    }
+                  },
+                  child: _PanelFrame(
+                    child: _TopBar(state: state, onOpenStats: widget.onOpenStats),
+                  ),
                 ),
               ),
               if (state.saveFailed)
                 Positioned(
                   left: 0,
                   right: 0,
-                  top: safe.top + _topBarHeight,
+                  top: _topHeight ?? safe.top + _topBarHeight,
                   child: const _PanelFrame(child: _SaveFailedNotice()),
                 ),
               Positioned(
@@ -344,59 +352,68 @@ class _StepBody extends StatelessWidget {
         for (final StepImage image in pattern.images)
           if (image.id == id) image,
     ];
-    return GestureDetector(
-      behavior: HitTestBehavior.translucent,
-      onHorizontalDragEnd: (details) {
-        final double v = details.primaryVelocity ?? 0;
-        if (v <= -_swipeVelocity) {
-          cubit.next();
-        } else if (v >= _swipeVelocity) {
-          cubit.back();
-        }
-      },
-      child: Align(
-        alignment: Alignment.topCenter,
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 640),
-          child: SingleChildScrollView(
-            padding: padding,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: <Widget>[
-                Semantics(
-                  liveRegion: true,
-                  child: Text(
-                    l10n.stepsStepOf(state.stepNumber, state.totalSteps),
-                    key: const ValueKey<String>('steps-counter'),
-                    style: tokens.counterTextStyle,
-                    textScaler: tokens.counterTextScaler(MediaQuery.textScalerOf(context)),
-                  ),
+    return Align(
+      alignment: Alignment.topCenter,
+      child: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: 640),
+        child: SingleChildScrollView(
+          key: ValueKey<String>('steps-scroll-${step.id}'),
+          padding: padding,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              Semantics(
+                liveRegion: true,
+                child: Text(
+                  l10n.stepsStepOf(state.stepNumber, state.totalSteps),
+                  key: const ValueKey<String>('steps-counter'),
+                  style: tokens.counterTextStyle,
+                  textScaler: tokens.counterTextScaler(MediaQuery.textScalerOf(context)),
                 ),
-                if (!section.repeat.isUntilDone && section.repeat.passes > 1 || section.repeat.isUntilDone)
-                  _RepeatLine(repeat: section.repeat, pass: state.progress!.sectionPass),
-                if (step.repeat.isUntilDone || step.repeat.passes > 1)
-                  _RepeatLine(repeat: step.repeat, pass: state.progress!.stepPass),
+              ),
+              if (!section.repeat.isUntilDone && section.repeat.passes > 1 || section.repeat.isUntilDone)
+                _RepeatLine(repeat: section.repeat, pass: state.progress!.sectionPass),
+              if (step.repeat.isUntilDone || step.repeat.passes > 1)
+                _RepeatLine(repeat: step.repeat, pass: state.progress!.stepPass),
+              SizedBox(height: tokens.spacing.m),
+              if (images.isNotEmpty) ...<Widget>[
+                StepImagesPager(key: ValueKey<String>('steps-photos-${step.id}'), files: files, images: images),
                 SizedBox(height: tokens.spacing.m),
-                if (images.isNotEmpty) ...<Widget>[
-                  StepImagesPager(files: files, images: images),
-                  SizedBox(height: tokens.spacing.m),
-                ],
-                if (step.text.isNotEmpty)
-                  Text(step.text, key: const ValueKey<String>('steps-text'), style: tokens.typography.title2)
-                else if (images.isEmpty && step.beads.isEmpty)
-                  Text(l10n.stepsNoText, style: tokens.typography.body),
-                if (step.beads.isNotEmpty) ...<Widget>[
-                  SizedBox(height: tokens.spacing.m),
-                  Wrap(
-                    spacing: tokens.spacing.s,
-                    runSpacing: tokens.spacing.s,
-                    children: <Widget>[
-                      for (final StepBead b in step.beads) BeadChip(bead: b, palette: pattern.palette),
-                    ],
-                  ),
-                ],
               ],
-            ),
+              // Свайп только по тексту: фото листаются своим жестом, а у края экрана работает жест «назад» iOS.
+              GestureDetector(
+                key: const ValueKey<String>('steps-swipe-area'),
+                behavior: HitTestBehavior.opaque,
+                onHorizontalDragEnd: (details) {
+                  final double v = details.primaryVelocity ?? 0;
+                  if (v <= -_swipeVelocity) {
+                    cubit.next();
+                  } else if (v >= _swipeVelocity) {
+                    cubit.back();
+                  }
+                },
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: <Widget>[
+                    if (step.text.isNotEmpty)
+                      Text(step.text, key: const ValueKey<String>('steps-text'), style: tokens.typography.title2)
+                    else if (images.isEmpty && step.beads.isEmpty)
+                      Text(l10n.stepsNoText, style: tokens.typography.body),
+                    if (step.beads.isNotEmpty) ...<Widget>[
+                      SizedBox(height: tokens.spacing.m),
+                      Wrap(
+                        spacing: tokens.spacing.s,
+                        runSpacing: tokens.spacing.s,
+                        children: <Widget>[
+                          for (final StepBead b in step.beads) BeadChip(bead: b, palette: pattern.palette),
+                        ],
+                      ),
+                    ],
+                    SizedBox(height: tokens.spacing.xl),
+                  ],
+                ),
+              ),
+            ],
           ),
         ),
       ),
@@ -464,7 +481,14 @@ class _BottomPanel extends StatelessWidget {
       child: Text(l10n.stepsEnough, maxLines: 1),
     );
     Widget main;
-    if (state.finished) {
+    if (state.finished && !state.projectDone) {
+      main = CupertinoButton.filled(
+        key: const ValueKey<String>('steps-finish'),
+        minimumSize: const Size.fromHeight(_buttonHeight),
+        onPressed: cubit.finishWork,
+        child: Text(l10n.stepsFinishWork, maxLines: 2, textAlign: TextAlign.center),
+      );
+    } else if (state.finished) {
       main = Center(
         child: Padding(
           padding: EdgeInsets.symmetric(vertical: tokens.spacing.s),
