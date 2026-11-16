@@ -10,6 +10,7 @@ import 'package:beading/presentation/steps/steps_editor_state.dart';
 import 'package:beading/presentation/theme/app_icons.dart';
 import 'package:beading/presentation/theme/tokens.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/semantics.dart' show CustomSemanticsAction;
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 /// Редактор инструкции: секции и шаги, перетаскивание шагов, автосохранение без кнопки «Сохранить».
@@ -30,22 +31,37 @@ class StepsEditorScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final AppLocalizations l10n = AppLocalizations.of(context);
-    return BlocBuilder<StepsEditorCubit, StepsEditorState>(
-      builder: (context, state) => CupertinoPageScaffold(
-        navigationBar: CupertinoNavigationBar(
-          middle: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: <Widget>[
-              Text(state.projectName, maxLines: 1, overflow: TextOverflow.ellipsis),
-              if (state.isReady) _SaveLine(status: state.save),
-            ],
+    final StepsEditorCubit cubit = context.read<StepsEditorCubit>();
+    // Выходим только после записи: экран работы сразу перечитывает документ.
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, _) async {
+        if (didPop) {
+          return;
+        }
+        final NavigatorState navigator = Navigator.of(context);
+        await cubit.flush();
+        if (navigator.mounted) {
+          navigator.pop();
+        }
+      },
+      child: BlocBuilder<StepsEditorCubit, StepsEditorState>(
+        builder: (context, state) => CupertinoPageScaffold(
+          navigationBar: CupertinoNavigationBar(
+            middle: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: <Widget>[
+                Text(state.projectName, maxLines: 1, overflow: TextOverflow.ellipsis),
+                if (state.isReady) _SaveLine(status: state.save),
+              ],
+            ),
           ),
+          child: switch (state.status) {
+            StepsEditorStatus.loading => const Center(child: CupertinoActivityIndicator()),
+            StepsEditorStatus.failed => Center(child: Text(l10n.stepsLoadFailed, textAlign: TextAlign.center)),
+            StepsEditorStatus.ready => _Body(state: state, files: files, photos: photos, loadCatalog: loadCatalog),
+          },
         ),
-        child: switch (state.status) {
-          StepsEditorStatus.loading => const Center(child: CupertinoActivityIndicator()),
-          StepsEditorStatus.failed => Center(child: Text(l10n.stepsLoadFailed, textAlign: TextAlign.center)),
-          StepsEditorStatus.ready => _Body(state: state, files: files, photos: photos, loadCatalog: loadCatalog),
-        },
       ),
     );
   }
@@ -311,6 +327,8 @@ class _SectionCardState extends State<_SectionCard> {
                   key: ValueKey<String>('step-${step.id}'),
                   step: step,
                   index: i,
+                  count: section.steps.length,
+                  sectionId: section.id,
                   number: widget.firstStepNumber + i,
                   files: widget.files,
                   photos: widget.photos,
@@ -372,6 +390,8 @@ class _StepRow extends StatelessWidget {
   const _StepRow({
     required this.step,
     required this.index,
+    required this.count,
+    required this.sectionId,
     required this.number,
     required this.files,
     required this.photos,
@@ -381,6 +401,8 @@ class _StepRow extends StatelessWidget {
 
   final InstructionStep step;
   final int index;
+  final int count;
+  final String sectionId;
   final int number;
   final FileStore files;
   final BookImageSource photos;
@@ -413,48 +435,56 @@ class _StepRow extends StatelessWidget {
         ),
       ),
       onDismissed: (_) => cubit.deleteStep(step.id),
-      child: GestureDetector(
-        behavior: HitTestBehavior.opaque,
-        onTap: () => Navigator.of(context).push(
-          CupertinoPageRoute<void>(
-            builder: (_) => BlocProvider<StepsEditorCubit>.value(
-              value: cubit,
-              child: StepEditPage(stepId: step.id, files: files, photos: photos, loadCatalog: loadCatalog),
+      child: Semantics(
+        customSemanticsActions: <CustomSemanticsAction, VoidCallback>{
+          if (index > 0)
+            CustomSemanticsAction(label: l10n.stepsMoveUp): () => cubit.reorderSteps(sectionId, index, index - 1),
+          if (index < count - 1)
+            CustomSemanticsAction(label: l10n.stepsMoveDown): () => cubit.reorderSteps(sectionId, index, index + 2),
+        },
+        child: GestureDetector(
+          behavior: HitTestBehavior.opaque,
+          onTap: () => Navigator.of(context).push(
+            CupertinoPageRoute<void>(
+              builder: (_) => BlocProvider<StepsEditorCubit>.value(
+                value: cubit,
+                child: StepEditPage(stepId: step.id, files: files, photos: photos, loadCatalog: loadCatalog),
+              ),
             ),
           ),
-        ),
-        child: ConstrainedBox(
-          constraints: BoxConstraints(minHeight: tokens.minTapTarget + 12),
-          child: Padding(
-            padding: EdgeInsets.symmetric(horizontal: tokens.spacing.m, vertical: tokens.spacing.s),
-            child: Row(
-              children: <Widget>[
-                SizedBox(width: 28, child: Text('$number', style: tokens.typography.callout)),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: <Widget>[
-                      Text(
-                        step.text.isEmpty ? l10n.stepsNoText : step.text,
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
-                        style: tokens.typography.body,
-                      ),
-                      if (info.isNotEmpty) Text(info.join(' · '), style: tokens.typography.caption),
-                    ],
-                  ),
-                ),
-                ReorderableDragStartListener(
-                  index: index,
-                  child: SizedBox.square(
-                    dimension: tokens.minTapTarget,
-                    child: Semantics(
-                      label: l10n.stepsDragHandle,
-                      child: const Icon(CupertinoIcons.line_horizontal_3),
+          child: ConstrainedBox(
+            constraints: BoxConstraints(minHeight: tokens.minTapTarget + 12),
+            child: Padding(
+              padding: EdgeInsets.symmetric(horizontal: tokens.spacing.m, vertical: tokens.spacing.s),
+              child: Row(
+                children: <Widget>[
+                  SizedBox(width: 28, child: Text('$number', style: tokens.typography.callout)),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: <Widget>[
+                        Text(
+                          step.text.isEmpty ? l10n.stepsNoText : step.text,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                          style: tokens.typography.body,
+                        ),
+                        if (info.isNotEmpty) Text(info.join(' · '), style: tokens.typography.caption),
+                      ],
                     ),
                   ),
-                ),
-              ],
+                  ReorderableDragStartListener(
+                    index: index,
+                    child: SizedBox.square(
+                      dimension: tokens.minTapTarget,
+                      child: Semantics(
+                        label: l10n.stepsDragHandle,
+                        child: const Icon(CupertinoIcons.line_horizontal_3),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
         ),

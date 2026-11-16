@@ -4834,7 +4834,7 @@ abstract class AppLocalizations {
   /// Редактор: запись не прошла
   ///
   /// In ru, this message translates to:
-  /// **'Не сохранено: попробую ещё раз'**
+  /// **'Не сохранено'**
   String get stepsSaveError;
 
   /// Кнопка в секции
@@ -4998,6 +4998,24 @@ abstract class AppLocalizations {
   /// In ru, this message translates to:
   /// **'Править инструкцию'**
   String get stepsEditSemantic;
+
+  /// VoiceOver: кнопка «−»
+  ///
+  /// In ru, this message translates to:
+  /// **'Меньше'**
+  String get stepsLess;
+
+  /// VoiceOver: кнопка «+»
+  ///
+  /// In ru, this message translates to:
+  /// **'Больше'**
+  String get stepsMore;
+
+  /// VoiceOver: плитка фото
+  ///
+  /// In ru, this message translates to:
+  /// **'Фото {n} из {total}'**
+  String stepsPhotoOf(int n, int total);
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

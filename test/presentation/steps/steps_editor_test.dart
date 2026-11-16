@@ -179,7 +179,7 @@ void main() {
       await cubit.close();
     });
 
-    test('удаление шага: баннер, отмена возвращает на место; без отмены запись идёт после баннера', () async {
+    test('удаление шага: баннер, отмена возвращает на место; файлы его картинок живут до конца баннера', () async {
       final StepsEditorCubit cubit = await loaded();
       cubit.deleteStep('b');
       expect(cubit.state.deleted!.step.id, 'b');
@@ -188,16 +188,48 @@ void main() {
       expect(cubit.state.pattern!.sections.first.steps.map((s) => s.id), <String>['a', 'b', 'c']);
       expect(cubit.state.deleted, isNull);
 
+      await cubit.addPhotos('c', <Uint8List>[
+        Uint8List.fromList(<int>[1]),
+      ]);
+      await pause();
       cubit.deleteStep('c');
       await pause(30);
       expect(
         patterns.byProject[projectId]!.allSteps.map((s) => s.id),
-        contains('c'),
-        reason: 'пока висит баннер, не пишем',
+        isNot(contains('c')),
+        reason: 'документ пишется сразу',
       );
+      expect(files.files, hasLength(1), reason: 'файл картинки не трогаем, пока шаг можно вернуть');
       await pause(120);
       expect(cubit.state.deleted, isNull);
-      expect(patterns.byProject[projectId]!.allSteps.map((s) => s.id), isNot(contains('c')));
+      expect(files.files, isEmpty, reason: 'баннер ушёл: файл убран при записи');
+      await cubit.close();
+    });
+
+    test('отмена удаления возвращает шаг вместе с картинкой, файл на месте', () async {
+      final StepsEditorCubit cubit = await loaded();
+      await cubit.addPhotos('b', <Uint8List>[
+        Uint8List.fromList(<int>[1]),
+      ]);
+      await pause();
+      cubit.deleteStep('b');
+      await pause(20);
+      cubit.undoDelete();
+      await pause(100);
+      expect(cubit.state.stepById('b')!.imageIds, hasLength(1));
+      expect(patterns.byProject[projectId]!.images, hasLength(1));
+      expect(files.files, hasLength(1));
+      await cubit.close();
+    });
+
+    test('фото обработалось, а шаг уже удалён: файл не остаётся', () async {
+      final StepsEditorCubit cubit = await loaded();
+      final Future<void> adding = cubit.addPhotos('a', <Uint8List>[
+        Uint8List.fromList(<int>[1]),
+      ]);
+      cubit.deleteStep('a');
+      await adding;
+      expect(files.files, isEmpty);
       await cubit.close();
     });
 

@@ -259,7 +259,10 @@ class CountStepper extends StatelessWidget {
             padding: EdgeInsets.zero,
             minimumSize: Size.square(tokens.minTapTarget),
             onPressed: value > min ? () => onChanged(value - 1) : null,
-            child: const Icon(CupertinoIcons.minus_circle),
+            child: Semantics(
+              label: AppLocalizations.of(context).stepsLess,
+              child: const Icon(CupertinoIcons.minus_circle),
+            ),
           ),
           ConstrainedBox(
             constraints: const BoxConstraints(minWidth: 32),
@@ -270,7 +273,10 @@ class CountStepper extends StatelessWidget {
             padding: EdgeInsets.zero,
             minimumSize: Size.square(tokens.minTapTarget),
             onPressed: value < max ? () => onChanged(value + 1) : null,
-            child: const Icon(CupertinoIcons.plus_circle),
+            child: Semantics(
+              label: AppLocalizations.of(context).stepsMore,
+              child: const Icon(CupertinoIcons.plus_circle),
+            ),
           ),
         ],
       ),

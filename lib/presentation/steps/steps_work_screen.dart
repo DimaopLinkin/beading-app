@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:beading/domain/image_pattern/file_store.dart';
 import 'package:beading/domain/steps/repeat.dart';
 import 'package:beading/domain/steps/step_pattern.dart';
@@ -25,7 +27,7 @@ class StepsWorkScreen extends StatelessWidget {
   final VoidCallback? onOpenStats;
 
   /// Переход в редактор инструкции; без него кнопки правки нет.
-  final VoidCallback? onOpenEditor;
+  final Future<void> Function()? onOpenEditor;
 
   static const String routePath = '/steps/:projectId';
 
@@ -71,7 +73,7 @@ class _Workspace extends StatefulWidget {
 
   final FileStore files;
   final VoidCallback? onOpenStats;
-  final VoidCallback? onOpenEditor;
+  final Future<void> Function()? onOpenEditor;
 
   @override
   State<_Workspace> createState() => _WorkspaceState();
@@ -196,7 +198,7 @@ class _TopBar extends StatelessWidget {
 
   final StepsWorkState state;
   final VoidCallback? onOpenStats;
-  final VoidCallback? onOpenEditor;
+  final Future<void> Function()? onOpenEditor;
 
   @override
   Widget build(BuildContext context) {
@@ -265,7 +267,12 @@ class _TopBar extends StatelessWidget {
                       key: const ValueKey<String>('steps-edit'),
                       padding: EdgeInsets.zero,
                       minimumSize: Size.square(tokens.minTapTarget),
-                      onPressed: onOpenEditor,
+                      onPressed: onOpenEditor == null
+                          ? null
+                          : () async {
+                              await onOpenEditor!();
+                              unawaited(cubit.reload());
+                            },
                       child: Semantics(label: l10n.stepsEditSemantic, child: const Icon(AppIcons.brush)),
                     ),
                   CupertinoButton(

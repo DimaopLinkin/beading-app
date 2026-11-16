@@ -52,6 +52,9 @@ class StepsEditorCubit extends Cubit<StepsEditorState> {
   final FileStore _files;
   final IdGenerator _ids;
 
+  /// Картинки удалённого шага, пока его можно вернуть: файлы не трогаем.
+  final Set<String> _keepImages = <String>{};
+
   Timer? _saveTimer;
   Timer? _undoTimer;
   Future<void> _writes = Future<void>.value();
@@ -196,6 +199,7 @@ class StepsEditorCubit extends Cubit<StepsEditorState> {
       final int at = s.steps.indexWhere((st) => st.id == stepId);
       if (at >= 0) {
         final DeletedStep deleted = DeletedStep(sectionId: s.id, index: at, step: s.steps[at]);
+        _keepImages.addAll(deleted.step.imageIds);
         _edit(
           (pattern) => pattern.copyWith(
             sections: <StepSection>[
@@ -235,9 +239,10 @@ class StepsEditorCubit extends Cubit<StepsEditorState> {
 
   void dismissUndo() {
     _undoTimer?.cancel();
+    _keepImages.clear();
     if (state.deleted != null) {
-      emit(state.copyWith(clearDeleted: true));
-      _schedule(); // теперь запись может пройти
+      emit(state.copyWith(clearDeleted: true, save: StepsSaveStatus.pending));
+      _schedule(); // запись уберёт файлы картинок удалённого шага
     }
   }
 
@@ -291,12 +296,15 @@ class StepsEditorCubit extends Cubit<StepsEditorState> {
       final Result<void> written = processed.isFailure
           ? Err<void>(processed.failureOrNull!)
           : await _files.write(path, processed.valueOrNull!.png);
-      if (isClosed) {
-        return;
-      }
       if (written.isFailure) {
-        emit(state.copyWith(photoFailed: true));
+        if (!isClosed) {
+          emit(state.copyWith(photoFailed: true));
+        }
         continue;
+      }
+      if (isClosed || state.stepById(stepId) == null) {
+        await _files.delete(path); // экран закрыт или шаг удалён, пока шла обработка: файл никому не нужен
+        return;
       }
       final ProcessedImage image = processed.valueOrNull!;
       _edit(
@@ -363,10 +371,10 @@ class StepsEditorCubit extends Cubit<StepsEditorState> {
   }
 
   void _schedule() {
-    _saveTimer?.cancel();
-    if (state.deleted != null) {
-      return; // запись начнётся после баннера
+    if (isClosed) {
+      return;
     }
+    _saveTimer?.cancel();
     _saveTimer = Timer(debounce, _flush);
   }
 
@@ -378,7 +386,7 @@ class StepsEditorCubit extends Cubit<StepsEditorState> {
     _writes = _writes.then((_) async {
       Result<void> saved;
       try {
-        saved = await _save(p);
+        saved = await _save(p, keepImageIds: <String>{..._keepImages});
       } on Object catch (error) {
         saved = Err<void>(StorageFailure('$error'));
       }

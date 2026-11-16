@@ -2890,7 +2890,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get stepsSaving => 'Сохраняю…';
 
   @override
-  String get stepsSaveError => 'Не сохранено: попробую ещё раз';
+  String get stepsSaveError => 'Не сохранено';
 
   @override
   String get stepsAddStep => 'Добавить шаг';
@@ -2994,4 +2994,15 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get stepsEditSemantic => 'Править инструкцию';
+
+  @override
+  String get stepsLess => 'Меньше';
+
+  @override
+  String get stepsMore => 'Больше';
+
+  @override
+  String stepsPhotoOf(int n, int total) {
+    return 'Фото $n из $total';
+  }
 }

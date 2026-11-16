@@ -1726,7 +1726,7 @@
   "@stepsSaved": {"description": "Редактор: запись прошла"},
   "stepsSaving": "Сохраняю…",
   "@stepsSaving": {"description": "Редактор: идёт запись"},
-  "stepsSaveError": "Не сохранено: попробую ещё раз",
+  "stepsSaveError": "Не сохранено",
   "@stepsSaveError": {"description": "Редактор: запись не прошла"},
   "stepsAddStep": "Добавить шаг",
   "@stepsAddStep": {"description": "Кнопка в секции"},
@@ -1781,5 +1781,11 @@
   "stepsBeadsCount": "{count, plural, one{{count} цвет} few{{count} цвета} many{{count} цветов} other{{count} цвета}}",
   "@stepsBeadsCount": {"description": "Строка шага в редакторе", "placeholders": {"count": {"type": "int"}}},
   "stepsEditSemantic": "Править инструкцию",
-  "@stepsEditSemantic": {"description": "VoiceOver: кнопка редактора на экране работы"}
+  "@stepsEditSemantic": {"description": "VoiceOver: кнопка редактора на экране работы"},
+  "stepsLess": "Меньше",
+  "@stepsLess": {"description": "VoiceOver: кнопка «−»"},
+  "stepsMore": "Больше",
+  "@stepsMore": {"description": "VoiceOver: кнопка «+»"},
+  "stepsPhotoOf": "Фото {n} из {total}",
+  "@stepsPhotoOf": {"description": "VoiceOver: плитка фото", "placeholders": {"n": {"type": "int"}, "total": {"type": "int"}}}
 }

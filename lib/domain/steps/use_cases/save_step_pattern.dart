@@ -23,7 +23,9 @@ class SaveStepPattern {
   /// Если задан, курсор после правки сдвигается с удалённого шага на ближайший оставшийся.
   final StepsProgressStore? _progress;
 
-  Future<Result<void>> call(StepPattern pattern) async {
+  /// [keepImageIds]: картинки, которые пока не удаляем, хотя шаги на них не ссылаются (удалённый шаг, который ещё
+  /// можно вернуть).
+  Future<Result<void>> call(StepPattern pattern, {Set<String> keepImageIds = const <String>{}}) async {
     // Документ, который потом не прочитать (повторный id, бусина вне палитры), в базу не пускаем.
     final Result<StepPattern> check = StepPatternCodec.decode(
       StepPatternCodec.encode(pattern),
@@ -33,7 +35,7 @@ class SaveStepPattern {
     if (check case Err<StepPattern>(:final Failure failure)) {
       return Err<void>(failure);
     }
-    final Set<String> used = pattern.referencedImageIds;
+    final Set<String> used = <String>{...pattern.referencedImageIds, ...keepImageIds};
     final List<StepImage> kept = <StepImage>[
       for (final StepImage i in pattern.images)
         if (used.contains(i.id)) i,

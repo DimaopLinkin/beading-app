@@ -44,7 +44,12 @@ class StepsWorkCubit extends Cubit<StepsWorkState> {
 
   Future<void> _writes = Future<void>.value();
 
-  Future<void> load() async {
+  Future<void> load() => _fetch(first: true);
+
+  /// После правки в редакторе: подтягивает свежий документ; время работы не перезапускается.
+  Future<void> reload() => _fetch(first: false);
+
+  Future<void> _fetch({required bool first}) async {
     final Result<Project> project = await _projects.get(_projectId);
     final Result<StepPattern> pattern = await _patterns.getByProject(_projectId);
     if (isClosed) {
@@ -76,7 +81,9 @@ class StepsWorkCubit extends Cubit<StepsWorkState> {
         progress: at,
       ),
     );
-    unawaited(_tracker.start(_projectId));
+    if (first) {
+      unawaited(_tracker.start(_projectId));
+    }
   }
 
   static bool _hasStep(StepPattern pattern, StepsProgress progress) => pattern.sections.any(

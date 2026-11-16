@@ -138,17 +138,26 @@ class _StepEditPageState extends State<StepEditPage> {
                 _Header(l10n.stepsPhotos),
                 SizedBox(
                   height: 96,
-                  child: ListView(
-                    scrollDirection: Axis.horizontal,
+                  child: Row(
                     children: <Widget>[
-                      for (final (int i, StepImage image) in images.indexed)
-                        _PhotoTile(
-                          key: ValueKey<String>('photo-${image.id}'),
-                          number: i + 1,
-                          files: widget.files,
-                          image: image,
-                          onRemove: () => cubit.removeImage(widget.stepId, image.id),
+                      Expanded(
+                        child: ReorderableList(
+                          scrollDirection: Axis.horizontal,
+                          itemCount: images.length,
+                          onReorder: (from, to) => cubit.reorderImages(widget.stepId, from, to),
+                          itemBuilder: (context, i) => ReorderableDelayedDragStartListener(
+                            key: ValueKey<String>('photo-${images[i].id}'),
+                            index: i,
+                            child: _PhotoTile(
+                              number: i + 1,
+                              total: images.length,
+                              files: widget.files,
+                              image: images[i],
+                              onRemove: () => cubit.removeImage(widget.stepId, images[i].id),
+                            ),
+                          ),
                         ),
+                      ),
                       CupertinoButton(
                         key: const ValueKey<String>('step-add-photo'),
                         padding: EdgeInsets.zero,
@@ -208,9 +217,16 @@ class _Header extends StatelessWidget {
 }
 
 class _PhotoTile extends StatelessWidget {
-  const _PhotoTile({required this.number, required this.files, required this.image, required this.onRemove, super.key});
+  const _PhotoTile({
+    required this.number,
+    required this.total,
+    required this.files,
+    required this.image,
+    required this.onRemove,
+  });
 
   final int number;
+  final int total;
   final FileStore files;
   final StepImage image;
   final VoidCallback onRemove;
@@ -218,35 +234,53 @@ class _PhotoTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final AppLocalizations l10n = AppLocalizations.of(context);
-    return Padding(
-      padding: const EdgeInsets.only(right: 8),
-      child: SizedBox.square(
-        dimension: 96,
-        child: Stack(
-          children: <Widget>[
-            Positioned.fill(
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(8),
-                child: StepImageView(files: files, image: image, fit: BoxFit.cover),
+    return Semantics(
+      label: l10n.stepsPhotoOf(number, total),
+      child: Padding(
+        padding: const EdgeInsets.only(right: 8),
+        child: SizedBox.square(
+          dimension: 96,
+          child: Stack(
+            children: <Widget>[
+              Positioned.fill(
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(8),
+                  child: StepImageView(files: files, image: image, fit: BoxFit.cover),
+                ),
               ),
-            ),
-            Positioned(
-              left: 4,
-              bottom: 4,
-              child: Text('$number', style: const TextStyle(color: CupertinoColors.white, fontSize: 13)),
-            ),
-            Positioned(
-              right: -8,
-              top: -8,
-              child: CupertinoButton(
-                key: ValueKey<String>('photo-remove-${image.id}'),
-                padding: EdgeInsets.zero,
-                minimumSize: const Size.square(44),
-                onPressed: onRemove,
-                child: Semantics(label: l10n.stepsRemovePhoto, child: const Icon(CupertinoIcons.xmark_circle_fill)),
+              Positioned(
+                left: 4,
+                bottom: 4,
+                child: DecoratedBox(
+                  decoration: BoxDecoration(color: const Color(0xAA000000), borderRadius: BorderRadius.circular(8)),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 1),
+                    child: Text('$number', style: const TextStyle(color: CupertinoColors.white, fontSize: 13)),
+                  ),
+                ),
               ),
-            ),
-          ],
+              Positioned(
+                right: 0,
+                top: 0,
+                child: CupertinoButton(
+                  key: ValueKey<String>('photo-remove-${image.id}'),
+                  padding: EdgeInsets.zero,
+                  minimumSize: const Size.square(44),
+                  onPressed: onRemove,
+                  child: Semantics(
+                    label: l10n.stepsRemovePhoto,
+                    child: const DecoratedBox(
+                      decoration: BoxDecoration(color: Color(0xAA000000), shape: BoxShape.circle),
+                      child: Padding(
+                        padding: EdgeInsets.all(4),
+                        child: Icon(CupertinoIcons.xmark, size: 14, color: CupertinoColors.white),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

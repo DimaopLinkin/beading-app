@@ -83,8 +83,7 @@ class NewStepsCubit extends Cubit<NewStepsState> {
       emit(state.copyWith(busy: false));
       return;
     }
-    emit(state.copyWith(busy: false));
-    await _run(() => _create.fromPhotos(name: name, photos: bytes));
+    await _finish(await _create.fromPhotos(name: name, photos: bytes));
   }
 
   Future<void> _run(Future<Result<Project>> Function() action) async {
@@ -92,7 +91,10 @@ class NewStepsCubit extends Cubit<NewStepsState> {
       return;
     }
     emit(state.copyWith(busy: true, clearProblem: true));
-    final Result<Project> created = await action();
+    await _finish(await action());
+  }
+
+  Future<void> _finish(Result<Project> created) async {
     if (isClosed) {
       return;
     }

@@ -137,7 +137,7 @@ final class StepsModule {
           create: (_) => workCubit(projectId, workSessionTracker())..load(),
           child: StepsWorkScreen(
             files: _core.fileStore,
-            onOpenEditor: () => context.push(AppRoutes.stepsEditor(projectId)),
+            onOpenEditor: () => context.push<void>(AppRoutes.stepsEditor(projectId)),
             onOpenStats: onOpenStats == null ? null : () => onOpenStats(context, projectId),
           ),
         );
