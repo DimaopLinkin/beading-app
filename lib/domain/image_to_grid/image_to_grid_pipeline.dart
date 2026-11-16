@@ -19,6 +19,7 @@ import 'package:beading/domain/image_to_grid/image_prefilter.dart';
 import 'package:beading/domain/image_to_grid/image_to_grid_request.dart';
 import 'package:beading/domain/image_to_grid/label_smoother.dart';
 import 'package:beading/domain/image_to_grid/outline_backstitch.dart';
+import 'package:beading/domain/image_to_grid/overlay_stitches.dart';
 import 'package:beading/domain/image_to_grid/palette_builder.dart';
 import 'package:beading/domain/image_to_grid/palette_entry.dart';
 import 'package:beading/domain/image_to_grid/pattern_metrics.dart';
@@ -30,6 +31,7 @@ import 'package:beading/domain/palette/lab.dart';
 import 'package:beading/domain/palette/nearest_color_matcher.dart';
 import 'package:beading/domain/palette/rgb.dart';
 import 'package:beading/domain/stitch/line_stitch.dart';
+import 'package:beading/domain/stitch/partial_stitch.dart';
 
 /// Конвейер «картинка → схема»: подготовка фото (по желанию) → ресэмплинг → квантование → привязка к допустимым цветам → шаги (очистка, слои).
 ///
@@ -114,11 +116,14 @@ final class ImageToGridPipeline {
     final List<BlendSuggestion> blends = _blends(request, pattern, cells);
     if (request.suggestBlends && !request.draft) times['blends'] = lap();
     if (request.applyBlends && blends.isNotEmpty) pattern = applyBlends(pattern, blends);
+    final List<PartialStitch> partials = _overlays(request, pattern, cells);
+    if (request.overlays && !request.draft) times['overlays'] = lap();
     return GeneratedPattern(
       grid: pattern.grid,
       palette: pattern.palette,
       stats: _stats(pattern, cells, request.geometry, times, structure: _structureOf(request, pattern)),
       blendSuggestions: blends,
+      partials: partials,
     );
   }
 
@@ -286,11 +291,14 @@ final class ImageToGridPipeline {
     if (request.applyBlends && blends.isNotEmpty) pattern = applyBlends(pattern, blends);
     final List<LineStitch> lines = _backstitch(request, pattern, work, regions, prepared.faceCells);
     if (request.backstitch && !request.draft) times['backstitch'] = lap();
+    final List<PartialStitch> partials = _overlays(request, pattern, cells);
+    if (request.overlays && !request.draft) times['overlays'] = lap();
     return GeneratedPattern(
       grid: pattern.grid,
       palette: pattern.palette,
       blendSuggestions: blends,
       lines: lines,
+      partials: partials,
       stats: _stats(
         pattern,
         cells,
@@ -353,6 +361,33 @@ final class ImageToGridPipeline {
   /// Бленды двух ниток (T57): только если запрос просил и это не черновик (его не сохраняют); по цветам клеток после ресэмплинга.
   List<BlendSuggestion> _blends(ImageToGridRequest request, GeneratedPattern pattern, SampledCells cells) =>
       request.suggestBlends && !request.draft ? suggestBlends(pattern, cells.colors) : const <BlendSuggestion>[];
+
+  /// Смешанная техника (T72): полукресты поверх крестов, только если запрос просил и это не черновик. Идёт после
+  /// бленов на итоговой палитре; фон по маске объекта и клетки обводки не трогает.
+  List<PartialStitch> _overlays(ImageToGridRequest request, GeneratedPattern pattern, SampledCells cells) {
+    if (!request.overlays || request.draft) return const <PartialStitch>[];
+    Uint8List? subject;
+    Set<int> skip = const <int>{};
+    final Uint8List? mask = request.subjectMask;
+    if (mask != null && request.usesBackgroundStage) {
+      final CellRegions regions = CellRegions.forGrid(
+        geometry: request.geometry,
+        metrics: request.metrics,
+        columns: request.columns,
+        rows: request.rows,
+        imageWidth: request.image.width,
+        imageHeight: request.image.height,
+      );
+      subject = subjectCellsFrom(mask: mask, imageWidth: request.image.width, regions: regions);
+      if (request.outline) {
+        skip = BackgroundStage.outlineCells(
+          subject,
+          CellNeighbors.of(geometry: request.geometry, columns: cells.columns, rows: cells.rows),
+        ).toSet();
+      }
+    }
+    return suggestOverlays(pattern, cells.colors, subject: subject, skip: skip);
+  }
 
   /// Контуры-бэкстич (T49): тёмным цветом палитры, по маске объекта и контрастным границам рабочей картинки.
   /// Нет палитры или запроса — линий нет; на пути T24 нет рабочей картинки, и контуров тоже нет.

@@ -3,6 +3,7 @@ import 'package:beading/domain/image_to_grid/blend_suggester.dart';
 import 'package:beading/domain/image_to_grid/generation_stats.dart';
 import 'package:beading/domain/image_to_grid/palette_entry.dart';
 import 'package:beading/domain/stitch/line_stitch.dart';
+import 'package:beading/domain/stitch/partial_stitch.dart';
 
 /// Результат конвейера: сетка и палитра. Значение сетки `0` — пустая ячейка, `n` — `palette[n - 1]`.
 final class GeneratedPattern {
@@ -12,9 +13,11 @@ final class GeneratedPattern {
     this.stats,
     List<BlendSuggestion> blendSuggestions = const <BlendSuggestion>[],
     List<LineStitch> lines = const <LineStitch>[],
+    List<PartialStitch> partials = const <PartialStitch>[],
   }) : palette = List<PaletteEntry>.unmodifiable(palette),
        blendSuggestions = List<BlendSuggestion>.unmodifiable(blendSuggestions),
-       lines = List<LineStitch>.unmodifiable(lines);
+       lines = List<LineStitch>.unmodifiable(lines),
+       partials = List<PartialStitch>.unmodifiable(partials);
 
   final Grid grid;
   final List<PaletteEntry> palette;
@@ -27,4 +30,8 @@ final class GeneratedPattern {
 
   /// Контуры-бэкстич (T49, T46): линии цвета из [palette]; значение цвета — номер записи палитры с единицы.
   final List<LineStitch> lines;
+
+  /// Смешанная техника (T72): полукресты `/` другой нитки поверх полного креста в клетке; цвет — номер записи палитры
+  /// с единицы. Клетка с полукрестом уже закрашена полным крестом цвета сетки.
+  final List<PartialStitch> partials;
 }

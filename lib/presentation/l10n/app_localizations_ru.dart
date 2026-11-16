@@ -1881,6 +1881,26 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
+  String get imageWizardMixed => 'Смешанные стежки';
+
+  @override
+  String get imageWizardMixedHint =>
+      'Сверху на полный крест кладётся полукрест другой нитки из этой же схемы: плавные переходы без новых цветов. Шьётся дольше.';
+
+  @override
+  String imageWizardMixedCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count полукрестов',
+      many: '$count полукрестов',
+      few: '$count полукреста',
+      one: 'Один полукрест',
+    );
+    return '$_temp0 сверху крестов.';
+  }
+
+  @override
   String get imageWizardBlends => 'Бленды из двух ниток';
 
   @override

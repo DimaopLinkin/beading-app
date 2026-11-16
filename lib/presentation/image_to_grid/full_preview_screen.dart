@@ -1,4 +1,5 @@
 import 'package:beading/domain/grid/grid.dart';
+import 'package:beading/domain/image_to_grid/generated_pattern.dart';
 import 'package:beading/domain/image_to_grid/image_to_grid_settings.dart';
 import 'package:beading/domain/projects/craft.dart';
 import 'package:beading/domain/stitch/stitch_layers.dart';
@@ -124,9 +125,10 @@ class FullPreviewScreen extends StatelessWidget {
 
   /// Контуры-бэкстич схемы вышивки, как они лягут в проект.
   static StitchLayers? _layers(ImageWizardState state, Grid grid) {
-    if (state.previewSettings?.craft != Craft.crossStitch || state.preview!.lines.isEmpty) {
+    final GeneratedPattern preview = state.preview!;
+    if (state.previewSettings?.craft != Craft.crossStitch || (preview.lines.isEmpty && preview.partials.isEmpty)) {
       return null;
     }
-    return StitchLayers(columns: grid.width, rows: grid.height, lines: state.preview!.lines);
+    return StitchLayers(columns: grid.width, rows: grid.height, lines: preview.lines, partials: preview.partials);
   }
 }
