@@ -28,8 +28,7 @@ void main() {
   Future<void> seedPhone() async {
     for (final String sql in <String>[
       "INSERT INTO projects (id, created_at, updated_at, device_id, name, technique, content_kind, last_worked_at) VALUES ('p1', 5, 5, 'd', 'Жгут', 'offLoom', 'steps', 1)",
-      'INSERT INTO step_patterns (id, created_at, updated_at, device_id, project_id, body, body_version, template_id) '
-          "VALUES ('sp-phone', 5, 5, 'd', 'p1', '{\"v\":1}', 1, 'raw')",
+      "INSERT INTO step_patterns (id, created_at, updated_at, device_id, project_id, body, body_version, template_id) VALUES ('sp-phone', 5, 5, 'd', 'p1', '{\"v\":1}', 1, 'raw')",
       "INSERT INTO step_images (id, created_at, updated_at, device_id, pattern_id, path, width, height) VALUES ('img-1', 5, 5, 'd', 'sp-phone', 'step_patterns/sp-phone/img-1.png', 10, 20)",
       "INSERT INTO step_progress (id, created_at, updated_at, device_id, section_id, section_pass, step_id, step_pass, finished) VALUES ('sp-phone', 5, 5, 'd', 'a', 1, 's1', 1, 0)",
     ]) {
@@ -88,7 +87,7 @@ void main() {
     await phone.customStatement(
       "UPDATE step_patterns SET body = '{\"v\":1,\"x\":1}', updated_at = 60 WHERE id = 'sp-phone'",
     );
-    await phone.customStatement('UPDATE step_images SET deleted_at = 61, updated_at = 61 WHERE id = \'img-1\'');
+    await phone.customStatement("UPDATE step_images SET deleted_at = 61, updated_at = 61 WHERE id = 'img-1'");
     await sync(phone);
     await sync(mac);
 

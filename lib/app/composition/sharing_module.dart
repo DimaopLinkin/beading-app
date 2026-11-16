@@ -4,6 +4,7 @@ import 'package:beading/app/composition/core_module.dart';
 import 'package:beading/app/composition/grid_module.dart';
 import 'package:beading/app/composition/projects_module.dart';
 import 'package:beading/app/composition/settings_module.dart';
+import 'package:beading/app/composition/steps_module.dart';
 import 'package:beading/app/composition/weaving_module.dart';
 import 'package:beading/data/sharing/drift_unit_of_work.dart';
 import 'package:beading/data/sharing/file_picker_biser_picker.dart';
@@ -29,7 +30,9 @@ final class SharingModule {
     required WeavingModule weaving,
     required CatalogModule catalog,
     required SettingsModule settings,
-  }) : _core = core,
+    required StepsModule steps,
+  }) : _steps = steps,
+       _core = core,
        _projects = projects,
        _grid = grid,
        _book = book,
@@ -44,6 +47,7 @@ final class SharingModule {
   final WeavingModule _weaving;
   final CatalogModule _catalog;
   final SettingsModule _settings;
+  final StepsModule _steps;
 
   final BiserCodec codec = const ZipBiserCodec();
 
@@ -69,6 +73,8 @@ final class SharingModule {
     appInfo: _settings.appInfo,
     flossStock: _catalog.flossStock,
     beadStock: _catalog.beadStock,
+    steps: _steps.patterns,
+    stepsProgress: _steps.progress,
   );
 
   ImportBiser importBiser() => ImportBiser(
@@ -85,6 +91,8 @@ final class SharingModule {
     unitOfWork: unitOfWork,
     flossStock: _catalog.flossStock,
     beadStock: _catalog.beadStock,
+    steps: _steps.patterns,
+    stepsProgress: _steps.progress,
   );
 
   ImportOxs importOxs() => ImportOxs(decoder: oxsDecoder, createPattern: _grid.createGridPattern());
