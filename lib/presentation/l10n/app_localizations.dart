@@ -4182,6 +4182,414 @@ abstract class AppLocalizations {
   /// In ru, this message translates to:
   /// **'Сначала выберите бусину из каталога.'**
   String get editorProblemNoBead;
+
+  /// Заголовок экрана статистики
+  ///
+  /// In ru, this message translates to:
+  /// **'Статистика'**
+  String get statsTitle;
+
+  /// Подпись кнопки статистики в библиотеке
+  ///
+  /// In ru, this message translates to:
+  /// **'Статистика'**
+  String get statsOpenSemantic;
+
+  /// Сегмент периода
+  ///
+  /// In ru, this message translates to:
+  /// **'Неделя'**
+  String get statsPeriodWeek;
+
+  /// Сегмент периода
+  ///
+  /// In ru, this message translates to:
+  /// **'Месяц'**
+  String get statsPeriodMonth;
+
+  /// Сегмент периода
+  ///
+  /// In ru, this message translates to:
+  /// **'Год'**
+  String get statsPeriodYear;
+
+  /// Сегмент периода
+  ///
+  /// In ru, this message translates to:
+  /// **'Всё время'**
+  String get statsPeriodAll;
+
+  /// Подпись стрелки назад
+  ///
+  /// In ru, this message translates to:
+  /// **'Предыдущий период'**
+  String get statsPreviousPeriod;
+
+  /// Подпись стрелки вперёд
+  ///
+  /// In ru, this message translates to:
+  /// **'Следующий период'**
+  String get statsNextPeriod;
+
+  /// Заголовок текущей недели
+  ///
+  /// In ru, this message translates to:
+  /// **'Эта неделя'**
+  String get statsThisWeek;
+
+  /// Заголовок прошлой недели
+  ///
+  /// In ru, this message translates to:
+  /// **'Прошлая неделя'**
+  String get statsLastWeek;
+
+  /// Заголовок текущего месяца
+  ///
+  /// In ru, this message translates to:
+  /// **'Этот месяц'**
+  String get statsThisMonth;
+
+  /// Подзаголовок года и всего времени
+  ///
+  /// In ru, this message translates to:
+  /// **'по месяцам'**
+  String get statsByMonths;
+
+  /// Границы недели
+  ///
+  /// In ru, this message translates to:
+  /// **'{start} – {end}'**
+  String statsWeekRange(DateTime start, DateTime end);
+
+  /// Название месяца
+  ///
+  /// In ru, this message translates to:
+  /// **'{date}'**
+  String statsMonthName(DateTime date);
+
+  /// Месяц и год
+  ///
+  /// In ru, this message translates to:
+  /// **'{date}'**
+  String statsMonthYear(DateTime date);
+
+  /// Год
+  ///
+  /// In ru, this message translates to:
+  /// **'{year}'**
+  String statsYearTitle(int year);
+
+  /// Итог
+  ///
+  /// In ru, this message translates to:
+  /// **'Всего времени'**
+  String get statsTotalTime;
+
+  /// Итог
+  ///
+  /// In ru, this message translates to:
+  /// **'Дней с работой'**
+  String get statsWorkDays;
+
+  /// Итог
+  ///
+  /// In ru, this message translates to:
+  /// **'Среднее за день с работой'**
+  String get statsAveragePerDay;
+
+  /// Итог: самая долгая непрерывная работа
+  ///
+  /// In ru, this message translates to:
+  /// **'Самая долгая работа'**
+  String get statsLongestSession;
+
+  /// Заголовок графика
+  ///
+  /// In ru, this message translates to:
+  /// **'Время по дням'**
+  String get statsChartDays;
+
+  /// Заголовок графика
+  ///
+  /// In ru, this message translates to:
+  /// **'Время по месяцам'**
+  String get statsChartMonths;
+
+  /// Выноска над столбцом графика
+  ///
+  /// In ru, this message translates to:
+  /// **'{time}, {date}'**
+  String statsChartBarValue(String time, DateTime date);
+
+  /// Заголовок списка работ
+  ///
+  /// In ru, this message translates to:
+  /// **'По работам'**
+  String get statsByProjects;
+
+  /// Время работы за всё время
+  ///
+  /// In ru, this message translates to:
+  /// **'всего {time}'**
+  String statsRowTotal(String time);
+
+  /// Прогресс вышивки
+  ///
+  /// In ru, this message translates to:
+  /// **'Сделано {done} из {total} крестиков'**
+  String statsStitchesDone(String done, String total);
+
+  /// Прогресс бисера
+  ///
+  /// In ru, this message translates to:
+  /// **'Ряд {done} из {total}'**
+  String statsRowOf(int done, int total);
+
+  /// Пустая статистика
+  ///
+  /// In ru, this message translates to:
+  /// **'Работы пока не было'**
+  String get statsEmptyTitle;
+
+  /// Пустая статистика
+  ///
+  /// In ru, this message translates to:
+  /// **'Здесь появится время за вышиванием и плетением.'**
+  String get statsEmptyText;
+
+  /// Пустая статистика
+  ///
+  /// In ru, this message translates to:
+  /// **'Время считается, когда открыт экран вышивания или плетения.'**
+  String get statsEmptyHint;
+
+  /// Период без работы
+  ///
+  /// In ru, this message translates to:
+  /// **'В этом периоде работы не было'**
+  String get statsPeriodEmptyTitle;
+
+  /// Период без работы
+  ///
+  /// In ru, this message translates to:
+  /// **'Время за другие периоды можно посмотреть стрелками.'**
+  String get statsPeriodEmptyText;
+
+  /// Ошибка чтения
+  ///
+  /// In ru, this message translates to:
+  /// **'Не удалось прочитать статистику.'**
+  String get statsLoadFailed;
+
+  /// Время
+  ///
+  /// In ru, this message translates to:
+  /// **'{n} мин'**
+  String statsMinutes(int n);
+
+  /// Время
+  ///
+  /// In ru, this message translates to:
+  /// **'{n} ч'**
+  String statsHours(int n);
+
+  /// Время
+  ///
+  /// In ru, this message translates to:
+  /// **'{h} ч {m} мин'**
+  String statsHoursMinutes(int h, String m);
+
+  /// Время
+  ///
+  /// In ru, this message translates to:
+  /// **'{d} д {h} ч'**
+  String statsDaysHours(int d, int h);
+
+  /// Заголовок листа
+  ///
+  /// In ru, this message translates to:
+  /// **'Статистика проекта'**
+  String get statsProjectTitle;
+
+  /// Кнопка закрытия листа
+  ///
+  /// In ru, this message translates to:
+  /// **'Готово'**
+  String get statsProjectDone;
+
+  /// Подпись кнопки времени в шапке
+  ///
+  /// In ru, this message translates to:
+  /// **'Статистика проекта, открыть'**
+  String get statsProjectOpenSemantic;
+
+  /// Раздел листа
+  ///
+  /// In ru, this message translates to:
+  /// **'Время'**
+  String get statsSectionTime;
+
+  /// Раздел листа
+  ///
+  /// In ru, this message translates to:
+  /// **'Прогресс'**
+  String get statsSectionProgress;
+
+  /// Раздел листа
+  ///
+  /// In ru, this message translates to:
+  /// **'Темп'**
+  String get statsSectionPace;
+
+  /// Раздел листа
+  ///
+  /// In ru, this message translates to:
+  /// **'Последние дни'**
+  String get statsSectionRecent;
+
+  /// Строка листа
+  ///
+  /// In ru, this message translates to:
+  /// **'Сессий'**
+  String get statsSessions;
+
+  /// Строка листа
+  ///
+  /// In ru, this message translates to:
+  /// **'Среднее на сессию'**
+  String get statsAverageSession;
+
+  /// Строка листа
+  ///
+  /// In ru, this message translates to:
+  /// **'Первый день работы'**
+  String get statsFirstDay;
+
+  /// Строка листа
+  ///
+  /// In ru, this message translates to:
+  /// **'Последний день'**
+  String get statsLastDay;
+
+  /// Дата дня
+  ///
+  /// In ru, this message translates to:
+  /// **'{date}'**
+  String statsDay(DateTime date);
+
+  /// Последний день работы — сегодня
+  ///
+  /// In ru, this message translates to:
+  /// **'сегодня'**
+  String get statsToday;
+
+  /// День в списке
+  ///
+  /// In ru, this message translates to:
+  /// **'Сегодня'**
+  String get statsTodayCap;
+
+  /// День в списке
+  ///
+  /// In ru, this message translates to:
+  /// **'Вчера'**
+  String get statsYesterdayCap;
+
+  /// Строка прогресса
+  ///
+  /// In ru, this message translates to:
+  /// **'Осталось'**
+  String get statsRemaining;
+
+  /// Строка прогресса
+  ///
+  /// In ru, this message translates to:
+  /// **'Готовность'**
+  String get statsReadiness;
+
+  /// Процент
+  ///
+  /// In ru, this message translates to:
+  /// **'{n}%'**
+  String statsPercent(int n);
+
+  /// Осталось рядов
+  ///
+  /// In ru, this message translates to:
+  /// **'{count, plural, one{{count} ряд} few{{count} ряда} many{{count} рядов} other{{count} ряда}}'**
+  String statsRowsLeft(int count);
+
+  /// Нет прогресса
+  ///
+  /// In ru, this message translates to:
+  /// **'Не начато'**
+  String get statsNotStarted;
+
+  /// Темп вышивки
+  ///
+  /// In ru, this message translates to:
+  /// **'≈ {n} крестиков в час'**
+  String statsPaceStitches(String n);
+
+  /// Темп бисера
+  ///
+  /// In ru, this message translates to:
+  /// **'≈ {n} бусин в час'**
+  String statsPaceBeads(String n);
+
+  /// Оценка остатка
+  ///
+  /// In ru, this message translates to:
+  /// **'При таком темпе осталось'**
+  String get statsPaceRemaining;
+
+  /// Приблизительное время
+  ///
+  /// In ru, this message translates to:
+  /// **'≈ {time}'**
+  String statsApprox(String time);
+
+  /// Пояснение к темпу
+  ///
+  /// In ru, this message translates to:
+  /// **'Это оценка: темп бывает разным.'**
+  String get statsPaceNote;
+
+  /// Мало данных для темпа
+  ///
+  /// In ru, this message translates to:
+  /// **'Пока рано считать'**
+  String get statsPaceTooEarly;
+
+  /// Мало данных для темпа
+  ///
+  /// In ru, this message translates to:
+  /// **'нужно хотя бы 2 ч'**
+  String get statsPaceNeedMore;
+
+  /// Работа закончена
+  ///
+  /// In ru, this message translates to:
+  /// **'Закончено: {time} за {days}'**
+  String statsFinished(String time, String days);
+
+  /// Дней
+  ///
+  /// In ru, this message translates to:
+  /// **'{count, plural, one{{count} день} few{{count} дня} many{{count} дней} other{{count} дня}}'**
+  String statsFinishedDays(int count);
+
+  /// Проект без сессий
+  ///
+  /// In ru, this message translates to:
+  /// **'Пока нет времени'**
+  String get statsNoTimeTitle;
+
+  /// Проект без сессий
+  ///
+  /// In ru, this message translates to:
+  /// **'Время появится, когда откроешь экран вышивания или плетения.'**
+  String get statsNoTimeText;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

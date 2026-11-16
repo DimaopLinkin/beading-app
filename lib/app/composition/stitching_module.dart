@@ -11,6 +11,7 @@ import 'package:beading/presentation/floss/floss_cubit.dart';
 import 'package:beading/presentation/floss/floss_screen.dart';
 import 'package:beading/presentation/stitching/stitch_cubit.dart';
 import 'package:beading/presentation/stitching/stitch_screen.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
@@ -61,12 +62,16 @@ final class StitchingModule {
     stock: _catalog.flossStock,
   );
 
-  List<RouteBase> routes() => <RouteBase>[
+  /// [onOpenStats] открывает лист «Статистика проекта»; `null` — кнопки в шапке нет.
+  List<RouteBase> routes({void Function(BuildContext context, String projectId)? onOpenStats}) => <RouteBase>[
     GoRoute(
       path: StitchScreen.routePath,
       builder: (context, state) => BlocProvider<StitchCubit>(
         create: (_) => stitchCubit(state.pathParameters['projectId']!)..load(),
-        child: StitchScreen(onOpenFloss: () => context.push(AppRoutes.floss(state.pathParameters['projectId']!))),
+        child: StitchScreen(
+          onOpenFloss: () => context.push(AppRoutes.floss(state.pathParameters['projectId']!)),
+          onOpenStats: onOpenStats == null ? null : () => onOpenStats(context, state.pathParameters['projectId']!),
+        ),
       ),
     ),
     GoRoute(

@@ -7,6 +7,7 @@ import 'package:beading/app/composition/image_to_grid_module.dart';
 import 'package:beading/app/composition/projects_module.dart';
 import 'package:beading/app/composition/settings_module.dart';
 import 'package:beading/app/composition/sharing_module.dart';
+import 'package:beading/app/composition/stats_module.dart';
 import 'package:beading/app/composition/steps_module.dart';
 import 'package:beading/app/composition/stitching_module.dart';
 import 'package:beading/app/composition/sync_module.dart';
@@ -43,6 +44,7 @@ final class AppDependencies {
       weaving: weaving,
       catalog: catalog,
     );
+    stats = StatsModule(core: core, projects: projects, grid: grid, weaving: weaving);
     book = BookModule(core: core, projects: projects);
     imageToGrid = ImageToGridModule(core: core, projects: projects, grid: grid, catalog: catalog);
     sharing = SharingModule(
@@ -64,6 +66,7 @@ final class AppDependencies {
   late final GridModule grid;
   late final WeavingModule weaving;
   late final StitchingModule stitching;
+  late final StatsModule stats;
   late final BookModule book;
   late final ImageToGridModule imageToGrid;
   late final SharingModule sharing;

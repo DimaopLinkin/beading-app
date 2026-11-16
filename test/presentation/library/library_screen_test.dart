@@ -49,6 +49,7 @@ void main() {
     WidgetTester tester, {
     CupertinoThemeData theme = AppTheme.light,
     VoidCallback? onOpenSettings,
+    VoidCallback? onOpenStats,
     VoidCallback? onOpenCatalog,
     void Function(BuildContext, Project)? onOpenMaterials,
     void Function(BuildContext, Project)? onShareFile,
@@ -81,6 +82,7 @@ void main() {
             loadPreview: loadPreview,
             onOpenProject: (_, p) => opened.add(p.id),
             onOpenSettings: onOpenSettings,
+            onOpenStats: onOpenStats,
             onOpenCatalog: onOpenCatalog,
             onOpenMaterials: onOpenMaterials,
             onShareFile: onShareFile,
@@ -91,6 +93,15 @@ void main() {
     await tester.pump();
     return cubit;
   }
+
+  testWidgets('кнопка «Статистика» открывает статистику, без колбэка её нет', (tester) async {
+    int opened = 0;
+    await pumpScreen(tester, onOpenStats: () => opened++);
+    await tester.tap(find.byKey(const ValueKey<String>('library-stats')));
+    expect(opened, 1);
+    await pumpScreen(tester);
+    expect(find.byKey(const ValueKey<String>('library-stats')), findsNothing);
+  });
 
   for (final CupertinoThemeData theme in <CupertinoThemeData>[AppTheme.light, AppTheme.dark]) {
     group('тема ${theme.brightness}', () {

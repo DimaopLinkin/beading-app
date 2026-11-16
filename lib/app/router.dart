@@ -57,6 +57,7 @@ GoRouter createRouter(AppDependencies dependencies, {bool showDeveloperTools = !
             stepsProgress: dependencies.steps.progress,
           ),
           onOpenSettings: () => context.push(AppRoutes.settings),
+          onOpenStats: () => context.push(AppRoutes.stats),
           onOpenCatalog: () => unawaited(_chooseCatalog(context)),
           onEditInGenerator: (context, project) => unawaited(_editInGenerator(context, project)),
           onOpenMaterials: (context, project) => context.push(
@@ -91,8 +92,9 @@ GoRouter createRouter(AppDependencies dependencies, {bool showDeveloperTools = !
     ...dependencies.imageToGrid.routes(),
     ...dependencies.catalog.routes(),
     ...dependencies.grid.routes(),
-    ...dependencies.weaving.routes(),
-    ...dependencies.stitching.routes(),
+    ...dependencies.stats.routes(),
+    ...dependencies.weaving.routes(onOpenStats: dependencies.stats.showProjectStats),
+    ...dependencies.stitching.routes(onOpenStats: dependencies.stats.showProjectStats),
   ],
 );
 
