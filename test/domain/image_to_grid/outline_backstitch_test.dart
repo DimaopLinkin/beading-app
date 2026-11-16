@@ -137,7 +137,7 @@ void main() {
     });
 
     test('короткие обрывки отбрасываются', () {
-      // Одна клетка другого цвета посреди: контур из 4 клеток — дольше minLength 5 его нет.
+      // Одна клетка другого цвета посреди: контур из 4 клеток короче minLength 5 и порога связной линии (T73).
       final _Scene s = _scene(
         10,
         10,
@@ -145,7 +145,8 @@ void main() {
         value: (c, r) => c == 4 && r == 4 ? 1 : 2,
       );
       expect(_build(s, stage: const OutlineBackstitch(minLength: 5)), isEmpty);
-      expect(_build(s), isNotEmpty);
+      expect(_build(s), isEmpty);
+      expect(_build(s, stage: const OutlineBackstitch(minComponent: 4)), isNotEmpty);
     });
 
     test('лесенка по диагонали упрощается в диагональные стежки', () {
@@ -233,7 +234,7 @@ void main() {
       final List<LineStitch> lines = _build(
         s,
         subject: subject,
-        stage: const OutlineBackstitch(budget: 0.02, minBudget: 12),
+        stage: const OutlineBackstitch(budget: 0.02, minBudget: 14),
       );
       expect(lines, isNotEmpty);
       for (final LineStitch l in lines) {

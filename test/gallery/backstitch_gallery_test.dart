@@ -11,6 +11,7 @@ import 'package:beading/domain/image_to_grid/image_to_grid_pipeline.dart';
 import 'package:beading/domain/image_to_grid/image_to_grid_request.dart';
 import 'package:beading/domain/image_to_grid/image_to_grid_settings.dart';
 import 'package:beading/domain/projects/craft.dart';
+import 'package:beading/domain/stitch/lattice_node.dart';
 import 'package:beading/domain/stitch/line_stitch.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -86,6 +87,45 @@ Future<Uint8List> _panel(GeneratedPattern p) async {
   return png!.buffer.asUint8List();
 }
 
+/// «цепей | коротких цепей | поворотов на 100 клеток»: связные ломаные, из них короче 6 клеток, и излом линий.
+String _shape(List<LineStitch> lines) {
+  final Map<LatticeNode, List<LineStitch>> at = <LatticeNode, List<LineStitch>>{};
+  for (final LineStitch l in lines) {
+    (at[l.from] ??= <LineStitch>[]).add(l);
+    (at[l.to] ??= <LineStitch>[]).add(l);
+  }
+  final Set<LineStitch> seen = <LineStitch>{};
+  int chains = 0;
+  int shortChains = 0;
+  double total = 0;
+  for (final LineStitch start in lines) {
+    if (seen.contains(start)) continue;
+    chains++;
+    double length = 0;
+    final List<LineStitch> stack = <LineStitch>[start];
+    seen.add(start);
+    while (stack.isNotEmpty) {
+      final LineStitch l = stack.removeLast();
+      length += ((l.to.x - l.from.x).abs() + (l.to.y - l.from.y).abs()) / 2;
+      for (final LatticeNode n in <LatticeNode>[l.from, l.to]) {
+        for (final LineStitch o in at[n]!) {
+          if (seen.add(o)) stack.add(o);
+        }
+      }
+    }
+    total += length;
+    if (length < 6) shortChains++;
+  }
+  int turns = 0;
+  at.forEach((n, ls) {
+    if (ls.length != 2) return;
+    int dx(LineStitch l) => l.from == n ? l.to.x - l.from.x : l.from.x - l.to.x;
+    int dy(LineStitch l) => l.from == n ? l.to.y - l.from.y : l.from.y - l.to.y;
+    if (dx(ls[0]) * dy(ls[1]) - dy(ls[0]) * dx(ls[1]) != 0) turns++;
+  });
+  return '$chains | $shortChains | ${(turns * 100 / (total == 0 ? 1 : total)).toStringAsFixed(1)}';
+}
+
 void main() {
   testWidgets('листы бэкстича', (tester) async {
     final String out = Platform.environment['GALLERY_OUT'] ?? 'build/backstitch';
@@ -93,7 +133,7 @@ void main() {
     await tester.runAsync(() async {
       final List<GalleryPhoto> photos = await loadPhotos();
       final StringBuffer report = StringBuffer(
-        '| фото | маска | линий | длина, клеток | на 100 клеток |\n|---|---|---|---|---|\n',
+        '| фото | маска | линий | длина, клеток | на 100 клеток | цепей | коротких цепей (<6) | поворотов на 100 |\n|---|---|---|---|---|---|---|---|\n',
       );
       for (final GalleryPhoto photo in photos) {
         for (final bool mask in <bool>[true, false]) {
@@ -104,7 +144,7 @@ void main() {
           }
           final int cells = p.grid.cells.where((v) => v != 0).length;
           report.writeln(
-            '| ${photo.name} | ${mask ? 'да' : 'нет'} | ${p.lines.length} | ${len.toStringAsFixed(0)} | ${(len * 100 / (cells == 0 ? 1 : cells)).toStringAsFixed(1)} |',
+            '| ${photo.name} | ${mask ? 'да' : 'нет'} | ${p.lines.length} | ${len.toStringAsFixed(0)} | ${(len * 100 / (cells == 0 ? 1 : cells)).toStringAsFixed(1)} | ${_shape(p.lines)} |',
           );
           File('$out/${photo.name}-${mask ? 'mask' : 'nomask'}.png').writeAsBytesSync(await _panel(p));
         }
