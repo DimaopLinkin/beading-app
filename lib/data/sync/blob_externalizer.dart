@@ -28,8 +28,9 @@ class BlobExternalizer {
     BlobField('grid_pattern', 'layers'),
   ];
 
-  /// Страницы схем из книг: файл лежит в Application Support по пути из `data.path`, в записи — ссылка `file`.
-  static const String pageEntity = 'image_pattern_page';
+  /// Файловые сущности: страницы схем из книг и картинки шагов инструкций. Файл лежит в Application Support
+  /// по пути из `data.path`, в записи — ссылка `file`.
+  static const Set<String> fileEntities = <String>{'image_pattern_page', 'step_image'};
 
   final BlobTransport blobs;
   final FileStore files;
@@ -45,7 +46,7 @@ class BlobExternalizer {
         data[f.field] = await _put(record, f.field, base64Decode(value));
       }
     }
-    if (record.entity == pageEntity && data['path'] is String) {
+    if (fileEntities.contains(record.entity) && data['path'] is String) {
       final bytes = (await files.read(data['path']! as String)).valueOrNull;
       if (bytes != null) {
         data['file'] = await _put(record, 'file', bytes);
@@ -66,7 +67,7 @@ class BlobExternalizer {
       }
     }
     final Object? file = data.remove('file');
-    if (record.entity == pageEntity && file is Map<String, Object?> && data['path'] is String) {
+    if (fileEntities.contains(record.entity) && file is Map<String, Object?> && data['path'] is String) {
       final Uint8List bytes = await _get(file);
       final result = await files.write(data['path']! as String, bytes);
       if (result.isFailure) {

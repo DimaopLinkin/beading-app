@@ -53,6 +53,7 @@ final class AppDependencies {
       weaving: weaving,
       catalog: catalog,
       settings: settings,
+      steps: steps,
     );
   }
 

@@ -62,12 +62,12 @@ StepImage    id, path, width, height                  → файл через Fi
 
 SQLite-триггеры outbox добавляются в `sync_triggers.dart` вместе с мапперами (T33b; отдельной миграцией v18, если T33a уже влит, и полной выгрузкой существующих steps-записей в outbox), иначе outbox получит сущность без маппера; ранги применения — после `projects`. Слияние — обычный LWW записи; правка документа на двух офлайн-устройствах теряет правки проигравшего целиком (принято: редактирует один человек). Новая версия кодека документа — новая `data.v`.
 
-`.biser` v5: в `BiserProject` поле `steps` (документ как есть + `body_version`, картинки в `images/steps/{id}.png`, курсор). Читатель v5 принимает v1–v4; старое приложение на v5 уже отвечает «обновите приложение». Импорт «как новый» перевыдаёт `id` проекта, документа и картинок, `id` шагов внутри документа остаются (уникальны в документе).
+`.biser` v5: в `BiserProject` поле `steps` (документ как есть + `body_version`, картинки в `steps/{id}.png`, курсор). Читатель v5 принимает v1–v4; старое приложение на v5 уже отвечает «обновите приложение». Импорт «как новый» перевыдаёт `id` проекта, документа и картинок, `id` шагов внутри документа остаются (уникальны в документе).
 
 ### Слои и модули
 
 - `domain/steps/`: сущности, `StepPatternRepository`, `StepsProgressStore`, `StepTemplateSource`, use cases (`CreateStepPattern`, `SaveStepPattern`, `StepNavigation` (next, previous, skipRepeat, jumpTo, reconcile)), `StepPatternContentCleaner/Cloner`, превью (картинка текущего шага или первая картинка).
-- `data/steps/`: `DriftStepPatternRepository`, `StepPatternCodec`, `AssetStepTemplateSource`; `data/db/tables/step_pattern_tables.dart`, DAO; мапперы в `data/sync/sync_entity_mappers.dart`.
+- `domain/steps/`: `StepPatternCodec`; `data/steps/`: `DriftStepPatternRepository`, `AssetStepTemplateSource`; `data/db/tables/step_pattern_tables.dart`, DAO; мапперы в `data/sync/sync_entity_mappers.dart`.
 - `presentation/steps/`: `template_library/`, `work/` (`StepsWorkCubit`), `editor/` (`StepsEditorCubit`).
 - `app/composition/steps_module.dart` (`StepsModule`): репозиторий, cleaner и cloner в списки `AppDependencies`, маршруты, пункт `NewProjectEntry` «Пошаговая инструкция» (`craft=beading`); `router.dart` открывает `ContentKind.steps` → `AppRoutes.steps(id)`; `LoadProjectPreview` получает провайдер превью steps.
 
@@ -82,3 +82,6 @@ SQLite-триггеры outbox добавляются в `sync_triggers.dart` в
 - Новая миграция v17 с тестом со всех прошлых версий, `.biser` v5, три синхронизируемые сущности (`SyncSchema` растёт, отпечаток меняется — полный pull один раз).
 - Содержание встроенных шаблонов (тексты, картинки, проверка правильности маршрута нити) — работа не инженерная, её подтверждают Настя и Дмитрий (T33e).
 - Отметки шагов не по порядку не поддерживаются; если Настя попросит, курсор дополняется множеством отметок без смены остальной модели.
+
+
+**Версии (T33b-R1-05, A-03).** Новая версия кодека документа ⇒ новая `data.v` записи синхронизации и новая версия формата `.biser`. Читатель `.biser`, не знающий версию документа, пока отвечает «файл повреждён»; это принято до появления v2 кодека. Путь картинки в записи — единственный источник истины: на втором устройстве файлы лежат под id инструкции отправителя.

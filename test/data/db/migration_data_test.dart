@@ -276,4 +276,40 @@ void main() {
     // Триггеры очереди для инструкций придут с мапперами синхронизации (T33b).
     expect(await db.select(db.syncOutbox).get(), isEmpty);
   });
+
+  test('миграция v17→v18 ставит триггеры очереди и отправляет в очередь уже созданные инструкции', () async {
+    final SchemaVerifier verifier = SchemaVerifier(GeneratedHelper());
+    final InitializedSchema old = await verifier.schemaAt(17);
+    old.rawDatabase
+      ..execute(
+        'INSERT INTO projects (id, name, technique, content_kind, last_worked_at, created_at, updated_at, device_id) '
+        "VALUES ('proj', 'П', 'offLoom', 'steps', 0, 1, 1, 'd')",
+      )
+      ..execute(
+        'INSERT INTO step_patterns (id, created_at, updated_at, device_id, project_id, body, body_version) '
+        "VALUES ('s1', 1, 1, 'd', 'proj', '{}', 1)",
+      )
+      ..execute(
+        'INSERT INTO step_images (id, created_at, updated_at, device_id, pattern_id, path, width, height) '
+        "VALUES ('i1', 1, 1, 'd', 's1', 'a.png', 1, 1)",
+      )
+      ..execute(
+        'INSERT INTO step_progress (id, created_at, updated_at, device_id, section_id, section_pass, step_id, step_pass, finished) '
+        "VALUES ('s1', 1, 1, 'd', 'a', 1, 'b', 1, 0)",
+      );
+
+    final AppDatabase db = AppDatabase(old.newConnection());
+    addTearDown(db.close);
+    await verifier.migrateAndValidate(db, 18);
+
+    final List<SyncOutboxRow> queued = await db.select(db.syncOutbox).get();
+    expect(
+      <(String, String)>{for (final SyncOutboxRow q in queued) (q.entity, q.syncId)},
+      <(String, String)>{('step_pattern', 'proj'), ('step_image', 'proj:i1'), ('step_progress', 'proj')},
+    );
+    // Новые правки теперь тоже попадают в очередь.
+    await db.customStatement('DELETE FROM sync_outbox');
+    await db.customStatement("UPDATE step_progress SET step_pass = 2, updated_at = 2 WHERE id = 's1'");
+    expect((await db.select(db.syncOutbox).get()).single.entity, 'step_progress');
+  });
 }

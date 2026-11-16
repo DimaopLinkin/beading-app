@@ -23,6 +23,9 @@ import 'package:beading/domain/projects/project_repository.dart';
 import 'package:beading/domain/sharing/biser/biser_codec.dart';
 import 'package:beading/domain/sharing/biser/biser_models.dart';
 import 'package:beading/domain/sharing/unit_of_work.dart';
+import 'package:beading/domain/steps/step_pattern.dart';
+import 'package:beading/domain/steps/step_pattern_paths.dart';
+import 'package:beading/domain/steps/step_pattern_repository.dart';
 import 'package:beading/domain/weaving/work_session_repository.dart';
 import 'package:equatable/equatable.dart';
 
@@ -99,7 +102,11 @@ class ImportBiser {
     required UnitOfWork unitOfWork,
     FlossStockRepository? flossStock,
     BeadStockRepository? beadStock,
-  }) : _flossStock = flossStock,
+    StepPatternRepository? steps,
+    StepsProgressStore? stepsProgress,
+  }) : _steps = steps,
+       _stepsProgress = stepsProgress,
+       _flossStock = flossStock,
        _beadStock = beadStock,
        _codec = codec,
        _projects = projects,
@@ -124,6 +131,8 @@ class ImportBiser {
   final FileStore _files;
   final IdGenerator _ids;
   final UnitOfWork _unitOfWork;
+  final StepPatternRepository? _steps;
+  final StepsProgressStore? _stepsProgress;
   final FlossStockRepository? _flossStock;
   final BeadStockRepository? _beadStock;
 
@@ -219,6 +228,12 @@ class ImportBiser {
         if (grid != null) {
           ids.add(grid.id);
         }
+        final StepPattern? steps = (await _steps?.getByProject(project.id))?.valueOrNull;
+        if (steps != null) {
+          ids
+            ..add(steps.id)
+            ..addAll(steps.images.map((i) => i.id));
+        }
         final ImagePattern? book = (await _images.getByProject(project.id)).valueOrNull;
         if (book != null) {
           ids
@@ -235,6 +250,7 @@ class ImportBiser {
   static Iterable<String> _contentIds(BiserProject item) => <String>[
     ?item.grid?.id,
     if (item.book != null) ...<String>[item.book!.patternId, ...item.book!.pages.map((p) => p.id)],
+    if (item.steps != null) ...<String>[item.steps!.pattern.id, ...item.steps!.pattern.images.map((i) => i.id)],
   ];
 
   Future<Result<String>> _importOne(
@@ -267,6 +283,14 @@ class ImportBiser {
     };
     String pagePath(String pageId) => imagePatternPagePath(patternId: bookId!, pageId: pageIds[pageId]!);
 
+    final BiserSteps? steps = item.steps;
+    final String? stepsId = steps == null ? null : idFor(steps.pattern.id);
+    final Map<String, String> stepImageIds = <String, String>{
+      if (steps != null)
+        for (final StepImage image in steps.pattern.images) image.id: idFor(image.id),
+    };
+    String stepImagePathOf(String imageId) => stepImagePath(patternId: stepsId!, imageId: stepImageIds[imageId]!);
+
     final Project project = Project(
       id: projectId,
       name: item.project.name,
@@ -275,7 +299,9 @@ class ImportBiser {
       technique: item.project.technique,
       contentKind: item.project.contentKind,
       notes: item.project.notes,
-      coverPath: item.coverPageId == null ? null : pagePath(item.coverPageId!),
+      coverPath: item.coverPageId != null
+          ? pagePath(item.coverPageId!)
+          : (steps != null && steps.pattern.images.isNotEmpty ? stepImagePathOf(steps.pattern.images.first.id) : null),
       lastWorkedAt: item.project.lastWorkedAt,
     );
     final Result<void> saved = await _projects.save(project);
@@ -348,6 +374,45 @@ class ImportBiser {
       if (current != null) {
         final Result<void> currentSaved = await _bookWork.saveCurrentPage(patternId: bookId, pageId: pageIds[current]!);
         if (currentSaved case Err<void>(:final Failure failure)) {
+          return Err<String>(failure);
+        }
+      }
+    }
+    if (steps != null && _steps != null) {
+      final List<StepImage> images = <StepImage>[];
+      for (final StepImage image in steps.pattern.images) {
+        final String path = stepImagePathOf(image.id);
+        final Result<void> wrote = await _files.write(path, files[image.path]!);
+        if (wrote case Err<void>(:final Failure failure)) {
+          return Err<String>(failure);
+        }
+        written.add(path);
+        images.add(StepImage(id: stepImageIds[image.id]!, path: path, width: image.width, height: image.height));
+      }
+      final StepPattern pattern = StepPattern(
+        id: stepsId!,
+        projectId: projectId,
+        palette: steps.pattern.palette,
+        templateId: steps.pattern.templateId,
+        images: images,
+        sections: <StepSection>[
+          for (final StepSection s in steps.pattern.sections)
+            s.copyWith(
+              steps: <InstructionStep>[
+                for (final InstructionStep st in s.steps)
+                  st.copyWith(imageIds: <String>[for (final String i in st.imageIds) stepImageIds[i] ?? i]),
+              ],
+            ),
+        ],
+      );
+      final Result<void> patternSaved = await _steps.save(pattern);
+      if (patternSaved case Err<void>(:final Failure failure)) {
+        return Err<String>(failure);
+      }
+      final progress = steps.progress;
+      if (progress != null && _stepsProgress != null) {
+        final Result<void> progressSaved = await _stepsProgress.save(pattern.id, progress);
+        if (progressSaved case Err<void>(:final Failure failure)) {
           return Err<String>(failure);
         }
       }

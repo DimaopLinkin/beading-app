@@ -18,6 +18,9 @@ List<SyncEntityMapper> buildSyncMappers(SyncDbContext ctx) => <SyncEntityMapper>
   ProgressCellMapper(ctx),
   PageWorkMapper(ctx),
   BookWorkMapper(ctx),
+  StepPatternMapper(ctx),
+  StepImageMapper(ctx),
+  StepProgressMapper(ctx),
 ];
 
 const String _common = 'created_at, updated_at, deleted_at, device_id';
@@ -841,3 +844,201 @@ class BookWorkMapper extends SyncEntityMapper {
 String encodeData(Map<String, Object?> data) => jsonEncode(data);
 
 Map<String, Object?> decodeData(String json) => (jsonDecode(json) as Map<String, dynamic>).cast<String, Object?>();
+
+/// Инструкция (T33b): весь документ шагов одной записью, ключ слияния — проект.
+class StepPatternMapper extends SyncEntityMapper {
+  StepPatternMapper(super.ctx);
+
+  @override
+  String get entity => 'step_pattern';
+
+  @override
+  int get rank => 1;
+
+  @override
+  String? parentKey(SyncRecord record) => 'project/${record.syncId}';
+
+  @override
+  Future<List<String>> allSyncIds() async => <String>[
+    for (final Row r in await ctx.query('SELECT project_id FROM step_patterns')) r['project_id']! as String,
+  ];
+
+  @override
+  Future<SyncRecord?> read(String syncId) async {
+    final Row? r = await ctx.first('SELECT * FROM step_patterns WHERE project_id = ?', <Object?>[syncId]);
+    return r == null
+        ? null
+        : build(syncId, r, <String, Object?>{
+            'body': r['body'],
+            'body_version': r['body_version'],
+            'template_id': r['template_id'],
+          });
+  }
+
+  @override
+  Future<void> apply(SyncRecord r) async {
+    if (r.isDeleted) {
+      await tombstone('step_patterns', 'project_id = ?', <Object?>[r.syncId], r);
+      return;
+    }
+    final Map<String, Object?> d = r.data;
+    final Row? existing = await ctx.first('SELECT 1 AS x FROM step_patterns WHERE project_id = ?', <Object?>[r.syncId]);
+    if (existing == null) {
+      await ctx.run(
+        'INSERT INTO step_patterns (id, project_id, body, body_version, template_id, $_common) VALUES (?,?,?,?,?,?,?,NULL,?)',
+        <Object?>[
+          ctx.ids.next(),
+          r.syncId,
+          d['body'],
+          d['body_version'],
+          d['template_id'],
+          createdAt(r),
+          r.updatedAt,
+          r.deviceId,
+        ],
+      );
+    } else {
+      await ctx.run(
+        'UPDATE step_patterns SET body=?, body_version=?, template_id=?, updated_at=?, deleted_at=NULL, device_id=? WHERE project_id=?',
+        <Object?>[d['body'], d['body_version'], d['template_id'], r.updatedAt, r.deviceId, r.syncId],
+      );
+    }
+  }
+}
+
+/// Картинка шага. Документ ссылается на неё по `id`, поэтому на всех устройствах `id` строки один и тот же:
+/// ключ `проект:id` (UUID, двоеточий в нём нет). Файл идёт через Storage (поле `file`, как у страниц книг).
+class StepImageMapper extends SyncEntityMapper {
+  StepImageMapper(super.ctx);
+
+  @override
+  String get entity => 'step_image';
+
+  @override
+  int get rank => 2;
+
+  @override
+  String? parentKey(SyncRecord record) => 'step_pattern/${_projectOf(record.syncId)}';
+
+  static String _imageOf(String syncId) => syncId.substring(syncId.indexOf(':') + 1);
+
+  static const String _select =
+      'SELECT i.*, p.project_id AS project_id FROM step_images i JOIN step_patterns p ON p.id = i.pattern_id';
+
+  @override
+  Future<List<String>> allSyncIds() async => <String>[
+    for (final Row r in await ctx.query(_select)) "${r['project_id']}:${r['id']}",
+  ];
+
+  @override
+  Future<SyncRecord?> read(String syncId) async {
+    final Row? r = await ctx.first('$_select WHERE p.project_id = ? AND i.id = ?', <Object?>[
+      _projectOf(syncId),
+      _imageOf(syncId),
+    ]);
+    return r == null
+        ? null
+        : build(syncId, r, <String, Object?>{'path': r['path'], 'width': r['width'], 'height': r['height']});
+  }
+
+  @override
+  Future<void> apply(SyncRecord r) async {
+    final Row? pattern = await ctx.first('SELECT id FROM step_patterns WHERE project_id = ?', <Object?>[
+      _projectOf(r.syncId),
+    ]);
+    if (pattern == null) {
+      return;
+    }
+    final String patternId = pattern['id']! as String;
+    final String imageId = _imageOf(r.syncId);
+    if (r.isDeleted) {
+      await tombstone('step_images', 'id = ? AND pattern_id = ?', <Object?>[imageId, patternId], r);
+      return;
+    }
+    final Map<String, Object?> d = r.data;
+    final Row? existing = await ctx.first('SELECT 1 AS x FROM step_images WHERE id = ? AND pattern_id = ?', <Object?>[
+      imageId,
+      patternId,
+    ]);
+    if (existing == null) {
+      await ctx.run(
+        'INSERT INTO step_images (id, pattern_id, path, width, height, $_common) VALUES (?,?,?,?,?,?,?,NULL,?)',
+        <Object?>[imageId, patternId, d['path'], d['width'], d['height'], createdAt(r), r.updatedAt, r.deviceId],
+      );
+    } else {
+      await ctx.run(
+        'UPDATE step_images SET path=?, width=?, height=?, updated_at=?, deleted_at=NULL, device_id=? WHERE id=? AND pattern_id=?',
+        <Object?>[d['path'], d['width'], d['height'], r.updatedAt, r.deviceId, imageId, patternId],
+      );
+    }
+  }
+}
+
+/// Курсор прогресса по инструкции: отдельная запись со своим временем, чтобы «дальше» не пересылало документ.
+class StepProgressMapper extends SyncEntityMapper {
+  StepProgressMapper(super.ctx);
+
+  @override
+  String get entity => 'step_progress';
+
+  @override
+  int get rank => 2;
+
+  @override
+  String? parentKey(SyncRecord record) => 'step_pattern/${record.syncId}';
+
+  static const String _select =
+      'SELECT g.*, p.project_id AS project_id FROM step_progress g JOIN step_patterns p ON p.id = g.id';
+
+  @override
+  Future<List<String>> allSyncIds() async => <String>[
+    for (final Row r in await ctx.query(_select)) r['project_id']! as String,
+  ];
+
+  @override
+  Future<SyncRecord?> read(String syncId) async {
+    final Row? r = await ctx.first('$_select WHERE p.project_id = ?', <Object?>[syncId]);
+    return r == null
+        ? null
+        : build(syncId, r, <String, Object?>{
+            'section_id': r['section_id'],
+            'section_pass': r['section_pass'],
+            'step_id': r['step_id'],
+            'step_pass': r['step_pass'],
+            'finished': r['finished'],
+          });
+  }
+
+  @override
+  Future<void> apply(SyncRecord r) async {
+    final Row? pattern = await ctx.first('SELECT id FROM step_patterns WHERE project_id = ?', <Object?>[r.syncId]);
+    if (pattern == null) {
+      return;
+    }
+    final String patternId = pattern['id']! as String;
+    if (r.isDeleted) {
+      await tombstone('step_progress', 'id = ?', <Object?>[patternId], r);
+      return;
+    }
+    final Map<String, Object?> d = r.data;
+    final Row? existing = await ctx.first('SELECT 1 AS x FROM step_progress WHERE id = ?', <Object?>[patternId]);
+    final List<Object?> fields = <Object?>[
+      d['section_id'],
+      d['section_pass'],
+      d['step_id'],
+      d['step_pass'],
+      d['finished'],
+    ];
+    if (existing == null) {
+      await ctx.run(
+        'INSERT INTO step_progress (id, section_id, section_pass, step_id, step_pass, finished, $_common) VALUES (?,?,?,?,?,?,?,?,NULL,?)',
+        <Object?>[patternId, ...fields, createdAt(r), r.updatedAt, r.deviceId],
+      );
+    } else {
+      await ctx.run(
+        'UPDATE step_progress SET section_id=?, section_pass=?, step_id=?, step_pass=?, finished=?, updated_at=?, deleted_at=NULL, device_id=? WHERE id=?',
+        <Object?>[...fields, r.updatedAt, r.deviceId, patternId],
+      );
+    }
+  }
+}

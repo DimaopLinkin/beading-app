@@ -28,45 +28,50 @@ void main() {
       r['id']! as String,
   ];
 
-  test('данные, созданные до входа и пережившие миграцию, целиком уходят в аккаунт и появляются на втором устройстве', () async {
-    final SchemaVerifier verifier = SchemaVerifier(GeneratedHelper());
-    final InitializedSchema old = await verifier.schemaAt(15);
-    for (final String statement in <String>[
-      "INSERT INTO projects (id, created_at, updated_at, device_id, name, craft, technique, content_kind, last_worked_at) VALUES ('p1', 5, 5, 'd', 'Вышивка', 'cross_stitch', 't', 'grid', 1)",
-      "INSERT INTO grid_patterns (id, created_at, updated_at, device_id, project_id, geometry, width, height, cell_metrics, cells, cells_codec_version) VALUES ('g1', 5, 5, 'd', 'p1', 'g', 2, 2, 'm', x'0102', 1)",
-      "INSERT INTO pattern_colors (id, created_at, updated_at, device_id, grid_pattern_id, position, rgb, name, components) VALUES ('c1', 5, 5, 'd', 'g1', 0, 255, 'красный', '[]')",
-      "INSERT INTO grid_progress_rows (id, created_at, updated_at, device_id, grid_pattern_id, row_index, completed_at) VALUES ('r1', 5, 5, 'd', 'g1', 3, 5)",
-      "INSERT INTO grid_progress_cells (id, created_at, updated_at, device_id, grid_pattern_id, block_index, bits) VALUES ('k1', 5, 5, 'd', 'g1', 0, x'ff')",
-      "INSERT INTO floss_stock (id, created_at, updated_at, device_id, brand, code, skeins) VALUES ('f1', 5, 5, 'd', 'dmc', '310', 2.0)",
-    ]) {
-      old.rawDatabase.execute(statement);
-    }
-    final AppDatabase phone = AppDatabase(old.newConnection());
-    addTearDown(phone.close);
-    await verifier.migrateAndValidate(phone, 16);
+  // 15 — 0.2.0, 16 — 0.3.0 (запас бисера); обе обновляются до текущей схемы (v17 добавляет только таблицы инструкций).
+  for (final int from in <int>[15, 16]) {
+    test('данные из схемы v$from, пережившие миграцию, целиком уходят в аккаунт и появляются на втором устройстве', () async {
+      final SchemaVerifier verifier = SchemaVerifier(GeneratedHelper());
+      final InitializedSchema old = await verifier.schemaAt(from);
+      for (final String statement in <String>[
+        "INSERT INTO projects (id, created_at, updated_at, device_id, name, craft, technique, content_kind, last_worked_at) VALUES ('p1', 5, 5, 'd', 'Вышивка', 'cross_stitch', 't', 'grid', 1)",
+        "INSERT INTO grid_patterns (id, created_at, updated_at, device_id, project_id, geometry, width, height, cell_metrics, cells, cells_codec_version) VALUES ('g1', 5, 5, 'd', 'p1', 'g', 2, 2, 'm', x'0102', 1)",
+        "INSERT INTO pattern_colors (id, created_at, updated_at, device_id, grid_pattern_id, position, rgb, name, components) VALUES ('c1', 5, 5, 'd', 'g1', 0, 255, 'красный', '[]')",
+        "INSERT INTO grid_progress_rows (id, created_at, updated_at, device_id, grid_pattern_id, row_index, completed_at) VALUES ('r1', 5, 5, 'd', 'g1', 3, 5)",
+        "INSERT INTO grid_progress_cells (id, created_at, updated_at, device_id, grid_pattern_id, block_index, bits) VALUES ('k1', 5, 5, 'd', 'g1', 0, x'ff')",
+        "INSERT INTO floss_stock (id, created_at, updated_at, device_id, brand, code, skeins) VALUES ('f1', 5, 5, 'd', 'dmc', '310', 2.0)",
+      ]) {
+        old.rawDatabase.execute(statement);
+      }
+      final AppDatabase phone = AppDatabase(old.newConnection());
+      addTearDown(phone.close);
+      await verifier.migrateAndValidate(phone, GeneratedHelper.versions.last);
+      expect(await ids(phone, 'grid_progress_cells'), <String>['k1'], reason: 'прогресс вышивки цел после миграции');
+      expect(await ids(phone, 'step_patterns'), isEmpty);
 
-    final FakeRemote remote = FakeRemote();
-    final SyncReport first = await sync(phone, remote, 'nastya');
-    expect(first.pushed, greaterThanOrEqualTo(5), reason: 'всё, что было до входа, отправлено');
-    expect(first.pulled, 0);
+      final FakeRemote remote = FakeRemote();
+      final SyncReport first = await sync(phone, remote, 'nastya');
+      expect(first.pushed, greaterThanOrEqualTo(5), reason: 'всё, что было до входа, отправлено');
+      expect(first.pulled, 0);
 
-    // Своё на месте и после входа.
-    expect(await ids(phone, 'projects'), <String>['p1']);
-    expect(await ids(phone, 'grid_progress_rows'), <String>['r1']);
-    expect(await ids(phone, 'floss_stock'), <String>['f1']);
+      // Своё на месте и после входа.
+      expect(await ids(phone, 'projects'), <String>['p1']);
+      expect(await ids(phone, 'grid_progress_rows'), <String>['r1']);
+      expect(await ids(phone, 'floss_stock'), <String>['f1']);
 
-    // Новое устройство с пустой базой получает всё.
-    final AppDatabase mac = AppDatabase(NativeDatabase.memory());
-    addTearDown(mac.close);
-    final SyncReport second = await sync(mac, remote, 'nastya');
-    expect(second.applied, greaterThanOrEqualTo(5));
-    expect(await ids(mac, 'projects'), <String>['p1']);
-    expect(await ids(mac, 'grid_patterns'), hasLength(1)); // id на новом устройстве свой, связь по проекту
-    expect(await ids(mac, 'pattern_colors'), hasLength(1)); // id на новом устройстве свой, связь по проекту
-    expect(await ids(mac, 'grid_progress_rows'), hasLength(1)); // id на новом устройстве свой, связь по проекту
-    expect(await ids(mac, 'grid_progress_cells'), hasLength(1)); // id на новом устройстве свой, связь по проекту
-    expect(await ids(mac, 'floss_stock'), hasLength(1));
-  });
+      // Новое устройство с пустой базой получает всё.
+      final AppDatabase mac = AppDatabase(NativeDatabase.memory());
+      addTearDown(mac.close);
+      final SyncReport second = await sync(mac, remote, 'nastya');
+      expect(second.applied, greaterThanOrEqualTo(5));
+      expect(await ids(mac, 'projects'), <String>['p1']);
+      expect(await ids(mac, 'grid_patterns'), hasLength(1)); // id на новом устройстве свой, связь по проекту
+      expect(await ids(mac, 'pattern_colors'), hasLength(1)); // id на новом устройстве свой, связь по проекту
+      expect(await ids(mac, 'grid_progress_rows'), hasLength(1)); // id на новом устройстве свой, связь по проекту
+      expect(await ids(mac, 'grid_progress_cells'), hasLength(1)); // id на новом устройстве свой, связь по проекту
+      expect(await ids(mac, 'floss_stock'), hasLength(1));
+    });
+  }
 
   test('вход в аккаунт, где уже есть другие данные: данные устройства не затираются, а добавляются', () async {
     final FakeRemote remote = FakeRemote();

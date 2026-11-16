@@ -23,6 +23,9 @@ import 'package:beading/domain/projects/project_repository.dart';
 import 'package:beading/domain/settings/app_info.dart';
 import 'package:beading/domain/sharing/biser/biser_codec.dart';
 import 'package:beading/domain/sharing/biser/biser_models.dart';
+import 'package:beading/domain/steps/step_pattern.dart';
+import 'package:beading/domain/steps/step_pattern_repository.dart';
+import 'package:beading/domain/steps/steps_progress.dart';
 import 'package:beading/domain/weaving/work_session.dart';
 import 'package:beading/domain/weaving/work_session_repository.dart';
 
@@ -51,7 +54,11 @@ class ExportProjects {
     required AppInfoProvider appInfo,
     FlossStockRepository? flossStock,
     BeadStockRepository? beadStock,
-  }) : _flossStock = flossStock,
+    StepPatternRepository? steps,
+    StepsProgressStore? stepsProgress,
+  }) : _steps = steps,
+       _stepsProgress = stepsProgress,
+       _flossStock = flossStock,
        _beadStock = beadStock,
        _projects = projects,
        _grids = grids,
@@ -78,6 +85,8 @@ class ExportProjects {
   final BiserCodec _codec;
   final Clock _clock;
   final AppInfoProvider _appInfo;
+  final StepPatternRepository? _steps;
+  final StepsProgressStore? _stepsProgress;
   final FlossStockRepository? _flossStock;
   final BeadStockRepository? _beadStock;
 
@@ -205,9 +214,45 @@ class ExportProjects {
           ),
         );
       case ContentKind.steps:
-        return Success<BiserProject>(BiserProject(project: project));
+        final StepPatternRepository? steps = _steps;
+        if (steps == null) {
+          return Success<BiserProject>(BiserProject(project: project));
+        }
+        final Result<StepPattern> found = await steps.getByProject(project.id);
+        if (found case Err<StepPattern>(:final Failure failure)) {
+          return failure is NotFoundFailure ? Success<BiserProject>(BiserProject(project: project)) : Err(failure);
+        }
+        final StepPattern pattern = found.valueOrNull!;
+        final List<StepImage> packed = <StepImage>[];
+        for (final StepImage image in pattern.images) {
+          final Result<Uint8List> bytes = await _files.read(image.path);
+          if (bytes case Err<Uint8List>()) {
+            continue; // файл потерян: инструкция уезжает без этой картинки, ссылка на неё в шаге не ошибка
+          }
+          if (!_isPng(bytes.valueOrNull!)) {
+            continue; // не PNG (например, JPG из шаблона): такой файл импорт всё равно отверг бы и испортил копию целиком
+          }
+          final String file = 'steps/${image.id}.png';
+          files[file] = bytes.valueOrNull!;
+          packed.add(StepImage(id: image.id, path: file, width: image.width, height: image.height));
+        }
+        final StepsProgress? progress = (await _stepsProgress?.load(pattern.id))?.valueOrNull;
+        return Success<BiserProject>(
+          BiserProject(
+            project: project,
+            steps: BiserSteps(
+              pattern: pattern.copyWith(images: packed),
+              progress: progress,
+            ),
+          ),
+        );
     }
   }
+
+  static const List<int> _pngSignature = <int>[0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A];
+
+  static bool _isPng(Uint8List b) =>
+      b.length >= _pngSignature.length && _pngSignature.indexed.every((e) => b[e.$1] == e.$2);
 
   /// Имя файла из названия проекта: без символов, недопустимых в путях.
   static String _safeName(String name) {

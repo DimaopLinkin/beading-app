@@ -7,13 +7,16 @@ import 'package:beading/domain/grid_pattern/grid_pattern.dart';
 import 'package:beading/domain/grid_pattern/grid_progress.dart';
 import 'package:beading/domain/image_pattern/book_work/page_work.dart';
 import 'package:beading/domain/projects/project.dart';
+import 'package:beading/domain/steps/step_pattern.dart';
+import 'package:beading/domain/steps/steps_progress.dart';
 import 'package:beading/domain/weaving/work_session.dart';
 import 'package:equatable/equatable.dart';
 
 /// Версия формата `.biser`, которую пишет это приложение. Файл новее — понятная ошибка, а не порча данных.
 /// Версия 2 добавила отметки клеток вышивки (`progress.cellBlocks`), версия 3 — запас ниток (`flossStock`),
-/// версия 4 — запас бисера (`beadStock`); файлы прежних версий читаются по-прежнему.
-const int biserFormatVersion = 4;
+/// версия 4 — запас бисера (`beadStock`), версия 5 — пошаговые инструкции (`steps`); файлы прежних версий
+/// читаются по-прежнему.
+const int biserFormatVersion = 5;
 
 /// Что лежит в файле: один проект или резервная копия всей библиотеки.
 enum BiserKind { project, backup }
@@ -47,6 +50,19 @@ final class BiserBook extends Equatable {
   List<Object?> get props => <Object?>[patternId, pages, currentPageId];
 }
 
+/// Пошаговая инструкция проекта: документ, картинки и курсор. [StepPattern.images] указывают путями внутри архива.
+final class BiserSteps extends Equatable {
+  const BiserSteps({required this.pattern, this.progress});
+
+  final StepPattern pattern;
+
+  /// Где остановилась; `null`, если работу не начинали.
+  final StepsProgress? progress;
+
+  @override
+  List<Object?> get props => <Object?>[pattern, progress];
+}
+
 /// Проект со всем содержимым. `coverPath` проекта в файле не хранится: обложкой служит страница [coverPageId].
 final class BiserProject extends Equatable {
   const BiserProject({
@@ -55,6 +71,7 @@ final class BiserProject extends Equatable {
     this.progress,
     this.cells,
     this.book,
+    this.steps,
     this.coverPageId,
     this.workSessions = const <WorkSession>[],
   });
@@ -66,6 +83,9 @@ final class BiserProject extends Equatable {
   /// Отметки клеток вышивки; `null` или пусто, если не отмечено ни одной.
   final CellProgress? cells;
   final BiserBook? book;
+
+  /// Пошаговая инструкция (формат 5).
+  final BiserSteps? steps;
   final String? coverPageId;
 
   /// Сессии работы над проектом: из них складывается учтённое время. Ключи id и projectId в файле не хранятся.
@@ -77,12 +97,13 @@ final class BiserProject extends Equatable {
     progress: progress,
     cells: cells,
     book: book,
+    steps: steps,
     coverPageId: coverPageId,
     workSessions: List<WorkSession>.unmodifiable(sessions),
   );
 
   @override
-  List<Object?> get props => <Object?>[project, grid, progress, cells, book, coverPageId, workSessions];
+  List<Object?> get props => <Object?>[project, grid, progress, cells, book, steps, coverPageId, workSessions];
 }
 
 /// Всё содержимое файла `.biser`: манифест и файлы (картинки страниц) по путям внутри архива.
@@ -98,7 +119,9 @@ final class BiserBundle extends Equatable {
     int? formatVersion,
   }) : formatVersion =
            formatVersion ??
-           (beadStock.isNotEmpty
+           (projects.any((p) => p.steps != null)
+               ? 5
+               : beadStock.isNotEmpty
                ? 4
                : (flossStock.isNotEmpty ? 3 : (projects.any((p) => p.cells != null && !p.cells!.isEmpty) ? 2 : 1))),
        flossStock = List<FlossStockEntry>.unmodifiable(flossStock),

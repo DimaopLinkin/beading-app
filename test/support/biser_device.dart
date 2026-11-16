@@ -17,6 +17,8 @@ import 'package:beading/data/projects/drift_project_repository.dart';
 import 'package:beading/data/settings/drift_device_id_provider.dart';
 import 'package:beading/data/sharing/drift_unit_of_work.dart';
 import 'package:beading/data/sharing/zip_biser_codec.dart';
+import 'package:beading/data/steps/drift_step_pattern_repository.dart';
+import 'package:beading/data/steps/drift_steps_progress_store.dart';
 import 'package:beading/data/weaving/drift_work_session_repository.dart';
 import 'package:beading/domain/image_pattern/file_store.dart';
 import 'package:beading/domain/projects/craft.dart';
@@ -53,6 +55,8 @@ class BiserDevice {
     images = DriftImagePatternRepository(dao: db.imagePatternsDao, deviceIds: devices, clock: clock);
     bookWork = DriftBookWorkRepository(dao: db.bookWorkDao, deviceIds: devices, clock: clock);
     workSessions = DriftWorkSessionRepository(dao: db.workSessionsDao, deviceIds: devices, clock: clock, ids: ids);
+    steps = DriftStepPatternRepository(dao: db.stepPatternsDao, deviceIds: devices, clock: clock);
+    stepsProgress = DriftStepsProgressStore(dao: db.stepPatternsDao, deviceIds: devices, clock: clock);
     stock = DriftFlossStockRepository(dao: FlossStockDao(db), deviceIds: devices, clock: clock, ids: ids);
     beadStock = DriftBeadStockRepository(dao: BeadStockDao(db), deviceIds: devices, clock: clock, ids: ids);
     final LocalFileStore real = LocalFileStore(() async => root);
@@ -72,6 +76,8 @@ class BiserDevice {
       appInfo: _AppInfo(),
       flossStock: stock,
       beadStock: beadStock,
+      steps: steps,
+      stepsProgress: stepsProgress,
     );
     import = ImportBiser(
       codec: const ZipBiserCodec(),
@@ -87,6 +93,8 @@ class BiserDevice {
       unitOfWork: DriftUnitOfWork(db),
       flossStock: stock,
       beadStock: beadStock,
+      steps: steps,
+      stepsProgress: stepsProgress,
     );
   }
 
@@ -101,6 +109,8 @@ class BiserDevice {
   late final DriftImagePatternRepository images;
   late final DriftBookWorkRepository bookWork;
   late final DriftWorkSessionRepository workSessions;
+  late final DriftStepPatternRepository steps;
+  late final DriftStepsProgressStore stepsProgress;
   late final DriftFlossStockRepository stock;
   late final DriftBeadStockRepository beadStock;
   late final FileStore files;

@@ -26,6 +26,9 @@ import 'package:beading/domain/palette/rgb.dart';
 import 'package:beading/domain/projects/craft.dart';
 import 'package:beading/domain/projects/project.dart';
 import 'package:beading/domain/sharing/biser/biser_models.dart';
+import 'package:beading/domain/steps/step_pattern.dart';
+import 'package:beading/domain/steps/step_pattern_codec.dart';
+import 'package:beading/domain/steps/steps_progress.dart';
 import 'package:beading/domain/weaving/work_session.dart';
 
 /// Манифест `manifest.json` файла `.biser`: проекты, схемы (сетка — base64 от `GridCodec`), палитры, прогресс.
@@ -85,6 +88,8 @@ abstract final class BiserJson {
       'coverPageId': item.coverPageId,
       'grid': item.grid == null ? null : _grid(item.grid!, item.progress, item.cells),
       'book': item.book == null ? null : _book(item.book!),
+      // Необязательное поле формата 5.
+      if (item.steps != null) 'steps': _steps(item.steps!),
       'workSessions': <Object?>[
         for (final WorkSession s in item.workSessions)
           <String, Object?>{
@@ -92,6 +97,29 @@ abstract final class BiserJson {
             'endedAt': s.endedAt?.toUtc().millisecondsSinceEpoch,
           },
       ],
+    };
+  }
+
+  static Map<String, Object?> _steps(BiserSteps s) {
+    final StepsProgress? p = s.progress;
+    return <String, Object?>{
+      'id': s.pattern.id,
+      'body': StepPatternCodec.encode(s.pattern),
+      'bodyVersion': StepPatternCodec.version,
+      'templateId': s.pattern.templateId,
+      'images': <Object?>[
+        for (final StepImage i in s.pattern.images)
+          <String, Object?>{'id': i.id, 'file': i.path, 'width': i.width, 'height': i.height},
+      ],
+      'progress': p == null
+          ? null
+          : <String, Object?>{
+              'sectionId': p.sectionId,
+              'sectionPass': p.sectionPass,
+              'stepId': p.stepId,
+              'stepPass': p.stepPass,
+              'finished': p.finished,
+            },
     };
   }
 
@@ -302,6 +330,13 @@ abstract final class BiserJson {
     if (m['book'] != null) {
       book = _readBook(_map(m['book'], 'схема из книги'), files);
     }
+    BiserSteps? steps;
+    if (m['steps'] != null) {
+      steps = _readSteps(_map(m['steps'], 'инструкция'), id, files);
+    }
+    if (steps != null && project.contentKind != ContentKind.steps) {
+      throw const _BadBiser('Инструкция есть у проекта другого вида');
+    }
     if (grid != null && project.contentKind != ContentKind.grid) {
       throw const _BadBiser('Сетка есть у проекта другого вида');
     }
@@ -322,6 +357,7 @@ abstract final class BiserJson {
       progress: progress,
       cells: cells,
       book: book,
+      steps: steps,
       coverPageId: coverPageId,
       workSessions: _readWorkSessions(m['workSessions'], id),
     );
@@ -467,6 +503,59 @@ abstract final class BiserJson {
     }
     // Отметки за краем схемы (в неполном блоке) отбрасываем, а не считаем файл повреждённым.
     return CellProgress(width: grid.width, blocks: blocks).resized(newWidth: grid.width, newHeight: grid.height);
+  }
+
+  static BiserSteps _readSteps(Map<String, Object?> s, String projectId, Map<String, Uint8List> files) {
+    final List<StepImage> images = <StepImage>[];
+    final Set<String> imageIds = <String>{};
+    for (final Object? raw in _list(s['images'], 'картинки инструкции')) {
+      final Map<String, Object?> m = _map(raw, 'картинка инструкции');
+      final String id = _id(m['id'], 'id картинки');
+      if (!imageIds.add(id)) {
+        throw const _BadBiser('Картинка инструкции записана дважды');
+      }
+      final String file = _string(m['file'], 'файл картинки');
+      final Uint8List? bytes = files[file];
+      if (bytes == null) {
+        throw _BadBiser('В архиве нет файла картинки $file');
+      }
+      if (bytes.length < _pngSignature.length || !_pngSignature.indexed.every((e) => bytes[e.$1] == e.$2)) {
+        throw _BadBiser('Картинка $file — не PNG');
+      }
+      final int width = _int(m['width'], 'ширина картинки');
+      final int height = _int(m['height'], 'высота картинки');
+      if (width < 1 || height < 1) {
+        throw const _BadBiser('Размер картинки должен быть положительным');
+      }
+      images.add(StepImage(id: id, path: file, width: width, height: height));
+    }
+    final Object? template = s['templateId'];
+    final Result<StepPattern> decoded = StepPatternCodec.decode(
+      _string(s['body'], 'документ инструкции'),
+      id: _id(s['id'], 'id инструкции'),
+      projectId: projectId,
+      images: images,
+      templateId: template == null ? null : _string(template, 'шаблон'),
+    );
+    if (decoded case Err<StepPattern>(:final Failure failure)) {
+      throw _BadBiser(failure.message);
+    }
+    StepsProgress? progress;
+    if (s['progress'] != null) {
+      final Map<String, Object?> p = _map(s['progress'], 'прогресс инструкции');
+      final Object? finished = p['finished'];
+      if (finished is! bool) {
+        throw const _BadBiser('Файл повреждён: прогресс инструкции записан неверно');
+      }
+      progress = StepsProgress(
+        sectionId: _string(p['sectionId'], 'секция прогресса'),
+        sectionPass: _int(p['sectionPass'], 'проход секции'),
+        stepId: _string(p['stepId'], 'шаг прогресса'),
+        stepPass: _int(p['stepPass'], 'проход шага'),
+        finished: finished,
+      );
+    }
+    return BiserSteps(pattern: decoded.valueOrNull!, progress: progress);
   }
 
   static BiserBook _readBook(Map<String, Object?> b, Map<String, Uint8List> files) {
