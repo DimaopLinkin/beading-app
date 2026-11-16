@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:beading/domain/image_pattern/file_store.dart';
 import 'package:beading/domain/steps/repeat.dart';
 import 'package:beading/domain/steps/step_pattern.dart';
@@ -19,10 +21,13 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 /// Инструкция в работе: крупный шаг (фото, текст, бусины), «Готово, дальше» под большим пальцем.
 /// [StepsWorkCubit] берётся из контекста.
 class StepsWorkScreen extends StatelessWidget {
-  const StepsWorkScreen({required this.files, this.onOpenStats, super.key});
+  const StepsWorkScreen({required this.files, this.onOpenStats, this.onOpenEditor, super.key});
 
   final FileStore files;
   final VoidCallback? onOpenStats;
+
+  /// Переход в редактор инструкции; без него кнопки правки нет.
+  final Future<void> Function()? onOpenEditor;
 
   static const String routePath = '/steps/:projectId';
 
@@ -36,7 +41,7 @@ class StepsWorkScreen extends StatelessWidget {
       builder: (context, state) => switch (state.status) {
         StepsWorkStatus.loading => const Center(child: CupertinoActivityIndicator()),
         StepsWorkStatus.failed => const _LoadFailed(),
-        StepsWorkStatus.ready => _Workspace(files: files, onOpenStats: onOpenStats),
+        StepsWorkStatus.ready => _Workspace(files: files, onOpenStats: onOpenStats, onOpenEditor: onOpenEditor),
       },
     ),
   );
@@ -64,10 +69,11 @@ class _LoadFailed extends StatelessWidget {
 }
 
 class _Workspace extends StatefulWidget {
-  const _Workspace({required this.files, this.onOpenStats});
+  const _Workspace({required this.files, this.onOpenStats, this.onOpenEditor});
 
   final FileStore files;
   final VoidCallback? onOpenStats;
+  final Future<void> Function()? onOpenEditor;
 
   @override
   State<_Workspace> createState() => _WorkspaceState();
@@ -139,7 +145,7 @@ class _WorkspaceState extends State<_Workspace> with WidgetsBindingObserver {
                     }
                   },
                   child: _PanelFrame(
-                    child: _TopBar(state: state, onOpenStats: widget.onOpenStats),
+                    child: _TopBar(state: state, onOpenStats: widget.onOpenStats, onOpenEditor: widget.onOpenEditor),
                   ),
                 ),
               ),
@@ -188,10 +194,11 @@ class _PanelFrame extends StatelessWidget {
 }
 
 class _TopBar extends StatelessWidget {
-  const _TopBar({required this.state, this.onOpenStats});
+  const _TopBar({required this.state, this.onOpenStats, this.onOpenEditor});
 
   final StepsWorkState state;
   final VoidCallback? onOpenStats;
+  final Future<void> Function()? onOpenEditor;
 
   @override
   Widget build(BuildContext context) {
@@ -254,6 +261,19 @@ class _TopBar extends StatelessWidget {
                       minimumSize: Size.square(tokens.minTapTarget),
                       onPressed: onOpenStats,
                       child: Semantics(label: l10n.stepsStatsSemantic, child: const Icon(AppIcons.timer)),
+                    ),
+                  if (onOpenEditor != null)
+                    CupertinoButton(
+                      key: const ValueKey<String>('steps-edit'),
+                      padding: EdgeInsets.zero,
+                      minimumSize: Size.square(tokens.minTapTarget),
+                      onPressed: onOpenEditor == null
+                          ? null
+                          : () async {
+                              await onOpenEditor!();
+                              unawaited(cubit.reload());
+                            },
+                      child: Semantics(label: l10n.stepsEditSemantic, child: const Icon(AppIcons.brush)),
                     ),
                   CupertinoButton(
                     key: const ValueKey<String>('steps-list'),

@@ -34,7 +34,7 @@ final class AppDependencies {
       ],
       cloners: () => <ProjectContentCloner>[book.contentCloner, grid.contentCloner, steps.contentCloner],
     );
-    steps = StepsModule(core: core, projects: projects);
+    steps = StepsModule(core: core, projects: projects, catalog: catalog);
     grid = GridModule(core: core, projects: projects, catalog: catalog);
     weaving = WeavingModule(core: core, projects: projects, grid: grid);
     stitching = StitchingModule(

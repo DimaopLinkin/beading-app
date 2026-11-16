@@ -3,6 +3,7 @@ import 'dart:typed_data';
 import 'package:beading/core/result.dart';
 import 'package:beading/domain/image_pattern/file_store.dart';
 import 'package:beading/domain/palette/pattern_color.dart';
+import 'package:beading/domain/steps/repeat.dart';
 import 'package:beading/domain/steps/step_pattern.dart';
 import 'package:beading/presentation/l10n/app_localizations.dart';
 import 'package:beading/presentation/theme/tokens.dart';
@@ -220,6 +221,107 @@ class _StepImagesPagerState extends State<StepImagesPager> {
             child: Text(
               l10n.stepsImageCounter(_page + 1, widget.images.length),
               style: tokens.typography.caption.copyWith(color: CupertinoColors.secondaryLabel.resolveFrom(context)),
+            ),
+          ),
+      ],
+    );
+  }
+}
+
+/// Число с кнопками «меньше» и «больше» по 44 pt. [min] — нижняя граница; при нуле или ниже [onChanged] не зовётся.
+class CountStepper extends StatelessWidget {
+  const CountStepper({
+    required this.value,
+    required this.onChanged,
+    this.min = 1,
+    this.max = 999,
+    this.semanticLabel,
+    super.key,
+  });
+
+  final int value;
+  final ValueChanged<int> onChanged;
+  final int min;
+  final int max;
+  final String? semanticLabel;
+
+  @override
+  Widget build(BuildContext context) {
+    final AppTokensData tokens = context.tokens;
+    return Semantics(
+      label: semanticLabel,
+      value: '$value',
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: <Widget>[
+          CupertinoButton(
+            key: const ValueKey<String>('count-less'),
+            padding: EdgeInsets.zero,
+            minimumSize: Size.square(tokens.minTapTarget),
+            onPressed: value > min ? () => onChanged(value - 1) : null,
+            child: Semantics(
+              label: AppLocalizations.of(context).stepsLess,
+              child: const Icon(CupertinoIcons.minus_circle),
+            ),
+          ),
+          ConstrainedBox(
+            constraints: const BoxConstraints(minWidth: 32),
+            child: Text('$value', textAlign: TextAlign.center, style: tokens.typography.headline),
+          ),
+          CupertinoButton(
+            key: const ValueKey<String>('count-more'),
+            padding: EdgeInsets.zero,
+            minimumSize: Size.square(tokens.minTapTarget),
+            onPressed: value < max ? () => onChanged(value + 1) : null,
+            child: Semantics(
+              label: AppLocalizations.of(context).stepsMore,
+              child: const Icon(CupertinoIcons.plus_circle),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Повтор шага или секции: «Один раз / Несколько раз / До нужной длины» и число для «несколько раз».
+class RepeatEditor extends StatelessWidget {
+  const RepeatEditor({required this.repeat, required this.onChanged, super.key});
+
+  final Repeat repeat;
+  final ValueChanged<Repeat> onChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    final AppLocalizations l10n = AppLocalizations.of(context);
+    final AppTokensData tokens = context.tokens;
+    final int mode = repeat.isUntilDone ? 2 : (repeat.passes > 1 ? 1 : 0);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: <Widget>[
+        CupertinoSlidingSegmentedControl<int>(
+          groupValue: mode,
+          children: <int, Widget>{
+            0: Padding(padding: const EdgeInsets.symmetric(vertical: 6), child: Text(l10n.stepsRepeatOnce)),
+            1: Padding(padding: const EdgeInsets.symmetric(vertical: 6), child: Text(l10n.stepsRepeatSeveral)),
+            2: Padding(padding: const EdgeInsets.symmetric(vertical: 6), child: Text(l10n.stepsRepeatUntilDone)),
+          },
+          onValueChanged: (value) => onChanged(switch (value) {
+            1 => Repeat.times(repeat.isUntilDone || repeat.passes < 2 ? 2 : repeat.passes),
+            2 => const Repeat.untilDone(),
+            _ => Repeat.once,
+          }),
+        ),
+        if (mode == 1)
+          Padding(
+            padding: EdgeInsets.only(top: tokens.spacing.xs),
+            child: Center(
+              child: CountStepper(
+                value: repeat.passes,
+                min: 2,
+                semanticLabel: l10n.stepsRepeat,
+                onChanged: (n) => onChanged(Repeat.times(n)),
+              ),
             ),
           ),
       ],
