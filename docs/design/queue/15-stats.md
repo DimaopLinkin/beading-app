@@ -1,7 +1,7 @@
 ---
 id: 15-stats
 title: Статистика времени и прогресса (NICE-9, T32)
-status: todo
+status: delivered
 depends: 10-stitching
 ---
 
