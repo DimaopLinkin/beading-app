@@ -4,6 +4,7 @@ import 'package:beading/domain/projects/project.dart';
 import 'package:beading/domain/stats/load_project_stats.dart';
 import 'package:beading/domain/stats/load_stats_overview.dart';
 import 'package:beading/domain/stats/project_progress.dart';
+import 'package:beading/domain/stats/stats_range.dart';
 import 'package:beading/domain/weaving/work_session.dart';
 import 'package:beading/presentation/l10n/app_localizations.dart';
 import 'package:beading/presentation/stats/project_stats_cubit.dart';
@@ -154,6 +155,25 @@ void main() {
       await pumpStats(tester, textScale: 2.5);
       expect(tester.takeException(), isNull);
       expect(find.text('Всего времени'), findsOneWidget);
+    });
+
+    testWidgets('AX3: период выбирается кнопками, а не слипшимся сегментом', (tester) async {
+      projects.projects['b'] = _project('b', Craft.beading);
+      await work('b', DateTime(2026, 11, 10, 9), const Duration(hours: 1));
+      final StatsCubit cubit = await pumpStats(tester, textScale: 2.5);
+      expect(find.byType(CupertinoSlidingSegmentedControl<StatsPeriod>), findsNothing);
+      await tester.tap(find.text('Месяц'));
+      await tester.pumpAndSettle();
+      expect(cubit.state.period, StatsPeriod.month);
+    });
+
+    testWidgets('график доступен голосом: подпись и значения столбцов', (tester) async {
+      projects.projects['b'] = _project('b', Craft.beading);
+      await work('b', DateTime(2026, 11, 10, 9), const Duration(hours: 1));
+      final SemanticsHandle handle = tester.ensureSemantics();
+      await pumpStats(tester);
+      expect(find.bySemanticsLabel('Время по дням'), findsWidgets);
+      handle.dispose();
     });
 
     testWidgets('нажатие на столбик показывает выноску со временем', (tester) async {

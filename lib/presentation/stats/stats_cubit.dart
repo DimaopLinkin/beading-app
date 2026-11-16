@@ -89,7 +89,10 @@ class StatsCubit extends Cubit<StatsState> {
       case Success<StatsOverview>(:final StatsOverview value):
         emit(state.copyWith(status: StatsStatus.ready, overview: value));
       case Err<StatsOverview>():
-        emit(state.copyWith(status: StatsStatus.failed));
+        // Уже показанные данные не стираем из-за сбоя фонового пересчёта.
+        if (state.overview == null) {
+          emit(state.copyWith(status: StatsStatus.failed));
+        }
     }
   }
 

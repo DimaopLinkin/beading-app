@@ -122,7 +122,7 @@ class _Body extends StatelessWidget {
                       style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w700),
                     ),
                   ),
-                  row(l10n.statsSessions, '${stats.sessionCount}'),
+                  row(l10n.statsSessions, formatCount(stats.sessionCount)),
                   row(l10n.statsAverageSession, formatWorkTime(l10n, stats.averageSession)),
                   row(l10n.statsFirstDay, l10n.statsDay(stats.firstDay!)),
                   row(l10n.statsLastDay, _isToday(stats.lastDay!) ? l10n.statsToday : l10n.statsDay(stats.lastDay!)),
@@ -135,7 +135,7 @@ class _Body extends StatelessWidget {
               CupertinoListTile(
                 title: Text(
                   stitch || progress.rowsTotal == null
-                      ? l10n.statsStitchesDone('${progress.done}', '${progress.total}')
+                      ? l10n.statsStitchesDone(formatCount(progress.done), formatCount(progress.total))
                       : progress.done == 0
                       ? l10n.statsNotStarted
                       : l10n.statsRowOf(progress.rowsDone ?? 0, progress.rowsTotal!),
@@ -143,7 +143,7 @@ class _Body extends StatelessWidget {
                 ),
               ),
               if (stitch || progress.rowsTotal == null)
-                row(l10n.statsRemaining, '${progress.remaining}')
+                row(l10n.statsRemaining, formatCount(progress.remaining))
               else
                 row(l10n.statsRemaining, l10n.statsRowsLeft(progress.rowsTotal! - (progress.rowsDone ?? 0))),
               row(l10n.statsReadiness, l10n.statsPercent(progress.percent)),

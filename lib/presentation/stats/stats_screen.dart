@@ -178,23 +178,53 @@ class _PeriodControl extends StatelessWidget {
     );
     return Column(
       children: <Widget>[
-        SizedBox(
-          width: double.infinity,
-          child: CupertinoSlidingSegmentedControl<StatsPeriod>(
-            groupValue: state.period,
-            onValueChanged: (p) {
-              if (p != null) {
-                cubit.setPeriod(p);
-              }
-            },
-            children: <StatsPeriod, Widget>{
-              StatsPeriod.week: segment(l10n.statsPeriodWeek),
-              StatsPeriod.month: segment(l10n.statsPeriodMonth),
-              StatsPeriod.year: segment(l10n.statsPeriodYear),
-              StatsPeriod.all: segment(l10n.statsPeriodAll),
-            },
+        if (MediaQuery.textScalerOf(context).scale(16) > 24)
+          Wrap(
+            alignment: WrapAlignment.center,
+            spacing: tokens.spacing.s,
+            runSpacing: tokens.spacing.s,
+            children: <Widget>[
+              for (final (StatsPeriod, String) p in <(StatsPeriod, String)>[
+                (StatsPeriod.week, l10n.statsPeriodWeek),
+                (StatsPeriod.month, l10n.statsPeriodMonth),
+                (StatsPeriod.year, l10n.statsPeriodYear),
+                (StatsPeriod.all, l10n.statsPeriodAll),
+              ])
+                CupertinoButton(
+                  padding: EdgeInsets.symmetric(horizontal: tokens.spacing.m),
+                  minimumSize: Size.square(tokens.minTapTarget),
+                  color: state.period == p.$1
+                      ? CupertinoTheme.of(context).primaryColor
+                      : CupertinoColors.tertiarySystemFill.resolveFrom(context),
+                  borderRadius: BorderRadius.circular(tokens.radius.capsule),
+                  onPressed: () => cubit.setPeriod(p.$1),
+                  child: Text(
+                    p.$2,
+                    style: TextStyle(
+                      color: state.period == p.$1 ? CupertinoColors.white : CupertinoColors.label.resolveFrom(context),
+                    ),
+                  ),
+                ),
+            ],
+          )
+        else
+          SizedBox(
+            width: double.infinity,
+            child: CupertinoSlidingSegmentedControl<StatsPeriod>(
+              groupValue: state.period,
+              onValueChanged: (p) {
+                if (p != null) {
+                  cubit.setPeriod(p);
+                }
+              },
+              children: <StatsPeriod, Widget>{
+                StatsPeriod.week: segment(l10n.statsPeriodWeek),
+                StatsPeriod.month: segment(l10n.statsPeriodMonth),
+                StatsPeriod.year: segment(l10n.statsPeriodYear),
+                StatsPeriod.all: segment(l10n.statsPeriodAll),
+              },
+            ),
           ),
-        ),
         SizedBox(height: tokens.spacing.s),
         GestureDetector(
           onHorizontalDragEnd: (d) {
@@ -365,7 +395,7 @@ class _ProjectRow extends StatelessWidget {
     final String? done = progress == null
         ? null
         : project.craft == Craft.crossStitch
-        ? l10n.statsStitchesDone(_n(progress.done), _n(progress.total))
+        ? l10n.statsStitchesDone(formatCount(progress.done), formatCount(progress.total))
         : progress.rowsTotal == null
         ? null
         : l10n.statsRowOf(progress.rowsDone ?? 0, progress.rowsTotal!);
@@ -428,8 +458,6 @@ class _ProjectRow extends StatelessWidget {
       ),
     );
   }
-
-  String _n(int value) => value.toString().replaceAllMapped(RegExp(r'\B(?=(\d{3})+(?!\d))'), (_) => ' ');
 }
 
 class _Bar extends StatelessWidget {

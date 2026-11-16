@@ -49,11 +49,7 @@ class _TimeBarChartState extends State<TimeBarChart> {
     final double top = math.max(step, (peak.inMinutes / 60 / step).ceil() * step);
     final int? selected = _selected;
 
-    String axis(double hours) => hours == 0
-        ? '0'
-        : hours < 1
-        ? l10n.statsMinutes((hours * 60).round())
-        : l10n.statsHours(hours.round());
+    String axis(double hours) => hours == 0 ? '0' : formatWorkTime(l10n, Duration(minutes: (hours * 60).round()));
 
     String barLabel(int i) {
       final DateTime d = widget.bars[i].start;
@@ -66,59 +62,68 @@ class _TimeBarChartState extends State<TimeBarChart> {
       return (i == 0 || (i + 1) % 7 == 1 || i == widget.bars.length - 1) && d.day != 31 ? '${d.day}' : '';
     }
 
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final double width = constraints.maxWidth;
-        return GestureDetector(
-          behavior: HitTestBehavior.opaque,
-          onTapDown: (details) {
-            final int n = widget.bars.length;
-            if (n == 0) {
-              return;
-            }
-            const double axisWidth = 44;
-            final double slot = (width - axisWidth) / n;
-            final int i = (details.localPosition.dx / slot).floor();
-            setState(() => _selected = i >= 0 && i < n && widget.bars[i].time > Duration.zero ? i : null);
-          },
-          child: SizedBox(
-            height: TimeBarChart.height + 26,
-            child: Stack(
-              clipBehavior: Clip.none,
-              children: <Widget>[
-                Positioned.fill(
-                  child: CustomPaint(
-                    painter: _ChartPainter(
-                      bars: widget.bars,
-                      top: top,
-                      step: step,
-                      accent: accent,
-                      dim: accent.withValues(alpha: 0.35),
-                      grid: grid,
-                      labelStyle: labelStyle,
-                      selected: selected,
-                      axis: axis,
-                      barLabel: barLabel,
-                      radius: tokens.radius.s / 2,
-                    ),
-                  ),
-                ),
-                if (selected != null)
-                  Positioned(
-                    left: _tooltipLeft(selected, width),
-                    top: 0,
-                    child: _Tooltip(
-                      text: l10n.statsChartBarValue(
-                        formatWorkTime(l10n, widget.bars[selected].time),
-                        widget.bars[selected].start,
+    final String values = <String>[
+      for (final ChartBar bar in widget.bars)
+        if (bar.time.inMinutes > 0) l10n.statsChartBarValue(formatWorkTime(l10n, bar.time), bar.start),
+    ].join('; ');
+    return Semantics(
+      container: true,
+      label: widget.byMonths ? l10n.statsChartMonths : l10n.statsChartDays,
+      value: values,
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final double width = constraints.maxWidth;
+          return GestureDetector(
+            behavior: HitTestBehavior.opaque,
+            onTapDown: (details) {
+              final int n = widget.bars.length;
+              if (n == 0) {
+                return;
+              }
+              const double axisWidth = 44;
+              final double slot = (width - axisWidth) / n;
+              final int i = (details.localPosition.dx / slot).floor();
+              setState(() => _selected = i >= 0 && i < n && widget.bars[i].time.inMinutes > 0 ? i : null);
+            },
+            child: SizedBox(
+              height: TimeBarChart.height + 26,
+              child: Stack(
+                clipBehavior: Clip.none,
+                children: <Widget>[
+                  Positioned.fill(
+                    child: CustomPaint(
+                      painter: _ChartPainter(
+                        bars: widget.bars,
+                        top: top,
+                        step: step,
+                        accent: accent,
+                        dim: accent.withValues(alpha: 0.35),
+                        grid: grid,
+                        labelStyle: labelStyle,
+                        selected: selected,
+                        axis: axis,
+                        barLabel: barLabel,
+                        radius: tokens.radius.s / 2,
                       ),
                     ),
                   ),
-              ],
+                  if (selected != null)
+                    Positioned(
+                      left: _tooltipLeft(selected, width),
+                      top: 0,
+                      child: _Tooltip(
+                        text: l10n.statsChartBarValue(
+                          formatWorkTime(l10n, widget.bars[selected].time),
+                          widget.bars[selected].start,
+                        ),
+                      ),
+                    ),
+                ],
+              ),
             ),
-          ),
-        );
-      },
+          );
+        },
+      ),
     );
   }
 
@@ -147,7 +152,7 @@ class _Tooltip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => Container(
-    width: 120,
+    constraints: const BoxConstraints(minWidth: 120, maxWidth: 220),
     padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
     decoration: BoxDecoration(
       color: CupertinoColors.secondarySystemGroupedBackground.resolveFrom(context),

@@ -19,3 +19,6 @@ String formatWorkTime(AppLocalizations l10n, Duration duration) {
   }
   return l10n.statsHoursMinutes(hours, rest.toString().padLeft(2, '0'));
 }
+
+/// Число с неразрывным пробелом между тысячами: «15 780».
+String formatCount(int value) => value.toString().replaceAllMapped(RegExp(r'\B(?=(\d{3})+(?!\d))'), (_) => '\u00A0');
