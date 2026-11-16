@@ -4740,6 +4740,264 @@ abstract class AppLocalizations {
   /// In ru, this message translates to:
   /// **'Время работы'**
   String get stepsStatsSemantic;
+
+  /// Лист «Новый проект»: пункт для маршрутных техник
+  ///
+  /// In ru, this message translates to:
+  /// **'Пошаговая инструкция'**
+  String get stepsNewEntry;
+
+  /// Заголовок экрана создания
+  ///
+  /// In ru, this message translates to:
+  /// **'Пошаговая инструкция'**
+  String get stepsNewTitle;
+
+  /// Поле названия
+  ///
+  /// In ru, this message translates to:
+  /// **'Название'**
+  String get stepsNewName;
+
+  /// Название по умолчанию
+  ///
+  /// In ru, this message translates to:
+  /// **'Новая инструкция'**
+  String get stepsNewDefaultName;
+
+  /// Способ создания: пустая
+  ///
+  /// In ru, this message translates to:
+  /// **'Пустая'**
+  String get stepsNewEmpty;
+
+  /// Подпись способа «Пустая»
+  ///
+  /// In ru, this message translates to:
+  /// **'Один пустой шаг, остальное допишешь сама'**
+  String get stepsNewEmptyHint;
+
+  /// Способ создания: из фото
+  ///
+  /// In ru, this message translates to:
+  /// **'Из фото'**
+  String get stepsNewFromPhotos;
+
+  /// Подпись способа «Из фото»
+  ///
+  /// In ru, this message translates to:
+  /// **'Один шаг на каждое фото'**
+  String get stepsNewFromPhotosHint;
+
+  /// Меню фото: камера
+  ///
+  /// In ru, this message translates to:
+  /// **'Снять фото'**
+  String get stepsNewTakePhoto;
+
+  /// Меню фото: галерея
+  ///
+  /// In ru, this message translates to:
+  /// **'Выбрать из галереи'**
+  String get stepsNewPickPhotos;
+
+  /// Заголовок списка шаблонов
+  ///
+  /// In ru, this message translates to:
+  /// **'Шаблоны'**
+  String get stepsNewTemplates;
+
+  /// Ошибка создания
+  ///
+  /// In ru, this message translates to:
+  /// **'Не получилось создать инструкцию. Попробуй ещё раз.'**
+  String get stepsNewFailed;
+
+  /// Ошибка выбора фото
+  ///
+  /// In ru, this message translates to:
+  /// **'Не получилось открыть камеру или фото. Проверь доступ в настройках.'**
+  String get stepsNewPhotosFailed;
+
+  /// Редактор: запись прошла
+  ///
+  /// In ru, this message translates to:
+  /// **'Сохранено'**
+  String get stepsSaved;
+
+  /// Редактор: идёт запись
+  ///
+  /// In ru, this message translates to:
+  /// **'Сохраняю…'**
+  String get stepsSaving;
+
+  /// Редактор: запись не прошла
+  ///
+  /// In ru, this message translates to:
+  /// **'Не сохранено: попробую ещё раз'**
+  String get stepsSaveError;
+
+  /// Кнопка в секции
+  ///
+  /// In ru, this message translates to:
+  /// **'Добавить шаг'**
+  String get stepsAddStep;
+
+  /// Кнопка под списком секций
+  ///
+  /// In ru, this message translates to:
+  /// **'Добавить секцию'**
+  String get stepsAddSection;
+
+  /// Подсказка в поле названия секции
+  ///
+  /// In ru, this message translates to:
+  /// **'Секция {n}'**
+  String stepsSectionDefaultTitle(int n);
+
+  /// VoiceOver: меню секции
+  ///
+  /// In ru, this message translates to:
+  /// **'Действия с секцией'**
+  String get stepsSectionMenu;
+
+  /// Пустая секция
+  ///
+  /// In ru, this message translates to:
+  /// **'В секции пока нет шагов.'**
+  String get stepsEmptySection;
+
+  /// Баннер после удаления шага
+  ///
+  /// In ru, this message translates to:
+  /// **'Шаг удалён'**
+  String get stepsStepDeleted;
+
+  /// Баннер: вернуть шаг
+  ///
+  /// In ru, this message translates to:
+  /// **'Отменить'**
+  String get stepsUndo;
+
+  /// Заголовок страницы шага
+  ///
+  /// In ru, this message translates to:
+  /// **'Шаг'**
+  String get stepsStepTitle;
+
+  /// Подсказка в поле текста шага
+  ///
+  /// In ru, this message translates to:
+  /// **'Что сделать на этом шаге'**
+  String get stepsTextPlaceholder;
+
+  /// Раздел шага
+  ///
+  /// In ru, this message translates to:
+  /// **'Фото'**
+  String get stepsPhotos;
+
+  /// Плитка добавления фото
+  ///
+  /// In ru, this message translates to:
+  /// **'Добавить'**
+  String get stepsAddPhoto;
+
+  /// VoiceOver: крестик на плитке
+  ///
+  /// In ru, this message translates to:
+  /// **'Убрать фото'**
+  String get stepsRemovePhoto;
+
+  /// Ошибка добавления фото
+  ///
+  /// In ru, this message translates to:
+  /// **'Не получилось добавить фото.'**
+  String get stepsPhotoFailed;
+
+  /// Раздел шага
+  ///
+  /// In ru, this message translates to:
+  /// **'Бусины'**
+  String get stepsBeads;
+
+  /// Кнопка выбора цвета
+  ///
+  /// In ru, this message translates to:
+  /// **'Добавить бусины из каталога'**
+  String get stepsAddBeads;
+
+  /// Раздел шага и меню секции
+  ///
+  /// In ru, this message translates to:
+  /// **'Повтор'**
+  String get stepsRepeat;
+
+  /// Сегмент повтора
+  ///
+  /// In ru, this message translates to:
+  /// **'Один раз'**
+  String get stepsRepeatOnce;
+
+  /// Сегмент повтора
+  ///
+  /// In ru, this message translates to:
+  /// **'Несколько раз'**
+  String get stepsRepeatSeveral;
+
+  /// Меню секции
+  ///
+  /// In ru, this message translates to:
+  /// **'Выше'**
+  String get stepsMoveUp;
+
+  /// Меню секции
+  ///
+  /// In ru, this message translates to:
+  /// **'Ниже'**
+  String get stepsMoveDown;
+
+  /// Меню секции
+  ///
+  /// In ru, this message translates to:
+  /// **'Дублировать'**
+  String get stepsDuplicate;
+
+  /// Меню секции и шага
+  ///
+  /// In ru, this message translates to:
+  /// **'Удалить'**
+  String get stepsDelete;
+
+  /// Закрыть выбор повтора
+  ///
+  /// In ru, this message translates to:
+  /// **'Готово'**
+  String get stepsDone;
+
+  /// VoiceOver: рукоятка
+  ///
+  /// In ru, this message translates to:
+  /// **'Перетащить шаг'**
+  String get stepsDragHandle;
+
+  /// Строка шага в редакторе
+  ///
+  /// In ru, this message translates to:
+  /// **'{count, plural, one{{count} фото} few{{count} фото} many{{count} фото} other{{count} фото}}'**
+  String stepsPhotoCount(int count);
+
+  /// Строка шага в редакторе
+  ///
+  /// In ru, this message translates to:
+  /// **'{count, plural, one{{count} цвет} few{{count} цвета} many{{count} цветов} other{{count} цвета}}'**
+  String stepsBeadsCount(int count);
+
+  /// VoiceOver: кнопка редактора на экране работы
+  ///
+  /// In ru, this message translates to:
+  /// **'Править инструкцию'**
+  String get stepsEditSemantic;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

@@ -96,4 +96,21 @@ void registerLibraryEntries(NewProjectRegistry registry) {
       },
     ),
   );
+
+  // Пошаговая инструкция для маршрутных техник (T33d): бисер; после создания открывается редактор.
+  registry.register(
+    NewProjectEntry(
+      id: 'steps-beading',
+      craft: Craft.beading,
+      order: 15,
+      title: (l10n) => l10n.stepsNewEntry,
+      icon: AppIcons.notes,
+      onSelected: (context) async {
+        final String? projectId = await context.push<String>(AppRoutes.newSteps);
+        if (projectId != null && context.mounted) {
+          await context.push<void>(AppRoutes.stepsEditor(projectId));
+        }
+      },
+    ),
+  );
 }

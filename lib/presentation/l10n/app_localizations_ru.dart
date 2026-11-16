@@ -2843,4 +2843,155 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get stepsStatsSemantic => 'Время работы';
+
+  @override
+  String get stepsNewEntry => 'Пошаговая инструкция';
+
+  @override
+  String get stepsNewTitle => 'Пошаговая инструкция';
+
+  @override
+  String get stepsNewName => 'Название';
+
+  @override
+  String get stepsNewDefaultName => 'Новая инструкция';
+
+  @override
+  String get stepsNewEmpty => 'Пустая';
+
+  @override
+  String get stepsNewEmptyHint => 'Один пустой шаг, остальное допишешь сама';
+
+  @override
+  String get stepsNewFromPhotos => 'Из фото';
+
+  @override
+  String get stepsNewFromPhotosHint => 'Один шаг на каждое фото';
+
+  @override
+  String get stepsNewTakePhoto => 'Снять фото';
+
+  @override
+  String get stepsNewPickPhotos => 'Выбрать из галереи';
+
+  @override
+  String get stepsNewTemplates => 'Шаблоны';
+
+  @override
+  String get stepsNewFailed => 'Не получилось создать инструкцию. Попробуй ещё раз.';
+
+  @override
+  String get stepsNewPhotosFailed => 'Не получилось открыть камеру или фото. Проверь доступ в настройках.';
+
+  @override
+  String get stepsSaved => 'Сохранено';
+
+  @override
+  String get stepsSaving => 'Сохраняю…';
+
+  @override
+  String get stepsSaveError => 'Не сохранено: попробую ещё раз';
+
+  @override
+  String get stepsAddStep => 'Добавить шаг';
+
+  @override
+  String get stepsAddSection => 'Добавить секцию';
+
+  @override
+  String stepsSectionDefaultTitle(int n) {
+    return 'Секция $n';
+  }
+
+  @override
+  String get stepsSectionMenu => 'Действия с секцией';
+
+  @override
+  String get stepsEmptySection => 'В секции пока нет шагов.';
+
+  @override
+  String get stepsStepDeleted => 'Шаг удалён';
+
+  @override
+  String get stepsUndo => 'Отменить';
+
+  @override
+  String get stepsStepTitle => 'Шаг';
+
+  @override
+  String get stepsTextPlaceholder => 'Что сделать на этом шаге';
+
+  @override
+  String get stepsPhotos => 'Фото';
+
+  @override
+  String get stepsAddPhoto => 'Добавить';
+
+  @override
+  String get stepsRemovePhoto => 'Убрать фото';
+
+  @override
+  String get stepsPhotoFailed => 'Не получилось добавить фото.';
+
+  @override
+  String get stepsBeads => 'Бусины';
+
+  @override
+  String get stepsAddBeads => 'Добавить бусины из каталога';
+
+  @override
+  String get stepsRepeat => 'Повтор';
+
+  @override
+  String get stepsRepeatOnce => 'Один раз';
+
+  @override
+  String get stepsRepeatSeveral => 'Несколько раз';
+
+  @override
+  String get stepsMoveUp => 'Выше';
+
+  @override
+  String get stepsMoveDown => 'Ниже';
+
+  @override
+  String get stepsDuplicate => 'Дублировать';
+
+  @override
+  String get stepsDelete => 'Удалить';
+
+  @override
+  String get stepsDone => 'Готово';
+
+  @override
+  String get stepsDragHandle => 'Перетащить шаг';
+
+  @override
+  String stepsPhotoCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count фото',
+      many: '$count фото',
+      few: '$count фото',
+      one: '$count фото',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String stepsBeadsCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count цвета',
+      many: '$count цветов',
+      few: '$count цвета',
+      one: '$count цвет',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get stepsEditSemantic => 'Править инструкцию';
 }
