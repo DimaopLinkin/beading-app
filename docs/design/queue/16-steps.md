@@ -1,7 +1,7 @@
 ---
 id: 16-steps
 title: Пошаговые инструкции для маршрутных техник бисера (ADR-0008, T33)
-status: delivered
+status: accepted
 depends: 05-weaving
 ---
 

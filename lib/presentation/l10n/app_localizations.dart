@@ -4590,6 +4590,150 @@ abstract class AppLocalizations {
   /// In ru, this message translates to:
   /// **'Время появится, когда откроешь экран вышивания или плетения.'**
   String get statsNoTimeText;
+
+  /// Экран инструкции: не открылась
+  ///
+  /// In ru, this message translates to:
+  /// **'Не получилось открыть инструкцию. Попробуй ещё раз.'**
+  String get stepsLoadFailed;
+
+  /// Экран инструкции: закрыть
+  ///
+  /// In ru, this message translates to:
+  /// **'Закрыть'**
+  String get stepsClose;
+
+  /// Верхняя панель инструкции
+  ///
+  /// In ru, this message translates to:
+  /// **'Секция {n} из {total}'**
+  String stepsSectionOf(int n, int total);
+
+  /// Верхняя панель инструкции, секция с названием
+  ///
+  /// In ru, this message translates to:
+  /// **'Секция {n} из {total} · {title}'**
+  String stepsSectionTitled(int n, int total, String title);
+
+  /// Номер шага над текстом
+  ///
+  /// In ru, this message translates to:
+  /// **'Шаг {n} из {total}'**
+  String stepsStepOf(int n, int total);
+
+  /// Повтор с известным числом
+  ///
+  /// In ru, this message translates to:
+  /// **'повтор {n} из {total}'**
+  String stepsRepeatOf(int n, int total);
+
+  /// Повтор «до нужной длины»
+  ///
+  /// In ru, this message translates to:
+  /// **'{n}-й повтор'**
+  String stepsRepeatOpen(int n);
+
+  /// Кнопка: шаг сделан
+  ///
+  /// In ru, this message translates to:
+  /// **'Готово, дальше'**
+  String get stepsNext;
+
+  /// Кнопка: шаг назад
+  ///
+  /// In ru, this message translates to:
+  /// **'Назад'**
+  String get stepsBack;
+
+  /// Кнопка: закончить повторы «до нужной длины»
+  ///
+  /// In ru, this message translates to:
+  /// **'Достаточно'**
+  String get stepsEnough;
+
+  /// Кнопка на последнем шаге
+  ///
+  /// In ru, this message translates to:
+  /// **'Готово: отметить работу законченной'**
+  String get stepsFinishWork;
+
+  /// Подпись, когда все шаги пройдены
+  ///
+  /// In ru, this message translates to:
+  /// **'Работа закончена'**
+  String get stepsWorkDone;
+
+  /// Кнопка: открыть список шагов
+  ///
+  /// In ru, this message translates to:
+  /// **'Список шагов'**
+  String get stepsList;
+
+  /// Пустая инструкция
+  ///
+  /// In ru, this message translates to:
+  /// **'В инструкции пока нет шагов.'**
+  String get stepsEmpty;
+
+  /// Шаг без текста
+  ///
+  /// In ru, this message translates to:
+  /// **'Только фото'**
+  String get stepsNoText;
+
+  /// Заглушка вместо фото шага
+  ///
+  /// In ru, this message translates to:
+  /// **'Фото не загрузилось'**
+  String get stepsImageFailed;
+
+  /// Кнопка под заглушкой фото
+  ///
+  /// In ru, this message translates to:
+  /// **'Повторить'**
+  String get stepsRetry;
+
+  /// Счётчик фото шага
+  ///
+  /// In ru, this message translates to:
+  /// **'{n} из {total}'**
+  String stepsImageCounter(int n, int total);
+
+  /// Подпись для VoiceOver у чипа бусин
+  ///
+  /// In ru, this message translates to:
+  /// **'{count} × {letter}, {name}'**
+  String stepsBeadChip(int count, String letter, String name);
+
+  /// Предупреждение: курсор не записался
+  ///
+  /// In ru, this message translates to:
+  /// **'Не получилось записать, где ты остановилась. Попробую ещё раз.'**
+  String get stepsSaveFailed;
+
+  /// Список шагов: сколько шагов секции пройдено
+  ///
+  /// In ru, this message translates to:
+  /// **'{done} из {total}'**
+  String stepsSectionProgress(int done, int total);
+
+  /// Список шагов: повтор секции или шага
+  ///
+  /// In ru, this message translates to:
+  /// **'{n} раз'**
+  String stepsRepeatTimes(int n);
+
+  /// Список шагов: повтор без счёта
+  ///
+  /// In ru, this message translates to:
+  /// **'до нужной длины'**
+  String get stepsRepeatUntilDone;
+
+  /// VoiceOver: кнопка статистики
+  ///
+  /// In ru, this message translates to:
+  /// **'Время работы'**
+  String get stepsStatsSemantic;
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

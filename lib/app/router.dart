@@ -77,7 +77,7 @@ GoRouter createRouter(AppDependencies dependencies, {bool showDeveloperTools = !
                   ),
                 );
               case ContentKind.steps:
-                break;
+                unawaited(context.push<void>(AppRoutes.steps(project.id)));
             }
           },
         ),
@@ -93,6 +93,10 @@ GoRouter createRouter(AppDependencies dependencies, {bool showDeveloperTools = !
     ...dependencies.catalog.routes(),
     ...dependencies.grid.routes(),
     ...dependencies.stats.routes(),
+    ...dependencies.steps.routes(
+      workSessionTracker: dependencies.weaving.workSessionTracker,
+      onOpenStats: dependencies.stats.showProjectStats,
+    ),
     ...dependencies.weaving.routes(onOpenStats: dependencies.stats.showProjectStats),
     ...dependencies.stitching.routes(onOpenStats: dependencies.stats.showProjectStats),
   ],

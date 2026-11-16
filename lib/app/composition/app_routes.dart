@@ -9,6 +9,7 @@ import 'package:beading/presentation/import_book/import_book_screen.dart';
 import 'package:beading/presentation/materials/materials_screen.dart';
 import 'package:beading/presentation/pattern_template/pattern_template_screen.dart';
 import 'package:beading/presentation/stats/stats_screen.dart';
+import 'package:beading/presentation/steps/steps_work_screen.dart';
 import 'package:beading/presentation/stitching/stitch_screen.dart';
 import 'package:beading/presentation/weaving/weave_screen.dart';
 
@@ -30,6 +31,9 @@ abstract final class AppRoutes {
 
   /// Плетение по своей схеме (T19).
   static String weave(String projectId) => WeaveScreen.locationFor(projectId);
+
+  /// Пошаговая инструкция в работе (T33c).
+  static String steps(String projectId) => StepsWorkScreen.locationFor(projectId);
 
   static String stitch(String projectId) => StitchScreen.locationFor(projectId);
 
