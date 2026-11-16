@@ -40,6 +40,7 @@ void main() {
       backstitch: true,
       blends: false,
       onlyStash: true,
+      mixedStitches: true,
     ),
   );
 

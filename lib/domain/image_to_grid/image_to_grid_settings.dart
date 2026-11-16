@@ -60,6 +60,7 @@ final class ImageToGridSettings extends Equatable {
     this.backstitch = false,
     this.blends = true,
     this.onlyStash = false,
+    this.mixedStitches = false,
   });
 
   static const int defaultColumns = 40;
@@ -112,6 +113,9 @@ final class ImageToGridSettings extends Equatable {
   /// Брать цвета только из запаса пользовательницы (T34): мулине и бисер, которые у неё есть. Действует в режиме
   /// каталога; нехватка цветов в запасе не превращается в свободную палитру.
   final bool onlyStash;
+
+  /// Смешанная техника (T72, только вышивка крестом): полукресты другой нитки поверх крестов для плавных переходов.
+  final bool mixedStitches;
 
   Craft get craft => technique.craft;
 
@@ -181,6 +185,7 @@ final class ImageToGridSettings extends Equatable {
     bool? backstitch,
     bool? blends,
     bool? onlyStash,
+    bool? mixedStitches,
   }) => ImageToGridSettings(
     technique: technique ?? this.technique,
     beadSize: beadSize ?? this.beadSize,
@@ -202,6 +207,7 @@ final class ImageToGridSettings extends Equatable {
     backstitch: backstitch ?? this.backstitch,
     blends: blends ?? this.blends,
     onlyStash: onlyStash ?? this.onlyStash,
+    mixedStitches: mixedStitches ?? this.mixedStitches,
   );
 
   static int _clampColumns(int columns, Technique technique, Fabric fabric) {
@@ -339,6 +345,8 @@ final class ImageToGridSettings extends Equatable {
       applyBlends: craft == Craft.crossStitch && blends && useCatalog,
       // Контуры строятся по рабочей картинке пиксельного пути: без предустановки их нет.
       backstitch: craft == Craft.crossStitch && backstitch && active != null,
+      // Полукресты поверх крестов шьют только на обычном кресте: у гобелена стежки и так неполные.
+      overlays: technique == Technique.crossStitch && mixedStitches,
     );
   }
 
@@ -362,5 +370,6 @@ final class ImageToGridSettings extends Equatable {
     backstitch,
     blends,
     onlyStash,
+    mixedStitches,
   ];
 }

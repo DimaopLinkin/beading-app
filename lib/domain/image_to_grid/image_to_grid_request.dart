@@ -43,6 +43,7 @@ final class ImageToGridRequest {
     this.suggestBlends = false,
     this.applyBlends = false,
     this.backstitch = false,
+    this.overlays = false,
   }) {
     if (columns < 1 || columns > Grid.maxSide) throw ArgumentError.value(columns, 'columns', 'от 1 до ${Grid.maxSide}');
     if (rows < 1 || rows > Grid.maxSide) throw ArgumentError.value(rows, 'rows', 'от 1 до ${Grid.maxSide}');
@@ -150,6 +151,7 @@ final class ImageToGridRequest {
     suggestBlends: suggestBlends,
     applyBlends: applyBlends,
     backstitch: backstitch,
+    overlays: overlays,
   );
 
   /// Тот же запрос с другим ограничением палитры.
@@ -177,6 +179,9 @@ final class ImageToGridRequest {
     background: background,
     outline: outline,
     suggestBlends: suggestBlends,
+    applyBlends: applyBlends,
+    backstitch: backstitch,
+    overlays: overlays,
   );
 
   /// Маска объекта (T55): значение на пиксель картинки, ряды сверху вниз; `0` — фон, остальное — объект. `null` — маски
@@ -197,6 +202,9 @@ final class ImageToGridRequest {
 
   /// Контуры-бэкстич из картинки (T49, T46) в `GeneratedPattern.lines`: только пиксельный путь и не черновик.
   final bool backstitch;
+
+  /// Смешанная техника (T72): полукресты поверх крестов в `GeneratedPattern.partials`; только вышивка крестом, не черновик.
+  final bool overlays;
 
   /// Тот же запрос с маской объекта, режимом фона и обводкой (маска, фон и обводка заменяются целиком).
   ImageToGridRequest withBackground({
@@ -229,6 +237,7 @@ final class ImageToGridRequest {
     suggestBlends: suggestBlends,
     applyBlends: applyBlends,
     backstitch: backstitch,
+    overlays: overlays,
   );
 
   bool get usesBackgroundStage => subjectMask != null && (background != BackgroundMode.keep || outline);

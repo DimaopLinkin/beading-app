@@ -27,6 +27,7 @@ GridPattern? printablePatternOf(GeneratedPattern pattern, PaletteSnapshot palett
           backstitchStrands: metrics.defaultBackstitchStrands,
         ),
         lines: pattern.lines,
+        partials: pattern.partials,
       ),
     ),
   );

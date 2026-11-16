@@ -458,6 +458,7 @@ void main() {
       expect(find.byKey(const ValueKey<String>('wizard-bead-size'), skipOffstage: false), findsNothing);
       expect(find.text('Аида 14', skipOffstage: false), findsOneWidget);
       expect(find.byKey(const ValueKey<String>('wizard-width-cm'), skipOffstage: false), findsOneWidget);
+      await tester.scrollUntilVisible(find.text('Цвета мулине'), 300, scrollable: find.byType(Scrollable).last);
       expect(find.text('Цвета мулине', skipOffstage: false), findsOneWidget);
       final String crosses = tester
           .widget<Text>(find.byKey(const ValueKey<String>('wizard-width-crosses'), skipOffstage: false))

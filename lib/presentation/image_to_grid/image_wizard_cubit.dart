@@ -460,6 +460,9 @@ class ImageWizardCubit extends Cubit<ImageWizardState> {
   /// Заменить области «посередине» двух ниток блендом (T57).
   void setBlends({required bool value}) => _change(state.settings.copyWith(blends: value));
 
+  /// Смешанная техника: полукресты поверх крестов (T72).
+  void setMixedStitches({required bool value}) => _change(state.settings.copyWith(mixedStitches: value));
+
   /// Брать цвета только из запаса (T34).
   void setOnlyStash({required bool value}) => _change(state.settings.copyWith(onlyStash: value));
 

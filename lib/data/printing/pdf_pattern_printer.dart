@@ -12,6 +12,7 @@ import 'package:beading/domain/printing/pattern_printer.dart';
 import 'package:beading/domain/printing/print_layout.dart';
 import 'package:beading/domain/printing/print_options.dart';
 import 'package:beading/domain/stitch/line_stitch.dart';
+import 'package:beading/domain/stitch/partial_stitch.dart';
 import 'package:beading/domain/stitch/stitch_layers.dart';
 import 'package:beading/domain/stitch/stitch_layers_codec.dart';
 
@@ -88,6 +89,7 @@ class PdfPatternPrinter implements PatternPrinter {
     );
     _drawGrid(canvas, layout, pattern, tile);
     _drawBackstitch(canvas, layout, pattern, layers, tile);
+    _drawPartials(canvas, layout, pattern, layers, tile);
     _drawAxes(canvas, layout, tile);
     _paragraph(
       canvas,
@@ -331,6 +333,40 @@ class PdfPatternPrinter implements PatternPrinter {
       );
     }
     canvas.restore();
+  }
+
+  /// Полукресты `/` поверх крестов (T72): диагональ цвета нитки с тёмной или светлой подложкой, как у контуров.
+  void _drawPartials(ui.Canvas canvas, PrintLayout layout, GridPattern pattern, StitchLayers? layers, PrintTile tile) {
+    if (layers == null || layers.partials.isEmpty) return;
+    final int cell = layout.cellPx;
+    for (final PartialStitch partial in layers.partials) {
+      if (partial.kind != PartialKind.half || partial.orientation != StitchOrientation.slash) continue;
+      if (partial.column < tile.column || partial.column >= tile.column + tile.columns) continue;
+      if (partial.row < tile.row || partial.row >= tile.row + tile.rows) continue;
+      final PatternColor? color = pattern.palette.colorAt(partial.color);
+      if (color == null) continue;
+      final ui.Color rgb = _flutterColor(color);
+      final double x = layout.gridLeftPx + (partial.column - tile.column) * cell.toDouble();
+      final double y = layout.gridTopPx + (partial.row - tile.row) * cell.toDouble();
+      final ui.Offset a = ui.Offset(x + cell * 0.15, y + cell * 0.85);
+      final ui.Offset b = ui.Offset(x + cell * 0.85, y + cell * 0.15);
+      canvas.drawLine(
+        a,
+        b,
+        ui.Paint()
+          ..color = _inkOn(rgb) == const ui.Color(0xFFFFFFFF) ? const ui.Color(0xFFFFFFFF) : const ui.Color(0xFF000000)
+          ..strokeWidth = 7
+          ..strokeCap = ui.StrokeCap.round,
+      );
+      canvas.drawLine(
+        a,
+        b,
+        ui.Paint()
+          ..color = rgb
+          ..strokeWidth = 4
+          ..strokeCap = ui.StrokeCap.round,
+      );
+    }
   }
 
   void _drawAxes(ui.Canvas canvas, PrintLayout layout, PrintTile tile) {
