@@ -34,8 +34,8 @@ abstract final class SyncTriggers {
   /// Ставит в очередь инструкции, созданные до появления триггеров (миграция v17→v18).
   static const List<String> enqueueExistingSteps = <String>[
     "INSERT OR IGNORE INTO sync_outbox (entity, sync_id) SELECT 'step_pattern', project_id FROM step_patterns",
-    "INSERT OR IGNORE INTO sync_outbox (entity, sync_id) SELECT 'step_image', (SELECT project_id FROM step_patterns WHERE id = i.pattern_id) || ':' || i.id FROM step_images i",
-    "INSERT OR IGNORE INTO sync_outbox (entity, sync_id) SELECT 'step_progress', (SELECT project_id FROM step_patterns WHERE id = g.id) FROM step_progress g",
+    "INSERT OR IGNORE INTO sync_outbox (entity, sync_id) SELECT 'step_image', p.project_id || ':' || i.id FROM step_images i JOIN step_patterns p ON p.id = i.pattern_id",
+    "INSERT OR IGNORE INTO sync_outbox (entity, sync_id) SELECT 'step_progress', p.project_id FROM step_progress g JOIN step_patterns p ON p.id = g.id",
   ];
 
   /// Все выражения для создания (и пересоздания) триггеров.

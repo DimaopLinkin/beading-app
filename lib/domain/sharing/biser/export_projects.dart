@@ -229,6 +229,9 @@ class ExportProjects {
           if (bytes case Err<Uint8List>()) {
             continue; // файл потерян: инструкция уезжает без этой картинки, ссылка на неё в шаге не ошибка
           }
+          if (!_isPng(bytes.valueOrNull!)) {
+            continue; // не PNG (например, JPG из шаблона): такой файл импорт всё равно отверг бы и испортил копию целиком
+          }
           final String file = 'steps/${image.id}.png';
           files[file] = bytes.valueOrNull!;
           packed.add(StepImage(id: image.id, path: file, width: image.width, height: image.height));
@@ -245,6 +248,11 @@ class ExportProjects {
         );
     }
   }
+
+  static const List<int> _pngSignature = <int>[0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A];
+
+  static bool _isPng(Uint8List b) =>
+      b.length >= _pngSignature.length && _pngSignature.indexed.every((e) => b[e.$1] == e.$2);
 
   /// Имя файла из названия проекта: без символов, недопустимых в путях.
   static String _safeName(String name) {

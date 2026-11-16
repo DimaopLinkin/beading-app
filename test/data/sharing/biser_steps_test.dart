@@ -114,6 +114,16 @@ void main() {
     expect(bundle.formatVersion, 1);
   });
 
+  test('картинка не PNG (JPG из шаблона): экспорт её пропускает, копия восстанавливается', () async {
+    final BiserDevice a = BiserDevice();
+    final BiserDevice b = BiserDevice();
+    await seed(a);
+    await a.realFiles.write('step_patterns/pattern1/img1.png', Uint8List.fromList(<int>[0xFF, 0xD8, 0xFF, 0xE0, 1, 2]));
+
+    expect((await b.import(await a.backupBytes())).failureOrNull, isNull);
+    expect((await b.steps.getByProject('proj1')).valueOrNull!.images, isEmpty);
+  });
+
   test('потерянный файл картинки: инструкция всё равно экспортируется, без этой картинки', () async {
     final BiserDevice a = BiserDevice();
     final BiserDevice b = BiserDevice();
