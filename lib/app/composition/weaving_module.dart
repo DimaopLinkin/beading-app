@@ -12,6 +12,7 @@ import 'package:beading/presentation/materials/materials_cubit.dart';
 import 'package:beading/presentation/materials/materials_screen.dart';
 import 'package:beading/presentation/weaving/weave_cubit.dart';
 import 'package:beading/presentation/weaving/weave_screen.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
@@ -63,12 +64,16 @@ final class WeavingModule {
     projects: _projects.repository,
   );
 
-  List<RouteBase> routes() => <RouteBase>[
+  /// [onOpenStats] открывает лист «Статистика проекта»; `null` — кнопки в шапке нет.
+  List<RouteBase> routes({void Function(BuildContext context, String projectId)? onOpenStats}) => <RouteBase>[
     GoRoute(
       path: WeaveScreen.routePath,
       builder: (context, state) => BlocProvider<WeaveCubit>(
         create: (_) => weaveCubit(state.pathParameters['projectId']!)..load(),
-        child: WeaveScreen(onOpenEditor: () => context.push(AppRoutes.editor(state.pathParameters['projectId']!))),
+        child: WeaveScreen(
+          onOpenEditor: () => context.push(AppRoutes.editor(state.pathParameters['projectId']!)),
+          onOpenStats: onOpenStats == null ? null : () => onOpenStats(context, state.pathParameters['projectId']!),
+        ),
       ),
     ),
     GoRoute(

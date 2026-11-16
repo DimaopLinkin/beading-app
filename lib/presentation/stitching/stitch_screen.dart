@@ -29,7 +29,10 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 /// Режим вышивания: схема на весь экран, отметка клеток касанием, мазком или областью, остаток по цветам, процент
 /// по блокам 10×10 и парковка. [StitchCubit] берётся из контекста.
 class StitchScreen extends StatelessWidget {
-  const StitchScreen({this.onOpenFloss, super.key});
+  const StitchScreen({this.onOpenFloss, this.onOpenStats, super.key});
+
+  /// Открывает лист «Статистика проекта» (T32); `null` — кнопки нет.
+  final VoidCallback? onOpenStats;
 
   /// Открывает расход и запас ниток проекта; `null` — кнопки нет.
   final VoidCallback? onOpenFloss;
@@ -46,7 +49,7 @@ class StitchScreen extends StatelessWidget {
       builder: (context, state) => switch (state.status) {
         StitchStatus.loading => const Center(child: CupertinoActivityIndicator()),
         StitchStatus.failed => const _LoadFailed(),
-        StitchStatus.ready => _FlossLink(onOpen: onOpenFloss, child: const _Workspace()),
+        StitchStatus.ready => _FlossLink(onOpen: onOpenFloss, onOpenStats: onOpenStats, child: const _Workspace()),
       },
     ),
   );
@@ -54,14 +57,19 @@ class StitchScreen extends StatelessWidget {
 
 /// Передаёт вниз по дереву «открыть расход ниток», чтобы не тянуть колбэк через все панели.
 class _FlossLink extends InheritedWidget {
-  const _FlossLink({required this.onOpen, required super.child});
+  const _FlossLink({required this.onOpen, required super.child, this.onOpenStats});
+
+  final VoidCallback? onOpenStats;
+
+  static VoidCallback? statsOf(BuildContext context) =>
+      context.dependOnInheritedWidgetOfExactType<_FlossLink>()?.onOpenStats;
 
   final VoidCallback? onOpen;
 
   static VoidCallback? of(BuildContext context) => context.dependOnInheritedWidgetOfExactType<_FlossLink>()?.onOpen;
 
   @override
-  bool updateShouldNotify(_FlossLink oldWidget) => onOpen != oldWidget.onOpen;
+  bool updateShouldNotify(_FlossLink oldWidget) => onOpen != oldWidget.onOpen || onOpenStats != oldWidget.onOpenStats;
 }
 
 class _LoadFailed extends StatelessWidget {
@@ -373,6 +381,7 @@ class _TopBar extends StatelessWidget {
   Widget build(BuildContext context) {
     final AppLocalizations l10n = AppLocalizations.of(context);
     final AppTokensData tokens = context.tokens;
+    final VoidCallback? openStats = _FlossLink.statsOf(context);
     return SafeArea(
       bottom: false,
       child: Padding(
@@ -397,6 +406,14 @@ class _TopBar extends StatelessWidget {
                   style: CupertinoTheme.of(context).textTheme.navTitleTextStyle,
                 ),
               ),
+              if (openStats != null)
+                CupertinoButton(
+                  key: const ValueKey<String>('stitch-stats'),
+                  padding: EdgeInsets.zero,
+                  minimumSize: Size.square(tokens.minTapTarget),
+                  onPressed: openStats,
+                  child: Semantics(label: l10n.statsProjectOpenSemantic, child: const Icon(AppIcons.timer)),
+                ),
               Padding(
                 padding: EdgeInsets.symmetric(horizontal: tokens.spacing.s),
                 child: Text(

@@ -82,16 +82,17 @@ void main() {
     );
   }
 
-  Widget app(WeaveCubit cubit, CupertinoThemeData theme, {VoidCallback? onOpenEditor}) => CupertinoApp(
-    theme: theme,
-    builder: AppTheme.builder,
-    localizationsDelegates: AppLocalizations.localizationsDelegates,
-    supportedLocales: AppLocalizations.supportedLocales,
-    home: BlocProvider<WeaveCubit>.value(
-      value: cubit,
-      child: WeaveScreen(onOpenEditor: onOpenEditor),
-    ),
-  );
+  Widget app(WeaveCubit cubit, CupertinoThemeData theme, {VoidCallback? onOpenEditor, VoidCallback? onOpenStats}) =>
+      CupertinoApp(
+        theme: theme,
+        builder: AppTheme.builder,
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
+        home: BlocProvider<WeaveCubit>.value(
+          value: cubit,
+          child: WeaveScreen(onOpenEditor: onOpenEditor, onOpenStats: onOpenStats),
+        ),
+      );
 
   Future<WeaveCubit> open(
     WidgetTester tester, {
@@ -340,6 +341,28 @@ void main() {
     await tester.pump();
     expect(tester.takeException(), isNull);
     await closeScreen(tester, cubit);
+  });
+
+  testWidgets('кнопка статистики проекта есть только если задан переход', (tester) async {
+    await tester.binding.setSurfaceSize(const Size(430, 932));
+    addTearDown(() => tester.binding.setSurfaceSize(null));
+    int opened = 0;
+    final WeaveCubit cubit = newCubit();
+    await tester.pumpWidget(app(cubit, AppTheme.light, onOpenStats: () => opened++));
+    await tester.runAsync(cubit.load);
+    await tester.pump();
+    await tester.pump();
+    await tester.tap(find.byKey(const ValueKey<String>('weave-stats')));
+    expect(opened, 1);
+    await closeScreen(tester, cubit);
+
+    final WeaveCubit plain = newCubit();
+    await tester.pumpWidget(app(plain, AppTheme.light));
+    await tester.runAsync(plain.load);
+    await tester.pump();
+    await tester.pump();
+    expect(find.byKey(const ValueKey<String>('weave-stats')), findsNothing);
+    await closeScreen(tester, plain);
   });
 
   testWidgets('кнопка правки схемы есть только если задан переход в редактор', (tester) async {

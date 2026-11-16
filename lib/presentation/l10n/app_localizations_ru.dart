@@ -2465,4 +2465,281 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get editorProblemNoBead => 'Сначала выберите бусину из каталога.';
+
+  @override
+  String get statsTitle => 'Статистика';
+
+  @override
+  String get statsOpenSemantic => 'Статистика';
+
+  @override
+  String get statsPeriodWeek => 'Неделя';
+
+  @override
+  String get statsPeriodMonth => 'Месяц';
+
+  @override
+  String get statsPeriodYear => 'Год';
+
+  @override
+  String get statsPeriodAll => 'Всё время';
+
+  @override
+  String get statsPreviousPeriod => 'Предыдущий период';
+
+  @override
+  String get statsNextPeriod => 'Следующий период';
+
+  @override
+  String get statsThisWeek => 'Эта неделя';
+
+  @override
+  String get statsLastWeek => 'Прошлая неделя';
+
+  @override
+  String get statsThisMonth => 'Этот месяц';
+
+  @override
+  String get statsByMonths => 'по месяцам';
+
+  @override
+  String statsWeekRange(DateTime start, DateTime end) {
+    final intl.DateFormat startDateFormat = intl.DateFormat('d MMM', localeName);
+    final String startString = startDateFormat.format(start);
+    final intl.DateFormat endDateFormat = intl.DateFormat('d MMM', localeName);
+    final String endString = endDateFormat.format(end);
+
+    return '$startString – $endString';
+  }
+
+  @override
+  String statsMonthName(DateTime date) {
+    final intl.DateFormat dateDateFormat = intl.DateFormat.LLLL(localeName);
+    final String dateString = dateDateFormat.format(date);
+
+    return '$dateString';
+  }
+
+  @override
+  String statsMonthYear(DateTime date) {
+    final intl.DateFormat dateDateFormat = intl.DateFormat('LLLL y', localeName);
+    final String dateString = dateDateFormat.format(date);
+
+    return '$dateString';
+  }
+
+  @override
+  String statsYearTitle(int year) {
+    return '$year';
+  }
+
+  @override
+  String get statsTotalTime => 'Всего времени';
+
+  @override
+  String get statsWorkDays => 'Дней с работой';
+
+  @override
+  String get statsAveragePerDay => 'Среднее за день с работой';
+
+  @override
+  String get statsLongestSession => 'Самая долгая работа';
+
+  @override
+  String get statsChartDays => 'Время по дням';
+
+  @override
+  String get statsChartMonths => 'Время по месяцам';
+
+  @override
+  String statsChartBarValue(String time, DateTime date) {
+    final intl.DateFormat dateDateFormat = intl.DateFormat('d MMM', localeName);
+    final String dateString = dateDateFormat.format(date);
+
+    return '$time, $dateString';
+  }
+
+  @override
+  String get statsByProjects => 'По работам';
+
+  @override
+  String statsRowTotal(String time) {
+    return 'всего $time';
+  }
+
+  @override
+  String statsStitchesDone(String done, String total) {
+    return 'Сделано $done из $total крестиков';
+  }
+
+  @override
+  String statsRowOf(int done, int total) {
+    return 'Ряд $done из $total';
+  }
+
+  @override
+  String get statsEmptyTitle => 'Работы пока не было';
+
+  @override
+  String get statsEmptyText => 'Здесь появится время за вышиванием и плетением.';
+
+  @override
+  String get statsEmptyHint => 'Время считается, когда открыт экран вышивания или плетения.';
+
+  @override
+  String get statsPeriodEmptyTitle => 'В этом периоде работы не было';
+
+  @override
+  String get statsPeriodEmptyText => 'Время за другие периоды можно посмотреть стрелками.';
+
+  @override
+  String get statsLoadFailed => 'Не удалось прочитать статистику.';
+
+  @override
+  String statsMinutes(int n) {
+    return '$n мин';
+  }
+
+  @override
+  String statsHours(int n) {
+    return '$n ч';
+  }
+
+  @override
+  String statsHoursMinutes(int h, String m) {
+    return '$h ч $m мин';
+  }
+
+  @override
+  String statsDaysHours(int d, int h) {
+    return '$d д $h ч';
+  }
+
+  @override
+  String get statsProjectTitle => 'Статистика проекта';
+
+  @override
+  String get statsProjectDone => 'Готово';
+
+  @override
+  String get statsProjectOpenSemantic => 'Статистика проекта, открыть';
+
+  @override
+  String get statsSectionTime => 'Время';
+
+  @override
+  String get statsSectionProgress => 'Прогресс';
+
+  @override
+  String get statsSectionPace => 'Темп';
+
+  @override
+  String get statsSectionRecent => 'Последние дни';
+
+  @override
+  String get statsSessions => 'Сессий';
+
+  @override
+  String get statsAverageSession => 'Среднее на сессию';
+
+  @override
+  String get statsFirstDay => 'Первый день работы';
+
+  @override
+  String get statsLastDay => 'Последний день';
+
+  @override
+  String statsDay(DateTime date) {
+    final intl.DateFormat dateDateFormat = intl.DateFormat('d MMM', localeName);
+    final String dateString = dateDateFormat.format(date);
+
+    return '$dateString';
+  }
+
+  @override
+  String get statsToday => 'сегодня';
+
+  @override
+  String get statsTodayCap => 'Сегодня';
+
+  @override
+  String get statsYesterdayCap => 'Вчера';
+
+  @override
+  String get statsRemaining => 'Осталось';
+
+  @override
+  String get statsReadiness => 'Готовность';
+
+  @override
+  String statsPercent(int n) {
+    return '$n%';
+  }
+
+  @override
+  String statsRowsLeft(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count ряда',
+      many: '$count рядов',
+      few: '$count ряда',
+      one: '$count ряд',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get statsNotStarted => 'Не начато';
+
+  @override
+  String statsPaceStitches(String n) {
+    return '≈ $n крестиков в час';
+  }
+
+  @override
+  String statsPaceBeads(String n) {
+    return '≈ $n бусин в час';
+  }
+
+  @override
+  String get statsPaceRemaining => 'При таком темпе осталось';
+
+  @override
+  String statsApprox(String time) {
+    return '≈ $time';
+  }
+
+  @override
+  String get statsPaceNote => 'Это оценка: темп бывает разным.';
+
+  @override
+  String get statsPaceTooEarly => 'Пока рано считать';
+
+  @override
+  String get statsPaceNeedMore => 'нужно хотя бы 2 ч';
+
+  @override
+  String statsFinished(String time, String days) {
+    return 'Закончено: $time за $days';
+  }
+
+  @override
+  String statsFinishedDays(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count дня',
+      many: '$count дней',
+      few: '$count дня',
+      one: '$count день',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get statsNoTimeTitle => 'Пока нет времени';
+
+  @override
+  String get statsNoTimeText => 'Время появится, когда откроешь экран вышивания или плетения.';
 }

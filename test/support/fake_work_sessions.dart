@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:beading/core/failure.dart';
 import 'package:beading/core/result.dart';
 import 'package:beading/domain/weaving/work_session.dart';
@@ -8,6 +10,7 @@ class FakeWorkSessionRepository implements WorkSessionRepository {
   final Map<String, WorkSession> sessions = <String, WorkSession>{};
   final List<String> deletedProjects = <String>[];
   int _next = 0;
+  final StreamController<void> _changes = StreamController<void>.broadcast(sync: true);
 
   /// Если `true`, `start` возвращает ошибку.
   bool failStart = false;
@@ -19,6 +22,7 @@ class FakeWorkSessionRepository implements WorkSessionRepository {
     }
     final WorkSession session = WorkSession(id: 'ws-${++_next}', projectId: projectId, startedAt: startedAt);
     sessions[session.id] = session;
+    _changes.add(null);
     return Success<WorkSession>(session);
   }
 
@@ -34,6 +38,7 @@ class FakeWorkSessionRepository implements WorkSessionRepository {
       startedAt: old.startedAt,
       endedAt: endedAt,
     );
+    _changes.add(null);
     return const Success<void>(null);
   }
 
@@ -59,7 +64,19 @@ class FakeWorkSessionRepository implements WorkSessionRepository {
   Future<Result<List<WorkSession>>> all() async => Success<List<WorkSession>>(sessions.values.toList());
 
   @override
-  Stream<List<WorkSession>> watchAll() => Stream<List<WorkSession>>.value(sessions.values.toList());
+  Stream<List<WorkSession>> watchAll() {
+    // ignore: close_sinks, закрывается через onCancel подписчика.
+    late final StreamController<List<WorkSession>> controller;
+    StreamSubscription<void>? subscription;
+    controller = StreamController<List<WorkSession>>(
+      onListen: () {
+        controller.add(sessions.values.toList());
+        subscription = _changes.stream.listen((_) => controller.add(sessions.values.toList()));
+      },
+      onCancel: () => subscription?.cancel(),
+    );
+    return controller.stream;
+  }
 
   @override
   Future<Result<Duration>> totalFor(String projectId) async => Success<Duration>(
