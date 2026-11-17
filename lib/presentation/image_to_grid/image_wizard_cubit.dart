@@ -463,6 +463,10 @@ class ImageWizardCubit extends Cubit<ImageWizardState> {
   /// Добирать нитки других производителей мулине (T86). Число подходящих позиций каталога меняется, пересчитываем.
   void setOtherBrands({required bool value}) => _change(state.settings.copyWith(otherBrands: value));
 
+  /// Сила подъёма глубоких теней фото, 0..100 %; `null` — «Авто» (T87). Действует у вышивки с палитрой из каталога.
+  void setShadows(int? value) =>
+      _change(value == null ? state.settings.copyWith(clearShadows: true) : state.settings.copyWith(shadows: value));
+
   /// Смешанная техника: полукресты поверх крестов (T72).
   void setMixedStitches({required bool value}) => _change(state.settings.copyWith(mixedStitches: value));
 

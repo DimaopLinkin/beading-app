@@ -317,4 +317,49 @@ void main() {
       expect(request.applyBlends, isFalse);
     });
   });
+
+  group('тени под нитки (T87)', () {
+    final CatalogColor dmc = catalogColor(
+      '310',
+      'Чёрный',
+      '#000000',
+      brand: 'DMC',
+      material: CatalogMaterial.floss,
+    );
+    const ImageToGridSettings stitch = ImageToGridSettings(technique: Technique.crossStitch);
+
+    test('по умолчанию «Авто» (null); значение и возврат в «Авто» через copyWith', () {
+      expect(stitch.shadows, isNull);
+      final ImageToGridSettings manual = stitch.copyWith(shadows: 40);
+      expect(manual.shadows, 40);
+      expect(manual.copyWith(columns: 50).shadows, 40);
+      expect(manual.copyWith(clearShadows: true).shadows, isNull);
+      expect(manual, isNot(stitch));
+    });
+
+    test('вышивка с каталогом: запрос просит подъём, сила идёт как задана', () {
+      final ImageToGridRequest auto = stitch.toRequest(image: image, catalog: <CatalogColor>[dmc], brand: 'DMC');
+      expect(auto.liftShadows, isTrue);
+      expect(auto.shadows, isNull);
+      expect(
+        stitch.copyWith(shadows: 70).toRequest(image: image, catalog: <CatalogColor>[dmc], brand: 'DMC').shadows,
+        70,
+      );
+    });
+
+    test('без подъёма: бисер, свободная палитра, пустой каталог', () {
+      expect(
+        const ImageToGridSettings().toRequest(image: image, catalog: catalog, brand: 'Miyuki').liftShadows,
+        isFalse,
+      );
+      expect(
+        stitch
+            .copyWith(paletteSource: PaletteSource.free)
+            .toRequest(image: image, catalog: <CatalogColor>[dmc], brand: 'DMC')
+            .liftShadows,
+        isFalse,
+      );
+      expect(stitch.toRequest(image: image).liftShadows, isFalse);
+    });
+  });
 }
