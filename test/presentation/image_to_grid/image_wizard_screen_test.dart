@@ -5,6 +5,7 @@ import 'package:beading/core/result.dart';
 import 'package:beading/domain/catalog/bead_finish_group.dart';
 import 'package:beading/domain/catalog/bead_series.dart';
 import 'package:beading/domain/catalog/catalog_color.dart';
+import 'package:beading/domain/catalog/catalog_material.dart';
 import 'package:beading/domain/grid/fabric.dart';
 import 'package:beading/domain/grid/grid.dart';
 import 'package:beading/domain/grid_pattern/use_cases/create_grid_pattern.dart';
@@ -12,6 +13,7 @@ import 'package:beading/domain/image_pattern/crop_rect.dart';
 import 'package:beading/domain/image_pattern/picked_book_file.dart';
 import 'package:beading/domain/image_to_grid/generated_pattern.dart';
 import 'package:beading/domain/image_to_grid/generation_preset.dart';
+import 'package:beading/domain/image_to_grid/generation_stats.dart';
 import 'package:beading/domain/image_to_grid/image_decoder.dart';
 import 'package:beading/domain/image_to_grid/image_mask_set.dart';
 import 'package:beading/domain/image_to_grid/image_to_grid_request.dart';
@@ -53,6 +55,14 @@ class _InstantRunner implements ImageToGridRunner {
       PaletteEntry(rgb: Rgb(200, 10, 10)),
       PaletteEntry(rgb: Rgb(10, 10, 200)),
     ],
+    // Конвейер сообщает силу подъёма теней: заданную или «подобранную» (здесь всегда 20 %).
+    stats: GenerationStats(
+      singleCells: 0,
+      colorCount: 2,
+      meanDeltaE: 0,
+      stageTimes: const <String, Duration>{},
+      shadowPercent: request.liftShadows ? (request.shadows ?? 20) : null,
+    ),
   );
 
   @override
@@ -73,6 +83,7 @@ void main() {
   late ImageWizardCubit cubit;
   late FakePatternPrinter printer;
   late FakeFileSharer fileSharer;
+  late List<CatalogColor> flossCatalog;
 
   setUp(() {
     source = FakeBookImageSource();
@@ -80,6 +91,7 @@ void main() {
     projects = FakeProjectRepository();
     printer = FakePatternPrinter();
     fileSharer = FakeFileSharer();
+    flossCatalog = <CatalogColor>[];
     patterns = FakeGridPatternRepository();
     final FakeIdGenerator ids = FakeIdGenerator();
     cubit = ImageWizardCubit(
@@ -88,7 +100,7 @@ void main() {
       decoder: _Decoder(),
       runner: _InstantRunner(),
       masks: masks,
-      catalog: FakeCatalogRepository(<CatalogColor>[]),
+      catalog: FakeCatalogRepository(flossCatalog),
       settings: FakeSettingsRepository(),
       createPattern: CreatePatternFromImage(
         CreateGridPattern(
@@ -637,6 +649,65 @@ void main() {
     testWidgets('у бисера переключателя брендов нет (T86)', (tester) async {
       await openPhoto(tester, AppTheme.light);
       expect(find.byKey(const ValueKey<String>('wizard-other-brands'), skipOffstage: false), findsNothing);
+    });
+
+    testWidgets('«Тени» (T87): «Авто» показывает подобранную силу, ползунок переключает на ручное значение', (
+      tester,
+    ) async {
+      flossCatalog.add(catalogColor('310', 'Чёрный', '#000000', brand: 'Гамма', material: CatalogMaterial.floss));
+      await cubit.start();
+      await toStitch(tester);
+      final Finder slider = find.byKey(const ValueKey<String>('wizard-shadows-slider'), skipOffstage: false);
+      await tester.scrollUntilVisible(slider, 200, scrollable: find.byType(Scrollable).last);
+      expect(find.text('Тени', skipOffstage: false), findsOneWidget);
+      expect(find.text('Авто: 20 %', skipOffstage: false), findsOneWidget);
+      expect(find.textContaining('Светлее только глубокие тени', skipOffstage: false), findsOneWidget);
+      final Finder auto = find.byKey(const ValueKey<String>('wizard-shadows-auto'), skipOffstage: false);
+      expect(tester.widget<CupertinoSwitch>(auto).value, isTrue);
+      expect(cubit.state.settings.shadows, isNull);
+
+      final Finder plus = find.byKey(const ValueKey<String>('wizard-shadows-plus'), skipOffstage: false);
+      await tester.ensureVisible(plus);
+      await tester.pumpAndSettle();
+      await tester.tap(plus);
+      await tester.pumpAndSettle();
+      expect(cubit.state.settings.shadows, 30);
+      expect(find.text('Авто: 20 %', skipOffstage: false), findsNothing);
+      expect(tester.widget<CupertinoSwitch>(auto).value, isFalse);
+      expect(find.text('30 %', skipOffstage: false), findsWidgets);
+
+      await tester.ensureVisible(auto);
+      await tester.pumpAndSettle();
+      await tester.tap(auto);
+      await tester.pumpAndSettle();
+      expect(cubit.state.settings.shadows, isNull);
+      expect(find.text('Авто: 20 %', skipOffstage: false), findsOneWidget);
+    });
+
+    testWidgets('«Тени» скрыты у бисера, при свободной палитре и без ниток в каталоге (T87)', (tester) async {
+      flossCatalog.add(catalogColor('310', 'Чёрный', '#000000', brand: 'Гамма', material: CatalogMaterial.floss));
+      await cubit.start();
+      await openPhoto(tester, AppTheme.light);
+      final Finder slider = find.byKey(const ValueKey<String>('wizard-shadows-slider'), skipOffstage: false);
+      expect(slider, findsNothing);
+      cubit.setCraft(Craft.crossStitch);
+      await tester.pumpAndSettle();
+      await tester.scrollUntilVisible(slider, 200, scrollable: find.byType(Scrollable).last);
+      expect(slider, findsOneWidget);
+      cubit.setPaletteSource(PaletteSource.free);
+      await tester.pumpAndSettle();
+      expect(slider, findsNothing);
+      cubit.setPaletteSource(PaletteSource.catalog);
+      await tester.pumpAndSettle();
+      expect(slider, findsOneWidget);
+      cubit.setCraft(Craft.beading);
+      await tester.pumpAndSettle();
+      expect(slider, findsNothing);
+    });
+
+    testWidgets('«Тени» скрыты, если для вышивки в каталоге нет ниток: палитра тогда свободная (T87)', (tester) async {
+      await toStitch(tester);
+      expect(find.byKey(const ValueKey<String>('wizard-shadows-slider'), skipOffstage: false), findsNothing);
     });
 
     testWidgets('обводка бусиной у вышивки не показывается', (tester) async {

@@ -10,6 +10,7 @@ final class GenerationStats extends Equatable {
     this.singleCellsBefore,
     this.contrast,
     this.lightnessCorrelation,
+    this.shadowPercent,
   }) : stageTimes = Map<String, Duration>.unmodifiable(stageTimes);
 
   /// Клетки без единого соседа своего цвета («конфетти»); пустые клетки не считаются.
@@ -31,6 +32,10 @@ final class GenerationStats extends Equatable {
   /// Корреляция светлоты схемы с фото (T65), см. [contrast].
   final double? lightnessCorrelation;
 
+  /// Насколько подняты глубокие тени фото (T87), 0..100 %: заданное в мастере или подобранное автоматически. `null` —
+  /// подъём не применялся (бисер, свободная палитра).
+  final int? shadowPercent;
+
   /// Время стадий конвейера по названиям: `sample`, `palette`, `assign` (вместе с упорядочиванием палитры), `steps`; сам подсчёт метрик не входит.
   final Map<String, Duration> stageTimes;
 
@@ -44,6 +49,7 @@ final class GenerationStats extends Equatable {
     meanDeltaE,
     contrast,
     lightnessCorrelation,
+    shadowPercent,
     stageTimes,
   ];
 }

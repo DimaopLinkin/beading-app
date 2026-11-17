@@ -1922,6 +1922,25 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
+  String get imageWizardShadows => 'Тени';
+
+  @override
+  String get imageWizardShadowsHint => 'Светлее только глубокие тени: тёмные места лучше попадают в нитки';
+
+  @override
+  String get imageWizardShadowsAuto => 'Авто';
+
+  @override
+  String imageWizardShadowsAutoValue(int percent) {
+    return 'Авто: $percent %';
+  }
+
+  @override
+  String imageWizardShadowsValue(int percent) {
+    return '$percent %';
+  }
+
+  @override
   String get imageWizardBlends => 'Бленды из двух ниток';
 
   @override

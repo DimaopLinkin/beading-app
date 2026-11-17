@@ -15,8 +15,9 @@ final class ImageToGridSession {
   ImageToGridSession({this.pipeline = const ImageToGridPipeline()});
 
   final ImageToGridPipeline pipeline;
-  final PixelStageCache _full = PixelStageCache();
-  final PixelStageCache _draft = PixelStageCache();
+  final ShadowStageMemo _shadows = ShadowStageMemo();
+  late final PixelStageCache _full = PixelStageCache(shadows: _shadows);
+  late final PixelStageCache _draft = PixelStageCache(shadows: _shadows);
 
   GeneratedPattern run(ImageToGridRequest request) => pipeline.run(request, cache: request.draft ? _draft : _full);
 }

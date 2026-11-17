@@ -40,6 +40,7 @@ void main() {
       backstitch: true,
       blends: false,
       otherBrands: true,
+      shadows: 30,
       onlyStash: true,
       mixedStitches: true,
     ),
@@ -64,6 +65,26 @@ void main() {
     final ImageRecipe? old = ImageRecipeCodec.decode(jsonEncode(json), recipe.source);
     expect(old, isNotNull);
     expect(old!.settings.otherBrands, isFalse);
+  });
+
+  test('старый рецепт без ключа теней читается как «Авто» (T87)', () {
+    final Map<String, Object?> json = jsonDecode(ImageRecipeCodec.encode(recipe)) as Map<String, Object?>;
+    (json['settings']! as Map<String, Object?>).remove('shadows');
+    final ImageRecipe? old = ImageRecipeCodec.decode(jsonEncode(json), recipe.source);
+    expect(old, isNotNull);
+    expect(old!.settings.shadows, isNull);
+  });
+
+  test('«Авто» в рецепте остаётся «Авто», ручная сила — ручной (T87)', () {
+    final ImageRecipe auto = ImageRecipe(
+      source: recipe.source,
+      quarterTurns: 0,
+      crop: CropRect.full,
+      brush: ImportanceBrush.empty,
+      settings: recipe.settings.copyWith(clearShadows: true),
+    );
+    expect(ImageRecipeCodec.decode(ImageRecipeCodec.encode(auto), auto.source)!.settings.shadows, isNull);
+    expect(ImageRecipeCodec.decode(ImageRecipeCodec.encode(recipe), recipe.source)!.settings.shadows, 30);
   });
 
   test('рецепт без предустановки остаётся без неё', () {

@@ -60,6 +60,7 @@ final class ImageToGridSettings extends Equatable {
     this.backstitch = false,
     this.blends = true,
     this.otherBrands = false,
+    this.shadows,
     this.onlyStash = false,
     this.mixedStitches = false,
   });
@@ -114,6 +115,10 @@ final class ImageToGridSettings extends Equatable {
   /// Добирать нитки других производителей мулине (T86, только вышивка): основной бренд в приоритете, а где у него нет
   /// близкого цвета, схема берёт нитку Anchor или Гаммы. Не действует с [onlyStash] (запас и так из любых брендов).
   final bool otherBrands;
+
+  /// Сила подъёма глубоких теней фото (T87, только вышивка с палитрой из каталога), 0..100 %; `null` — «Авто»:
+  /// сила подбирается по фото и ниткам. γ кривой — `1 − 0,5 · shadows / 100` (см. `ShadowLift`).
+  final int? shadows;
 
   /// Брать цвета только из запаса пользовательницы (T34): мулине и бисер, которые у неё есть. Действует в режиме
   /// каталога; нехватка цветов в запасе не превращается в свободную палитру.
@@ -190,6 +195,8 @@ final class ImageToGridSettings extends Equatable {
     bool? backstitch,
     bool? blends,
     bool? otherBrands,
+    int? shadows,
+    bool clearShadows = false,
     bool? onlyStash,
     bool? mixedStitches,
   }) => ImageToGridSettings(
@@ -213,6 +220,7 @@ final class ImageToGridSettings extends Equatable {
     backstitch: backstitch ?? this.backstitch,
     blends: blends ?? this.blends,
     otherBrands: otherBrands ?? this.otherBrands,
+    shadows: clearShadows ? null : (shadows ?? this.shadows)?.clamp(0, 100),
     onlyStash: onlyStash ?? this.onlyStash,
     mixedStitches: mixedStitches ?? this.mixedStitches,
   );
@@ -361,6 +369,9 @@ final class ImageToGridSettings extends Equatable {
       backstitch: craft == Craft.crossStitch && backstitch && active != null,
       // Полукресты поверх крестов шьют только на обычном кресте: у гобелена стежки и так неполные.
       overlays: technique == Technique.crossStitch && mixedStitches,
+      // Глубокие тени поднимаются только у вышивки с палитрой из каталога: нитки в тёмных тонах редки (T87).
+      liftShadows: craft == Craft.crossStitch && useCatalog,
+      shadows: shadows,
     );
   }
 
@@ -384,6 +395,7 @@ final class ImageToGridSettings extends Equatable {
     backstitch,
     blends,
     otherBrands,
+    shadows,
     onlyStash,
     mixedStitches,
   ];

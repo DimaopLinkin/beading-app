@@ -3337,6 +3337,36 @@ abstract class AppLocalizations {
   /// **'{count, plural, one{Один полукрест} few{{count} полукреста} many{{count} полукрестов} other{{count} полукрестов}} сверху крестов.'**
   String imageWizardMixedCount(int count);
 
+  /// Заголовок ползунка силы подъёма глубоких теней фото (вышивка, нитки из каталога)
+  ///
+  /// In ru, this message translates to:
+  /// **'Тени'**
+  String get imageWizardShadows;
+
+  /// Пояснение к ползунку «Тени»
+  ///
+  /// In ru, this message translates to:
+  /// **'Светлее только глубокие тени: тёмные места лучше попадают в нитки'**
+  String get imageWizardShadowsHint;
+
+  /// Переключатель: сила подъёма теней подбирается по фото и ниткам
+  ///
+  /// In ru, this message translates to:
+  /// **'Авто'**
+  String get imageWizardShadowsAuto;
+
+  /// Какую силу подъёма теней подобрал автоподбор
+  ///
+  /// In ru, this message translates to:
+  /// **'Авто: {percent} %'**
+  String imageWizardShadowsAutoValue(int percent);
+
+  /// Сила подъёма теней, заданная вручную
+  ///
+  /// In ru, this message translates to:
+  /// **'{percent} %'**
+  String imageWizardShadowsValue(int percent);
+
   /// Переключатель бленда мулине
   ///
   /// In ru, this message translates to:
