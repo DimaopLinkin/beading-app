@@ -460,6 +460,9 @@ class ImageWizardCubit extends Cubit<ImageWizardState> {
   /// Заменить области «посередине» двух ниток блендом (T57).
   void setBlends({required bool value}) => _change(state.settings.copyWith(blends: value));
 
+  /// Добирать нитки других производителей мулине (T86). Число подходящих позиций каталога меняется, пересчитываем.
+  void setOtherBrands({required bool value}) => _change(state.settings.copyWith(otherBrands: value));
+
   /// Смешанная техника: полукресты поверх крестов (T72).
   void setMixedStitches({required bool value}) => _change(state.settings.copyWith(mixedStitches: value));
 

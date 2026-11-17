@@ -537,10 +537,8 @@ final class ImageToGridPipeline {
     // перехода (лоб, щека, небо) схлопывались в одну нитку, и вместо градиента оставались два пятна с резкой границей;
     // теперь занятая нитка уступает следующей по близости, если та не дальше [_snapSlackDeltaE] от лучшей.
     // Крупные кластеры выбирают первыми: их лучшая нитка важнее.
-    final NearestColorMatcher<PaletteEntry> matcher = NearestColorMatcher<PaletteEntry>(
-      candidates,
-      rgbOf: (e) => e.rgb,
-    );
+    // Чужие бренды (T86) входят в расстояние со штрафом: основная нитка выигрывает, пока чужая не ближе заметно.
+    final NearestColorMatcher<PaletteEntry> matcher = request.constraint.matcher()!;
     List<PaletteEntry> snap(List<Lab> centers, List<double> weights) {
       final List<int> bySize = <int>[for (int c = 0; c < centers.length; c++) c]
         ..sort((x, y) => weights[x] != weights[y] ? weights[y].compareTo(weights[x]) : x.compareTo(y));

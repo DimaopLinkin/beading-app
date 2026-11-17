@@ -3301,6 +3301,24 @@ abstract class AppLocalizations {
   /// **'В запасе подходит всего {available, plural, one{{available} цвет} few{{available} цвета} many{{available} цветов} other{{available} цветов}}, а в схеме их до {wanted}: она получится из того, что есть.'**
   String imageWizardStashFew(int available, int wanted);
 
+  /// Переключатель: добирать нитки других брендов мулине там, где у основного нет близкого цвета
+  ///
+  /// In ru, this message translates to:
+  /// **'Нитки других производителей'**
+  String get imageWizardOtherBrands;
+
+  /// Пояснение к переключателю «Нитки других производителей»
+  ///
+  /// In ru, this message translates to:
+  /// **'Если у {brand} нет близкого цвета, схема возьмёт нитку другого бренда: {others}. Основными останутся нитки {brand}.'**
+  String imageWizardOtherBrandsHint(String brand, String others);
+
+  /// Сводка по брендам ниток схемы, когда они не одного производителя
+  ///
+  /// In ru, this message translates to:
+  /// **'Основная часть — {main}, ещё {count, plural, one{{count} нитка} few{{count} нитки} many{{count} ниток} other{{count} нитки}}: {brands}'**
+  String flossBrandMix(String main, int count, String brands);
+
   /// Переключатель смешанной техники: полукрест поверх креста
   ///
   /// In ru, this message translates to:

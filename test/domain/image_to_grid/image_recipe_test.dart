@@ -39,6 +39,7 @@ void main() {
       fabric: Fabric.standard.withColor(const Rgb(10, 20, 30)),
       backstitch: true,
       blends: false,
+      otherBrands: true,
       onlyStash: true,
       mixedStitches: true,
     ),
@@ -55,6 +56,14 @@ void main() {
     final ImageRecipe? old = ImageRecipeCodec.decode(jsonEncode(json), recipe.source);
     expect(old, isNotNull);
     expect(old!.settings.onlyStash, isFalse);
+  });
+
+  test('старый рецепт без ключа брендов читается с выключенным переключателем (T86)', () {
+    final Map<String, Object?> json = jsonDecode(ImageRecipeCodec.encode(recipe)) as Map<String, Object?>;
+    (json['settings']! as Map<String, Object?>).remove('otherBrands');
+    final ImageRecipe? old = ImageRecipeCodec.decode(jsonEncode(json), recipe.source);
+    expect(old, isNotNull);
+    expect(old!.settings.otherBrands, isFalse);
   });
 
   test('рецепт без предустановки остаётся без неё', () {

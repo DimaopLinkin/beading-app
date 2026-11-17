@@ -1881,6 +1881,27 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
+  String get imageWizardOtherBrands => 'Нитки других производителей';
+
+  @override
+  String imageWizardOtherBrandsHint(String brand, String others) {
+    return 'Если у $brand нет близкого цвета, схема возьмёт нитку другого бренда: $others. Основными останутся нитки $brand.';
+  }
+
+  @override
+  String flossBrandMix(String main, int count, String brands) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count нитки',
+      many: '$count ниток',
+      few: '$count нитки',
+      one: '$count нитка',
+    );
+    return 'Основная часть — $main, ещё $_temp0: $brands';
+  }
+
+  @override
   String get imageWizardMixed => 'Смешанные стежки';
 
   @override

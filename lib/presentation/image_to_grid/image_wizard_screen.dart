@@ -18,6 +18,7 @@ import 'package:beading/domain/palette/rgb.dart';
 import 'package:beading/domain/projects/craft.dart';
 import 'package:beading/domain/settings/floss_brands.dart';
 import 'package:beading/domain/sharing/file_sharer.dart';
+import 'package:beading/presentation/floss/floss_format.dart';
 import 'package:beading/presentation/grid_pattern/grid_pattern_view.dart';
 import 'package:beading/presentation/grid_pattern/grid_view_options.dart';
 import 'package:beading/presentation/image_to_grid/floss_shopping_sheet.dart';
@@ -698,6 +699,20 @@ class _EditState extends State<_Edit> {
                         value: settings.onlyStash,
                         onChanged: (value) => cubit.setOnlyStash(value: value),
                       ),
+                    if (settings.paletteSource == PaletteSource.catalog &&
+                        settings.craft == Craft.crossStitch &&
+                        !settings.onlyStash &&
+                        state.flossBrand.isNotEmpty)
+                      _SwitchRow(
+                        switchKey: const ValueKey<String>('wizard-other-brands'),
+                        title: l10n.imageWizardOtherBrands,
+                        hint: l10n.imageWizardOtherBrandsHint(
+                          state.flossBrand,
+                          flossBrandChoices.where((brand) => brand != state.flossBrand).join(', '),
+                        ),
+                        value: settings.otherBrands,
+                        onChanged: (value) => cubit.setOtherBrands(value: value),
+                      ),
                     if (settings.paletteSource == PaletteSource.catalog && settings.craft == Craft.beading) ...<Widget>[
                       SizedBox(height: tokens.spacing.s),
                       Text(l10n.imageWizardBeadSeries, style: caption),
@@ -1264,6 +1279,15 @@ class _Preview extends StatelessWidget {
                     )
                   : l10n.imageWizardSize(grid.width, grid.height, state.preview!.palette.length),
               key: const ValueKey<String>('wizard-size'),
+              style: TextStyle(fontSize: 13, color: CupertinoColors.secondaryLabel.resolveFrom(context)),
+            ),
+          ),
+        if (shown?.craft == Craft.crossStitch && state.flossEstimate?.brandMix != null)
+          Padding(
+            padding: EdgeInsets.only(top: tokens.spacing.xs),
+            child: Text(
+              FlossFormat(l10n, state.flossEstimate!, withReserve: false).brandMixText!,
+              key: const ValueKey<String>('wizard-brands'),
               style: TextStyle(fontSize: 13, color: CupertinoColors.secondaryLabel.resolveFrom(context)),
             ),
           ),

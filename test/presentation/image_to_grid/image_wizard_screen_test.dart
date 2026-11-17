@@ -592,6 +592,53 @@ void main() {
       expect(cubit.state.flossBrand, 'Anchor');
     });
 
+    testWidgets('переключатель «Нитки других производителей» (T86): виден при каталоге и бренде, меняет настройку', (
+      tester,
+    ) async {
+      await toStitch(tester);
+      final Finder other = find.byKey(const ValueKey<String>('wizard-other-brands'), skipOffstage: false);
+      // Бренд не выбран («любой»): добирать не к чему.
+      expect(other, findsNothing);
+      await tester.tap(find.byKey(const ValueKey<String>('wizard-floss-brand')));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('DMC'));
+      await tester.pumpAndSettle();
+      await tester.scrollUntilVisible(other, 200, scrollable: find.byType(Scrollable).last);
+      expect(other, findsOneWidget);
+      expect(find.text('Нитки других производителей', skipOffstage: false), findsOneWidget);
+      expect(find.textContaining('Если у DMC нет близкого цвета', skipOffstage: false), findsOneWidget);
+      expect(find.textContaining('Гамма, Anchor', skipOffstage: false), findsOneWidget);
+      expect(tester.widget<CupertinoSwitch>(other).value, isFalse);
+      await tester.ensureVisible(other);
+      await tester.pumpAndSettle();
+      await tester.tap(other);
+      await tester.pumpAndSettle();
+      expect(cubit.state.settings.otherBrands, isTrue);
+    });
+
+    testWidgets('переключатель брендов скрыт при «только из запаса» и при свободной палитре (T86)', (tester) async {
+      await toStitch(tester);
+      await tester.tap(find.byKey(const ValueKey<String>('wizard-floss-brand')));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('DMC'));
+      await tester.pumpAndSettle();
+      final Finder other = find.byKey(const ValueKey<String>('wizard-other-brands'), skipOffstage: false);
+      await tester.scrollUntilVisible(other, 200, scrollable: find.byType(Scrollable).last);
+      expect(other, findsOneWidget);
+      cubit.setOnlyStash(value: true);
+      await tester.pumpAndSettle();
+      expect(other, findsNothing);
+      cubit.setOnlyStash(value: false);
+      cubit.setPaletteSource(PaletteSource.free);
+      await tester.pumpAndSettle();
+      expect(other, findsNothing);
+    });
+
+    testWidgets('у бисера переключателя брендов нет (T86)', (tester) async {
+      await openPhoto(tester, AppTheme.light);
+      expect(find.byKey(const ValueKey<String>('wizard-other-brands'), skipOffstage: false), findsNothing);
+    });
+
     testWidgets('обводка бусиной у вышивки не показывается', (tester) async {
       masks.result = ImageMaskSet(width: 10, height: 10, subject: Uint8List(100)..fillRange(0, 50, 255));
       await toStitch(tester);

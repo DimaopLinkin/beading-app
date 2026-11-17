@@ -42,6 +42,14 @@ class _FlossShoppingSheet extends StatelessWidget {
             Text(format.fabricLabel, style: base.copyWith(fontWeight: FontWeight.w600)),
             SizedBox(height: tokens.spacing.xs),
             Text(format.fabricNeedText, style: base.copyWith(fontSize: 13, color: secondary)),
+            if (format.brandMixText != null) ...<Widget>[
+              SizedBox(height: tokens.spacing.xs),
+              Text(
+                format.brandMixText!,
+                key: const ValueKey<String>('shopping-brands'),
+                style: base.copyWith(fontSize: 13, color: secondary),
+              ),
+            ],
             SizedBox(height: tokens.spacing.l),
             for (final FlossPurchaseLine line in estimate.purchases) ...<Widget>[
               Row(

@@ -70,6 +70,7 @@ abstract final class ImageRecipeCodec {
         'outline': s.outline,
         'backstitch': s.backstitch,
         'blends': s.blends,
+        'otherBrands': s.otherBrands,
         'stash': s.onlyStash,
         'mixed': s.mixedStitches,
       },
@@ -109,6 +110,7 @@ abstract final class ImageRecipeCodec {
         outline: s['outline']! as bool,
         backstitch: s['backstitch']! as bool,
         blends: s['blends']! as bool,
+        otherBrands: (s['otherBrands'] as bool?) ?? false,
         onlyStash: (s['stash'] as bool?) ?? false,
         mixedStitches: (s['mixed'] as bool?) ?? false,
       );
