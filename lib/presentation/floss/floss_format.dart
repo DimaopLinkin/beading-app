@@ -1,5 +1,6 @@
 import 'package:beading/domain/floss_stock/floss_shortage.dart';
 import 'package:beading/domain/grid/fabric.dart';
+import 'package:beading/domain/materials/floss_brand_mix.dart';
 import 'package:beading/domain/materials/floss_estimate.dart';
 import 'package:beading/domain/palette/pattern_color.dart';
 import 'package:beading/presentation/l10n/app_localizations.dart';
@@ -62,6 +63,13 @@ class FlossFormat {
     );
   }
 
+  /// «Основная часть — DMC, ещё 9 ниток: Anchor, Гамма»; `null`, если все нитки одного бренда (T86).
+  String? get brandMixText {
+    final FlossBrandMix? mix = estimate.brandMix;
+    if (mix == null) return null;
+    return l10n.flossBrandMix(mix.main, mix.foreignThreads, mix.foreignBrands.join(', '));
+  }
+
   /// Бренд и номер; у смешанной нити — обе нитки через « + ».
   String articleLabel(PatternColor color) => color.components.join(' + ');
 
@@ -102,6 +110,8 @@ class FlossFormat {
     text
       ..writeln()
       ..writeln(l10n.flossTotal(skeinsText(totalSkeins)));
+    final String? brands = brandMixText;
+    if (brands != null) text.writeln(brands);
     final FlossShortage? short = shortage;
     if (short != null && hasStock) {
       text.writeln();

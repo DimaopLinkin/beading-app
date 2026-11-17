@@ -62,10 +62,7 @@ final class FaceAwarePaletteBuilder implements PaletteBuilder {
       for (final Lab center in quantization.centers) PaletteEntry(rgb: center.toRgb()),
     ];
     if (candidates != null) {
-      final NearestColorMatcher<PaletteEntry> matcher = NearestColorMatcher<PaletteEntry>(
-        candidates,
-        rgbOf: (e) => e.rgb,
-      );
+      final NearestColorMatcher<PaletteEntry> matcher = request.constraint.matcher()!;
       final List<PaletteEntry> snapped = <PaletteEntry>[];
       for (final PaletteEntry entry in skinEntries) {
         // Ближайшая позиция, ещё не взятая для кожи: повторов в палитре быть не должно.

@@ -7,6 +7,8 @@ import 'package:beading/core/result.dart';
 import 'package:beading/data/printing/raster_pdf_writer.dart';
 import 'package:beading/domain/grid/grid.dart';
 import 'package:beading/domain/grid_pattern/grid_pattern.dart';
+import 'package:beading/domain/materials/floss_brand_mix.dart';
+import 'package:beading/domain/palette/catalog_ref.dart';
 import 'package:beading/domain/palette/pattern_color.dart';
 import 'package:beading/domain/printing/pattern_printer.dart';
 import 'package:beading/domain/printing/print_layout.dart';
@@ -25,12 +27,27 @@ class PdfPatternPrinter implements PatternPrinter {
     this.pageLabel = _defaultPageLabel,
     this.scaleNote = _defaultScaleNote,
     this.legendTitle = 'легенда',
+    this.brandNote = _defaultBrandNote,
   });
 
   /// «Страница 3 из 12, колонки …» — подпись внизу листа.
   final String Function(String title, int page, int pages, PrintTile tile) pageLabel;
   final String scaleNote;
   final String legendTitle;
+
+  /// Строка под заголовком легенды, когда нитки не одного бренда (T86): «Основная часть — DMC, ещё 9 ниток: Anchor».
+  final String Function(FlossBrandMix mix) brandNote;
+
+  static String _defaultBrandNote(FlossBrandMix mix) {
+    final int n = mix.foreignThreads;
+    final int tail = n % 100 >= 11 && n % 100 <= 19 ? 0 : n % 10;
+    final String word = switch (tail) {
+      1 => 'нитка',
+      2 || 3 || 4 => 'нитки',
+      _ => 'ниток',
+    };
+    return 'Основная часть — ${mix.main}, ещё $n $word: ${mix.foreignBrands.join(', ')}';
+  }
 
   static String _defaultPageLabel(String title, int page, int pages, PrintTile tile) =>
       '$title · $page/$pages · ${tile.column + 1}–${tile.columnEnd} × ${tile.row + 1}–${tile.rowEnd}';
@@ -131,6 +148,20 @@ class PdfPatternPrinter implements PatternPrinter {
       color: const ui.Color(0xFF000000),
       weight: ui.FontWeight.w600,
     );
+    final FlossBrandMix? mix = FlossBrandMix.of(<CatalogRef>[
+      for (final PatternColor c in pattern.palette.colors) ...c.components,
+    ]);
+    if (mix != null) {
+      _paragraph(
+        canvas,
+        brandNote(mix),
+        left: margin,
+        top: margin + 70,
+        width: width - 2 * margin,
+        size: 30,
+        color: const ui.Color(0xFF444444),
+      );
+    }
     const double colWidth = (width - 2 * margin - LegendLayout.columnGapPx) / LegendLayout.columnsPerPage;
     const double rowH = LegendLayout.rowPx + 0.0;
     final int total = pattern.palette.length;

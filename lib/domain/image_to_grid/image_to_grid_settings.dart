@@ -59,6 +59,7 @@ final class ImageToGridSettings extends Equatable {
     this.fabric = Fabric.standard,
     this.backstitch = false,
     this.blends = true,
+    this.otherBrands = false,
     this.onlyStash = false,
     this.mixedStitches = false,
   });
@@ -109,6 +110,10 @@ final class ImageToGridSettings extends Equatable {
 
   /// Заменить области «посередине» двух ниток блендом (T57, только вышивка).
   final bool blends;
+
+  /// Добирать нитки других производителей мулине (T86, только вышивка): основной бренд в приоритете, а где у него нет
+  /// близкого цвета, схема берёт нитку Anchor или Гаммы. Не действует с [onlyStash] (запас и так из любых брендов).
+  final bool otherBrands;
 
   /// Брать цвета только из запаса пользовательницы (T34): мулине и бисер, которые у неё есть. Действует в режиме
   /// каталога; нехватка цветов в запасе не превращается в свободную палитру.
@@ -184,6 +189,7 @@ final class ImageToGridSettings extends Equatable {
     Fabric? fabric,
     bool? backstitch,
     bool? blends,
+    bool? otherBrands,
     bool? onlyStash,
     bool? mixedStitches,
   }) => ImageToGridSettings(
@@ -206,6 +212,7 @@ final class ImageToGridSettings extends Equatable {
     fabric: fabric ?? this.fabric,
     backstitch: backstitch ?? this.backstitch,
     blends: blends ?? this.blends,
+    otherBrands: otherBrands ?? this.otherBrands,
     onlyStash: onlyStash ?? this.onlyStash,
     mixedStitches: mixedStitches ?? this.mixedStitches,
   );
@@ -245,9 +252,15 @@ final class ImageToGridSettings extends Equatable {
   /// Серия палитры: выбранная в мастере или та, что по бренду [brand] из настройки (T62).
   BeadSeries seriesFor(String brand) => beadSeries ?? BeadSeries.forBrand(brand);
 
+  /// Нитки других брендов добираются: мулине, включено, бренд задан и нет запаса.
+  bool usesOtherBrands(String brand) => craft == Craft.crossStitch && otherBrands && !onlyStash && brand.isNotEmpty;
+
   /// Подходящие под ремесло позиции [catalog]. Бисер: размер, одна серия (выбранная или по [brand]; пустой бренд —
   /// Delica) и группы отделок; позиция с неизвестной отделкой проходит (T62). Мулине: размера нет, годится любая
   /// позиция бренда [brand] (пустой — любого).
+  ///
+  /// С [otherBrands] (T86) к позициям бренда [brand] добавляются все остальные позиции мулине: главным остаётся
+  /// [brand], а чужие нитки при выборе палитры получают штраф ([PaletteConstraint.foreignPenaltyDeltaE]).
   ///
   /// С [onlyStash] остаются только позиции из [stash] (T34). У мулине бренд тогда не сужает выбор: запас может быть
   /// из нескольких брендов, а нужны все нитки, что есть. Без [stash] при [onlyStash] запас считается пустым.
@@ -261,7 +274,7 @@ final class ImageToGridSettings extends Equatable {
       return <CatalogColor>[
         for (final CatalogColor color in catalog)
           if (color.material == CatalogMaterial.floss &&
-              (onlyStash ? inStash(color) : (brand.isEmpty || color.brand == brand)))
+              (onlyStash ? inStash(color) : (brand.isEmpty || usesOtherBrands(brand) || color.brand == brand)))
             color,
       ];
     }
@@ -314,6 +327,7 @@ final class ImageToGridSettings extends Equatable {
               allowed,
               material: material,
               finishes: craft == Craft.crossStitch ? const <String>{} : BeadFinishGroup.finishesOf(finishGroups),
+              preferredBrand: usesOtherBrands(brand) ? brand : null,
             )
           : const PaletteConstraint.free(),
       importance: importance,
@@ -369,6 +383,7 @@ final class ImageToGridSettings extends Equatable {
     fabric,
     backstitch,
     blends,
+    otherBrands,
     onlyStash,
     mixedStitches,
   ];
