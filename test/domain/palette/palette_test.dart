@@ -152,12 +152,12 @@ void main() {
       expect(assigner.symbols.length, greaterThanOrEqualTo(ImageToGridSettings.maxColorsLimit));
     });
 
-    test('120 цветов получают 120 разных символов', () {
+    test('250 цветов получают 250 разных символов', () {
       final List<String?> used = <String?>[];
-      for (int i = 0; i < 120; i++) {
+      for (int i = 0; i < 250; i++) {
         used.add(assigner.next(used));
       }
-      expect(used.toSet(), hasLength(120));
+      expect(used.toSet(), hasLength(250));
     });
 
     test('стабильность: занятые не трогаем, берём первый свободный', () {
