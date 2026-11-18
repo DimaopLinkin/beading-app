@@ -892,6 +892,18 @@ void main() {
       expect(runner.requests.last.constraint.preferredBrand, 'DMC');
       expect(runner.requests.last.constraint.candidates, hasLength(3));
 
+      cubit.toggleOtherBrand('Anchor');
+      expect(cubit.state.settings.otherBrandsOnly, <String>{'Anchor'});
+      expect(cubit.state.catalogColors, 2);
+      cubit.toggleOtherBrand('Гамма');
+      expect(cubit.state.catalogColors, 3);
+      cubit.setOtherBrandsAuto();
+      expect(cubit.state.settings.otherBrandsOnly, isEmpty);
+      expect(cubit.state.catalogColors, 3);
+      cubit.toggleOtherBrand('Anchor');
+      cubit.toggleOtherBrand('Anchor');
+      expect(cubit.state.settings.otherBrandsOnly, isEmpty);
+
       cubit.setOtherBrands(value: false);
       expect(cubit.state.catalogColors, 1);
     });

@@ -41,14 +41,17 @@ void main() {
   ]);
   final FlossEstimate single = _estimate(<PatternColor>[_color('DMC', '310'), _color('DMC', '666')]);
 
-  test('сводка по брендам: основной бренд, число и названия чужих', () {
-    expect(format(mixed).brandMixText, 'Основная часть — DMC, ещё 2 нитки: Anchor, Гамма');
+  test('сводка по брендам: основной бренд и число ниток каждого', () {
+    expect(format(mixed).brandMixText, 'Основная часть — DMC, 2 нитки; ещё 2: Anchor 1, Гамма 1');
   });
 
-  test('склонение «нитка» по числу', () {
-    expect(l10n.flossBrandMix('DMC', 1, 'Anchor'), 'Основная часть — DMC, ещё 1 нитка: Anchor');
-    expect(l10n.flossBrandMix('DMC', 5, 'Anchor'), 'Основная часть — DMC, ещё 5 ниток: Anchor');
-    expect(l10n.flossBrandMix('DMC', 9, 'Anchor, Гамма'), 'Основная часть — DMC, ещё 9 ниток: Anchor, Гамма');
+  test('склонение «нитка» по числу основного бренда', () {
+    expect(l10n.flossBrandMix('DMC', 1, 1, 'Anchor 1'), 'Основная часть — DMC, 1 нитка; ещё 1: Anchor 1');
+    expect(l10n.flossBrandMix('DMC', 5, 1, 'Anchor 1'), 'Основная часть — DMC, 5 ниток; ещё 1: Anchor 1');
+    expect(
+      l10n.flossBrandMix('DMC', 22, 9, 'Anchor 5, Гамма 4'),
+      'Основная часть — DMC, 22 нитки; ещё 9: Anchor 5, Гамма 4',
+    );
   });
 
   test('один бренд: сводки нет и текст «Поделиться» не меняется', () {
@@ -60,23 +63,21 @@ void main() {
     final String text = format(mixed).shareText('Схема');
     expect(text, contains('Anchor 1088'));
     expect(text, contains('Гамма 3071'));
-    expect(text, contains('Основная часть — DMC, ещё 2 нитки: Anchor, Гамма'));
+    expect(text, contains('Основная часть — DMC, 2 нитки; ещё 2: Anchor 1, Гамма 1'));
     expect(text.indexOf('Итого'), lessThan(text.indexOf('Основная часть')));
   });
 
   test('PDF: подпись легенды с теми же числами и склонением', () {
     const PdfPatternPrinter printer = PdfPatternPrinter();
     expect(
-      printer.brandNote(const FlossBrandMix(main: 'DMC', foreign: <String, int>{'Anchor': 1})),
-      'Основная часть — DMC, ещё 1 нитка: Anchor',
+      printer.brandNote(const FlossBrandMix(main: 'DMC', mainThreads: 3, foreign: <String, int>{'Anchor': 1})),
+      'Основная часть — DMC, 3 нитки; ещё 1: Anchor 1',
     );
     expect(
-      printer.brandNote(const FlossBrandMix(main: 'DMC', foreign: <String, int>{'Anchor': 7, 'Гамма': 2})),
-      'Основная часть — DMC, ещё 9 ниток: Anchor, Гамма',
-    );
-    expect(
-      printer.brandNote(const FlossBrandMix(main: 'DMC', foreign: <String, int>{'Anchor': 12})),
-      'Основная часть — DMC, ещё 12 ниток: Anchor',
+      printer.brandNote(
+        const FlossBrandMix(main: 'DMC', mainThreads: 21, foreign: <String, int>{'Anchor': 7, 'Гамма': 2}),
+      ),
+      'Основная часть — DMC, 21 нитка; ещё 9: Anchor 7, Гамма 2',
     );
   });
 }

@@ -30,6 +30,7 @@ void main() {
     'miyuki_rocailles_8': 680,
     'dmc_floss': 480,
     'gamma_floss': 200,
+    'pnk_floss': 540,
   };
 
   for (final File file in files) {

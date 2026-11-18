@@ -430,7 +430,7 @@ abstract class AppLocalizations {
   /// No description provided for @aboutCredits.
   ///
   /// In ru, this message translates to:
-  /// **'Цвета ниток DMC: craft-color-codes, MakeBead (makebead.com), лицензия CC BY 4.0. DMC — торговая марка DMC, приложение с ней не связано. Цвета ниток «Гамма» и Anchor: firma-gamma.ru и crosti.ru. «Гамма» и Anchor — торговые марки своих владельцев, приложение с ними не связано.'**
+  /// **'Цвета ниток DMC: craft-color-codes, MakeBead (makebead.com), лицензия CC BY 4.0. DMC — торговая марка DMC, приложение с ней не связано. Цвета ниток «Гамма», Anchor и «ПНК Кирова»: firma-gamma.ru и crosti.ru. «Гамма», Anchor и «ПНК Кирова» — торговые марки своих владельцев, приложение с ними не связано.'**
   String get aboutCredits;
 
   /// No description provided for @aboutVersion.
@@ -3406,14 +3406,20 @@ abstract class AppLocalizations {
   /// Пояснение к переключателю «Нитки других производителей»
   ///
   /// In ru, this message translates to:
-  /// **'Если у {brand} нет близкого цвета, схема возьмёт нитку другого бренда: {others}. Основными останутся нитки {brand}.'**
-  String imageWizardOtherBrandsHint(String brand, String others);
+  /// **'Если у {brand} нет близкого цвета, схема возьмёт нитку другого бренда. Основными останутся нитки {brand}.'**
+  String imageWizardOtherBrandsHint(String brand);
+
+  /// Режим выбора брендов добора: любой бренд каталога
+  ///
+  /// In ru, this message translates to:
+  /// **'Авто'**
+  String get imageWizardOtherBrandsAuto;
 
   /// Сводка по брендам ниток схемы, когда они не одного производителя
   ///
   /// In ru, this message translates to:
-  /// **'Основная часть — {main}, ещё {count, plural, one{{count} нитка} few{{count} нитки} many{{count} ниток} other{{count} нитки}}: {brands}'**
-  String flossBrandMix(String main, int count, String brands);
+  /// **'Основная часть — {main}, {mainCount, plural, one{{mainCount} нитка} few{{mainCount} нитки} many{{mainCount} ниток} other{{mainCount} нитки}}; ещё {count}: {brands}'**
+  String flossBrandMix(String main, int mainCount, int count, String brands);
 
   /// Переключатель смешанной техники: полукрест поверх креста
   ///

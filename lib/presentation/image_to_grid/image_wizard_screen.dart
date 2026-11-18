@@ -702,13 +702,29 @@ class _EditState extends State<_Edit> {
                       _SwitchRow(
                         switchKey: const ValueKey<String>('wizard-other-brands'),
                         title: l10n.imageWizardOtherBrands,
-                        hint: l10n.imageWizardOtherBrandsHint(
-                          state.flossBrand,
-                          flossBrandChoices.where((brand) => brand != state.flossBrand).join(', '),
-                        ),
+                        hint: l10n.imageWizardOtherBrandsHint(state.flossBrand),
                         value: settings.otherBrands,
                         onChanged: (value) => cubit.setOtherBrands(value: value),
                       ),
+                    if (settings.paletteSource == PaletteSource.catalog &&
+                        settings.craft == Craft.crossStitch &&
+                        !settings.onlyStash &&
+                        state.flossBrand.isNotEmpty &&
+                        settings.otherBrands) ...<Widget>[
+                      _BrandCheckRow(
+                        rowKey: const ValueKey<String>('wizard-other-brand-auto'),
+                        title: l10n.imageWizardOtherBrandsAuto,
+                        selected: settings.otherBrandsOnly.isEmpty,
+                        onTap: cubit.setOtherBrandsAuto,
+                      ),
+                      for (final String brand in flossBrandChoices.where((b) => b != state.flossBrand))
+                        _BrandCheckRow(
+                          rowKey: ValueKey<String>('wizard-other-brand-$brand'),
+                          title: brand,
+                          selected: settings.otherBrandsOnly.contains(brand),
+                          onTap: () => cubit.toggleOtherBrand(brand),
+                        ),
+                    ],
                     if (settings.paletteSource == PaletteSource.catalog && settings.craft == Craft.beading) ...<Widget>[
                       SizedBox(height: tokens.spacing.s),
                       Text(l10n.imageWizardBeadSeries, style: caption),
@@ -1727,6 +1743,36 @@ class _ShadowsRow extends StatelessWidget {
       ),
     );
   }
+}
+
+/// Строка мультивыбора с галочкой справа (T89).
+class _BrandCheckRow extends StatelessWidget {
+  const _BrandCheckRow({required this.rowKey, required this.title, required this.selected, required this.onTap});
+
+  final Key rowKey;
+  final String title;
+  final bool selected;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) => Semantics(
+    key: rowKey,
+    button: true,
+    selected: selected,
+    child: GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      onTap: onTap,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: 8),
+        child: Row(
+          children: <Widget>[
+            Expanded(child: Text(title)),
+            if (selected) const Icon(CupertinoIcons.check_mark, size: 20, color: CupertinoColors.activeBlue),
+          ],
+        ),
+      ),
+    ),
+  );
 }
 
 class _SwitchRow extends StatelessWidget {

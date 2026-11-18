@@ -73,6 +73,7 @@ final class ImageToGridSettings extends Equatable {
     this.backstitch = false,
     this.blends = true,
     this.otherBrands = false,
+    this.otherBrandsOnly = const <String>{},
     this.shadows,
     this.onlyStash = false,
     this.mixedStitches = false,
@@ -140,6 +141,10 @@ final class ImageToGridSettings extends Equatable {
   /// Добирать нитки других производителей мулине (T86, только вышивка): основной бренд в приоритете, а где у него нет
   /// близкого цвета, схема берёт нитку Anchor или Гаммы. Не действует с [onlyStash] (запас и так из любых брендов).
   final bool otherBrands;
+
+  /// У каких брендов добирать нитки при [otherBrands]: пусто — «Авто» (любой бренд каталога), иначе только эти (T89).
+  /// Основной бренд сюда не входит, а если попал — игнорируется ([flossBrandsFor]).
+  final Set<String> otherBrandsOnly;
 
   /// Сила подъёма глубоких теней фото (T87, только вышивка с палитрой из каталога), 0..100 %; `null` — «Авто»:
   /// сила подбирается по фото и ниткам. γ кривой — `1 − 0,5 · shadows / 100` (см. `ShadowLift`).
@@ -240,6 +245,7 @@ final class ImageToGridSettings extends Equatable {
     bool? backstitch,
     bool? blends,
     bool? otherBrands,
+    Set<String>? otherBrandsOnly,
     int? shadows,
     bool clearShadows = false,
     bool? onlyStash,
@@ -267,6 +273,7 @@ final class ImageToGridSettings extends Equatable {
     backstitch: backstitch ?? this.backstitch,
     blends: blends ?? this.blends,
     otherBrands: otherBrands ?? this.otherBrands,
+    otherBrandsOnly: otherBrandsOnly == null ? this.otherBrandsOnly : Set<String>.unmodifiable(otherBrandsOnly),
     shadows: clearShadows ? null : (shadows ?? this.shadows)?.clamp(0, 100),
     onlyStash: onlyStash ?? this.onlyStash,
     mixedStitches: mixedStitches ?? this.mixedStitches,
@@ -330,11 +337,16 @@ final class ImageToGridSettings extends Equatable {
   /// Нитки других брендов добираются: мулине, включено, бренд задан и нет запаса.
   bool usesOtherBrands(String brand) => craft == Craft.crossStitch && otherBrands && !onlyStash && brand.isNotEmpty;
 
+  /// Можно ли добирать нитки бренда [other] при основном [brand] (T89): режим «Авто» пускает любой бренд, выбор — только
+  /// отмеченные.
+  bool allowsOtherBrand(String brand, String other) =>
+      other == brand || (usesOtherBrands(brand) && (otherBrandsOnly.isEmpty || otherBrandsOnly.contains(other)));
+
   /// Подходящие под ремесло позиции [catalog]. Бисер: размер, одна серия (выбранная или по [brand]; пустой бренд —
   /// Delica) и группы отделок; позиция с неизвестной отделкой проходит (T62). Мулине: размера нет, годится любая
   /// позиция бренда [brand] (пустой — любого).
   ///
-  /// С [otherBrands] (T86) к позициям бренда [brand] добавляются все остальные позиции мулине: главным остаётся
+  /// С [otherBrands] (T86) к позициям бренда [brand] добавляются позиции остальных брендов мулине (все при «Авто», иначе из [otherBrandsOnly], T89): главным остаётся
   /// [brand], а чужие нитки при выборе палитры получают штраф ([PaletteConstraint.foreignPenaltyDeltaE]).
   ///
   /// С [onlyStash] остаются только позиции из [stash] (T34). У мулине бренд тогда не сужает выбор: запас может быть
@@ -349,7 +361,7 @@ final class ImageToGridSettings extends Equatable {
       return <CatalogColor>[
         for (final CatalogColor color in catalog)
           if (color.material == CatalogMaterial.floss &&
-              (onlyStash ? inStash(color) : (brand.isEmpty || usesOtherBrands(brand) || color.brand == brand)))
+              (onlyStash ? inStash(color) : (brand.isEmpty || allowsOtherBrand(brand, color.brand))))
             color,
       ];
     }
@@ -479,6 +491,7 @@ final class ImageToGridSettings extends Equatable {
     backstitch,
     blends,
     otherBrands,
+    otherBrandsOnly,
     shadows,
     onlyStash,
     mixedStitches,

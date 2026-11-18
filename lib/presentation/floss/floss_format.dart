@@ -63,11 +63,16 @@ class FlossFormat {
     );
   }
 
-  /// «Основная часть — DMC, ещё 9 ниток: Anchor, Гамма»; `null`, если все нитки одного бренда (T86).
+  /// «Основная часть — DMC, 42 нитки; ещё 9: Anchor 5, Гамма 4»; `null`, если все нитки одного бренда (T86, T89).
   String? get brandMixText {
     final FlossBrandMix? mix = estimate.brandMix;
     if (mix == null) return null;
-    return l10n.flossBrandMix(mix.main, mix.foreignThreads, mix.foreignBrands.join(', '));
+    return l10n.flossBrandMix(
+      mix.main,
+      mix.mainThreads,
+      mix.foreignThreads,
+      mix.foreign.entries.map((e) => '${e.key} ${e.value}').join(', '),
+    );
   }
 
   /// Бренд и номер; у смешанной нити — обе нитки через « + ».
