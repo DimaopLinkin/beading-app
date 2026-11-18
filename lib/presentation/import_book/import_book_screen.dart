@@ -2,7 +2,7 @@ import 'dart:io' show Platform;
 
 import 'package:beading/domain/image_pattern/crop_rect.dart';
 import 'package:beading/domain/projects/craft.dart';
-import 'package:beading/presentation/import_book/crop_editor.dart';
+import 'package:beading/presentation/common/crop/crop_editor.dart';
 import 'package:beading/presentation/import_book/import_book_cubit.dart';
 import 'package:beading/presentation/import_book/import_book_state.dart';
 import 'package:beading/presentation/l10n/app_localizations.dart';

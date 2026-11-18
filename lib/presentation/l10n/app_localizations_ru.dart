@@ -3045,4 +3045,27 @@ class AppLocalizationsRu extends AppLocalizations {
   String stepsPhotoOf(int n, int total) {
     return 'Фото $n из $total';
   }
+
+  @override
+  String get cropFree => 'Свободно';
+
+  @override
+  String get cropRotateFrame => 'Повернуть рамку';
+
+  @override
+  String get cropRotateSquareReason => 'Квадрат не поворачивается';
+
+  @override
+  String get cropRotateSizeReason => 'Размер вышивки не поворачивается';
+
+  @override
+  String get cropHintTouch => 'Двигайте и масштабируйте фото';
+
+  @override
+  String get cropHintDesktop => 'Колесо мыши или щипок трекпада масштабирует фото';
+
+  @override
+  String cropRatioSemantics(String ratio) {
+    return 'Пропорции $ratio';
+  }
 }

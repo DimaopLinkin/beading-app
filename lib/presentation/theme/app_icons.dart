@@ -47,6 +47,10 @@ abstract final class AppIcons {
   static const IconData eye = CupertinoIcons.eye;
   static const IconData eyeOff = CupertinoIcons.eye_slash;
 
+  /// Редактор обрезки (T88b): переворот рамки и пометка у причины, почему переворот недоступен.
+  static const IconData rotateFrame = CupertinoIcons.rotate_right;
+  static const IconData info = CupertinoIcons.info_circle;
+
   /// Имена SF Symbols для будущей нативной подмены (по таблице 01b). Проверены по названию, но не в приложении
   /// SF Symbols: `paintbucket.classic` может отсутствовать в старых версиях, запасной `drop.fill`.
   static const Map<String, String> sfSymbols = <String, String>{
@@ -66,5 +70,7 @@ abstract final class AppIcons {
     'warning': 'exclamationmark.triangle',
     'search': 'magnifyingglass',
     'add': 'plus',
+    'rotateFrame': 'rotate.right',
+    'info': 'info.circle',
   };
 }

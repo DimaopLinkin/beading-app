@@ -5064,6 +5064,48 @@ abstract class AppLocalizations {
   /// In ru, this message translates to:
   /// **'Фото {n} из {total}'**
   String stepsPhotoOf(int n, int total);
+
+  /// Чип редактора обрезки: рамка без фиксированных пропорций
+  ///
+  /// In ru, this message translates to:
+  /// **'Свободно'**
+  String get cropFree;
+
+  /// Кнопка переворота ориентации рамки (3:4 и 4:3)
+  ///
+  /// In ru, this message translates to:
+  /// **'Повернуть рамку'**
+  String get cropRotateFrame;
+
+  /// Причина, по которой рамку 1:1 не повернуть
+  ///
+  /// In ru, this message translates to:
+  /// **'Квадрат не поворачивается'**
+  String get cropRotateSquareReason;
+
+  /// Причина, по которой рамку размера вышивки не повернуть
+  ///
+  /// In ru, this message translates to:
+  /// **'Размер вышивки не поворачивается'**
+  String get cropRotateSizeReason;
+
+  /// Подсказка редактора обрезки при выбранных пропорциях (iPhone)
+  ///
+  /// In ru, this message translates to:
+  /// **'Двигайте и масштабируйте фото'**
+  String get cropHintTouch;
+
+  /// Подсказка редактора обрезки при выбранных пропорциях (Mac)
+  ///
+  /// In ru, this message translates to:
+  /// **'Колесо мыши или щипок трекпада масштабирует фото'**
+  String get cropHintDesktop;
+
+  /// VoiceOver: чип пропорций рамки
+  ///
+  /// In ru, this message translates to:
+  /// **'Пропорции {ratio}'**
+  String cropRatioSemantics(String ratio);
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {
