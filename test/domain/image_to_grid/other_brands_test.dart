@@ -173,6 +173,8 @@ void main() {
       );
       expect(on.copyWith(otherBrandsOnly: <String>{}).catalogFor(floss, brand: 'DMC'), hasLength(3));
       expect(stitch.copyWith(otherBrandsOnly: <String>{'Гамма'}).catalogFor(floss, brand: 'DMC'), hasLength(1));
+      // Выбор остался от прежнего основного бренда: у нового это снова «Авто».
+      expect(on.copyWith(otherBrandsOnly: <String>{'DMC'}).catalogFor(floss, brand: 'DMC'), hasLength(3));
     });
 
     test('запрос получает основной бренд; без бренда, с запасом и у бисера переключатель не действует', () {

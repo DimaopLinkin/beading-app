@@ -144,7 +144,7 @@ final class ImageToGridSettings extends Equatable {
   final bool otherBrands;
 
   /// У каких брендов добирать нитки при [otherBrands]: пусто — «Авто» (любой бренд каталога), иначе только эти (T90).
-  /// Основной бренд сюда не входит, а если попал — игнорируется ([flossBrandsFor]).
+  /// Основной бренд сюда не входит, а если попал (после смены основного) — игнорируется ([allowsOtherBrand]).
   final Set<String> otherBrandsOnly;
 
   /// Сила подъёма глубоких теней фото (T87, только вышивка с палитрой из каталога), 0..100 %; `null` — «Авто»:
@@ -340,15 +340,20 @@ final class ImageToGridSettings extends Equatable {
 
   /// Можно ли добирать нитки бренда [other] при основном [brand] (T90): режим «Авто» пускает любой бренд, выбор — только
   /// отмеченные.
-  bool allowsOtherBrand(String brand, String other) =>
-      other == brand || (usesOtherBrands(brand) && (otherBrandsOnly.isEmpty || otherBrandsOnly.contains(other)));
+  bool allowsOtherBrand(String brand, String other) {
+    if (other == brand) return true;
+    if (!usesOtherBrands(brand)) return false;
+    // Основной бренд в выборе не считается: если после смены основного не осталось чужих отметок, это снова «Авто».
+    final Set<String> picked = otherBrandsOnly.difference(<String>{brand});
+    return picked.isEmpty || picked.contains(other);
+  }
 
   /// Подходящие под ремесло позиции [catalog]. Бисер: размер, одна серия (выбранная или по [brand]; пустой бренд —
   /// Delica) и группы отделок; позиция с неизвестной отделкой проходит (T62). Мулине: размера нет, годится любая
   /// позиция бренда [brand] (пустой — любого).
   ///
-  /// С [otherBrands] (T86) к позициям бренда [brand] добавляются позиции остальных брендов мулине (все при «Авто», иначе из [otherBrandsOnly], T90): главным остаётся
-  /// [brand], а чужие нитки при выборе палитры получают штраф ([PaletteConstraint.foreignPenaltyDeltaE]).
+  /// С [otherBrands] (T86) к позициям бренда [brand] добавляются позиции остальных брендов мулине (все при «Авто»,
+  /// иначе из [otherBrandsOnly], T90): главным остаётся [brand], а чужие нитки при выборе палитры получают штраф ([PaletteConstraint.foreignPenaltyDeltaE]).
   ///
   /// С [onlyStash] остаются только позиции из [stash] (T34). У мулине бренд тогда не сужает выбор: запас может быть
   /// из нескольких брендов, а нужны все нитки, что есть. Без [stash] при [onlyStash] запас считается пустым.
