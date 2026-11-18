@@ -25,7 +25,7 @@ presentation ──► domain ◄── data
 | `domain` | Сущности, value objects, интерфейсы репозиториев, use cases, чистые алгоритмы (генерация схем, квантование цветов, подсчёт бисера, политика пасхалок, слияние при синхронизации) | Только `dart:*`, `meta`, `collection`, `equatable`. **Никакого Flutter, drift, path_provider.** |
 | `data` | drift-база, DAO, мапперы row ↔ entity, реализации репозиториев, кодеки файлов (импорт/экспорт), платформенные источники (iCloud, файловая система, декодирование изображений) | `domain`, сторонние пакеты данных |
 | `presentation` | Экраны, виджеты, Cubit/Bloc, тема, локализация | `domain`, `core`, Flutter. **Не импортирует `data`.** |
-| `app` | DI (get_it), роутер (go_router), `main.dart`, инициализация (wakelock, ориентация, окно macOS) | Всё |
+| `app` | сборка графа модулями (`composition/`), роутер (go_router), `main.dart`, инициализация (wakelock, ориентация, окно macOS) | Всё |
 | `core` | Общие утилиты без бизнес-смысла: `Result`/`Failure`, `Clock`, `IdGenerator`, расширения | `dart:*` |
 
 ### Структура каталогов
@@ -34,7 +34,7 @@ presentation ──► domain ◄── data
 
 ```text
 lib/
-  app/            # main, di.dart, router.dart, bootstrap.dart
+  app/            # main, composition/ (модули фич, AppDependencies), router.dart, bootstrap.dart
   core/           # result.dart, failure.dart, clock.dart, id_generator.dart
   domain/
     pattern/      # Pattern, Grid, GridType, Technique, PatternColor, use cases
@@ -61,7 +61,7 @@ test/             # зеркалит lib/
 ### Ключевые решения
 
 - **Состояние:** `flutter_bloc` (в основном `Cubit`), тесты через `bloc_test`. Состояния — иммутабельные sealed-классы, `switch` по ним исчерпывающий (`no_default_cases`).
-- **DI:** `get_it`, регистрация только в `lib/app/di.dart`. Виджеты получают Cubit через `BlocProvider`, Cubit получает use cases через конструктор.
+- **DI:** без контейнера, на чистом Dart ([ADR-0007](decisions/0007-composition-without-get-it.md)): граф собирают модули фич в `lib/app/composition/`, корень — `AppDependencies`, который создаёт `bootstrap` и передаёт через конструкторы. Объекты живут всё приложение (`late final` в модуле) или один экран (метод модуля, владеет `BlocProvider`). Виджеты получают Cubit через `BlocProvider`, Cubit получает use cases через конструктор.
 - **Навигация:** `go_router`.
 - **Ошибки:** use cases возвращают `Result<T, Failure>` (sealed). Исключения ловятся на границе `data` (`on DriftException`, `on FileSystemException` — `avoid_catches_without_on_clauses`).
 - **Время и случайность** всегда через инжектируемые `Clock` и `Random` — иначе не протестировать прогресс, таймеры и пасхалки.

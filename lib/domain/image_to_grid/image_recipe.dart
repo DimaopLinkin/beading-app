@@ -58,6 +58,9 @@ abstract final class ImageRecipeCodec {
         'bead': CellMetricsCodec.encode(s.beadSize).valueOrNull,
         'fabric': CellMetricsCodec.encode(s.fabric).valueOrNull,
         'columns': s.columns,
+        // Высота и подгонка (T88a): пишутся, только когда высота задана; старые записи без них читаются как раньше.
+        if (s.rows != null) 'rows': s.rows,
+        if (s.rows != null) 'fit': s.fit.name,
         'maxColors': s.maxColors,
         'paletteSource': s.paletteSource.name,
         'series': s.beadSeries?.name,
@@ -70,6 +73,10 @@ abstract final class ImageRecipeCodec {
         'outline': s.outline,
         'backstitch': s.backstitch,
         'blends': s.blends,
+        'otherBrands': s.otherBrands,
+        'shadows': s.shadows,
+        'stash': s.onlyStash,
+        'mixed': s.mixedStitches,
       },
     });
   }
@@ -94,6 +101,9 @@ abstract final class ImageRecipeCodec {
         beadSize: bead.valueOrNull! as BeadSize,
         fabric: fabric.valueOrNull! as Fabric,
         columns: s['columns']! as int,
+        rows: s['rows'] as int?,
+        clearRows: s['rows'] == null,
+        fit: FrameFit.values.asNameMap()[s['fit']] ?? FrameFit.crop,
         maxColors: s['maxColors']! as int,
         paletteSource: PaletteSource.values.byName(s['paletteSource']! as String),
         beadSeries: series == null ? null : BeadSeries.values.byName(series),
@@ -107,6 +117,11 @@ abstract final class ImageRecipeCodec {
         outline: s['outline']! as bool,
         backstitch: s['backstitch']! as bool,
         blends: s['blends']! as bool,
+        otherBrands: (s['otherBrands'] as bool?) ?? false,
+        shadows: s['shadows'] as int?,
+        clearShadows: s['shadows'] == null,
+        onlyStash: (s['stash'] as bool?) ?? false,
+        mixedStitches: (s['mixed'] as bool?) ?? false,
       );
       return ImageRecipe(
         source: source,

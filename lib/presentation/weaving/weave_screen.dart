@@ -24,7 +24,10 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 /// Плетение по своей схеме: схема на весь экран, подсвеченный ряд, word chart под ней и крупные кнопки под большой
 /// палец. [WeaveCubit] берётся из контекста.
 class WeaveScreen extends StatelessWidget {
-  const WeaveScreen({this.onOpenEditor, super.key});
+  const WeaveScreen({this.onOpenEditor, this.onOpenStats, super.key});
+
+  /// Открывает лист «Статистика проекта» (T32); `null` — кнопки нет.
+  final VoidCallback? onOpenStats;
 
   /// Переход в редактор этой схемы; без него кнопки правки нет.
   final VoidCallback? onOpenEditor;
@@ -41,7 +44,7 @@ class WeaveScreen extends StatelessWidget {
       builder: (context, state) => switch (state.status) {
         WeaveStatus.loading => const Center(child: CupertinoActivityIndicator()),
         WeaveStatus.failed => const _LoadFailed(),
-        WeaveStatus.ready => _Workspace(onOpenEditor: onOpenEditor),
+        WeaveStatus.ready => _Workspace(onOpenEditor: onOpenEditor, onOpenStats: onOpenStats),
       },
     ),
   );
@@ -74,9 +77,10 @@ const double _togglesHeight = 56;
 const double _bottomPanelHeight = 160;
 
 class _Workspace extends StatefulWidget {
-  const _Workspace({this.onOpenEditor});
+  const _Workspace({this.onOpenEditor, this.onOpenStats});
 
   final VoidCallback? onOpenEditor;
+  final VoidCallback? onOpenStats;
 
   @override
   State<_Workspace> createState() => _WorkspaceState();
@@ -244,7 +248,7 @@ class _WorkspaceState extends State<_Workspace> with WidgetsBindingObserver {
                     right: 0,
                     top: 0,
                     child: _PanelFrame(
-                      child: _TopBar(state: state, onOpenEditor: widget.onOpenEditor),
+                      child: _TopBar(state: state, onOpenEditor: widget.onOpenEditor, onOpenStats: widget.onOpenStats),
                     ),
                   ),
                   Positioned(
@@ -294,10 +298,11 @@ class _WorkspaceState extends State<_Workspace> with WidgetsBindingObserver {
 
 /// Верхняя панель: название, крупный счётчик «Ряд 42 из 180» (читается с расстояния) и переключатели.
 class _TopBar extends StatelessWidget {
-  const _TopBar({required this.state, this.onOpenEditor});
+  const _TopBar({required this.state, this.onOpenEditor, this.onOpenStats});
 
   final WeaveState state;
   final VoidCallback? onOpenEditor;
+  final VoidCallback? onOpenStats;
 
   /// Быстрее этого движения пальца по счётчику — свайп, px/с.
   static const double _swipeVelocity = 200;
@@ -369,6 +374,14 @@ class _TopBar extends StatelessWidget {
                       ),
                     ),
                   ),
+                  if (onOpenStats != null)
+                    CupertinoButton(
+                      key: const ValueKey<String>('weave-stats'),
+                      padding: EdgeInsets.zero,
+                      minimumSize: Size.square(tokens.minTapTarget),
+                      onPressed: onOpenStats,
+                      child: Semantics(label: l10n.statsProjectOpenSemantic, child: const Icon(AppIcons.timer)),
+                    ),
                   if (onOpenEditor == null)
                     SizedBox.square(dimension: tokens.minTapTarget)
                   else

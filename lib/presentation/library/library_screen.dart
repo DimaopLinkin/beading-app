@@ -28,6 +28,7 @@ class LibraryScreen extends StatefulWidget {
     this.loadPreview,
     this.onOpenProject,
     this.onOpenSettings,
+    this.onOpenStats,
     this.onOpenCatalog,
     this.onOpenMaterials,
     this.onEditInGenerator,
@@ -49,6 +50,9 @@ class LibraryScreen extends StatefulWidget {
 
   /// Открывает настройки; `null` — кнопки нет.
   final VoidCallback? onOpenSettings;
+
+  /// Открывает статистику времени и прогресса (T32); `null` — кнопки нет.
+  final VoidCallback? onOpenStats;
 
   /// Открывает каталог цветов; `null` — кнопки нет.
   final VoidCallback? onOpenCatalog;
@@ -236,13 +240,27 @@ class _LibraryScreenState extends State<LibraryScreen> {
                               onPressed: widget.onOpenCatalog,
                               child: Semantics(label: l10n.libraryCatalogSemantic, child: const Icon(AppIcons.catalog)),
                             ),
-                      trailing: widget.onOpenSettings == null
+                      trailing: widget.onOpenSettings == null && widget.onOpenStats == null
                           ? null
-                          : CupertinoButton(
-                              padding: EdgeInsets.zero,
-                              minimumSize: Size.square(tokens.minTapTarget),
-                              onPressed: widget.onOpenSettings,
-                              child: Semantics(label: l10n.settingsTitle, child: const Icon(AppIcons.settings)),
+                          : Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: <Widget>[
+                                if (widget.onOpenStats != null)
+                                  CupertinoButton(
+                                    key: const ValueKey<String>('library-stats'),
+                                    padding: EdgeInsets.zero,
+                                    minimumSize: Size.square(tokens.minTapTarget),
+                                    onPressed: widget.onOpenStats,
+                                    child: Semantics(label: l10n.statsOpenSemantic, child: const Icon(AppIcons.stats)),
+                                  ),
+                                if (widget.onOpenSettings != null)
+                                  CupertinoButton(
+                                    padding: EdgeInsets.zero,
+                                    minimumSize: Size.square(tokens.minTapTarget),
+                                    onPressed: widget.onOpenSettings,
+                                    child: Semantics(label: l10n.settingsTitle, child: const Icon(AppIcons.settings)),
+                                  ),
+                              ],
                             ),
                     ),
                     SliverPadding(

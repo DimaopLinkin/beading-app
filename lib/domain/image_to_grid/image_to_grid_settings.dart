@@ -10,12 +10,14 @@ import 'package:beading/domain/grid/cell_metrics.dart';
 import 'package:beading/domain/grid/fabric.dart';
 import 'package:beading/domain/grid/grid.dart';
 import 'package:beading/domain/grid/grid_geometry.dart';
+import 'package:beading/domain/image_pattern/crop_rect.dart';
 import 'package:beading/domain/image_to_grid/background_stage.dart';
 import 'package:beading/domain/image_to_grid/cell_labeler.dart';
 import 'package:beading/domain/image_to_grid/cell_sampler.dart';
 import 'package:beading/domain/image_to_grid/face_guide.dart';
 import 'package:beading/domain/image_to_grid/face_palette_builder.dart';
 import 'package:beading/domain/image_to_grid/face_step.dart';
+import 'package:beading/domain/image_to_grid/frame_planner.dart';
 import 'package:beading/domain/image_to_grid/generation_preset.dart';
 import 'package:beading/domain/image_to_grid/image_mask_set.dart';
 import 'package:beading/domain/image_to_grid/image_to_grid_request.dart';
@@ -25,6 +27,7 @@ import 'package:beading/domain/image_to_grid/palette_constraint.dart';
 import 'package:beading/domain/image_to_grid/pattern_step.dart';
 import 'package:beading/domain/image_to_grid/source_image.dart';
 import 'package:beading/domain/image_to_grid/technique_geometry.dart';
+import 'package:beading/domain/palette/catalog_ref.dart';
 import 'package:beading/domain/palette/rgb.dart';
 import 'package:beading/domain/projects/craft.dart';
 import 'package:equatable/equatable.dart';
@@ -38,12 +41,23 @@ enum PaletteSource {
   free,
 }
 
+/// Как фото ложится в заданный размер схемы (T88a), когда высота задана ([ImageToGridSettings.rows]).
+enum FrameFit {
+  /// Рамка обрезки подгоняется под нужные пропорции, фото обрезается.
+  crop,
+
+  /// Всё фото остаётся, а по краям схемы добавляются пустые клетки (поля).
+  margins,
+}
+
 /// Параметры мастера «Схема из картинки».
 final class ImageToGridSettings extends Equatable {
   const ImageToGridSettings({
     this.technique = Technique.loom,
     this.beadSize = BeadSize.delica11,
     this.columns = defaultColumns,
+    this.rows,
+    this.fit = FrameFit.crop,
     this.maxColors = defaultMaxColors,
     this.paletteSource = PaletteSource.catalog,
     this.beadSeries,
@@ -58,6 +72,10 @@ final class ImageToGridSettings extends Equatable {
     this.fabric = Fabric.standard,
     this.backstitch = false,
     this.blends = true,
+    this.otherBrands = false,
+    this.shadows,
+    this.onlyStash = false,
+    this.mixedStitches = false,
   });
 
   static const int defaultColumns = 40;
@@ -70,6 +88,18 @@ final class ImageToGridSettings extends Equatable {
   /// Самая узкая вышивка, см, и шаг размера: ширина и высота кратны 5 см.
   static const double minStitchWidthCm = 5;
   static const double stitchCmStep = 5;
+
+  /// Самая высокая вышивка, см (T88a): как и ширина, до 200 см.
+  static const double maxStitchHeightCm = 200;
+
+  /// Самая низкая схема, рядов.
+  static const int minRows = 1;
+
+  /// Предел ползунка высоты схемы из бисера, рядов.
+  static const int maxBeadRows = 240;
+
+  /// Нижний предел ползунка высоты схемы из бисера, рядов.
+  static const int minBeadRows = 8;
 
   /// Вышивка большая: 200 см на самой мелкой канве (Аида 20) — около 1575 крестиков; выше потолок не нужен.
   static const int maxStitchColumns = 1600;
@@ -107,6 +137,21 @@ final class ImageToGridSettings extends Equatable {
   /// Заменить области «посередине» двух ниток блендом (T57, только вышивка).
   final bool blends;
 
+  /// Добирать нитки других производителей мулине (T86, только вышивка): основной бренд в приоритете, а где у него нет
+  /// близкого цвета, схема берёт нитку Anchor или Гаммы. Не действует с [onlyStash] (запас и так из любых брендов).
+  final bool otherBrands;
+
+  /// Сила подъёма глубоких теней фото (T87, только вышивка с палитрой из каталога), 0..100 %; `null` — «Авто»:
+  /// сила подбирается по фото и ниткам. γ кривой — `1 − 0,5 · shadows / 100` (см. `ShadowLift`).
+  final int? shadows;
+
+  /// Брать цвета только из запаса пользовательницы (T34): мулине и бисер, которые у неё есть. Действует в режиме
+  /// каталога; нехватка цветов в запасе не превращается в свободную палитру.
+  final bool onlyStash;
+
+  /// Смешанная техника (T72, только вышивка крестом): полукресты другой нитки поверх крестов для плавных переходов.
+  final bool mixedStitches;
+
   Craft get craft => technique.craft;
 
   /// Размер ячейки: бусина или крестик на канве.
@@ -115,8 +160,25 @@ final class ImageToGridSettings extends Equatable {
   /// Ширина схемы в сантиметрах (вышивка).
   double get widthCm => fabric.cmForCells(columns);
 
+  /// Высота вышивки в сантиметрах; только когда [rows] задана (иначе высота зависит от фото).
+  double get heightCm {
+    final int? cells = rows;
+    if (cells == null) throw StateError('Высота не задана: она берётся по фото');
+    return fabric.cmForCells(cells);
+  }
+
+  /// Можно ли оставлять поля из пустых клеток (T88c). На станке и в квадратном плетении ряд идёт через всю ширину
+  /// полотна, пустой бусины в нём не оставить: там только обрезка.
+  bool get supportsMargins => technique != Technique.loom && technique != Technique.square;
+
   /// Ширина схемы в ячейках.
   final int columns;
+
+  /// Высота схемы в ячейках (T88a); `null` — по пропорциям фото, как раньше. Храним клетки, а не сантиметры.
+  final int? rows;
+
+  /// Что делать с фото, когда высота задана: обрезать под размер или оставить поля. При [rows] `null` не действует.
+  final FrameFit fit;
 
   /// Сколько цветов в схеме самое большее.
   final int maxColors;
@@ -159,6 +221,9 @@ final class ImageToGridSettings extends Equatable {
     Technique? technique,
     BeadSize? beadSize,
     int? columns,
+    int? rows,
+    bool clearRows = false,
+    FrameFit? fit,
     int? maxColors,
     PaletteSource? paletteSource,
     BeadSeries? beadSeries,
@@ -174,10 +239,17 @@ final class ImageToGridSettings extends Equatable {
     Fabric? fabric,
     bool? backstitch,
     bool? blends,
+    bool? otherBrands,
+    int? shadows,
+    bool clearShadows = false,
+    bool? onlyStash,
+    bool? mixedStitches,
   }) => ImageToGridSettings(
     technique: technique ?? this.technique,
     beadSize: beadSize ?? this.beadSize,
     columns: _clampColumns(columns ?? this.columns, technique ?? this.technique, fabric ?? this.fabric),
+    rows: clearRows ? null : _clampRows(rows ?? this.rows, technique ?? this.technique, fabric ?? this.fabric),
+    fit: fit ?? this.fit,
     maxColors: (maxColors ?? this.maxColors).clamp(minColors, maxColorsLimit),
     paletteSource: paletteSource ?? this.paletteSource,
     beadSeries: beadSeries ?? this.beadSeries,
@@ -194,6 +266,10 @@ final class ImageToGridSettings extends Equatable {
     fabric: fabric ?? this.fabric,
     backstitch: backstitch ?? this.backstitch,
     blends: blends ?? this.blends,
+    otherBrands: otherBrands ?? this.otherBrands,
+    shadows: clearShadows ? null : (shadows ?? this.shadows)?.clamp(0, 100),
+    onlyStash: onlyStash ?? this.onlyStash,
+    mixedStitches: mixedStitches ?? this.mixedStitches,
   );
 
   static int _clampColumns(int columns, Technique technique, Fabric fabric) {
@@ -204,22 +280,42 @@ final class ImageToGridSettings extends Equatable {
     return columns.clamp(minColumns, max);
   }
 
+  static int? _clampRows(int? rows, Technique technique, Fabric fabric) {
+    if (rows == null) return null;
+    int max = Grid.maxSide;
+    if (technique.craft == Craft.crossStitch) {
+      max = math.min(max, fabric.cellsForCm(maxStitchHeightCm));
+    }
+    return rows.clamp(minRows, max);
+  }
+
+  /// Другая канва (вышивка): ширина и высота работы в сантиметрах остаются прежними, клетки пересчитываются.
+  ImageToGridSettings withFabric(Fabric value) => copyWith(
+    fabric: value,
+    columns: value.cellsForCm(snapCm(widthCm)),
+    rows: rows == null ? null : value.cellsForCm(snapCm(heightCm)),
+  );
+
   /// Ширина вышивки в сантиметрах, округлённая до шага [stitchCmStep].
   static double snapCm(double cm) =>
       ((cm / stitchCmStep).round() * stitchCmStep).clamp(minStitchWidthCm, maxStitchWidthCm);
 
   /// Число рядов, при котором схема повторяет пропорции [image]. Высота не округляется до шага [stitchCmStep]:
   /// округление искажало пропорции (на узкой вышивке 10 × 3 см превращалась в 10 × 5), а меняется должен только масштаб.
-  int rowsFor(SourceImage image) => math.min(
-    Grid.maxSide,
-    GridSizing.rowsForColumns(
-      imageWidth: image.width,
-      imageHeight: image.height,
-      geometry: geometry,
-      metrics: metrics,
-      columns: columns,
-    ),
-  );
+  ///
+  /// Если высота задана ([rows]), она и есть число рядов; иначе считается по [image] (T88a).
+  int effectiveRows(SourceImage image) =>
+      rows ??
+      math.min(
+        Grid.maxSide,
+        GridSizing.rowsForColumns(
+          imageWidth: image.width,
+          imageHeight: image.height,
+          geometry: geometry,
+          metrics: metrics,
+          columns: columns,
+        ),
+      );
 
   /// Сколько цветов берёт расчёт для схемы в [rows] рядов: сколько задано, [maxColors]. У огромных схем таблица цен
   /// разреженная (`CellCosts.denseBudget`, T70), поэтому цвета больше не урезаются.
@@ -231,14 +327,30 @@ final class ImageToGridSettings extends Equatable {
   /// Серия палитры: выбранная в мастере или та, что по бренду [brand] из настройки (T62).
   BeadSeries seriesFor(String brand) => beadSeries ?? BeadSeries.forBrand(brand);
 
+  /// Нитки других брендов добираются: мулине, включено, бренд задан и нет запаса.
+  bool usesOtherBrands(String brand) => craft == Craft.crossStitch && otherBrands && !onlyStash && brand.isNotEmpty;
+
   /// Подходящие под ремесло позиции [catalog]. Бисер: размер, одна серия (выбранная или по [brand]; пустой бренд —
   /// Delica) и группы отделок; позиция с неизвестной отделкой проходит (T62). Мулине: размера нет, годится любая
   /// позиция бренда [brand] (пустой — любого).
-  List<CatalogColor> catalogFor(List<CatalogColor> catalog, {String brand = ''}) {
+  ///
+  /// С [otherBrands] (T86) к позициям бренда [brand] добавляются все остальные позиции мулине: главным остаётся
+  /// [brand], а чужие нитки при выборе палитры получают штраф ([PaletteConstraint.foreignPenaltyDeltaE]).
+  ///
+  /// С [onlyStash] остаются только позиции из [stash] (T34). У мулине бренд тогда не сужает выбор: запас может быть
+  /// из нескольких брендов, а нужны все нитки, что есть. Без [stash] при [onlyStash] запас считается пустым.
+  List<CatalogColor> catalogFor(
+    List<CatalogColor> catalog, {
+    String brand = '',
+    Set<CatalogRef> stash = const <CatalogRef>{},
+  }) {
+    bool inStash(CatalogColor color) => !onlyStash || stash.contains(color.ref);
     if (craft == Craft.crossStitch) {
       return <CatalogColor>[
         for (final CatalogColor color in catalog)
-          if (color.material == CatalogMaterial.floss && (brand.isEmpty || color.brand == brand)) color,
+          if (color.material == CatalogMaterial.floss &&
+              (onlyStash ? inStash(color) : (brand.isEmpty || usesOtherBrands(brand) || color.brand == brand)))
+            color,
       ];
     }
     final BeadSeries series = seriesFor(brand);
@@ -249,7 +361,8 @@ final class ImageToGridSettings extends Equatable {
             color.brand == series.brand &&
             color.series == series.catalogSeries &&
             color.sizeCode == beadSize.sizeCode &&
-            (color.finish == null || finishes.contains(color.finish)))
+            (color.finish == null || finishes.contains(color.finish)) &&
+            inStash(color))
           color,
     ];
   }
@@ -259,19 +372,35 @@ final class ImageToGridSettings extends Equatable {
     required SourceImage image,
     List<CatalogColor> catalog = const <CatalogColor>[],
     String brand = '',
+    Set<CatalogRef> stash = const <CatalogRef>{},
     Float32List? importance,
     ImageMaskSet? masks,
     int seed = 0,
     bool draft = false,
     bool measure = false,
     Uint8List? subjectMask,
+    FramePlan? frame,
   }) {
-    final List<CatalogColor> allowed = catalogFor(catalog, brand: brand);
+    final List<CatalogColor> allowed = catalogFor(catalog, brand: brand, stash: stash);
+    // Пустой запас сюда не доходит: мастер при onlyStash и пустом отборе схему не считает (T34).
     final bool useCatalog = paletteSource == PaletteSource.catalog && allowed.isNotEmpty;
     // «Плавные переходы» с предустановкой — упорядоченный дизеринг только в градиентах последним шагом (T57); без
     // предустановки остаётся путь T24 с Флойдом — Стейнбергом.
     final GenerationPreset? active = preset;
     // Лица (T54): отдельные цвета кожи и защита черт; без лиц на фото поведение прежнее.
+    // Высота задана (T88a): конвейер считает внутреннюю сетку плана, поля добавляются последним шагом. Без плана
+    // берётся план по самой картинке (она уже подогнана вызывающим). Без высоты путь прежний.
+    final FramePlan? plan = rows == null
+        ? null
+        : frame ??
+              FramePlanner.plan(
+                sourceWidth: image.width,
+                sourceHeight: image.height,
+                crop: CropRect.full,
+                settings: this,
+              );
+    final int innerColumns = plan?.innerColumns ?? columns;
+    final int innerRows = plan?.innerRows ?? effectiveRows(image);
     final bool voting = detailVoting || (active?.detailVoting ?? false);
     final FaceGuide? faceGuide = active == null || masks == null || masks.faces.isEmpty ? null : FaceGuide(masks);
     return ImageToGridRequest(
@@ -279,14 +408,16 @@ final class ImageToGridSettings extends Equatable {
       geometry: geometry,
       // Цвет канвы расчёт не меняет: метрики без него, чтобы его смена не сбрасывала кеш стадий (T58).
       metrics: craft == Craft.crossStitch ? fabric.withColor(const Rgb(255, 255, 255)) : metrics,
-      columns: columns,
-      rows: rowsFor(image),
-      maxColors: colorsFor(rowsFor(image)),
+      columns: innerColumns,
+      rows: innerRows,
+      frame: plan,
+      maxColors: colorsFor(innerRows),
       constraint: useCatalog
           ? PaletteConstraint.catalog(
               allowed,
               material: material,
               finishes: craft == Craft.crossStitch ? const <String>{} : BeadFinishGroup.finishesOf(finishGroups),
+              preferredBrand: usesOtherBrands(brand) ? brand : null,
             )
           : const PaletteConstraint.free(),
       importance: importance,
@@ -305,7 +436,7 @@ final class ImageToGridSettings extends Equatable {
       draft: draft,
       measure: measure,
       steps: <PatternStep>[
-        ...?active?.stepsFor(columns: columns, voting: voting),
+        ...?active?.stepsFor(columns: innerColumns, voting: voting),
         if (faceGuide != null) const FaceFeatureStep(),
         ...steps,
         if (dither && active != null) const OrderedDitherStep(),
@@ -318,6 +449,11 @@ final class ImageToGridSettings extends Equatable {
       applyBlends: craft == Craft.crossStitch && blends && useCatalog,
       // Контуры строятся по рабочей картинке пиксельного пути: без предустановки их нет.
       backstitch: craft == Craft.crossStitch && backstitch && active != null,
+      // Полукресты поверх крестов шьют только на обычном кресте: у гобелена стежки и так неполные.
+      overlays: technique == Technique.crossStitch && mixedStitches,
+      // Глубокие тени поднимаются только у вышивки с палитрой из каталога: нитки в тёмных тонах редки (T87).
+      liftShadows: craft == Craft.crossStitch && useCatalog,
+      shadows: shadows,
     );
   }
 
@@ -326,6 +462,8 @@ final class ImageToGridSettings extends Equatable {
     technique,
     beadSize,
     columns,
+    rows,
+    fit,
     maxColors,
     paletteSource,
     beadSeries,
@@ -340,5 +478,9 @@ final class ImageToGridSettings extends Equatable {
     fabric,
     backstitch,
     blends,
+    otherBrands,
+    shadows,
+    onlyStash,
+    mixedStitches,
   ];
 }

@@ -1,5 +1,4 @@
 import 'package:beading/app/bootstrap.dart';
-import 'package:beading/app/di.dart';
 import 'package:beading/domain/settings/app_theme_mode.dart';
 import 'package:beading/domain/settings/reduce_transparency_source.dart';
 import 'package:beading/presentation/theme/theme_mode_cubit.dart';
@@ -7,7 +6,6 @@ import 'package:beading/presentation/widgets/glass/glass_policy.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:get_it/get_it.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 
 import '../support/fake_platform.dart';
@@ -36,7 +34,7 @@ Future<void> settle(WidgetTester tester) async {
 }
 
 void main() {
-  setUp(() async {
+  setUp(() {
     PackageInfo.setMockInitialValues(
       appName: 'Канитель',
       packageName: 'app.beading',
@@ -44,7 +42,6 @@ void main() {
       buildNumber: '1',
       buildSignature: '',
     );
-    await GetIt.instance.reset();
   });
 
   testWidgets('приложение запускается и показывает «Мои работы»', (tester) async {
@@ -52,7 +49,6 @@ void main() {
     await settle(tester);
 
     expect(find.text('Мои работы'), findsWidgets);
-    expect(getIt, same(GetIt.instance));
     await unmountApp(tester);
   });
 

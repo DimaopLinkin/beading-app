@@ -109,6 +109,22 @@ class AppLocalizationsRu extends AppLocalizations {
       'На другом устройстве версия новее. Обновите приложение, чтобы получить все данные.';
 
   @override
+  String get syncReplaceLocal => 'Заменить данные на устройстве';
+
+  @override
+  String get syncReplaceLocalHint => 'Данные этого устройства пропадут, придут данные вошедшего аккаунта';
+
+  @override
+  String get syncReplaceLocalConfirm =>
+      'Проекты и запасы на этом устройстве будут заменены данными вошедшего аккаунта. Данные другого аккаунта на сервере не изменятся. Это нельзя отменить.';
+
+  @override
+  String get syncReplaceLocalAction => 'Заменить';
+
+  @override
+  String get syncCancel => 'Отмена';
+
+  @override
   String get syncProblemFailed => 'Не получилось синхронизировать. Попробуйте ещё раз.';
 
   @override
@@ -1462,7 +1478,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get imageWizardRotate => 'Повернуть';
 
   @override
-  String get imageWizardCrop => 'Обрезать';
+  String get imageWizardCrop => 'Обрезка…';
 
   @override
   String get imageWizardPreviewLabel => 'Предпросмотр схемы';
@@ -1787,6 +1803,73 @@ class AppLocalizationsRu extends AppLocalizations {
   String get imageWizardWidthCm => 'Ширина вышивки';
 
   @override
+  String get imageWizardHeight => 'Высота';
+
+  @override
+  String imageWizardHeightRows(int rows) {
+    String _temp0 = intl.Intl.pluralLogic(
+      rows,
+      locale: localeName,
+      other: '$rows рядов',
+      many: '$rows рядов',
+      few: '$rows ряда',
+      one: '$rows ряд',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get imageWizardHeightAuto => 'По фото';
+
+  @override
+  String get imageWizardFitCrop => 'Обрезать';
+
+  @override
+  String get imageWizardFitMargins => 'Оставить поля';
+
+  @override
+  String get imageWizardFitAutoNote => 'Высота считается по фото, обрезать и добавлять поля не нужно.';
+
+  @override
+  String get imageWizardFitCropNote =>
+      'Фото обрежется по высоте: лишнее сверху и снизу уйдёт. Кадр виден в предпросмотре.';
+
+  @override
+  String get imageWizardFitMarginsNoteStitch =>
+      'Схема получит пустые поля сверху и снизу. На предпросмотре они заштрихованы.';
+
+  @override
+  String get imageWizardFitMarginsNoteBead =>
+      'Схема получит пустые ряды сверху и снизу. На предпросмотре они заштрихованы.';
+
+  @override
+  String get imageWizardFitLoomNote => 'На станке пустые ряды не оставить: можно только обрезать.';
+
+  @override
+  String get imageWizardCropRowFree => 'Рамка не задана';
+
+  @override
+  String imageWizardCropFrame(String size) {
+    return 'Рамка: $size';
+  }
+
+  @override
+  String get imageWizardCropExcess => 'Лишнее уйдёт';
+
+  @override
+  String get imageWizardMarginsHatched => 'Поля: штриховка';
+
+  @override
+  String imageWizardFrameSizeCm(String width, String height) {
+    return '$width × $height см';
+  }
+
+  @override
+  String imageWizardFrameSizeRows(int width, int height) {
+    return '$width × $height рядов';
+  }
+
+  @override
   String imageWizardCm(String cm) {
     return '$cm см';
   }
@@ -1838,6 +1921,90 @@ class AppLocalizationsRu extends AppLocalizations {
       one: '$count стежок контура',
     );
     return '$_temp0';
+  }
+
+  @override
+  String get imageWizardStash => 'Только из моего запаса';
+
+  @override
+  String get imageWizardStashHint =>
+      'Схема соберётся из тех ниток и бисера, что у тебя уже есть. Запас меняется в «Моём запасе».';
+
+  @override
+  String get imageWizardStashEmpty =>
+      'В запасе нет подходящих цветов, поэтому схему не из чего собирать. Добавь нитки или бисер в «Мой запас» или выключи переключатель.';
+
+  @override
+  String imageWizardStashFew(int available, int wanted) {
+    String _temp0 = intl.Intl.pluralLogic(
+      available,
+      locale: localeName,
+      other: '$available цветов',
+      many: '$available цветов',
+      few: '$available цвета',
+      one: '$available цвет',
+    );
+    return 'В запасе подходит всего $_temp0, а в схеме их до $wanted: она получится из того, что есть.';
+  }
+
+  @override
+  String get imageWizardOtherBrands => 'Нитки других производителей';
+
+  @override
+  String imageWizardOtherBrandsHint(String brand, String others) {
+    return 'Если у $brand нет близкого цвета, схема возьмёт нитку другого бренда: $others. Основными останутся нитки $brand.';
+  }
+
+  @override
+  String flossBrandMix(String main, int count, String brands) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count нитки',
+      many: '$count ниток',
+      few: '$count нитки',
+      one: '$count нитка',
+    );
+    return 'Основная часть — $main, ещё $_temp0: $brands';
+  }
+
+  @override
+  String get imageWizardMixed => 'Смешанные стежки';
+
+  @override
+  String get imageWizardMixedHint =>
+      'Сверху на полный крест кладётся полукрест другой нитки из этой же схемы: плавные переходы без новых цветов. Шьётся дольше.';
+
+  @override
+  String imageWizardMixedCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count полукрестов',
+      many: '$count полукрестов',
+      few: '$count полукреста',
+      one: 'Один полукрест',
+    );
+    return '$_temp0 сверху крестов.';
+  }
+
+  @override
+  String get imageWizardShadows => 'Тени';
+
+  @override
+  String get imageWizardShadowsHint => 'Светлее только глубокие тени: тёмные места лучше попадают в нитки';
+
+  @override
+  String get imageWizardShadowsAuto => 'Авто';
+
+  @override
+  String imageWizardShadowsAutoValue(int percent) {
+    return 'Авто: $percent %';
+  }
+
+  @override
+  String imageWizardShadowsValue(int percent) {
+    return '$percent %';
   }
 
   @override
@@ -2405,4 +2572,567 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get editorProblemNoBead => 'Сначала выберите бусину из каталога.';
+
+  @override
+  String get statsTitle => 'Статистика';
+
+  @override
+  String get statsOpenSemantic => 'Статистика';
+
+  @override
+  String get statsPeriodWeek => 'Неделя';
+
+  @override
+  String get statsPeriodMonth => 'Месяц';
+
+  @override
+  String get statsPeriodYear => 'Год';
+
+  @override
+  String get statsPeriodAll => 'Всё время';
+
+  @override
+  String get statsPreviousPeriod => 'Предыдущий период';
+
+  @override
+  String get statsNextPeriod => 'Следующий период';
+
+  @override
+  String get statsThisWeek => 'Эта неделя';
+
+  @override
+  String get statsLastWeek => 'Прошлая неделя';
+
+  @override
+  String get statsThisMonth => 'Этот месяц';
+
+  @override
+  String get statsByMonths => 'по месяцам';
+
+  @override
+  String statsWeekRange(DateTime start, DateTime end) {
+    final intl.DateFormat startDateFormat = intl.DateFormat('d MMM', localeName);
+    final String startString = startDateFormat.format(start);
+    final intl.DateFormat endDateFormat = intl.DateFormat('d MMM', localeName);
+    final String endString = endDateFormat.format(end);
+
+    return '$startString – $endString';
+  }
+
+  @override
+  String statsMonthName(DateTime date) {
+    final intl.DateFormat dateDateFormat = intl.DateFormat.LLLL(localeName);
+    final String dateString = dateDateFormat.format(date);
+
+    return '$dateString';
+  }
+
+  @override
+  String statsMonthYear(DateTime date) {
+    final intl.DateFormat dateDateFormat = intl.DateFormat('LLLL y', localeName);
+    final String dateString = dateDateFormat.format(date);
+
+    return '$dateString';
+  }
+
+  @override
+  String statsYearTitle(int year) {
+    return '$year';
+  }
+
+  @override
+  String get statsTotalTime => 'Всего времени';
+
+  @override
+  String get statsWorkDays => 'Дней с работой';
+
+  @override
+  String get statsAveragePerDay => 'Среднее за день с работой';
+
+  @override
+  String get statsLongestSession => 'Самая долгая работа';
+
+  @override
+  String get statsChartDays => 'Время по дням';
+
+  @override
+  String get statsChartMonths => 'Время по месяцам';
+
+  @override
+  String statsChartBarValue(String time, DateTime date) {
+    final intl.DateFormat dateDateFormat = intl.DateFormat('d MMM', localeName);
+    final String dateString = dateDateFormat.format(date);
+
+    return '$time, $dateString';
+  }
+
+  @override
+  String get statsByProjects => 'По работам';
+
+  @override
+  String statsRowTotal(String time) {
+    return 'всего $time';
+  }
+
+  @override
+  String statsStitchesDone(String done, String total) {
+    return 'Сделано $done из $total крестиков';
+  }
+
+  @override
+  String statsRowOf(int done, int total) {
+    return 'Ряд $done из $total';
+  }
+
+  @override
+  String get statsEmptyTitle => 'Работы пока не было';
+
+  @override
+  String get statsEmptyText => 'Здесь появится время за вышиванием и плетением.';
+
+  @override
+  String get statsEmptyHint => 'Время считается, когда открыт экран вышивания или плетения.';
+
+  @override
+  String get statsPeriodEmptyTitle => 'В этом периоде работы не было';
+
+  @override
+  String get statsPeriodEmptyText => 'Время за другие периоды можно посмотреть стрелками.';
+
+  @override
+  String get statsLoadFailed => 'Не удалось прочитать статистику.';
+
+  @override
+  String statsMinutes(int n) {
+    return '$n мин';
+  }
+
+  @override
+  String statsHours(int n) {
+    return '$n ч';
+  }
+
+  @override
+  String statsHoursMinutes(int h, String m) {
+    return '$h ч $m мин';
+  }
+
+  @override
+  String statsDaysHours(int d, int h) {
+    return '$d д $h ч';
+  }
+
+  @override
+  String get statsProjectTitle => 'Статистика проекта';
+
+  @override
+  String get statsProjectDone => 'Готово';
+
+  @override
+  String get statsProjectOpenSemantic => 'Статистика проекта, открыть';
+
+  @override
+  String get statsSectionTime => 'Время';
+
+  @override
+  String get statsSectionProgress => 'Прогресс';
+
+  @override
+  String get statsSectionPace => 'Темп';
+
+  @override
+  String get statsSectionRecent => 'Последние дни';
+
+  @override
+  String get statsSessions => 'Сессий';
+
+  @override
+  String get statsAverageSession => 'Среднее на сессию';
+
+  @override
+  String get statsFirstDay => 'Первый день работы';
+
+  @override
+  String get statsLastDay => 'Последний день';
+
+  @override
+  String statsDay(DateTime date) {
+    final intl.DateFormat dateDateFormat = intl.DateFormat('d MMM', localeName);
+    final String dateString = dateDateFormat.format(date);
+
+    return '$dateString';
+  }
+
+  @override
+  String get statsToday => 'сегодня';
+
+  @override
+  String get statsTodayCap => 'Сегодня';
+
+  @override
+  String get statsYesterdayCap => 'Вчера';
+
+  @override
+  String get statsRemaining => 'Осталось';
+
+  @override
+  String get statsReadiness => 'Готовность';
+
+  @override
+  String statsPercent(int n) {
+    return '$n%';
+  }
+
+  @override
+  String statsRowsLeft(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count ряда',
+      many: '$count рядов',
+      few: '$count ряда',
+      one: '$count ряд',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get statsNotStarted => 'Не начато';
+
+  @override
+  String statsPaceStitches(String n) {
+    return '≈ $n крестиков в час';
+  }
+
+  @override
+  String statsPaceBeads(String n) {
+    return '≈ $n бусин в час';
+  }
+
+  @override
+  String get statsPaceRemaining => 'При таком темпе осталось';
+
+  @override
+  String statsApprox(String time) {
+    return '≈ $time';
+  }
+
+  @override
+  String get statsPaceNote => 'Это оценка: темп бывает разным.';
+
+  @override
+  String get statsPaceTooEarly => 'Пока рано считать';
+
+  @override
+  String get statsPaceNeedMore => 'нужно хотя бы 2 ч';
+
+  @override
+  String statsFinished(String time, String days) {
+    return 'Закончено: $time за $days';
+  }
+
+  @override
+  String statsFinishedDays(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count дня',
+      many: '$count дней',
+      few: '$count дня',
+      one: '$count день',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get statsNoTimeTitle => 'Пока нет времени';
+
+  @override
+  String get statsNoTimeText => 'Время появится, когда откроешь экран вышивания или плетения.';
+
+  @override
+  String get stepsLoadFailed => 'Не получилось открыть инструкцию. Попробуй ещё раз.';
+
+  @override
+  String get stepsClose => 'Закрыть';
+
+  @override
+  String stepsSectionOf(int n, int total) {
+    return 'Секция $n из $total';
+  }
+
+  @override
+  String stepsSectionTitled(int n, int total, String title) {
+    return 'Секция $n из $total · $title';
+  }
+
+  @override
+  String stepsStepOf(int n, int total) {
+    return 'Шаг $n из $total';
+  }
+
+  @override
+  String stepsRepeatOf(int n, int total) {
+    return 'повтор $n из $total';
+  }
+
+  @override
+  String stepsRepeatOpen(int n) {
+    return '$n-й повтор';
+  }
+
+  @override
+  String get stepsNext => 'Готово, дальше';
+
+  @override
+  String get stepsBack => 'Назад';
+
+  @override
+  String get stepsEnough => 'Достаточно';
+
+  @override
+  String get stepsFinishWork => 'Готово: отметить работу законченной';
+
+  @override
+  String get stepsWorkDone => 'Работа закончена';
+
+  @override
+  String get stepsList => 'Список шагов';
+
+  @override
+  String get stepsEmpty => 'В инструкции пока нет шагов.';
+
+  @override
+  String get stepsNoText => 'Только фото';
+
+  @override
+  String get stepsImageFailed => 'Фото не загрузилось';
+
+  @override
+  String get stepsRetry => 'Повторить';
+
+  @override
+  String stepsImageCounter(int n, int total) {
+    return '$n из $total';
+  }
+
+  @override
+  String stepsBeadChip(int count, String letter, String name) {
+    return '$count × $letter, $name';
+  }
+
+  @override
+  String get stepsSaveFailed => 'Не получилось записать, где ты остановилась. Попробую ещё раз.';
+
+  @override
+  String stepsSectionProgress(int done, int total) {
+    return '$done из $total';
+  }
+
+  @override
+  String stepsRepeatTimes(int n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      n,
+      locale: localeName,
+      other: '$n раз',
+      many: '$n раз',
+      few: '$n раза',
+      one: '$n раз',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get stepsRepeatUntilDone => 'до нужной длины';
+
+  @override
+  String get stepsStepDone => 'пройден';
+
+  @override
+  String get stepsStatsSemantic => 'Время работы';
+
+  @override
+  String get stepsNewEntry => 'Пошаговая инструкция';
+
+  @override
+  String get stepsNewTitle => 'Пошаговая инструкция';
+
+  @override
+  String get stepsNewName => 'Название';
+
+  @override
+  String get stepsNewDefaultName => 'Новая инструкция';
+
+  @override
+  String get stepsNewEmpty => 'Пустая';
+
+  @override
+  String get stepsNewEmptyHint => 'Один пустой шаг, остальное допишешь сама';
+
+  @override
+  String get stepsNewFromPhotos => 'Из фото';
+
+  @override
+  String get stepsNewFromPhotosHint => 'Один шаг на каждое фото';
+
+  @override
+  String get stepsNewTakePhoto => 'Снять фото';
+
+  @override
+  String get stepsNewPickPhotos => 'Выбрать из галереи';
+
+  @override
+  String get stepsNewTemplates => 'Шаблоны';
+
+  @override
+  String get stepsNewFailed => 'Не получилось создать инструкцию. Попробуй ещё раз.';
+
+  @override
+  String get stepsNewPhotosFailed => 'Не получилось открыть камеру или фото. Проверь доступ в настройках.';
+
+  @override
+  String get stepsSaved => 'Сохранено';
+
+  @override
+  String get stepsSaving => 'Сохраняю…';
+
+  @override
+  String get stepsSaveError => 'Не сохранено';
+
+  @override
+  String get stepsAddStep => 'Добавить шаг';
+
+  @override
+  String get stepsAddSection => 'Добавить секцию';
+
+  @override
+  String stepsSectionDefaultTitle(int n) {
+    return 'Секция $n';
+  }
+
+  @override
+  String get stepsSectionMenu => 'Действия с секцией';
+
+  @override
+  String get stepsEmptySection => 'В секции пока нет шагов.';
+
+  @override
+  String get stepsStepDeleted => 'Шаг удалён';
+
+  @override
+  String get stepsUndo => 'Отменить';
+
+  @override
+  String get stepsStepTitle => 'Шаг';
+
+  @override
+  String get stepsTextPlaceholder => 'Что сделать на этом шаге';
+
+  @override
+  String get stepsPhotos => 'Фото';
+
+  @override
+  String get stepsAddPhoto => 'Добавить';
+
+  @override
+  String get stepsRemovePhoto => 'Убрать фото';
+
+  @override
+  String get stepsPhotoFailed => 'Не получилось добавить фото.';
+
+  @override
+  String get stepsBeads => 'Бусины';
+
+  @override
+  String get stepsAddBeads => 'Добавить бусины из каталога';
+
+  @override
+  String get stepsRepeat => 'Повтор';
+
+  @override
+  String get stepsRepeatOnce => 'Один раз';
+
+  @override
+  String get stepsRepeatSeveral => 'Несколько раз';
+
+  @override
+  String get stepsMoveUp => 'Выше';
+
+  @override
+  String get stepsMoveDown => 'Ниже';
+
+  @override
+  String get stepsDuplicate => 'Дублировать';
+
+  @override
+  String get stepsDelete => 'Удалить';
+
+  @override
+  String get stepsDone => 'Готово';
+
+  @override
+  String get stepsDragHandle => 'Перетащить шаг';
+
+  @override
+  String stepsPhotoCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count фото',
+      many: '$count фото',
+      few: '$count фото',
+      one: '$count фото',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String stepsBeadsCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count цвета',
+      many: '$count цветов',
+      few: '$count цвета',
+      one: '$count цвет',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get stepsEditSemantic => 'Править инструкцию';
+
+  @override
+  String get stepsLess => 'Меньше';
+
+  @override
+  String get stepsMore => 'Больше';
+
+  @override
+  String stepsPhotoOf(int n, int total) {
+    return 'Фото $n из $total';
+  }
+
+  @override
+  String get cropFree => 'Свободно';
+
+  @override
+  String get cropRotateFrame => 'Повернуть рамку';
+
+  @override
+  String get cropRotateSquareReason => 'Квадрат не поворачивается';
+
+  @override
+  String get cropRotateSizeReason => 'Размер вышивки не поворачивается';
+
+  @override
+  String get cropHintTouch => 'Двигайте и масштабируйте фото';
+
+  @override
+  String get cropHintDesktop => 'Колесо мыши или щипок трекпада масштабирует фото';
+
+  @override
+  String cropRatioSemantics(String ratio) {
+    return 'Пропорции $ratio';
+  }
 }

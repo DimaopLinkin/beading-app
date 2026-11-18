@@ -36,8 +36,18 @@ abstract final class GridSizing {
     required int columns,
   }) {
     if (imageWidth < 1 || imageHeight < 1) throw ArgumentError('Картинка пустая');
+    return rowsForAspect(aspect: imageWidth / imageHeight, geometry: geometry, metrics: metrics, columns: columns);
+  }
+
+  /// Число рядов, при котором схема из [columns] столбцов имеет физический аспект [aspect] (ширина / высота, мм).
+  static int rowsForAspect({
+    required double aspect,
+    required GridGeometry geometry,
+    required CellMetrics metrics,
+    required int columns,
+  }) {
+    if (!aspect.isFinite || aspect <= 0) throw ArgumentError.value(aspect, 'aspect', 'положительное число');
     if (columns < 1) throw ArgumentError.value(columns, 'columns', 'не меньше 1');
-    final double aspect = imageWidth / imageHeight;
     final MmSize cell = geometry.cellSize(metrics);
     final int guess = math.max(1, (columns * cell.width / aspect / cell.height).round());
     int best = guess;
@@ -48,6 +58,30 @@ abstract final class GridSizing {
       if (error < bestError) {
         bestError = error;
         best = rows;
+      }
+    }
+    return best;
+  }
+
+  /// Число столбцов, при котором схема из [rows] рядов имеет физический аспект [aspect] (обратная к [rowsForAspect]).
+  static int columnsForAspect({
+    required double aspect,
+    required GridGeometry geometry,
+    required CellMetrics metrics,
+    required int rows,
+  }) {
+    if (!aspect.isFinite || aspect <= 0) throw ArgumentError.value(aspect, 'aspect', 'положительное число');
+    if (rows < 1) throw ArgumentError.value(rows, 'rows', 'не меньше 1');
+    final MmSize cell = geometry.cellSize(metrics);
+    final int guess = math.max(1, (rows * cell.height * aspect / cell.width).round());
+    int best = guess;
+    double bestError = double.infinity;
+    for (int columns = math.max(1, guess - 2); columns <= guess + 2; columns++) {
+      final MmSize extent = geometry.extent(metrics, columns: columns, rows: rows);
+      final double error = (extent.width / extent.height / aspect - 1).abs();
+      if (error < bestError) {
+        bestError = error;
+        best = columns;
       }
     }
     return best;

@@ -34,10 +34,7 @@ GeneratedPattern refillAccents({
     values[i] = pattern.grid.at(i % cells.columns, i ~/ cells.columns);
   }
   final List<Lab?> source = <Lab?>[for (final Rgb? c in cells.colors) c == null ? null : Lab.fromRgb(c)];
-  final List<PaletteEntry>? candidates = constraint.candidates;
-  final NearestColorMatcher<PaletteEntry>? matcher = candidates == null
-      ? null
-      : NearestColorMatcher<PaletteEntry>(candidates, rgbOf: (e) => e.rgb);
+  final NearestColorMatcher<PaletteEntry>? matcher = constraint.matcher();
   bool changed = false;
 
   // Недобор цвета по клеткам считается один раз: отвергнутый зародыш обнуляет свою клетку, принятая группа пересчитывает

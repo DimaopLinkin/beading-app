@@ -163,6 +163,25 @@ void main() {
     expect(back.data.containsKey('file'), isFalse, reason: 'ссылка на файл в запись не попадает');
   });
 
+  test('картинка шага инструкции едет файлом так же, как страница книги', () async {
+    files.files['step_patterns/sp/i1.png'] = Uint8List.fromList(<int>[1, 2, 3]);
+    await remote.push(<SyncRecord>[
+      rec('step_image', 'p:i1', at: 10, data: <String, Object?>{'path': 'step_patterns/sp/i1.png', 'width': 10}),
+    ]);
+    expect(
+      ((records.rows['step_image/p:i1']!['data']! as Map<String, Object?>)['file']! as Map<String, Object?>)['size'],
+      3,
+    );
+
+    final FakeFileStore other = FakeFileStore();
+    final SupabaseSyncRemote macRemote = SupabaseSyncRemote(
+      records: records,
+      externalizer: BlobExternalizer(blobs: blobs, files: other),
+    );
+    await macRemote.pullSince(0);
+    expect(other.files['step_patterns/sp/i1.png'], <int>[1, 2, 3]);
+  });
+
   test('файл не скачался: pull падает, запись не применяется, курсор вызывающий не двигает', () async {
     await remote.push(<SyncRecord>[
       rec(

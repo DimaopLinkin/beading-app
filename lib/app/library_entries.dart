@@ -1,4 +1,4 @@
-import 'package:beading/app/router.dart';
+import 'package:beading/app/composition/app_routes.dart';
 import 'package:beading/domain/projects/craft.dart';
 import 'package:beading/presentation/library/new_project_entry.dart';
 import 'package:beading/presentation/theme/app_icons.dart';
@@ -92,6 +92,23 @@ void registerLibraryEntries(NewProjectRegistry registry) {
         final String? projectId = await context.push<String>(AppRoutes.patternTemplate);
         if (projectId != null && context.mounted) {
           await context.push<void>(AppRoutes.editor(projectId));
+        }
+      },
+    ),
+  );
+
+  // Пошаговая инструкция для маршрутных техник (T33d): бисер; после создания открывается редактор.
+  registry.register(
+    NewProjectEntry(
+      id: 'steps-beading',
+      craft: Craft.beading,
+      order: 15,
+      title: (l10n) => l10n.stepsNewEntry,
+      icon: AppIcons.notes,
+      onSelected: (context) async {
+        final String? projectId = await context.push<String>(AppRoutes.newSteps);
+        if (projectId != null && context.mounted) {
+          await context.push<void>(AppRoutes.stepsEditor(projectId));
         }
       },
     ),

@@ -13,11 +13,23 @@ import 'package:beading/data/settings/drift_settings_repository.dart';
 import 'package:beading/data/settings/package_info_app_info_provider.dart';
 import 'package:beading/domain/catalog/use_cases/find_similar_colors.dart';
 import 'package:beading/domain/events/app_events.dart';
+import 'package:beading/domain/projects/craft.dart';
+import 'package:beading/domain/projects/load_project_preview.dart';
+import 'package:beading/domain/projects/use_cases/delete_project.dart';
+import 'package:beading/domain/projects/use_cases/duplicate_project.dart';
 import 'package:beading/domain/settings/app_events_secret_tap_handler.dart';
+import 'package:beading/presentation/book_work/book_work_cubit.dart';
+import 'package:beading/presentation/book_work/book_work_screen.dart';
 import 'package:beading/presentation/catalog/catalog_cubit.dart';
 import 'package:beading/presentation/easter_eggs/compliment_banner_cubit.dart';
+import 'package:beading/presentation/image_to_grid/image_wizard_cubit.dart';
+import 'package:beading/presentation/import_book/import_book_cubit.dart';
+import 'package:beading/presentation/library/library_cubit.dart';
 import 'package:beading/presentation/settings/settings_cubit.dart';
+import 'package:beading/presentation/sharing/data_transfer_cubit.dart';
 import 'package:beading/presentation/theme/theme_mode_cubit.dart';
+import 'package:beading/presentation/weaving/weave_screen.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 
@@ -173,6 +185,145 @@ void main() {
         dependencies.catalog.routes().whereType<GoRoute>().map((r) => r.path),
         <String>[AppRoutes.flossCatalog, AppRoutes.catalog],
       );
+    });
+  });
+
+  group('модули проектов, сеток, плетения и вышивки', () {
+    late AppDependencies dependencies;
+
+    setUp(() {
+      dependencies = AppDependencies(core: CoreModule(database: createInMemoryDatabase()));
+    });
+
+    tearDown(() => dependencies.dispose());
+
+    test('хранилища создаются один раз и общие для фич', () {
+      expect(dependencies.projects.repository, same(dependencies.projects.repository));
+      expect(dependencies.grid.patterns, same(dependencies.grid.patterns));
+      expect(dependencies.grid.progress, same(dependencies.grid.progress));
+      expect(dependencies.grid.cellProgress, same(dependencies.grid.cellProgress));
+      expect(dependencies.weaving.sessions, same(dependencies.weaving.sessions));
+      expect(dependencies.core.textSharer, same(dependencies.core.textSharer));
+    });
+
+    test('сценарии и счётчики создаются заново на каждый вызов', () {
+      expect(dependencies.projects.createProject(), isNot(same(dependencies.projects.createProject())));
+      expect(dependencies.grid.createGridPattern(), isNot(same(dependencies.grid.createGridPattern())));
+      expect(dependencies.weaving.workSessionTracker(), isNot(same(dependencies.weaving.workSessionTracker())));
+      expect(dependencies.weaving.rowsCounter(), isNot(same(dependencies.weaving.rowsCounter())));
+    });
+
+    test('кубиты экранов собираются для проекта и закрываются владельцем', () async {
+      final List<Cubit<Object?>> cubits = <Cubit<Object?>>[
+        dependencies.grid.editorCubit('p'),
+        dependencies.grid.newGridCubit('Схема'),
+        dependencies.grid.newStitchCubit('Вышивка'),
+        dependencies.grid.patternTemplateCubit(),
+        dependencies.weaving.weaveCubit('p'),
+        dependencies.weaving.materialsCubit('p'),
+        dependencies.stitching.stitchCubit('p'),
+        dependencies.stitching.flossCubit('p'),
+      ];
+
+      expect(cubits, hasLength(8));
+      await Future.wait(cubits.map((c) => c.close()));
+    });
+
+    test('маршруты фич не пересекаются по путям', () {
+      final List<String> paths = <RouteBase>[
+        ...dependencies.grid.routes(),
+        ...dependencies.weaving.routes(),
+        ...dependencies.stitching.routes(),
+        ...dependencies.catalog.routes(),
+        ...dependencies.settings.routes(showDeveloperTools: true, dataTransfer: () => throw UnimplementedError()),
+      ].whereType<GoRoute>().map((r) => r.path).toList();
+
+      expect(paths.toSet(), hasLength(paths.length));
+      expect(paths, containsAll(<String>[AppRoutes.newGrid, AppRoutes.patternTemplate, WeaveScreen.routePath]));
+    });
+  });
+
+  group('BookModule и ImageToGridModule', () {
+    late AppDependencies dependencies;
+
+    setUp(() {
+      dependencies = AppDependencies(core: CoreModule(database: createInMemoryDatabase()));
+    });
+
+    tearDown(() => dependencies.dispose());
+
+    test('хранилища книг создаются один раз', () {
+      expect(dependencies.book.imagePatterns, same(dependencies.book.imagePatterns));
+      expect(dependencies.book.bookWork, same(dependencies.book.bookWork));
+      expect(dependencies.imageToGrid.recipes, same(dependencies.imageToGrid.recipes));
+    });
+
+    test('кубиты книги и мастера — новые на каждый вызов, со своими раннерами', () async {
+      final ImportBookCubit importA = dependencies.book.importBookCubit();
+      final ImportBookCubit importB = dependencies.book.importBookCubit();
+      final ImageWizardCubit wizardA = dependencies.imageToGrid.imageWizardCubit();
+      final ImageWizardCubit wizardB = dependencies.imageToGrid.imageWizardCubit();
+      final BookWorkCubit work = dependencies.book.bookWorkCubit('p');
+
+      expect(importA, isNot(same(importB)));
+      expect(wizardA, isNot(same(wizardB)));
+      await Future.wait(<Future<void>>[
+        importA.close(),
+        importB.close(),
+        wizardA.close(),
+        wizardB.close(),
+        work.close(),
+      ]);
+    });
+
+    test('маршруты: импорт книги, работа по книге и мастер', () {
+      final List<String> paths = <RouteBase>[
+        ...dependencies.book.routes(),
+        ...dependencies.imageToGrid.routes(),
+      ].whereType<GoRoute>().map((r) => r.path).toList();
+
+      expect(paths, <String>[AppRoutes.importBook, BookWorkScreen.routePath, AppRoutes.imageToGrid]);
+    });
+  });
+
+  group('SharingModule и библиотека', () {
+    late AppDependencies dependencies;
+
+    setUp(() {
+      dependencies = AppDependencies(core: CoreModule(database: createInMemoryDatabase()));
+    });
+
+    tearDown(() => dependencies.dispose());
+
+    test('сценарии обмена создаются заново, кубит обмена один на приложение', () {
+      expect(dependencies.sharing.exportProjects(), isNot(same(dependencies.sharing.exportProjects())));
+      expect(dependencies.sharing.importBiser(), isNot(same(dependencies.sharing.importBiser())));
+      expect(dependencies.sharing.importOxs(), isNot(same(dependencies.sharing.importOxs())));
+      expect(dependencies.sharing.dataTransferCubit, same(dependencies.sharing.dataTransferCubit));
+      expect(dependencies.sharing.incomingFiles, same(dependencies.sharing.incomingFiles));
+    });
+
+    test('dispose закрывает созданный кубит обмена', () async {
+      final DataTransferCubit cubit = dependencies.sharing.dataTransferCubit;
+
+      await dependencies.dispose();
+
+      expect(cubit.isClosed, isTrue);
+    });
+
+    test('реестры библиотеки создаются один раз, пункты «Нового проекта» уже заполнены', () {
+      expect(dependencies.projects.newProjectRegistry, same(dependencies.projects.newProjectRegistry));
+      expect(dependencies.projects.thumbnailRegistry, same(dependencies.projects.thumbnailRegistry));
+      expect(dependencies.projects.newProjectRegistry.entriesFor(Craft.beading), isNotEmpty);
+    });
+
+    test('кубит библиотеки и сценарии удаления и копирования собираются со всеми фичами', () async {
+      final LibraryCubit library = dependencies.projects.libraryCubit();
+
+      expect(dependencies.projects.deleteProject(), isA<DeleteProject>());
+      expect(dependencies.projects.duplicateProject(), isA<DuplicateProject>());
+      expect(dependencies.grid.loadProjectPreview(), isA<LoadProjectPreview>());
+      await library.close();
     });
   });
 }

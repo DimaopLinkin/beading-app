@@ -1,21 +1,75 @@
+import 'package:beading/app/composition/book_module.dart';
 import 'package:beading/app/composition/catalog_module.dart';
 import 'package:beading/app/composition/core_module.dart';
 import 'package:beading/app/composition/easter_eggs_module.dart';
+import 'package:beading/app/composition/grid_module.dart';
+import 'package:beading/app/composition/image_to_grid_module.dart';
+import 'package:beading/app/composition/projects_module.dart';
 import 'package:beading/app/composition/settings_module.dart';
+import 'package:beading/app/composition/sharing_module.dart';
+import 'package:beading/app/composition/stats_module.dart';
+import 'package:beading/app/composition/steps_module.dart';
+import 'package:beading/app/composition/stitching_module.dart';
 import 'package:beading/app/composition/sync_module.dart';
+import 'package:beading/app/composition/weaving_module.dart';
 import 'package:beading/data/catalog/catalog_asset_source.dart';
+import 'package:beading/domain/projects/project_content_cleaner.dart';
+import 'package:beading/domain/projects/project_content_cloner.dart';
 
 /// Корень графа зависимостей (ADR-0007): держит модули фич, создаётся в `bootstrap` и передаётся через конструкторы.
-///
-/// Пока миграция идёт, ещё не переведённые фичи собирает `di.dart`, беря ядро отсюда.
 final class AppDependencies {
   AppDependencies({required this.core, this.sync, CatalogAssetSource? catalogAssets})
     : catalog = CatalogModule(core: core, assets: catalogAssets),
       easterEggs = EasterEggsModule(core: core),
-      settings = SettingsModule(core: core);
+      settings = SettingsModule(core: core) {
+    projects = ProjectsModule(
+      core: core,
+      // Порядок как при удалении: схемы-картинки, сетки, рецепты мастера, сеансы работы.
+      cleaners: () => <ProjectContentCleaner>[
+        book.contentCleaner,
+        grid.contentCleaner,
+        imageToGrid.contentCleaner,
+        weaving.contentCleaner,
+        steps.contentCleaner,
+      ],
+      cloners: () => <ProjectContentCloner>[book.contentCloner, grid.contentCloner, steps.contentCloner],
+    );
+    steps = StepsModule(core: core, projects: projects, catalog: catalog);
+    grid = GridModule(core: core, projects: projects, catalog: catalog);
+    weaving = WeavingModule(core: core, projects: projects, grid: grid);
+    stitching = StitchingModule(
+      core: core,
+      projects: projects,
+      grid: grid,
+      weaving: weaving,
+      catalog: catalog,
+    );
+    stats = StatsModule(core: core, projects: projects, grid: grid, weaving: weaving);
+    book = BookModule(core: core, projects: projects);
+    imageToGrid = ImageToGridModule(core: core, projects: projects, grid: grid, catalog: catalog);
+    sharing = SharingModule(
+      core: core,
+      projects: projects,
+      grid: grid,
+      book: book,
+      weaving: weaving,
+      catalog: catalog,
+      settings: settings,
+      steps: steps,
+    );
+  }
 
   final CoreModule core;
   final CatalogModule catalog;
+  late final ProjectsModule projects;
+  late final StepsModule steps;
+  late final GridModule grid;
+  late final WeavingModule weaving;
+  late final StitchingModule stitching;
+  late final StatsModule stats;
+  late final BookModule book;
+  late final ImageToGridModule imageToGrid;
+  late final SharingModule sharing;
   final EasterEggsModule easterEggs;
   final SettingsModule settings;
 
@@ -31,6 +85,7 @@ final class AppDependencies {
     }
     _disposed = true;
     await sync?.dispose();
+    await sharing.dispose();
     await easterEggs.dispose();
     await core.dispose();
   }

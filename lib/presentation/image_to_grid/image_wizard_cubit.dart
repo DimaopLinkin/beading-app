@@ -3,11 +3,15 @@ import 'dart:typed_data';
 
 import 'package:beading/core/failure.dart';
 import 'package:beading/core/result.dart';
+import 'package:beading/domain/bead_stock/bead_stock_entry.dart';
+import 'package:beading/domain/bead_stock/bead_stock_repository.dart';
 import 'package:beading/domain/catalog/bead_finish_group.dart';
 import 'package:beading/domain/catalog/bead_series.dart';
 import 'package:beading/domain/catalog/catalog_color.dart';
 import 'package:beading/domain/catalog/catalog_material.dart';
 import 'package:beading/domain/catalog/catalog_repository.dart';
+import 'package:beading/domain/floss_stock/floss_stock_entry.dart';
+import 'package:beading/domain/floss_stock/floss_stock_repository.dart';
 import 'package:beading/domain/grid/bead_size.dart';
 import 'package:beading/domain/grid/cell_metrics.dart';
 import 'package:beading/domain/grid/fabric.dart';
@@ -17,6 +21,8 @@ import 'package:beading/domain/image_pattern/crop_rect.dart';
 import 'package:beading/domain/image_pattern/image_processor.dart';
 import 'package:beading/domain/image_pattern/picked_book_file.dart';
 import 'package:beading/domain/image_to_grid/background_stage.dart';
+import 'package:beading/domain/image_to_grid/cell_sampler.dart';
+import 'package:beading/domain/image_to_grid/frame_planner.dart';
 import 'package:beading/domain/image_to_grid/generated_pattern.dart';
 import 'package:beading/domain/image_to_grid/generation_preset.dart';
 import 'package:beading/domain/image_to_grid/image_decoder.dart';
@@ -34,6 +40,7 @@ import 'package:beading/domain/image_to_grid/size_suggester.dart';
 import 'package:beading/domain/image_to_grid/source_image.dart';
 import 'package:beading/domain/image_to_grid/use_cases/create_pattern_from_image.dart';
 import 'package:beading/domain/image_to_grid/use_cases/replace_pattern_from_image.dart';
+import 'package:beading/domain/palette/catalog_ref.dart';
 import 'package:beading/domain/palette/palette_snapshot.dart';
 import 'package:beading/domain/palette/rgb.dart';
 import 'package:beading/domain/printing/pattern_printer.dart';
@@ -62,6 +69,8 @@ class ImageWizardCubit extends Cubit<ImageWizardState> {
     required CatalogRepository catalog,
     required SettingsRepository settings,
     required CreatePatternFromImage createPattern,
+    FlossStockRepository? flossStock,
+    BeadStockRepository? beadStock,
     ImageRecipeStore? recipes,
     ReplacePatternFromImage? replacePattern,
     ProjectRepository? projects,
@@ -77,6 +86,8 @@ class ImageWizardCubit extends Cubit<ImageWizardState> {
        _catalog = catalog,
        _settings = settings,
        _create = createPattern,
+       _flossStock = flossStock,
+       _beadStock = beadStock,
        _recipes = recipes,
        _replace = replacePattern,
        _projects = projects,
@@ -95,6 +106,10 @@ class ImageWizardCubit extends Cubit<ImageWizardState> {
   final SettingsRepository _settings;
   final CreatePatternFromImage _create;
 
+  /// Запасы мулине и бисера для режима «только из запаса» (T34); без них запас пуст.
+  final FlossStockRepository? _flossStock;
+  final BeadStockRepository? _beadStock;
+
   /// Нужны для правки готовой схемы (T79); без них мастер только создаёт новые.
   final ImageRecipeStore? _recipes;
   final ReplacePatternFromImage? _replace;
@@ -112,8 +127,15 @@ class ImageWizardCubit extends Cubit<ImageWizardState> {
   String _brand = '';
   String _flossBrand = '';
 
+  /// Что есть в запасе (T34): читается один раз при открытии мастера.
+  Set<CatalogRef> _stash = const <CatalogRef>{};
+
   /// Картинка после поворота и обрезки, в пикселях для конвейера.
   SourceImage? _image;
+
+  /// Рамка, по которой сделана [_image] (T88c): рамка пользовательницы или подогнанная под высоту. Это только ключ кеша
+  /// подготовленной картинки; подогнанную рамку считает [ImageWizardState.effectiveCropOf] по настройкам.
+  CropRect _appliedCrop = CropRect.full;
 
   /// Маска важности по пикселям [_image]: из масок Vision; `null` — масок нет и всё одинаково важно.
   Float32List? _importance;
@@ -152,9 +174,15 @@ class ImageWizardCubit extends Cubit<ImageWizardState> {
     final Result<List<CatalogColor>> floss = await _catalog.search(material: CatalogMaterial.floss);
     final Result<String> brand = await _settings.read(SettingKeys.defaultBeadBrand);
     final Result<String> flossBrand = await _settings.read(SettingKeys.defaultFlossBrand);
+    final Result<List<FlossStockEntry>>? flossStock = await _flossStock?.all();
+    final Result<List<BeadStockEntry>>? beadStock = await _beadStock?.all();
     if (isClosed) {
       return;
     }
+    _stash = <CatalogRef>{
+      for (final FlossStockEntry entry in flossStock?.valueOrNull ?? const <FlossStockEntry>[]) entry.ref,
+      for (final BeadStockEntry entry in beadStock?.valueOrNull ?? const <BeadStockEntry>[]) entry.ref,
+    };
     _catalogColors = <CatalogColor>[
       ...?colors.valueOrNull,
       ...?floss.valueOrNull,
@@ -259,7 +287,7 @@ class ImageWizardCubit extends Cubit<ImageWizardState> {
     _timer?.cancel();
     final int preparation = ++_preparation;
     ++_calculation;
-    final ({Uint8List png, SourceImage image})? prepared = await _prepareImage(bytes, quarterTurns, crop);
+    final _Framed? prepared = await _prepareFramed(bytes, quarterTurns, crop, state.settings);
     if (isClosed || preparation != _preparation) {
       return;
     }
@@ -281,6 +309,7 @@ class ImageWizardCubit extends Cubit<ImageWizardState> {
         brushUndoDepth: 0,
         preparedWidth: prepared.image.width,
         preparedHeight: prepared.image.height,
+        sourceAspect: prepared.aspect,
         step: ImageWizardStep.edit,
         opening: false,
         masks: maskSet,
@@ -298,20 +327,52 @@ class ImageWizardCubit extends Cubit<ImageWizardState> {
     _hintKey = null;
     _sizeTouched = state.editing;
     _image = prepared.image;
+    _appliedCrop = prepared.applied;
     _rebuildImportance();
     _schedule(immediate: true);
   }
 
   /// Поворот на 90° по часовой стрелке; рамка задана в повёрнутых осях, поэтому сбрасывается.
-  Future<void> rotate() => _reshape(quarterTurns: (state.quarterTurns + 1) % 4, crop: CropRect.full);
+  ///
+  /// Высота ([ImageToGridSettings.rows]) остаётся: рамка по ней подгоняется заново в новых осях (T88c).
+  Future<void> rotate() => _reshape(
+    quarterTurns: (state.quarterTurns + 1) % 4,
+    crop: CropRect.full,
+    aspect: state.sourceAspect > 0 ? 1 / state.sourceAspect : null,
+  );
 
   Future<void> setCrop(CropRect crop) => _reshape(quarterTurns: state.quarterTurns, crop: crop);
 
-  Future<void> _reshape({required int quarterTurns, required CropRect crop}) async {
+  /// Результат редактора обрезки (T88c): с чипом пропорций высота подстраивается под рамку (при текущей ширине), со
+  /// свободной рамкой высота снова считается по фото. Последнее действие главнее.
+  Future<void> setCropResult(CropRect crop, {double? aspect}) {
+    final ImageToGridSettings now = state.settings;
+    _sizeTouched = true;
+    final ImageToGridSettings next = aspect == null
+        ? now.copyWith(clearRows: true)
+        : now.copyWith(
+            rows: GridSizing.rowsForAspect(
+              aspect: aspect,
+              geometry: now.geometry,
+              metrics: now.metrics,
+              columns: now.columns,
+            ),
+          );
+    return _reshape(quarterTurns: state.quarterTurns, crop: crop, settings: next);
+  }
+
+  Future<void> _reshape({
+    required int quarterTurns,
+    required CropRect crop,
+    ImageToGridSettings? settings,
+    double? aspect,
+  }) async {
     final Uint8List? source = state.source;
     if (source == null) {
       return;
     }
+    final ImageToGridSettings next = settings ?? state.settings;
+    final double? known = aspect ?? (state.sourceAspect > 0 ? state.sourceAspect : null);
     _timer?.cancel();
     final int preparation = ++_preparation;
     ++_calculation;
@@ -320,12 +381,14 @@ class ImageWizardCubit extends Cubit<ImageWizardState> {
       state.copyWith(
         quarterTurns: quarterTurns,
         crop: crop,
+        settings: next,
+        catalogColors: _countCatalog(next),
         calculating: true,
         clearProblem: true,
         clearSizeHint: true,
       ),
     );
-    final ({Uint8List png, SourceImage image})? prepared = await _prepareImage(source, quarterTurns, crop);
+    final _Framed? prepared = await _prepareFramed(source, quarterTurns, crop, next, knownAspect: known);
     if (isClosed || preparation != _preparation) {
       return;
     }
@@ -338,6 +401,7 @@ class ImageWizardCubit extends Cubit<ImageWizardState> {
       return;
     }
     _image = prepared.image;
+    _appliedCrop = prepared.applied;
     _autoImportance = maskSet?.importance();
     _subjectMask = maskSet?.subjectOrPerson;
     emit(
@@ -347,6 +411,7 @@ class ImageWizardCubit extends Cubit<ImageWizardState> {
         clearMasks: maskSet == null,
         preparedWidth: prepared.image.width,
         preparedHeight: prepared.image.height,
+        sourceAspect: prepared.aspect,
       ),
     );
     _rebuildImportance();
@@ -379,7 +444,103 @@ class ImageWizardCubit extends Cubit<ImageWizardState> {
     }
   }
 
-  void setTechnique(Technique technique) => _change(state.settings.copyWith(technique: technique));
+  /// Готовит картинку под рамку, нужную настройкам (T88c): с заданной высотой рамка пользовательницы подгоняется
+  /// ([FramePlanner]), иначе берётся как есть. Пропорции всей картинки [knownAspect] неизвестны только при открытии
+  /// файла: тогда они узнаются по первой подготовке, и при необходимости картинка готовится ещё раз.
+  Future<_Framed?> _prepareFramed(
+    Uint8List bytes,
+    int quarterTurns,
+    CropRect crop,
+    ImageToGridSettings settings, {
+    double? knownAspect,
+  }) async {
+    CropRect applied = knownAspect == null ? crop : ImageWizardState.effectiveCropOf(knownAspect, crop, settings);
+    ({Uint8List png, SourceImage image})? prepared = await _prepareImage(bytes, quarterTurns, applied);
+    if (prepared == null) {
+      return null;
+    }
+    final double aspect = knownAspect ?? prepared.image.width / prepared.image.height * crop.height / crop.width;
+    if (knownAspect == null) {
+      final CropRect wanted = ImageWizardState.effectiveCropOf(aspect, crop, settings);
+      if (wanted != crop) {
+        prepared = await _prepareImage(bytes, quarterTurns, wanted);
+        if (prepared == null) {
+          return null;
+        }
+        applied = wanted;
+      }
+    }
+    return (png: prepared.png, image: prepared.image, aspect: aspect, applied: applied);
+  }
+
+  /// Подгоняет подготовленную картинку под рамку, которой требуют текущие настройки (высота, вписывание и ширина её
+  /// меняют). `false` — пока готовили, расчёт устарел или картинку не удалось прочитать.
+  Future<bool> _syncImage(int calculation, ImageToGridSettings settings) async {
+    final Uint8List? source = state.source;
+    if (source == null || _image == null || _frameFits(settings)) {
+      return true;
+    }
+    final CropRect wanted = ImageWizardState.effectiveCropOf(state.sourceAspect, state.crop, settings);
+    final ({Uint8List png, SourceImage image})? prepared = await _prepareImage(source, state.quarterTurns, wanted);
+    if (isClosed || calculation != _calculation) {
+      return false;
+    }
+    if (prepared == null) {
+      emit(state.copyWith(calculating: false, problem: ImageWizardProblem.unreadable));
+      return false;
+    }
+    final ImageMaskSet? maskSet = await _findMasks(prepared.png, prepared.image);
+    if (isClosed || calculation != _calculation) {
+      return false;
+    }
+    _image = prepared.image;
+    _appliedCrop = wanted;
+    _autoImportance = maskSet?.importance();
+    _subjectMask = maskSet?.subjectOrPerson;
+    emit(
+      state.copyWith(
+        prepared: prepared.png,
+        masks: maskSet,
+        clearMasks: maskSet == null,
+        preparedWidth: prepared.image.width,
+        preparedHeight: prepared.image.height,
+      ),
+    );
+    _rebuildImportance();
+    return true;
+  }
+
+  /// Подготовленная картинка уже взята по рамке, которой требуют [settings].
+  bool _frameFits(ImageToGridSettings settings) =>
+      ImageWizardState.effectiveCropOf(state.sourceAspect, state.crop, settings) == _appliedCrop;
+
+  /// Станок и квадратное плетение не оставляют полей: вписывание принудительно «обрезать» (T88c).
+  ImageToGridSettings _fitAllowed(ImageToGridSettings settings) =>
+      settings.supportsMargins || settings.fit == FrameFit.crop ? settings : settings.copyWith(fit: FrameFit.crop);
+
+  void setTechnique(Technique technique) => _change(_fitAllowed(state.settings.copyWith(technique: technique)));
+
+  /// Высота вышивки в сантиметрах (шаг 5 см): клетки считаются по канве. Применяется как любая правка размера, то есть
+  /// после паузы, а не на каждый тик ползунка.
+  void setHeightCm(double cm) {
+    _sizeTouched = true;
+    _change(state.settings.copyWith(rows: state.settings.fabric.cellsForCm(ImageToGridSettings.snapCm(cm))));
+  }
+
+  /// Высота схемы из бисера в рядах.
+  void setRows(int rows) {
+    _sizeTouched = true;
+    _change(state.settings.copyWith(rows: rows));
+  }
+
+  /// «По фото»: высота снова считается по пропорциям фото, рамка обрезки пользовательницы остаётся.
+  void clearHeight() {
+    _sizeTouched = true;
+    _change(state.settings.copyWith(clearRows: true));
+  }
+
+  /// «Обрезать» или «Оставить поля»; там, где поля невозможны (станок, квадрат), всегда «Обрезать».
+  void setFit(FrameFit fit) => _change(_fitAllowed(state.settings.copyWith(fit: fit)));
 
   /// Бисер или вышивка. Ширина и число цветов возвращаются к значениям по умолчанию ремесла: вышивка крупнее
   /// бисера (60 см и 50 цветов, T71). Контуры-бэкстич по умолчанию выключены.
@@ -395,19 +556,22 @@ class ImageWizardCubit extends Cubit<ImageWizardState> {
               columns: now.fabric.cellsForCm(ImageToGridSettings.defaultStitchWidthCm),
               maxColors: ImageToGridSettings.defaultStitchColors,
               backstitch: false,
+              clearRows: true,
+              fit: FrameFit.crop,
             )
           : now.copyWith(
               technique: Technique.defaultFor(craft),
               columns: ImageToGridSettings.defaultColumns,
               maxColors: ImageToGridSettings.defaultMaxColors,
+              clearRows: true,
+              fit: FrameFit.crop,
             ),
     );
   }
 
   /// Другая канва: ширина работы в сантиметрах остаётся прежней, клетки пересчитываются.
   void setFabric(Fabric fabric) {
-    final ImageToGridSettings now = state.settings;
-    _change(now.copyWith(fabric: fabric, columns: fabric.cellsForCm(ImageToGridSettings.snapCm(now.widthCm))));
+    _change(state.settings.withFabric(fabric));
   }
 
   /// Цвет канвы: фон схемы (невышитые места).
@@ -437,6 +601,19 @@ class ImageWizardCubit extends Cubit<ImageWizardState> {
 
   /// Заменить области «посередине» двух ниток блендом (T57).
   void setBlends({required bool value}) => _change(state.settings.copyWith(blends: value));
+
+  /// Добирать нитки других производителей мулине (T86). Число подходящих позиций каталога меняется, пересчитываем.
+  void setOtherBrands({required bool value}) => _change(state.settings.copyWith(otherBrands: value));
+
+  /// Сила подъёма глубоких теней фото, 0..100 %; `null` — «Авто» (T87). Действует у вышивки с палитрой из каталога.
+  void setShadows(int? value) =>
+      _change(value == null ? state.settings.copyWith(clearShadows: true) : state.settings.copyWith(shadows: value));
+
+  /// Смешанная техника: полукресты поверх крестов (T72).
+  void setMixedStitches({required bool value}) => _change(state.settings.copyWith(mixedStitches: value));
+
+  /// Брать цвета только из запаса (T34).
+  void setOnlyStash({required bool value}) => _change(state.settings.copyWith(onlyStash: value));
 
   void setBeadSize(BeadSize size) => _change(state.settings.copyWith(beadSize: size));
 
@@ -484,7 +661,7 @@ class ImageWizardCubit extends Cubit<ImageWizardState> {
     final SourceImage? image = _image;
     return image == null
         ? null
-        : PreparedFrame(width: image.width, height: image.height, quarterTurns: state.quarterTurns, crop: state.crop);
+        : PreparedFrame(width: image.width, height: image.height, quarterTurns: state.quarterTurns, crop: _appliedCrop);
   }
 
   /// Итоговая маска важности: найденное Vision (если включено) и поверх него мазки пользователя.
@@ -609,7 +786,8 @@ class ImageWizardCubit extends Cubit<ImageWizardState> {
     if (face == null || state.calculating) {
       return;
     }
-    final CropRect now = state.crop;
+    // Лицо найдено на картинке, взятой по подогнанной рамке: переводим его в доли всей картинки (T88c).
+    final CropRect now = state.effectiveCrop;
     double clamp(double v) => v.clamp(0.0, 1.0);
     await setCrop(
       CropRect(
@@ -668,7 +846,7 @@ class ImageWizardCubit extends Cubit<ImageWizardState> {
     }
   }
 
-  /// Применяет подсказку размера одним касанием: ширина и число цветов (T61).
+  /// Применяет подсказку размера одним касанием: ширина и число цветов (T61). Заданная высота остаётся (T88c).
   void applySizeHint() {
     final SizeSuggestion? hint = state.sizeHint;
     if (hint == null) return;
@@ -705,7 +883,7 @@ class ImageWizardCubit extends Cubit<ImageWizardState> {
         if (isClosed || calculation != _calculation) return;
         final GeneratedPattern pattern = await _runner.run(
           base
-              .copyWith(columns: c.columns, maxColors: c.colors, paletteSource: PaletteSource.free)
+              .copyWith(columns: c.columns, maxColors: c.colors, paletteSource: PaletteSource.free, clearRows: true)
               .toRequest(image: image, draft: true, measure: true),
         );
         probes.add(SizeProbe(columns: c.columns, colors: c.colors, correlation: pattern.stats?.lightnessCorrelation));
@@ -743,7 +921,7 @@ class ImageWizardCubit extends Cubit<ImageWizardState> {
   String _brandFor(ImageToGridSettings settings) => settings.craft == Craft.crossStitch ? _flossBrand : _brand;
 
   int _countCatalog(ImageToGridSettings settings) =>
-      settings.catalogFor(_catalogColors, brand: _brandFor(settings)).length;
+      settings.catalogFor(_catalogColors, brand: _brandFor(settings), stash: _stash).length;
 
   /// Запрашивает расчёт; быстрые правки подряд сливаются в один полный расчёт после паузы.
   ///
@@ -768,6 +946,10 @@ class ImageWizardCubit extends Cubit<ImageWizardState> {
   bool get _hasDraft => state.settings.preset != null;
 
   void _requestDraft() {
+    // Картинка ещё не подогнана под новую высоту: черновик по ней вышел бы с искажёнными пропорциями.
+    if (!_frameFits(state.settings)) {
+      return;
+    }
     if (_draftRunning) {
       _draftWaiting = true;
       return;
@@ -781,6 +963,17 @@ class ImageWizardCubit extends Cubit<ImageWizardState> {
       return;
     }
     final ImageToGridSettings settings = state.settings;
+    if (state.stashEmpty) {
+      // В запасе нет ни одного подходящего цвета: показываем подсказку, а не рисуем схему из чужих цветов (T34).
+      if (!draft && calculation == _calculation && !isClosed) {
+        emit(state.copyWith(calculating: false));
+      }
+      return;
+    }
+    // Без подгонки под высоту расчёт стартует сразу, без лишнего ожидания.
+    if (!draft && !_frameFits(settings) && !await _syncImage(calculation, settings)) {
+      return;
+    }
     if (draft) {
       _draftRunning = true;
     }
@@ -788,9 +981,11 @@ class ImageWizardCubit extends Cubit<ImageWizardState> {
     try {
       pattern = await _runner.run(
         settings.toRequest(
-          image: image,
+          image: _image ?? image,
+          frame: settings.rows == null ? null : ImageWizardState.planOf(state.sourceAspect, state.crop, settings),
           catalog: _catalogColors,
           brand: _brandFor(settings),
+          stash: _stash,
           importance: _importance,
           masks: settings.useMasks ? state.masks : null,
           subjectMask: _subjectMask,
@@ -959,3 +1154,6 @@ class ImageWizardCubit extends Cubit<ImageWizardState> {
     return super.close();
   }
 }
+
+/// Подготовленная картинка: PNG, пиксели для конвейера, пропорции всей повёрнутой картинки и рамка, по которой взято.
+typedef _Framed = ({Uint8List png, SourceImage image, double aspect, CropRect applied});

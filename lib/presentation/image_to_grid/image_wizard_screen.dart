@@ -6,10 +6,11 @@ import 'package:beading/domain/catalog/bead_series.dart';
 import 'package:beading/domain/grid/bead_size.dart';
 import 'package:beading/domain/grid/fabric.dart';
 import 'package:beading/domain/grid/grid.dart';
-import 'package:beading/domain/image_pattern/crop_rect.dart';
+import 'package:beading/domain/grid/mm.dart';
 import 'package:beading/domain/image_pattern/pdf_rasterizer.dart';
 import 'package:beading/domain/image_to_grid/background_stage.dart';
 import 'package:beading/domain/image_to_grid/face_size_advisor.dart';
+import 'package:beading/domain/image_to_grid/frame_planner.dart';
 import 'package:beading/domain/image_to_grid/generation_preset.dart';
 import 'package:beading/domain/image_to_grid/image_to_grid_settings.dart';
 import 'package:beading/domain/image_to_grid/size_purpose.dart';
@@ -18,14 +19,16 @@ import 'package:beading/domain/palette/rgb.dart';
 import 'package:beading/domain/projects/craft.dart';
 import 'package:beading/domain/settings/floss_brands.dart';
 import 'package:beading/domain/sharing/file_sharer.dart';
+import 'package:beading/presentation/common/crop/crop_editor.dart';
+import 'package:beading/presentation/floss/floss_format.dart';
 import 'package:beading/presentation/grid_pattern/grid_pattern_view.dart';
 import 'package:beading/presentation/grid_pattern/grid_view_options.dart';
 import 'package:beading/presentation/image_to_grid/floss_shopping_sheet.dart';
+import 'package:beading/presentation/image_to_grid/frame_overlay.dart';
 import 'package:beading/presentation/image_to_grid/full_preview_screen.dart';
 import 'package:beading/presentation/image_to_grid/image_wizard_cubit.dart';
 import 'package:beading/presentation/image_to_grid/image_wizard_state.dart';
 import 'package:beading/presentation/image_to_grid/importance_brush_mode.dart';
-import 'package:beading/presentation/import_book/crop_editor.dart';
 import 'package:beading/presentation/l10n/app_localizations.dart';
 import 'package:beading/presentation/library/project_labels.dart';
 import 'package:beading/presentation/printing/print_flow.dart';
@@ -411,21 +414,6 @@ class _EditState extends State<_Edit> {
                     label: l10n.imageWizardRotate,
                     onPressed: cubit.rotate,
                   ),
-                  _IconAction(
-                    icon: CupertinoIcons.crop,
-                    label: l10n.imageWizardCrop,
-                    onPressed: () async {
-                      final CropRect? crop = await showCropEditor(
-                        context,
-                        bytes: state.source!,
-                        quarterTurns: state.quarterTurns,
-                        initial: state.crop,
-                      );
-                      if (crop != null) {
-                        await cubit.setCrop(crop);
-                      }
-                    },
-                  ),
                 ],
               ),
               if (!state.brush.isEmpty) ...<Widget>[
@@ -566,6 +554,7 @@ class _EditState extends State<_Edit> {
                   max: ImageToGridSettings.maxColumns,
                   onChanged: cubit.setColumns,
                 ),
+              _HeightSection(state: state, cubit: cubit),
               _SizeAssist(state: state, cubit: cubit),
               _SliderRow(
                 title: l10n.imageWizardColorCount,
@@ -643,6 +632,14 @@ class _EditState extends State<_Edit> {
                   ),
                 SizedBox(height: gap),
               ],
+              if (settings.craft == Craft.crossStitch &&
+                  settings.paletteSource == PaletteSource.catalog &&
+                  !state.catalogMissing)
+                _ShadowsRow(
+                  manual: settings.shadows,
+                  autoPercent: state.preview?.stats?.shadowPercent,
+                  onChanged: cubit.setShadows,
+                ),
               if (settings.craft == Craft.crossStitch) ...<Widget>[
                 _SwitchRow(
                   switchKey: const ValueKey<String>('wizard-backstitch'),
@@ -653,6 +650,16 @@ class _EditState extends State<_Edit> {
                   value: settings.backstitch,
                   onChanged: (value) => cubit.setBackstitch(value: value),
                 ),
+                if (settings.technique == Technique.crossStitch)
+                  _SwitchRow(
+                    switchKey: const ValueKey<String>('wizard-mixed'),
+                    title: l10n.imageWizardMixed,
+                    hint: state.preview == null || !settings.mixedStitches || state.calculating
+                        ? l10n.imageWizardMixedHint
+                        : '${l10n.imageWizardMixedHint}\n${l10n.imageWizardMixedCount(state.preview!.partials.length)}',
+                    value: settings.mixedStitches,
+                    onChanged: (value) => cubit.setMixedStitches(value: value),
+                  ),
                 if ((state.preview?.blendSuggestions.isNotEmpty ?? false) || settings.blends)
                   _SwitchRow(
                     switchKey: const ValueKey<String>('wizard-blends'),
@@ -680,6 +687,28 @@ class _EditState extends State<_Edit> {
                         }
                       },
                     ),
+                    if (settings.paletteSource == PaletteSource.catalog)
+                      _SwitchRow(
+                        switchKey: const ValueKey<String>('wizard-stash'),
+                        title: l10n.imageWizardStash,
+                        hint: l10n.imageWizardStashHint,
+                        value: settings.onlyStash,
+                        onChanged: (value) => cubit.setOnlyStash(value: value),
+                      ),
+                    if (settings.paletteSource == PaletteSource.catalog &&
+                        settings.craft == Craft.crossStitch &&
+                        !settings.onlyStash &&
+                        state.flossBrand.isNotEmpty)
+                      _SwitchRow(
+                        switchKey: const ValueKey<String>('wizard-other-brands'),
+                        title: l10n.imageWizardOtherBrands,
+                        hint: l10n.imageWizardOtherBrandsHint(
+                          state.flossBrand,
+                          flossBrandChoices.where((brand) => brand != state.flossBrand).join(', '),
+                        ),
+                        value: settings.otherBrands,
+                        onChanged: (value) => cubit.setOtherBrands(value: value),
+                      ),
                     if (settings.paletteSource == PaletteSource.catalog && settings.craft == Craft.beading) ...<Widget>[
                       SizedBox(height: tokens.spacing.s),
                       Text(l10n.imageWizardBeadSeries, style: caption),
@@ -711,7 +740,16 @@ class _EditState extends State<_Edit> {
                           ),
                         ),
                     ],
-                    if (state.catalogMissing)
+                    if (state.stashEmpty)
+                      Padding(
+                        padding: EdgeInsets.only(top: tokens.spacing.s),
+                        child: Text(
+                          l10n.imageWizardStashEmpty,
+                          key: const ValueKey<String>('wizard-stash-empty'),
+                          style: caption,
+                        ),
+                      )
+                    else if (state.catalogMissing)
                       Padding(
                         padding: EdgeInsets.only(top: tokens.spacing.s),
                         child: Text(
@@ -725,7 +763,9 @@ class _EditState extends State<_Edit> {
                       Padding(
                         padding: EdgeInsets.only(top: tokens.spacing.s),
                         child: Text(
-                          l10n.imageWizardCatalogFew(state.catalogColors, settings.maxColors),
+                          settings.onlyStash
+                              ? l10n.imageWizardStashFew(state.catalogColors, settings.maxColors)
+                              : l10n.imageWizardCatalogFew(state.catalogColors, settings.maxColors),
                           key: const ValueKey<String>('wizard-catalog-few'),
                           style: caption,
                         ),
@@ -1117,12 +1157,72 @@ class _Preview extends StatelessWidget {
     final AppTokensData tokens = context.tokens;
     final Grid? grid = state.preview?.grid;
     final ImageToGridSettings? shown = state.previewSettings;
+    // План схемы, которая показана (T88c): поля и кадр считаются по её настройкам, а не по текущим.
+    final FramePlan? shownPlan = shown == null || shown.rows == null || state.sourceAspect <= 0
+        ? null
+        : ImageWizardState.planOf(state.sourceAspect, state.crop, shown);
+    final bool planMatches = shownPlan != null;
+    final bool withMargins = planMatches && shown!.fit == FrameFit.margins && shownPlan.hasMargins;
+    final bool trimmed = planMatches && shown!.fit == FrameFit.crop && shownPlan.effectiveCrop != state.crop;
+    final MarginsLayout? layout = withMargins
+        ? MarginsLayout.of(
+            columns: shownPlan.columns,
+            rows: shownPlan.rows,
+            innerColumns: shownPlan.innerColumns,
+            innerRows: shownPlan.innerRows,
+            offsetColumn: shownPlan.offsetColumn,
+            offsetRow: shownPlan.offsetRow,
+          )
+        : null;
+    final Color overlayColor = CupertinoColors.systemGrey.resolveFrom(context);
+    // Рамка схемы: поверх сетки или под фото «до/после» тем же размером, чтобы поля и кадр совпадали.
+    Widget framed(Widget child, {bool photo = false}) {
+      if (!withMargins && !trimmed) {
+        return child;
+      }
+      final MmSize extent = shown.geometry.extent(shown.metrics, columns: shownPlan.columns, rows: shownPlan.rows);
+      final Widget overlay = CustomPaint(
+        key: ValueKey<String>(withMargins ? 'wizard-margins' : 'wizard-frame'),
+        painter: FrameOverlayPainter(
+          kind: withMargins ? FrameOverlayKind.margins : FrameOverlayKind.frame,
+          color: withMargins ? overlayColor : CupertinoTheme.of(context).primaryColor,
+          layout: layout,
+        ),
+      );
+      return AspectRatio(
+        aspectRatio: extent.width / extent.height,
+        child: Stack(
+          fit: StackFit.expand,
+          // Фото «до/после» лежит поверх штриховки, а рамка и поля схемы рисуются поверх сетки.
+          children: photo ? <Widget>[overlay, child] : <Widget>[child, IgnorePointer(child: overlay)],
+        ),
+      );
+    }
+
     final Widget content;
     if (state.comparing && state.prepared != null) {
+      final Widget photo = Image.memory(state.prepared!, fit: BoxFit.contain, gaplessPlayback: true);
       content = Semantics(
         label: l10n.imageWizardOriginalLabel,
         image: true,
-        child: Image.memory(state.prepared!, fit: BoxFit.contain, gaplessPlayback: true),
+        child: withMargins
+            ? framed(
+                LayoutBuilder(
+                  builder: (context, box) => Stack(
+                    children: <Widget>[
+                      Positioned(
+                        left: layout!.left * box.maxWidth,
+                        top: layout.top * box.maxHeight,
+                        width: layout.width * box.maxWidth,
+                        height: layout.height * box.maxHeight,
+                        child: photo,
+                      ),
+                    ],
+                  ),
+                ),
+                photo: true,
+              )
+            : photo,
       );
     } else if (grid != null && shown != null && state.previewPalette != null) {
       content = Semantics(
@@ -1130,20 +1230,22 @@ class _Preview extends StatelessWidget {
         image: true,
         child: Padding(
           padding: EdgeInsets.all(tokens.spacing.s),
-          child: GridPatternView(
-            key: const ValueKey<String>('wizard-grid'),
-            grid: grid,
-            palette: state.previewPalette!,
-            geometry: shown.geometry,
-            metrics: shown.metrics,
-            options: GridViewOptions(
-              showGridLines: false,
-              realistic: state.realistic,
-              canvasColor: shown.craft == Craft.crossStitch
-                  ? Color.fromARGB(255, shown.fabric.color.r, shown.fabric.color.g, shown.fabric.color.b)
-                  : null,
+          child: framed(
+            GridPatternView(
+              key: const ValueKey<String>('wizard-grid'),
+              grid: grid,
+              palette: state.previewPalette!,
+              geometry: shown.geometry,
+              metrics: shown.metrics,
+              options: GridViewOptions(
+                showGridLines: false,
+                realistic: state.realistic,
+                canvasColor: shown.craft == Craft.crossStitch
+                    ? Color.fromARGB(255, shown.fabric.color.r, shown.fabric.color.g, shown.fabric.color.b)
+                    : null,
+              ),
+              interactive: false,
             ),
-            interactive: false,
           ),
         ),
       );
@@ -1238,6 +1340,26 @@ class _Preview extends StatelessWidget {
               style: TextStyle(fontSize: 13, color: CupertinoColors.secondaryLabel.resolveFrom(context)),
             ),
           ),
+        if (grid != null && (withMargins || trimmed))
+          Padding(
+            padding: EdgeInsets.only(top: tokens.spacing.xs),
+            child: Text(
+              withMargins
+                  ? l10n.imageWizardMarginsHatched
+                  : '${l10n.imageWizardCropFrame(_gridSizeLabel(l10n, shown, shownPlan))}. ${l10n.imageWizardCropExcess}',
+              key: const ValueKey<String>('wizard-frame-caption'),
+              style: TextStyle(fontSize: 13, color: CupertinoColors.secondaryLabel.resolveFrom(context)),
+            ),
+          ),
+        if (shown?.craft == Craft.crossStitch && state.flossEstimate?.brandMix != null)
+          Padding(
+            padding: EdgeInsets.only(top: tokens.spacing.xs),
+            child: Text(
+              FlossFormat(l10n, state.flossEstimate!, withReserve: false).brandMixText!,
+              key: const ValueKey<String>('wizard-brands'),
+              style: TextStyle(fontSize: 13, color: CupertinoColors.secondaryLabel.resolveFrom(context)),
+            ),
+          ),
       ],
     );
   }
@@ -1297,6 +1419,200 @@ class _Swatch extends StatelessWidget {
   );
 }
 
+/// «Высота» (T88c): значение и шаговый ползунок, кнопка «По фото», сегмент «Обрезать» / «Оставить поля» и строка «Обрезка…».
+class _HeightSection extends StatelessWidget {
+  const _HeightSection({required this.state, required this.cubit});
+
+  final ImageWizardState state;
+  final ImageWizardCubit cubit;
+
+  Future<void> _openCrop(BuildContext context, FramePlan plan) async {
+    final ImageToGridSettings settings = state.settings;
+    final AppLocalizations l10n = AppLocalizations.of(context);
+    final bool sized = settings.rows != null;
+    final MmSize extent = settings.geometry.extent(settings.metrics, columns: plan.columns, rows: plan.rows);
+    final CropEditorResult? result = await showCropEditorResult(
+      context,
+      bytes: state.source!,
+      quarterTurns: state.quarterTurns,
+      initial: state.crop,
+      presets: true,
+      sizeLabel: sized ? _gridSizeLabel(l10n, settings, plan) : null,
+      targetAspect: sized ? extent.width / extent.height : null,
+    );
+    if (result != null) {
+      await cubit.setCropResult(result.crop, aspect: result.aspect);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final FramePlan? plan = state.plan;
+    if (plan == null) {
+      return const SizedBox.shrink();
+    }
+    final AppLocalizations l10n = AppLocalizations.of(context);
+    final AppTokensData tokens = context.tokens;
+    final ImageToGridSettings settings = state.settings;
+    final bool auto = settings.rows == null;
+    final bool stitch = settings.craft == Craft.crossStitch;
+    final bool margins = settings.supportsMargins;
+    final TextStyle caption = TextStyle(fontSize: 13, color: CupertinoColors.secondaryLabel.resolveFrom(context));
+    final double heightCm = settings.fabric.cmForCells(plan.rows);
+    final double snappedCm = ImageToGridSettings.snapCm(heightCm);
+    final String note = auto
+        ? l10n.imageWizardFitAutoNote
+        : !margins
+        ? l10n.imageWizardFitLoomNote
+        : settings.fit == FrameFit.crop
+        ? l10n.imageWizardFitCropNote
+        : stitch
+        ? l10n.imageWizardFitMarginsNoteStitch
+        : l10n.imageWizardFitMarginsNoteBead;
+    final String cropInfo = state.effectiveCrop.isFull
+        ? l10n.imageWizardCropRowFree
+        : _gridSizeLabel(l10n, settings, plan);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: <Widget>[
+        Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: <Widget>[
+            Expanded(
+              child: stitch
+                  ? _StepSlider(
+                      title: l10n.imageWizardHeight,
+                      value: heightCm,
+                      sliderValue: snappedCm,
+                      min: ImageToGridSettings.minStitchWidthCm,
+                      max: ImageToGridSettings.maxStitchHeightCm,
+                      step: ImageToGridSettings.stitchCmStep,
+                      valueKey: const ValueKey<String>('wizard-height-cm'),
+                      sliderKey: const ValueKey<String>('wizard-height-cm-slider'),
+                      id: 'wizard-height-cm',
+                      format: (v) => l10n.imageWizardCm(_cm(v)),
+                      onChanged: cubit.setHeightCm,
+                    )
+                  : _StepSlider(
+                      title: l10n.imageWizardHeight,
+                      value: plan.rows.toDouble(),
+                      min: ImageToGridSettings.minBeadRows.toDouble(),
+                      max: ImageToGridSettings.maxBeadRows.toDouble(),
+                      step: 1,
+                      valueKey: const ValueKey<String>('wizard-height-rows'),
+                      sliderKey: const ValueKey<String>('wizard-height-rows-slider'),
+                      id: 'wizard-height-rows',
+                      format: (v) => l10n.imageWizardHeightRows(v.round()),
+                      onChanged: (v) => cubit.setRows(v.round()),
+                    ),
+            ),
+            SizedBox(width: tokens.spacing.s),
+            _AutoPill(
+              label: l10n.imageWizardHeightAuto,
+              on: auto,
+              onPressed: auto ? null : cubit.clearHeight,
+            ),
+          ],
+        ),
+        Text(
+          stitch
+              ? l10n.imageWizardHeightRows(plan.rows)
+              : l10n.imageWizardCm(
+                  _cm(settings.geometry.extent(settings.metrics, columns: plan.columns, rows: plan.rows).height / 10),
+                ),
+          key: const ValueKey<String>('wizard-height-caption'),
+          style: caption,
+        ),
+        SizedBox(height: tokens.spacing.s),
+        Opacity(
+          opacity: auto ? 0.45 : 1,
+          child: IgnorePointer(
+            ignoring: auto,
+            child: CupertinoSlidingSegmentedControl<FrameFit>(
+              key: const ValueKey<String>('wizard-fit'),
+              groupValue: margins ? settings.fit : FrameFit.crop,
+              children: <FrameFit, Widget>{
+                FrameFit.crop: _SegmentLabel(l10n.imageWizardFitCrop),
+                FrameFit.margins: Opacity(
+                  opacity: margins ? 1 : 0.4,
+                  child: Semantics(enabled: margins, child: _SegmentLabel(l10n.imageWizardFitMargins)),
+                ),
+              },
+              onValueChanged: (value) {
+                if (value != null && (margins || value == FrameFit.crop)) {
+                  cubit.setFit(value);
+                }
+              },
+            ),
+          ),
+        ),
+        Padding(
+          padding: EdgeInsets.only(top: tokens.spacing.xs, bottom: tokens.spacing.s),
+          child: Text(note, key: const ValueKey<String>('wizard-fit-note'), style: caption),
+        ),
+        AppListSection(
+          margin: EdgeInsets.zero,
+          children: <Widget>[
+            CupertinoListTile.notched(
+              key: const ValueKey<String>('wizard-crop-row'),
+              title: Text(l10n.imageWizardCrop),
+              additionalInfo: Text(cropInfo, key: const ValueKey<String>('wizard-crop-info')),
+              trailing: const CupertinoListTileChevron(),
+              onTap: () => _openCrop(context, plan),
+            ),
+          ],
+        ),
+        SizedBox(height: tokens.spacing.m),
+      ],
+    );
+  }
+}
+
+/// Размер схемы для подписей: «W × H см» у вышивки, «W × H рядов» у бисера.
+String _gridSizeLabel(AppLocalizations l10n, ImageToGridSettings settings, FramePlan plan) =>
+    settings.craft == Craft.crossStitch
+    ? l10n.imageWizardFrameSizeCm(
+        _cm(settings.fabric.cmForCells(plan.columns)),
+        _cm(settings.fabric.cmForCells(plan.rows)),
+      )
+    : l10n.imageWizardFrameSizeRows(plan.columns, plan.rows);
+
+/// Кнопка-таблетка «По фото»: с галочкой и закрашена, пока высота автоматическая.
+class _AutoPill extends StatelessWidget {
+  const _AutoPill({required this.label, required this.on, required this.onPressed});
+
+  final String label;
+  final bool on;
+  final VoidCallback? onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    final Color tint = CupertinoTheme.of(context).primaryColor;
+    return Padding(
+      padding: const EdgeInsets.only(top: 6),
+      child: Semantics(
+        button: true,
+        selected: on,
+        child: CupertinoButton(
+          key: const ValueKey<String>('wizard-height-auto'),
+          padding: const EdgeInsets.symmetric(horizontal: 12),
+          minimumSize: Size(0, context.tokens.minTapTarget - 8),
+          color: on ? tint.withValues(alpha: 0.16) : CupertinoColors.tertiarySystemFill.resolveFrom(context),
+          borderRadius: BorderRadius.circular(999),
+          onPressed: onPressed,
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              if (on) ...<Widget>[Icon(CupertinoIcons.checkmark, size: 14, color: tint), const SizedBox(width: 4)],
+              Text(label, style: TextStyle(fontSize: 14, color: tint)),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
 /// Ширина вышивки в сантиметрах: клетки считаются по канве.
 class _WidthCmRow extends StatelessWidget {
   const _WidthCmRow({required this.settings, required this.onChanged});
@@ -1339,6 +1655,73 @@ class _WidthCmRow extends StatelessWidget {
             ),
             key: const ValueKey<String>('wizard-width-crosses'),
             style: TextStyle(fontSize: 13, color: CupertinoColors.secondaryLabel.resolveFrom(context)),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// «Тени» (T87): сила подъёма глубоких теней фото. «Авто» — сила подбирается по фото и ниткам, и подпись показывает,
+/// какую выбрал расчёт; тронутый ползунок переводит в ручной режим.
+class _ShadowsRow extends StatelessWidget {
+  const _ShadowsRow({required this.manual, required this.autoPercent, required this.onChanged});
+
+  /// Заданная сила, 0..100 %; `null` — «Авто».
+  final int? manual;
+
+  /// Сила, которую выбрал автоподбор в показанной схеме; `null`, пока схема не посчитана.
+  final int? autoPercent;
+  final ValueChanged<int?> onChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    final AppLocalizations l10n = AppLocalizations.of(context);
+    final bool auto = manual == null;
+    final int shown = manual ?? autoPercent ?? 0;
+    final TextStyle caption = TextStyle(fontSize: 13, color: CupertinoColors.secondaryLabel.resolveFrom(context));
+    return Padding(
+      padding: EdgeInsets.only(bottom: context.tokens.spacing.s),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: <Widget>[
+          _StepSlider(
+            title: l10n.imageWizardShadows,
+            value: shown.toDouble(),
+            min: 0,
+            max: 100,
+            step: 10,
+            valueKey: const ValueKey<String>('wizard-shadows'),
+            sliderKey: const ValueKey<String>('wizard-shadows-slider'),
+            id: 'wizard-shadows',
+            format: (v) => l10n.imageWizardShadowsValue(v.round()),
+            onChanged: (v) => onChanged(v.round()),
+          ),
+          MergeSemantics(
+            child: Row(
+              children: <Widget>[
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: <Widget>[
+                      Text(
+                        auto
+                            ? (autoPercent == null
+                                  ? l10n.imageWizardShadowsAuto
+                                  : l10n.imageWizardShadowsAutoValue(autoPercent!))
+                            : l10n.imageWizardShadowsValue(shown),
+                      ),
+                      Text(l10n.imageWizardShadowsHint, style: caption),
+                    ],
+                  ),
+                ),
+                CupertinoSwitch(
+                  key: const ValueKey<String>('wizard-shadows-auto'),
+                  value: auto,
+                  onChanged: (value) => onChanged(value ? null : (autoPercent ?? 0)),
+                ),
+              ],
+            ),
           ),
         ],
       ),

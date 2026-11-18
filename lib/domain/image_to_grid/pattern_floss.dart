@@ -19,6 +19,7 @@ FlossEstimate? estimateFlossForGenerated(GeneratedPattern pattern, PaletteSnapsh
       backstitchStrands: metrics.defaultBackstitchStrands,
     ),
     lines: pattern.lines,
+    partials: pattern.partials,
   );
   try {
     return FlossEstimator(fabric: metrics, layers: layers).estimate(pattern.grid, palette);

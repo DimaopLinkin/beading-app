@@ -2,6 +2,7 @@ import 'package:beading/app/composition/core_module.dart';
 import 'package:beading/data/sync/blob_externalizer.dart';
 import 'package:beading/data/sync/drift_sync_store.dart';
 import 'package:beading/data/sync/record_transport.dart';
+import 'package:beading/data/sync/supabase_realtime_wake.dart';
 import 'package:beading/data/sync/supabase_sync_remote.dart';
 import 'package:beading/data/sync/supabase_sync_session.dart';
 import 'package:beading/data/sync/sync_entity_mapper.dart';
@@ -32,13 +33,19 @@ final class SyncModule {
     ),
   );
 
+  late final SupabaseRealtimeWake _realtime = SupabaseRealtimeWake(_client);
+
   /// Один на приложение: держит таймер и последний статус.
   late final SyncCubit controller = SyncCubit(
     session: session,
     engine: engine,
     clock: _core.clock,
     isNetworkError: isNetworkError,
+    wakes: _realtime.wakes,
   );
 
-  Future<void> dispose() => controller.close();
+  Future<void> dispose() async {
+    await controller.close();
+    await _realtime.dispose();
+  }
 }

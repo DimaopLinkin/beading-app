@@ -91,22 +91,28 @@ void main() {
     );
   }
 
-  Widget app(StitchCubit cubit, CupertinoThemeData theme, {VoidCallback? onOpenFloss}) => CupertinoApp(
-    theme: theme,
-    builder: AppTheme.builder,
-    localizationsDelegates: AppLocalizations.localizationsDelegates,
-    supportedLocales: AppLocalizations.supportedLocales,
-    home: BlocProvider<StitchCubit>.value(
-      value: cubit,
-      child: StitchScreen(onOpenFloss: onOpenFloss),
-    ),
-  );
+  Widget app(StitchCubit cubit, CupertinoThemeData theme, {VoidCallback? onOpenFloss, VoidCallback? onOpenStats}) =>
+      CupertinoApp(
+        theme: theme,
+        builder: AppTheme.builder,
+        localizationsDelegates: AppLocalizations.localizationsDelegates,
+        supportedLocales: AppLocalizations.supportedLocales,
+        home: BlocProvider<StitchCubit>.value(
+          value: cubit,
+          child: StitchScreen(onOpenFloss: onOpenFloss, onOpenStats: onOpenStats),
+        ),
+      );
 
-  Future<StitchCubit> open(WidgetTester tester, {CupertinoThemeData? theme, VoidCallback? onOpenFloss}) async {
+  Future<StitchCubit> open(
+    WidgetTester tester, {
+    CupertinoThemeData? theme,
+    VoidCallback? onOpenFloss,
+    VoidCallback? onOpenStats,
+  }) async {
     await tester.binding.setSurfaceSize(const Size(430, 932));
     addTearDown(() => tester.binding.setSurfaceSize(null));
     final StitchCubit cubit = newCubit();
-    await tester.pumpWidget(app(cubit, theme ?? AppTheme.light, onOpenFloss: onOpenFloss));
+    await tester.pumpWidget(app(cubit, theme ?? AppTheme.light, onOpenFloss: onOpenFloss, onOpenStats: onOpenStats));
     await tester.runAsync(cubit.load);
     await tester.pump();
     await tester.pump();
@@ -117,6 +123,19 @@ void main() {
     await tester.pumpWidget(const SizedBox.shrink());
     await tester.runAsync(cubit.close);
   }
+
+  testWidgets('кнопка статистики проекта есть только если задан переход', (tester) async {
+    int opened = 0;
+    StitchCubit cubit = await open(tester, onOpenStats: () => opened++);
+    await tester.tap(find.byKey(const ValueKey<String>('stitch-stats')));
+    await tester.pump();
+    expect(opened, 1);
+    await closeScreen(tester, cubit);
+
+    cubit = await open(tester);
+    expect(find.byKey(const ValueKey<String>('stitch-stats')), findsNothing);
+    await closeScreen(tester, cubit);
+  });
 
   testWidgets('кнопка «Нитки» открывает расход; без колбэка её нет', (tester) async {
     int opened = 0;

@@ -266,4 +266,26 @@ void main() {
     expect(book['position'], 1);
     expect(await mac.outbox(), isEmpty);
   });
+
+  test('«заменить данные на устройстве»: чужое прячется без отправки, данные аккаунта возвращаются', () async {
+    // Аккаунт nastya уже на сервере (с телефона).
+    await phone.project('p1', name: 'Серьги');
+    await phone.sync(remote);
+    // На маке чужие данные другого аккаунта.
+    await mac.project('x1', name: 'Чужое');
+    await mac.store.writeOwner('other');
+    await mac.sync(remote).then((_) => null, onError: (_) => null);
+
+    await mac.store.discardLocalData();
+
+    expect(await mac.store.readOwner(), isNull);
+    expect(await mac.outbox(), isEmpty);
+    expect(await mac.rows('SELECT id FROM projects WHERE deleted_at IS NULL'), isEmpty);
+
+    await mac.sync(remote);
+    final List<Row> visible = await mac.rows('SELECT id FROM projects WHERE deleted_at IS NULL');
+    expect(<Object?>[for (final Row r in visible) r['id']], <String>['p1']);
+    // Чужой проект на сервер не ушёл.
+    expect(remote.rows.keys.where((k) => k.contains('x1')), isEmpty);
+  });
 }

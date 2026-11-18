@@ -1,19 +1,16 @@
 import 'dart:async';
 
 import 'package:beading/app/composition/app_dependencies.dart';
-import 'package:beading/app/di.dart';
 import 'package:beading/app/platform/app_menu_bar.dart';
 import 'package:beading/app/router.dart';
 import 'package:beading/domain/easter_eggs/easter_egg_service.dart';
 import 'package:beading/domain/easter_eggs/long_session_watcher.dart';
 import 'package:beading/domain/events/app_events.dart';
 import 'package:beading/domain/settings/app_theme_mode.dart';
-import 'package:beading/domain/sharing/biser/biser_file_source.dart';
 import 'package:beading/presentation/easter_eggs/compliment_banner_cubit.dart';
 import 'package:beading/presentation/easter_eggs/compliment_overlay.dart';
 import 'package:beading/presentation/l10n/app_localizations.dart';
 import 'package:beading/presentation/settings/settings_cubit.dart';
-import 'package:beading/presentation/sharing/data_transfer_cubit.dart';
 import 'package:beading/presentation/sharing/data_transfer_host.dart';
 import 'package:beading/presentation/theme/app_theme.dart';
 import 'package:beading/presentation/theme/theme_mode_cubit.dart';
@@ -87,8 +84,8 @@ class _BeadingAppState extends State<BeadingApp> {
               source: widget.dependencies.core.reduceTransparency,
               child: DismissFocusOnTap(
                 child: DataTransferHost(
-                  cubit: getIt<DataTransferCubit>(),
-                  incoming: getIt<IncomingBiserFiles>(),
+                  cubit: widget.dependencies.sharing.dataTransferCubit,
+                  incoming: widget.dependencies.sharing.incomingFiles,
                   navigatorKey: _router.routerDelegate.navigatorKey,
                   child: ComplimentOverlay(child: child ?? const SizedBox.shrink()),
                 ),

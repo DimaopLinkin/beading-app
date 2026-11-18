@@ -8,12 +8,19 @@ import 'package:beading/presentation/image_to_grid/image_wizard_screen.dart';
 import 'package:beading/presentation/import_book/import_book_screen.dart';
 import 'package:beading/presentation/materials/materials_screen.dart';
 import 'package:beading/presentation/pattern_template/pattern_template_screen.dart';
+import 'package:beading/presentation/stats/stats_screen.dart';
+import 'package:beading/presentation/steps/new_steps_screen.dart';
+import 'package:beading/presentation/steps/steps_editor_screen.dart';
+import 'package:beading/presentation/steps/steps_work_screen.dart';
 import 'package:beading/presentation/stitching/stitch_screen.dart';
 import 'package:beading/presentation/weaving/weave_screen.dart';
 
 abstract final class AppRoutes {
   static const String library = '/';
   static const String settings = '/settings';
+
+  /// Статистика времени и прогресса (T32).
+  static const String stats = StatsScreen.routePath;
   static const String about = '/settings/about';
   static const String hidden = '/settings/about/hidden';
   static const String glassCheck = '/settings/glass-check';
@@ -26,6 +33,15 @@ abstract final class AppRoutes {
 
   /// Плетение по своей схеме (T19).
   static String weave(String projectId) => WeaveScreen.locationFor(projectId);
+
+  /// Пошаговая инструкция в работе (T33c).
+  static String steps(String projectId) => StepsWorkScreen.locationFor(projectId);
+
+  /// Новая пошаговая инструкция (T33d). Закрывается с id созданного проекта.
+  static const String newSteps = NewStepsScreen.routePath;
+
+  /// Редактор пошаговой инструкции (T33d).
+  static String stepsEditor(String projectId) => StepsEditorScreen.locationFor(projectId);
 
   static String stitch(String projectId) => StitchScreen.locationFor(projectId);
 

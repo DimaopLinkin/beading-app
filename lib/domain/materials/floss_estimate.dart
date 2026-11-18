@@ -2,6 +2,7 @@ import 'dart:math' as math;
 
 import 'package:beading/domain/grid/fabric.dart';
 import 'package:beading/domain/grid/grid.dart';
+import 'package:beading/domain/materials/floss_brand_mix.dart';
 import 'package:beading/domain/materials/material_estimate.dart';
 import 'package:beading/domain/palette/catalog_ref.dart';
 import 'package:beading/domain/palette/palette_snapshot.dart';
@@ -184,6 +185,9 @@ final class FlossEstimate extends Equatable implements MaterialEstimate {
   final List<BeadPurchaseLine> beads;
 
   int get totalCrossStitches => lines.fold(0, (sum, l) => sum + l.crossStitches);
+
+  /// Бренды ниток списка покупок (T86); `null`, если все нитки одного бренда.
+  FlossBrandMix? get brandMix => FlossBrandMix.of(<CatalogRef>[for (final FlossPurchaseLine l in purchases) l.ref]);
 
   /// Всего мотков в списке покупок.
   int get totalSkeins => purchases.fold(0, (sum, l) => sum + l.skeins);

@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:beading/domain/catalog/bead_finish_group.dart';
@@ -38,12 +39,52 @@ void main() {
       fabric: Fabric.standard.withColor(const Rgb(10, 20, 30)),
       backstitch: true,
       blends: false,
+      otherBrands: true,
+      shadows: 30,
+      onlyStash: true,
+      mixedStitches: true,
     ),
   );
 
   test('рецепт записывается и читается без потерь', () {
     final ImageRecipe? back = ImageRecipeCodec.decode(ImageRecipeCodec.encode(recipe), recipe.source);
     expect(back, recipe);
+  });
+
+  test('старый рецепт без ключа запаса читается с выключенным запасом (T34)', () {
+    final Map<String, Object?> json = jsonDecode(ImageRecipeCodec.encode(recipe)) as Map<String, Object?>;
+    (json['settings']! as Map<String, Object?>).remove('stash');
+    final ImageRecipe? old = ImageRecipeCodec.decode(jsonEncode(json), recipe.source);
+    expect(old, isNotNull);
+    expect(old!.settings.onlyStash, isFalse);
+  });
+
+  test('старый рецепт без ключа брендов читается с выключенным переключателем (T86)', () {
+    final Map<String, Object?> json = jsonDecode(ImageRecipeCodec.encode(recipe)) as Map<String, Object?>;
+    (json['settings']! as Map<String, Object?>).remove('otherBrands');
+    final ImageRecipe? old = ImageRecipeCodec.decode(jsonEncode(json), recipe.source);
+    expect(old, isNotNull);
+    expect(old!.settings.otherBrands, isFalse);
+  });
+
+  test('старый рецепт без ключа теней читается как «Авто» (T87)', () {
+    final Map<String, Object?> json = jsonDecode(ImageRecipeCodec.encode(recipe)) as Map<String, Object?>;
+    (json['settings']! as Map<String, Object?>).remove('shadows');
+    final ImageRecipe? old = ImageRecipeCodec.decode(jsonEncode(json), recipe.source);
+    expect(old, isNotNull);
+    expect(old!.settings.shadows, isNull);
+  });
+
+  test('«Авто» в рецепте остаётся «Авто», ручная сила — ручной (T87)', () {
+    final ImageRecipe auto = ImageRecipe(
+      source: recipe.source,
+      quarterTurns: 0,
+      crop: CropRect.full,
+      brush: ImportanceBrush.empty,
+      settings: recipe.settings.copyWith(clearShadows: true),
+    );
+    expect(ImageRecipeCodec.decode(ImageRecipeCodec.encode(auto), auto.source)!.settings.shadows, isNull);
+    expect(ImageRecipeCodec.decode(ImageRecipeCodec.encode(recipe), recipe.source)!.settings.shadows, 30);
   });
 
   test('рецепт без предустановки остаётся без неё', () {
@@ -69,5 +110,43 @@ void main() {
     expect(await store.load('p'), recipe);
     await store.delete('p');
     expect(await store.load('p'), isNull);
+  });
+
+  test('высота и подгонка (T88a) пишутся и читаются', () {
+    final ImageRecipe withRows = ImageRecipe(
+      source: recipe.source,
+      quarterTurns: recipe.quarterTurns,
+      crop: recipe.crop,
+      brush: recipe.brush,
+      settings: recipe.settings.copyWith(rows: 50, fit: FrameFit.margins),
+    );
+    final ImageRecipe? back = ImageRecipeCodec.decode(ImageRecipeCodec.encode(withRows), recipe.source);
+    expect(back, withRows);
+    expect(back!.settings.rows, 50);
+    expect(back.settings.fit, FrameFit.margins);
+  });
+
+  test('старый рецепт без rows и fit читается с высотой по фото', () {
+    final Map<String, Object?> json = jsonDecode(ImageRecipeCodec.encode(recipe)) as Map<String, Object?>;
+    final Map<String, Object?> settings = json['settings']! as Map<String, Object?>;
+    expect(settings.containsKey('rows'), isFalse);
+    settings
+      ..remove('rows')
+      ..remove('fit');
+    final ImageRecipe? old = ImageRecipeCodec.decode(jsonEncode(json), recipe.source);
+    expect(old, isNotNull);
+    expect(old!.settings.rows, isNull);
+    expect(old.settings.fit, FrameFit.crop);
+    expect(json['v'], 1);
+  });
+
+  test('неизвестная подгонка читается как обрезка', () {
+    final Map<String, Object?> json = jsonDecode(ImageRecipeCodec.encode(recipe)) as Map<String, Object?>;
+    (json['settings']! as Map<String, Object?>)
+      ..['rows'] = 40
+      ..['fit'] = 'unknown';
+    final ImageRecipe? back = ImageRecipeCodec.decode(jsonEncode(json), recipe.source);
+    expect(back!.settings.rows, 40);
+    expect(back.settings.fit, FrameFit.crop);
   });
 }

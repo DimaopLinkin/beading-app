@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:beading/presentation/l10n/app_localizations.dart';
 import 'package:beading/presentation/sync/sync_cubit.dart';
 import 'package:beading/presentation/sync/sync_state.dart';
@@ -97,6 +99,17 @@ class _SyncScreenState extends State<SyncScreen> {
           ),
         ],
       ),
+      if (state.problem == SyncProblem.ownerMismatch)
+        CupertinoListSection.insetGrouped(
+          children: <Widget>[
+            CupertinoListTile.notched(
+              key: const ValueKey<String>('sync-replace'),
+              title: Text(l10n.syncReplaceLocal),
+              subtitle: Text(l10n.syncReplaceLocalHint),
+              onTap: () => _confirmReplace(context, l10n, cubit),
+            ),
+          ],
+        ),
       CupertinoListSection.insetGrouped(
         children: <Widget>[
           CupertinoListTile.notched(
@@ -107,6 +120,27 @@ class _SyncScreenState extends State<SyncScreen> {
         ],
       ),
     ];
+  }
+
+  Future<void> _confirmReplace(BuildContext context, AppLocalizations l10n, SyncCubit cubit) {
+    return showCupertinoDialog<void>(
+      context: context,
+      builder: (dialogContext) => CupertinoAlertDialog(
+        title: Text(l10n.syncReplaceLocal),
+        content: Text(l10n.syncReplaceLocalConfirm),
+        actions: <Widget>[
+          CupertinoDialogAction(onPressed: () => Navigator.of(dialogContext).pop(), child: Text(l10n.syncCancel)),
+          CupertinoDialogAction(
+            isDestructiveAction: true,
+            onPressed: () {
+              Navigator.of(dialogContext).pop();
+              unawaited(cubit.replaceLocalData());
+            },
+            child: Text(l10n.syncReplaceLocalAction),
+          ),
+        ],
+      ),
+    );
   }
 
   String _status(AppLocalizations l10n, SyncState state) {

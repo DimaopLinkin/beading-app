@@ -283,6 +283,36 @@ abstract class AppLocalizations {
   /// **'На другом устройстве версия новее. Обновите приложение, чтобы получить все данные.'**
   String get syncProblemNeedsAppUpdate;
 
+  /// No description provided for @syncReplaceLocal.
+  ///
+  /// In ru, this message translates to:
+  /// **'Заменить данные на устройстве'**
+  String get syncReplaceLocal;
+
+  /// No description provided for @syncReplaceLocalHint.
+  ///
+  /// In ru, this message translates to:
+  /// **'Данные этого устройства пропадут, придут данные вошедшего аккаунта'**
+  String get syncReplaceLocalHint;
+
+  /// No description provided for @syncReplaceLocalConfirm.
+  ///
+  /// In ru, this message translates to:
+  /// **'Проекты и запасы на этом устройстве будут заменены данными вошедшего аккаунта. Данные другого аккаунта на сервере не изменятся. Это нельзя отменить.'**
+  String get syncReplaceLocalConfirm;
+
+  /// No description provided for @syncReplaceLocalAction.
+  ///
+  /// In ru, this message translates to:
+  /// **'Заменить'**
+  String get syncReplaceLocalAction;
+
+  /// No description provided for @syncCancel.
+  ///
+  /// In ru, this message translates to:
+  /// **'Отмена'**
+  String get syncCancel;
+
   /// No description provided for @syncProblemFailed.
   ///
   /// In ru, this message translates to:
@@ -2632,7 +2662,7 @@ abstract class AppLocalizations {
   /// Кнопка обрезки картинки
   ///
   /// In ru, this message translates to:
-  /// **'Обрезать'**
+  /// **'Обрезка…'**
   String get imageWizardCrop;
 
   /// Подпись предпросмотра для VoiceOver
@@ -3193,6 +3223,102 @@ abstract class AppLocalizations {
   /// **'Ширина вышивки'**
   String get imageWizardWidthCm;
 
+  /// Заголовок строки высоты схемы
+  ///
+  /// In ru, this message translates to:
+  /// **'Высота'**
+  String get imageWizardHeight;
+
+  /// Высота схемы в рядах (подпись под ползунком высоты)
+  ///
+  /// In ru, this message translates to:
+  /// **'{rows, plural, one{{rows} ряд} few{{rows} ряда} many{{rows} рядов} other{{rows} рядов}}'**
+  String imageWizardHeightRows(int rows);
+
+  /// Кнопка: высота снова считается по пропорциям фото
+  ///
+  /// In ru, this message translates to:
+  /// **'По фото'**
+  String get imageWizardHeightAuto;
+
+  /// Сегмент: фото обрезается под заданную высоту
+  ///
+  /// In ru, this message translates to:
+  /// **'Обрезать'**
+  String get imageWizardFitCrop;
+
+  /// Сегмент: фото остаётся целиком, схема получает пустые поля
+  ///
+  /// In ru, this message translates to:
+  /// **'Оставить поля'**
+  String get imageWizardFitMargins;
+
+  /// Пояснение к приглушённому сегменту, пока высота автоматическая
+  ///
+  /// In ru, this message translates to:
+  /// **'Высота считается по фото, обрезать и добавлять поля не нужно.'**
+  String get imageWizardFitAutoNote;
+
+  /// Пояснение к режиму «Обрезать»
+  ///
+  /// In ru, this message translates to:
+  /// **'Фото обрежется по высоте: лишнее сверху и снизу уйдёт. Кадр виден в предпросмотре.'**
+  String get imageWizardFitCropNote;
+
+  /// Пояснение к режиму «Оставить поля» у вышивки
+  ///
+  /// In ru, this message translates to:
+  /// **'Схема получит пустые поля сверху и снизу. На предпросмотре они заштрихованы.'**
+  String get imageWizardFitMarginsNoteStitch;
+
+  /// Пояснение к режиму «Оставить поля» у бисера
+  ///
+  /// In ru, this message translates to:
+  /// **'Схема получит пустые ряды сверху и снизу. На предпросмотре они заштрихованы.'**
+  String get imageWizardFitMarginsNoteBead;
+
+  /// Причина, по которой «Оставить поля» недоступно на станке и в квадратном плетении
+  ///
+  /// In ru, this message translates to:
+  /// **'На станке пустые ряды не оставить: можно только обрезать.'**
+  String get imageWizardFitLoomNote;
+
+  /// Строка «Обрезка…»: рамка не задана
+  ///
+  /// In ru, this message translates to:
+  /// **'Рамка не задана'**
+  String get imageWizardCropRowFree;
+
+  /// Подпись под предпросмотром: размер кадра, который берётся из фото
+  ///
+  /// In ru, this message translates to:
+  /// **'Рамка: {size}'**
+  String imageWizardCropFrame(String size);
+
+  /// Подпись под предпросмотром: часть фото вне кадра не попадёт в схему
+  ///
+  /// In ru, this message translates to:
+  /// **'Лишнее уйдёт'**
+  String get imageWizardCropExcess;
+
+  /// Подпись под предпросмотром: пустые поля схемы показаны штриховкой
+  ///
+  /// In ru, this message translates to:
+  /// **'Поля: штриховка'**
+  String get imageWizardMarginsHatched;
+
+  /// Размер кадра или вышивки в сантиметрах
+  ///
+  /// In ru, this message translates to:
+  /// **'{width} × {height} см'**
+  String imageWizardFrameSizeCm(String width, String height);
+
+  /// Размер кадра бисерной схемы в клетках: ширина × высота рядов
+  ///
+  /// In ru, this message translates to:
+  /// **'{width} × {height} рядов'**
+  String imageWizardFrameSizeRows(int width, int height);
+
   /// Длина в сантиметрах
   ///
   /// In ru, this message translates to:
@@ -3246,6 +3372,96 @@ abstract class AppLocalizations {
   /// In ru, this message translates to:
   /// **'{count, plural, one{{count} стежок контура} few{{count} стежка контура} many{{count} стежков контура} other{{count} стежков контура}}'**
   String imageWizardBackstitchCount(int count);
+
+  /// Переключатель: брать цвета только из запаса ниток или бисера
+  ///
+  /// In ru, this message translates to:
+  /// **'Только из моего запаса'**
+  String get imageWizardStash;
+
+  /// Пояснение к переключателю «Только из моего запаса»
+  ///
+  /// In ru, this message translates to:
+  /// **'Схема соберётся из тех ниток и бисера, что у тебя уже есть. Запас меняется в «Моём запасе».'**
+  String get imageWizardStashHint;
+
+  /// Пояснение, когда в запасе нет ни одного подходящего цвета
+  ///
+  /// In ru, this message translates to:
+  /// **'В запасе нет подходящих цветов, поэтому схему не из чего собирать. Добавь нитки или бисер в «Мой запас» или выключи переключатель.'**
+  String get imageWizardStashEmpty;
+
+  /// Пояснение, когда в запасе меньше цветов, чем в схеме
+  ///
+  /// In ru, this message translates to:
+  /// **'В запасе подходит всего {available, plural, one{{available} цвет} few{{available} цвета} many{{available} цветов} other{{available} цветов}}, а в схеме их до {wanted}: она получится из того, что есть.'**
+  String imageWizardStashFew(int available, int wanted);
+
+  /// Переключатель: добирать нитки других брендов мулине там, где у основного нет близкого цвета
+  ///
+  /// In ru, this message translates to:
+  /// **'Нитки других производителей'**
+  String get imageWizardOtherBrands;
+
+  /// Пояснение к переключателю «Нитки других производителей»
+  ///
+  /// In ru, this message translates to:
+  /// **'Если у {brand} нет близкого цвета, схема возьмёт нитку другого бренда: {others}. Основными останутся нитки {brand}.'**
+  String imageWizardOtherBrandsHint(String brand, String others);
+
+  /// Сводка по брендам ниток схемы, когда они не одного производителя
+  ///
+  /// In ru, this message translates to:
+  /// **'Основная часть — {main}, ещё {count, plural, one{{count} нитка} few{{count} нитки} many{{count} ниток} other{{count} нитки}}: {brands}'**
+  String flossBrandMix(String main, int count, String brands);
+
+  /// Переключатель смешанной техники: полукрест поверх креста
+  ///
+  /// In ru, this message translates to:
+  /// **'Смешанные стежки'**
+  String get imageWizardMixed;
+
+  /// Пояснение к смешанным стежкам
+  ///
+  /// In ru, this message translates to:
+  /// **'Сверху на полный крест кладётся полукрест другой нитки из этой же схемы: плавные переходы без новых цветов. Шьётся дольше.'**
+  String get imageWizardMixedHint;
+
+  /// Сколько полукрестов предложено
+  ///
+  /// In ru, this message translates to:
+  /// **'{count, plural, one{Один полукрест} few{{count} полукреста} many{{count} полукрестов} other{{count} полукрестов}} сверху крестов.'**
+  String imageWizardMixedCount(int count);
+
+  /// Заголовок ползунка силы подъёма глубоких теней фото (вышивка, нитки из каталога)
+  ///
+  /// In ru, this message translates to:
+  /// **'Тени'**
+  String get imageWizardShadows;
+
+  /// Пояснение к ползунку «Тени»
+  ///
+  /// In ru, this message translates to:
+  /// **'Светлее только глубокие тени: тёмные места лучше попадают в нитки'**
+  String get imageWizardShadowsHint;
+
+  /// Переключатель: сила подъёма теней подбирается по фото и ниткам
+  ///
+  /// In ru, this message translates to:
+  /// **'Авто'**
+  String get imageWizardShadowsAuto;
+
+  /// Какую силу подъёма теней подобрал автоподбор
+  ///
+  /// In ru, this message translates to:
+  /// **'Авто: {percent} %'**
+  String imageWizardShadowsAutoValue(int percent);
+
+  /// Сила подъёма теней, заданная вручную
+  ///
+  /// In ru, this message translates to:
+  /// **'{percent} %'**
+  String imageWizardShadowsValue(int percent);
 
   /// Переключатель бленда мулине
   ///
@@ -4110,6 +4326,882 @@ abstract class AppLocalizations {
   /// In ru, this message translates to:
   /// **'Сначала выберите бусину из каталога.'**
   String get editorProblemNoBead;
+
+  /// Заголовок экрана статистики
+  ///
+  /// In ru, this message translates to:
+  /// **'Статистика'**
+  String get statsTitle;
+
+  /// Подпись кнопки статистики в библиотеке
+  ///
+  /// In ru, this message translates to:
+  /// **'Статистика'**
+  String get statsOpenSemantic;
+
+  /// Сегмент периода
+  ///
+  /// In ru, this message translates to:
+  /// **'Неделя'**
+  String get statsPeriodWeek;
+
+  /// Сегмент периода
+  ///
+  /// In ru, this message translates to:
+  /// **'Месяц'**
+  String get statsPeriodMonth;
+
+  /// Сегмент периода
+  ///
+  /// In ru, this message translates to:
+  /// **'Год'**
+  String get statsPeriodYear;
+
+  /// Сегмент периода
+  ///
+  /// In ru, this message translates to:
+  /// **'Всё время'**
+  String get statsPeriodAll;
+
+  /// Подпись стрелки назад
+  ///
+  /// In ru, this message translates to:
+  /// **'Предыдущий период'**
+  String get statsPreviousPeriod;
+
+  /// Подпись стрелки вперёд
+  ///
+  /// In ru, this message translates to:
+  /// **'Следующий период'**
+  String get statsNextPeriod;
+
+  /// Заголовок текущей недели
+  ///
+  /// In ru, this message translates to:
+  /// **'Эта неделя'**
+  String get statsThisWeek;
+
+  /// Заголовок прошлой недели
+  ///
+  /// In ru, this message translates to:
+  /// **'Прошлая неделя'**
+  String get statsLastWeek;
+
+  /// Заголовок текущего месяца
+  ///
+  /// In ru, this message translates to:
+  /// **'Этот месяц'**
+  String get statsThisMonth;
+
+  /// Подзаголовок года и всего времени
+  ///
+  /// In ru, this message translates to:
+  /// **'по месяцам'**
+  String get statsByMonths;
+
+  /// Границы недели
+  ///
+  /// In ru, this message translates to:
+  /// **'{start} – {end}'**
+  String statsWeekRange(DateTime start, DateTime end);
+
+  /// Название месяца
+  ///
+  /// In ru, this message translates to:
+  /// **'{date}'**
+  String statsMonthName(DateTime date);
+
+  /// Месяц и год
+  ///
+  /// In ru, this message translates to:
+  /// **'{date}'**
+  String statsMonthYear(DateTime date);
+
+  /// Год
+  ///
+  /// In ru, this message translates to:
+  /// **'{year}'**
+  String statsYearTitle(int year);
+
+  /// Итог
+  ///
+  /// In ru, this message translates to:
+  /// **'Всего времени'**
+  String get statsTotalTime;
+
+  /// Итог
+  ///
+  /// In ru, this message translates to:
+  /// **'Дней с работой'**
+  String get statsWorkDays;
+
+  /// Итог
+  ///
+  /// In ru, this message translates to:
+  /// **'Среднее за день с работой'**
+  String get statsAveragePerDay;
+
+  /// Итог: самая долгая непрерывная работа
+  ///
+  /// In ru, this message translates to:
+  /// **'Самая долгая работа'**
+  String get statsLongestSession;
+
+  /// Заголовок графика
+  ///
+  /// In ru, this message translates to:
+  /// **'Время по дням'**
+  String get statsChartDays;
+
+  /// Заголовок графика
+  ///
+  /// In ru, this message translates to:
+  /// **'Время по месяцам'**
+  String get statsChartMonths;
+
+  /// Выноска над столбцом графика
+  ///
+  /// In ru, this message translates to:
+  /// **'{time}, {date}'**
+  String statsChartBarValue(String time, DateTime date);
+
+  /// Заголовок списка работ
+  ///
+  /// In ru, this message translates to:
+  /// **'По работам'**
+  String get statsByProjects;
+
+  /// Время работы за всё время
+  ///
+  /// In ru, this message translates to:
+  /// **'всего {time}'**
+  String statsRowTotal(String time);
+
+  /// Прогресс вышивки
+  ///
+  /// In ru, this message translates to:
+  /// **'Сделано {done} из {total} крестиков'**
+  String statsStitchesDone(String done, String total);
+
+  /// Прогресс бисера
+  ///
+  /// In ru, this message translates to:
+  /// **'Ряд {done} из {total}'**
+  String statsRowOf(int done, int total);
+
+  /// Пустая статистика
+  ///
+  /// In ru, this message translates to:
+  /// **'Работы пока не было'**
+  String get statsEmptyTitle;
+
+  /// Пустая статистика
+  ///
+  /// In ru, this message translates to:
+  /// **'Здесь появится время за вышиванием и плетением.'**
+  String get statsEmptyText;
+
+  /// Пустая статистика
+  ///
+  /// In ru, this message translates to:
+  /// **'Время считается, когда открыт экран вышивания или плетения.'**
+  String get statsEmptyHint;
+
+  /// Период без работы
+  ///
+  /// In ru, this message translates to:
+  /// **'В этом периоде работы не было'**
+  String get statsPeriodEmptyTitle;
+
+  /// Период без работы
+  ///
+  /// In ru, this message translates to:
+  /// **'Время за другие периоды можно посмотреть стрелками.'**
+  String get statsPeriodEmptyText;
+
+  /// Ошибка чтения
+  ///
+  /// In ru, this message translates to:
+  /// **'Не удалось прочитать статистику.'**
+  String get statsLoadFailed;
+
+  /// Время
+  ///
+  /// In ru, this message translates to:
+  /// **'{n} мин'**
+  String statsMinutes(int n);
+
+  /// Время
+  ///
+  /// In ru, this message translates to:
+  /// **'{n} ч'**
+  String statsHours(int n);
+
+  /// Время
+  ///
+  /// In ru, this message translates to:
+  /// **'{h} ч {m} мин'**
+  String statsHoursMinutes(int h, String m);
+
+  /// Время
+  ///
+  /// In ru, this message translates to:
+  /// **'{d} д {h} ч'**
+  String statsDaysHours(int d, int h);
+
+  /// Заголовок листа
+  ///
+  /// In ru, this message translates to:
+  /// **'Статистика проекта'**
+  String get statsProjectTitle;
+
+  /// Кнопка закрытия листа
+  ///
+  /// In ru, this message translates to:
+  /// **'Готово'**
+  String get statsProjectDone;
+
+  /// Подпись кнопки времени в шапке
+  ///
+  /// In ru, this message translates to:
+  /// **'Статистика проекта, открыть'**
+  String get statsProjectOpenSemantic;
+
+  /// Раздел листа
+  ///
+  /// In ru, this message translates to:
+  /// **'Время'**
+  String get statsSectionTime;
+
+  /// Раздел листа
+  ///
+  /// In ru, this message translates to:
+  /// **'Прогресс'**
+  String get statsSectionProgress;
+
+  /// Раздел листа
+  ///
+  /// In ru, this message translates to:
+  /// **'Темп'**
+  String get statsSectionPace;
+
+  /// Раздел листа
+  ///
+  /// In ru, this message translates to:
+  /// **'Последние дни'**
+  String get statsSectionRecent;
+
+  /// Строка листа
+  ///
+  /// In ru, this message translates to:
+  /// **'Сессий'**
+  String get statsSessions;
+
+  /// Строка листа
+  ///
+  /// In ru, this message translates to:
+  /// **'Среднее на сессию'**
+  String get statsAverageSession;
+
+  /// Строка листа
+  ///
+  /// In ru, this message translates to:
+  /// **'Первый день работы'**
+  String get statsFirstDay;
+
+  /// Строка листа
+  ///
+  /// In ru, this message translates to:
+  /// **'Последний день'**
+  String get statsLastDay;
+
+  /// Дата дня
+  ///
+  /// In ru, this message translates to:
+  /// **'{date}'**
+  String statsDay(DateTime date);
+
+  /// Последний день работы — сегодня
+  ///
+  /// In ru, this message translates to:
+  /// **'сегодня'**
+  String get statsToday;
+
+  /// День в списке
+  ///
+  /// In ru, this message translates to:
+  /// **'Сегодня'**
+  String get statsTodayCap;
+
+  /// День в списке
+  ///
+  /// In ru, this message translates to:
+  /// **'Вчера'**
+  String get statsYesterdayCap;
+
+  /// Строка прогресса
+  ///
+  /// In ru, this message translates to:
+  /// **'Осталось'**
+  String get statsRemaining;
+
+  /// Строка прогресса
+  ///
+  /// In ru, this message translates to:
+  /// **'Готовность'**
+  String get statsReadiness;
+
+  /// Процент
+  ///
+  /// In ru, this message translates to:
+  /// **'{n}%'**
+  String statsPercent(int n);
+
+  /// Осталось рядов
+  ///
+  /// In ru, this message translates to:
+  /// **'{count, plural, one{{count} ряд} few{{count} ряда} many{{count} рядов} other{{count} ряда}}'**
+  String statsRowsLeft(int count);
+
+  /// Нет прогресса
+  ///
+  /// In ru, this message translates to:
+  /// **'Не начато'**
+  String get statsNotStarted;
+
+  /// Темп вышивки
+  ///
+  /// In ru, this message translates to:
+  /// **'≈ {n} крестиков в час'**
+  String statsPaceStitches(String n);
+
+  /// Темп бисера
+  ///
+  /// In ru, this message translates to:
+  /// **'≈ {n} бусин в час'**
+  String statsPaceBeads(String n);
+
+  /// Оценка остатка
+  ///
+  /// In ru, this message translates to:
+  /// **'При таком темпе осталось'**
+  String get statsPaceRemaining;
+
+  /// Приблизительное время
+  ///
+  /// In ru, this message translates to:
+  /// **'≈ {time}'**
+  String statsApprox(String time);
+
+  /// Пояснение к темпу
+  ///
+  /// In ru, this message translates to:
+  /// **'Это оценка: темп бывает разным.'**
+  String get statsPaceNote;
+
+  /// Мало данных для темпа
+  ///
+  /// In ru, this message translates to:
+  /// **'Пока рано считать'**
+  String get statsPaceTooEarly;
+
+  /// Мало данных для темпа
+  ///
+  /// In ru, this message translates to:
+  /// **'нужно хотя бы 2 ч'**
+  String get statsPaceNeedMore;
+
+  /// Работа закончена
+  ///
+  /// In ru, this message translates to:
+  /// **'Закончено: {time} за {days}'**
+  String statsFinished(String time, String days);
+
+  /// Дней
+  ///
+  /// In ru, this message translates to:
+  /// **'{count, plural, one{{count} день} few{{count} дня} many{{count} дней} other{{count} дня}}'**
+  String statsFinishedDays(int count);
+
+  /// Проект без сессий
+  ///
+  /// In ru, this message translates to:
+  /// **'Пока нет времени'**
+  String get statsNoTimeTitle;
+
+  /// Проект без сессий
+  ///
+  /// In ru, this message translates to:
+  /// **'Время появится, когда откроешь экран вышивания или плетения.'**
+  String get statsNoTimeText;
+
+  /// Экран инструкции: не открылась
+  ///
+  /// In ru, this message translates to:
+  /// **'Не получилось открыть инструкцию. Попробуй ещё раз.'**
+  String get stepsLoadFailed;
+
+  /// Экран инструкции: закрыть
+  ///
+  /// In ru, this message translates to:
+  /// **'Закрыть'**
+  String get stepsClose;
+
+  /// Верхняя панель инструкции
+  ///
+  /// In ru, this message translates to:
+  /// **'Секция {n} из {total}'**
+  String stepsSectionOf(int n, int total);
+
+  /// Верхняя панель инструкции, секция с названием
+  ///
+  /// In ru, this message translates to:
+  /// **'Секция {n} из {total} · {title}'**
+  String stepsSectionTitled(int n, int total, String title);
+
+  /// Номер шага над текстом
+  ///
+  /// In ru, this message translates to:
+  /// **'Шаг {n} из {total}'**
+  String stepsStepOf(int n, int total);
+
+  /// Повтор с известным числом
+  ///
+  /// In ru, this message translates to:
+  /// **'повтор {n} из {total}'**
+  String stepsRepeatOf(int n, int total);
+
+  /// Повтор «до нужной длины»
+  ///
+  /// In ru, this message translates to:
+  /// **'{n}-й повтор'**
+  String stepsRepeatOpen(int n);
+
+  /// Кнопка: шаг сделан
+  ///
+  /// In ru, this message translates to:
+  /// **'Готово, дальше'**
+  String get stepsNext;
+
+  /// Кнопка: шаг назад
+  ///
+  /// In ru, this message translates to:
+  /// **'Назад'**
+  String get stepsBack;
+
+  /// Кнопка: закончить повторы «до нужной длины»
+  ///
+  /// In ru, this message translates to:
+  /// **'Достаточно'**
+  String get stepsEnough;
+
+  /// Кнопка на последнем шаге
+  ///
+  /// In ru, this message translates to:
+  /// **'Готово: отметить работу законченной'**
+  String get stepsFinishWork;
+
+  /// Подпись, когда все шаги пройдены
+  ///
+  /// In ru, this message translates to:
+  /// **'Работа закончена'**
+  String get stepsWorkDone;
+
+  /// Кнопка: открыть список шагов
+  ///
+  /// In ru, this message translates to:
+  /// **'Список шагов'**
+  String get stepsList;
+
+  /// Пустая инструкция
+  ///
+  /// In ru, this message translates to:
+  /// **'В инструкции пока нет шагов.'**
+  String get stepsEmpty;
+
+  /// Шаг без текста
+  ///
+  /// In ru, this message translates to:
+  /// **'Только фото'**
+  String get stepsNoText;
+
+  /// Заглушка вместо фото шага
+  ///
+  /// In ru, this message translates to:
+  /// **'Фото не загрузилось'**
+  String get stepsImageFailed;
+
+  /// Кнопка под заглушкой фото
+  ///
+  /// In ru, this message translates to:
+  /// **'Повторить'**
+  String get stepsRetry;
+
+  /// Счётчик фото шага
+  ///
+  /// In ru, this message translates to:
+  /// **'{n} из {total}'**
+  String stepsImageCounter(int n, int total);
+
+  /// Подпись для VoiceOver у чипа бусин
+  ///
+  /// In ru, this message translates to:
+  /// **'{count} × {letter}, {name}'**
+  String stepsBeadChip(int count, String letter, String name);
+
+  /// Предупреждение: курсор не записался
+  ///
+  /// In ru, this message translates to:
+  /// **'Не получилось записать, где ты остановилась. Попробую ещё раз.'**
+  String get stepsSaveFailed;
+
+  /// Список шагов: сколько шагов секции пройдено
+  ///
+  /// In ru, this message translates to:
+  /// **'{done} из {total}'**
+  String stepsSectionProgress(int done, int total);
+
+  /// Список шагов: повтор секции или шага
+  ///
+  /// In ru, this message translates to:
+  /// **'{n, plural, one{{n} раз} few{{n} раза} many{{n} раз} other{{n} раз}}'**
+  String stepsRepeatTimes(int n);
+
+  /// Список шагов: повтор без счёта
+  ///
+  /// In ru, this message translates to:
+  /// **'до нужной длины'**
+  String get stepsRepeatUntilDone;
+
+  /// VoiceOver: шаг в списке уже пройден
+  ///
+  /// In ru, this message translates to:
+  /// **'пройден'**
+  String get stepsStepDone;
+
+  /// VoiceOver: кнопка статистики
+  ///
+  /// In ru, this message translates to:
+  /// **'Время работы'**
+  String get stepsStatsSemantic;
+
+  /// Лист «Новый проект»: пункт для маршрутных техник
+  ///
+  /// In ru, this message translates to:
+  /// **'Пошаговая инструкция'**
+  String get stepsNewEntry;
+
+  /// Заголовок экрана создания
+  ///
+  /// In ru, this message translates to:
+  /// **'Пошаговая инструкция'**
+  String get stepsNewTitle;
+
+  /// Поле названия
+  ///
+  /// In ru, this message translates to:
+  /// **'Название'**
+  String get stepsNewName;
+
+  /// Название по умолчанию
+  ///
+  /// In ru, this message translates to:
+  /// **'Новая инструкция'**
+  String get stepsNewDefaultName;
+
+  /// Способ создания: пустая
+  ///
+  /// In ru, this message translates to:
+  /// **'Пустая'**
+  String get stepsNewEmpty;
+
+  /// Подпись способа «Пустая»
+  ///
+  /// In ru, this message translates to:
+  /// **'Один пустой шаг, остальное допишешь сама'**
+  String get stepsNewEmptyHint;
+
+  /// Способ создания: из фото
+  ///
+  /// In ru, this message translates to:
+  /// **'Из фото'**
+  String get stepsNewFromPhotos;
+
+  /// Подпись способа «Из фото»
+  ///
+  /// In ru, this message translates to:
+  /// **'Один шаг на каждое фото'**
+  String get stepsNewFromPhotosHint;
+
+  /// Меню фото: камера
+  ///
+  /// In ru, this message translates to:
+  /// **'Снять фото'**
+  String get stepsNewTakePhoto;
+
+  /// Меню фото: галерея
+  ///
+  /// In ru, this message translates to:
+  /// **'Выбрать из галереи'**
+  String get stepsNewPickPhotos;
+
+  /// Заголовок списка шаблонов
+  ///
+  /// In ru, this message translates to:
+  /// **'Шаблоны'**
+  String get stepsNewTemplates;
+
+  /// Ошибка создания
+  ///
+  /// In ru, this message translates to:
+  /// **'Не получилось создать инструкцию. Попробуй ещё раз.'**
+  String get stepsNewFailed;
+
+  /// Ошибка выбора фото
+  ///
+  /// In ru, this message translates to:
+  /// **'Не получилось открыть камеру или фото. Проверь доступ в настройках.'**
+  String get stepsNewPhotosFailed;
+
+  /// Редактор: запись прошла
+  ///
+  /// In ru, this message translates to:
+  /// **'Сохранено'**
+  String get stepsSaved;
+
+  /// Редактор: идёт запись
+  ///
+  /// In ru, this message translates to:
+  /// **'Сохраняю…'**
+  String get stepsSaving;
+
+  /// Редактор: запись не прошла
+  ///
+  /// In ru, this message translates to:
+  /// **'Не сохранено'**
+  String get stepsSaveError;
+
+  /// Кнопка в секции
+  ///
+  /// In ru, this message translates to:
+  /// **'Добавить шаг'**
+  String get stepsAddStep;
+
+  /// Кнопка под списком секций
+  ///
+  /// In ru, this message translates to:
+  /// **'Добавить секцию'**
+  String get stepsAddSection;
+
+  /// Подсказка в поле названия секции
+  ///
+  /// In ru, this message translates to:
+  /// **'Секция {n}'**
+  String stepsSectionDefaultTitle(int n);
+
+  /// VoiceOver: меню секции
+  ///
+  /// In ru, this message translates to:
+  /// **'Действия с секцией'**
+  String get stepsSectionMenu;
+
+  /// Пустая секция
+  ///
+  /// In ru, this message translates to:
+  /// **'В секции пока нет шагов.'**
+  String get stepsEmptySection;
+
+  /// Баннер после удаления шага
+  ///
+  /// In ru, this message translates to:
+  /// **'Шаг удалён'**
+  String get stepsStepDeleted;
+
+  /// Баннер: вернуть шаг
+  ///
+  /// In ru, this message translates to:
+  /// **'Отменить'**
+  String get stepsUndo;
+
+  /// Заголовок страницы шага
+  ///
+  /// In ru, this message translates to:
+  /// **'Шаг'**
+  String get stepsStepTitle;
+
+  /// Подсказка в поле текста шага
+  ///
+  /// In ru, this message translates to:
+  /// **'Что сделать на этом шаге'**
+  String get stepsTextPlaceholder;
+
+  /// Раздел шага
+  ///
+  /// In ru, this message translates to:
+  /// **'Фото'**
+  String get stepsPhotos;
+
+  /// Плитка добавления фото
+  ///
+  /// In ru, this message translates to:
+  /// **'Добавить'**
+  String get stepsAddPhoto;
+
+  /// VoiceOver: крестик на плитке
+  ///
+  /// In ru, this message translates to:
+  /// **'Убрать фото'**
+  String get stepsRemovePhoto;
+
+  /// Ошибка добавления фото
+  ///
+  /// In ru, this message translates to:
+  /// **'Не получилось добавить фото.'**
+  String get stepsPhotoFailed;
+
+  /// Раздел шага
+  ///
+  /// In ru, this message translates to:
+  /// **'Бусины'**
+  String get stepsBeads;
+
+  /// Кнопка выбора цвета
+  ///
+  /// In ru, this message translates to:
+  /// **'Добавить бусины из каталога'**
+  String get stepsAddBeads;
+
+  /// Раздел шага и меню секции
+  ///
+  /// In ru, this message translates to:
+  /// **'Повтор'**
+  String get stepsRepeat;
+
+  /// Сегмент повтора
+  ///
+  /// In ru, this message translates to:
+  /// **'Один раз'**
+  String get stepsRepeatOnce;
+
+  /// Сегмент повтора
+  ///
+  /// In ru, this message translates to:
+  /// **'Несколько раз'**
+  String get stepsRepeatSeveral;
+
+  /// Меню секции
+  ///
+  /// In ru, this message translates to:
+  /// **'Выше'**
+  String get stepsMoveUp;
+
+  /// Меню секции
+  ///
+  /// In ru, this message translates to:
+  /// **'Ниже'**
+  String get stepsMoveDown;
+
+  /// Меню секции
+  ///
+  /// In ru, this message translates to:
+  /// **'Дублировать'**
+  String get stepsDuplicate;
+
+  /// Меню секции и шага
+  ///
+  /// In ru, this message translates to:
+  /// **'Удалить'**
+  String get stepsDelete;
+
+  /// Закрыть выбор повтора
+  ///
+  /// In ru, this message translates to:
+  /// **'Готово'**
+  String get stepsDone;
+
+  /// VoiceOver: рукоятка
+  ///
+  /// In ru, this message translates to:
+  /// **'Перетащить шаг'**
+  String get stepsDragHandle;
+
+  /// Строка шага в редакторе
+  ///
+  /// In ru, this message translates to:
+  /// **'{count, plural, one{{count} фото} few{{count} фото} many{{count} фото} other{{count} фото}}'**
+  String stepsPhotoCount(int count);
+
+  /// Строка шага в редакторе
+  ///
+  /// In ru, this message translates to:
+  /// **'{count, plural, one{{count} цвет} few{{count} цвета} many{{count} цветов} other{{count} цвета}}'**
+  String stepsBeadsCount(int count);
+
+  /// VoiceOver: кнопка редактора на экране работы
+  ///
+  /// In ru, this message translates to:
+  /// **'Править инструкцию'**
+  String get stepsEditSemantic;
+
+  /// VoiceOver: кнопка «−»
+  ///
+  /// In ru, this message translates to:
+  /// **'Меньше'**
+  String get stepsLess;
+
+  /// VoiceOver: кнопка «+»
+  ///
+  /// In ru, this message translates to:
+  /// **'Больше'**
+  String get stepsMore;
+
+  /// VoiceOver: плитка фото
+  ///
+  /// In ru, this message translates to:
+  /// **'Фото {n} из {total}'**
+  String stepsPhotoOf(int n, int total);
+
+  /// Чип редактора обрезки: рамка без фиксированных пропорций
+  ///
+  /// In ru, this message translates to:
+  /// **'Свободно'**
+  String get cropFree;
+
+  /// Кнопка переворота ориентации рамки (3:4 и 4:3)
+  ///
+  /// In ru, this message translates to:
+  /// **'Повернуть рамку'**
+  String get cropRotateFrame;
+
+  /// Причина, по которой рамку 1:1 не повернуть
+  ///
+  /// In ru, this message translates to:
+  /// **'Квадрат не поворачивается'**
+  String get cropRotateSquareReason;
+
+  /// Причина, по которой рамку размера вышивки не повернуть
+  ///
+  /// In ru, this message translates to:
+  /// **'Размер вышивки не поворачивается'**
+  String get cropRotateSizeReason;
+
+  /// Подсказка редактора обрезки при выбранных пропорциях (iPhone)
+  ///
+  /// In ru, this message translates to:
+  /// **'Двигайте и масштабируйте фото'**
+  String get cropHintTouch;
+
+  /// Подсказка редактора обрезки при выбранных пропорциях (Mac)
+  ///
+  /// In ru, this message translates to:
+  /// **'Колесо мыши или щипок трекпада масштабирует фото'**
+  String get cropHintDesktop;
+
+  /// VoiceOver: чип пропорций рамки
+  ///
+  /// In ru, this message translates to:
+  /// **'Пропорции {ratio}'**
+  String cropRatioSemantics(String ratio);
 }
 
 class _AppLocalizationsDelegate extends LocalizationsDelegate<AppLocalizations> {

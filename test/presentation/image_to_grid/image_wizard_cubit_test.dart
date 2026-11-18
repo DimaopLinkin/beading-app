@@ -7,6 +7,7 @@ import 'package:beading/domain/catalog/bead_finish_group.dart';
 import 'package:beading/domain/catalog/bead_series.dart';
 import 'package:beading/domain/catalog/catalog_color.dart';
 import 'package:beading/domain/catalog/catalog_material.dart';
+import 'package:beading/domain/floss_stock/floss_stock_repository.dart';
 import 'package:beading/domain/grid/bead_size.dart';
 import 'package:beading/domain/grid/fabric.dart';
 import 'package:beading/domain/grid/grid.dart';
@@ -14,6 +15,7 @@ import 'package:beading/domain/grid_pattern/use_cases/create_grid_pattern.dart';
 import 'package:beading/domain/image_pattern/crop_rect.dart';
 import 'package:beading/domain/image_pattern/picked_book_file.dart';
 import 'package:beading/domain/image_to_grid/background_stage.dart';
+import 'package:beading/domain/image_to_grid/cell_sampler.dart';
 import 'package:beading/domain/image_to_grid/generated_pattern.dart';
 import 'package:beading/domain/image_to_grid/generation_preset.dart';
 import 'package:beading/domain/image_to_grid/generation_stats.dart';
@@ -31,6 +33,7 @@ import 'package:beading/domain/image_to_grid/size_suggester.dart';
 import 'package:beading/domain/image_to_grid/source_image.dart';
 import 'package:beading/domain/image_to_grid/use_cases/create_pattern_from_image.dart';
 import 'package:beading/domain/image_to_grid/use_cases/replace_pattern_from_image.dart';
+import 'package:beading/domain/palette/catalog_ref.dart';
 import 'package:beading/domain/palette/rgb.dart';
 import 'package:beading/domain/projects/craft.dart';
 import 'package:beading/domain/projects/project.dart';
@@ -44,6 +47,7 @@ import 'package:flutter_test/flutter_test.dart';
 import '../../support/biser_device.dart' show sampleProject;
 import '../../support/fake_catalog_repository.dart';
 import '../../support/fake_clock.dart';
+import '../../support/fake_floss_stock.dart';
 import '../../support/fake_grid_pattern.dart';
 import '../../support/fake_image_masks.dart';
 import '../../support/fake_image_pattern.dart';
@@ -129,7 +133,11 @@ void main() {
   late FakeCatalogRepository catalog;
   late ImageWizardCubit cubit;
 
-  ImageWizardCubit build({Duration debounce = const Duration(milliseconds: 300), bool sizeHints = false}) {
+  ImageWizardCubit build({
+    Duration debounce = const Duration(milliseconds: 300),
+    bool sizeHints = false,
+    FlossStockRepository? flossStock,
+  }) {
     final FakeIdGenerator ids = FakeIdGenerator();
     return ImageWizardCubit(
       source: source,
@@ -139,6 +147,7 @@ void main() {
       masks: masks,
       catalog: catalog,
       settings: settings,
+      flossStock: flossStock,
       createPattern: CreatePatternFromImage(
         CreateGridPattern(
           createProject: CreateProject(repository: projects, ids: ids, clock: FakeClock(DateTime.utc(2026))),
@@ -659,6 +668,49 @@ void main() {
     });
   });
 
+  group('только из запаса (T34)', () {
+    final List<CatalogColor> floss = <CatalogColor>[
+      catalogColor('310', 'Чёрный', '#000000', brand: 'DMC', material: CatalogMaterial.floss),
+      catalogColor('666', 'Красный', '#FF0000', brand: 'DMC', material: CatalogMaterial.floss),
+      catalogColor('403', 'Чёрный', '#010101', brand: 'Anchor', material: CatalogMaterial.floss),
+    ];
+
+    test('схема собирается только из ниток запаса, любых брендов', () async {
+      catalog = FakeCatalogRepository(floss);
+      await settings.write(SettingKeys.defaultFlossBrand, 'DMC');
+      cubit = build(
+        debounce: Duration.zero,
+        flossStock: FakeFlossStockRepository(
+          initial: <CatalogRef, double>{
+            const CatalogRef(brand: 'DMC', code: '666'): 1,
+            const CatalogRef(brand: 'Anchor', code: '403'): 2,
+          },
+        ),
+      );
+      addTearDown(cubit.close);
+      await cubit.start(craft: Craft.crossStitch);
+      expect(cubit.state.catalogColors, 2); // бренд DMC без запаса
+      cubit.setOnlyStash(value: true);
+      expect(cubit.state.catalogColors, 2);
+      await openPhoto();
+      expect(runner.requests.last.constraint.candidates!.map((e) => e.catalog!.code), <String>['666', '403']);
+    });
+
+    test('пустой запас: схему не считают и не подменяют свободной палитрой', () async {
+      catalog = FakeCatalogRepository(floss);
+      cubit = build(debounce: Duration.zero, flossStock: FakeFlossStockRepository());
+      addTearDown(cubit.close);
+      await cubit.start(craft: Craft.crossStitch);
+      await openPhoto();
+      final int before = runner.requests.length;
+      cubit.setOnlyStash(value: true);
+      expect(cubit.state.stashEmpty, isTrue);
+      await Future<void>.delayed(Duration.zero);
+      expect(runner.requests.length, before);
+      expect(cubit.state.calculating, isFalse);
+    });
+  });
+
   group('серия и отделки (T62)', () {
     setUp(() async {
       catalog = FakeCatalogRepository(<CatalogColor>[
@@ -816,6 +868,56 @@ void main() {
       expect(s.fabric.color, const Rgb(20, 20, 20));
       expect(s.blends, isTrue);
       expect(s.backstitch, isFalse);
+    });
+
+    test('нитки других брендов: настройка меняется, каталог и запрос расширяются (T86)', () async {
+      catalog = FakeCatalogRepository(<CatalogColor>[
+        catalogColor('310', 'Чёрный', '#000000', brand: 'DMC', material: CatalogMaterial.floss),
+        catalogColor('403', 'Чёрный', '#010101', brand: 'Anchor', material: CatalogMaterial.floss),
+        catalogColor('1', 'Чёрный', '#020202', brand: 'Гамма', material: CatalogMaterial.floss),
+      ]);
+      await settings.write(SettingKeys.defaultFlossBrand, 'DMC');
+      cubit = build(debounce: Duration.zero);
+      addTearDown(cubit.close);
+      await cubit.start(craft: Craft.crossStitch);
+      expect(cubit.state.settings.otherBrands, isFalse);
+      expect(cubit.state.catalogColors, 1);
+      await openPhoto();
+      expect(runner.requests.last.constraint.preferredBrand, isNull);
+
+      cubit.setOtherBrands(value: true);
+      expect(cubit.state.settings.otherBrands, isTrue);
+      expect(cubit.state.catalogColors, 3);
+      await Future<void>.delayed(Duration.zero);
+      expect(runner.requests.last.constraint.preferredBrand, 'DMC');
+      expect(runner.requests.last.constraint.candidates, hasLength(3));
+
+      cubit.setOtherBrands(value: false);
+      expect(cubit.state.catalogColors, 1);
+    });
+
+    test('тени: «Авто» по умолчанию, ручное значение и возврат в «Авто» пересчитывают схему (T87)', () async {
+      catalog = FakeCatalogRepository(<CatalogColor>[
+        catalogColor('310', 'Чёрный', '#000000', brand: 'DMC', material: CatalogMaterial.floss),
+      ]);
+      await settings.write(SettingKeys.defaultFlossBrand, 'DMC');
+      cubit = build(debounce: Duration.zero);
+      addTearDown(cubit.close);
+      await cubit.start(craft: Craft.crossStitch);
+      await openPhoto();
+      expect(cubit.state.settings.shadows, isNull);
+      expect(runner.requests.last.liftShadows, isTrue);
+      expect(runner.requests.last.shadows, isNull);
+
+      cubit.setShadows(40);
+      expect(cubit.state.settings.shadows, 40);
+      await Future<void>.delayed(Duration.zero);
+      expect(runner.requests.last.shadows, 40);
+
+      cubit.setShadows(null);
+      expect(cubit.state.settings.shadows, isNull);
+      await Future<void>.delayed(Duration.zero);
+      expect(runner.requests.last.shadows, isNull);
     });
 
     test('сохранение: проект-вышивка с канвой как размером клетки', () async {
@@ -1186,11 +1288,227 @@ void main() {
       expect(patterns.byProject['proj-1']!.grid.width, 4);
     });
 
+    test(
+      'рецепт с высотой и «Оставить поля»: открытие восстанавливает rows и fit, сохранение пишет их (T88c)',
+      () async {
+        await recipes.save(
+          'proj-1',
+          ImageRecipe(
+            source: Uint8List.fromList(<int>[9, 9]),
+            quarterTurns: 0,
+            crop: CropRect.full,
+            brush: ImportanceBrush.empty,
+            settings: const ImageToGridSettings(technique: Technique.peyote, rows: 90, fit: FrameFit.margins),
+          ),
+        );
+        cubit = buildEditor();
+        addTearDown(cubit.close);
+        await cubit.startEditing('proj-1');
+        await settle();
+        expect(cubit.state.settings.rows, 90);
+        expect(cubit.state.settings.fit, FrameFit.margins);
+        // Поля: рамка пользовательницы остаётся как есть, конвейер получает внутреннюю сетку плана.
+        final ImageToGridRequest request = runner.requests.last;
+        expect(request.rows, lessThan(90));
+        expect(request.frame!.rows, 90);
+        expect(request.frame!.hasMargins, isTrue);
+        runner.completers.last.complete(_pattern(3));
+        await settle();
+        cubit.setName('Розы 2');
+        await cubit.save();
+        final ImageRecipe? saved = await recipes.load('proj-1');
+        expect(saved!.settings.rows, 90);
+        expect(saved.settings.fit, FrameFit.margins);
+      },
+    );
+
     test('неизвестный проект: ошибка, мастер не открывается', () async {
       cubit = buildEditor();
       addTearDown(cubit.close);
       await cubit.startEditing('нет');
       expect(cubit.state.problem, ImageWizardProblem.sourceUnavailable);
+    });
+  });
+
+  group('высота и рамка (T88c)', () {
+    Future<void> settle() async {
+      for (int i = 0; i < 20; i++) {
+        await Future<void>.delayed(Duration.zero);
+      }
+    }
+
+    // Фото в тестах 20 × 40 (портрет), вышивка по умолчанию 60 см шириной.
+    Future<void> openStitch() async {
+      cubit = build(debounce: Duration.zero);
+      addTearDown(cubit.close);
+      await openPhoto();
+      cubit.setCraft(Craft.crossStitch);
+      await settle();
+    }
+
+    test('высота в сантиметрах: rows в клетках канвы, рамка подгоняется и уходит в процессор и запрос', () async {
+      await openStitch();
+      final int callsBefore = processor.calls.length;
+      cubit.setHeightCm(10);
+      await settle();
+      final ImageToGridSettings s = cubit.state.settings;
+      expect(s.rows, s.fabric.cellsForCm(10));
+      // Портрет 1:2 при ширине 60 и высоте 10 см: берётся узкая полоса, значит рамка ниже всей картинки.
+      expect(processor.calls.length, greaterThan(callsBefore));
+      final CropRect applied = processor.calls.last.crop;
+      expect(applied.height, lessThan(1));
+      expect(cubit.state.crop, CropRect.full, reason: 'рамка пользовательницы не трогается');
+      expect(cubit.state.effectiveCrop, applied);
+      final ImageToGridRequest request = runner.requests.last;
+      expect(request.frame!.effectiveCrop, applied);
+      expect(request.rows, s.rows);
+      expect(request.columns, s.columns);
+    });
+
+    test('ползунок: пока идёт пауза, рамка не готовится заново на каждый тик', () {
+      fakeAsync((async) {
+        cubit = build();
+        source.next = Success<List<PickedBookFile>>(<PickedBookFile>[photo()]);
+        cubit.pickPhotos();
+        async.flushMicrotasks();
+        cubit.setCraft(Craft.crossStitch);
+        async.flushMicrotasks();
+        async.elapse(const Duration(seconds: 1));
+        final int calls = processor.calls.length;
+        cubit
+          ..setHeightCm(10)
+          ..setHeightCm(15)
+          ..setHeightCm(20);
+        async.flushMicrotasks();
+        expect(processor.calls.length, calls, reason: 'до паузы картинку не готовим');
+        async.elapse(const Duration(seconds: 1));
+        async.flushMicrotasks();
+        expect(processor.calls.length, calls + 1);
+        cubit.close();
+      });
+    });
+
+    test('«По фото» возвращает высоту по фото и рамку пользовательницы', () async {
+      await openStitch();
+      cubit.setHeightCm(10);
+      await settle();
+      cubit.clearHeight();
+      await settle();
+      expect(cubit.state.settings.rows, isNull);
+      expect(processor.calls.last.crop, CropRect.full);
+      expect(runner.requests.last.frame, isNull);
+    });
+
+    test('поля: рамка пользовательницы остаётся, а конвейер получает внутреннюю сетку', () async {
+      await openStitch();
+      cubit
+        ..setTechnique(Technique.tent)
+        ..setFit(FrameFit.margins)
+        ..setHeightCm(150);
+      await settle();
+      expect(cubit.state.settings.fit, FrameFit.margins);
+      final ImageToGridRequest request = runner.requests.last;
+      expect(request.frame!.hasMargins, isTrue);
+      expect(request.rows, request.frame!.innerRows);
+      expect(processor.calls.last.crop, CropRect.full);
+    });
+
+    test('станок и квадрат: «Оставить поля» недоступно, setFit(margins) остаётся «Обрезать»', () async {
+      cubit = build(debounce: Duration.zero);
+      addTearDown(cubit.close);
+      await openPhoto();
+      for (final Technique t in <Technique>[Technique.loom, Technique.square]) {
+        cubit.setTechnique(t);
+        expect(cubit.state.settings.supportsMargins, isFalse);
+        cubit.setFit(FrameFit.margins);
+        expect(cubit.state.settings.fit, FrameFit.crop);
+      }
+      cubit
+        ..setTechnique(Technique.peyote)
+        ..setFit(FrameFit.margins);
+      expect(cubit.state.settings.supportsMargins, isTrue);
+      expect(cubit.state.settings.fit, FrameFit.margins);
+      cubit.setTechnique(Technique.loom);
+      expect(cubit.state.settings.fit, FrameFit.crop, reason: 'смена техники на станок возвращает «Обрезать»');
+    });
+
+    test('результат редактора с чипом 3:4: rows по текущей ширине и рамка из редактора', () async {
+      cubit = build(debounce: Duration.zero);
+      addTearDown(cubit.close);
+      await openPhoto();
+      const CropRect crop = CropRect(left: 0, top: 0.2, right: 1, bottom: 0.8);
+      await cubit.setCropResult(crop, aspect: 0.75);
+      await settle();
+      final ImageToGridSettings s = cubit.state.settings;
+      expect(
+        s.rows,
+        GridSizing.rowsForAspect(aspect: 0.75, geometry: s.geometry, metrics: s.metrics, columns: s.columns),
+      );
+      expect(cubit.state.crop, crop);
+    });
+
+    test('результат редактора со свободной рамкой: высота снова по фото', () async {
+      cubit = build(debounce: Duration.zero);
+      addTearDown(cubit.close);
+      await openPhoto();
+      cubit.setRows(60);
+      await settle();
+      const CropRect crop = CropRect(left: 0.1, top: 0.1, right: 0.9, bottom: 0.9);
+      await cubit.setCropResult(crop);
+      await settle();
+      expect(cubit.state.settings.rows, isNull);
+      expect(cubit.state.crop, crop);
+      expect(processor.calls.last.crop, crop);
+    });
+
+    test('поворот оставляет высоту, рамка подгоняется в новых осях', () async {
+      await openStitch();
+      cubit.setHeightCm(30);
+      await settle();
+      final int rows = cubit.state.settings.rows!;
+      await cubit.rotate();
+      await settle();
+      expect(cubit.state.settings.rows, rows);
+      expect(cubit.state.crop, CropRect.full);
+      expect(cubit.state.effectiveCrop, processor.calls.last.crop);
+      expect(cubit.state.sourceAspect, closeTo(2, 1e-6), reason: 'после поворота портрет 1:2 стал альбомом 2:1');
+    });
+
+    test('смена канвы сохраняет высоту в сантиметрах (withFabric)', () async {
+      await openStitch();
+      cubit.setHeightCm(30);
+      await settle();
+      final double before = cubit.state.settings.heightCm;
+      cubit.setFabric(
+        Fabric.create(kind: FabricKind.aida, count: 18, color: cubit.state.settings.fabric.color).valueOrNull!,
+      );
+      await settle();
+      expect(cubit.state.settings.heightCm, closeTo(before, 0.3));
+    });
+
+    test('меняется только ширина (как у подсказки размера): высота остаётся', () async {
+      cubit = build(debounce: Duration.zero, sizeHints: true);
+      addTearDown(cubit.close);
+      await openPhoto();
+      cubit.setRows(60);
+      await settle();
+      cubit.setColumns(50);
+      expect(cubit.state.settings.rows, 60);
+      expect(cubit.state.settings.columns, 50);
+    });
+
+    test('кисть «важное»: PreparedFrame несёт подогнанную рамку', () async {
+      await openStitch();
+      cubit.setHeightCm(10);
+      await settle();
+      final CropRect applied = cubit.state.effectiveCrop;
+      expect(applied, isNot(CropRect.full));
+      cubit
+        ..startBrush()
+        ..addBrushStroke(<double>[0.5, 0.5]);
+      final BrushStroke stroke = cubit.state.brush.strokes.single;
+      expect(stroke.points[0], closeTo((applied.left + applied.right) / 2, 1e-9));
+      expect(stroke.points[1], closeTo((applied.top + applied.bottom) / 2, 1e-9));
     });
   });
 }

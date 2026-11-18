@@ -64,6 +64,9 @@ class SyncEngine {
   final int pullLimit;
   final int pushBatch;
 
+  /// «Заменить данные на устройстве данными аккаунта»: см. [SyncStore.discardLocalData].
+  Future<void> discardLocalData() => store.discardLocalData();
+
   Future<SyncReport> run({required String userId}) async {
     final String? owner = await store.readOwner();
     if (owner != null && owner != userId) {

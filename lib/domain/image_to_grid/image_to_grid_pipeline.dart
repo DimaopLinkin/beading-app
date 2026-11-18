@@ -13,23 +13,28 @@ import 'package:beading/domain/image_to_grid/cell_regions.dart';
 import 'package:beading/domain/image_to_grid/cell_sampler.dart';
 import 'package:beading/domain/image_to_grid/color_assigner.dart';
 import 'package:beading/domain/image_to_grid/face_guide.dart';
+import 'package:beading/domain/image_to_grid/frame_planner.dart';
 import 'package:beading/domain/image_to_grid/generated_pattern.dart';
 import 'package:beading/domain/image_to_grid/generation_stats.dart';
 import 'package:beading/domain/image_to_grid/image_prefilter.dart';
 import 'package:beading/domain/image_to_grid/image_to_grid_request.dart';
 import 'package:beading/domain/image_to_grid/label_smoother.dart';
 import 'package:beading/domain/image_to_grid/outline_backstitch.dart';
+import 'package:beading/domain/image_to_grid/overlay_stitches.dart';
 import 'package:beading/domain/image_to_grid/palette_builder.dart';
 import 'package:beading/domain/image_to_grid/palette_entry.dart';
+import 'package:beading/domain/image_to_grid/pattern_frame.dart';
 import 'package:beading/domain/image_to_grid/pattern_metrics.dart';
 import 'package:beading/domain/image_to_grid/pattern_step.dart';
 import 'package:beading/domain/image_to_grid/quantizer.dart';
+import 'package:beading/domain/image_to_grid/shadow_lift.dart';
 import 'package:beading/domain/image_to_grid/source_image.dart';
 import 'package:beading/domain/image_to_grid/work_image.dart';
 import 'package:beading/domain/palette/lab.dart';
 import 'package:beading/domain/palette/nearest_color_matcher.dart';
 import 'package:beading/domain/palette/rgb.dart';
 import 'package:beading/domain/stitch/line_stitch.dart';
+import 'package:beading/domain/stitch/partial_stitch.dart';
 
 /// Конвейер «картинка → схема»: подготовка фото (по желанию) → ресэмплинг → квантование → привязка к допустимым цветам → шаги (очистка, слои).
 ///
@@ -47,7 +52,16 @@ final class ImageToGridPipeline {
 
   /// Один расчёт. С [cache] стадии, чьи входные данные не изменились с прошлого запуска, не пересчитываются
   /// (T58, [ImageToGridSession]); результат тот же, что без кеша. Кеш работает только на пиксельном пути.
-  GeneratedPattern run(ImageToGridRequest request, {PixelStageCache? cache}) {
+  ///
+  /// Если запрос несёт план рамки ([ImageToGridRequest.frame], T88a), готовая схема последним шагом ставится в полную
+  /// сетку с полями; все расчёты до этого идут по внутренней сетке запроса.
+  GeneratedPattern run(ImageToGridRequest original, {PixelStageCache? cache}) {
+    final GeneratedPattern inner = _run(original, cache: cache);
+    final FramePlan? frame = original.frame;
+    return frame == null ? inner : PatternFrame.pad(inner, frame, frame.columns, frame.rows);
+  }
+
+  GeneratedPattern _run(ImageToGridRequest original, {PixelStageCache? cache}) {
     final Stopwatch clock = Stopwatch()..start();
     final Map<String, Duration> times = <String, Duration>{};
     Duration lap() {
@@ -56,7 +70,14 @@ final class ImageToGridPipeline {
       return elapsed;
     }
 
-    if (request.usesPixelStages) return _runPixelStages(request, clock, times, lap, cache ?? PixelStageCache());
+    // Стадия 0 (T87): глубокие тени фото поднимаются до всего остального, обе ветки конвейера видят уже поднятую
+    // картинку. Результат помнит кеш: тот же объект картинки нужен ключу кеша стадий подготовки.
+    final PixelStageCache stages = cache ?? PixelStageCache();
+    final ShadowedSource shadowed = stages.shadows.resolve(original);
+    final ImageToGridRequest request = shadowed.request;
+    if (original.liftShadows) times['shadows'] = lap();
+
+    if (request.usesPixelStages) return _runPixelStages(request, clock, times, lap, stages, shadowed.percent);
 
     SourceImage image = request.image;
     Float32List? importance = request.effectiveImportance;
@@ -114,11 +135,21 @@ final class ImageToGridPipeline {
     final List<BlendSuggestion> blends = _blends(request, pattern, cells);
     if (request.suggestBlends && !request.draft) times['blends'] = lap();
     if (request.applyBlends && blends.isNotEmpty) pattern = applyBlends(pattern, blends);
+    final List<PartialStitch> partials = _overlays(request, pattern, cells);
+    if (request.overlays && !request.draft) times['overlays'] = lap();
     return GeneratedPattern(
       grid: pattern.grid,
       palette: pattern.palette,
-      stats: _stats(pattern, cells, request.geometry, times, structure: _structureOf(request, pattern)),
+      stats: _stats(
+        pattern,
+        cells,
+        request.geometry,
+        times,
+        structure: _structureOf(request, pattern),
+        shadowPercent: shadowed.percent,
+      ),
       blendSuggestions: blends,
+      partials: partials,
     );
   }
 
@@ -163,6 +194,7 @@ final class ImageToGridPipeline {
     Map<String, Duration> times,
     Duration Function() lap,
     PixelStageCache cache,
+    int? shadowPercent,
   ) {
     // Стадии, взятые из кеша, стоят ноль: набор ключей не зависит от кеша.
     times['sample'] = times['palette'] = Duration.zero;
@@ -286,11 +318,14 @@ final class ImageToGridPipeline {
     if (request.applyBlends && blends.isNotEmpty) pattern = applyBlends(pattern, blends);
     final List<LineStitch> lines = _backstitch(request, pattern, work, regions, prepared.faceCells);
     if (request.backstitch && !request.draft) times['backstitch'] = lap();
+    final List<PartialStitch> partials = _overlays(request, pattern, cells);
+    if (request.overlays && !request.draft) times['overlays'] = lap();
     return GeneratedPattern(
       grid: pattern.grid,
       palette: pattern.palette,
       blendSuggestions: blends,
       lines: lines,
+      partials: partials,
       stats: _stats(
         pattern,
         cells,
@@ -298,6 +333,7 @@ final class ImageToGridPipeline {
         times,
         singlesBefore: request.steps.isEmpty && smoother == null ? null : singlesBefore,
         structure: _structureOf(request, pattern, prepared: prepared),
+        shadowPercent: shadowPercent,
       ),
     );
   }
@@ -353,6 +389,33 @@ final class ImageToGridPipeline {
   /// Бленды двух ниток (T57): только если запрос просил и это не черновик (его не сохраняют); по цветам клеток после ресэмплинга.
   List<BlendSuggestion> _blends(ImageToGridRequest request, GeneratedPattern pattern, SampledCells cells) =>
       request.suggestBlends && !request.draft ? suggestBlends(pattern, cells.colors) : const <BlendSuggestion>[];
+
+  /// Смешанная техника (T72): полукресты поверх крестов, только если запрос просил и это не черновик. Идёт после
+  /// бленов на итоговой палитре; фон по маске объекта и клетки обводки не трогает.
+  List<PartialStitch> _overlays(ImageToGridRequest request, GeneratedPattern pattern, SampledCells cells) {
+    if (!request.overlays || request.draft) return const <PartialStitch>[];
+    Uint8List? subject;
+    Set<int> skip = const <int>{};
+    final Uint8List? mask = request.subjectMask;
+    if (mask != null && request.usesBackgroundStage) {
+      final CellRegions regions = CellRegions.forGrid(
+        geometry: request.geometry,
+        metrics: request.metrics,
+        columns: request.columns,
+        rows: request.rows,
+        imageWidth: request.image.width,
+        imageHeight: request.image.height,
+      );
+      subject = subjectCellsFrom(mask: mask, imageWidth: request.image.width, regions: regions);
+      if (request.outline) {
+        skip = BackgroundStage.outlineCells(
+          subject,
+          CellNeighbors.of(geometry: request.geometry, columns: cells.columns, rows: cells.rows),
+        ).toSet();
+      }
+    }
+    return suggestOverlays(pattern, cells.colors, subject: subject, skip: skip);
+  }
 
   /// Контуры-бэкстич (T49): тёмным цветом палитры, по маске объекта и контрастным границам рабочей картинки.
   /// Нет палитры или запроса — линий нет; на пути T24 нет рабочей картинки, и контуров тоже нет.
@@ -432,6 +495,7 @@ final class ImageToGridPipeline {
     Map<String, Duration> times, {
     int? singlesBefore,
     LightnessStructure? structure,
+    int? shadowPercent,
   }) {
     final List<Lab> paletteLab = <Lab>[for (final PaletteEntry e in pattern.palette) Lab.fromRgb(e.rgb)];
     final Set<int> used = <int>{};
@@ -452,6 +516,7 @@ final class ImageToGridPipeline {
       meanDeltaE: counted == 0 ? 0 : sum / counted,
       contrast: structure?.contrast,
       lightnessCorrelation: structure?.correlation,
+      shadowPercent: shadowPercent,
       stageTimes: times,
     );
   }
@@ -502,10 +567,8 @@ final class ImageToGridPipeline {
     // перехода (лоб, щека, небо) схлопывались в одну нитку, и вместо градиента оставались два пятна с резкой границей;
     // теперь занятая нитка уступает следующей по близости, если та не дальше [_snapSlackDeltaE] от лучшей.
     // Крупные кластеры выбирают первыми: их лучшая нитка важнее.
-    final NearestColorMatcher<PaletteEntry> matcher = NearestColorMatcher<PaletteEntry>(
-      candidates,
-      rgbOf: (e) => e.rgb,
-    );
+    // Чужие бренды (T86) входят в расстояние со штрафом: основная нитка выигрывает, пока чужая не ближе заметно.
+    final NearestColorMatcher<PaletteEntry> matcher = request.constraint.matcher()!;
     List<PaletteEntry> snap(List<Lab> centers, List<double> weights) {
       final List<int> bySize = <int>[for (int c = 0; c < centers.length; c++) c]
         ..sort((x, y) => weights[x] != weights[y] ? weights[y].compareTo(weights[x]) : x.compareTo(y));
@@ -582,6 +645,11 @@ final class ImageToGridPipeline {
 /// Хранит только последние результаты; ключ каждой группы — значения, от которых она зависит. Совпал ключ — стадия
 /// не считается заново, изменился — пересчитывается она и все после неё.
 final class PixelStageCache {
+  PixelStageCache({ShadowStageMemo? shadows}) : shadows = shadows ?? ShadowStageMemo();
+
+  /// Стадия подъёма теней (T87). Сессия отдаёт черновому и полному кешу одну, чтобы автоподбор не считался дважды.
+  final ShadowStageMemo shadows;
+
   List<Object?>? _prepareKey;
   _Prepared? _prepared;
   List<Object?>? _paletteKey;
@@ -632,4 +700,41 @@ bool _sameKey(List<Object?>? a, List<Object?> b) {
     if (!same) return false;
   }
   return true;
+}
+
+/// Запрос после подъёма теней и выбранная сила подъёма; `percent == null` — подъём не применялся.
+typedef ShadowedSource = ({ImageToGridRequest request, int? percent});
+
+/// Стадия 0 конвейера (T87): поднимает глубокие тени картинки запроса и помнит результат, пока картинка, ограничение
+/// палитры и заданная сила те же. Поднятая картинка — один и тот же объект между запусками, поэтому ключи кеша
+/// следующих стадий не сбрасываются.
+final class ShadowStageMemo {
+  List<Object?>? _key;
+  ShadowedSource? _value;
+
+  ShadowedSource resolve(ImageToGridRequest request) {
+    final List<PaletteEntry>? threads = request.constraint.candidates;
+    if (!request.liftShadows || threads == null) return (request: request, percent: null);
+    final List<Object?> key = <Object?>[request.image, request.constraint, request.shadows];
+    final ShadowedSource? kept = _value;
+    if (kept != null && _sameKey(_key, key)) {
+      // Тот же запрос на той же картинке, но с другими остальными параметрами: подставляем сохранённую картинку.
+      return (request: _with(request, kept.request.image), percent: kept.percent);
+    }
+    final int percent = request.shadows?.clamp(0, 100) ?? ShadowLift.autoPercent(request.image, threads);
+    final SourceImage lifted = ShadowLift.liftImage(request.image, ShadowLift.gammaForPercent(percent));
+    final ShadowedSource value = (request: _with(request, lifted), percent: percent);
+    _key = key;
+    _value = value;
+    return value;
+  }
+
+  static ImageToGridRequest _with(ImageToGridRequest request, SourceImage image) => identical(image, request.image)
+      ? request
+      : request.withSource(
+          image: image,
+          importance: request.importance,
+          faces: request.faces,
+          subjectMask: request.subjectMask,
+        );
 }

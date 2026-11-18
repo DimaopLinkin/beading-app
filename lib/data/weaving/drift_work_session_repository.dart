@@ -88,6 +88,15 @@ class DriftWorkSessionRepository implements WorkSessionRepository {
   );
 
   @override
+  Future<Result<List<WorkSession>>> all() => guardStorage<List<WorkSession>>(
+    () async => <WorkSession>[for (final WorkSessionRow row in await _dao.aliveAll()) _toDomain(row)],
+  );
+
+  @override
+  Stream<List<WorkSession>> watchAll() =>
+      _dao.watchAliveAll().map((rows) => <WorkSession>[for (final WorkSessionRow row in rows) _toDomain(row)]);
+
+  @override
   Future<Result<Duration>> totalFor(String projectId) async {
     final Result<List<WorkSession>> sessions = await byProject(projectId);
     return switch (sessions) {

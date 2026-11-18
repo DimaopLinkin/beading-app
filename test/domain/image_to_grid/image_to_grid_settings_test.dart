@@ -12,6 +12,7 @@ import 'package:beading/domain/image_to_grid/image_to_grid_request.dart';
 import 'package:beading/domain/image_to_grid/image_to_grid_settings.dart';
 import 'package:beading/domain/image_to_grid/source_image.dart';
 import 'package:beading/domain/image_to_grid/technique_geometry.dart';
+import 'package:beading/domain/palette/catalog_ref.dart';
 import 'package:beading/domain/palette/rgb.dart';
 import 'package:beading/domain/projects/craft.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -66,7 +67,7 @@ void main() {
     test('ряды повторяют пропорции картинки', () {
       // Картинка 1:2, ячейка Delica 11/0 чуть выше, чем шире: рядов заметно больше половины ширины в клетках...
       const ImageToGridSettings s = ImageToGridSettings();
-      final int rows = s.rowsFor(image);
+      final int rows = s.effectiveRows(image);
       expect(rows, greaterThan(40));
       expect(rows, lessThan(100));
     });
@@ -77,6 +78,42 @@ void main() {
       expect(s.catalogFor(catalog).map((c) => c.code), <String>['DB0010', 'DB0011', 'DB0012']);
       expect(s.catalogFor(catalog, brand: 'Toho').map((c) => c.code), <String>['T-1']);
       expect(s.copyWith(beadSize: BeadSize.delica15).catalogFor(catalog), isEmpty);
+    });
+
+    test('«только из запаса» оставляет бисер из запаса и не трогает остальное (T34)', () {
+      final ImageToGridSettings s = const ImageToGridSettings().copyWith(onlyStash: true);
+      final Set<CatalogRef> stash = <CatalogRef>{
+        const CatalogRef(brand: 'Miyuki', code: 'DB0011'),
+        const CatalogRef(brand: 'Miyuki', code: 'DB0013'),
+      };
+      // DB0013 прозрачный: отделка по умолчанию его не пускает, запас этого не отменяет.
+      expect(s.catalogFor(catalog, stash: stash).map((c) => c.code), <String>['DB0011']);
+      expect(s.catalogFor(catalog), isEmpty);
+      expect(const ImageToGridSettings().catalogFor(catalog, stash: stash).length, 3);
+    });
+
+    test('«только из запаса» для мулине берёт нитки любых брендов, что есть в запасе (T34)', () {
+      final List<CatalogColor> floss = <CatalogColor>[
+        catalogColor('310', 'Чёрный', '#000000', brand: 'DMC', material: CatalogMaterial.floss),
+        catalogColor('403', 'Чёрный', '#010101', brand: 'Anchor', material: CatalogMaterial.floss),
+        catalogColor('666', 'Красный', '#FF0000', brand: 'DMC', material: CatalogMaterial.floss),
+      ];
+      final ImageToGridSettings s = const ImageToGridSettings(
+        technique: Technique.crossStitch,
+      ).copyWith(onlyStash: true);
+      final Set<CatalogRef> stash = <CatalogRef>{
+        const CatalogRef(brand: 'DMC', code: '310'),
+        const CatalogRef(brand: 'Anchor', code: '403'),
+      };
+      expect(s.catalogFor(floss, brand: 'DMC', stash: stash).map((c) => c.code), <String>['310', '403']);
+    });
+
+    test('смешанные стежки включаются только у обычного креста (T72)', () {
+      const ImageToGridSettings stitch = ImageToGridSettings(technique: Technique.crossStitch, mixedStitches: true);
+      expect(stitch.toRequest(image: image).overlays, isTrue);
+      expect(stitch.copyWith(mixedStitches: false).toRequest(image: image).overlays, isFalse);
+      expect(stitch.copyWith(technique: Technique.tent).toRequest(image: image).overlays, isFalse);
+      expect(const ImageToGridSettings(mixedStitches: true).toRequest(image: image).overlays, isFalse);
     });
 
     test('выбор серии в мастере сильнее бренда по умолчанию', () {
@@ -118,7 +155,7 @@ void main() {
       expect(request.constraint.isFree, isFalse);
       expect(request.constraint.candidates, hasLength(3));
       expect(request.columns, 40);
-      expect(request.rows, const ImageToGridSettings().rowsFor(image));
+      expect(request.rows, const ImageToGridSettings().effectiveRows(image));
     });
 
     test('вес заметности (T64) подключает DetailCellLabeler и защиту диагональных линий; по умолчанию выключен', () {
@@ -211,7 +248,7 @@ void main() {
       final SourceImage image = SourceImage.solid(width: 300, height: 120, r: 0, g: 0, b: 0);
       for (final double cm in <double>[5, 10, 15, 30, 50, 100, 200]) {
         final ImageToGridSettings s = stitch.copyWith(columns: stitch.fabric.cellsForCm(cm));
-        final double ratio = s.columns / s.rowsFor(image);
+        final double ratio = s.columns / s.effectiveRows(image);
         expect(ratio, closeTo(300 / 120, 0.06), reason: 'ширина $cm см');
       }
     });
@@ -226,7 +263,7 @@ void main() {
       final SourceImage photo = SourceImage.solid(width: 603, height: 1024, r: 10, g: 20, b: 30);
       expect(s.columns, 1575);
       expect(s.toRequest(image: photo).maxColors, 120);
-      expect(s.colorsFor(s.rowsFor(photo)), 120);
+      expect(s.colorsFor(s.effectiveRows(photo)), 120);
       expect(stitch.copyWith(columns: 150, maxColors: 30).colorsFor(100), 30);
     });
 
@@ -279,5 +316,57 @@ void main() {
       expect(request.suggestBlends, isTrue);
       expect(request.applyBlends, isFalse);
     });
+  });
+
+  group('тени под нитки (T87)', () {
+    final CatalogColor dmc = catalogColor(
+      '310',
+      'Чёрный',
+      '#000000',
+      brand: 'DMC',
+      material: CatalogMaterial.floss,
+    );
+    const ImageToGridSettings stitch = ImageToGridSettings(technique: Technique.crossStitch);
+
+    test('по умолчанию «Авто» (null); значение и возврат в «Авто» через copyWith', () {
+      expect(stitch.shadows, isNull);
+      final ImageToGridSettings manual = stitch.copyWith(shadows: 40);
+      expect(manual.shadows, 40);
+      expect(manual.copyWith(columns: 50).shadows, 40);
+      expect(manual.copyWith(clearShadows: true).shadows, isNull);
+      expect(manual, isNot(stitch));
+    });
+
+    test('вышивка с каталогом: запрос просит подъём, сила идёт как задана', () {
+      final ImageToGridRequest auto = stitch.toRequest(image: image, catalog: <CatalogColor>[dmc], brand: 'DMC');
+      expect(auto.liftShadows, isTrue);
+      expect(auto.shadows, isNull);
+      expect(
+        stitch.copyWith(shadows: 70).toRequest(image: image, catalog: <CatalogColor>[dmc], brand: 'DMC').shadows,
+        70,
+      );
+    });
+
+    test('без подъёма: бисер, свободная палитра, пустой каталог', () {
+      expect(
+        const ImageToGridSettings().toRequest(image: image, catalog: catalog, brand: 'Miyuki').liftShadows,
+        isFalse,
+      );
+      expect(
+        stitch
+            .copyWith(paletteSource: PaletteSource.free)
+            .toRequest(image: image, catalog: <CatalogColor>[dmc], brand: 'DMC')
+            .liftShadows,
+        isFalse,
+      );
+      expect(stitch.toRequest(image: image).liftShadows, isFalse);
+    });
+  });
+
+  test('поля (T88c): недоступны на станке и в квадратном плетении, остальным можно', () {
+    for (final Technique technique in Technique.values) {
+      final bool noMargins = technique == Technique.loom || technique == Technique.square;
+      expect(ImageToGridSettings(technique: technique).supportsMargins, !noMargins, reason: '$technique');
+    }
   });
 }

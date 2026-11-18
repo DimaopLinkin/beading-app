@@ -7,11 +7,14 @@ import 'package:beading/core/result.dart';
 import 'package:beading/data/printing/raster_pdf_writer.dart';
 import 'package:beading/domain/grid/grid.dart';
 import 'package:beading/domain/grid_pattern/grid_pattern.dart';
+import 'package:beading/domain/materials/floss_brand_mix.dart';
+import 'package:beading/domain/palette/catalog_ref.dart';
 import 'package:beading/domain/palette/pattern_color.dart';
 import 'package:beading/domain/printing/pattern_printer.dart';
 import 'package:beading/domain/printing/print_layout.dart';
 import 'package:beading/domain/printing/print_options.dart';
 import 'package:beading/domain/stitch/line_stitch.dart';
+import 'package:beading/domain/stitch/partial_stitch.dart';
 import 'package:beading/domain/stitch/stitch_layers.dart';
 import 'package:beading/domain/stitch/stitch_layers_codec.dart';
 
@@ -24,12 +27,27 @@ class PdfPatternPrinter implements PatternPrinter {
     this.pageLabel = _defaultPageLabel,
     this.scaleNote = _defaultScaleNote,
     this.legendTitle = 'легенда',
+    this.brandNote = _defaultBrandNote,
   });
 
   /// «Страница 3 из 12, колонки …» — подпись внизу листа.
   final String Function(String title, int page, int pages, PrintTile tile) pageLabel;
   final String scaleNote;
   final String legendTitle;
+
+  /// Строка под заголовком легенды, когда нитки не одного бренда (T86): «Основная часть — DMC, ещё 9 ниток: Anchor».
+  final String Function(FlossBrandMix mix) brandNote;
+
+  static String _defaultBrandNote(FlossBrandMix mix) {
+    final int n = mix.foreignThreads;
+    final int tail = n % 100 >= 11 && n % 100 <= 19 ? 0 : n % 10;
+    final String word = switch (tail) {
+      1 => 'нитка',
+      2 || 3 || 4 => 'нитки',
+      _ => 'ниток',
+    };
+    return 'Основная часть — ${mix.main}, ещё $n $word: ${mix.foreignBrands.join(', ')}';
+  }
 
   static String _defaultPageLabel(String title, int page, int pages, PrintTile tile) =>
       '$title · $page/$pages · ${tile.column + 1}–${tile.columnEnd} × ${tile.row + 1}–${tile.rowEnd}';
@@ -88,6 +106,7 @@ class PdfPatternPrinter implements PatternPrinter {
     );
     _drawGrid(canvas, layout, pattern, tile);
     _drawBackstitch(canvas, layout, pattern, layers, tile);
+    _drawPartials(canvas, layout, pattern, layers, tile);
     _drawAxes(canvas, layout, tile);
     _paragraph(
       canvas,
@@ -129,6 +148,20 @@ class PdfPatternPrinter implements PatternPrinter {
       color: const ui.Color(0xFF000000),
       weight: ui.FontWeight.w600,
     );
+    final FlossBrandMix? mix = FlossBrandMix.of(<CatalogRef>[
+      for (final PatternColor c in pattern.palette.colors) ...c.components,
+    ]);
+    if (mix != null) {
+      _paragraph(
+        canvas,
+        brandNote(mix),
+        left: margin,
+        top: margin + 70,
+        width: width - 2 * margin,
+        size: 30,
+        color: const ui.Color(0xFF444444),
+      );
+    }
     const double colWidth = (width - 2 * margin - LegendLayout.columnGapPx) / LegendLayout.columnsPerPage;
     const double rowH = LegendLayout.rowPx + 0.0;
     final int total = pattern.palette.length;
@@ -331,6 +364,40 @@ class PdfPatternPrinter implements PatternPrinter {
       );
     }
     canvas.restore();
+  }
+
+  /// Полукресты `/` поверх крестов (T72): диагональ цвета нитки с тёмной или светлой подложкой, как у контуров.
+  void _drawPartials(ui.Canvas canvas, PrintLayout layout, GridPattern pattern, StitchLayers? layers, PrintTile tile) {
+    if (layers == null || layers.partials.isEmpty) return;
+    final int cell = layout.cellPx;
+    for (final PartialStitch partial in layers.partials) {
+      if (partial.kind != PartialKind.half || partial.orientation != StitchOrientation.slash) continue;
+      if (partial.column < tile.column || partial.column >= tile.column + tile.columns) continue;
+      if (partial.row < tile.row || partial.row >= tile.row + tile.rows) continue;
+      final PatternColor? color = pattern.palette.colorAt(partial.color);
+      if (color == null) continue;
+      final ui.Color rgb = _flutterColor(color);
+      final double x = layout.gridLeftPx + (partial.column - tile.column) * cell.toDouble();
+      final double y = layout.gridTopPx + (partial.row - tile.row) * cell.toDouble();
+      final ui.Offset a = ui.Offset(x + cell * 0.15, y + cell * 0.85);
+      final ui.Offset b = ui.Offset(x + cell * 0.85, y + cell * 0.15);
+      canvas.drawLine(
+        a,
+        b,
+        ui.Paint()
+          ..color = _inkOn(rgb) == const ui.Color(0xFFFFFFFF) ? const ui.Color(0xFFFFFFFF) : const ui.Color(0xFF000000)
+          ..strokeWidth = 7
+          ..strokeCap = ui.StrokeCap.round,
+      );
+      canvas.drawLine(
+        a,
+        b,
+        ui.Paint()
+          ..color = rgb
+          ..strokeWidth = 4
+          ..strokeCap = ui.StrokeCap.round,
+      );
+    }
   }
 
   void _drawAxes(ui.Canvas canvas, PrintLayout layout, PrintTile tile) {
