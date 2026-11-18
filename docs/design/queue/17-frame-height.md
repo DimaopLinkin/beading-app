@@ -1,7 +1,7 @@
 ---
 id: 17-frame-height
 title: Высота вышивки и обрезка с фиксированными пропорциями (T88)
-status: delivered
+status: accepted
 depends: 08-generation
 ---
 
