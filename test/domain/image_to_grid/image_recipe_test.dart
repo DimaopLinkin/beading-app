@@ -111,4 +111,42 @@ void main() {
     await store.delete('p');
     expect(await store.load('p'), isNull);
   });
+
+  test('высота и подгонка (T88a) пишутся и читаются', () {
+    final ImageRecipe withRows = ImageRecipe(
+      source: recipe.source,
+      quarterTurns: recipe.quarterTurns,
+      crop: recipe.crop,
+      brush: recipe.brush,
+      settings: recipe.settings.copyWith(rows: 50, fit: FrameFit.margins),
+    );
+    final ImageRecipe? back = ImageRecipeCodec.decode(ImageRecipeCodec.encode(withRows), recipe.source);
+    expect(back, withRows);
+    expect(back!.settings.rows, 50);
+    expect(back.settings.fit, FrameFit.margins);
+  });
+
+  test('старый рецепт без rows и fit читается с высотой по фото', () {
+    final Map<String, Object?> json = jsonDecode(ImageRecipeCodec.encode(recipe)) as Map<String, Object?>;
+    final Map<String, Object?> settings = json['settings']! as Map<String, Object?>;
+    expect(settings.containsKey('rows'), isFalse);
+    settings
+      ..remove('rows')
+      ..remove('fit');
+    final ImageRecipe? old = ImageRecipeCodec.decode(jsonEncode(json), recipe.source);
+    expect(old, isNotNull);
+    expect(old!.settings.rows, isNull);
+    expect(old.settings.fit, FrameFit.crop);
+    expect(json['v'], 1);
+  });
+
+  test('неизвестная подгонка читается как обрезка', () {
+    final Map<String, Object?> json = jsonDecode(ImageRecipeCodec.encode(recipe)) as Map<String, Object?>;
+    (json['settings']! as Map<String, Object?>)
+      ..['rows'] = 40
+      ..['fit'] = 'unknown';
+    final ImageRecipe? back = ImageRecipeCodec.decode(jsonEncode(json), recipe.source);
+    expect(back!.settings.rows, 40);
+    expect(back.settings.fit, FrameFit.crop);
+  });
 }
