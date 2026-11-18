@@ -111,8 +111,9 @@ final class ImageToGridSettings extends Equatable {
   static const int defaultMaxColors = 8;
   static const int minColors = 2;
 
-  /// Потолок числа цветов. Наборы и схемы: обычные 16–50 цветов, фотореалистичные большие — 84–108 и выше (A11).
-  static const int maxColorsLimit = 120;
+  /// Потолок числа цветов. Наборы и схемы: обычные 16–50 цветов, фотореалистичные большие — 84–108 и выше (A11); T89 поднял предел
+  /// со 120 до 250 для больших вышивок (символов в [SymbolAssigner] хватает на все).
+  static const int maxColorsLimit = 250;
 
   /// Отделки по умолчанию (T62): непрозрачный, матовый и блестящий бисер (Настя плетёт и тем, и другим).
   static const Set<BeadFinishGroup> defaultFinishGroups = <BeadFinishGroup>{
