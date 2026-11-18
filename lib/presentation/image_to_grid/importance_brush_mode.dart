@@ -161,7 +161,8 @@ class _ImportanceBrushModeState extends State<ImportanceBrushMode> {
                       width: pw,
                       height: ph,
                       quarterTurns: state.quarterTurns,
-                      crop: state.crop,
+                      // Картинка подготовлена по рамке, подогнанной под высоту (T88c).
+                      crop: state.effectiveCrop,
                     );
                     return Center(
                       child: Semantics(

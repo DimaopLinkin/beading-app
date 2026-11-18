@@ -2662,7 +2662,7 @@ abstract class AppLocalizations {
   /// Кнопка обрезки картинки
   ///
   /// In ru, this message translates to:
-  /// **'Обрезать'**
+  /// **'Обрезка…'**
   String get imageWizardCrop;
 
   /// Подпись предпросмотра для VoiceOver
@@ -3222,6 +3222,102 @@ abstract class AppLocalizations {
   /// In ru, this message translates to:
   /// **'Ширина вышивки'**
   String get imageWizardWidthCm;
+
+  /// Заголовок строки высоты схемы
+  ///
+  /// In ru, this message translates to:
+  /// **'Высота'**
+  String get imageWizardHeight;
+
+  /// Высота схемы в рядах (подпись под ползунком высоты)
+  ///
+  /// In ru, this message translates to:
+  /// **'{rows, plural, one{{rows} ряд} few{{rows} ряда} many{{rows} рядов} other{{rows} рядов}}'**
+  String imageWizardHeightRows(int rows);
+
+  /// Кнопка: высота снова считается по пропорциям фото
+  ///
+  /// In ru, this message translates to:
+  /// **'По фото'**
+  String get imageWizardHeightAuto;
+
+  /// Сегмент: фото обрезается под заданную высоту
+  ///
+  /// In ru, this message translates to:
+  /// **'Обрезать'**
+  String get imageWizardFitCrop;
+
+  /// Сегмент: фото остаётся целиком, схема получает пустые поля
+  ///
+  /// In ru, this message translates to:
+  /// **'Оставить поля'**
+  String get imageWizardFitMargins;
+
+  /// Пояснение к приглушённому сегменту, пока высота автоматическая
+  ///
+  /// In ru, this message translates to:
+  /// **'Высота считается по фото, обрезать и добавлять поля не нужно.'**
+  String get imageWizardFitAutoNote;
+
+  /// Пояснение к режиму «Обрезать»
+  ///
+  /// In ru, this message translates to:
+  /// **'Фото обрежется по высоте: лишнее сверху и снизу уйдёт. Кадр виден в предпросмотре.'**
+  String get imageWizardFitCropNote;
+
+  /// Пояснение к режиму «Оставить поля» у вышивки
+  ///
+  /// In ru, this message translates to:
+  /// **'Схема получит пустые поля сверху и снизу. На предпросмотре они заштрихованы.'**
+  String get imageWizardFitMarginsNoteStitch;
+
+  /// Пояснение к режиму «Оставить поля» у бисера
+  ///
+  /// In ru, this message translates to:
+  /// **'Схема получит пустые ряды сверху и снизу. На предпросмотре они заштрихованы.'**
+  String get imageWizardFitMarginsNoteBead;
+
+  /// Причина, по которой «Оставить поля» недоступно на станке и в квадратном плетении
+  ///
+  /// In ru, this message translates to:
+  /// **'На станке пустые ряды не оставить: можно только обрезать.'**
+  String get imageWizardFitLoomNote;
+
+  /// Строка «Обрезка…»: рамка не задана
+  ///
+  /// In ru, this message translates to:
+  /// **'Рамка не задана'**
+  String get imageWizardCropRowFree;
+
+  /// Подпись под предпросмотром: размер кадра, который берётся из фото
+  ///
+  /// In ru, this message translates to:
+  /// **'Рамка: {size}'**
+  String imageWizardCropFrame(String size);
+
+  /// Подпись под предпросмотром: часть фото вне кадра не попадёт в схему
+  ///
+  /// In ru, this message translates to:
+  /// **'Лишнее уйдёт'**
+  String get imageWizardCropExcess;
+
+  /// Подпись под предпросмотром: пустые поля схемы показаны штриховкой
+  ///
+  /// In ru, this message translates to:
+  /// **'Поля: штриховка'**
+  String get imageWizardMarginsHatched;
+
+  /// Размер кадра или вышивки в сантиметрах
+  ///
+  /// In ru, this message translates to:
+  /// **'{width} × {height} см'**
+  String imageWizardFrameSizeCm(String width, String height);
+
+  /// Размер кадра бисерной схемы в клетках: ширина × высота рядов
+  ///
+  /// In ru, this message translates to:
+  /// **'{width} × {height} рядов'**
+  String imageWizardFrameSizeRows(int width, int height);
 
   /// Длина в сантиметрах
   ///
