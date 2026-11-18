@@ -189,7 +189,7 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get aboutCredits =>
-      'Цвета ниток DMC: craft-color-codes, MakeBead (makebead.com), лицензия CC BY 4.0. DMC — торговая марка DMC, приложение с ней не связано. Цвета ниток «Гамма» и Anchor: firma-gamma.ru и crosti.ru. «Гамма» и Anchor — торговые марки своих владельцев, приложение с ними не связано.';
+      'Цвета ниток DMC: craft-color-codes, MakeBead (makebead.com), лицензия CC BY 4.0. DMC — торговая марка DMC, приложение с ней не связано. Цвета ниток «Гамма», Anchor и «ПНК Кирова»: firma-gamma.ru и crosti.ru. Цвета Luca-S приблизительные: взяты у ближайших ниток DMC по таблице соответствия corolina.ru. «Гамма», Anchor, «ПНК Кирова» и Luca-S — торговые марки своих владельцев, приложение с ними не связано.';
 
   @override
   String aboutVersion(String version) {
@@ -1951,21 +1951,24 @@ class AppLocalizationsRu extends AppLocalizations {
   String get imageWizardOtherBrands => 'Нитки других производителей';
 
   @override
-  String imageWizardOtherBrandsHint(String brand, String others) {
-    return 'Если у $brand нет близкого цвета, схема возьмёт нитку другого бренда: $others. Основными останутся нитки $brand.';
+  String imageWizardOtherBrandsHint(String brand) {
+    return 'Если у $brand нет близкого цвета, схема возьмёт нитку другого бренда. Основными останутся нитки $brand.';
   }
 
   @override
-  String flossBrandMix(String main, int count, String brands) {
+  String get imageWizardOtherBrandsAuto => 'Авто';
+
+  @override
+  String flossBrandMix(String main, int mainCount, int count, String brands) {
     String _temp0 = intl.Intl.pluralLogic(
-      count,
+      mainCount,
       locale: localeName,
-      other: '$count нитки',
-      many: '$count ниток',
-      few: '$count нитки',
-      one: '$count нитка',
+      other: '$mainCount нитки',
+      many: '$mainCount ниток',
+      few: '$mainCount нитки',
+      one: '$mainCount нитка',
     );
-    return 'Основная часть — $main, ещё $_temp0: $brands';
+    return 'Основная часть — $main, $_temp0; ещё $count: $brands';
   }
 
   @override

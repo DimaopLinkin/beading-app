@@ -35,18 +35,21 @@ class PdfPatternPrinter implements PatternPrinter {
   final String scaleNote;
   final String legendTitle;
 
-  /// Строка под заголовком легенды, когда нитки не одного бренда (T86): «Основная часть — DMC, ещё 9 ниток: Anchor».
+  /// Строка под заголовком легенды, когда нитки не одного бренда (T86): «Основная часть — DMC, 42 нитки; ещё 9: Anchor 5, Гамма 4».
   final String Function(FlossBrandMix mix) brandNote;
 
   static String _defaultBrandNote(FlossBrandMix mix) {
-    final int n = mix.foreignThreads;
-    final int tail = n % 100 >= 11 && n % 100 <= 19 ? 0 : n % 10;
-    final String word = switch (tail) {
-      1 => 'нитка',
-      2 || 3 || 4 => 'нитки',
-      _ => 'ниток',
-    };
-    return 'Основная часть — ${mix.main}, ещё $n $word: ${mix.foreignBrands.join(', ')}';
+    String threads(int n) {
+      final int tail = n % 100 >= 11 && n % 100 <= 19 ? 0 : n % 10;
+      return '$n ${switch (tail) {
+        1 => 'нитка',
+        2 || 3 || 4 => 'нитки',
+        _ => 'ниток',
+      }}';
+    }
+
+    final String others = mix.foreign.entries.map((e) => '${e.key} ${e.value}').join(', ');
+    return 'Основная часть — ${mix.main}, ${threads(mix.mainThreads)}; ещё ${mix.foreignThreads}: $others';
   }
 
   static String _defaultPageLabel(String title, int page, int pages, PrintTile tile) =>

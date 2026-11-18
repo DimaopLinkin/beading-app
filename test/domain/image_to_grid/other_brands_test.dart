@@ -164,6 +164,19 @@ void main() {
       );
     });
 
+    test('выбор брендов (T90): только отмеченные; пусто — «Авто»; основной бренд всегда остаётся', () {
+      final ImageToGridSettings on = stitch.copyWith(otherBrands: true, otherBrandsOnly: <String>{'Гамма'});
+      expect(on.catalogFor(floss, brand: 'DMC').map((c) => c.code), <String>['310', '0001']);
+      expect(
+        on.copyWith(otherBrandsOnly: <String>{'DMC', 'Anchor'}).catalogFor(floss, brand: 'DMC').map((c) => c.code),
+        <String>['310', '403'],
+      );
+      expect(on.copyWith(otherBrandsOnly: <String>{}).catalogFor(floss, brand: 'DMC'), hasLength(3));
+      expect(stitch.copyWith(otherBrandsOnly: <String>{'Гамма'}).catalogFor(floss, brand: 'DMC'), hasLength(1));
+      // Выбор остался от прежнего основного бренда: у нового это снова «Авто».
+      expect(on.copyWith(otherBrandsOnly: <String>{'DMC'}).catalogFor(floss, brand: 'DMC'), hasLength(3));
+    });
+
     test('запрос получает основной бренд; без бренда, с запасом и у бисера переключатель не действует', () {
       final ImageToGridSettings on = stitch.copyWith(otherBrands: true);
       expect(on.toRequest(image: grey, catalog: floss, brand: 'DMC').constraint.preferredBrand, 'DMC');
