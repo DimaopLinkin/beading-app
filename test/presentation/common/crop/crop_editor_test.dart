@@ -1,11 +1,11 @@
 import 'package:beading/domain/image_pattern/crop_rect.dart';
-import 'package:beading/presentation/import_book/crop_editor.dart';
+import 'package:beading/presentation/common/crop/crop_editor.dart';
 import 'package:beading/presentation/l10n/app_localizations.dart';
 import 'package:beading/presentation/theme/app_theme.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_test/flutter_test.dart';
 
-import '../../support/test_images.dart';
+import '../../../support/test_images.dart';
 
 void main() {
   for (final CupertinoThemeData theme in <CupertinoThemeData>[AppTheme.light, AppTheme.dark]) {

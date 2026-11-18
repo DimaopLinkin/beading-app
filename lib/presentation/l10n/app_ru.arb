@@ -1803,5 +1803,19 @@
   "stepsMore": "Больше",
   "@stepsMore": {"description": "VoiceOver: кнопка «+»"},
   "stepsPhotoOf": "Фото {n} из {total}",
-  "@stepsPhotoOf": {"description": "VoiceOver: плитка фото", "placeholders": {"n": {"type": "int"}, "total": {"type": "int"}}}
+  "@stepsPhotoOf": {"description": "VoiceOver: плитка фото", "placeholders": {"n": {"type": "int"}, "total": {"type": "int"}}},
+  "cropFree": "Свободно",
+  "@cropFree": {"description": "Чип редактора обрезки: рамка без фиксированных пропорций"},
+  "cropRotateFrame": "Повернуть рамку",
+  "@cropRotateFrame": {"description": "Кнопка переворота ориентации рамки (3:4 и 4:3)"},
+  "cropRotateSquareReason": "Квадрат не поворачивается",
+  "@cropRotateSquareReason": {"description": "Причина, по которой рамку 1:1 не повернуть"},
+  "cropRotateSizeReason": "Размер вышивки не поворачивается",
+  "@cropRotateSizeReason": {"description": "Причина, по которой рамку размера вышивки не повернуть"},
+  "cropHintTouch": "Двигайте и масштабируйте фото",
+  "@cropHintTouch": {"description": "Подсказка редактора обрезки при выбранных пропорциях (iPhone)"},
+  "cropHintDesktop": "Колесо мыши или щипок трекпада масштабирует фото",
+  "@cropHintDesktop": {"description": "Подсказка редактора обрезки при выбранных пропорциях (Mac)"},
+  "cropRatioSemantics": "Пропорции {ratio}",
+  "@cropRatioSemantics": {"description": "VoiceOver: чип пропорций рамки", "placeholders": {"ratio": {"type": "String"}}}
 }
