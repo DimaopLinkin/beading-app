@@ -2,6 +2,7 @@ import 'dart:typed_data';
 
 import 'package:beading/domain/image_pattern/crop_rect.dart';
 import 'package:beading/domain/image_to_grid/face_size_advisor.dart';
+import 'package:beading/domain/image_to_grid/frame_planner.dart';
 import 'package:beading/domain/image_to_grid/generated_pattern.dart';
 import 'package:beading/domain/image_to_grid/image_mask_set.dart';
 import 'package:beading/domain/image_to_grid/image_to_grid_settings.dart';
@@ -45,6 +46,7 @@ class ImageWizardState extends Equatable {
     this.brushUndoDepth = 0,
     this.preparedWidth = 0,
     this.preparedHeight = 0,
+    this.sourceAspect = 0,
     this.sizeHint,
     this.problem,
     this.projectId,
@@ -109,6 +111,32 @@ class ImageWizardState extends Equatable {
   final int preparedWidth;
   final int preparedHeight;
 
+  /// Пропорции (ширина / высота) всей повёрнутой картинки до обрезки; 0, пока картинки нет. По ним и по [crop]
+  /// считается подгонка рамки под высоту (T88c): сама подогнанная рамка нигде не хранится.
+  final double sourceAspect;
+
+  /// План размещения фото в схеме: рамка, по которой берётся фото, внутренняя сетка и поля (T88a). `null`, пока
+  /// картинки нет.
+  FramePlan? get plan => sourceAspect > 0 ? planOf(sourceAspect, crop, settings) : null;
+
+  /// Рамка, по которой взято фото ([prepared]); без заданной высоты это [crop] пользовательницы.
+  CropRect get effectiveCrop => effectiveCropOf(sourceAspect, crop, settings);
+
+  /// Чистый расчёт плана по пропорциям картинки [aspect], рамке пользовательницы [crop] и настройкам.
+  static FramePlan planOf(double aspect, CropRect crop, ImageToGridSettings settings) {
+    const int base = 100000;
+    return FramePlanner.plan(
+      sourceWidth: (aspect * base).round().clamp(1, 1 << 30),
+      sourceHeight: base,
+      crop: crop,
+      settings: settings,
+    );
+  }
+
+  /// Рамка обрезки, по которой берётся фото: без заданной высоты — рамка пользовательницы как есть.
+  static CropRect effectiveCropOf(double aspect, CropRect crop, ImageToGridSettings settings) =>
+      settings.rows == null || aspect <= 0 ? crop : planOf(aspect, crop, settings).effectiveCrop;
+
   /// Толщина кисти в коротких сторонах картинки: малая, средняя, крупная.
   static const List<double> brushSizes = <double>[0.02, 0.04, 0.08];
 
@@ -123,7 +151,10 @@ class ImageWizardState extends Equatable {
 
   /// На фото есть лицо, а схема из бисера уже порога, с которого лица читаются (60 столбцов, T61).
   bool get beadsTooSmallForFace =>
-      settings.craft == Craft.beading && masks != null && masks!.faces.isNotEmpty && settings.columns < beadFaceColumns;
+      settings.craft == Craft.beading &&
+      masks != null &&
+      masks!.faces.isNotEmpty &&
+      (plan?.innerColumns ?? settings.columns) < beadFaceColumns;
 
   static const int beadFaceColumns = 60;
 
@@ -133,7 +164,8 @@ class ImageWizardState extends Equatable {
     if (found == null || !settings.useMasks) {
       return null;
     }
-    return const FaceSizeAdvisor().advise(found, columns: settings.columns);
+    // Лицо считается в осях подготовленной картинки: ширина внутренней сетки, без полей (T88c).
+    return const FaceSizeAdvisor().advise(found, columns: plan?.innerColumns ?? settings.columns);
   }
 
   /// Есть что выделять: показываем переключатель «Выделять главное».
@@ -193,6 +225,7 @@ class ImageWizardState extends Equatable {
     int? brushUndoDepth,
     int? preparedWidth,
     int? preparedHeight,
+    double? sourceAspect,
     SizeSuggestion? sizeHint,
     ImageWizardProblem? problem,
     String? projectId,
@@ -228,6 +261,7 @@ class ImageWizardState extends Equatable {
     brushUndoDepth: brushUndoDepth ?? this.brushUndoDepth,
     preparedWidth: preparedWidth ?? this.preparedWidth,
     preparedHeight: preparedHeight ?? this.preparedHeight,
+    sourceAspect: sourceAspect ?? this.sourceAspect,
     sizeHint: clearSizeHint ? null : (sizeHint ?? this.sizeHint),
     problem: clearProblem ? null : (problem ?? this.problem),
     projectId: projectId ?? this.projectId,
@@ -262,6 +296,7 @@ class ImageWizardState extends Equatable {
     brushUndoDepth,
     preparedWidth,
     preparedHeight,
+    sourceAspect,
     sizeHint,
     problem,
     projectId,

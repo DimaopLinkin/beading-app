@@ -1478,7 +1478,7 @@ class AppLocalizationsRu extends AppLocalizations {
   String get imageWizardRotate => 'Повернуть';
 
   @override
-  String get imageWizardCrop => 'Обрезать';
+  String get imageWizardCrop => 'Обрезка…';
 
   @override
   String get imageWizardPreviewLabel => 'Предпросмотр схемы';
@@ -1801,6 +1801,73 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get imageWizardWidthCm => 'Ширина вышивки';
+
+  @override
+  String get imageWizardHeight => 'Высота';
+
+  @override
+  String imageWizardHeightRows(int rows) {
+    String _temp0 = intl.Intl.pluralLogic(
+      rows,
+      locale: localeName,
+      other: '$rows рядов',
+      many: '$rows рядов',
+      few: '$rows ряда',
+      one: '$rows ряд',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get imageWizardHeightAuto => 'По фото';
+
+  @override
+  String get imageWizardFitCrop => 'Обрезать';
+
+  @override
+  String get imageWizardFitMargins => 'Оставить поля';
+
+  @override
+  String get imageWizardFitAutoNote => 'Высота считается по фото, обрезать и добавлять поля не нужно.';
+
+  @override
+  String get imageWizardFitCropNote =>
+      'Фото обрежется по высоте: лишнее сверху и снизу уйдёт. Кадр виден в предпросмотре.';
+
+  @override
+  String get imageWizardFitMarginsNoteStitch =>
+      'Схема получит пустые поля сверху и снизу. На предпросмотре они заштрихованы.';
+
+  @override
+  String get imageWizardFitMarginsNoteBead =>
+      'Схема получит пустые ряды сверху и снизу. На предпросмотре они заштрихованы.';
+
+  @override
+  String get imageWizardFitLoomNote => 'На станке пустые ряды не оставить: можно только обрезать.';
+
+  @override
+  String get imageWizardCropRowFree => 'Рамка не задана';
+
+  @override
+  String imageWizardCropFrame(String size) {
+    return 'Рамка: $size';
+  }
+
+  @override
+  String get imageWizardCropExcess => 'Лишнее уйдёт';
+
+  @override
+  String get imageWizardMarginsHatched => 'Поля: штриховка';
+
+  @override
+  String imageWizardFrameSizeCm(String width, String height) {
+    return '$width × $height см';
+  }
+
+  @override
+  String imageWizardFrameSizeRows(int width, int height) {
+    return '$width × $height рядов';
+  }
 
   @override
   String imageWizardCm(String cm) {

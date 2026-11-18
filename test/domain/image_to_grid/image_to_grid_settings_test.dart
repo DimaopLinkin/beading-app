@@ -362,4 +362,11 @@ void main() {
       expect(stitch.toRequest(image: image).liftShadows, isFalse);
     });
   });
+
+  test('поля (T88c): недоступны на станке и в квадратном плетении, остальным можно', () {
+    for (final Technique technique in Technique.values) {
+      final bool noMargins = technique == Technique.loom || technique == Technique.square;
+      expect(ImageToGridSettings(technique: technique).supportsMargins, !noMargins, reason: '$technique');
+    }
+  });
 }

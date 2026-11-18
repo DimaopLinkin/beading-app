@@ -95,6 +95,12 @@ final class ImageToGridSettings extends Equatable {
   /// Самая низкая схема, рядов.
   static const int minRows = 1;
 
+  /// Предел ползунка высоты схемы из бисера, рядов.
+  static const int maxBeadRows = 240;
+
+  /// Нижний предел ползунка высоты схемы из бисера, рядов.
+  static const int minBeadRows = 8;
+
   /// Вышивка большая: 200 см на самой мелкой канве (Аида 20) — около 1575 крестиков; выше потолок не нужен.
   static const int maxStitchColumns = 1600;
 
@@ -160,6 +166,10 @@ final class ImageToGridSettings extends Equatable {
     if (cells == null) throw StateError('Высота не задана: она берётся по фото');
     return fabric.cmForCells(cells);
   }
+
+  /// Можно ли оставлять поля из пустых клеток (T88c). На станке и в квадратном плетении ряд идёт через всю ширину
+  /// полотна, пустой бусины в нём не оставить: там только обрезка.
+  bool get supportsMargins => technique != Technique.loom && technique != Technique.square;
 
   /// Ширина схемы в ячейках.
   final int columns;

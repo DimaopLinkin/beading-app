@@ -229,6 +229,9 @@ void main() {
       await openPhoto(tester, b == Brightness.dark ? AppTheme.dark : AppTheme.light);
       final Finder row = find.byKey(const ValueKey<String>('wizard-brush'));
       await tester.scrollUntilVisible(row, 200, scrollable: find.byType(Scrollable).last);
+      // Строка у нижнего края может оказаться под панелью: подтягиваем её выше.
+      await tester.drag(find.byType(Scrollable).last, const Offset(0, -150));
+      await tester.pumpAndSettle();
       await tester.tap(row);
       await tester.pump();
       expect(cubit.state.brushing, isTrue);
@@ -244,6 +247,9 @@ void main() {
       await tester.pumpAndSettle();
       expect(cubit.state.brushing, isFalse);
       await tester.scrollUntilVisible(row, 200, scrollable: find.byType(Scrollable).last);
+      // Строка у нижнего края может оказаться под панелью: подтягиваем её выше.
+      await tester.drag(find.byType(Scrollable).last, const Offset(0, -150));
+      await tester.pumpAndSettle();
       expect(find.text('Выделено вручную'), findsOneWidget);
       final Finder hint = find.byKey(const ValueKey<String>('wizard-brush-crop-hint'));
       await tester.drag(find.byType(Scrollable).last, const Offset(0, 3000));
@@ -266,6 +272,9 @@ void main() {
     await openPhoto(tester, AppTheme.light);
     final Finder row = find.byKey(const ValueKey<String>('wizard-brush'));
     await tester.scrollUntilVisible(row, 200, scrollable: find.byType(Scrollable).last);
+    // Строка у нижнего края может оказаться под панелью: подтягиваем её выше.
+    await tester.drag(find.byType(Scrollable).last, const Offset(0, -150));
+    await tester.pumpAndSettle();
     await tester.tap(row);
     await tester.pump();
     final Finder canvas = find.byKey(const ValueKey<String>('brush-canvas'));
@@ -492,6 +501,9 @@ void main() {
       await toStitch(tester);
       final Finder row = find.byKey(const ValueKey<String>('wizard-shopping'));
       await tester.scrollUntilVisible(row, 200, scrollable: find.byType(Scrollable).last);
+      // Строка у нижнего края может оказаться под панелью: подтягиваем её выше.
+      await tester.drag(find.byType(Scrollable).last, const Offset(0, -150));
+      await tester.pumpAndSettle();
       await tester.pumpAndSettle();
       expect(find.text('Список закупки'), findsOneWidget);
       await tester.tap(row);
@@ -506,6 +518,9 @@ void main() {
       await toStitch(tester);
       final Finder row = find.byKey(const ValueKey<String>('wizard-print'));
       await tester.scrollUntilVisible(row, 200, scrollable: find.byType(Scrollable).last);
+      // Строка у нижнего края может оказаться под панелью: подтягиваем её выше.
+      await tester.drag(find.byType(Scrollable).last, const Offset(0, -150));
+      await tester.pumpAndSettle();
       await tester.pumpAndSettle();
       await tester.tap(row);
       await tester.pumpAndSettle();
@@ -526,21 +541,33 @@ void main() {
       await tester.scrollUntilVisible(plus, 200, scrollable: find.byType(Scrollable).last);
       await tester.ensureVisible(plus);
       await tester.pumpAndSettle();
-      expect(find.text('60,0 см'), findsOneWidget);
+      expect(
+        find.descendant(of: find.byKey(const ValueKey<String>('wizard-width-cm')), matching: find.text('60,0 см')),
+        findsOneWidget,
+      );
       await tester.tap(plus);
       await tester.pumpAndSettle();
-      expect(find.text('65,0 см'), findsOneWidget);
+      expect(
+        find.descendant(of: find.byKey(const ValueKey<String>('wizard-width-cm')), matching: find.text('65,0 см')),
+        findsOneWidget,
+      );
       await tester.tap(minus);
       await tester.pumpAndSettle();
       await tester.tap(minus);
       await tester.pumpAndSettle();
-      expect(find.text('55,0 см'), findsOneWidget);
+      expect(
+        find.descendant(of: find.byKey(const ValueKey<String>('wizard-width-cm')), matching: find.text('55,0 см')),
+        findsOneWidget,
+      );
       await tester.tap(find.byKey(const ValueKey<String>('wizard-width-cm')));
       await tester.pumpAndSettle();
       await tester.enterText(find.byKey(const ValueKey<String>('step-slider-input')), '102');
       await tester.tap(find.text('Готово'));
       await tester.pumpAndSettle();
-      expect(find.text('100,0 см'), findsOneWidget);
+      expect(
+        find.descendant(of: find.byKey(const ValueKey<String>('wizard-width-cm')), matching: find.text('100,0 см')),
+        findsOneWidget,
+      );
     });
 
     testWidgets('число цветов: по умолчанию 50, − и + меняют на 1, ввод ограничен границами (T71)', (tester) async {
@@ -713,6 +740,11 @@ void main() {
     testWidgets('обводка бусиной у вышивки не показывается', (tester) async {
       masks.result = ImageMaskSet(width: 10, height: 10, subject: Uint8List(100)..fillRange(0, 50, 255));
       await toStitch(tester);
+      await tester.scrollUntilVisible(
+        find.byKey(const ValueKey<String>('wizard-background')),
+        200,
+        scrollable: find.byType(Scrollable).last,
+      );
       expect(find.byKey(const ValueKey<String>('wizard-outline'), skipOffstage: false), findsNothing);
       expect(find.byKey(const ValueKey<String>('wizard-background'), skipOffstage: false), findsOneWidget);
     });
@@ -766,5 +798,97 @@ void main() {
     final Rect button = tester.getRect(find.byKey(const ValueKey<String>('wizard-save')));
     expect(rect.bottom, lessThanOrEqualTo(button.top));
     expect(rect.top, greaterThanOrEqualTo(0));
+  });
+
+  group('высота и поля (T88c)', () {
+    Future<void> openTall(WidgetTester tester) async {
+      tester.view
+        ..physicalSize = const Size(800, 3000)
+        ..devicePixelRatio = 1;
+      addTearDown(tester.view.reset);
+      await openPhoto(tester, AppTheme.light);
+    }
+
+    Finder key(String name) => find.byKey(ValueKey<String>(name));
+
+    testWidgets('высота по фото: «По фото» с галочкой, сегмент приглушён, пояснение из макета, рамка не задана', (
+      tester,
+    ) async {
+      await openTall(tester);
+      expect(key('wizard-height-auto'), findsOneWidget);
+      expect(
+        find.descendant(of: key('wizard-height-auto'), matching: find.byIcon(CupertinoIcons.checkmark)),
+        findsOneWidget,
+      );
+      expect(find.text('Высота считается по фото, обрезать и добавлять поля не нужно.'), findsOneWidget);
+      expect(
+        tester
+            .widget<IgnorePointer>(find.ancestor(of: key('wizard-fit'), matching: find.byType(IgnorePointer)).first)
+            .ignoring,
+        isTrue,
+      );
+      expect(tester.widget<Text>(key('wizard-crop-info')).data, 'Рамка не задана');
+      expect(find.text('Высота'), findsOneWidget);
+    });
+
+    testWidgets('вышивка: «+» у высоты задаёт её, «По фото» возвращает автоматическую', (tester) async {
+      await openTall(tester);
+      cubit.setCraft(Craft.crossStitch);
+      await tester.pumpAndSettle();
+      final double auto = ImageToGridSettings.snapCm(
+        cubit.state.plan!.rows * 0 + cubit.state.settings.fabric.cmForCells(cubit.state.plan!.rows),
+      );
+      await tester.tap(key('wizard-height-cm-plus'));
+      await tester.pumpAndSettle();
+      final ImageToGridSettings s = cubit.state.settings;
+      expect(s.rows, isNotNull);
+      expect(s.heightCm, closeTo(auto + 5, 0.3));
+      // Кнопка стала обычной: без галочки.
+      expect(
+        find.descendant(of: key('wizard-height-auto'), matching: find.byIcon(CupertinoIcons.checkmark)),
+        findsNothing,
+      );
+      await tester.tap(key('wizard-height-auto'));
+      await tester.pumpAndSettle();
+      expect(cubit.state.settings.rows, isNull);
+    });
+
+    testWidgets('станок: поля недоступны, причина написана, выбор «Оставить поля» ничего не меняет', (tester) async {
+      await openTall(tester);
+      cubit.setRows(60);
+      await tester.pumpAndSettle();
+      expect(find.text('На станке пустые ряды не оставить: можно только обрезать.'), findsOneWidget);
+      await tester.tap(find.text('Оставить поля'));
+      await tester.pumpAndSettle();
+      expect(cubit.state.settings.fit, FrameFit.crop);
+    });
+
+    testWidgets('пейот: «Оставить поля» включается, на предпросмотре штриховка и подпись', (tester) async {
+      await openTall(tester);
+      cubit
+        ..setTechnique(Technique.peyote)
+        ..setRows(200);
+      await tester.pumpAndSettle();
+      expect(
+        find.text('Фото обрежется по высоте: лишнее сверху и снизу уйдёт. Кадр виден в предпросмотре.'),
+        findsOneWidget,
+      );
+      await tester.tap(find.text('Оставить поля'));
+      await tester.pumpAndSettle();
+      expect(cubit.state.settings.fit, FrameFit.margins);
+      expect(find.text('Схема получит пустые ряды сверху и снизу. На предпросмотре они заштрихованы.'), findsOneWidget);
+      expect(key('wizard-margins'), findsOneWidget);
+      expect(find.text('Поля: штриховка'), findsOneWidget);
+    });
+
+    testWidgets('обрезка: рамка кадра и подпись «Рамка… Лишнее уйдёт»', (tester) async {
+      await openTall(tester);
+      cubit.setRows(10);
+      await tester.pumpAndSettle();
+      expect(key('wizard-frame'), findsOneWidget);
+      expect(find.textContaining('Лишнее уйдёт'), findsOneWidget);
+      expect(find.textContaining('Рамка: '), findsOneWidget);
+      expect(tester.widget<Text>(key('wizard-crop-info')).data, contains(' × '));
+    });
   });
 }
