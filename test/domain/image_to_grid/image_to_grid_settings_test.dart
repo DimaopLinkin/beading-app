@@ -67,7 +67,7 @@ void main() {
     test('ряды повторяют пропорции картинки', () {
       // Картинка 1:2, ячейка Delica 11/0 чуть выше, чем шире: рядов заметно больше половины ширины в клетках...
       const ImageToGridSettings s = ImageToGridSettings();
-      final int rows = s.rowsFor(image);
+      final int rows = s.effectiveRows(image);
       expect(rows, greaterThan(40));
       expect(rows, lessThan(100));
     });
@@ -155,7 +155,7 @@ void main() {
       expect(request.constraint.isFree, isFalse);
       expect(request.constraint.candidates, hasLength(3));
       expect(request.columns, 40);
-      expect(request.rows, const ImageToGridSettings().rowsFor(image));
+      expect(request.rows, const ImageToGridSettings().effectiveRows(image));
     });
 
     test('вес заметности (T64) подключает DetailCellLabeler и защиту диагональных линий; по умолчанию выключен', () {
@@ -248,7 +248,7 @@ void main() {
       final SourceImage image = SourceImage.solid(width: 300, height: 120, r: 0, g: 0, b: 0);
       for (final double cm in <double>[5, 10, 15, 30, 50, 100, 200]) {
         final ImageToGridSettings s = stitch.copyWith(columns: stitch.fabric.cellsForCm(cm));
-        final double ratio = s.columns / s.rowsFor(image);
+        final double ratio = s.columns / s.effectiveRows(image);
         expect(ratio, closeTo(300 / 120, 0.06), reason: 'ширина $cm см');
       }
     });
@@ -263,7 +263,7 @@ void main() {
       final SourceImage photo = SourceImage.solid(width: 603, height: 1024, r: 10, g: 20, b: 30);
       expect(s.columns, 1575);
       expect(s.toRequest(image: photo).maxColors, 120);
-      expect(s.colorsFor(s.rowsFor(photo)), 120);
+      expect(s.colorsFor(s.effectiveRows(photo)), 120);
       expect(stitch.copyWith(columns: 150, maxColors: 30).colorsFor(100), 30);
     });
 

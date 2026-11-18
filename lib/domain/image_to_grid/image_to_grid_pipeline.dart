@@ -13,6 +13,7 @@ import 'package:beading/domain/image_to_grid/cell_regions.dart';
 import 'package:beading/domain/image_to_grid/cell_sampler.dart';
 import 'package:beading/domain/image_to_grid/color_assigner.dart';
 import 'package:beading/domain/image_to_grid/face_guide.dart';
+import 'package:beading/domain/image_to_grid/frame_planner.dart';
 import 'package:beading/domain/image_to_grid/generated_pattern.dart';
 import 'package:beading/domain/image_to_grid/generation_stats.dart';
 import 'package:beading/domain/image_to_grid/image_prefilter.dart';
@@ -22,6 +23,7 @@ import 'package:beading/domain/image_to_grid/outline_backstitch.dart';
 import 'package:beading/domain/image_to_grid/overlay_stitches.dart';
 import 'package:beading/domain/image_to_grid/palette_builder.dart';
 import 'package:beading/domain/image_to_grid/palette_entry.dart';
+import 'package:beading/domain/image_to_grid/pattern_frame.dart';
 import 'package:beading/domain/image_to_grid/pattern_metrics.dart';
 import 'package:beading/domain/image_to_grid/pattern_step.dart';
 import 'package:beading/domain/image_to_grid/quantizer.dart';
@@ -50,7 +52,16 @@ final class ImageToGridPipeline {
 
   /// Один расчёт. С [cache] стадии, чьи входные данные не изменились с прошлого запуска, не пересчитываются
   /// (T58, [ImageToGridSession]); результат тот же, что без кеша. Кеш работает только на пиксельном пути.
+  ///
+  /// Если запрос несёт план рамки ([ImageToGridRequest.frame], T88a), готовая схема последним шагом ставится в полную
+  /// сетку с полями; все расчёты до этого идут по внутренней сетке запроса.
   GeneratedPattern run(ImageToGridRequest original, {PixelStageCache? cache}) {
+    final GeneratedPattern inner = _run(original, cache: cache);
+    final FramePlan? frame = original.frame;
+    return frame == null ? inner : PatternFrame.pad(inner, frame, frame.columns, frame.rows);
+  }
+
+  GeneratedPattern _run(ImageToGridRequest original, {PixelStageCache? cache}) {
     final Stopwatch clock = Stopwatch()..start();
     final Map<String, Duration> times = <String, Duration>{};
     Duration lap() {

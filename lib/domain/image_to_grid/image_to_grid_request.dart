@@ -6,6 +6,7 @@ import 'package:beading/domain/grid/grid_geometry.dart';
 import 'package:beading/domain/image_to_grid/background_stage.dart';
 import 'package:beading/domain/image_to_grid/cell_labeler.dart';
 import 'package:beading/domain/image_to_grid/face_guide.dart';
+import 'package:beading/domain/image_to_grid/frame_planner.dart';
 import 'package:beading/domain/image_to_grid/image_prefilter.dart';
 import 'package:beading/domain/image_to_grid/label_smoother.dart';
 import 'package:beading/domain/image_to_grid/palette_builder.dart';
@@ -46,6 +47,7 @@ final class ImageToGridRequest {
     this.overlays = false,
     this.liftShadows = false,
     this.shadows,
+    this.frame,
   }) {
     if (columns < 1 || columns > Grid.maxSide) throw ArgumentError.value(columns, 'columns', 'от 1 до ${Grid.maxSide}');
     if (rows < 1 || rows > Grid.maxSide) throw ArgumentError.value(rows, 'rows', 'от 1 до ${Grid.maxSide}');
@@ -156,6 +158,7 @@ final class ImageToGridRequest {
     overlays: overlays,
     liftShadows: liftShadows,
     shadows: shadows,
+    frame: frame,
   );
 
   /// Тот же запрос с другим ограничением палитры.
@@ -188,6 +191,7 @@ final class ImageToGridRequest {
     overlays: overlays,
     liftShadows: liftShadows,
     shadows: shadows,
+    frame: frame,
   );
 
   /// Маска объекта (T55): значение на пиксель картинки, ряды сверху вниз; `0` — фон, остальное — объект. `null` — маски
@@ -215,6 +219,10 @@ final class ImageToGridRequest {
   /// Поднять глубокие тени фото, чтобы тёмные тона попали в нитки каталога (T87). Действует только с палитрой из
   /// каталога; со свободной палитрой и у бисера подъёма нет.
   final bool liftShadows;
+
+  /// План рамки (T88a): [columns] и [rows] запроса — внутренняя сетка, а в конце конвейера она ставится в полную
+  /// сетку со смещением (`PatternFrame.pad`). `null` — полей нет. На ключ кеша стадий не влияет.
+  final FramePlan? frame;
 
   /// Сила подъёма теней, 0..100 %; `null` — подобрать автоматически по фото и ниткам. Нужен [liftShadows].
   final int? shadows;
@@ -253,6 +261,7 @@ final class ImageToGridRequest {
     overlays: overlays,
     liftShadows: liftShadows,
     shadows: shadows,
+    frame: frame,
   );
 
   bool get usesBackgroundStage => subjectMask != null && (background != BackgroundMode.keep || outline);

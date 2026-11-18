@@ -32,7 +32,7 @@ void main() {
       final ImageToGridSettings settings = const ImageToGridSettings(
         technique: Technique.crossStitch,
       ).copyWith(columns: Fabric.standard.cellsForCm(200), maxColors: ImageToGridSettings.maxColorsLimit);
-      final int rows = settings.rowsFor(image);
+      final int rows = settings.effectiveRows(image);
       final int colors = settings.colorsFor(rows);
       final Stopwatch watch = Stopwatch()..start();
       final GeneratedPattern pattern = const ImageToGridPipeline().run(
@@ -70,7 +70,7 @@ void main() {
       final ImageToGridSettings settings = const ImageToGridSettings(
         technique: Technique.crossStitch,
       ).copyWith(fabric: aida20, columns: 1575, maxColors: ImageToGridSettings.maxColorsLimit);
-      final int rows = settings.rowsFor(image);
+      final int rows = settings.effectiveRows(image);
       final Stopwatch watch = Stopwatch()..start();
       final GeneratedPattern pattern = const ImageToGridPipeline().run(
         settings.toRequest(image: image, catalog: catalog, measure: true),
