@@ -142,7 +142,7 @@ final class ImageToGridSettings extends Equatable {
   /// близкого цвета, схема берёт нитку Anchor или Гаммы. Не действует с [onlyStash] (запас и так из любых брендов).
   final bool otherBrands;
 
-  /// У каких брендов добирать нитки при [otherBrands]: пусто — «Авто» (любой бренд каталога), иначе только эти (T89).
+  /// У каких брендов добирать нитки при [otherBrands]: пусто — «Авто» (любой бренд каталога), иначе только эти (T90).
   /// Основной бренд сюда не входит, а если попал — игнорируется ([flossBrandsFor]).
   final Set<String> otherBrandsOnly;
 
@@ -337,7 +337,7 @@ final class ImageToGridSettings extends Equatable {
   /// Нитки других брендов добираются: мулине, включено, бренд задан и нет запаса.
   bool usesOtherBrands(String brand) => craft == Craft.crossStitch && otherBrands && !onlyStash && brand.isNotEmpty;
 
-  /// Можно ли добирать нитки бренда [other] при основном [brand] (T89): режим «Авто» пускает любой бренд, выбор — только
+  /// Можно ли добирать нитки бренда [other] при основном [brand] (T90): режим «Авто» пускает любой бренд, выбор — только
   /// отмеченные.
   bool allowsOtherBrand(String brand, String other) =>
       other == brand || (usesOtherBrands(brand) && (otherBrandsOnly.isEmpty || otherBrandsOnly.contains(other)));
@@ -346,7 +346,7 @@ final class ImageToGridSettings extends Equatable {
   /// Delica) и группы отделок; позиция с неизвестной отделкой проходит (T62). Мулине: размера нет, годится любая
   /// позиция бренда [brand] (пустой — любого).
   ///
-  /// С [otherBrands] (T86) к позициям бренда [brand] добавляются позиции остальных брендов мулине (все при «Авто», иначе из [otherBrandsOnly], T89): главным остаётся
+  /// С [otherBrands] (T86) к позициям бренда [brand] добавляются позиции остальных брендов мулине (все при «Авто», иначе из [otherBrandsOnly], T90): главным остаётся
   /// [brand], а чужие нитки при выборе палитры получают штраф ([PaletteConstraint.foreignPenaltyDeltaE]).
   ///
   /// С [onlyStash] остаются только позиции из [stash] (T34). У мулине бренд тогда не сужает выбор: запас может быть

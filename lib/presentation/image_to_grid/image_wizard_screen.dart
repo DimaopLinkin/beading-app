@@ -1745,7 +1745,7 @@ class _ShadowsRow extends StatelessWidget {
   }
 }
 
-/// Строка мультивыбора с галочкой справа (T89).
+/// Строка мультивыбора с галочкой справа (T90).
 class _BrandCheckRow extends StatelessWidget {
   const _BrandCheckRow({required this.rowKey, required this.title, required this.selected, required this.onTap});
 

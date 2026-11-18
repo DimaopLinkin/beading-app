@@ -68,7 +68,7 @@ void main() {
     expect(old!.settings.otherBrands, isFalse);
   });
 
-  test('старый рецепт без списка брендов добора читается как «Авто» (T89)', () {
+  test('старый рецепт без списка брендов добора читается как «Авто» (T90)', () {
     final Map<String, Object?> json = jsonDecode(ImageRecipeCodec.encode(recipe)) as Map<String, Object?>;
     (json['settings']! as Map<String, Object?>).remove('otherBrandsOnly');
     final ImageRecipe? old = ImageRecipeCodec.decode(jsonEncode(json), recipe.source);

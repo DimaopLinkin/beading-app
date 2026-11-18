@@ -605,10 +605,10 @@ class ImageWizardCubit extends Cubit<ImageWizardState> {
   /// Добирать нитки других производителей мулине (T86). Число подходящих позиций каталога меняется, пересчитываем.
   void setOtherBrands({required bool value}) => _change(state.settings.copyWith(otherBrands: value));
 
-  /// «Авто» в выборе брендов добора (T89): берётся любой бренд каталога.
+  /// «Авто» в выборе брендов добора (T90): берётся любой бренд каталога.
   void setOtherBrandsAuto() => _change(state.settings.copyWith(otherBrandsOnly: const <String>{}));
 
-  /// Отметить или снять бренд [brand] в выборе брендов добора (T89); если не осталось ни одного, снова «Авто».
+  /// Отметить или снять бренд [brand] в выборе брендов добора (T90); если не осталось ни одного, снова «Авто».
   void toggleOtherBrand(String brand) {
     final Set<String> next = <String>{...state.settings.otherBrandsOnly};
     if (!next.remove(brand)) next.add(brand);

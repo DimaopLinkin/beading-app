@@ -31,6 +31,7 @@ void main() {
     'dmc_floss': 480,
     'gamma_floss': 200,
     'pnk_floss': 540,
+    'lucas_floss': 490,
   };
 
   for (final File file in files) {

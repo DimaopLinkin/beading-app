@@ -63,7 +63,7 @@ class FlossFormat {
     );
   }
 
-  /// «Основная часть — DMC, 42 нитки; ещё 9: Anchor 5, Гамма 4»; `null`, если все нитки одного бренда (T86, T89).
+  /// «Основная часть — DMC, 42 нитки; ещё 9: Anchor 5, Гамма 4»; `null`, если все нитки одного бренда (T86, T90).
   String? get brandMixText {
     final FlossBrandMix? mix = estimate.brandMix;
     if (mix == null) return null;

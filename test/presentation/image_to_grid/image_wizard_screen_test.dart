@@ -652,8 +652,8 @@ void main() {
       await tester.tap(other);
       await tester.pumpAndSettle();
       expect(cubit.state.settings.otherBrands, isTrue);
-      // Мультивыбор брендов добора (T89): «Авто» и все бренды, кроме основного.
-      for (final String brand in <String>['Гамма', 'Anchor', 'ПНК Кирова']) {
+      // Мультивыбор брендов добора (T90): «Авто» и все бренды, кроме основного.
+      for (final String brand in <String>['Гамма', 'Anchor', 'ПНК Кирова', 'Luca-S']) {
         expect(find.byKey(ValueKey<String>('wizard-other-brand-$brand'), skipOffstage: false), findsOneWidget);
       }
       expect(find.byKey(const ValueKey<String>('wizard-other-brand-DMC'), skipOffstage: false), findsNothing);

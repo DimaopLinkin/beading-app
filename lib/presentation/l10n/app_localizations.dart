@@ -430,7 +430,7 @@ abstract class AppLocalizations {
   /// No description provided for @aboutCredits.
   ///
   /// In ru, this message translates to:
-  /// **'Цвета ниток DMC: craft-color-codes, MakeBead (makebead.com), лицензия CC BY 4.0. DMC — торговая марка DMC, приложение с ней не связано. Цвета ниток «Гамма», Anchor и «ПНК Кирова»: firma-gamma.ru и crosti.ru. «Гамма», Anchor и «ПНК Кирова» — торговые марки своих владельцев, приложение с ними не связано.'**
+  /// **'Цвета ниток DMC: craft-color-codes, MakeBead (makebead.com), лицензия CC BY 4.0. DMC — торговая марка DMC, приложение с ней не связано. Цвета ниток «Гамма», Anchor и «ПНК Кирова»: firma-gamma.ru и crosti.ru. Цвета Luca-S приблизительные: взяты у ближайших ниток DMC по таблице соответствия corolina.ru. «Гамма», Anchor, «ПНК Кирова» и Luca-S — торговые марки своих владельцев, приложение с ними не связано.'**
   String get aboutCredits;
 
   /// No description provided for @aboutVersion.

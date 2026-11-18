@@ -164,7 +164,7 @@ void main() {
       );
     });
 
-    test('выбор брендов (T89): только отмеченные; пусто — «Авто»; основной бренд всегда остаётся', () {
+    test('выбор брендов (T90): только отмеченные; пусто — «Авто»; основной бренд всегда остаётся', () {
       final ImageToGridSettings on = stitch.copyWith(otherBrands: true, otherBrandsOnly: <String>{'Гамма'});
       expect(on.catalogFor(floss, brand: 'DMC').map((c) => c.code), <String>['310', '0001']);
       expect(
