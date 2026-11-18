@@ -226,7 +226,7 @@ void main() {
       expect(stitch.copyWith(columns: 200, technique: Technique.loom).columns, ImageToGridSettings.maxColumns);
     });
 
-    test('вышивка до 200 см шириной на любой канве, до 120 цветов', () {
+    test('вышивка до 200 см шириной на любой канве, до 250 цветов', () {
       expect(ImageToGridSettings.maxColorsLimit, 250);
       for (final int count in <int>[11, 14, 20]) {
         final Fabric f = Fabric.create(kind: FabricKind.aida, count: count).valueOrNull!;
@@ -234,7 +234,7 @@ void main() {
         expect(s.widthCm, closeTo(200, 0.5));
         expect(s.columns, lessThanOrEqualTo(ImageToGridSettings.maxStitchColumns));
       }
-      expect(stitch.copyWith(maxColors: 999).maxColors, 120);
+      expect(stitch.copyWith(maxColors: 999).maxColors, 250);
     });
 
     test('сантиметры кратны 5: 32 → 30, 47 → 45, не меньше 5 и не больше 200', () {
