@@ -869,6 +869,56 @@ void main() {
       expect(s.backstitch, isFalse);
     });
 
+    test('нитки других брендов: настройка меняется, каталог и запрос расширяются (T86)', () async {
+      catalog = FakeCatalogRepository(<CatalogColor>[
+        catalogColor('310', 'Чёрный', '#000000', brand: 'DMC', material: CatalogMaterial.floss),
+        catalogColor('403', 'Чёрный', '#010101', brand: 'Anchor', material: CatalogMaterial.floss),
+        catalogColor('1', 'Чёрный', '#020202', brand: 'Гамма', material: CatalogMaterial.floss),
+      ]);
+      await settings.write(SettingKeys.defaultFlossBrand, 'DMC');
+      cubit = build(debounce: Duration.zero);
+      addTearDown(cubit.close);
+      await cubit.start(craft: Craft.crossStitch);
+      expect(cubit.state.settings.otherBrands, isFalse);
+      expect(cubit.state.catalogColors, 1);
+      await openPhoto();
+      expect(runner.requests.last.constraint.preferredBrand, isNull);
+
+      cubit.setOtherBrands(value: true);
+      expect(cubit.state.settings.otherBrands, isTrue);
+      expect(cubit.state.catalogColors, 3);
+      await Future<void>.delayed(Duration.zero);
+      expect(runner.requests.last.constraint.preferredBrand, 'DMC');
+      expect(runner.requests.last.constraint.candidates, hasLength(3));
+
+      cubit.setOtherBrands(value: false);
+      expect(cubit.state.catalogColors, 1);
+    });
+
+    test('тени: «Авто» по умолчанию, ручное значение и возврат в «Авто» пересчитывают схему (T87)', () async {
+      catalog = FakeCatalogRepository(<CatalogColor>[
+        catalogColor('310', 'Чёрный', '#000000', brand: 'DMC', material: CatalogMaterial.floss),
+      ]);
+      await settings.write(SettingKeys.defaultFlossBrand, 'DMC');
+      cubit = build(debounce: Duration.zero);
+      addTearDown(cubit.close);
+      await cubit.start(craft: Craft.crossStitch);
+      await openPhoto();
+      expect(cubit.state.settings.shadows, isNull);
+      expect(runner.requests.last.liftShadows, isTrue);
+      expect(runner.requests.last.shadows, isNull);
+
+      cubit.setShadows(40);
+      expect(cubit.state.settings.shadows, 40);
+      await Future<void>.delayed(Duration.zero);
+      expect(runner.requests.last.shadows, 40);
+
+      cubit.setShadows(null);
+      expect(cubit.state.settings.shadows, isNull);
+      await Future<void>.delayed(Duration.zero);
+      expect(runner.requests.last.shadows, isNull);
+    });
+
     test('сохранение: проект-вышивка с канвой как размером клетки', () async {
       await openPhoto();
       cubit.setCraft(Craft.crossStitch);

@@ -25,7 +25,7 @@ void main() {
       10,
     );
     final List<Rgb?> photo = <Rgb?>[for (int i = 0; i < 40; i++) i < 12 ? red : (i < 28 ? orange : yellow)];
-    final List<BlendSuggestion> suggestions = suggestBlends(pattern, photo, maxPairDeltaE: 120);
+    final List<BlendSuggestion> suggestions = suggestBlends(pattern, photo, maxPairChroma: 200, maxPairLightness: 200);
     expect(suggestions, hasLength(1));
     final BlendSuggestion blend = suggestions.single;
     expect((blend.first, blend.second), (0, 1));
@@ -53,7 +53,7 @@ void main() {
     final List<Rgb?> few = <Rgb?>[for (int i = 0; i < 40; i++) i < 3 ? orange : (i < 20 ? red : yellow)];
     expect(suggestBlends(pattern, few), isEmpty);
     final List<Rgb?> photo = <Rgb?>[for (int i = 0; i < 40; i++) i < 12 ? red : (i < 28 ? orange : yellow)];
-    expect(suggestBlends(pattern, photo, maxPairDeltaE: 10), isEmpty);
+    expect(suggestBlends(pattern, photo, maxPairChroma: 5, maxPairLightness: 5), isEmpty);
   });
 
   test('одна клетка достаётся одному предложению; не больше maxSuggestions', () {
@@ -67,10 +67,10 @@ void main() {
     final List<Rgb?> photo = <Rgb?>[
       for (int i = 0; i < 60; i++) i < 15 ? orange : (i < 30 ? yellow : (i < 45 ? teal : blue)),
     ];
-    final List<BlendSuggestion> all = suggestBlends(pattern, photo, maxPairDeltaE: 120);
+    final List<BlendSuggestion> all = suggestBlends(pattern, photo, maxPairChroma: 200, maxPairLightness: 200);
     final List<int> cells = <int>[for (final BlendSuggestion s in all) ...s.cells];
     expect(cells.length, cells.toSet().length);
-    expect(suggestBlends(pattern, photo, maxPairDeltaE: 120, maxSuggestions: 1), hasLength(1));
+    expect(suggestBlends(pattern, photo, maxPairChroma: 200, maxPairLightness: 200, maxSuggestions: 1), hasLength(1));
   });
 
   test('быстрый поиск по светлоте даёт то же, что полный перебор пар (T70)', () {
@@ -89,6 +89,59 @@ void main() {
     expect(fast, isNotEmpty);
     expect(fast, _bruteForceBlends(pattern, photo, maxSuggestions: 10, minCells: 2));
   });
+
+  test('тёмный градиент между чёрным и тёмно-бирюзовым закрывается блендом (T84)', () {
+    const Rgb black = Rgb(0, 0, 0);
+    const Rgb teal = Rgb(28, 80, 102);
+    const Rgb mid = Rgb(14, 40, 51);
+    final Lab a = Lab.fromRgb(black), b = Lab.fromRgb(teal);
+    expect(math.sqrt(math.pow(a.l - b.l, 2) + math.pow(a.a - b.a, 2) + math.pow(a.b - b.b, 2)), greaterThan(30));
+    final GeneratedPattern pattern = _pattern(
+      const <Rgb>[black, teal],
+      <int>[for (int i = 0; i < 40; i++) i < 20 ? 1 : 2],
+      10,
+    );
+    final List<Rgb?> photo = <Rgb?>[for (int i = 0; i < 40; i++) i < 10 ? black : (i < 30 ? mid : teal)];
+    final List<BlendSuggestion> suggestions = suggestBlends(pattern, photo);
+    expect(suggestions, hasLength(1));
+    expect((suggestions.single.first, suggestions.single.second), (0, 1));
+    expect(suggestions.single.cells, <int>[for (int i = 10; i < 30; i++) i]);
+  });
+
+  test('пара разных оттенков (красный и зелёный одной светлоты) блендом не становится (T84)', () {
+    const Rgb red2 = Rgb(180, 60, 60);
+    const Rgb green = Rgb(60, 130, 60);
+    final Rgb mix = Rgb.average(const <Rgb>[red2, green]);
+    final GeneratedPattern pattern = _pattern(
+      const <Rgb>[red2, green],
+      <int>[for (int i = 0; i < 40; i++) i < 20 ? 1 : 2],
+      10,
+    );
+    final List<Rgb?> photo = <Rgb?>[for (int i = 0; i < 40; i++) i < 10 ? red2 : (i < 30 ? mix : green)];
+    expect(suggestBlends(pattern, photo), isEmpty);
+  });
+
+  test('число предложений по умолчанию растёт с палитрой (T84)', () {
+    // 40 тёмных ниток по паре «ниже / выше» с зазором по светлоте: у каждой пары своя область посередине.
+    final List<Rgb> palette = <Rgb>[];
+    final List<Rgb> mids = <Rgb>[];
+    for (int g = 0; g < 20; g++) {
+      final Rgb low = Rgb(0, 0, 10 + g * 12);
+      final Rgb high = Rgb(60, 60, 130 + g * 6);
+      palette
+        ..add(low)
+        ..add(high);
+      mids.add(Rgb.average(<Rgb>[low, high]));
+    }
+    // По 8 клеток на пару: цвета клеток посередине, остальным — ближайший цвет палитры.
+    final List<int> cells = <int>[for (int i = 0; i < 20 * 8; i++) 1 + (i ~/ 8) * 2];
+    final List<Rgb?> photo = <Rgb?>[for (int i = 0; i < cells.length; i++) mids[i ~/ 8]];
+    final GeneratedPattern pattern = _pattern(palette, cells, 20);
+    final List<BlendSuggestion> byDefault = suggestBlends(pattern, photo);
+    expect(byDefault.length, greaterThan(4));
+    expect(byDefault.length, lessThanOrEqualTo(10));
+    expect(suggestBlends(pattern, photo, maxSuggestions: 1), hasLength(1));
+  });
 }
 
 /// Прежняя реализация (перебор всех пар для каждой клетки): эталон для проверки быстрого поиска.
@@ -97,7 +150,8 @@ List<BlendSuggestion> _bruteForceBlends(
   List<Rgb?> cellColors, {
   int maxSuggestions = 4,
   int minCells = 6,
-  double maxPairDeltaE = 30,
+  double maxPairChroma = 30,
+  double maxPairLightness = 40,
   double margin = 1.5,
   double minGain = 2,
 }) {
@@ -108,7 +162,10 @@ List<BlendSuggestion> _bruteForceBlends(
   for (int i = 0; i < count; i++) {
     for (int j = i + 1; j < count; j++) {
       final double d = _d76(palette[i], palette[j]);
-      if (d < 3 || d > maxPairDeltaE) continue;
+      final double chroma = math.sqrt(
+        math.pow(palette[i].a - palette[j].a, 2) + math.pow(palette[i].b - palette[j].b, 2),
+      );
+      if (d < 3 || chroma > maxPairChroma || (palette[i].l - palette[j].l).abs() > maxPairLightness) continue;
       final Rgb mix = Rgb.average(<Rgb>[pattern.palette[i].rgb, pattern.palette[j].rgb]);
       pairs.add((i, j, mix, Lab.fromRgb(mix)));
     }

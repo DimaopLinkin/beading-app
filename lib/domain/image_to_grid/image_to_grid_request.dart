@@ -44,6 +44,8 @@ final class ImageToGridRequest {
     this.applyBlends = false,
     this.backstitch = false,
     this.overlays = false,
+    this.liftShadows = false,
+    this.shadows,
   }) {
     if (columns < 1 || columns > Grid.maxSide) throw ArgumentError.value(columns, 'columns', 'от 1 до ${Grid.maxSide}');
     if (rows < 1 || rows > Grid.maxSide) throw ArgumentError.value(rows, 'rows', 'от 1 до ${Grid.maxSide}');
@@ -152,6 +154,8 @@ final class ImageToGridRequest {
     applyBlends: applyBlends,
     backstitch: backstitch,
     overlays: overlays,
+    liftShadows: liftShadows,
+    shadows: shadows,
   );
 
   /// Тот же запрос с другим ограничением палитры.
@@ -182,6 +186,8 @@ final class ImageToGridRequest {
     applyBlends: applyBlends,
     backstitch: backstitch,
     overlays: overlays,
+    liftShadows: liftShadows,
+    shadows: shadows,
   );
 
   /// Маска объекта (T55): значение на пиксель картинки, ряды сверху вниз; `0` — фон, остальное — объект. `null` — маски
@@ -205,6 +211,13 @@ final class ImageToGridRequest {
 
   /// Смешанная техника (T72): полукресты поверх крестов в `GeneratedPattern.partials`; только вышивка крестом, не черновик.
   final bool overlays;
+
+  /// Поднять глубокие тени фото, чтобы тёмные тона попали в нитки каталога (T87). Действует только с палитрой из
+  /// каталога; со свободной палитрой и у бисера подъёма нет.
+  final bool liftShadows;
+
+  /// Сила подъёма теней, 0..100 %; `null` — подобрать автоматически по фото и ниткам. Нужен [liftShadows].
+  final int? shadows;
 
   /// Тот же запрос с маской объекта, режимом фона и обводкой (маска, фон и обводка заменяются целиком).
   ImageToGridRequest withBackground({
@@ -238,6 +251,8 @@ final class ImageToGridRequest {
     applyBlends: applyBlends,
     backstitch: backstitch,
     overlays: overlays,
+    liftShadows: liftShadows,
+    shadows: shadows,
   );
 
   bool get usesBackgroundStage => subjectMask != null && (background != BackgroundMode.keep || outline);

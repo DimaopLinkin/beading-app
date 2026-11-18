@@ -3301,6 +3301,24 @@ abstract class AppLocalizations {
   /// **'В запасе подходит всего {available, plural, one{{available} цвет} few{{available} цвета} many{{available} цветов} other{{available} цветов}}, а в схеме их до {wanted}: она получится из того, что есть.'**
   String imageWizardStashFew(int available, int wanted);
 
+  /// Переключатель: добирать нитки других брендов мулине там, где у основного нет близкого цвета
+  ///
+  /// In ru, this message translates to:
+  /// **'Нитки других производителей'**
+  String get imageWizardOtherBrands;
+
+  /// Пояснение к переключателю «Нитки других производителей»
+  ///
+  /// In ru, this message translates to:
+  /// **'Если у {brand} нет близкого цвета, схема возьмёт нитку другого бренда: {others}. Основными останутся нитки {brand}.'**
+  String imageWizardOtherBrandsHint(String brand, String others);
+
+  /// Сводка по брендам ниток схемы, когда они не одного производителя
+  ///
+  /// In ru, this message translates to:
+  /// **'Основная часть — {main}, ещё {count, plural, one{{count} нитка} few{{count} нитки} many{{count} ниток} other{{count} нитки}}: {brands}'**
+  String flossBrandMix(String main, int count, String brands);
+
   /// Переключатель смешанной техники: полукрест поверх креста
   ///
   /// In ru, this message translates to:
@@ -3318,6 +3336,36 @@ abstract class AppLocalizations {
   /// In ru, this message translates to:
   /// **'{count, plural, one{Один полукрест} few{{count} полукреста} many{{count} полукрестов} other{{count} полукрестов}} сверху крестов.'**
   String imageWizardMixedCount(int count);
+
+  /// Заголовок ползунка силы подъёма глубоких теней фото (вышивка, нитки из каталога)
+  ///
+  /// In ru, this message translates to:
+  /// **'Тени'**
+  String get imageWizardShadows;
+
+  /// Пояснение к ползунку «Тени»
+  ///
+  /// In ru, this message translates to:
+  /// **'Светлее только глубокие тени: тёмные места лучше попадают в нитки'**
+  String get imageWizardShadowsHint;
+
+  /// Переключатель: сила подъёма теней подбирается по фото и ниткам
+  ///
+  /// In ru, this message translates to:
+  /// **'Авто'**
+  String get imageWizardShadowsAuto;
+
+  /// Какую силу подъёма теней подобрал автоподбор
+  ///
+  /// In ru, this message translates to:
+  /// **'Авто: {percent} %'**
+  String imageWizardShadowsAutoValue(int percent);
+
+  /// Сила подъёма теней, заданная вручную
+  ///
+  /// In ru, this message translates to:
+  /// **'{percent} %'**
+  String imageWizardShadowsValue(int percent);
 
   /// Переключатель бленда мулине
   ///

@@ -241,8 +241,8 @@ abstract final class BackgroundStage {
     }
     if (n == 0) return null;
     final Rgb target = Lab(18, a / n * 0.5, b / n * 0.5).toRgb();
-    final List<PaletteEntry>? candidates = constraint.candidates;
-    if (candidates == null) return PaletteEntry(rgb: target);
-    return NearestColorMatcher<PaletteEntry>(candidates, rgbOf: (e) => e.rgb).nearest(target, count: 1).single.item;
+    final NearestColorMatcher<PaletteEntry>? matcher = constraint.matcher();
+    if (matcher == null) return PaletteEntry(rgb: target);
+    return matcher.nearest(target, count: 1).single.item;
   }
 }

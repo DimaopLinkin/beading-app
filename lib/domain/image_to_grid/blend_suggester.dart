@@ -38,27 +38,36 @@ final class BlendSuggestion extends Equatable {
 
 /// Ищет бленды для [pattern]: [cellColors] — цвета клеток после ресэмплинга (по рядам, слева направо).
 ///
-/// Пара из цветов палитры годится, если эти цвета не дальше [maxPairDeltaE] друг от друга (ΔE76): дальний бленд —
-/// «грязный» цвет, а не переход. Клетка идёт в бленд, если он ближе к ней, чем лучший одиночный цвет, минимум на
-/// [margin] (ΔE76). Предложение держится, если в нём не меньше [minCells] клеток и средний выигрыш не меньше
-/// [minGain] ΔE2000. Каждая клетка достаётся одному предложению (сначала самому выгодному); всего не больше [maxSuggestions].
+/// Пара из цветов палитры годится, если расстояние между ними на плоскости цвета Δab = hypot(Δa, Δb) не больше
+/// [maxPairChroma] (дальний по оттенку бленд — «грязный» цвет, а не переход) и разница светлоты |ΔL| не больше
+/// [maxPairLightness] (тёмная нитка может встать в пару со светлой того же оттенка, например чёрная и тёмно-синяя:
+/// так закрываются пробелы каталога в тёмных тонах). Пары ближе 3 ΔE76 пропускаются: смешивать почти одинаковое
+/// незачем. Клетка идёт в бленд, если он ближе к ней, чем лучший одиночный цвет, минимум на [margin] (ΔE76).
+/// Предложение держится, если в нём не меньше [minCells] клеток и средний выигрыш не меньше [minGain] ΔE2000. Каждая
+/// клетка достаётся одному предложению (сначала самому выгодному); всего не больше [maxSuggestions], а если он не
+/// задан, то `max(4, число цветов палитры ~/ 4)`: на большой палитре пробелов больше.
 List<BlendSuggestion> suggestBlends(
   GeneratedPattern pattern,
   List<Rgb?> cellColors, {
-  int maxSuggestions = 4,
+  int? maxSuggestions,
   int minCells = 6,
-  double maxPairDeltaE = 30,
+  double maxPairChroma = 30,
+  double maxPairLightness = 40,
   double margin = 1.5,
   double minGain = 2,
 }) {
   final int count = pattern.palette.length;
+  final int limit = maxSuggestions ?? math.max(4, count ~/ 4);
   if (count < 2 || cellColors.length != pattern.grid.width * pattern.grid.height) return const <BlendSuggestion>[];
   final List<Lab> palette = <Lab>[for (final e in pattern.palette) Lab.fromRgb(e.rgb)];
   final List<(int, int, Rgb, Lab)> pairs = <(int, int, Rgb, Lab)>[];
   for (int i = 0; i < count; i++) {
     for (int j = i + 1; j < count; j++) {
       final double d = _distance(palette[i], palette[j]);
-      if (d < 3 || d > maxPairDeltaE) continue;
+      final double chroma = math.sqrt(
+        math.pow(palette[i].a - palette[j].a, 2) + math.pow(palette[i].b - palette[j].b, 2),
+      );
+      if (d < 3 || chroma > maxPairChroma || (palette[i].l - palette[j].l).abs() > maxPairLightness) continue;
       final Rgb mix = Rgb.average(<Rgb>[pattern.palette[i].rgb, pattern.palette[j].rgb]);
       pairs.add((i, j, mix, Lab.fromRgb(mix)));
     }
@@ -105,7 +114,7 @@ List<BlendSuggestion> suggestBlends(
   final Set<int> taken = <int>{};
   final List<BlendSuggestion> out = <BlendSuggestion>[];
   final Set<int> used = <int>{};
-  while (out.length < maxSuggestions) {
+  while (out.length < limit) {
     int bestPair = -1;
     double bestTotal = 0;
     for (int p = 0; p < pairs.length; p++) {

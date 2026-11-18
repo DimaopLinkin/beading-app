@@ -18,6 +18,7 @@ import 'package:beading/domain/palette/rgb.dart';
 import 'package:beading/domain/projects/craft.dart';
 import 'package:beading/domain/settings/floss_brands.dart';
 import 'package:beading/domain/sharing/file_sharer.dart';
+import 'package:beading/presentation/floss/floss_format.dart';
 import 'package:beading/presentation/grid_pattern/grid_pattern_view.dart';
 import 'package:beading/presentation/grid_pattern/grid_view_options.dart';
 import 'package:beading/presentation/image_to_grid/floss_shopping_sheet.dart';
@@ -643,6 +644,14 @@ class _EditState extends State<_Edit> {
                   ),
                 SizedBox(height: gap),
               ],
+              if (settings.craft == Craft.crossStitch &&
+                  settings.paletteSource == PaletteSource.catalog &&
+                  !state.catalogMissing)
+                _ShadowsRow(
+                  manual: settings.shadows,
+                  autoPercent: state.preview?.stats?.shadowPercent,
+                  onChanged: cubit.setShadows,
+                ),
               if (settings.craft == Craft.crossStitch) ...<Widget>[
                 _SwitchRow(
                   switchKey: const ValueKey<String>('wizard-backstitch'),
@@ -697,6 +706,20 @@ class _EditState extends State<_Edit> {
                         hint: l10n.imageWizardStashHint,
                         value: settings.onlyStash,
                         onChanged: (value) => cubit.setOnlyStash(value: value),
+                      ),
+                    if (settings.paletteSource == PaletteSource.catalog &&
+                        settings.craft == Craft.crossStitch &&
+                        !settings.onlyStash &&
+                        state.flossBrand.isNotEmpty)
+                      _SwitchRow(
+                        switchKey: const ValueKey<String>('wizard-other-brands'),
+                        title: l10n.imageWizardOtherBrands,
+                        hint: l10n.imageWizardOtherBrandsHint(
+                          state.flossBrand,
+                          flossBrandChoices.where((brand) => brand != state.flossBrand).join(', '),
+                        ),
+                        value: settings.otherBrands,
+                        onChanged: (value) => cubit.setOtherBrands(value: value),
                       ),
                     if (settings.paletteSource == PaletteSource.catalog && settings.craft == Craft.beading) ...<Widget>[
                       SizedBox(height: tokens.spacing.s),
@@ -1267,6 +1290,15 @@ class _Preview extends StatelessWidget {
               style: TextStyle(fontSize: 13, color: CupertinoColors.secondaryLabel.resolveFrom(context)),
             ),
           ),
+        if (shown?.craft == Craft.crossStitch && state.flossEstimate?.brandMix != null)
+          Padding(
+            padding: EdgeInsets.only(top: tokens.spacing.xs),
+            child: Text(
+              FlossFormat(l10n, state.flossEstimate!, withReserve: false).brandMixText!,
+              key: const ValueKey<String>('wizard-brands'),
+              style: TextStyle(fontSize: 13, color: CupertinoColors.secondaryLabel.resolveFrom(context)),
+            ),
+          ),
       ],
     );
   }
@@ -1368,6 +1400,73 @@ class _WidthCmRow extends StatelessWidget {
             ),
             key: const ValueKey<String>('wizard-width-crosses'),
             style: TextStyle(fontSize: 13, color: CupertinoColors.secondaryLabel.resolveFrom(context)),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// «Тени» (T87): сила подъёма глубоких теней фото. «Авто» — сила подбирается по фото и ниткам, и подпись показывает,
+/// какую выбрал расчёт; тронутый ползунок переводит в ручной режим.
+class _ShadowsRow extends StatelessWidget {
+  const _ShadowsRow({required this.manual, required this.autoPercent, required this.onChanged});
+
+  /// Заданная сила, 0..100 %; `null` — «Авто».
+  final int? manual;
+
+  /// Сила, которую выбрал автоподбор в показанной схеме; `null`, пока схема не посчитана.
+  final int? autoPercent;
+  final ValueChanged<int?> onChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    final AppLocalizations l10n = AppLocalizations.of(context);
+    final bool auto = manual == null;
+    final int shown = manual ?? autoPercent ?? 0;
+    final TextStyle caption = TextStyle(fontSize: 13, color: CupertinoColors.secondaryLabel.resolveFrom(context));
+    return Padding(
+      padding: EdgeInsets.only(bottom: context.tokens.spacing.s),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: <Widget>[
+          _StepSlider(
+            title: l10n.imageWizardShadows,
+            value: shown.toDouble(),
+            min: 0,
+            max: 100,
+            step: 10,
+            valueKey: const ValueKey<String>('wizard-shadows'),
+            sliderKey: const ValueKey<String>('wizard-shadows-slider'),
+            id: 'wizard-shadows',
+            format: (v) => l10n.imageWizardShadowsValue(v.round()),
+            onChanged: (v) => onChanged(v.round()),
+          ),
+          MergeSemantics(
+            child: Row(
+              children: <Widget>[
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: <Widget>[
+                      Text(
+                        auto
+                            ? (autoPercent == null
+                                  ? l10n.imageWizardShadowsAuto
+                                  : l10n.imageWizardShadowsAutoValue(autoPercent!))
+                            : l10n.imageWizardShadowsValue(shown),
+                      ),
+                      Text(l10n.imageWizardShadowsHint, style: caption),
+                    ],
+                  ),
+                ),
+                CupertinoSwitch(
+                  key: const ValueKey<String>('wizard-shadows-auto'),
+                  value: auto,
+                  onChanged: (value) => onChanged(value ? null : (autoPercent ?? 0)),
+                ),
+              ],
+            ),
           ),
         ],
       ),

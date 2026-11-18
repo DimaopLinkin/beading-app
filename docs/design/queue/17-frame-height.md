@@ -1,11 +1,11 @@
 ---
 id: 17-frame-height
-title: Высота вышивки и обрезка с фиксированными пропорциями (T84)
+title: Высота вышивки и обрезка с фиксированными пропорциями (T88)
 status: todo
 depends: 08-generation
 ---
 
-# Высота вышивки и обрезка с пропорциями (T84)
+# Высота вышивки и обрезка с пропорциями (T88)
 
 Используй UI kit из `docs/design/accepted/01-ui-kit/`, `01b-ui-kit-addendum/` и шаг «Параметры» мастера из `docs/design/accepted/08-generation/`. Liquid Glass только для слоя управления, контент непрозрачный. Без сюсюканья в текстах. Только iOS и macOS, Cupertino.
 

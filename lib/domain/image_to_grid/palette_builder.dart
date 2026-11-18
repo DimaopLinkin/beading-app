@@ -102,14 +102,14 @@ final class AccentPaletteBuilder extends Equatable implements PaletteBuilder {
       if (cells != null) centers = _reseed<Lab>(centers, (c) => c, (want, current) => want, cells);
       return <PaletteEntry>{for (final Lab c in centers) PaletteEntry(rgb: c.toRgb())}.toList();
     }
-    final List<PaletteEntry> snapped = _snapToCatalog(sample, centers, candidates, k);
+    final List<PaletteEntry> snapped = _snapToCatalog(sample, centers, candidates, k, request.constraint);
     if (cells == null) return snapped;
     return _reseed<PaletteEntry>(snapped, (e) => Lab.fromRgb(e.rgb), (want, current) {
       PaletteEntry? best;
       double bestD = double.infinity;
       for (final PaletteEntry e in candidates) {
         if (current.contains(e)) continue;
-        final double d = deltaE2000(want, Lab.fromRgb(e.rgb));
+        final double d = deltaE2000(want, Lab.fromRgb(e.rgb)) + request.constraint.penaltyOf(e);
         if (d < bestD) {
           bestD = d;
           best = e;
@@ -417,15 +417,24 @@ final class AccentPaletteBuilder extends Equatable implements PaletteBuilder {
 
   // ---------------------------------------------------------------- каталог
 
-  List<PaletteEntry> _snapToCatalog(_Sample s, List<Lab> centers, List<PaletteEntry> candidates, int wanted) {
+  List<PaletteEntry> _snapToCatalog(
+    _Sample s,
+    List<Lab> centers,
+    List<PaletteEntry> candidates,
+    int wanted,
+    PaletteConstraint constraint,
+  ) {
     final List<Lab> catalog = <Lab>[for (final PaletteEntry e in candidates) Lab.fromRgb(e.rgb)];
+    // Штраф чужих брендов (T86) входит только в выбор ниток, не в раскладку выборки по уже выбранным.
+    final List<double> penalty = <double>[for (final PaletteEntry e in candidates) constraint.penaltyOf(e)];
     final int k = math.min(centers.length, catalog.length);
     final int target = math.min(wanted, catalog.length);
 
     // Каждому центру — ближайшая ещё не занятая позиция; первыми идут центры с очень близкой позицией.
     List<int> snap(List<Lab> wanted) {
       final List<List<double>> d = <List<double>>[
-        for (final Lab c in wanted) <double>[for (final Lab p in catalog) deltaE2000(c, p)],
+        for (final Lab c in wanted)
+          <double>[for (int j = 0; j < catalog.length; j++) deltaE2000(c, catalog[j]) + penalty[j]],
       ];
       final List<int> order = List<int>.generate(wanted.length, (i) => i)
         ..sort((x, y) {
@@ -497,7 +506,7 @@ final class AccentPaletteBuilder extends Equatable implements PaletteBuilder {
       double bestD = double.infinity;
       for (int j = 0; j < catalog.length; j++) {
         if (chosen.contains(j)) continue;
-        final double d = deltaE2000(want, catalog[j]);
+        final double d = deltaE2000(want, catalog[j]) + penalty[j];
         if (d < bestD) {
           bestD = d;
           best = j;
