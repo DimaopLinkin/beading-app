@@ -227,7 +227,7 @@ void main() {
     });
 
     test('вышивка до 200 см шириной на любой канве, до 120 цветов', () {
-      expect(ImageToGridSettings.maxColorsLimit, 120);
+      expect(ImageToGridSettings.maxColorsLimit, 250);
       for (final int count in <int>[11, 14, 20]) {
         final Fabric f = Fabric.create(kind: FabricKind.aida, count: count).valueOrNull!;
         final ImageToGridSettings s = stitch.copyWith(fabric: f, columns: 99999);
