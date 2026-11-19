@@ -76,7 +76,7 @@ class ImageWizardCubit extends Cubit<ImageWizardState> {
     ProjectRepository? projects,
     GridPatternRepository? patterns,
     PatternPrinter? printer,
-    Duration debounce = const Duration(milliseconds: 300),
+    Duration debounce = const Duration(milliseconds: 500),
     bool sizeHints = false,
   }) : _source = source,
        _processor = processor,
@@ -332,11 +332,11 @@ class ImageWizardCubit extends Cubit<ImageWizardState> {
     _schedule(immediate: true);
   }
 
-  /// Поворот на 90° по часовой стрелке; рамка задана в повёрнутых осях, поэтому сбрасывается.
+  /// Поворот на 90° (по умолчанию по часовой); рамка задана в повёрнутых осях, поэтому сбрасывается.
   ///
   /// Высота ([ImageToGridSettings.rows]) остаётся: рамка по ней подгоняется заново в новых осях (T88c).
-  Future<void> rotate() => _reshape(
-    quarterTurns: (state.quarterTurns + 1) % 4,
+  Future<void> rotate({bool clockwise = true}) => _reshape(
+    quarterTurns: (state.quarterTurns + (clockwise ? 1 : 3)) % 4,
     crop: CropRect.full,
     aspect: state.sourceAspect > 0 ? 1 / state.sourceAspect : null,
   );

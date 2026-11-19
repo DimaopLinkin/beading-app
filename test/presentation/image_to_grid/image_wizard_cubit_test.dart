@@ -370,6 +370,14 @@ void main() {
       expect(w[20 * 20 + 10], 4);
     });
 
+    test('поворот в обе стороны: против часовой возвращает исходное положение', () async {
+      await pick();
+      await cubit.rotate(clockwise: false);
+      expect(cubit.state.quarterTurns, 3);
+      await cubit.rotate();
+      expect(cubit.state.quarterTurns, 0);
+    });
+
     test('мазок переживает поворот: остаётся на тех же клетках картинки', () async {
       await pick();
       cubit

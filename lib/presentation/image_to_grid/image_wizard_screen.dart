@@ -14,8 +14,6 @@ import 'package:beading/domain/image_to_grid/face_size_advisor.dart';
 import 'package:beading/domain/image_to_grid/frame_planner.dart';
 import 'package:beading/domain/image_to_grid/generation_preset.dart';
 import 'package:beading/domain/image_to_grid/image_to_grid_settings.dart';
-import 'package:beading/domain/image_to_grid/size_purpose.dart';
-import 'package:beading/domain/image_to_grid/size_suggester.dart';
 import 'package:beading/domain/palette/rgb.dart';
 import 'package:beading/domain/projects/craft.dart';
 import 'package:beading/domain/settings/floss_brands.dart';
@@ -26,6 +24,7 @@ import 'package:beading/presentation/grid_pattern/grid_pattern_view.dart';
 import 'package:beading/presentation/grid_pattern/grid_view_options.dart';
 import 'package:beading/presentation/image_to_grid/floss_shopping_sheet.dart';
 import 'package:beading/presentation/image_to_grid/frame_overlay.dart';
+import 'package:beading/presentation/image_to_grid/full_preview_screen.dart';
 import 'package:beading/presentation/image_to_grid/image_wizard_cubit.dart';
 import 'package:beading/presentation/image_to_grid/image_wizard_state.dart';
 import 'package:beading/presentation/image_to_grid/importance_brush_mode.dart';
@@ -189,102 +188,35 @@ class _FaceWarning extends StatelessWidget {
   }
 }
 
-/// Размер по назначению и подсказка по фото (T61).
-class _SizeAssist extends StatelessWidget {
-  const _SizeAssist({required this.state, required this.cubit});
+/// Честное предупреждение: бисера на такое лицо не хватает (T54). Размер по назначению и подсказки убраны по итогам
+/// проверки на устройстве.
+class _BeadsFewNote extends StatelessWidget {
+  const _BeadsFewNote({required this.state, required this.cubit});
 
   final ImageWizardState state;
   final ImageWizardCubit cubit;
 
   @override
   Widget build(BuildContext context) {
-    final AppLocalizations l10n = AppLocalizations.of(context);
-    final ImageToGridSettings settings = state.settings;
-    final bool stitch = settings.craft == Craft.crossStitch;
-    final TextStyle caption = TextStyle(fontSize: 13, color: CupertinoColors.secondaryLabel.resolveFrom(context));
-    final SizeSuggestion? hint = state.sizeHint;
-    String purposeLabel(SizePurpose purpose) => stitch
-        ? l10n.imageWizardCm(_cm(purpose.stitchCm))
-        : switch (purpose) {
-            SizePurpose.small => l10n.imageWizardPurposeBracelet,
-            SizePurpose.medium => l10n.imageWizardPurposePanel,
-            SizePurpose.large => l10n.imageWizardPurposePicture,
-          };
-    SizePurpose? current;
-    for (final SizePurpose p in SizePurpose.values) {
-      if (p.columnsFor(settings) == settings.columns) current = p;
+    if (!state.beadsTooSmallForFace) {
+      return const SizedBox.shrink();
     }
-    return _Section(
-      title: l10n.imageWizardPurpose,
+    final AppLocalizations l10n = AppLocalizations.of(context);
+    return Padding(
+      padding: EdgeInsets.only(bottom: context.tokens.spacing.m),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
-          CupertinoSlidingSegmentedControl<SizePurpose>(
-            key: const ValueKey<String>('wizard-purpose'),
-            groupValue: current,
-            children: <SizePurpose, Widget>{
-              for (final SizePurpose p in SizePurpose.values) p: _SegmentLabel(purposeLabel(p)),
-            },
-            onValueChanged: (value) {
-              if (value != null) cubit.setPurpose(value);
-            },
+          Text(
+            l10n.imageWizardBeadsFewForFace(state.settings.columns),
+            key: const ValueKey<String>('wizard-beads-few'),
+            style: TextStyle(fontSize: 13, color: CupertinoColors.systemOrange.resolveFrom(context)),
           ),
-          if (!stitch)
-            Padding(
-              padding: EdgeInsets.only(top: context.tokens.spacing.s),
-              child: Text(
-                l10n.imageWizardPurposeBeads(
-                  settings.columns,
-                  _cm(SizeSuggester.centimetres(settings.columns, settings.metrics)),
-                ),
-                style: caption,
-              ),
-            ),
-          if (hint != null) ...<Widget>[
-            SizedBox(height: context.tokens.spacing.s),
-            Text(
-              key: const ValueKey<String>('wizard-size-hint'),
-              stitch
-                  ? l10n.imageWizardSizeHintStitch(
-                      _fabricLabel(l10n, settings.fabric),
-                      _cm(SizeSuggester.centimetres(hint.columns, settings.fabric)),
-                      hint.columns,
-                      hint.colors,
-                    )
-                  : l10n.imageWizardSizeHintBeads(
-                      hint.columns,
-                      hint.colors,
-                      _cm(SizeSuggester.centimetres(hint.columns, settings.metrics)),
-                    ),
-              style: caption,
-            ),
-            if (!hint.reached) Text(l10n.imageWizardSizeHintLimit, style: caption),
-            if (state.sizeHintApplied)
-              Text(
-                l10n.imageWizardSizeHintApplied,
-                key: const ValueKey<String>('wizard-size-hint-applied'),
-                style: caption,
-              )
-            else
-              CupertinoButton.tinted(
-                key: const ValueKey<String>('wizard-size-hint-apply'),
-                onPressed: cubit.applySizeHint,
-                child: Text(l10n.imageWizardSizeHintApply),
-              ),
-          ],
-          if (state.beadsTooSmallForFace) ...<Widget>[
-            SizedBox(height: context.tokens.spacing.s),
-            Text(
-              l10n.imageWizardBeadsFewForFace(settings.columns),
-              key: const ValueKey<String>('wizard-beads-few'),
-              style: TextStyle(fontSize: 13, color: CupertinoColors.systemOrange.resolveFrom(context)),
-            ),
-            CupertinoButton.tinted(
-              key: const ValueKey<String>('wizard-beads-to-stitch'),
-              onPressed: () => cubit.setCraft(Craft.crossStitch),
-              child: Text(l10n.imageWizardToStitch),
-            ),
-          ],
+          CupertinoButton.tinted(
+            key: const ValueKey<String>('wizard-beads-to-stitch'),
+            onPressed: () => cubit.setCraft(Craft.crossStitch),
+            child: Text(l10n.imageWizardToStitch),
+          ),
         ],
       ),
     );
@@ -426,7 +358,6 @@ class _EditState extends State<_Edit> {
     WizardTool.size => _sizeTool(context),
     WizardTool.colors => _colorsTool(context),
     WizardTool.details => _detailsTool(context),
-    WizardTool.stitches => _stitchesTool(context),
     WizardTool.total => _totalTool(context),
   };
 
@@ -435,7 +366,7 @@ class _EditState extends State<_Edit> {
     final ImageWizardState state = widget.state;
     final AppTokensData tokens = context.tokens;
     final double gap = tokens.spacing.m;
-    final List<WizardTool> tools = WizardTool.of(state.settings.craft);
+    const List<WizardTool> tools = WizardTool.values;
     final WizardTool tool = tools.contains(widget.session.tool) ? widget.session.tool : WizardTool.base;
     final Set<WizardTool> changed = <WizardTool>{
       for (final WizardTool t in tools)
@@ -514,7 +445,7 @@ class _EditState extends State<_Edit> {
             ],
           );
         }
-        final double panelHeight = (box.maxHeight * 0.42).clamp(240, 440);
+        final double panelHeight = (box.maxHeight * 0.32).clamp(220, 340);
         return Column(
           children: <Widget>[
             Expanded(child: preview),
@@ -537,17 +468,7 @@ class _EditState extends State<_Edit> {
     final ImageWizardCubit cubit = context.read<ImageWizardCubit>();
     final ImageWizardState state = widget.state;
     final ImageToGridSettings settings = state.settings;
-    final AppTokensData tokens = context.tokens;
-    final double gap = tokens.spacing.m;
     return <Widget>[
-      Wrap(
-        alignment: WrapAlignment.center,
-        spacing: gap,
-        children: <Widget>[
-          _IconAction(icon: CupertinoIcons.rotate_right, label: l10n.imageWizardRotate, onPressed: cubit.rotate),
-        ],
-      ),
-      SizedBox(height: gap),
       if (!state.editing)
         _Section(
           title: l10n.imageWizardCraft,
@@ -674,6 +595,23 @@ class _EditState extends State<_Edit> {
     final ImageWizardState state = widget.state;
     final ImageToGridSettings settings = state.settings;
     return <Widget>[
+      Wrap(
+        alignment: WrapAlignment.center,
+        children: <Widget>[
+          _IconAction(
+            key: const ValueKey<String>('wizard-rotate-left'),
+            icon: CupertinoIcons.rotate_left,
+            label: l10n.imageWizardRotateLeft,
+            onPressed: () => unawaited(cubit.rotate(clockwise: false)),
+          ),
+          _IconAction(
+            key: const ValueKey<String>('wizard-rotate-right'),
+            icon: CupertinoIcons.rotate_right,
+            label: l10n.imageWizardRotateRight,
+            onPressed: () => unawaited(cubit.rotate()),
+          ),
+        ],
+      ),
       if (settings.craft == Craft.crossStitch)
         _WidthCmRow(settings: settings, onChanged: cubit.setWidthCm)
       else
@@ -685,7 +623,7 @@ class _EditState extends State<_Edit> {
           onChanged: cubit.setColumns,
         ),
       _HeightSection(state: state, cubit: cubit),
-      _SizeAssist(state: state, cubit: cubit),
+      _BeadsFewNote(state: state, cubit: cubit),
     ];
   }
 
@@ -704,6 +642,15 @@ class _EditState extends State<_Edit> {
         max: ImageToGridSettings.maxColorsLimit,
         onChanged: cubit.setMaxColors,
       ),
+      if (settings.craft == Craft.crossStitch &&
+          ((state.preview?.blendSuggestions.isNotEmpty ?? false) || settings.blends))
+        _SwitchRow(
+          switchKey: const ValueKey<String>('wizard-blends'),
+          title: l10n.imageWizardBlends,
+          hint: l10n.imageWizardBlendsHint(state.preview?.blendSuggestions.length ?? 0),
+          value: settings.blends,
+          onChanged: (value) => cubit.setBlends(value: value),
+        ),
       if (settings.craft == Craft.crossStitch &&
           settings.paletteSource == PaletteSource.catalog &&
           !state.catalogMissing)
@@ -963,47 +910,6 @@ class _EditState extends State<_Edit> {
             ],
           ),
         ),
-      ],
-    ];
-  }
-
-  List<Widget> _stitchesTool(BuildContext context) {
-    final AppLocalizations l10n = AppLocalizations.of(context);
-    final ImageWizardCubit cubit = context.read<ImageWizardCubit>();
-    final ImageWizardState state = widget.state;
-    final ImageToGridSettings settings = state.settings;
-    final AppTokensData tokens = context.tokens;
-    final double gap = tokens.spacing.m;
-    return <Widget>[
-      if (settings.craft == Craft.crossStitch) ...<Widget>[
-        _SwitchRow(
-          switchKey: const ValueKey<String>('wizard-backstitch'),
-          title: l10n.imageWizardBackstitch,
-          hint: state.preview == null || !settings.backstitch || state.calculating
-              ? l10n.imageWizardBackstitchHint
-              : '${l10n.imageWizardBackstitchHint}\n${l10n.imageWizardBackstitchCount(state.preview!.lines.length)}',
-          value: settings.backstitch,
-          onChanged: (value) => cubit.setBackstitch(value: value),
-        ),
-        if (settings.technique == Technique.crossStitch)
-          _SwitchRow(
-            switchKey: const ValueKey<String>('wizard-mixed'),
-            title: l10n.imageWizardMixed,
-            hint: state.preview == null || !settings.mixedStitches || state.calculating
-                ? l10n.imageWizardMixedHint
-                : '${l10n.imageWizardMixedHint}\n${l10n.imageWizardMixedCount(state.preview!.partials.length)}',
-            value: settings.mixedStitches,
-            onChanged: (value) => cubit.setMixedStitches(value: value),
-          ),
-        if ((state.preview?.blendSuggestions.isNotEmpty ?? false) || settings.blends)
-          _SwitchRow(
-            switchKey: const ValueKey<String>('wizard-blends'),
-            title: l10n.imageWizardBlends,
-            hint: l10n.imageWizardBlendsHint(state.preview?.blendSuggestions.length ?? 0),
-            value: settings.blends,
-            onChanged: (value) => cubit.setBlends(value: value),
-          ),
-        SizedBox(height: gap),
       ],
     ];
   }
@@ -1284,7 +1190,7 @@ class _StepSlider extends StatelessWidget {
 }
 
 class _IconAction extends StatelessWidget {
-  const _IconAction({required this.icon, required this.label, required this.onPressed});
+  const _IconAction({required this.icon, required this.label, required this.onPressed, super.key});
 
   final IconData icon;
   final String label;
@@ -1323,15 +1229,6 @@ class _Preview extends StatefulWidget {
 }
 
 class _PreviewState extends State<_Preview> {
-  /// Масштаб и сдвиг схемы прямо в области результата: щипок, перетаскивание, двойной тап сбрасывает.
-  final TransformationController _zoom = TransformationController();
-
-  @override
-  void dispose() {
-    _zoom.dispose();
-    super.dispose();
-  }
-
   @override
   Widget build(BuildContext context) {
     final ImageWizardState state = widget.state;
@@ -1429,6 +1326,7 @@ class _PreviewState extends State<_Preview> {
                     : null,
               ),
               interactive: false,
+              alignment: Alignment.center,
             ),
           ),
         ),
@@ -1442,6 +1340,7 @@ class _PreviewState extends State<_Preview> {
           child: GestureDetector(
             key: const ValueKey<String>('wizard-preview'),
             behavior: HitTestBehavior.opaque,
+            onTap: grid == null ? null : () => showFullPreview(context),
             onLongPressStart: (_) => cubit.setComparing(value: true),
             onLongPressEnd: (_) => cubit.setComparing(value: false),
             onLongPressCancel: () => cubit.setComparing(value: false),
@@ -1454,18 +1353,24 @@ class _PreviewState extends State<_Preview> {
                   child: Stack(
                     children: <Widget>[
                       Positioned.fill(
-                        // Двойной тап стоит только на схеме: на баннере он задерживал бы нажатия кнопок.
-                        child: GestureDetector(
-                          behavior: HitTestBehavior.opaque,
-                          onDoubleTap: () => _zoom.value = Matrix4.identity(),
-                          child: InteractiveViewer(
-                            key: const ValueKey<String>('wizard-zoom'),
-                            transformationController: _zoom,
-                            maxScale: 12,
-                            child: Center(child: content),
+                        child: Center(child: content),
+                      ),
+                      if (grid != null)
+                        Positioned(
+                          bottom: 0,
+                          right: 0,
+                          child: CupertinoButton(
+                            key: const ValueKey<String>('wizard-preview-open'),
+                            padding: EdgeInsets.all(tokens.spacing.s),
+                            minimumSize: Size.square(tokens.minTapTarget),
+                            onPressed: () => showFullPreview(context),
+                            child: Semantics(
+                              label: l10n.imageWizardFullPreviewOpen,
+                              button: true,
+                              child: const Icon(CupertinoIcons.arrow_up_left_arrow_down_right),
+                            ),
                           ),
                         ),
-                      ),
                       if (widget.banner != null)
                         Positioned(
                           top: tokens.spacing.s,

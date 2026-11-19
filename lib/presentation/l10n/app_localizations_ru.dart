@@ -1475,7 +1475,10 @@ class AppLocalizationsRu extends AppLocalizations {
   String get imageWizardOpening => 'Открываю картинку…';
 
   @override
-  String get imageWizardRotate => 'Повернуть';
+  String get imageWizardRotateLeft => 'Повернуть влево';
+
+  @override
+  String get imageWizardRotateRight => 'Повернуть вправо';
 
   @override
   String get imageWizardCrop => 'Обрезка…';
@@ -1491,6 +1494,18 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get imageWizardLookRealistic => 'Как будет';
+
+  @override
+  String get imageWizardFullPreviewBack => 'Параметры';
+
+  @override
+  String get imageWizardFullPreviewHint => 'Щипком меняйте масштаб, пальцем двигайте схему';
+
+  @override
+  String get imageWizardFullPreviewTitle => 'Предпросмотр';
+
+  @override
+  String get imageWizardFullPreviewOpen => 'Во весь экран';
 
   @override
   String get imageWizardCompareHint => 'Удерживайте схему, чтобы увидеть исходную картинку';
@@ -2031,9 +2046,6 @@ class AppLocalizationsRu extends AppLocalizations {
 
   @override
   String get imageWizardToolDetails => 'Детали';
-
-  @override
-  String get imageWizardToolStitches => 'Стежки';
 
   @override
   String get imageWizardToolTotal => 'Итог';
