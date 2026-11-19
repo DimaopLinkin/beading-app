@@ -25,6 +25,7 @@ import 'package:beading/domain/image_to_grid/use_cases/create_pattern_from_image
 import 'package:beading/domain/palette/rgb.dart';
 import 'package:beading/domain/projects/craft.dart';
 import 'package:beading/domain/projects/use_cases/create_project.dart';
+import 'package:beading/presentation/grid_pattern/grid_pattern_view.dart';
 import 'package:beading/presentation/image_to_grid/image_wizard_cubit.dart';
 import 'package:beading/presentation/image_to_grid/image_wizard_screen.dart';
 import 'package:beading/presentation/image_to_grid/image_wizard_state.dart';
@@ -152,7 +153,7 @@ void main() {
       'wizard-brush' ||
       'wizard-brush-reset' ||
       'wizard-brush-crop-hint' => 'details',
-      'wizard-backstitch' || 'wizard-mixed' || 'wizard-blends' => 'stitches',
+      'wizard-blends' => 'colors',
       'wizard-shopping' || 'wizard-print' => 'total',
       _ => null,
     };
@@ -206,25 +207,45 @@ void main() {
     });
   }
 
-  testWidgets('масштаб и сдвиг схемы прямо в результате, двойной тап возвращает вид', (tester) async {
+  testWidgets('полный предпросмотр: открывается из мастера, зумится и возвращает к параметрам без потерь', (
+    tester,
+  ) async {
     await openPhoto(tester, AppTheme.light);
-    final Finder zoom = find.byKey(const ValueKey<String>('wizard-zoom'));
-    final TransformationController controller = tester.widget<InteractiveViewer>(zoom).transformationController!;
-    expect(controller.value.getMaxScaleOnAxis(), 1);
-    final Offset center = tester.getCenter(zoom);
-    final TestGesture first = await tester.startGesture(center - const Offset(20, 0));
-    final TestGesture second = await tester.startGesture(center + const Offset(20, 0));
-    await first.moveBy(const Offset(-40, 0));
-    await second.moveBy(const Offset(40, 0));
-    await first.up();
-    await second.up();
+    final settingsBefore = cubit.state.settings;
+    await toolFor(tester, 'wizard-preview-open');
+    await tester.tap(find.byKey(const ValueKey<String>('wizard-preview-open')));
     await tester.pumpAndSettle();
-    expect(controller.value.getMaxScaleOnAxis(), greaterThan(1));
-    await tester.tap(find.byKey(const ValueKey<String>('wizard-preview')));
-    await tester.pump(const Duration(milliseconds: 50));
+
+    await toolFor(tester, 'full-preview');
+    expect(find.byKey(const ValueKey<String>('full-preview')), findsOneWidget);
+    expect(find.byType(GridPatternView), findsOneWidget);
+    expect(find.byType(InteractiveViewer), findsOneWidget);
+
+    // «Как будет» переключается и сохраняется в мастере.
+    await tester.tap(
+      find.descendant(of: find.byKey(const ValueKey<String>('full-preview-look')), matching: find.text('Как будет')),
+    );
+    await tester.pumpAndSettle();
+    expect(cubit.state.realistic, isTrue);
+
+    await toolFor(tester, 'full-preview-back');
+    await tester.tap(find.byKey(const ValueKey<String>('full-preview-back')));
+    await tester.pumpAndSettle();
+    await toolFor(tester, 'full-preview');
+    expect(find.byKey(const ValueKey<String>('full-preview')), findsNothing);
+    await toolFor(tester, 'wizard-grid');
+    expect(find.byKey(const ValueKey<String>('wizard-grid')), findsOneWidget);
+    expect(cubit.state.settings, settingsBefore);
+    expect(cubit.state.step, ImageWizardStep.edit);
+  });
+
+  testWidgets('полный предпросмотр: тап по предпросмотру тоже открывает его', (tester) async {
+    await openPhoto(tester, AppTheme.light);
+    await toolFor(tester, 'wizard-preview');
     await tester.tap(find.byKey(const ValueKey<String>('wizard-preview')));
     await tester.pumpAndSettle();
-    expect(controller.value.getMaxScaleOnAxis(), 1);
+    await toolFor(tester, 'full-preview');
+    expect(find.byKey(const ValueKey<String>('full-preview')), findsOneWidget);
   });
 
   testWidgets('переключатель «Выделять главное» виден, только когда на фото нашлись лица или объект', (tester) async {
@@ -533,15 +554,14 @@ void main() {
       expect(crosses, contains('Аида 14'));
       expect(crosses, contains('5,5 на сантиметр'));
       expect(crosses, contains('${cubit.state.settings.columns} крестиков'));
-      await toolFor(tester, 'wizard-backstitch');
-      final Finder backstitch = find.byKey(const ValueKey<String>('wizard-backstitch'));
-      await tester.scrollUntilVisible(backstitch, 200, scrollable: find.byType(Scrollable).last);
-      await tester.ensureVisible(backstitch);
-      await tester.pumpAndSettle();
-      expect(tester.widget<CupertinoSwitch>(backstitch).value, isFalse);
-      await tester.tap(backstitch);
-      await tester.pumpAndSettle();
-      expect(cubit.state.settings.backstitch, isTrue);
+      // Контуры и смешанные стежки отключены, пока их результат не станет приемлемым.
+      for (final String name in <String>['wizard-backstitch', 'wizard-mixed']) {
+        for (final String tool in <String>['base', 'size', 'colors', 'details', 'total']) {
+          await tester.tap(find.byKey(ValueKey<String>('wizard-tool-$tool')));
+          await tester.pumpAndSettle();
+          expect(find.byKey(ValueKey<String>(name), skipOffstage: false), findsNothing);
+        }
+      }
     });
 
     testWidgets('список закупки: строка с числом мотков открывает лист с нитками и канвой (T77)', (tester) async {
@@ -721,12 +741,18 @@ void main() {
       await toolFor(tester, 'wizard-other-brand-DMC');
       expect(find.byKey(const ValueKey<String>('wizard-other-brand-DMC'), skipOffstage: false), findsNothing);
       await toolFor(tester, 'wizard-other-brand-Anchor');
+      await tester.ensureVisible(find.byKey(const ValueKey<String>('wizard-other-brand-Anchor')));
+      await tester.pumpAndSettle();
       await tester.tap(find.byKey(const ValueKey<String>('wizard-other-brand-Anchor')));
       await toolFor(tester, 'wizard-other-brand-ПНК Кирова');
+      await tester.ensureVisible(find.byKey(const ValueKey<String>('wizard-other-brand-ПНК Кирова')));
+      await tester.pumpAndSettle();
       await tester.tap(find.byKey(const ValueKey<String>('wizard-other-brand-ПНК Кирова')));
       await tester.pumpAndSettle();
       expect(cubit.state.settings.otherBrandsOnly, <String>{'Anchor', 'ПНК Кирова'});
       await toolFor(tester, 'wizard-other-brand-auto');
+      await tester.ensureVisible(find.byKey(const ValueKey<String>('wizard-other-brand-auto')));
+      await tester.pumpAndSettle();
       await tester.tap(find.byKey(const ValueKey<String>('wizard-other-brand-auto')));
       await tester.pumpAndSettle();
       expect(cubit.state.settings.otherBrandsOnly, isEmpty);
@@ -991,20 +1017,18 @@ void main() {
   group('панель в стиле редактора (T92a)', () {
     Finder key(String name) => find.byKey(ValueKey<String>(name));
 
-    testWidgets('у бисера пять групп без «Стежков», у вышивки шесть; выбранная группа заменяет содержимое панели', (
+    testWidgets('пять групп; выбранная группа заменяет содержимое панели', (
       tester,
     ) async {
       await openPhoto(tester, AppTheme.light);
       expect(key('wizard-tool-stitches'), findsNothing);
+      expect(key('wizard-tool-total'), findsOneWidget);
       expect(key('wizard-technique'), findsOneWidget);
       expect(key('wizard-preset'), findsNothing);
       await tester.tap(key('wizard-tool-details'));
       await tester.pumpAndSettle();
       expect(key('wizard-preset'), findsOneWidget);
       expect(key('wizard-technique'), findsNothing);
-      cubit.setCraft(Craft.crossStitch);
-      await tester.pumpAndSettle();
-      expect(key('wizard-tool-stitches'), findsOneWidget);
     });
 
     testWidgets('точка стоит только у изменённой группы', (tester) async {

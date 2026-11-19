@@ -1,6 +1,5 @@
 import 'package:beading/domain/image_pattern/crop_rect.dart';
 import 'package:beading/domain/image_to_grid/image_to_grid_settings.dart';
-import 'package:beading/domain/projects/craft.dart';
 import 'package:beading/presentation/l10n/app_localizations.dart';
 import 'package:beading/presentation/theme/tokens.dart';
 import 'package:flutter/cupertino.dart';
@@ -11,7 +10,6 @@ enum WizardTool {
   size(CupertinoIcons.arrow_up_left_arrow_down_right),
   colors(CupertinoIcons.color_filter),
   details(CupertinoIcons.sparkles),
-  stitches(CupertinoIcons.scribble),
   total(CupertinoIcons.list_bullet)
   ;
 
@@ -24,15 +22,8 @@ enum WizardTool {
     size => l10n.imageWizardToolSize,
     colors => l10n.imageWizardToolColors,
     details => l10n.imageWizardToolDetails,
-    stitches => l10n.imageWizardToolStitches,
     total => l10n.imageWizardToolTotal,
   };
-
-  /// Группы, доступные для ремесла: «Стежков» у бисера нет.
-  static List<WizardTool> of(Craft craft) => <WizardTool>[
-    for (final WizardTool tool in values)
-      if (tool != stitches || craft == Craft.crossStitch) tool,
-  ];
 
   /// Изменена ли группа относительно параметров, с которыми мастер открылся.
   bool changed({
@@ -56,6 +47,7 @@ enum WizardTool {
           from.otherBrandsOnly != to.otherBrandsOnly ||
           from.shadows != to.shadows ||
           from.beadSeries != to.beadSeries ||
+          from.blends != to.blends ||
           from.finishGroups != to.finishGroups,
     details =>
       from.preset != to.preset ||
@@ -63,7 +55,6 @@ enum WizardTool {
           from.outline != to.outline ||
           from.useMasks != to.useMasks ||
           brushChanged,
-    stitches => from.backstitch != to.backstitch || from.mixedStitches != to.mixedStitches || from.blends != to.blends,
     total => false,
   };
 }

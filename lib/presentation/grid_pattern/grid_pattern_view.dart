@@ -41,6 +41,7 @@ class GridPatternView extends StatefulWidget {
     this.onCellTap,
     this.onCellLongPress,
     this.interactive = true,
+    this.alignment = Alignment.topCenter,
     this.gesturesEnabled = true,
     this.maxScale = 8,
     @visibleForTesting this.layerCache,
@@ -69,6 +70,9 @@ class GridPatternView extends StatefulWidget {
 
   /// `false` — без зума и сдвига (редактору, которому нужны мазки пальцем).
   final bool interactive;
+
+  /// Положение схемы в области неинтерактивного вида, когда пропорции не совпадают.
+  final Alignment alignment;
 
   /// `false` — зум и сдвиг жестами выключены (их ведёт владелец через [controller], например редактор, где один
   /// палец рисует). Касания ячеек по-прежнему отдаются.
@@ -357,7 +361,7 @@ class _GridPatternViewState extends State<GridPatternView> {
                         boundaryMargin: const EdgeInsets.all(64),
                         child: scene,
                       )
-                    : FittedBox(alignment: Alignment.topCenter, child: scene),
+                    : FittedBox(alignment: widget.alignment, child: scene),
               ),
               if (widget.interactive && widget.options.currentRow != null)
                 _RowMarker(

@@ -124,42 +124,12 @@ void main() {
     await tester.pumpAndSettle();
   }
 
-  for (final CupertinoThemeData theme in <CupertinoThemeData>[AppTheme.light, AppTheme.dark]) {
-    testWidgets('бисер в теме ${theme.brightness}: размеры по назначению и подсказка применяется одним касанием', (
-      tester,
-    ) async {
-      await open(tester, theme);
-      await tool(tester, 'size');
-      final Finder hint = find.byKey(const ValueKey<String>('wizard-size-hint'));
-      await tester.scrollUntilVisible(hint, 200, scrollable: find.byType(Scrollable).last);
-      expect(find.textContaining('от 60 бусин по ширине и 10 цветов'), findsOneWidget);
-
-      // Размер по умолчанию взят из подсказки, пока его никто не менял (T66).
-      expect(cubit.state.settings.columns, 60);
-      expect(find.byKey(const ValueKey<String>('wizard-size-hint-applied'), skipOffstage: false), findsOneWidget);
-
-      await tester.tap(find.text('Картина'));
-      await tester.pumpAndSettle();
-      expect(cubit.state.settings.columns, 100);
-      expect(find.byKey(const ValueKey<String>('wizard-size-hint-apply'), skipOffstage: false), findsOneWidget);
-      await tester.tap(find.byKey(const ValueKey<String>('wizard-size-hint-apply')));
-      await tester.pumpAndSettle();
-      expect(cubit.state.settings.columns, 60);
-    });
-  }
-
-  testWidgets('вышивка: размеры в сантиметрах, подсказка в сантиметрах на канве', (tester) async {
+  testWidgets('размера по назначению и подсказки нет, но размер по умолчанию взят из подсказки (T66)', (tester) async {
     await open(tester, AppTheme.light);
-    cubit.setCraft(Craft.crossStitch);
-    await tester.pumpAndSettle();
     await tool(tester, 'size');
-    final Finder hint = find.byKey(const ValueKey<String>('wizard-size-hint'));
-    await tester.scrollUntilVisible(hint, 200, scrollable: find.byType(Scrollable).last);
-    // 110 крестиков на аиде 14: 110 × 25,4 / 14 = 199,6 мм.
-    expect(find.textContaining('на канве Аида 14 лучше от 20,0 см (110 крестиков) и 30 цветов'), findsOneWidget);
-    await tester.tap(find.text('25,0 см'));
-    await tester.pumpAndSettle();
-    expect(cubit.state.settings.widthCm, closeTo(25, 0.3));
+    expect(find.byKey(const ValueKey<String>('wizard-purpose'), skipOffstage: false), findsNothing);
+    expect(find.byKey(const ValueKey<String>('wizard-size-hint'), skipOffstage: false), findsNothing);
+    expect(cubit.state.settings.columns, 60);
   });
 
   testWidgets('лицо на узкой схеме из бисера: честное предупреждение и переход на вышивку', (tester) async {

@@ -2653,11 +2653,17 @@ abstract class AppLocalizations {
   /// **'Открываю картинку…'**
   String get imageWizardOpening;
 
-  /// Кнопка поворота картинки
+  /// Поворот картинки на 90° против часовой стрелки
   ///
   /// In ru, this message translates to:
-  /// **'Повернуть'**
-  String get imageWizardRotate;
+  /// **'Повернуть влево'**
+  String get imageWizardRotateLeft;
+
+  /// Поворот картинки на 90° по часовой стрелке
+  ///
+  /// In ru, this message translates to:
+  /// **'Повернуть вправо'**
+  String get imageWizardRotateRight;
 
   /// Кнопка обрезки картинки
   ///
@@ -2688,6 +2694,30 @@ abstract class AppLocalizations {
   /// In ru, this message translates to:
   /// **'Как будет'**
   String get imageWizardLookRealistic;
+
+  /// Кнопка возврата из полноэкранного предпросмотра к параметрам мастера
+  ///
+  /// In ru, this message translates to:
+  /// **'Параметры'**
+  String get imageWizardFullPreviewBack;
+
+  /// Подсказка в полноэкранном предпросмотре
+  ///
+  /// In ru, this message translates to:
+  /// **'Щипком меняйте масштаб, пальцем двигайте схему'**
+  String get imageWizardFullPreviewHint;
+
+  /// Заголовок полноэкранного предпросмотра схемы
+  ///
+  /// In ru, this message translates to:
+  /// **'Предпросмотр'**
+  String get imageWizardFullPreviewTitle;
+
+  /// Кнопка под предпросмотром мастера: открыть схему на весь экран
+  ///
+  /// In ru, this message translates to:
+  /// **'Во весь экран'**
+  String get imageWizardFullPreviewOpen;
 
   /// Подсказка про сравнение до/после
   ///
@@ -3492,12 +3522,6 @@ abstract class AppLocalizations {
   /// In ru, this message translates to:
   /// **'Детали'**
   String get imageWizardToolDetails;
-
-  /// Группа параметров мастера для вышивки: контур, смешанные стежки, смеси
-  ///
-  /// In ru, this message translates to:
-  /// **'Стежки'**
-  String get imageWizardToolStitches;
 
   /// Группа мастера: закупка и печать
   ///
