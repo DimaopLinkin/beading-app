@@ -104,15 +104,19 @@ final class AccentPaletteBuilder extends Equatable implements PaletteBuilder {
     }
     final List<PaletteEntry> snapped = _snapToCatalog(sample, centers, candidates, k, request.constraint);
     if (cells == null) return snapped;
+    // Лабы и штрафы каталога считаются один раз, а не на каждый подбор замены.
+    final List<Lab> candidateLabs = <Lab>[for (final PaletteEntry e in candidates) Lab.fromRgb(e.rgb)];
+    final List<double> penalties = <double>[for (final PaletteEntry e in candidates) request.constraint.penaltyOf(e)];
     return _reseed<PaletteEntry>(snapped, (e) => Lab.fromRgb(e.rgb), (want, current) {
+      final Set<PaletteEntry> inUse = Set<PaletteEntry>.of(current);
       PaletteEntry? best;
       double bestD = double.infinity;
-      for (final PaletteEntry e in candidates) {
-        if (current.contains(e)) continue;
-        final double d = deltaE2000(want, Lab.fromRgb(e.rgb)) + request.constraint.penaltyOf(e);
+      for (int j = 0; j < candidates.length; j++) {
+        if (inUse.contains(candidates[j])) continue;
+        final double d = deltaE2000(want, candidateLabs[j]) + penalties[j];
         if (d < bestD) {
           bestD = d;
-          best = e;
+          best = candidates[j];
         }
       }
       return best;
@@ -150,53 +154,68 @@ final class AccentPaletteBuilder extends Equatable implements PaletteBuilder {
     _CellMeans cells,
   ) {
     final List<T> palette = <T>[...start];
+    final int n = cells.count;
+    // Ближайший цвет палитры и квадрат расстояния для каждой клетки. После первого круга пересчитываются только
+    // заменённые цвета (T99): у цвета без единой выигранной клетки никто не был ближайшим, так что остальные клетки
+    // ближайшего не меняют, кроме как на новый цвет; на 250 цветах и миллионе клеток полный перебор был главной тратой.
+    // Горячие проходы вынесены в отдельные функции: так их оптимизирует и Dart JIT (тесты), и AOT (приложение).
+    final Int32List nearest = Int32List(n);
+    final Float64List nearestD = Float64List(n);
+    Int32List replaced = Int32List(0);
     for (int round = 0; round < 4 && palette.isNotEmpty; round++) {
       final List<Lab> labs = <Lab>[for (final T t in palette) labOf(t)];
-      final List<int> wins = List<int>.filled(palette.length, 0);
-      final Float64List error = Float64List(cells.count);
-      for (int i = 0; i < cells.count; i++) {
-        int best = 0;
-        double bestD = double.infinity;
-        for (int j = 0; j < labs.length; j++) {
-          final double dl = cells.l[i] - labs[j].l;
-          final double da = cells.a[i] - labs[j].a;
-          final double db = cells.b[i] - labs[j].b;
-          final double d = dl * dl + da * da + db * db;
-          if (d < bestD) {
-            bestD = d;
-            best = j;
-          }
-        }
-        wins[best]++;
-        error[i] = math.sqrt(bestD) * cells.w[i];
+      if (round == 0) {
+        _nearestAll(cells, _LabColumns.of(labs, List<int>.generate(labs.length, (j) => j)), nearest, nearestD);
+      } else {
+        // Номера цветов сдвинулись из-за убранных; новый цвет побеждает, если ближе или так же близок, но стоит раньше.
+        _nearestAmong(cells, _LabColumns.of(labs, replaced), nearest, nearestD);
       }
+      final List<int> wins = List<int>.filled(palette.length, 0);
+      final Float64List error = Float64List(n);
+      // Клетки, чья ошибка ещё выше порога: только они могут стать «худшими», а ошибка лишь падает.
+      final Int32List active = Int32List(n);
+      int activeLength = 0;
+      for (int i = 0; i < n; i++) {
+        wins[nearest[i]]++;
+      }
+      activeLength = _errorsAndActive(cells, nearestD, error, active);
       final List<int> unused = <int>[
         for (int j = 0; j < palette.length; j++)
           if (wins[j] == 0) j,
       ];
       if (unused.isEmpty) break;
       final List<int> removed = <int>[];
+      final List<int> changed = <int>[];
+      int worst = _worstOf(error, active, activeLength);
       for (final int j in unused) {
-        int worst = -1;
-        for (int i = 0; i < cells.count; i++) {
-          if (error[i] > _reseedMinError && (worst < 0 || error[i] > error[worst])) worst = i;
-        }
         final T? replacement = worst < 0 ? null : fresh(Lab(cells.l[worst], cells.a[worst], cells.b[worst]), palette);
         if (replacement == null) {
           removed.add(j);
           continue;
         }
         palette[j] = replacement;
-        final Lab added = labOf(replacement);
-        for (int i = 0; i < cells.count; i++) {
-          final double dl = cells.l[i] - added.l;
-          final double da = cells.a[i] - added.a;
-          final double db = cells.b[i] - added.b;
-          error[i] = math.min(error[i], math.sqrt(dl * dl + da * da + db * db) * cells.w[i]);
-        }
+        changed.add(j);
+        // Одним проходом: ошибки падают до расстояния до нового цвета, а следующая худшая клетка находится сразу.
+        final ({int length, int worst}) lowered = _lowerErrors(cells, labOf(replacement), error, active, activeLength);
+        activeLength = lowered.length;
+        worst = lowered.worst;
       }
+      // Заменённые цвета в нумерации после удаления убранных.
+      replaced = Int32List.fromList(<int>[
+        for (final int j in changed) j - removed.where((r) => r < j).length,
+      ]);
       for (final int j in removed.reversed) {
         palette.removeAt(j);
+      }
+      // Ближайшие номера тоже сдвигаются: убранные цвета никому не были ближайшими.
+      if (removed.isNotEmpty) {
+        final List<int> shift = List<int>.generate(
+          palette.length + removed.length,
+          (o) => o - removed.where((r) => r < o).length,
+        );
+        for (int i = 0; i < n; i++) {
+          nearest[i] = shift[nearest[i]];
+        }
       }
     }
     return palette;
@@ -580,4 +599,122 @@ final class _CellMeans {
   final Float64List a;
   final Float64List b;
   final Float64List w;
+}
+
+/// Цвета Lab выбранных позиций палитры по трём столбцам: чтобы горячие проходы читали числа, а не объекты.
+final class _LabColumns {
+  _LabColumns._(this.index, this.l, this.a, this.b);
+
+  factory _LabColumns.of(List<Lab> labs, List<int> positions) => _LabColumns._(
+    Int32List.fromList(positions),
+    Float64List.fromList(<double>[for (final int p in positions) labs[p].l]),
+    Float64List.fromList(<double>[for (final int p in positions) labs[p].a]),
+    Float64List.fromList(<double>[for (final int p in positions) labs[p].b]),
+  );
+
+  /// Номера цветов в палитре, по возрастанию.
+  final Int32List index;
+  final Float64List l;
+  final Float64List a;
+  final Float64List b;
+}
+
+/// Ближайший из [colors] для каждой клетки; при равенстве побеждает меньший номер.
+void _nearestAll(_CellMeans cells, _LabColumns colors, Int32List nearest, Float64List nearestD) {
+  final int n = cells.count;
+  final int count = colors.index.length;
+  for (int i = 0; i < n; i++) {
+    final double l = cells.l[i];
+    final double a = cells.a[i];
+    final double b = cells.b[i];
+    int best = 0;
+    double bestD = double.infinity;
+    for (int j = 0; j < count; j++) {
+      final double dl = l - colors.l[j];
+      final double da = a - colors.a[j];
+      final double db = b - colors.b[j];
+      final double d = dl * dl + da * da + db * db;
+      if (d < bestD) {
+        bestD = d;
+        best = j;
+      }
+    }
+    nearest[i] = colors.index[best];
+    nearestD[i] = bestD;
+  }
+}
+
+/// Уточняет ближайший цвет клеток новыми цветами [colors]: побеждает ближайший, а при равенстве меньший номер.
+void _nearestAmong(_CellMeans cells, _LabColumns colors, Int32List nearest, Float64List nearestD) {
+  final int n = cells.count;
+  final int count = colors.index.length;
+  for (int i = 0; i < n; i++) {
+    final double l = cells.l[i];
+    final double a = cells.a[i];
+    final double b = cells.b[i];
+    int best = nearest[i];
+    double bestD = nearestD[i];
+    for (int r = 0; r < count; r++) {
+      final double dl = l - colors.l[r];
+      final double da = a - colors.a[r];
+      final double db = b - colors.b[r];
+      final double d = dl * dl + da * da + db * db;
+      final int j = colors.index[r];
+      if (d < bestD || (d == bestD && j < best)) {
+        bestD = d;
+        best = j;
+      }
+    }
+    nearest[i] = best;
+    nearestD[i] = bestD;
+  }
+}
+
+/// Ошибка клетки (ΔE76 с весом) по расстояниям [nearestD]; номера клеток с ошибкой выше порога кладёт в [active] по
+/// возрастанию и возвращает их число.
+int _errorsAndActive(_CellMeans cells, Float64List nearestD, Float64List error, Int32List active) {
+  int length = 0;
+  for (int i = 0; i < cells.count; i++) {
+    final double e = math.sqrt(nearestD[i]) * cells.w[i];
+    error[i] = e;
+    if (e > AccentPaletteBuilder._reseedMinError) active[length++] = i;
+  }
+  return length;
+}
+
+/// Первая клетка с наибольшей ошибкой среди [active]; `-1`, если таких нет.
+int _worstOf(Float64List error, Int32List active, int length) {
+  int worst = -1;
+  for (int k = 0; k < length; k++) {
+    final int i = active[k];
+    if (worst < 0 || error[i] > error[worst]) worst = i;
+  }
+  return worst;
+}
+
+/// Роняет ошибки активных клеток до расстояния до нового цвета [added], выбрасывает из [active] те, что стали ниже
+/// порога, и находит следующую худшую клетку. Возвращает новое число активных и номер худшей (`-1`, если нет).
+({int length, int worst}) _lowerErrors(_CellMeans cells, Lab added, Float64List error, Int32List active, int length) {
+  int kept = 0;
+  int worst = -1;
+  final double addedL = added.l;
+  final double addedA = added.a;
+  final double addedB = added.b;
+  for (int k = 0; k < length; k++) {
+    final int i = active[k];
+    final double dl = cells.l[i] - addedL;
+    final double da = cells.a[i] - addedA;
+    final double db = cells.b[i] - addedB;
+    final double distance = math.sqrt(dl * dl + da * da + db * db) * cells.w[i];
+    double e = error[i];
+    if (distance < e) {
+      e = distance;
+      error[i] = e;
+    }
+    if (e > AccentPaletteBuilder._reseedMinError) {
+      active[kept++] = i;
+      if (worst < 0 || e > error[worst]) worst = i;
+    }
+  }
+  return (length: kept, worst: worst);
 }
