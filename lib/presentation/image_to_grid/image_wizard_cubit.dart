@@ -1000,6 +1000,7 @@ class ImageWizardCubit extends Cubit<ImageWizardState> {
           masks: settings.useMasks ? state.masks : null,
           subjectMask: _subjectMask,
           draft: draft,
+          draftMaxCells: draft ? ImageToGridSettings.draftMaxCells : null,
         ),
       );
     } on Object {

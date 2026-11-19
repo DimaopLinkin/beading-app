@@ -48,6 +48,7 @@ final class ImageToGridRequest {
     this.liftShadows = false,
     this.shadows,
     this.frame,
+    this.fullSize,
   }) {
     if (columns < 1 || columns > Grid.maxSide) throw ArgumentError.value(columns, 'columns', 'от 1 до ${Grid.maxSide}');
     if (rows < 1 || rows > Grid.maxSide) throw ArgumentError.value(rows, 'rows', 'от 1 до ${Grid.maxSide}');
@@ -159,6 +160,7 @@ final class ImageToGridRequest {
     liftShadows: liftShadows,
     shadows: shadows,
     frame: frame,
+    fullSize: fullSize,
   );
 
   /// Тот же запрос с другим ограничением палитры.
@@ -192,6 +194,7 @@ final class ImageToGridRequest {
     liftShadows: liftShadows,
     shadows: shadows,
     frame: frame,
+    fullSize: fullSize,
   );
 
   /// Маска объекта (T55): значение на пиксель картинки, ряды сверху вниз; `0` — фон, остальное — объект. `null` — маски
@@ -223,6 +226,12 @@ final class ImageToGridRequest {
   /// План рамки (T88a): [columns] и [rows] запроса — внутренняя сетка, а в конце конвейера она ставится в полную
   /// сетку со смещением (`PatternFrame.pad`). `null` — полей нет. На ключ кеша стадий не влияет.
   final FramePlan? frame;
+
+  /// Размер внутренней сетки, до которого растягивается результат (T98): запрос считает уменьшенную сетку
+  /// [columns] × [rows], а конвейер растягивает готовый черновик до `fullColumns` × `fullRows`. Так предпросмотр
+  /// большой схемы при движении ползунка считается за долю секунды, а экран получает сетку полного размера. `null` —
+  /// сетка считается как есть. Действует только на черновик.
+  final ({int columns, int rows})? fullSize;
 
   /// Сила подъёма теней, 0..100 %; `null` — подобрать автоматически по фото и ниткам. Нужен [liftShadows].
   final int? shadows;
@@ -262,6 +271,7 @@ final class ImageToGridRequest {
     liftShadows: liftShadows,
     shadows: shadows,
     frame: frame,
+    fullSize: fullSize,
   );
 
   bool get usesBackgroundStage => subjectMask != null && (background != BackgroundMode.keep || outline);

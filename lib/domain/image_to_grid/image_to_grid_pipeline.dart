@@ -56,7 +56,9 @@ final class ImageToGridPipeline {
   /// Если запрос несёт план рамки ([ImageToGridRequest.frame], T88a), готовая схема последним шагом ставится в полную
   /// сетку с полями; все расчёты до этого идут по внутренней сетке запроса.
   GeneratedPattern run(ImageToGridRequest original, {PixelStageCache? cache}) {
-    final GeneratedPattern inner = _run(original, cache: cache);
+    GeneratedPattern inner = _run(original, cache: cache);
+    final ({int columns, int rows})? full = original.draft ? original.fullSize : null;
+    if (full != null) inner = PatternFrame.stretch(inner, full.columns, full.rows);
     final FramePlan? frame = original.frame;
     return frame == null ? inner : PatternFrame.pad(inner, frame, frame.columns, frame.rows);
   }
