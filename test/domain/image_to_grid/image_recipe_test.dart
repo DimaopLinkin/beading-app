@@ -40,6 +40,7 @@ void main() {
       backstitch: true,
       blends: false,
       otherBrands: true,
+      otherBrandsOnly: const <String>{'Anchor', 'ПНК Кирова'},
       shadows: 30,
       onlyStash: true,
       mixedStitches: true,
@@ -65,6 +66,14 @@ void main() {
     final ImageRecipe? old = ImageRecipeCodec.decode(jsonEncode(json), recipe.source);
     expect(old, isNotNull);
     expect(old!.settings.otherBrands, isFalse);
+  });
+
+  test('старый рецепт без списка брендов добора читается как «Авто» (T90)', () {
+    final Map<String, Object?> json = jsonDecode(ImageRecipeCodec.encode(recipe)) as Map<String, Object?>;
+    (json['settings']! as Map<String, Object?>).remove('otherBrandsOnly');
+    final ImageRecipe? old = ImageRecipeCodec.decode(jsonEncode(json), recipe.source);
+    expect(old, isNotNull);
+    expect(old!.settings.otherBrandsOnly, isEmpty);
   });
 
   test('старый рецепт без ключа теней читается как «Авто» (T87)', () {

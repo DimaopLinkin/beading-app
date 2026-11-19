@@ -646,13 +646,24 @@ void main() {
       expect(other, findsOneWidget);
       expect(find.text('Нитки других производителей', skipOffstage: false), findsOneWidget);
       expect(find.textContaining('Если у DMC нет близкого цвета', skipOffstage: false), findsOneWidget);
-      expect(find.textContaining('Гамма, Anchor', skipOffstage: false), findsOneWidget);
       expect(tester.widget<CupertinoSwitch>(other).value, isFalse);
       await tester.ensureVisible(other);
       await tester.pumpAndSettle();
       await tester.tap(other);
       await tester.pumpAndSettle();
       expect(cubit.state.settings.otherBrands, isTrue);
+      // Мультивыбор брендов добора (T90): «Авто» и все бренды, кроме основного.
+      for (final String brand in <String>['Гамма', 'Anchor', 'ПНК Кирова', 'Luca-S']) {
+        expect(find.byKey(ValueKey<String>('wizard-other-brand-$brand'), skipOffstage: false), findsOneWidget);
+      }
+      expect(find.byKey(const ValueKey<String>('wizard-other-brand-DMC'), skipOffstage: false), findsNothing);
+      await tester.tap(find.byKey(const ValueKey<String>('wizard-other-brand-Anchor')));
+      await tester.tap(find.byKey(const ValueKey<String>('wizard-other-brand-ПНК Кирова')));
+      await tester.pumpAndSettle();
+      expect(cubit.state.settings.otherBrandsOnly, <String>{'Anchor', 'ПНК Кирова'});
+      await tester.tap(find.byKey(const ValueKey<String>('wizard-other-brand-auto')));
+      await tester.pumpAndSettle();
+      expect(cubit.state.settings.otherBrandsOnly, isEmpty);
     });
 
     testWidgets('переключатель брендов скрыт при «только из запаса» и при свободной палитре (T86)', (tester) async {

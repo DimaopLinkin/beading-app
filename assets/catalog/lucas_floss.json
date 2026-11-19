@@ -1,0 +1,2489 @@
+{
+ "version": 1,
+ "material": "floss",
+ "brand": "Luca-S",
+ "series": "Мулине",
+ "source": "corolina.ru, таблица соответствия цветов Luca-S - DMC (496 номеров); цвет взят у DMC-аналога из каталога DMC, не измерен у Luca-S; снято 2026-11-18",
+ "colors": [
+  {
+   "code": "Black",
+   "name": "≈ DMC 310 Black",
+   "rgb": "#000000"
+  },
+  {
+   "code": "White",
+   "name": "= DMC Blanc White",
+   "rgb": "#fcfbf8"
+  },
+  {
+   "code": "01",
+   "name": "= DMC 3713 Salmon Very Light",
+   "rgb": "#ffe2e2"
+  },
+  {
+   "code": "02",
+   "name": "≈ DMC 761 Salmon Light",
+   "rgb": "#ffc9c9"
+  },
+  {
+   "code": "03",
+   "name": "≈ DMC 760 Salmon",
+   "rgb": "#f5adad"
+  },
+  {
+   "code": "04",
+   "name": "= DMC 3712 Salmon Medium",
+   "rgb": "#f18787"
+  },
+  {
+   "code": "05",
+   "name": "= DMC 3328 Salmon Dark",
+   "rgb": "#e36d6d"
+  },
+  {
+   "code": "06",
+   "name": "≈ DMC 347 Salmon Very Dark",
+   "rgb": "#bf2d2d"
+  },
+  {
+   "code": "07",
+   "name": "≈ DMC 816 Garnet",
+   "rgb": "#970b23"
+  },
+  {
+   "code": "08",
+   "name": "≈ DMC 353 Peach",
+   "rgb": "#fed7cc"
+  },
+  {
+   "code": "09",
+   "name": "≈ DMC 352 Coral Light",
+   "rgb": "#fd9c97"
+  },
+  {
+   "code": "10",
+   "name": "≈ DMC 351 Coral",
+   "rgb": "#e96a67"
+  },
+  {
+   "code": "11",
+   "name": "≈ DMC 350 Coral Medium",
+   "rgb": "#e04848"
+  },
+  {
+   "code": "12",
+   "name": "≈ DMC 349 Coral Dark",
+   "rgb": "#d21035"
+  },
+  {
+   "code": "13",
+   "name": "≈ DMC 817 Coral Red Very Dark",
+   "rgb": "#bb051f"
+  },
+  {
+   "code": "14",
+   "name": "≈ DMC 894 Carnation Very Light",
+   "rgb": "#ffb2bb"
+  },
+  {
+   "code": "15",
+   "name": "= DMC 3706 Melon Medium",
+   "rgb": "#ffadbc"
+  },
+  {
+   "code": "16",
+   "name": "≈ DMC 892 Carnation Medium",
+   "rgb": "#ff798c"
+  },
+  {
+   "code": "17",
+   "name": "= DMC 3801 Melon Very Dark",
+   "rgb": "#e74967"
+  },
+  {
+   "code": "18",
+   "name": "≈ DMC 666 Bright Red",
+   "rgb": "#e31d42"
+  },
+  {
+   "code": "19",
+   "name": "≈ DMC 321 Red",
+   "rgb": "#c72b3b"
+  },
+  {
+   "code": "20",
+   "name": "≈ DMC 816 Garnet",
+   "rgb": "#970b23"
+  },
+  {
+   "code": "21",
+   "name": "≈ DMC 815 Garnet Medium",
+   "rgb": "#87071f"
+  },
+  {
+   "code": "22",
+   "name": "≈ DMC 814 Garnet Dark",
+   "rgb": "#7b001b"
+  },
+  {
+   "code": "23",
+   "name": "≈ DMC 818 Baby Pink",
+   "rgb": "#ffdfd9"
+  },
+  {
+   "code": "24",
+   "name": "≈ DMC 957 Geranium Pale",
+   "rgb": "#fdb5b5"
+  },
+  {
+   "code": "25",
+   "name": "≈ DMC 956 Geranium",
+   "rgb": "#ff9191"
+  },
+  {
+   "code": "26",
+   "name": "≈ DMC 309 Rose Dark",
+   "rgb": "#c12041"
+  },
+  {
+   "code": "27",
+   "name": "≈ DMC 816 Garnet",
+   "rgb": "#970b23"
+  },
+  {
+   "code": "28",
+   "name": "≈ DMC 815 Garnet Medium",
+   "rgb": "#87071f"
+  },
+  {
+   "code": "29",
+   "name": "≈ DMC 814 Garnet Dark",
+   "rgb": "#7b001b"
+  },
+  {
+   "code": "30",
+   "name": "≈ DMC 814 Garnet Dark",
+   "rgb": "#7b001b"
+  },
+  {
+   "code": "31",
+   "name": "≈ DMC 819 Baby Pink Light",
+   "rgb": "#ffeeeb"
+  },
+  {
+   "code": "32",
+   "name": "= DMC 3326 Rose Light",
+   "rgb": "#fbadb4"
+  },
+  {
+   "code": "33",
+   "name": "≈ DMC 899 Rose Medium",
+   "rgb": "#f27688"
+  },
+  {
+   "code": "34",
+   "name": "≈ DMC 335 Rose",
+   "rgb": "#ee546e"
+  },
+  {
+   "code": "35",
+   "name": "≈ DMC 326 Rose Very Dark",
+   "rgb": "#b33b4b"
+  },
+  {
+   "code": "36",
+   "name": "≈ DMC 963 Dusty Rose Ultra Very Light",
+   "rgb": "#ffd7d7"
+  },
+  {
+   "code": "37",
+   "name": "≈ DMC 962 Dusty Rose Medium",
+   "rgb": "#e68a8a"
+  },
+  {
+   "code": "38",
+   "name": "≈ DMC 961 Dusty Rose Dark",
+   "rgb": "#cf7373"
+  },
+  {
+   "code": "39",
+   "name": "= DMC 3716 Dusty Rose Medium Very Light",
+   "rgb": "#ffbdbd"
+  },
+  {
+   "code": "40",
+   "name": "= DMC 3833 Raspberry Light",
+   "rgb": "#ea8699"
+  },
+  {
+   "code": "41",
+   "name": "= DMC 3832 Raspberry Medium",
+   "rgb": "#db556e"
+  },
+  {
+   "code": "42",
+   "name": "= DMC 3831 Raspberry Dark",
+   "rgb": "#b32f48"
+  },
+  {
+   "code": "43",
+   "name": "≈ DMC 777 Raspberry Very Dark",
+   "rgb": "#913546"
+  },
+  {
+   "code": "44",
+   "name": "≈ DMC 151 Dusty Rose Very Light",
+   "rgb": "#f0ced4"
+  },
+  {
+   "code": "45",
+   "name": "= DMC 3354 Dusty Rose Light",
+   "rgb": "#e4a6ac"
+  },
+  {
+   "code": "46",
+   "name": "= DMC 3733 Dusty Rose",
+   "rgb": "#e8879b"
+  },
+  {
+   "code": "47",
+   "name": "= DMC 3731 Dusty Rose Very Dark",
+   "rgb": "#da6783"
+  },
+  {
+   "code": "48",
+   "name": "= DMC 3350 Dusty Rose Ultra Dark",
+   "rgb": "#bc4365"
+  },
+  {
+   "code": "49",
+   "name": "≈ DMC 150 Dusty Rose Ultra Very Dark",
+   "rgb": "#ab0249"
+  },
+  {
+   "code": "50",
+   "name": "≈ DMC 353 Peach",
+   "rgb": "#fed7cc"
+  },
+  {
+   "code": "51",
+   "name": "= DMC 3824 Apricot Light",
+   "rgb": "#fecdc2"
+  },
+  {
+   "code": "52",
+   "name": "≈ DMC 352 Coral Light",
+   "rgb": "#fd9c97"
+  },
+  {
+   "code": "53",
+   "name": "≈ DMC 351 Coral",
+   "rgb": "#e96a67"
+  },
+  {
+   "code": "54",
+   "name": "≈ DMC 351 Coral",
+   "rgb": "#e96a67"
+  },
+  {
+   "code": "55",
+   "name": "≈ DMC 349 Coral Dark",
+   "rgb": "#d21035"
+  },
+  {
+   "code": "56",
+   "name": "≈ DMC 818 Baby Pink",
+   "rgb": "#ffdfd9"
+  },
+  {
+   "code": "57",
+   "name": "≈ DMC 605 Cranberry Very Light",
+   "rgb": "#ffc0cd"
+  },
+  {
+   "code": "58",
+   "name": "≈ DMC 604 Cranberry Light",
+   "rgb": "#ffb0be"
+  },
+  {
+   "code": "59",
+   "name": "≈ DMC 603 Cranberry",
+   "rgb": "#ffa4be"
+  },
+  {
+   "code": "60",
+   "name": "≈ DMC 602 Cranberry Medium",
+   "rgb": "#e24874"
+  },
+  {
+   "code": "61",
+   "name": "≈ DMC 601 Cranberry Dark",
+   "rgb": "#d1286a"
+  },
+  {
+   "code": "62",
+   "name": "≈ DMC 600 Cranberry Very Dark",
+   "rgb": "#cd2f63"
+  },
+  {
+   "code": "63",
+   "name": "= DMC 3806 Cyclamen Pink Light",
+   "rgb": "#ff8cae"
+  },
+  {
+   "code": "64",
+   "name": "= DMC 3805 Cyclamen Pink",
+   "rgb": "#f3478b"
+  },
+  {
+   "code": "65",
+   "name": "= DMC 3804 Cyclamen Pink Dark",
+   "rgb": "#e02876"
+  },
+  {
+   "code": "66",
+   "name": "= DMC 3609 Plum Ultra Light",
+   "rgb": "#f4aed5"
+  },
+  {
+   "code": "67",
+   "name": "= DMC 3609 Plum Ultra Light",
+   "rgb": "#f4aed5"
+  },
+  {
+   "code": "68",
+   "name": "= DMC 3608 Plum Very Light",
+   "rgb": "#ea9cc4"
+  },
+  {
+   "code": "69",
+   "name": "= DMC 3607 Plum Light",
+   "rgb": "#c54989"
+  },
+  {
+   "code": "70",
+   "name": "≈ DMC 917 Plum Medium",
+   "rgb": "#9b1359"
+  },
+  {
+   "code": "71",
+   "name": "≈ DMC 915 Plum Dark",
+   "rgb": "#820043"
+  },
+  {
+   "code": "72",
+   "name": "= DMC 3608 Plum Very Light",
+   "rgb": "#ea9cc4"
+  },
+  {
+   "code": "73",
+   "name": "≈ DMC 33 Fuschia",
+   "rgb": "#9c599e"
+  },
+  {
+   "code": "74",
+   "name": "≈ DMC 33 Fuschia",
+   "rgb": "#9c599e"
+  },
+  {
+   "code": "75",
+   "name": "≈ DMC 35 Fuschia Very Dark",
+   "rgb": "#46052d"
+  },
+  {
+   "code": "76",
+   "name": "≈ DMC 225 Shell Pink Ultra Very Light",
+   "rgb": "#ffdfd5"
+  },
+  {
+   "code": "77",
+   "name": "≈ DMC 224 Shell Pink Very Light",
+   "rgb": "#ebb7af"
+  },
+  {
+   "code": "78",
+   "name": "≈ DMC 152 Shell Pink Medium Light",
+   "rgb": "#e2a099"
+  },
+  {
+   "code": "79",
+   "name": "≈ DMC 223 Shell Pink Light",
+   "rgb": "#cc847c"
+  },
+  {
+   "code": "80",
+   "name": "= DMC 3722 Shell Pink Medium",
+   "rgb": "#bc6c64"
+  },
+  {
+   "code": "81",
+   "name": "= DMC 3721 Shell Pink Dark",
+   "rgb": "#a14b51"
+  },
+  {
+   "code": "82",
+   "name": "≈ DMC 221 Shell Pink Very Dark",
+   "rgb": "#883e43"
+  },
+  {
+   "code": "83",
+   "name": "≈ DMC 778 Antique Mauve Very Light",
+   "rgb": "#dfb3bb"
+  },
+  {
+   "code": "84",
+   "name": "= DMC 3727 Antique Mauve Light",
+   "rgb": "#dba9b2"
+  },
+  {
+   "code": "85",
+   "name": "≈ DMC 316 Antique Mauve Medium",
+   "rgb": "#b7737f"
+  },
+  {
+   "code": "86",
+   "name": "≈ DMC 778 Antique Mauve Very Light",
+   "rgb": "#dfb3bb"
+  },
+  {
+   "code": "88",
+   "name": "= DMC 3726 Antique Mauve Dark",
+   "rgb": "#9b5b66"
+  },
+  {
+   "code": "89",
+   "name": "≈ DMC 315 Antique Mauve Medium Dark",
+   "rgb": "#814952"
+  },
+  {
+   "code": "90",
+   "name": "= DMC 3802 Antique Mauve Very Darkv",
+   "rgb": "#714149"
+  },
+  {
+   "code": "91",
+   "name": "≈ DMC 902 Garnet Very Dark",
+   "rgb": "#822637"
+  },
+  {
+   "code": "92",
+   "name": "≈ DMC 25 Lavender Ultra Light",
+   "rgb": "#dad2e9"
+  },
+  {
+   "code": "93",
+   "name": "= DMC 3042 Antique Violet Light",
+   "rgb": "#b79da7"
+  },
+  {
+   "code": "94",
+   "name": "= DMC 3743 Antique Violet Very Light",
+   "rgb": "#d7cbd3"
+  },
+  {
+   "code": "95",
+   "name": "= DMC 3042 Antique Violet Light",
+   "rgb": "#b79da7"
+  },
+  {
+   "code": "96",
+   "name": "= DMC 3041 Antique Violet Medium",
+   "rgb": "#956f7c"
+  },
+  {
+   "code": "97",
+   "name": "= DMC 3041 Antique Violet Medium",
+   "rgb": "#956f7c"
+  },
+  {
+   "code": "98",
+   "name": "= DMC 3740 Antique Violet Dark",
+   "rgb": "#785762"
+  },
+  {
+   "code": "99",
+   "name": "= DMC 3740 Antique Violet Dark",
+   "rgb": "#785762"
+  },
+  {
+   "code": "101",
+   "name": "≈ DMC 27 White Violet",
+   "rgb": "#f0eef9"
+  },
+  {
+   "code": "102",
+   "name": "≈ DMC 26 Lavender Pale",
+   "rgb": "#d7cae6"
+  },
+  {
+   "code": "103",
+   "name": "≈ DMC 28 Eggplant Medium Light",
+   "rgb": "#9086a9"
+  },
+  {
+   "code": "104",
+   "name": "≈ DMC 29 Eggplant",
+   "rgb": "#674076"
+  },
+  {
+   "code": "105",
+   "name": "= DMC 3836 Grape Light",
+   "rgb": "#ba91aa"
+  },
+  {
+   "code": "106",
+   "name": "= DMC 3835 Grape Medium",
+   "rgb": "#946083"
+  },
+  {
+   "code": "107",
+   "name": "= DMC 3834 Grape Dark",
+   "rgb": "#72375d"
+  },
+  {
+   "code": "108",
+   "name": "≈ DMC 154 Grape Very Dark",
+   "rgb": "#572433"
+  },
+  {
+   "code": "109",
+   "name": "≈ DMC 23 Apple Blossom",
+   "rgb": "#ede2ed"
+  },
+  {
+   "code": "110",
+   "name": "= DMC 3689 Mauve Light",
+   "rgb": "#fbbfc2"
+  },
+  {
+   "code": "111",
+   "name": "= DMC 3688 Mauve Medium",
+   "rgb": "#e7a9ac"
+  },
+  {
+   "code": "112",
+   "name": "= DMC 3687 Mauve",
+   "rgb": "#c96b70"
+  },
+  {
+   "code": "113",
+   "name": "= DMC 3803 Mauve Dark",
+   "rgb": "#ab3357"
+  },
+  {
+   "code": "114",
+   "name": "= DMC 3685 Mauve Very Dark",
+   "rgb": "#881531"
+  },
+  {
+   "code": "115",
+   "name": "≈ DMC 24 White Lavender",
+   "rgb": "#e0d7ee"
+  },
+  {
+   "code": "116",
+   "name": "≈ DMC 153 Violet Very Light",
+   "rgb": "#e6ccd9"
+  },
+  {
+   "code": "117",
+   "name": "≈ DMC 554 Violet Light",
+   "rgb": "#dbb3cb"
+  },
+  {
+   "code": "118",
+   "name": "≈ DMC 553 Violet",
+   "rgb": "#a3638b"
+  },
+  {
+   "code": "119",
+   "name": "≈ DMC 552 Violet  Medium",
+   "rgb": "#803a6b"
+  },
+  {
+   "code": "120",
+   "name": "≈ DMC 327 Violet Dark",
+   "rgb": "#633666"
+  },
+  {
+   "code": "121",
+   "name": "≈ DMC 211 Lavender Light",
+   "rgb": "#e3cbe3"
+  },
+  {
+   "code": "122",
+   "name": "≈ DMC 210 Lavender Medium",
+   "rgb": "#c39fc3"
+  },
+  {
+   "code": "123",
+   "name": "≈ DMC 209 Lavender Dark",
+   "rgb": "#a37ba7"
+  },
+  {
+   "code": "124",
+   "name": "≈ DMC 208 Lavender Very Dark",
+   "rgb": "#835b8b"
+  },
+  {
+   "code": "125",
+   "name": "= DMC 3837 Lavender Ultra Dark",
+   "rgb": "#6c3a6e"
+  },
+  {
+   "code": "126",
+   "name": "≈ DMC 550 Violet Very Dark",
+   "rgb": "#5c184e"
+  },
+  {
+   "code": "127",
+   "name": "≈ DMC 340 Blue Violet Medium",
+   "rgb": "#ada7c7"
+  },
+  {
+   "code": "128",
+   "name": "≈ DMC 155 Blue Violet Medium Dark",
+   "rgb": "#9891b6"
+  },
+  {
+   "code": "129",
+   "name": "≈ DMC 155 Blue Violet Medium Dark",
+   "rgb": "#9891b6"
+  },
+  {
+   "code": "130",
+   "name": "= DMC 3746 Blue Violet Dark",
+   "rgb": "#776b98"
+  },
+  {
+   "code": "131",
+   "name": "≈ DMC 333 Blue Violet Very Dark",
+   "rgb": "#5c5478"
+  },
+  {
+   "code": "132",
+   "name": "≈ DMC 550 Violet Very Dark",
+   "rgb": "#5c184e"
+  },
+  {
+   "code": "133",
+   "name": "≈ DMC 30 Blueberry Medium Light",
+   "rgb": "#7d77a5"
+  },
+  {
+   "code": "134",
+   "name": "≈ DMC 31 Blueberry",
+   "rgb": "#50518d"
+  },
+  {
+   "code": "135",
+   "name": "≈ DMC 32 Blueberry Dark",
+   "rgb": "#4d2e8a"
+  },
+  {
+   "code": "136",
+   "name": "= DMC 3747 Blue Violet Very Light",
+   "rgb": "#d3d7ed"
+  },
+  {
+   "code": "137",
+   "name": "≈ DMC 341 Blue Violet Light",
+   "rgb": "#b7bfdd"
+  },
+  {
+   "code": "138",
+   "name": "≈ DMC 156 Blue Violet Medium Light",
+   "rgb": "#a3aed1"
+  },
+  {
+   "code": "139",
+   "name": "≈ DMC 793 Cornflower Blue Medium",
+   "rgb": "#707da2"
+  },
+  {
+   "code": "140",
+   "name": "= DMC 3807 Cornflower Blue",
+   "rgb": "#60678c"
+  },
+  {
+   "code": "141",
+   "name": "≈ DMC 792 Cornflower Blue Dark",
+   "rgb": "#555b7b"
+  },
+  {
+   "code": "142",
+   "name": "≈ DMC 158 Cornflower Blue  Very Dark",
+   "rgb": "#4c526e"
+  },
+  {
+   "code": "143",
+   "name": "≈ DMC 791 Cornflower Blue Very Dark",
+   "rgb": "#464563"
+  },
+  {
+   "code": "144",
+   "name": "≈ DMC 157 Cornflower Blue Very Light",
+   "rgb": "#bbc3d9"
+  },
+  {
+   "code": "145",
+   "name": "≈ DMC 794 Cornflower Blue Light",
+   "rgb": "#8f9cc1"
+  },
+  {
+   "code": "146",
+   "name": "= DMC 3839 Lavender Blue Medium",
+   "rgb": "#7b8eab"
+  },
+  {
+   "code": "147",
+   "name": "= DMC 3838 Lavender Blue Dark",
+   "rgb": "#5c7294"
+  },
+  {
+   "code": "148",
+   "name": "≈ DMC 797 Royal Blue",
+   "rgb": "#13477d"
+  },
+  {
+   "code": "149",
+   "name": "≈ DMC 796 Royal Blue Dark",
+   "rgb": "#11416d"
+  },
+  {
+   "code": "150",
+   "name": "≈ DMC 820 Royal Blue Very Dark",
+   "rgb": "#0e365c"
+  },
+  {
+   "code": "151",
+   "name": "≈ DMC 159 Blue Gray Light",
+   "rgb": "#c7cad7"
+  },
+  {
+   "code": "152",
+   "name": "≈ DMC 160 Blue Gray Medium",
+   "rgb": "#999fb7"
+  },
+  {
+   "code": "153",
+   "name": "≈ DMC 161 Blue Gray",
+   "rgb": "#7880a4"
+  },
+  {
+   "code": "154",
+   "name": "= DMC 3840 Lavender Blue Light",
+   "rgb": "#b0c0da"
+  },
+  {
+   "code": "155",
+   "name": "≈ DMC 809 Delft Blue",
+   "rgb": "#94a8c6"
+  },
+  {
+   "code": "156",
+   "name": "= DMC 3807 Cornflower Blue",
+   "rgb": "#60678c"
+  },
+  {
+   "code": "157",
+   "name": "≈ DMC 158 Cornflower Blue  Very Dark",
+   "rgb": "#4c526e"
+  },
+  {
+   "code": "158",
+   "name": "≈ DMC 336 Navy Blue",
+   "rgb": "#253b73"
+  },
+  {
+   "code": "159",
+   "name": "≈ DMC 823 Navy Blue Dark",
+   "rgb": "#213063"
+  },
+  {
+   "code": "160",
+   "name": "≈ DMC 939 Navy Blue Very Dark",
+   "rgb": "#1b2853"
+  },
+  {
+   "code": "161",
+   "name": "= DMC 3811 Turquoise Very Light",
+   "rgb": "#bce3e6"
+  },
+  {
+   "code": "162",
+   "name": "≈ DMC 598 Turquoise Light",
+   "rgb": "#90c3cc"
+  },
+  {
+   "code": "163",
+   "name": "≈ DMC 597 Turquoise",
+   "rgb": "#5ba3b3"
+  },
+  {
+   "code": "164",
+   "name": "= DMC 3810 Turquoise Dark",
+   "rgb": "#488e9a"
+  },
+  {
+   "code": "165",
+   "name": "= DMC 3809 Turquoise Vy Dark",
+   "rgb": "#3f7c85"
+  },
+  {
+   "code": "166",
+   "name": "= DMC 3808 Turquoise Ultra Very Dark",
+   "rgb": "#366970"
+  },
+  {
+   "code": "167",
+   "name": "≈ DMC 928 Gray Green Very Light",
+   "rgb": "#dde3e3"
+  },
+  {
+   "code": "168",
+   "name": "≈ DMC 927 Gray Green Light",
+   "rgb": "#bdcbcb"
+  },
+  {
+   "code": "169",
+   "name": "≈ DMC 926 Gray Green Medium",
+   "rgb": "#98aeae"
+  },
+  {
+   "code": "170",
+   "name": "= DMC 3768 Gray Green Dark",
+   "rgb": "#657f7f"
+  },
+  {
+   "code": "171",
+   "name": "≈ DMC 924 Gray Green Vy Dark",
+   "rgb": "#566a6a"
+  },
+  {
+   "code": "172",
+   "name": "≈ DMC 747 Peacock Blue Very Light",
+   "rgb": "#e5fcfd"
+  },
+  {
+   "code": "173",
+   "name": "= DMC 3766 Peacock Blue Light",
+   "rgb": "#99cfd9"
+  },
+  {
+   "code": "174",
+   "name": "≈ DMC 807 Peacock Blue",
+   "rgb": "#64abba"
+  },
+  {
+   "code": "175",
+   "name": "≈ DMC 813 Blue Light",
+   "rgb": "#a1c2d7"
+  },
+  {
+   "code": "176",
+   "name": "≈ DMC 826 Blue Medium",
+   "rgb": "#6b9ebf"
+  },
+  {
+   "code": "177",
+   "name": "≈ DMC 312 Baby Blue Very Dark",
+   "rgb": "#35668b"
+  },
+  {
+   "code": "178",
+   "name": "≈ DMC 803 Baby Blue Ultra Very Dark",
+   "rgb": "#2c597c"
+  },
+  {
+   "code": "179",
+   "name": "≈ DMC 336 Navy Blue",
+   "rgb": "#253b73"
+  },
+  {
+   "code": "180",
+   "name": "= DMC 3753 Antique Blue Ultra Very Light",
+   "rgb": "#dbe2e9"
+  },
+  {
+   "code": "181",
+   "name": "≈ DMC 775 Baby Blue Very Light",
+   "rgb": "#d9ebf1"
+  },
+  {
+   "code": "182",
+   "name": "= DMC 3841 Baby Blue Pale",
+   "rgb": "#cddfed"
+  },
+  {
+   "code": "183",
+   "name": "≈ DMC 827 Blue Very Light",
+   "rgb": "#bddded"
+  },
+  {
+   "code": "184",
+   "name": "= DMC 3755 Baby Blue",
+   "rgb": "#93b4ce"
+  },
+  {
+   "code": "185",
+   "name": "≈ DMC 334 Baby Blue Medium",
+   "rgb": "#739fc1"
+  },
+  {
+   "code": "186",
+   "name": "≈ DMC 312 Baby Blue Very Dark",
+   "rgb": "#35668b"
+  },
+  {
+   "code": "187",
+   "name": "≈ DMC 803 Baby Blue Ultra Very Dark",
+   "rgb": "#2c597c"
+  },
+  {
+   "code": "188",
+   "name": "≈ DMC 823 Navy Blue Dark",
+   "rgb": "#213063"
+  },
+  {
+   "code": "189",
+   "name": "= DMC 3756 Baby Blue Ultra Very Light",
+   "rgb": "#eefcfc"
+  },
+  {
+   "code": "190",
+   "name": "= DMC 3753 Antique Blue Ultra Very Light",
+   "rgb": "#dbe2e9"
+  },
+  {
+   "code": "191",
+   "name": "= DMC 3752 Antique Blue Very Light",
+   "rgb": "#c7d1db"
+  },
+  {
+   "code": "192",
+   "name": "≈ DMC 932 Antique Blue Light",
+   "rgb": "#a2b5c6"
+  },
+  {
+   "code": "193",
+   "name": "≈ DMC 931 Antique Blue Medium",
+   "rgb": "#6a859e"
+  },
+  {
+   "code": "194",
+   "name": "≈ DMC 930 Antique Blue Dark",
+   "rgb": "#455c71"
+  },
+  {
+   "code": "195",
+   "name": "= DMC 3750 Antique Blue Very Dark",
+   "rgb": "#384c5e"
+  },
+  {
+   "code": "196",
+   "name": "≈ DMC 828 Sky Blue Very Light",
+   "rgb": "#c5e8ed"
+  },
+  {
+   "code": "197",
+   "name": "= DMC 3761 Sky Blue Light",
+   "rgb": "#acd8e2"
+  },
+  {
+   "code": "198",
+   "name": "≈ DMC 519 Sky Blue",
+   "rgb": "#7eb1c8"
+  },
+  {
+   "code": "199",
+   "name": "≈ DMC 518 Wedgewood Light",
+   "rgb": "#4f93a7"
+  },
+  {
+   "code": "200",
+   "name": "= DMC 3760 Wedgewood Medium",
+   "rgb": "#3e85a2"
+  },
+  {
+   "code": "201",
+   "name": "= DMC 3765 Peacock Blue Very Dark",
+   "rgb": "#347f8c"
+  },
+  {
+   "code": "202",
+   "name": "≈ DMC 3842 Wedgewood Very Dark",
+   "rgb": "#32667c"
+  },
+  {
+   "code": "203",
+   "name": "≈ DMC 311 Wedgewood Ultra Very Dark",
+   "rgb": "#1c5066"
+  },
+  {
+   "code": "205",
+   "name": "≈ DMC 996 Electric Blue Medium",
+   "rgb": "#30c2ec"
+  },
+  {
+   "code": "206",
+   "name": "= DMC 3843 Electric Blue",
+   "rgb": "#14aad0"
+  },
+  {
+   "code": "207",
+   "name": "≈ DMC 995 Electric Blue Dark",
+   "rgb": "#2696b6"
+  },
+  {
+   "code": "208",
+   "name": "= DMC 3846 Turquoise Bright Light",
+   "rgb": "#06e3e6"
+  },
+  {
+   "code": "209",
+   "name": "= DMC 3845 Turquoise Bright Medium",
+   "rgb": "#04c4ca"
+  },
+  {
+   "code": "210",
+   "name": "= DMC 3844 Turquoise Bright Dark",
+   "rgb": "#12aeba"
+  },
+  {
+   "code": "211",
+   "name": "≈ DMC 964 Sea Green Light",
+   "rgb": "#a9e2d8"
+  },
+  {
+   "code": "212",
+   "name": "≈ DMC 959 Sea Green Medium",
+   "rgb": "#59c7b4"
+  },
+  {
+   "code": "213",
+   "name": "≈ DMC 958 Sea Green Dark",
+   "rgb": "#3eb6a1"
+  },
+  {
+   "code": "214",
+   "name": "= DMC 3812 Sea Green Very Dark",
+   "rgb": "#2f8c84"
+  },
+  {
+   "code": "215",
+   "name": "≈ DMC 993 Aquamarine Very Light",
+   "rgb": "#90c0b4"
+  },
+  {
+   "code": "216",
+   "name": "≈ DMC 992 Aquamarine Light",
+   "rgb": "#6fae9f"
+  },
+  {
+   "code": "217",
+   "name": "= DMC 3814 Aquamarine",
+   "rgb": "#508b7d"
+  },
+  {
+   "code": "218",
+   "name": "≈ DMC 991 Aquamarine Dark",
+   "rgb": "#477b6e"
+  },
+  {
+   "code": "219",
+   "name": "= DMC 3849 Teal Green Light",
+   "rgb": "#52b3a4"
+  },
+  {
+   "code": "220",
+   "name": "= DMC 3845 Turquoise Bright Medium",
+   "rgb": "#04c4ca"
+  },
+  {
+   "code": "221",
+   "name": "= DMC 3848 Teal Green Medium",
+   "rgb": "#559392"
+  },
+  {
+   "code": "222",
+   "name": "= DMC 3847 Teal Green Dark",
+   "rgb": "#347d75"
+  },
+  {
+   "code": "223",
+   "name": "≈ DMC 564 Jade Very Light",
+   "rgb": "#a7cdaf"
+  },
+  {
+   "code": "224",
+   "name": "≈ DMC 563 Jade Light",
+   "rgb": "#8fc098"
+  },
+  {
+   "code": "225",
+   "name": "≈ DMC 987 Forest Green Dark",
+   "rgb": "#587141"
+  },
+  {
+   "code": "226",
+   "name": "≈ DMC 505 Jade Green",
+   "rgb": "#338362"
+  },
+  {
+   "code": "227",
+   "name": "= DMC 3817 Celadon Green Light",
+   "rgb": "#99c3aa"
+  },
+  {
+   "code": "228",
+   "name": "= DMC 3816 Celadon Green",
+   "rgb": "#65a57d"
+  },
+  {
+   "code": "229",
+   "name": "≈ DMC 163 Celadon Green Medium",
+   "rgb": "#4d8361"
+  },
+  {
+   "code": "230",
+   "name": "= DMC 3815 Celadon Green Dark",
+   "rgb": "#477759"
+  },
+  {
+   "code": "231",
+   "name": "≈ DMC 561 Celadon Green VD",
+   "rgb": "#2c6a45"
+  },
+  {
+   "code": "232",
+   "name": "= DMC 3813 Blue Green Light",
+   "rgb": "#b2d4bd"
+  },
+  {
+   "code": "233",
+   "name": "≈ DMC 503 Blue Green Medium",
+   "rgb": "#7bac94"
+  },
+  {
+   "code": "234",
+   "name": "≈ DMC 502 Blue Green",
+   "rgb": "#5b9071"
+  },
+  {
+   "code": "235",
+   "name": "≈ DMC 501 Blue Green Dark",
+   "rgb": "#396f52"
+  },
+  {
+   "code": "236",
+   "name": "≈ DMC 500 Blue Green Very Dark",
+   "rgb": "#044d33"
+  },
+  {
+   "code": "237",
+   "name": "≈ DMC 369 Pistachio Green Very Light",
+   "rgb": "#d7edcc"
+  },
+  {
+   "code": "238",
+   "name": "≈ DMC 13 Nile Green Medium Light",
+   "rgb": "#bff6e0"
+  },
+  {
+   "code": "239",
+   "name": "≈ DMC 954 Nile Green",
+   "rgb": "#88ba91"
+  },
+  {
+   "code": "240",
+   "name": "≈ DMC 913 Nile Green Medium",
+   "rgb": "#6dab77"
+  },
+  {
+   "code": "241",
+   "name": "≈ DMC 912 Emerald Green Light",
+   "rgb": "#1b9d6b"
+  },
+  {
+   "code": "242",
+   "name": "≈ DMC 911 Emerald Green Medium",
+   "rgb": "#189065"
+  },
+  {
+   "code": "243",
+   "name": "≈ DMC 910 Emerald Green Dark",
+   "rgb": "#187e56"
+  },
+  {
+   "code": "244",
+   "name": "≈ DMC 909 Emerald Green Very Dark",
+   "rgb": "#156f49"
+  },
+  {
+   "code": "245",
+   "name": "= DMC 3818 Emerald Green Ultra Very Dark",
+   "rgb": "#115a3b"
+  },
+  {
+   "code": "246",
+   "name": "≈ DMC 369 Pistachio Green Very Light",
+   "rgb": "#d7edcc"
+  },
+  {
+   "code": "247",
+   "name": "≈ DMC 368 Pistachio Green Light",
+   "rgb": "#a6c298"
+  },
+  {
+   "code": "248",
+   "name": "≈ DMC 320 Pistachio Green Medium",
+   "rgb": "#69885a"
+  },
+  {
+   "code": "249",
+   "name": "≈ DMC 367 Pistachio Green Dark",
+   "rgb": "#617a52"
+  },
+  {
+   "code": "250",
+   "name": "≈ DMC 319 Pistachio Grn Very Dark",
+   "rgb": "#205f2e"
+  },
+  {
+   "code": "251",
+   "name": "≈ DMC 890 Pistachio Grn Ultra Very Dark",
+   "rgb": "#174923"
+  },
+  {
+   "code": "252",
+   "name": "≈ DMC 164 Forest Green Light",
+   "rgb": "#c8d8b8"
+  },
+  {
+   "code": "253",
+   "name": "≈ DMC 989 Forest Green",
+   "rgb": "#8da675"
+  },
+  {
+   "code": "254",
+   "name": "≈ DMC 988 Forest Green Medium",
+   "rgb": "#738b5b"
+  },
+  {
+   "code": "255",
+   "name": "≈ DMC 987 Forest Green Dark",
+   "rgb": "#587141"
+  },
+  {
+   "code": "256",
+   "name": "≈ DMC 986 Forest Green Very Dark",
+   "rgb": "#405230"
+  },
+  {
+   "code": "257",
+   "name": "≈ DMC 895 Hunter Green Very Dark",
+   "rgb": "#1b5300"
+  },
+  {
+   "code": "258",
+   "name": "≈ DMC 772 Yellow Green Very Light",
+   "rgb": "#e4ecd4"
+  },
+  {
+   "code": "259",
+   "name": "= DMC 3348 Yellow Green Light",
+   "rgb": "#ccd9b1"
+  },
+  {
+   "code": "261",
+   "name": "≈ DMC 471 Avocado Grn Very Light",
+   "rgb": "#aebf79"
+  },
+  {
+   "code": "262",
+   "name": "= DMC 3347 Yellow Green Medium",
+   "rgb": "#71935c"
+  },
+  {
+   "code": "263",
+   "name": "= DMC 3346 Hunter Green",
+   "rgb": "#406a3a"
+  },
+  {
+   "code": "264",
+   "name": "= DMC 3346 Hunter Green",
+   "rgb": "#406a3a"
+  },
+  {
+   "code": "265",
+   "name": "≈ DMC 935 Avocado Green Dark",
+   "rgb": "#424d21"
+  },
+  {
+   "code": "266",
+   "name": "= DMC 3345 Hunter Green Dark",
+   "rgb": "#1b5915"
+  },
+  {
+   "code": "267",
+   "name": "≈ DMC 470 Avocado Grn Light",
+   "rgb": "#94ab4f"
+  },
+  {
+   "code": "268",
+   "name": "≈ DMC 937 Avocado Green Medium",
+   "rgb": "#627133"
+  },
+  {
+   "code": "269",
+   "name": "≈ DMC 523 Fern Green Light",
+   "rgb": "#abb197"
+  },
+  {
+   "code": "270",
+   "name": "≈ DMC 522 Fern Green",
+   "rgb": "#969e7e"
+  },
+  {
+   "code": "271",
+   "name": "≈ DMC 3362 Pine Green Dark",
+   "rgb": "#5e6b47"
+  },
+  {
+   "code": "272",
+   "name": "≈ DMC 520 Fern Green Dark",
+   "rgb": "#666d4f"
+  },
+  {
+   "code": "273",
+   "name": "≈ DMC 500 Blue Green Very Dark",
+   "rgb": "#044d33"
+  },
+  {
+   "code": "274",
+   "name": "≈ DMC 472 Avocado Green Ultra Light",
+   "rgb": "#d8e498"
+  },
+  {
+   "code": "275",
+   "name": "≈ DMC 471 Avocado Grn Very Light",
+   "rgb": "#aebf79"
+  },
+  {
+   "code": "276",
+   "name": "≈ DMC 469 Avocado Green",
+   "rgb": "#72843c"
+  },
+  {
+   "code": "277",
+   "name": "≈ DMC 936 Avocado Green Very Dark",
+   "rgb": "#4c5826"
+  },
+  {
+   "code": "278",
+   "name": "≈ DMC 935 Avocado Green Dark",
+   "rgb": "#424d21"
+  },
+  {
+   "code": "279",
+   "name": "≈ DMC 934 Avocado Grn Black",
+   "rgb": "#313919"
+  },
+  {
+   "code": "280",
+   "name": "≈ DMC 704 Chartreuse Bright",
+   "rgb": "#9ecf34"
+  },
+  {
+   "code": "281",
+   "name": "≈ DMC 703 Chartreuse",
+   "rgb": "#7bb547"
+  },
+  {
+   "code": "282",
+   "name": "≈ DMC 702 Kelly Green",
+   "rgb": "#47a72f"
+  },
+  {
+   "code": "283",
+   "name": "≈ DMC 701 Green Light",
+   "rgb": "#3f8f29"
+  },
+  {
+   "code": "284",
+   "name": "≈ DMC 700 Green Bright",
+   "rgb": "#07731b"
+  },
+  {
+   "code": "286",
+   "name": "≈ DMC 14 Apple Green Pale",
+   "rgb": "#d0fbb2"
+  },
+  {
+   "code": "287",
+   "name": "≈ DMC 15 Apple Green",
+   "rgb": "#d1eda4"
+  },
+  {
+   "code": "288",
+   "name": "≈ DMC 16 Chartreuse Light",
+   "rgb": "#c9c258"
+  },
+  {
+   "code": "289",
+   "name": "≈ DMC 907 Parrot Green Light",
+   "rgb": "#c7e666"
+  },
+  {
+   "code": "290",
+   "name": "≈ DMC 906 Parrot Green Medium",
+   "rgb": "#7fb335"
+  },
+  {
+   "code": "291",
+   "name": "≈ DMC 905 Parrot Green Dark",
+   "rgb": "#628a28"
+  },
+  {
+   "code": "292",
+   "name": "≈ DMC 904 Parrot Green Very Dark",
+   "rgb": "#557822"
+  },
+  {
+   "code": "293",
+   "name": "≈ DMC 11 Tender Green Light",
+   "rgb": "#e2edb5"
+  },
+  {
+   "code": "294",
+   "name": "≈ DMC 12 Tender Green",
+   "rgb": "#cdd99a"
+  },
+  {
+   "code": "295",
+   "name": "= DMC 3819 Moss Green Light",
+   "rgb": "#e0e868"
+  },
+  {
+   "code": "296",
+   "name": "≈ DMC 166 Moss Green Medium Light",
+   "rgb": "#c0c840"
+  },
+  {
+   "code": "297",
+   "name": "≈ DMC 581 Moss Green",
+   "rgb": "#a7ae38"
+  },
+  {
+   "code": "298",
+   "name": "≈ DMC 580 Moss Green Dark",
+   "rgb": "#888d33"
+  },
+  {
+   "code": "299",
+   "name": "= DMC 3364 Pine Green",
+   "rgb": "#83975f"
+  },
+  {
+   "code": "300",
+   "name": "= DMC 3363 Pine Green Medium",
+   "rgb": "#728256"
+  },
+  {
+   "code": "301",
+   "name": "= DMC 3362 Pine Green Dark",
+   "rgb": "#5e6b47"
+  },
+  {
+   "code": "302",
+   "name": "≈ DMC 524 Fern Green Very Light",
+   "rgb": "#c4cdac"
+  },
+  {
+   "code": "303",
+   "name": "= DMC 3053 Green Gray",
+   "rgb": "#9ca482"
+  },
+  {
+   "code": "304",
+   "name": "= DMC 3052 Green Gray Medium",
+   "rgb": "#889268"
+  },
+  {
+   "code": "305",
+   "name": "= DMC 3051 Green Gray Dark",
+   "rgb": "#5f6648"
+  },
+  {
+   "code": "306",
+   "name": "≈ DMC 10 Tender Green Very Light",
+   "rgb": "#edfed9"
+  },
+  {
+   "code": "307",
+   "name": "≈ DMC 165 Moss Green Very Light",
+   "rgb": "#eff4a4"
+  },
+  {
+   "code": "308",
+   "name": "≈ DMC 734 Olive Green Light",
+   "rgb": "#c7c077"
+  },
+  {
+   "code": "309",
+   "name": "≈ DMC 733 Olive Green Medium",
+   "rgb": "#bcb34c"
+  },
+  {
+   "code": "310",
+   "name": "≈ DMC 732 Olive Green",
+   "rgb": "#948c36"
+  },
+  {
+   "code": "311",
+   "name": "≈ DMC 730 Olive Green Very Dark",
+   "rgb": "#827b30"
+  },
+  {
+   "code": "313",
+   "name": "≈ DMC 372 Mustard Light",
+   "rgb": "#ccb784"
+  },
+  {
+   "code": "314",
+   "name": "≈ DMC 370 Mustard Medium",
+   "rgb": "#b89d64"
+  },
+  {
+   "code": "315",
+   "name": "= DMC 3012 Khaki Green Medium",
+   "rgb": "#a6a75d"
+  },
+  {
+   "code": "316",
+   "name": "= DMC 3011 Khaki Green Dark",
+   "rgb": "#898a58"
+  },
+  {
+   "code": "317",
+   "name": "≈ DMC 613 Drab Brown Very Light",
+   "rgb": "#dcc4aa"
+  },
+  {
+   "code": "318",
+   "name": "≈ DMC 612 Drab Brown Light",
+   "rgb": "#bc9a78"
+  },
+  {
+   "code": "319",
+   "name": "≈ DMC 611 Drab Brown",
+   "rgb": "#967656"
+  },
+  {
+   "code": "320",
+   "name": "≈ DMC 610 Drab Brown Dark",
+   "rgb": "#796047"
+  },
+  {
+   "code": "321",
+   "name": "≈ DMC 17 Yellow Plum Light",
+   "rgb": "#e5e272"
+  },
+  {
+   "code": "322",
+   "name": "≈ DMC 18 Yellow Plum",
+   "rgb": "#d9d56d"
+  },
+  {
+   "code": "323",
+   "name": "≈ DMC 834 Golden Olive Very Light",
+   "rgb": "#dbbe7f"
+  },
+  {
+   "code": "324",
+   "name": "≈ DMC 833 Golden Olive Light",
+   "rgb": "#c8ab6c"
+  },
+  {
+   "code": "325",
+   "name": "≈ DMC 832 Golden Olive",
+   "rgb": "#bd9b51"
+  },
+  {
+   "code": "326",
+   "name": "≈ DMC 831 Golden Olive Medium",
+   "rgb": "#aa8f56"
+  },
+  {
+   "code": "327",
+   "name": "≈ DMC 830 Golden Olive Dark",
+   "rgb": "#8d784b"
+  },
+  {
+   "code": "328",
+   "name": "≈ DMC 829 Golden Olive Very Dark",
+   "rgb": "#7e6b42"
+  },
+  {
+   "code": "329",
+   "name": "≈ DMC 746 Off White",
+   "rgb": "#fcfcee"
+  },
+  {
+   "code": "330",
+   "name": "≈ DMC 677 Old Gold Very Light",
+   "rgb": "#f5eccb"
+  },
+  {
+   "code": "331",
+   "name": "≈ DMC 422 Hazelnut Brown Light",
+   "rgb": "#c69f7b"
+  },
+  {
+   "code": "332",
+   "name": "= DMC 3828 Hazelnut Brown",
+   "rgb": "#b78b61"
+  },
+  {
+   "code": "333",
+   "name": "≈ DMC 420 Hazelnut Brown Dark",
+   "rgb": "#a07042"
+  },
+  {
+   "code": "334",
+   "name": "≈ DMC 869 Hazelnut Brown Very Dark",
+   "rgb": "#835e39"
+  },
+  {
+   "code": "335",
+   "name": "= DMC 3047 Yellow Beige Light",
+   "rgb": "#e7d6c1"
+  },
+  {
+   "code": "336",
+   "name": "= DMC 3046 Yellow Beige Medium",
+   "rgb": "#d8bc9a"
+  },
+  {
+   "code": "337",
+   "name": "= DMC 3045 Yellow Beige Dark",
+   "rgb": "#bc966a"
+  },
+  {
+   "code": "338",
+   "name": "≈ DMC 167 Yellow Beige Very Dark",
+   "rgb": "#a77c49"
+  },
+  {
+   "code": "339",
+   "name": "≈ DMC 676 Old Gold Light",
+   "rgb": "#e5ce97"
+  },
+  {
+   "code": "340",
+   "name": "≈ DMC 729 Old Gold Medium",
+   "rgb": "#d0a53e"
+  },
+  {
+   "code": "341",
+   "name": "≈ DMC 680 Old Gold Dark",
+   "rgb": "#bc8d0e"
+  },
+  {
+   "code": "342",
+   "name": "= DMC 3829 Old Gold Vy Dark",
+   "rgb": "#a98204"
+  },
+  {
+   "code": "343",
+   "name": "= DMC 3822 Straw Light",
+   "rgb": "#f6dc98"
+  },
+  {
+   "code": "344",
+   "name": "= DMC 3821 Straw",
+   "rgb": "#f3ce75"
+  },
+  {
+   "code": "345",
+   "name": "= DMC 3820 Straw Dark",
+   "rgb": "#dfb65f"
+  },
+  {
+   "code": "346",
+   "name": "= DMC 3852 Straw Very Dark",
+   "rgb": "#cd9d37"
+  },
+  {
+   "code": "347",
+   "name": "≈ DMC 728 Topaz",
+   "rgb": "#e4b468"
+  },
+  {
+   "code": "348",
+   "name": "≈ DMC 783 Topaz Medium",
+   "rgb": "#ce9124"
+  },
+  {
+   "code": "349",
+   "name": "≈ DMC 782 Topaz Dark",
+   "rgb": "#ae7720"
+  },
+  {
+   "code": "350",
+   "name": "≈ DMC 780 Topaz Ultra Very Dark",
+   "rgb": "#94631a"
+  },
+  {
+   "code": "351",
+   "name": "= DMC 3823 Yellow Ultra Pale",
+   "rgb": "#fffde3"
+  },
+  {
+   "code": "352",
+   "name": "= DMC 3855 Autumn Gold Light",
+   "rgb": "#fad396"
+  },
+  {
+   "code": "353",
+   "name": "≈ DMC 19 Autumn Gold medium Light",
+   "rgb": "#f7c95f"
+  },
+  {
+   "code": "354",
+   "name": "= DMC 3854 Autumn Gold Medium",
+   "rgb": "#f2af68"
+  },
+  {
+   "code": "355",
+   "name": "= DMC 3853 Autumn Gold Dark",
+   "rgb": "#f29746"
+  },
+  {
+   "code": "356",
+   "name": "= DMC 3827 Golden Brown Pale",
+   "rgb": "#f7bb77"
+  },
+  {
+   "code": "357",
+   "name": "≈ DMC 977 Golden Brown Light",
+   "rgb": "#dc9c56"
+  },
+  {
+   "code": "358",
+   "name": "≈ DMC 976 Golden Brown Medium",
+   "rgb": "#c28142"
+  },
+  {
+   "code": "359",
+   "name": "= DMC 3826 Golden Brown",
+   "rgb": "#ad7239"
+  },
+  {
+   "code": "360",
+   "name": "≈ DMC 975 Golden Brown Dark",
+   "rgb": "#914f12"
+  },
+  {
+   "code": "361",
+   "name": "≈ DMC 445 Lemon Light",
+   "rgb": "#fffb8b"
+  },
+  {
+   "code": "362",
+   "name": "≈ DMC 307 Lemon",
+   "rgb": "#fded54"
+  },
+  {
+   "code": "363",
+   "name": "≈ DMC 973 Canary Bright",
+   "rgb": "#ffe300"
+  },
+  {
+   "code": "364",
+   "name": "= DMC 3078 Golden Yellow Very Light",
+   "rgb": "#fdf9cd"
+  },
+  {
+   "code": "365",
+   "name": "≈ DMC 727 Topaz Very Light",
+   "rgb": "#fff1af"
+  },
+  {
+   "code": "366",
+   "name": "≈ DMC 726 Topaz Light",
+   "rgb": "#fdd755"
+  },
+  {
+   "code": "367",
+   "name": "≈ DMC 725 Topaz Medium Light",
+   "rgb": "#ffc840"
+  },
+  {
+   "code": "368",
+   "name": "≈ DMC 972 Canary Deep",
+   "rgb": "#ffb515"
+  },
+  {
+   "code": "369",
+   "name": "≈ DMC 746 Off White",
+   "rgb": "#fcfcee"
+  },
+  {
+   "code": "370",
+   "name": "= DMC 3823 Yellow Ultra Pale",
+   "rgb": "#fffde3"
+  },
+  {
+   "code": "371",
+   "name": "≈ DMC 745 Yellow Pale Light",
+   "rgb": "#ffe9ad"
+  },
+  {
+   "code": "372",
+   "name": "≈ DMC 744 Yellow Pale",
+   "rgb": "#ffe793"
+  },
+  {
+   "code": "373",
+   "name": "≈ DMC 743 Yellow Medium",
+   "rgb": "#fed376"
+  },
+  {
+   "code": "374",
+   "name": "≈ DMC 742 Tangerine Light",
+   "rgb": "#ffbf57"
+  },
+  {
+   "code": "375",
+   "name": "≈ DMC 741 Tangerine Medium",
+   "rgb": "#ffa32b"
+  },
+  {
+   "code": "376",
+   "name": "≈ DMC 740 Tangerine",
+   "rgb": "#ff8b00"
+  },
+  {
+   "code": "377",
+   "name": "≈ DMC 970 Pumpkin Light",
+   "rgb": "#f78b13"
+  },
+  {
+   "code": "378",
+   "name": "≈ DMC 947 Burnt Orange",
+   "rgb": "#ff7b4d"
+  },
+  {
+   "code": "379",
+   "name": "≈ DMC 946 Burnt Orange Medium",
+   "rgb": "#eb6307"
+  },
+  {
+   "code": "380",
+   "name": "≈ DMC 900 Burnt Orange Dark",
+   "rgb": "#d15807"
+  },
+  {
+   "code": "381",
+   "name": "= DMC 3770 Tawny Vy Light",
+   "rgb": "#ffeee3"
+  },
+  {
+   "code": "382",
+   "name": "≈ DMC 967 Apricot Very Light",
+   "rgb": "#ffded5"
+  },
+  {
+   "code": "383",
+   "name": "≈ DMC 967 Apricot Very Light",
+   "rgb": "#ffded5"
+  },
+  {
+   "code": "384",
+   "name": "= DMC 3824 Apricot Light",
+   "rgb": "#fecdc2"
+  },
+  {
+   "code": "385",
+   "name": "= DMC 3341 Apricot",
+   "rgb": "#fcab98"
+  },
+  {
+   "code": "386",
+   "name": "= DMC 3340 Apricot Medium",
+   "rgb": "#ff836f"
+  },
+  {
+   "code": "387",
+   "name": "≈ DMC 608 Burnt Orange Bright",
+   "rgb": "#fd5d35"
+  },
+  {
+   "code": "388",
+   "name": "≈ DMC 606 Orange Red Bright",
+   "rgb": "#fa3203"
+  },
+  {
+   "code": "389",
+   "name": "= DMC 3856 Mahogany Ultra Very Light",
+   "rgb": "#ffd3b5"
+  },
+  {
+   "code": "390",
+   "name": "≈ DMC 722 Orange Spice Light",
+   "rgb": "#f7976f"
+  },
+  {
+   "code": "391",
+   "name": "≈ DMC 721 Orange Spice Medium",
+   "rgb": "#f27842"
+  },
+  {
+   "code": "392",
+   "name": "≈ DMC 720 Orange Spice Dark",
+   "rgb": "#e55c1f"
+  },
+  {
+   "code": "393",
+   "name": "≈ DMC 402 Mahogany Very Light",
+   "rgb": "#f7a777"
+  },
+  {
+   "code": "394",
+   "name": "≈ DMC 922 Copper Light",
+   "rgb": "#e27323"
+  },
+  {
+   "code": "395",
+   "name": "≈ DMC 921 Copper",
+   "rgb": "#c66218"
+  },
+  {
+   "code": "396",
+   "name": "≈ DMC 920 Copper Medium",
+   "rgb": "#ac5414"
+  },
+  {
+   "code": "397",
+   "name": "≈ DMC 919 Red Copper",
+   "rgb": "#a64510"
+  },
+  {
+   "code": "398",
+   "name": "= DMC 3825 Pumpkin Pale",
+   "rgb": "#fdbd96"
+  },
+  {
+   "code": "399",
+   "name": "≈ DMC 402 Mahogany Very Light",
+   "rgb": "#f7a777"
+  },
+  {
+   "code": "400",
+   "name": "= DMC 3776 Mahogany Light",
+   "rgb": "#cf7939"
+  },
+  {
+   "code": "401",
+   "name": "≈ DMC 301 Mahogany Medium",
+   "rgb": "#b35f2b"
+  },
+  {
+   "code": "402",
+   "name": "≈ DMC 400 Mahogany Dark",
+   "rgb": "#8f430f"
+  },
+  {
+   "code": "403",
+   "name": "≈ DMC 300 Mahogany Very Dark",
+   "rgb": "#6f2f00"
+  },
+  {
+   "code": "404",
+   "name": "≈ DMC 948 Peach Very Light",
+   "rgb": "#fee7da"
+  },
+  {
+   "code": "405",
+   "name": "≈ DMC 754 Peach Light",
+   "rgb": "#f7cbbf"
+  },
+  {
+   "code": "406",
+   "name": "≈ DMC 758 Terra Cotta Very Light",
+   "rgb": "#eeaa9b"
+  },
+  {
+   "code": "407",
+   "name": "= DMC 3778 Terra Cotta Light",
+   "rgb": "#d98978"
+  },
+  {
+   "code": "408",
+   "name": "≈ DMC 356 Terra Cotta Medium",
+   "rgb": "#c56a5b"
+  },
+  {
+   "code": "409",
+   "name": "= DMC 3830 Terra Cotta",
+   "rgb": "#b95544"
+  },
+  {
+   "code": "410",
+   "name": "≈ DMC 355 Terra Cotta Dark",
+   "rgb": "#984436"
+  },
+  {
+   "code": "411",
+   "name": "= DMC 3777 Terra Cotta Very Dark",
+   "rgb": "#863022"
+  },
+  {
+   "code": "412",
+   "name": "= DMC 3779 Rosewood Ultra Very Light",
+   "rgb": "#f8cac8"
+  },
+  {
+   "code": "413",
+   "name": "= DMC 3859 Rosewood Light",
+   "rgb": "#ba8b7c"
+  },
+  {
+   "code": "414",
+   "name": "= DMC 3858 Rosewood Medium",
+   "rgb": "#964a3f"
+  },
+  {
+   "code": "415",
+   "name": "= DMC 3857 Rosewood Dark",
+   "rgb": "#68251a"
+  },
+  {
+   "code": "416",
+   "name": "≈ DMC 543 Beige Brown Ultra Very Light",
+   "rgb": "#f2e3ce"
+  },
+  {
+   "code": "417",
+   "name": "≈ DMC 951 Tawny Light",
+   "rgb": "#ffe2cf"
+  },
+  {
+   "code": "418",
+   "name": "≈ DMC 950 Desert Sand Light",
+   "rgb": "#eed3c4"
+  },
+  {
+   "code": "419",
+   "name": "≈ DMC 950 Desert Sand Light",
+   "rgb": "#eed3c4"
+  },
+  {
+   "code": "420",
+   "name": "≈ DMC 758 Terra Cotta Very Light",
+   "rgb": "#eeaa9b"
+  },
+  {
+   "code": "421",
+   "name": "= DMC 3064 Desert Sand",
+   "rgb": "#c48e70"
+  },
+  {
+   "code": "422",
+   "name": "= DMC 3772 Desert Sand Very Dark",
+   "rgb": "#a06c50"
+  },
+  {
+   "code": "423",
+   "name": "≈ DMC 632 Desert Sand Ultra Very Dark",
+   "rgb": "#875539"
+  },
+  {
+   "code": "424",
+   "name": "= DMC 3858 Rosewood Medium",
+   "rgb": "#964a3f"
+  },
+  {
+   "code": "425",
+   "name": "= DMC 3857 Rosewood Dark",
+   "rgb": "#68251a"
+  },
+  {
+   "code": "430",
+   "name": "≈ DMC 453 Shell Gray Light",
+   "rgb": "#d7cecb"
+  },
+  {
+   "code": "431",
+   "name": "≈ DMC 451 Shell Gray Dark",
+   "rgb": "#917b73"
+  },
+  {
+   "code": "432",
+   "name": "= DMC 3861 Cocoa Light",
+   "rgb": "#a68881"
+  },
+  {
+   "code": "433",
+   "name": "= DMC 3860 Cocoa",
+   "rgb": "#7d5d57"
+  },
+  {
+   "code": "434",
+   "name": "≈ DMC 779 Cocoa Dark",
+   "rgb": "#624b45"
+  },
+  {
+   "code": "438",
+   "name": "≈ DMC 535 Ash Gray Very Light",
+   "rgb": "#636458"
+  },
+  {
+   "code": "439",
+   "name": "≈ DMC 543 Beige Brown Ultra Very Light",
+   "rgb": "#f2e3ce"
+  },
+  {
+   "code": "440",
+   "name": "= DMC 3864 Mocha Beige Light",
+   "rgb": "#cbb69c"
+  },
+  {
+   "code": "441",
+   "name": "= DMC 3863 Mocha Beige Medium",
+   "rgb": "#a4835c"
+  },
+  {
+   "code": "442",
+   "name": "= DMC 3862 Mocha Beige Dark",
+   "rgb": "#8a6e4e"
+  },
+  {
+   "code": "443",
+   "name": "= DMC 3031 Mocha Brown Very Dark",
+   "rgb": "#4b3c2a"
+  },
+  {
+   "code": "444",
+   "name": "= DMC 3865 Winter White",
+   "rgb": "#f9f7f1"
+  },
+  {
+   "code": "445",
+   "name": "≈ DMC 712 Cream",
+   "rgb": "#fffbef"
+  },
+  {
+   "code": "446",
+   "name": "≈ DMC 739 Tan Ultra Very Light",
+   "rgb": "#f8e4c8"
+  },
+  {
+   "code": "448",
+   "name": "≈ DMC 437 Tan Light",
+   "rgb": "#e4bb8e"
+  },
+  {
+   "code": "449",
+   "name": "≈ DMC 436 Tan",
+   "rgb": "#cb9051"
+  },
+  {
+   "code": "450",
+   "name": "≈ DMC 435 Brown Very Light",
+   "rgb": "#b87748"
+  },
+  {
+   "code": "451",
+   "name": "≈ DMC 434 Brown Light",
+   "rgb": "#985e33"
+  },
+  {
+   "code": "452",
+   "name": "≈ DMC 433 Brown Medium",
+   "rgb": "#7a451f"
+  },
+  {
+   "code": "453",
+   "name": "≈ DMC 801 Coffee Brown Dark",
+   "rgb": "#653919"
+  },
+  {
+   "code": "454",
+   "name": "≈ DMC 898 Coffee Brown Very Dark",
+   "rgb": "#492a13"
+  },
+  {
+   "code": "455",
+   "name": "≈ DMC 938 Coffee Brown Ultra Dark",
+   "rgb": "#361f0e"
+  },
+  {
+   "code": "456",
+   "name": "= DMC 3371 Black Brown",
+   "rgb": "#1e1108"
+  },
+  {
+   "code": "457",
+   "name": "≈ DMC 712 Cream",
+   "rgb": "#fffbef"
+  },
+  {
+   "code": "458",
+   "name": "= DMC Ecru Ecru",
+   "rgb": "#f0eada"
+  },
+  {
+   "code": "459",
+   "name": "≈ DMC 822 Beige Gray Light",
+   "rgb": "#e7e2d3"
+  },
+  {
+   "code": "460",
+   "name": "≈ DMC 644 Beige Gray Medium",
+   "rgb": "#ddd8cb"
+  },
+  {
+   "code": "461",
+   "name": "≈ DMC 642 Beige Gray Dark",
+   "rgb": "#a49878"
+  },
+  {
+   "code": "462",
+   "name": "≈ DMC 640 Beige Gray Very Dark",
+   "rgb": "#857b61"
+  },
+  {
+   "code": "463",
+   "name": "= DMC 3787 Brown Gray Dark",
+   "rgb": "#625d50"
+  },
+  {
+   "code": "464",
+   "name": "= DMC 3021 Brown Gray Very Dark",
+   "rgb": "#4f4b41"
+  },
+  {
+   "code": "465",
+   "name": "= DMC 3033 Mocha Brown Very Light",
+   "rgb": "#e3d8cc"
+  },
+  {
+   "code": "466",
+   "name": "= DMC 3782 Mocha Brown Light",
+   "rgb": "#d2bca6"
+  },
+  {
+   "code": "467",
+   "name": "= DMC 3790 Beige Gray Ultra Dark",
+   "rgb": "#7f6a55"
+  },
+  {
+   "code": "468",
+   "name": "= DMC 3781 Mocha Brown Dark",
+   "rgb": "#6b5743"
+  },
+  {
+   "code": "469",
+   "name": "= DMC 3866 Mocha Brown Ultra Very Light",
+   "rgb": "#faf6f0"
+  },
+  {
+   "code": "470",
+   "name": "≈ DMC 842 Beige Brown Very Light",
+   "rgb": "#d1baa1"
+  },
+  {
+   "code": "471",
+   "name": "≈ DMC 841 Beige Brown Light",
+   "rgb": "#b69b7e"
+  },
+  {
+   "code": "472",
+   "name": "≈ DMC 840 Beige Brown Medium",
+   "rgb": "#9a7c5c"
+  },
+  {
+   "code": "473",
+   "name": "≈ DMC 839 Beige Brown Dark",
+   "rgb": "#675541"
+  },
+  {
+   "code": "474",
+   "name": "≈ DMC 838 Beige Brown Very Dark",
+   "rgb": "#594937"
+  },
+  {
+   "code": "475",
+   "name": "≈ DMC 842 Beige Brown Very Light",
+   "rgb": "#d1baa1"
+  },
+  {
+   "code": "476",
+   "name": "= DMC 3863 Mocha Beige Medium",
+   "rgb": "#a4835c"
+  },
+  {
+   "code": "477",
+   "name": "= DMC 3862 Mocha Beige Dark",
+   "rgb": "#8a6e4e"
+  },
+  {
+   "code": "478",
+   "name": "≈ DMC 433 Brown Medium",
+   "rgb": "#7a451f"
+  },
+  {
+   "code": "479",
+   "name": "≈ DMC 938 Coffee Brown Ultra Dark",
+   "rgb": "#361f0e"
+  },
+  {
+   "code": "480",
+   "name": "= DMC 3782 Mocha Brown Light",
+   "rgb": "#d2bca6"
+  },
+  {
+   "code": "481",
+   "name": "= DMC 3032 Mocha Brown Medium",
+   "rgb": "#b39f8b"
+  },
+  {
+   "code": "482",
+   "name": "= DMC 3790 Beige Gray Ultra Dark",
+   "rgb": "#7f6a55"
+  },
+  {
+   "code": "483",
+   "name": "= DMC 3781 Mocha Brown Dark",
+   "rgb": "#6b5743"
+  },
+  {
+   "code": "484",
+   "name": "= DMC 3031 Mocha Brown Very Dark",
+   "rgb": "#4b3c2a"
+  },
+  {
+   "code": "485",
+   "name": "≈ DMC 647 Beaver Gray Medium",
+   "rgb": "#b0a69c"
+  },
+  {
+   "code": "486",
+   "name": "= DMC 3022 Brown Gray Medium",
+   "rgb": "#8e9078"
+  },
+  {
+   "code": "488",
+   "name": "= DMC 3787 Brown Gray Dark",
+   "rgb": "#625d50"
+  },
+  {
+   "code": "489",
+   "name": "= DMC 3024 Brown Gray Very Light",
+   "rgb": "#ebeae7"
+  },
+  {
+   "code": "490",
+   "name": "≈ DMC 647 Beaver Gray Medium",
+   "rgb": "#b0a69c"
+  },
+  {
+   "code": "491",
+   "name": "= DMC 3022 Brown Gray Medium",
+   "rgb": "#8e9078"
+  },
+  {
+   "code": "492",
+   "name": "= DMC 3787 Brown Gray Dark",
+   "rgb": "#625d50"
+  },
+  {
+   "code": "493",
+   "name": "= DMC 3024 Brown Gray Very Light",
+   "rgb": "#ebeae7"
+  },
+  {
+   "code": "494",
+   "name": "= DMC 3023 Brown Gray Light",
+   "rgb": "#b1aa97"
+  },
+  {
+   "code": "495",
+   "name": "≈ DMC 646 Beaver Gray Dark",
+   "rgb": "#877d73"
+  },
+  {
+   "code": "496",
+   "name": "≈ DMC 648 Beaver Gray Light",
+   "rgb": "#bcb4ac"
+  },
+  {
+   "code": "497",
+   "name": "≈ DMC 645 Beaver Gray Very Dark",
+   "rgb": "#6e655c"
+  },
+  {
+   "code": "498",
+   "name": "≈ DMC 844 Beaver Gray Ultra Dark",
+   "rgb": "#484848"
+  },
+  {
+   "code": "499",
+   "name": "≈ DMC 168 Pewter Very Light",
+   "rgb": "#d1d1d1"
+  },
+  {
+   "code": "500",
+   "name": "≈ DMC 169 Pewter Light",
+   "rgb": "#848484"
+  },
+  {
+   "code": "501",
+   "name": "≈ DMC 413 Pewter Gray Dark",
+   "rgb": "#565656"
+  },
+  {
+   "code": "502",
+   "name": "= DMC 3799 Pewter Gray Very Dark",
+   "rgb": "#424242"
+  },
+  {
+   "code": "503",
+   "name": "≈ DMC 762 Pearl Gray Very Light",
+   "rgb": "#ececec"
+  },
+  {
+   "code": "504",
+   "name": "≈ DMC 415 Pearl Gray",
+   "rgb": "#d3d3d6"
+  },
+  {
+   "code": "505",
+   "name": "≈ DMC 318 Steel Gray Light",
+   "rgb": "#ababab"
+  },
+  {
+   "code": "506",
+   "name": "≈ DMC 414 Steel Gray Dark",
+   "rgb": "#8c8c8c"
+  },
+  {
+   "code": "507",
+   "name": "≈ DMC 317 Pewter Gray",
+   "rgb": "#6c6c6c"
+  },
+  {
+   "code": "508",
+   "name": "≈ DMC 413 Pewter Gray Dark",
+   "rgb": "#565656"
+  },
+  {
+   "code": "509",
+   "name": "= DMC 3799 Pewter Gray Very Dark",
+   "rgb": "#424242"
+  }
+ ]
+}
