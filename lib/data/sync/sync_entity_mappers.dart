@@ -10,6 +10,7 @@ List<SyncEntityMapper> buildSyncMappers(SyncDbContext ctx) => <SyncEntityMapper>
   BeadStockMapper(ctx),
   SettingMapper(ctx),
   ImagePatternMapper(ctx),
+  ImageRecipeMapper(ctx),
   GridPatternMapper(ctx),
   WorkSessionMapper(ctx),
   ImagePatternPageMapper(ctx),
@@ -302,6 +303,52 @@ class ImagePatternMapper extends SyncEntityMapper {
       await ctx.run(
         'UPDATE image_patterns SET updated_at=?, deleted_at=NULL, device_id=? WHERE project_id=?',
         <Object?>[r.updatedAt, r.deviceId, r.syncId],
+      );
+    }
+  }
+}
+
+/// Рецепт мастера (T96): ключ — `id` проекта. Фото едет через Storage (поле `file`) по пути из `path`.
+class ImageRecipeMapper extends SyncEntityMapper {
+  ImageRecipeMapper(super.ctx);
+
+  @override
+  String get entity => 'image_recipe';
+
+  @override
+  int get rank => 1;
+
+  @override
+  String? parentKey(SyncRecord record) => 'project/${record.syncId}';
+
+  @override
+  Future<List<String>> allSyncIds() async => <String>[
+    for (final Row r in await ctx.query('SELECT id FROM image_recipes')) r['id']! as String,
+  ];
+
+  @override
+  Future<SyncRecord?> read(String syncId) async {
+    final Row? r = await ctx.first('SELECT * FROM image_recipes WHERE id = ?', <Object?>[syncId]);
+    return r == null ? null : build(syncId, r, <String, Object?>{'params': r['params'], 'path': r['path']});
+  }
+
+  @override
+  Future<void> apply(SyncRecord r) async {
+    if (r.isDeleted) {
+      await tombstone('image_recipes', 'id = ?', <Object?>[r.syncId], r);
+      return;
+    }
+    final Map<String, Object?> d = r.data;
+    final Row? existing = await ctx.first('SELECT 1 AS x FROM image_recipes WHERE id = ?', <Object?>[r.syncId]);
+    if (existing == null) {
+      await ctx.run(
+        'INSERT INTO image_recipes (id, params, path, $_common) VALUES (?,?,?,?,?,NULL,?)',
+        <Object?>[r.syncId, d['params'], d['path'], createdAt(r), r.updatedAt, r.deviceId],
+      );
+    } else {
+      await ctx.run(
+        'UPDATE image_recipes SET params=?, path=?, updated_at=?, deleted_at=NULL, device_id=? WHERE id=?',
+        <Object?>[d['params'], d['path'], r.updatedAt, r.deviceId, r.syncId],
       );
     }
   }
