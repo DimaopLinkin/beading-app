@@ -3487,23 +3487,53 @@ abstract class AppLocalizations {
   /// **'Название'**
   String get imageWizardName;
 
-  /// Главная кнопка мастера
+  /// Кнопка «Сохранить» в панели навигации мастера
   ///
   /// In ru, this message translates to:
-  /// **'Сохранить схему'**
+  /// **'Сохранить'**
   String get imageWizardSave;
+
+  /// Группа параметров мастера: ремесло, техника, канва или бисер
+  ///
+  /// In ru, this message translates to:
+  /// **'Основа'**
+  String get imageWizardToolBase;
+
+  /// Группа параметров мастера: ширина, высота, обрезка
+  ///
+  /// In ru, this message translates to:
+  /// **'Размер'**
+  String get imageWizardToolSize;
+
+  /// Группа параметров мастера: число цветов и палитра
+  ///
+  /// In ru, this message translates to:
+  /// **'Цвета'**
+  String get imageWizardToolColors;
+
+  /// Группа параметров мастера: детальность, фон, выделение главного
+  ///
+  /// In ru, this message translates to:
+  /// **'Детали'**
+  String get imageWizardToolDetails;
+
+  /// Группа параметров мастера для вышивки: контур, смешанные стежки, смеси
+  ///
+  /// In ru, this message translates to:
+  /// **'Стежки'**
+  String get imageWizardToolStitches;
+
+  /// Группа мастера: закупка и печать
+  ///
+  /// In ru, this message translates to:
+  /// **'Итог'**
+  String get imageWizardToolTotal;
 
   /// Заголовок мастера, когда в нём правят уже сохранённую схему
   ///
   /// In ru, this message translates to:
   /// **'Изменить схему'**
   String get imageWizardEditTitle;
-
-  /// Главная кнопка мастера при правке сохранённой схемы
-  ///
-  /// In ru, this message translates to:
-  /// **'Сохранить изменения'**
-  String get imageWizardSaveChanges;
 
   /// Подсказка на первом шаге правки схемы, созданной без сохранённого фото
   ///

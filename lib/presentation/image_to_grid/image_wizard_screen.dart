@@ -7,6 +7,7 @@ import 'package:beading/domain/grid/bead_size.dart';
 import 'package:beading/domain/grid/fabric.dart';
 import 'package:beading/domain/grid/grid.dart';
 import 'package:beading/domain/grid/mm.dart';
+import 'package:beading/domain/image_pattern/crop_rect.dart';
 import 'package:beading/domain/image_pattern/pdf_rasterizer.dart';
 import 'package:beading/domain/image_to_grid/background_stage.dart';
 import 'package:beading/domain/image_to_grid/face_size_advisor.dart';
@@ -29,17 +30,19 @@ import 'package:beading/presentation/image_to_grid/full_preview_screen.dart';
 import 'package:beading/presentation/image_to_grid/image_wizard_cubit.dart';
 import 'package:beading/presentation/image_to_grid/image_wizard_state.dart';
 import 'package:beading/presentation/image_to_grid/importance_brush_mode.dart';
+import 'package:beading/presentation/image_to_grid/wizard_tools.dart';
 import 'package:beading/presentation/l10n/app_localizations.dart';
 import 'package:beading/presentation/library/project_labels.dart';
 import 'package:beading/presentation/printing/print_flow.dart';
 import 'package:beading/presentation/theme/app_icons.dart';
 import 'package:beading/presentation/theme/tokens.dart';
 import 'package:beading/presentation/widgets/app_list_section.dart';
+import 'package:beading/presentation/widgets/glass/glass_panel.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 /// Мастер «Схема из картинки». Закрывается с id созданного проекта.
-class ImageWizardScreen extends StatelessWidget {
+class ImageWizardScreen extends StatefulWidget {
   const ImageWizardScreen({this.cameraAvailable, this.fileSharer, this.rasterizer, super.key});
 
   /// Адрес экрана в роутере.
@@ -53,8 +56,24 @@ class ImageWizardScreen extends StatelessWidget {
   final PdfRasterizer? rasterizer;
 
   @override
+  State<ImageWizardScreen> createState() => _ImageWizardScreenState();
+}
+
+/// Что помнит правка между режимами: выбранная группа и параметры, с которых начали. Режим кисти заменяет панель,
+/// но после «Готово» пользователь возвращается к той же группе.
+class _EditSession {
+  WizardTool tool = WizardTool.base;
+  ImageToGridSettings? baseline;
+  CropRect? baselineCrop;
+}
+
+class _ImageWizardScreenState extends State<ImageWizardScreen> {
+  final _EditSession _session = _EditSession();
+
+  @override
   Widget build(BuildContext context) {
     final AppLocalizations l10n = AppLocalizations.of(context);
+    final ImageWizardScreen widget = this.widget;
     return BlocConsumer<ImageWizardCubit, ImageWizardState>(
       listenWhen: (previous, current) => current.step == ImageWizardStep.done && previous.step != ImageWizardStep.done,
       listener: (context, state) => Navigator.of(context).maybePop(state.projectId),
@@ -86,12 +105,22 @@ class ImageWizardScreen extends StatelessWidget {
                   onPressed: state.step == ImageWizardStep.saving ? null : () => Navigator.of(context).maybePop(),
                   child: Text(l10n.imageWizardCancel),
                 ),
+                trailing: state.step == ImageWizardStep.edit || state.step == ImageWizardStep.saving
+                    ? CupertinoButton(
+                        key: const ValueKey<String>('wizard-save'),
+                        padding: EdgeInsets.zero,
+                        onPressed: state.canSave
+                            ? () => unawaited(_save(context, context.read<ImageWizardCubit>(), state))
+                            : null,
+                        child: Text(l10n.imageWizardSave, style: const TextStyle(fontWeight: FontWeight.w600)),
+                      )
+                    : null,
               ),
         child: SafeArea(
           child: switch (state.step) {
             ImageWizardStep.pickSource || ImageWizardStep.done => Stack(
               children: <Widget>[
-                _PickSource(state: state, cameraAvailable: cameraAvailable ?? Platform.isIOS),
+                _PickSource(state: state, cameraAvailable: widget.cameraAvailable ?? Platform.isIOS),
                 if (state.opening) _Busy(text: l10n.imageWizardOpening),
               ],
             ),
@@ -100,7 +129,7 @@ class ImageWizardScreen extends StatelessWidget {
                 if (state.brushing)
                   ImportanceBrushMode(state: state)
                 else
-                  _Edit(state: state, fileSharer: fileSharer, rasterizer: rasterizer),
+                  _Edit(state: state, session: _session, fileSharer: widget.fileSharer, rasterizer: widget.rasterizer),
                 if (state.step == ImageWizardStep.saving) _Busy(text: l10n.imageWizardSaving),
               ],
             ),
@@ -365,9 +394,10 @@ class _PickSource extends StatelessWidget {
 }
 
 class _Edit extends StatefulWidget {
-  const _Edit({required this.state, this.fileSharer, this.rasterizer});
+  const _Edit({required this.state, required this.session, this.fileSharer, this.rasterizer});
 
   final ImageWizardState state;
+  final _EditSession session;
   final FileSharer? fileSharer;
   final PdfRasterizer? rasterizer;
 
@@ -376,16 +406,433 @@ class _Edit extends StatefulWidget {
 }
 
 class _EditState extends State<_Edit> {
-  late final TextEditingController _name = TextEditingController(text: widget.state.name);
+  // Параметры, с которыми мастер открылся: от них считается точка «изменено» в полосе инструментов.
+  ImageToGridSettings get _baseline => widget.session.baseline ??= widget.state.settings;
+  CropRect get _baselineCrop => widget.session.baselineCrop ??= widget.state.crop;
+
+  /// Подсказка про удержание показывается только при первом открытии мастера за запуск.
+  static bool _hintSeen = false;
 
   @override
-  void dispose() {
-    _name.dispose();
-    super.dispose();
+  void didUpdateWidget(covariant _Edit oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.state.comparing) {
+      _hintSeen = true;
+    }
   }
+
+  List<Widget> _body(BuildContext context, WizardTool tool) => switch (tool) {
+    WizardTool.base => _baseTool(context),
+    WizardTool.size => _sizeTool(context),
+    WizardTool.colors => _colorsTool(context),
+    WizardTool.details => _detailsTool(context),
+    WizardTool.stitches => _stitchesTool(context),
+    WizardTool.total => _totalTool(context),
+  };
 
   @override
   Widget build(BuildContext context) {
+    final ImageWizardState state = widget.state;
+    final AppTokensData tokens = context.tokens;
+    final double gap = tokens.spacing.m;
+    final List<WizardTool> tools = WizardTool.of(state.settings.craft);
+    final WizardTool tool = tools.contains(widget.session.tool) ? widget.session.tool : WizardTool.base;
+    final Set<WizardTool> changed = <WizardTool>{
+      for (final WizardTool t in tools)
+        if (t.changed(
+          from: _baseline,
+          to: state.settings,
+          fromCrop: _baselineCrop,
+          toCrop: state.crop,
+          brushChanged: !state.brush.isEmpty,
+        ))
+          t,
+    };
+    final Widget preview = Padding(
+      padding: EdgeInsets.fromLTRB(gap, 0, gap, gap / 2),
+      child: _Preview(state: state, showHint: !_hintSeen),
+    );
+    final Widget panel = GlassPanel(
+      key: const ValueKey<String>('wizard-panel'),
+      padding: EdgeInsets.zero,
+      child: Column(
+        children: <Widget>[
+          Padding(
+            padding: EdgeInsets.only(top: tokens.spacing.xs),
+            child: WizardToolStrip(
+              tools: tools,
+              selected: tool,
+              changed: changed,
+              onSelected: (value) => setState(() => widget.session.tool = value),
+            ),
+          ),
+          Expanded(
+            child: ListView(
+              key: ValueKey<String>('wizard-panel-${tool.name}'),
+              padding: EdgeInsets.fromLTRB(tokens.spacing.l, tokens.spacing.s, tokens.spacing.l, tokens.spacing.l),
+              children: _body(context, tool),
+            ),
+          ),
+        ],
+      ),
+    );
+    final Widget? problem = state.problem == null
+        ? null
+        : Padding(
+            padding: EdgeInsets.fromLTRB(gap, 0, gap, gap / 2),
+            child: _Problem(state.problem),
+          );
+
+    return LayoutBuilder(
+      builder: (context, box) {
+        // Широкое окно Mac: результат слева, инспектор справа; на iPhone панель снизу (макет 18).
+        if (box.maxWidth >= 700) {
+          return Row(
+            children: <Widget>[
+              Expanded(
+                child: Column(
+                  children: <Widget>[
+                    Expanded(child: preview),
+                    ?problem,
+                  ],
+                ),
+              ),
+              SizedBox(
+                width: 420,
+                child: Padding(padding: EdgeInsets.fromLTRB(0, 0, gap, gap), child: panel),
+              ),
+            ],
+          );
+        }
+        final double panelHeight = (box.maxHeight * 0.42).clamp(240, 440);
+        return Column(
+          children: <Widget>[
+            Expanded(child: preview),
+            ?problem,
+            SizedBox(
+              height: panelHeight,
+              child: Padding(
+                padding: EdgeInsets.fromLTRB(gap / 2, 0, gap / 2, gap / 2),
+                child: panel,
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  List<Widget> _baseTool(BuildContext context) {
+    final AppLocalizations l10n = AppLocalizations.of(context);
+    final ImageWizardCubit cubit = context.read<ImageWizardCubit>();
+    final ImageWizardState state = widget.state;
+    final ImageToGridSettings settings = state.settings;
+    final AppTokensData tokens = context.tokens;
+    final double gap = tokens.spacing.m;
+    return <Widget>[
+      Wrap(
+        alignment: WrapAlignment.center,
+        spacing: gap,
+        children: <Widget>[
+          _IconAction(icon: CupertinoIcons.rotate_right, label: l10n.imageWizardRotate, onPressed: cubit.rotate),
+        ],
+      ),
+      SizedBox(height: gap),
+      if (!state.editing)
+        _Section(
+          title: l10n.imageWizardCraft,
+          child: CupertinoSlidingSegmentedControl<Craft>(
+            key: const ValueKey<String>('wizard-craft'),
+            groupValue: settings.craft,
+            children: <Craft, Widget>{
+              Craft.beading: _SegmentLabel(l10n.imageWizardCraftBeading),
+              Craft.crossStitch: _SegmentLabel(l10n.imageWizardCraftStitch),
+            },
+            onValueChanged: (value) {
+              if (value != null) {
+                cubit.setCraft(value);
+              }
+            },
+          ),
+        ),
+      AppListSection(
+        margin: EdgeInsets.zero,
+        children: <Widget>[
+          CupertinoListTile.notched(
+            key: const ValueKey<String>('wizard-technique'),
+            title: Text(l10n.imageWizardTechnique),
+            additionalInfo: Text(settings.technique.label(l10n)),
+            trailing: state.editing ? null : const CupertinoListTileChevron(),
+            onTap: state.editing
+                ? null
+                : () async {
+                    final Technique? chosen = await _pick<Technique>(
+                      context,
+                      title: l10n.imageWizardTechnique,
+                      values: ImageToGridSettings.techniquesOf(settings.craft),
+                      label: (t) => t.label(l10n),
+                      cancel: l10n.imageWizardCancel,
+                    );
+                    if (chosen != null) {
+                      cubit.setTechnique(chosen);
+                    }
+                  },
+          ),
+          if (settings.craft == Craft.crossStitch) ...<Widget>[
+            CupertinoListTile.notched(
+              key: const ValueKey<String>('wizard-fabric'),
+              title: Text(l10n.imageWizardFabric),
+              additionalInfo: Text(_fabricLabel(l10n, settings.fabric)),
+              trailing: const CupertinoListTileChevron(),
+              onTap: () async {
+                final Fabric? chosen = await _pick<Fabric>(
+                  context,
+                  title: l10n.imageWizardFabric,
+                  values: _fabricChoices(settings.fabric),
+                  label: (fabric) => _fabricLabel(l10n, fabric),
+                  cancel: l10n.imageWizardCancel,
+                );
+                if (chosen != null) {
+                  cubit.setFabric(chosen);
+                }
+              },
+            ),
+            CupertinoListTile.notched(
+              key: const ValueKey<String>('wizard-floss-brand'),
+              title: Text(l10n.imageWizardFlossBrand),
+              additionalInfo: Text(state.flossBrand),
+              trailing: const CupertinoListTileChevron(),
+              onTap: () async {
+                final String? chosen = await _pick<String>(
+                  context,
+                  title: l10n.imageWizardFlossBrand,
+                  values: flossBrandChoices,
+                  label: (brand) => brand,
+                  cancel: l10n.imageWizardCancel,
+                );
+                if (chosen != null) {
+                  unawaited(cubit.setFlossBrand(chosen));
+                }
+              },
+            ),
+            CupertinoListTile.notched(
+              key: const ValueKey<String>('wizard-fabric-color'),
+              title: Text(l10n.imageWizardFabricColor),
+              leading: _Swatch(settings.fabric.color),
+              additionalInfo: Text(_canvasName(l10n, settings.fabric.color)),
+              trailing: const CupertinoListTileChevron(),
+              onTap: () async {
+                final Rgb? chosen = await _pick<Rgb>(
+                  context,
+                  title: l10n.imageWizardFabricColor,
+                  values: _canvasColors,
+                  label: (color) => _canvasName(l10n, color),
+                  cancel: l10n.imageWizardCancel,
+                );
+                if (chosen != null) {
+                  cubit.setFabricColor(chosen);
+                }
+              },
+            ),
+          ] else
+            CupertinoListTile.notched(
+              key: const ValueKey<String>('wizard-bead-size'),
+              title: Text(l10n.imageWizardBeadSize),
+              additionalInfo: Text(_beadLabel(l10n, settings.beadSize)),
+              trailing: const CupertinoListTileChevron(),
+              onTap: () async {
+                final BeadSize? chosen = await _pick<BeadSize>(
+                  context,
+                  title: l10n.imageWizardBeadSize,
+                  values: BeadSize.values,
+                  label: (size) => _beadLabel(l10n, size),
+                  cancel: l10n.imageWizardCancel,
+                );
+                if (chosen != null) {
+                  cubit.setBeadSize(chosen);
+                }
+              },
+            ),
+        ],
+      ),
+    ];
+  }
+
+  List<Widget> _sizeTool(BuildContext context) {
+    final AppLocalizations l10n = AppLocalizations.of(context);
+    final ImageWizardCubit cubit = context.read<ImageWizardCubit>();
+    final ImageWizardState state = widget.state;
+    final ImageToGridSettings settings = state.settings;
+    final AppTokensData tokens = context.tokens;
+    final double gap = tokens.spacing.m;
+    return <Widget>[
+      if (settings.craft == Craft.crossStitch)
+        _WidthCmRow(settings: settings, onChanged: cubit.setWidthCm)
+      else
+        _SliderRow(
+          title: l10n.imageWizardWidth,
+          value: settings.columns,
+          min: ImageToGridSettings.minColumns,
+          max: ImageToGridSettings.maxColumns,
+          onChanged: cubit.setColumns,
+        ),
+      _HeightSection(state: state, cubit: cubit),
+      _SizeAssist(state: state, cubit: cubit),
+      if (state.faceAdvice case final FaceSizeAdvice advice) ...<Widget>[
+        SizedBox(height: gap),
+        _FaceWarning(
+          advice: advice,
+          onCrop: advice.cropRect == null ? null : cubit.cropToFace,
+          onWiden: advice.neededColumns == null ? null : cubit.widenForFace,
+        ),
+      ],
+    ];
+  }
+
+  List<Widget> _colorsTool(BuildContext context) {
+    final AppLocalizations l10n = AppLocalizations.of(context);
+    final ImageWizardCubit cubit = context.read<ImageWizardCubit>();
+    final ImageWizardState state = widget.state;
+    final ImageToGridSettings settings = state.settings;
+    final AppTokensData tokens = context.tokens;
+    final TextStyle caption = TextStyle(fontSize: 13, color: CupertinoColors.secondaryLabel.resolveFrom(context));
+    return <Widget>[
+      _SliderRow(
+        title: l10n.imageWizardColorCount,
+        value: settings.maxColors,
+        min: ImageToGridSettings.minColors,
+        max: ImageToGridSettings.maxColorsLimit,
+        onChanged: cubit.setMaxColors,
+      ),
+      if (settings.craft == Craft.crossStitch &&
+          settings.paletteSource == PaletteSource.catalog &&
+          !state.catalogMissing)
+        _ShadowsRow(
+          manual: settings.shadows,
+          autoPercent: state.preview?.stats?.shadowPercent,
+          onChanged: cubit.setShadows,
+        ),
+      _Section(
+        title: settings.craft == Craft.crossStitch ? l10n.imageWizardFlossPalette : l10n.imageWizardPalette,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: <Widget>[
+            CupertinoSlidingSegmentedControl<PaletteSource>(
+              groupValue: settings.paletteSource,
+              children: <PaletteSource, Widget>{
+                PaletteSource.catalog: _SegmentLabel(l10n.imageWizardPaletteCatalog),
+                PaletteSource.free: _SegmentLabel(l10n.imageWizardPaletteFree),
+              },
+              onValueChanged: (value) {
+                if (value != null) {
+                  cubit.setPaletteSource(value);
+                }
+              },
+            ),
+            if (settings.paletteSource == PaletteSource.catalog)
+              _SwitchRow(
+                switchKey: const ValueKey<String>('wizard-stash'),
+                title: l10n.imageWizardStash,
+                hint: l10n.imageWizardStashHint,
+                value: settings.onlyStash,
+                onChanged: (value) => cubit.setOnlyStash(value: value),
+              ),
+            if (settings.paletteSource == PaletteSource.catalog &&
+                settings.craft == Craft.crossStitch &&
+                !settings.onlyStash &&
+                state.flossBrand.isNotEmpty)
+              _SwitchRow(
+                switchKey: const ValueKey<String>('wizard-other-brands'),
+                title: l10n.imageWizardOtherBrands,
+                hint: l10n.imageWizardOtherBrandsHint(state.flossBrand),
+                value: settings.otherBrands,
+                onChanged: (value) => cubit.setOtherBrands(value: value),
+              ),
+            if (settings.paletteSource == PaletteSource.catalog &&
+                settings.craft == Craft.crossStitch &&
+                !settings.onlyStash &&
+                state.flossBrand.isNotEmpty &&
+                settings.otherBrands) ...<Widget>[
+              _BrandCheckRow(
+                rowKey: const ValueKey<String>('wizard-other-brand-auto'),
+                title: l10n.imageWizardOtherBrandsAuto,
+                selected: settings.otherBrandsOnly.isEmpty,
+                onTap: cubit.setOtherBrandsAuto,
+              ),
+              for (final String brand in flossBrandChoices.where((b) => b != state.flossBrand))
+                _BrandCheckRow(
+                  rowKey: ValueKey<String>('wizard-other-brand-$brand'),
+                  title: brand,
+                  selected: settings.otherBrandsOnly.contains(brand),
+                  onTap: () => cubit.toggleOtherBrand(brand),
+                ),
+            ],
+            if (settings.paletteSource == PaletteSource.catalog && settings.craft == Craft.beading) ...<Widget>[
+              SizedBox(height: tokens.spacing.s),
+              Text(l10n.imageWizardBeadSeries, style: caption),
+              SizedBox(height: tokens.spacing.xs),
+              CupertinoSlidingSegmentedControl<BeadSeries>(
+                key: const ValueKey<String>('wizard-bead-series'),
+                groupValue: cubit.beadSeries,
+                children: <BeadSeries, Widget>{
+                  BeadSeries.delica: _SegmentLabel(l10n.imageWizardSeriesDelica),
+                  BeadSeries.round: _SegmentLabel(l10n.imageWizardSeriesRound),
+                },
+                onValueChanged: (value) {
+                  if (value != null) {
+                    cubit.setBeadSeries(value);
+                  }
+                },
+              ),
+              for (final BeadFinishGroup group in BeadFinishGroup.values)
+                MergeSemantics(
+                  child: Row(
+                    children: <Widget>[
+                      Expanded(child: Text(_finishTitle(l10n, group))),
+                      CupertinoSwitch(
+                        key: ValueKey<String>('wizard-finish-${group.name}'),
+                        value: settings.finishGroups.contains(group),
+                        onChanged: (value) => cubit.setFinishGroup(group, value: value),
+                      ),
+                    ],
+                  ),
+                ),
+            ],
+            if (state.stashEmpty)
+              Padding(
+                padding: EdgeInsets.only(top: tokens.spacing.s),
+                child: Text(
+                  l10n.imageWizardStashEmpty,
+                  key: const ValueKey<String>('wizard-stash-empty'),
+                  style: caption,
+                ),
+              )
+            else if (state.catalogMissing)
+              Padding(
+                padding: EdgeInsets.only(top: tokens.spacing.s),
+                child: Text(
+                  settings.craft == Craft.crossStitch ? l10n.imageWizardFlossMissing : l10n.imageWizardCatalogMissing,
+                  style: caption,
+                ),
+              )
+            else if (state.catalogShort)
+              Padding(
+                padding: EdgeInsets.only(top: tokens.spacing.s),
+                child: Text(
+                  settings.onlyStash
+                      ? l10n.imageWizardStashFew(state.catalogColors, settings.maxColors)
+                      : l10n.imageWizardCatalogFew(state.catalogColors, settings.maxColors),
+                  key: const ValueKey<String>('wizard-catalog-few'),
+                  style: caption,
+                ),
+              ),
+          ],
+        ),
+      ),
+    ];
+  }
+
+  List<Widget> _detailsTool(BuildContext context) {
     final AppLocalizations l10n = AppLocalizations.of(context);
     final ImageWizardCubit cubit = context.read<ImageWizardCubit>();
     final ImageWizardState state = widget.state;
@@ -393,517 +840,214 @@ class _EditState extends State<_Edit> {
     final AppTokensData tokens = context.tokens;
     final double gap = tokens.spacing.m;
     final TextStyle caption = TextStyle(fontSize: 13, color: CupertinoColors.secondaryLabel.resolveFrom(context));
-    final double previewHeight = (MediaQuery.sizeOf(context).height * 0.38).clamp(180, 380);
-
-    return Column(
-      children: <Widget>[
-        Expanded(
-          child: ListView(
-            padding: EdgeInsets.all(tokens.spacing.l),
-            children: <Widget>[
-              _Preview(state: state, height: previewHeight),
-              SizedBox(height: gap),
-              Text(l10n.imageWizardCompareHint, textAlign: TextAlign.center, style: caption),
-              SizedBox(height: gap),
-              Wrap(
-                alignment: WrapAlignment.center,
-                spacing: gap,
-                children: <Widget>[
-                  _IconAction(
-                    icon: CupertinoIcons.rotate_right,
-                    label: l10n.imageWizardRotate,
-                    onPressed: cubit.rotate,
-                  ),
-                ],
-              ),
-              if (!state.brush.isEmpty) ...<Widget>[
-                SizedBox(height: tokens.spacing.xs),
-                Text(
-                  key: const ValueKey<String>('wizard-brush-crop-hint'),
-                  l10n.imageWizardBrushCropHint,
-                  textAlign: TextAlign.center,
-                  style: caption,
-                ),
-              ],
-              SizedBox(height: gap),
-              if (!state.editing)
-                _Section(
-                  title: l10n.imageWizardCraft,
-                  child: CupertinoSlidingSegmentedControl<Craft>(
-                    key: const ValueKey<String>('wizard-craft'),
-                    groupValue: settings.craft,
-                    children: <Craft, Widget>{
-                      Craft.beading: _SegmentLabel(l10n.imageWizardCraftBeading),
-                      Craft.crossStitch: _SegmentLabel(l10n.imageWizardCraftStitch),
-                    },
-                    onValueChanged: (value) {
-                      if (value != null) {
-                        cubit.setCraft(value);
-                      }
-                    },
-                  ),
-                ),
-              AppListSection(
-                margin: EdgeInsets.zero,
-                children: <Widget>[
-                  CupertinoListTile.notched(
-                    key: const ValueKey<String>('wizard-technique'),
-                    title: Text(l10n.imageWizardTechnique),
-                    additionalInfo: Text(settings.technique.label(l10n)),
-                    trailing: state.editing ? null : const CupertinoListTileChevron(),
-                    onTap: state.editing
-                        ? null
-                        : () async {
-                            final Technique? chosen = await _pick<Technique>(
-                              context,
-                              title: l10n.imageWizardTechnique,
-                              values: ImageToGridSettings.techniquesOf(settings.craft),
-                              label: (t) => t.label(l10n),
-                              cancel: l10n.imageWizardCancel,
-                            );
-                            if (chosen != null) {
-                              cubit.setTechnique(chosen);
-                            }
-                          },
-                  ),
-                  if (settings.craft == Craft.crossStitch) ...<Widget>[
-                    CupertinoListTile.notched(
-                      key: const ValueKey<String>('wizard-fabric'),
-                      title: Text(l10n.imageWizardFabric),
-                      additionalInfo: Text(_fabricLabel(l10n, settings.fabric)),
-                      trailing: const CupertinoListTileChevron(),
-                      onTap: () async {
-                        final Fabric? chosen = await _pick<Fabric>(
-                          context,
-                          title: l10n.imageWizardFabric,
-                          values: _fabricChoices(settings.fabric),
-                          label: (fabric) => _fabricLabel(l10n, fabric),
-                          cancel: l10n.imageWizardCancel,
-                        );
-                        if (chosen != null) {
-                          cubit.setFabric(chosen);
-                        }
-                      },
-                    ),
-                    CupertinoListTile.notched(
-                      key: const ValueKey<String>('wizard-floss-brand'),
-                      title: Text(l10n.imageWizardFlossBrand),
-                      additionalInfo: Text(state.flossBrand),
-                      trailing: const CupertinoListTileChevron(),
-                      onTap: () async {
-                        final String? chosen = await _pick<String>(
-                          context,
-                          title: l10n.imageWizardFlossBrand,
-                          values: flossBrandChoices,
-                          label: (brand) => brand,
-                          cancel: l10n.imageWizardCancel,
-                        );
-                        if (chosen != null) {
-                          unawaited(cubit.setFlossBrand(chosen));
-                        }
-                      },
-                    ),
-                    CupertinoListTile.notched(
-                      key: const ValueKey<String>('wizard-fabric-color'),
-                      title: Text(l10n.imageWizardFabricColor),
-                      leading: _Swatch(settings.fabric.color),
-                      additionalInfo: Text(_canvasName(l10n, settings.fabric.color)),
-                      trailing: const CupertinoListTileChevron(),
-                      onTap: () async {
-                        final Rgb? chosen = await _pick<Rgb>(
-                          context,
-                          title: l10n.imageWizardFabricColor,
-                          values: _canvasColors,
-                          label: (color) => _canvasName(l10n, color),
-                          cancel: l10n.imageWizardCancel,
-                        );
-                        if (chosen != null) {
-                          cubit.setFabricColor(chosen);
-                        }
-                      },
-                    ),
-                  ] else
-                    CupertinoListTile.notched(
-                      key: const ValueKey<String>('wizard-bead-size'),
-                      title: Text(l10n.imageWizardBeadSize),
-                      additionalInfo: Text(_beadLabel(l10n, settings.beadSize)),
-                      trailing: const CupertinoListTileChevron(),
-                      onTap: () async {
-                        final BeadSize? chosen = await _pick<BeadSize>(
-                          context,
-                          title: l10n.imageWizardBeadSize,
-                          values: BeadSize.values,
-                          label: (size) => _beadLabel(l10n, size),
-                          cancel: l10n.imageWizardCancel,
-                        );
-                        if (chosen != null) {
-                          cubit.setBeadSize(chosen);
-                        }
-                      },
-                    ),
-                ],
-              ),
-              SizedBox(height: gap),
-              if (settings.craft == Craft.crossStitch)
-                _WidthCmRow(settings: settings, onChanged: cubit.setWidthCm)
-              else
-                _SliderRow(
-                  title: l10n.imageWizardWidth,
-                  value: settings.columns,
-                  min: ImageToGridSettings.minColumns,
-                  max: ImageToGridSettings.maxColumns,
-                  onChanged: cubit.setColumns,
-                ),
-              _HeightSection(state: state, cubit: cubit),
-              _SizeAssist(state: state, cubit: cubit),
-              _SliderRow(
-                title: l10n.imageWizardColorCount,
-                value: settings.maxColors,
-                min: ImageToGridSettings.minColors,
-                max: ImageToGridSettings.maxColorsLimit,
-                onChanged: cubit.setMaxColors,
-              ),
-              _Section(
-                title: l10n.imageWizardPreset,
-                child: CupertinoSlidingSegmentedControl<_PresetChoice>(
-                  key: const ValueKey<String>('wizard-preset'),
-                  groupValue: switch (settings.preset) {
-                    null => _PresetChoice.asIs,
-                    GenerationPreset.simpler => _PresetChoice.simpler,
-                    GenerationPreset.balanced => _PresetChoice.balanced,
-                    GenerationPreset.detailed => _PresetChoice.detailed,
-                  },
-                  children: <_PresetChoice, Widget>{
-                    _PresetChoice.simpler: _SegmentLabel(l10n.imageWizardPresetSimpler),
-                    _PresetChoice.balanced: _SegmentLabel(l10n.imageWizardPresetBalanced),
-                    _PresetChoice.detailed: _SegmentLabel(l10n.imageWizardPresetDetailed),
-                    _PresetChoice.asIs: _SegmentLabel(l10n.imageWizardPresetAsIs),
-                  },
-                  onValueChanged: (value) {
-                    if (value != null) {
-                      cubit.setPreset(switch (value) {
-                        _PresetChoice.asIs => null,
-                        _PresetChoice.simpler => GenerationPreset.simpler,
-                        _PresetChoice.balanced => GenerationPreset.balanced,
-                        _PresetChoice.detailed => GenerationPreset.detailed,
-                      });
-                    }
-                  },
-                ),
-              ),
-              if (state.hasSubject) ...<Widget>[
-                _Section(
-                  title: l10n.imageWizardBackground,
-                  child: CupertinoSlidingSegmentedControl<BackgroundMode>(
-                    key: const ValueKey<String>('wizard-background'),
-                    groupValue: settings.background,
-                    children: <BackgroundMode, Widget>{
-                      BackgroundMode.keep: _SegmentLabel(l10n.imageWizardBackgroundKeep),
-                      BackgroundMode.simplify: _SegmentLabel(l10n.imageWizardBackgroundSimplify),
-                      BackgroundMode.remove: _SegmentLabel(l10n.imageWizardBackgroundRemove),
-                    },
-                    onValueChanged: (value) {
-                      if (value != null) {
-                        cubit.setBackground(value);
-                      }
-                    },
-                  ),
-                ),
-                if (settings.craft == Craft.beading)
-                  MergeSemantics(
-                    child: Row(
-                      children: <Widget>[
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: <Widget>[
-                              Text(l10n.imageWizardOutline),
-                              Text(l10n.imageWizardOutlineHint, style: caption),
-                            ],
-                          ),
-                        ),
-                        CupertinoSwitch(
-                          key: const ValueKey<String>('wizard-outline'),
-                          value: settings.outline,
-                          onChanged: (value) => cubit.setOutline(value: value),
-                        ),
-                      ],
-                    ),
-                  ),
-                SizedBox(height: gap),
-              ],
-              if (settings.craft == Craft.crossStitch &&
-                  settings.paletteSource == PaletteSource.catalog &&
-                  !state.catalogMissing)
-                _ShadowsRow(
-                  manual: settings.shadows,
-                  autoPercent: state.preview?.stats?.shadowPercent,
-                  onChanged: cubit.setShadows,
-                ),
-              if (settings.craft == Craft.crossStitch) ...<Widget>[
-                _SwitchRow(
-                  switchKey: const ValueKey<String>('wizard-backstitch'),
-                  title: l10n.imageWizardBackstitch,
-                  hint: state.preview == null || !settings.backstitch || state.calculating
-                      ? l10n.imageWizardBackstitchHint
-                      : '${l10n.imageWizardBackstitchHint}\n${l10n.imageWizardBackstitchCount(state.preview!.lines.length)}',
-                  value: settings.backstitch,
-                  onChanged: (value) => cubit.setBackstitch(value: value),
-                ),
-                if (settings.technique == Technique.crossStitch)
-                  _SwitchRow(
-                    switchKey: const ValueKey<String>('wizard-mixed'),
-                    title: l10n.imageWizardMixed,
-                    hint: state.preview == null || !settings.mixedStitches || state.calculating
-                        ? l10n.imageWizardMixedHint
-                        : '${l10n.imageWizardMixedHint}\n${l10n.imageWizardMixedCount(state.preview!.partials.length)}',
-                    value: settings.mixedStitches,
-                    onChanged: (value) => cubit.setMixedStitches(value: value),
-                  ),
-                if ((state.preview?.blendSuggestions.isNotEmpty ?? false) || settings.blends)
-                  _SwitchRow(
-                    switchKey: const ValueKey<String>('wizard-blends'),
-                    title: l10n.imageWizardBlends,
-                    hint: l10n.imageWizardBlendsHint(state.preview?.blendSuggestions.length ?? 0),
-                    value: settings.blends,
-                    onChanged: (value) => cubit.setBlends(value: value),
-                  ),
-                SizedBox(height: gap),
-              ],
-              _Section(
-                title: settings.craft == Craft.crossStitch ? l10n.imageWizardFlossPalette : l10n.imageWizardPalette,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: <Widget>[
-                    CupertinoSlidingSegmentedControl<PaletteSource>(
-                      groupValue: settings.paletteSource,
-                      children: <PaletteSource, Widget>{
-                        PaletteSource.catalog: _SegmentLabel(l10n.imageWizardPaletteCatalog),
-                        PaletteSource.free: _SegmentLabel(l10n.imageWizardPaletteFree),
-                      },
-                      onValueChanged: (value) {
-                        if (value != null) {
-                          cubit.setPaletteSource(value);
-                        }
-                      },
-                    ),
-                    if (settings.paletteSource == PaletteSource.catalog)
-                      _SwitchRow(
-                        switchKey: const ValueKey<String>('wizard-stash'),
-                        title: l10n.imageWizardStash,
-                        hint: l10n.imageWizardStashHint,
-                        value: settings.onlyStash,
-                        onChanged: (value) => cubit.setOnlyStash(value: value),
-                      ),
-                    if (settings.paletteSource == PaletteSource.catalog &&
-                        settings.craft == Craft.crossStitch &&
-                        !settings.onlyStash &&
-                        state.flossBrand.isNotEmpty)
-                      _SwitchRow(
-                        switchKey: const ValueKey<String>('wizard-other-brands'),
-                        title: l10n.imageWizardOtherBrands,
-                        hint: l10n.imageWizardOtherBrandsHint(state.flossBrand),
-                        value: settings.otherBrands,
-                        onChanged: (value) => cubit.setOtherBrands(value: value),
-                      ),
-                    if (settings.paletteSource == PaletteSource.catalog &&
-                        settings.craft == Craft.crossStitch &&
-                        !settings.onlyStash &&
-                        state.flossBrand.isNotEmpty &&
-                        settings.otherBrands) ...<Widget>[
-                      _BrandCheckRow(
-                        rowKey: const ValueKey<String>('wizard-other-brand-auto'),
-                        title: l10n.imageWizardOtherBrandsAuto,
-                        selected: settings.otherBrandsOnly.isEmpty,
-                        onTap: cubit.setOtherBrandsAuto,
-                      ),
-                      for (final String brand in flossBrandChoices.where((b) => b != state.flossBrand))
-                        _BrandCheckRow(
-                          rowKey: ValueKey<String>('wizard-other-brand-$brand'),
-                          title: brand,
-                          selected: settings.otherBrandsOnly.contains(brand),
-                          onTap: () => cubit.toggleOtherBrand(brand),
-                        ),
-                    ],
-                    if (settings.paletteSource == PaletteSource.catalog && settings.craft == Craft.beading) ...<Widget>[
-                      SizedBox(height: tokens.spacing.s),
-                      Text(l10n.imageWizardBeadSeries, style: caption),
-                      SizedBox(height: tokens.spacing.xs),
-                      CupertinoSlidingSegmentedControl<BeadSeries>(
-                        key: const ValueKey<String>('wizard-bead-series'),
-                        groupValue: cubit.beadSeries,
-                        children: <BeadSeries, Widget>{
-                          BeadSeries.delica: _SegmentLabel(l10n.imageWizardSeriesDelica),
-                          BeadSeries.round: _SegmentLabel(l10n.imageWizardSeriesRound),
-                        },
-                        onValueChanged: (value) {
-                          if (value != null) {
-                            cubit.setBeadSeries(value);
-                          }
-                        },
-                      ),
-                      for (final BeadFinishGroup group in BeadFinishGroup.values)
-                        MergeSemantics(
-                          child: Row(
-                            children: <Widget>[
-                              Expanded(child: Text(_finishTitle(l10n, group))),
-                              CupertinoSwitch(
-                                key: ValueKey<String>('wizard-finish-${group.name}'),
-                                value: settings.finishGroups.contains(group),
-                                onChanged: (value) => cubit.setFinishGroup(group, value: value),
-                              ),
-                            ],
-                          ),
-                        ),
-                    ],
-                    if (state.stashEmpty)
-                      Padding(
-                        padding: EdgeInsets.only(top: tokens.spacing.s),
-                        child: Text(
-                          l10n.imageWizardStashEmpty,
-                          key: const ValueKey<String>('wizard-stash-empty'),
-                          style: caption,
-                        ),
-                      )
-                    else if (state.catalogMissing)
-                      Padding(
-                        padding: EdgeInsets.only(top: tokens.spacing.s),
-                        child: Text(
-                          settings.craft == Craft.crossStitch
-                              ? l10n.imageWizardFlossMissing
-                              : l10n.imageWizardCatalogMissing,
-                          style: caption,
-                        ),
-                      )
-                    else if (state.catalogShort)
-                      Padding(
-                        padding: EdgeInsets.only(top: tokens.spacing.s),
-                        child: Text(
-                          settings.onlyStash
-                              ? l10n.imageWizardStashFew(state.catalogColors, settings.maxColors)
-                              : l10n.imageWizardCatalogFew(state.catalogColors, settings.maxColors),
-                          key: const ValueKey<String>('wizard-catalog-few'),
-                          style: caption,
-                        ),
-                      ),
-                  ],
-                ),
-              ),
-              if (state.flossEstimate != null && state.previewSettings?.craft == Craft.crossStitch) ...<Widget>[
-                SizedBox(height: gap),
-                AppListSection(
-                  margin: EdgeInsets.zero,
-                  children: <Widget>[
-                    CupertinoListTile.notched(
-                      key: const ValueKey<String>('wizard-shopping'),
-                      title: Text(l10n.imageWizardShopping),
-                      additionalInfo: Text(l10n.flossSkeins(state.flossEstimate!.totalSkeins)),
-                      trailing: const CupertinoListTileChevron(),
-                      onTap: () => unawaited(showFlossShoppingSheet(context, state.flossEstimate!)),
-                    ),
-                    if (cubit.canPrint && widget.fileSharer != null)
-                      CupertinoListTile.notched(
-                        key: const ValueKey<String>('wizard-print'),
-                        title: Text(l10n.flossPrint),
-                        leading: const Icon(AppIcons.print),
-                        trailing: const CupertinoListTileChevron(),
-                        onTap: () => unawaited(
-                          runPrintFlow(
-                            context,
-                            loadOptions: cubit.loadPrintOptions,
-                            summary: () async => cubit.printSummary,
-                            build: cubit.exportPdf,
-                            fileSharer: widget.fileSharer!,
-                            rasterizer: widget.rasterizer,
-                          ),
-                        ),
-                      ),
-                  ],
-                ),
-              ],
-              SizedBox(height: gap),
-              AppListSection(
-                margin: EdgeInsets.zero,
-                children: <Widget>[
-                  CupertinoListTile.notched(
-                    key: const ValueKey<String>('wizard-brush'),
-                    title: Text(l10n.imageWizardBrushTitle),
-                    additionalInfo: state.brush.isEmpty ? null : Text(l10n.imageWizardBrushManual),
-                    trailing: const CupertinoListTileChevron(),
-                    onTap: cubit.startBrush,
-                  ),
-                  if (!state.brush.isEmpty)
-                    CupertinoListTile.notched(
-                      key: const ValueKey<String>('wizard-brush-reset'),
-                      title: Text(
-                        l10n.imageWizardBrushReset,
-                        style: TextStyle(color: CupertinoColors.systemRed.resolveFrom(context)),
-                      ),
-                      onTap: cubit.resetBrush,
-                    ),
-                ],
-              ),
-              if (state.hasMasks) ...<Widget>[
-                SizedBox(height: gap),
-                MergeSemantics(
-                  child: Row(
+    return <Widget>[
+      if (!state.brush.isEmpty) ...<Widget>[
+        SizedBox(height: tokens.spacing.xs),
+        Text(
+          key: const ValueKey<String>('wizard-brush-crop-hint'),
+          l10n.imageWizardBrushCropHint,
+          textAlign: TextAlign.center,
+          style: caption,
+        ),
+      ],
+      _Section(
+        title: l10n.imageWizardPreset,
+        child: CupertinoSlidingSegmentedControl<_PresetChoice>(
+          key: const ValueKey<String>('wizard-preset'),
+          groupValue: switch (settings.preset) {
+            null => _PresetChoice.asIs,
+            GenerationPreset.simpler => _PresetChoice.simpler,
+            GenerationPreset.balanced => _PresetChoice.balanced,
+            GenerationPreset.detailed => _PresetChoice.detailed,
+          },
+          children: <_PresetChoice, Widget>{
+            _PresetChoice.simpler: _SegmentLabel(l10n.imageWizardPresetSimpler),
+            _PresetChoice.balanced: _SegmentLabel(l10n.imageWizardPresetBalanced),
+            _PresetChoice.detailed: _SegmentLabel(l10n.imageWizardPresetDetailed),
+            _PresetChoice.asIs: _SegmentLabel(l10n.imageWizardPresetAsIs),
+          },
+          onValueChanged: (value) {
+            if (value != null) {
+              cubit.setPreset(switch (value) {
+                _PresetChoice.asIs => null,
+                _PresetChoice.simpler => GenerationPreset.simpler,
+                _PresetChoice.balanced => GenerationPreset.balanced,
+                _PresetChoice.detailed => GenerationPreset.detailed,
+              });
+            }
+          },
+        ),
+      ),
+      if (state.hasSubject) ...<Widget>[
+        _Section(
+          title: l10n.imageWizardBackground,
+          child: CupertinoSlidingSegmentedControl<BackgroundMode>(
+            key: const ValueKey<String>('wizard-background'),
+            groupValue: settings.background,
+            children: <BackgroundMode, Widget>{
+              BackgroundMode.keep: _SegmentLabel(l10n.imageWizardBackgroundKeep),
+              BackgroundMode.simplify: _SegmentLabel(l10n.imageWizardBackgroundSimplify),
+              BackgroundMode.remove: _SegmentLabel(l10n.imageWizardBackgroundRemove),
+            },
+            onValueChanged: (value) {
+              if (value != null) {
+                cubit.setBackground(value);
+              }
+            },
+          ),
+        ),
+        if (settings.craft == Craft.beading)
+          MergeSemantics(
+            child: Row(
+              children: <Widget>[
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: <Widget>[
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: <Widget>[
-                            Text(l10n.imageWizardUseMasks),
-                            Text(l10n.imageWizardUseMasksHint, style: caption),
-                          ],
-                        ),
-                      ),
-                      CupertinoSwitch(
-                        key: const ValueKey<String>('wizard-use-masks'),
-                        value: settings.useMasks,
-                        onChanged: (value) => cubit.setUseMasks(value: value),
-                      ),
+                      Text(l10n.imageWizardOutline),
+                      Text(l10n.imageWizardOutlineHint, style: caption),
                     ],
                   ),
                 ),
-              ],
-              if (state.faceAdvice case final FaceSizeAdvice advice) ...<Widget>[
-                SizedBox(height: gap),
-                _FaceWarning(
-                  advice: advice,
-                  onCrop: advice.cropRect == null ? null : cubit.cropToFace,
-                  onWiden: advice.neededColumns == null ? null : cubit.widenForFace,
+                CupertinoSwitch(
+                  key: const ValueKey<String>('wizard-outline'),
+                  value: settings.outline,
+                  onChanged: (value) => cubit.setOutline(value: value),
                 ),
               ],
-              SizedBox(height: gap),
-              CupertinoTextField(
-                key: const ValueKey<String>('wizard-name'),
-                controller: _name,
-                placeholder: l10n.imageWizardName,
-                onChanged: cubit.setName,
-                textInputAction: TextInputAction.done,
+            ),
+          ),
+        SizedBox(height: gap),
+      ],
+      SizedBox(height: gap),
+      AppListSection(
+        margin: EdgeInsets.zero,
+        children: <Widget>[
+          CupertinoListTile.notched(
+            key: const ValueKey<String>('wizard-brush'),
+            title: Text(l10n.imageWizardBrushTitle),
+            additionalInfo: state.brush.isEmpty ? null : Text(l10n.imageWizardBrushManual),
+            trailing: const CupertinoListTileChevron(),
+            onTap: cubit.startBrush,
+          ),
+          if (!state.brush.isEmpty)
+            CupertinoListTile.notched(
+              key: const ValueKey<String>('wizard-brush-reset'),
+              title: Text(
+                l10n.imageWizardBrushReset,
+                style: TextStyle(color: CupertinoColors.systemRed.resolveFrom(context)),
+              ),
+              onTap: cubit.resetBrush,
+            ),
+        ],
+      ),
+      if (state.hasMasks) ...<Widget>[
+        SizedBox(height: gap),
+        MergeSemantics(
+          child: Row(
+            children: <Widget>[
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: <Widget>[
+                    Text(l10n.imageWizardUseMasks),
+                    Text(l10n.imageWizardUseMasksHint, style: caption),
+                  ],
+                ),
+              ),
+              CupertinoSwitch(
+                key: const ValueKey<String>('wizard-use-masks'),
+                value: settings.useMasks,
+                onChanged: (value) => cubit.setUseMasks(value: value),
               ),
             ],
           ),
         ),
-        // Ошибка стоит рядом с кнопкой: внизу прокручиваемого списка её не видно, и кнопка казалась сломанной.
-        if (state.problem != null)
-          Padding(
-            padding: EdgeInsets.fromLTRB(gap, gap / 2, gap, 0),
-            child: _Problem(state.problem),
+      ],
+    ];
+  }
+
+  List<Widget> _stitchesTool(BuildContext context) {
+    final AppLocalizations l10n = AppLocalizations.of(context);
+    final ImageWizardCubit cubit = context.read<ImageWizardCubit>();
+    final ImageWizardState state = widget.state;
+    final ImageToGridSettings settings = state.settings;
+    final AppTokensData tokens = context.tokens;
+    final double gap = tokens.spacing.m;
+    return <Widget>[
+      if (settings.craft == Craft.crossStitch) ...<Widget>[
+        _SwitchRow(
+          switchKey: const ValueKey<String>('wizard-backstitch'),
+          title: l10n.imageWizardBackstitch,
+          hint: state.preview == null || !settings.backstitch || state.calculating
+              ? l10n.imageWizardBackstitchHint
+              : '${l10n.imageWizardBackstitchHint}\n${l10n.imageWizardBackstitchCount(state.preview!.lines.length)}',
+          value: settings.backstitch,
+          onChanged: (value) => cubit.setBackstitch(value: value),
+        ),
+        if (settings.technique == Technique.crossStitch)
+          _SwitchRow(
+            switchKey: const ValueKey<String>('wizard-mixed'),
+            title: l10n.imageWizardMixed,
+            hint: state.preview == null || !settings.mixedStitches || state.calculating
+                ? l10n.imageWizardMixedHint
+                : '${l10n.imageWizardMixedHint}\n${l10n.imageWizardMixedCount(state.preview!.partials.length)}',
+            value: settings.mixedStitches,
+            onChanged: (value) => cubit.setMixedStitches(value: value),
           ),
-        Padding(
-          padding: EdgeInsets.fromLTRB(gap, gap / 2, gap, gap),
-          child: SizedBox(
-            width: double.infinity,
-            child: CupertinoButton.filled(
-              key: const ValueKey<String>('wizard-save'),
-              onPressed: state.canSave ? () => unawaited(_save(context, cubit, state)) : null,
-              child: Text(state.editing ? l10n.imageWizardSaveChanges : l10n.imageWizardSave),
+        if ((state.preview?.blendSuggestions.isNotEmpty ?? false) || settings.blends)
+          _SwitchRow(
+            switchKey: const ValueKey<String>('wizard-blends'),
+            title: l10n.imageWizardBlends,
+            hint: l10n.imageWizardBlendsHint(state.preview?.blendSuggestions.length ?? 0),
+            value: settings.blends,
+            onChanged: (value) => cubit.setBlends(value: value),
+          ),
+        SizedBox(height: gap),
+      ],
+    ];
+  }
+
+  List<Widget> _totalTool(BuildContext context) {
+    final AppLocalizations l10n = AppLocalizations.of(context);
+    final ImageWizardCubit cubit = context.read<ImageWizardCubit>();
+    final ImageWizardState state = widget.state;
+    final AppTokensData tokens = context.tokens;
+    final double gap = tokens.spacing.m;
+    return <Widget>[
+      if (state.flossEstimate != null && state.previewSettings?.craft == Craft.crossStitch) ...<Widget>[
+        SizedBox(height: gap),
+        AppListSection(
+          margin: EdgeInsets.zero,
+          children: <Widget>[
+            CupertinoListTile.notched(
+              key: const ValueKey<String>('wizard-shopping'),
+              title: Text(l10n.imageWizardShopping),
+              additionalInfo: Text(l10n.flossSkeins(state.flossEstimate!.totalSkeins)),
+              trailing: const CupertinoListTileChevron(),
+              onTap: () => unawaited(showFlossShoppingSheet(context, state.flossEstimate!)),
             ),
-          ),
+            if (cubit.canPrint && widget.fileSharer != null)
+              CupertinoListTile.notched(
+                key: const ValueKey<String>('wizard-print'),
+                title: Text(l10n.flossPrint),
+                leading: const Icon(AppIcons.print),
+                trailing: const CupertinoListTileChevron(),
+                onTap: () => unawaited(
+                  runPrintFlow(
+                    context,
+                    loadOptions: cubit.loadPrintOptions,
+                    summary: () async => cubit.printSummary,
+                    build: cubit.exportPdf,
+                    fileSharer: widget.fileSharer!,
+                    rasterizer: widget.rasterizer,
+                  ),
+                ),
+              ),
+          ],
         ),
       ],
-    );
+    ];
   }
 }
 
@@ -1161,10 +1305,12 @@ class _IconAction extends StatelessWidget {
 
 /// Предпросмотр схемы. Пока палец на нём, вместо схемы показана исходная картинка («до/после»).
 class _Preview extends StatelessWidget {
-  const _Preview({required this.state, required this.height});
+  const _Preview({required this.state, required this.showHint});
 
   final ImageWizardState state;
-  final double height;
+
+  /// Подсказка «Удерживайте схему…» (только при первом открытии).
+  final bool showHint;
 
   @override
   Widget build(BuildContext context) {
@@ -1270,55 +1416,66 @@ class _Preview extends StatelessWidget {
     }
     return Column(
       children: <Widget>[
-        GestureDetector(
-          key: const ValueKey<String>('wizard-preview'),
-          behavior: HitTestBehavior.opaque,
-          onTap: grid == null ? null : () => showFullPreview(context),
-          onLongPressStart: (_) => cubit.setComparing(value: true),
-          onLongPressEnd: (_) => cubit.setComparing(value: false),
-          onLongPressCancel: () => cubit.setComparing(value: false),
-          child: ClipRRect(
-            borderRadius: BorderRadius.circular(tokens.radius.m),
-            child: SizedBox(
-              height: height,
-              width: double.infinity,
-              child: ColoredBox(
-                color: CupertinoColors.secondarySystemFill.resolveFrom(context),
-                child: Stack(
-                  children: <Widget>[
-                    Positioned.fill(child: Center(child: content)),
-                    if (grid != null)
-                      Positioned(
-                        bottom: 0,
-                        right: 0,
-                        child: CupertinoButton(
-                          key: const ValueKey<String>('wizard-preview-open'),
-                          padding: EdgeInsets.all(tokens.spacing.s),
-                          minimumSize: Size.square(tokens.minTapTarget),
-                          onPressed: () => showFullPreview(context),
-                          child: Semantics(
-                            label: l10n.imageWizardFullPreviewOpen,
-                            button: true,
-                            child: const Icon(CupertinoIcons.arrow_up_left_arrow_down_right),
+        Expanded(
+          child: GestureDetector(
+            key: const ValueKey<String>('wizard-preview'),
+            behavior: HitTestBehavior.opaque,
+            onTap: grid == null ? null : () => showFullPreview(context),
+            onLongPressStart: (_) => cubit.setComparing(value: true),
+            onLongPressEnd: (_) => cubit.setComparing(value: false),
+            onLongPressCancel: () => cubit.setComparing(value: false),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(tokens.radius.m),
+              child: SizedBox(
+                width: double.infinity,
+                child: ColoredBox(
+                  color: CupertinoColors.secondarySystemFill.resolveFrom(context),
+                  child: Stack(
+                    children: <Widget>[
+                      Positioned.fill(child: Center(child: content)),
+                      if (grid != null)
+                        Positioned(
+                          bottom: 0,
+                          right: 0,
+                          child: CupertinoButton(
+                            key: const ValueKey<String>('wizard-preview-open'),
+                            padding: EdgeInsets.all(tokens.spacing.s),
+                            minimumSize: Size.square(tokens.minTapTarget),
+                            onPressed: () => showFullPreview(context),
+                            child: Semantics(
+                              label: l10n.imageWizardFullPreviewOpen,
+                              button: true,
+                              child: const Icon(CupertinoIcons.arrow_up_left_arrow_down_right),
+                            ),
                           ),
                         ),
-                      ),
-                    if (state.calculating)
-                      Positioned(
-                        top: tokens.spacing.s,
-                        right: tokens.spacing.s,
-                        child: Semantics(
-                          liveRegion: true,
-                          label: l10n.imageWizardCalculating,
-                          child: const CupertinoActivityIndicator(key: ValueKey<String>('wizard-calculating')),
+                      if (state.calculating)
+                        Positioned(
+                          top: tokens.spacing.s,
+                          right: tokens.spacing.s,
+                          child: Semantics(
+                            liveRegion: true,
+                            label: l10n.imageWizardCalculating,
+                            child: const CupertinoActivityIndicator(key: ValueKey<String>('wizard-calculating')),
+                          ),
                         ),
-                      ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
             ),
           ),
         ),
+        if (grid != null && showHint)
+          Padding(
+            padding: EdgeInsets.only(top: tokens.spacing.s),
+            child: Text(
+              l10n.imageWizardCompareHint,
+              key: const ValueKey<String>('wizard-compare-hint'),
+              textAlign: TextAlign.center,
+              style: TextStyle(fontSize: 13, color: CupertinoColors.secondaryLabel.resolveFrom(context)),
+            ),
+          ),
         if (grid != null)
           Padding(
             padding: EdgeInsets.only(top: tokens.spacing.s),
@@ -1814,7 +1971,48 @@ class _SwitchRow extends StatelessWidget {
 
 /// Сохраняет схему. Если правят схему, по которой уже есть отметки, предлагает только копию: новая сетка к отметкам
 /// прежней не подойдёт.
+/// Название спрашиваем при сохранении новой схемы: поле названия не занимает место в панели (макет 18).
+Future<String?> _askName(BuildContext context, String current) async {
+  final AppLocalizations l10n = AppLocalizations.of(context);
+  final TextEditingController controller = TextEditingController(text: current);
+  final String? name = await showCupertinoDialog<String>(
+    context: context,
+    builder: (dialog) => CupertinoAlertDialog(
+      key: const ValueKey<String>('wizard-name-dialog'),
+      title: Text(l10n.imageWizardName),
+      content: Padding(
+        padding: const EdgeInsets.only(top: 12),
+        child: CupertinoTextField(
+          key: const ValueKey<String>('wizard-name'),
+          controller: controller,
+          autofocus: true,
+          placeholder: l10n.imageWizardName,
+          textInputAction: TextInputAction.done,
+          onSubmitted: (text) => Navigator.of(dialog).pop(text),
+        ),
+      ),
+      actions: <Widget>[
+        CupertinoDialogAction(onPressed: () => Navigator.of(dialog).pop(), child: Text(l10n.imageWizardCancel)),
+        CupertinoDialogAction(
+          key: const ValueKey<String>('wizard-name-save'),
+          isDefaultAction: true,
+          onPressed: () => Navigator.of(dialog).pop(controller.text),
+          child: Text(l10n.imageWizardSave),
+        ),
+      ],
+    ),
+  );
+  controller.dispose();
+  return name;
+}
+
 Future<void> _save(BuildContext context, ImageWizardCubit cubit, ImageWizardState state) async {
+  if (!state.editing) {
+    final String? name = await _askName(context, state.name);
+    if (name == null) return;
+    cubit.setName(name);
+    if (!context.mounted) return;
+  }
   if (!state.editing || !await cubit.editingHasProgress()) {
     await cubit.save();
     return;

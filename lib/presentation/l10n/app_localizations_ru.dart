@@ -2030,13 +2030,28 @@ class AppLocalizationsRu extends AppLocalizations {
   String get imageWizardName => 'Название';
 
   @override
-  String get imageWizardSave => 'Сохранить схему';
+  String get imageWizardSave => 'Сохранить';
+
+  @override
+  String get imageWizardToolBase => 'Основа';
+
+  @override
+  String get imageWizardToolSize => 'Размер';
+
+  @override
+  String get imageWizardToolColors => 'Цвета';
+
+  @override
+  String get imageWizardToolDetails => 'Детали';
+
+  @override
+  String get imageWizardToolStitches => 'Стежки';
+
+  @override
+  String get imageWizardToolTotal => 'Итог';
 
   @override
   String get imageWizardEditTitle => 'Изменить схему';
-
-  @override
-  String get imageWizardSaveChanges => 'Сохранить изменения';
 
   @override
   String get imageWizardEditNoPhoto =>

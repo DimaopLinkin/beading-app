@@ -116,11 +116,20 @@ void main() {
     await tester.pumpAndSettle();
   }
 
+  /// Открывает группу панели (макет 18).
+  Future<void> tool(WidgetTester tester, String name) async {
+    final Finder button = find.byKey(ValueKey<String>('wizard-tool-$name'));
+    await tester.ensureVisible(button);
+    await tester.tap(button);
+    await tester.pumpAndSettle();
+  }
+
   for (final CupertinoThemeData theme in <CupertinoThemeData>[AppTheme.light, AppTheme.dark]) {
     testWidgets('бисер в теме ${theme.brightness}: размеры по назначению и подсказка применяется одним касанием', (
       tester,
     ) async {
       await open(tester, theme);
+      await tool(tester, 'size');
       final Finder hint = find.byKey(const ValueKey<String>('wizard-size-hint'));
       await tester.scrollUntilVisible(hint, 200, scrollable: find.byType(Scrollable).last);
       expect(find.textContaining('от 60 бусин по ширине и 10 цветов'), findsOneWidget);
@@ -143,6 +152,7 @@ void main() {
     await open(tester, AppTheme.light);
     cubit.setCraft(Craft.crossStitch);
     await tester.pumpAndSettle();
+    await tool(tester, 'size');
     final Finder hint = find.byKey(const ValueKey<String>('wizard-size-hint'));
     await tester.scrollUntilVisible(hint, 200, scrollable: find.byType(Scrollable).last);
     // 110 крестиков на аиде 14: 110 × 25,4 / 14 = 199,6 мм.
@@ -165,6 +175,7 @@ void main() {
     expect(cubit.state.settings.columns, 80);
     cubit.setColumns(40);
     await tester.pumpAndSettle();
+    await tool(tester, 'size');
     final Finder warning = find.byKey(const ValueKey<String>('wizard-beads-few'));
     await tester.scrollUntilVisible(warning, 200, scrollable: find.byType(Scrollable).last);
     expect(find.textContaining('Бисера на такое лицо не хватает'), findsOneWidget);
@@ -176,6 +187,7 @@ void main() {
 
   testWidgets('«Как на фото» выбирает путь T24 без предустановки', (tester) async {
     await open(tester, AppTheme.light);
+    await tool(tester, 'details');
     final Finder asIs = find.text('Как на фото');
     await tester.scrollUntilVisible(asIs, 200, scrollable: find.byType(Scrollable).last);
     await tester.tap(asIs);
