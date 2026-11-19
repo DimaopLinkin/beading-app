@@ -8,6 +8,7 @@ import 'package:beading/app/composition/projects_module.dart';
 import 'package:beading/data/image_pattern/pdfrx_pdf_rasterizer.dart';
 import 'package:beading/data/image_pattern/picker_book_image_source.dart';
 import 'package:beading/data/image_pattern/ui_image_processor.dart';
+import 'package:beading/data/image_to_grid/drift_image_recipe_index.dart';
 import 'package:beading/data/image_to_grid/isolate_image_to_grid_runner.dart';
 import 'package:beading/data/image_to_grid/ui_image_decoder.dart';
 import 'package:beading/data/platform/method_channel_image_masks.dart';
@@ -38,8 +39,11 @@ final class ImageToGridModule {
   final GridModule _grid;
   final CatalogModule _catalog;
 
-  /// Рецепты схем лежат файлами рядом с проектами.
-  late final ImageRecipeStore recipes = ImageRecipeStore(_core.fileStore);
+  /// Рецепты схем: фото файлом рядом с проектами, параметры в базе; синхронизируются вместе (T96).
+  late final ImageRecipeStore recipes = ImageRecipeStore(
+    _core.fileStore,
+    index: DriftImageRecipeIndex(db: _core.database, deviceIds: _core.deviceIds, clock: _core.clock),
+  );
 
   late final ImageRecipeContentCleaner contentCleaner = ImageRecipeContentCleaner(recipes);
 

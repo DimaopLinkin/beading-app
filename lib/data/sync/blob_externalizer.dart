@@ -28,9 +28,13 @@ class BlobExternalizer {
     BlobField('grid_pattern', 'layers'),
   ];
 
-  /// Файловые сущности: страницы схем из книг и картинки шагов инструкций. Файл лежит в Application Support
-  /// по пути из `data.path`, в записи — ссылка `file`.
-  static const Set<String> fileEntities = <String>{'image_pattern_page', 'step_image'};
+  /// Файловые сущности: страницы схем из книг, картинки шагов инструкций и исходные фото мастера (T96).
+  /// Файл лежит в Application Support по пути из `data.path`, в записи — ссылка `file`.
+  static const Set<String> fileEntities = <String>{'image_pattern_page', 'step_image', 'image_recipe'};
+
+  /// Файлы больше этого в Storage не уходят (свободный тариф: 1 ГБ на всё, 50 МБ на объект). Запись едет без
+  /// `file`, и на другом устройстве её файл просто отсутствует (для рецепта — «выберите фото снова»).
+  static const int maxFileBytes = 20 * 1024 * 1024;
 
   final BlobTransport blobs;
   final FileStore files;
@@ -48,7 +52,7 @@ class BlobExternalizer {
     }
     if (fileEntities.contains(record.entity) && data['path'] is String) {
       final bytes = (await files.read(data['path']! as String)).valueOrNull;
-      if (bytes != null) {
+      if (bytes != null && bytes.length <= maxFileBytes) {
         data['file'] = await _put(record, 'file', bytes);
       }
     }

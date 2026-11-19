@@ -46,6 +46,8 @@ Future<Widget> bootstrap({
   if (seeded case Err<void>(:final failure)) {
     debugPrint('Каталог загружен не полностью: ${failure.message}');
   }
+  // Рецепты, сохранённые до T96 только файлами, переносятся в базу и уезжают на другие устройства.
+  await dependencies.imageToGrid.recipes.adoptLegacy();
   if (sync != null) {
     AppLifecycleListener(onResume: () => unawaited(sync.controller.onResumed()));
     sync.controller.start();
