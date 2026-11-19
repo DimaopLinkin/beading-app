@@ -10,7 +10,9 @@ class GridBasePainter extends CustomPainter {
     required this.viewportSize,
     required this.revision,
     this.wholeScene = false,
-  }) : super(repaint: controller);
+    this.fittedScale = 1,
+    this.devicePixelRatio = 1,
+  }) : super(repaint: Listenable.merge(<Listenable>[controller, cache.overviewChanged]));
 
   final GridLayerCache cache;
   final TransformationController controller;
@@ -22,16 +24,27 @@ class GridBasePainter extends CustomPainter {
   /// Рисовать всю схему, а не видимую часть (неинтерактивный режим: вид масштабирует `FittedBox`, а не контроллер).
   final bool wholeScene;
 
+  /// Масштаб `FittedBox` в неинтерактивном режиме (в интерактивном масштаб берётся из контроллера).
+  final double fittedScale;
+
+  /// Физических пикселей в логическом: вместе с масштабом даёт размер клетки на экране.
+  final double devicePixelRatio;
+
+  double _devicePxPerCell(double scale) {
+    final Size cell = cache.cellSize;
+    return (cell.width < cell.height ? cell.width : cell.height) * scale * devicePixelRatio;
+  }
+
   @override
   void paint(Canvas canvas, Size size) {
     if (wholeScene) {
-      cache.paintVisible(canvas, Offset.zero & size);
+      cache.paintVisible(canvas, Offset.zero & size, devicePxPerCell: _devicePxPerCell(fittedScale));
       return;
     }
     final Matrix4 inverse = Matrix4.copy(controller.value)..invert();
     // Блок-запас: чтобы при быстром сдвиге по краям не мелькали пустые места.
     final Rect visible = MatrixUtils.transformRect(inverse, Offset.zero & viewportSize).inflate(32);
-    cache.paintVisible(canvas, visible);
+    cache.paintVisible(canvas, visible, devicePxPerCell: _devicePxPerCell(controller.value.getMaxScaleOnAxis()));
   }
 
   @override
@@ -39,5 +52,7 @@ class GridBasePainter extends CustomPainter {
       oldDelegate.cache != cache ||
       oldDelegate.viewportSize != viewportSize ||
       oldDelegate.revision != revision ||
-      oldDelegate.wholeScene != wholeScene;
+      oldDelegate.wholeScene != wholeScene ||
+      oldDelegate.fittedScale != fittedScale ||
+      oldDelegate.devicePixelRatio != devicePixelRatio;
 }

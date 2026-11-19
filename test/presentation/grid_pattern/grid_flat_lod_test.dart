@@ -108,6 +108,82 @@ void main() {
       expect(await boundaryRgb(realistic: true), isNot(0xF2B84B), reason: 'в «как будет» там подложка');
     });
 
+    test('обзор прямоугольной схемы — текстура: пиксель на клетку, без блоков (T95)', () async {
+      final Grid grid = Grid.fromCells(width: 3, height: 2, cells: const <int>[1, 2, 0, 3, 3, 1]);
+      final GridScene scene = GridScene(
+        geometry: const GridGeometry.rectangular(),
+        metrics: BeadSize.delica11,
+        columns: 3,
+        rows: 2,
+      );
+      final GridLayerCache cache = GridLayerCache()
+        ..configure(
+          grid: grid,
+          palette: samplePalette(),
+          scene: scene,
+          options: const GridViewOptions(showGridLines: false),
+          style: _style,
+          flat: true,
+        );
+      addTearDown(cache.dispose);
+      final Uint8List pixels = cache.overviewPixels();
+      int rgba(int i) =>
+          (pixels[i * 4] << 24) | (pixels[i * 4 + 1] << 16) | (pixels[i * 4 + 2] << 8) | pixels[i * 4 + 3];
+      expect(rgba(0), 0xF2B84BFF);
+      expect(rgba(1), 0xE8664DFF);
+      expect(rgba(2), 0, reason: 'пустая клетка прозрачна');
+      expect(rgba(3), 0x2F5DA8FF);
+
+      int notified = 0;
+      cache.overviewChanged.addListener(() => notified++);
+      cache.paintVisible(Canvas(ui.PictureRecorder()), Offset.zero & scene.size);
+      final int built = cache.buildCount;
+      while (cache.overview == null) {
+        await Future<void>.delayed(const Duration(milliseconds: 5));
+      }
+      expect(notified, 1);
+      expect(cache.overview!.width, 3);
+      expect(cache.overview!.height, 2);
+      cache.paintVisible(Canvas(ui.PictureRecorder()), Offset.zero & scene.size);
+      expect(cache.buildCount, built, reason: 'с готовой текстурой блоки не строятся');
+      expect(cache.overviewBuildCount, 1);
+    });
+
+    test('обзор «как будет» подмешивает подложку, подробный вид текстуру не строит', () {
+      final Grid grid = Grid.fromCells(width: 1, height: 1, cells: const <int>[1]);
+      final GridScene scene = GridScene(
+        geometry: const GridGeometry.rectangular(),
+        metrics: BeadSize.delica11,
+        columns: 1,
+        rows: 1,
+      );
+      final GridLayerCache cache = GridLayerCache()
+        ..configure(
+          grid: grid,
+          palette: samplePalette(),
+          scene: scene,
+          options: const GridViewOptions(showGridLines: false, realistic: true),
+          style: _style,
+          flat: true,
+        );
+      addTearDown(cache.dispose);
+      final Uint8List pixels = cache.overviewPixels();
+      final Color surface = _style.realistic.surface;
+      final Color expected = Color.lerp(const Color(0xFFF2B84B), surface, GridLayerCache.realisticSurfaceShare)!;
+      expect(pixels[0], (expected.r * 255).round());
+      expect(pixels[3], 255);
+
+      cache.configure(
+        grid: grid,
+        palette: samplePalette(),
+        scene: scene,
+        options: const GridViewOptions(showGridLines: false),
+        style: _style,
+      );
+      cache.paintVisible(Canvas(ui.PictureRecorder()), Offset.zero & scene.size);
+      expect(cache.overviewBuildCount, 0);
+    });
+
     test('смена детализации сбрасывает блоки, повторная настройка — нет', () {
       final Grid grid = sampleGrid();
       final GridScene scene = GridScene(
