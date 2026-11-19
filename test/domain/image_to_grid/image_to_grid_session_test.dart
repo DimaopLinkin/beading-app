@@ -203,4 +203,38 @@ void main() {
     expect(warm.palette, cold.palette);
     expect(warm.stats!.singleCells, cold.stats!.singleCells);
   });
+
+  group('уменьшенный черновик (T98)', () {
+    test('считает уменьшенную сетку, а возвращает сетку полного размера с той же палитрой', () {
+      ImageToGridRequest request({required int columns, required int rows, ({int columns, int rows})? full}) =>
+          ImageToGridRequest(
+            image: image,
+            geometry: const RectangularGeometry(),
+            metrics: const FakeCellMetrics(1, 1),
+            columns: columns,
+            rows: rows,
+            maxColors: 4,
+            paletteBuilder: const AccentPaletteBuilder(),
+            labeler: const VotingCellLabeler(),
+            draft: true,
+            fullSize: full,
+          );
+      final GeneratedPattern shrunk = const ImageToGridPipeline().run(
+        request(columns: 20, rows: 15, full: (columns: 60, rows: 45)),
+      );
+      expect(shrunk.grid.width, 60);
+      expect(shrunk.grid.height, 45);
+      expect(shrunk.palette, isNotEmpty);
+      // Квадранты фото остаются на своих местах: углы разных цветов.
+      final List<int> corners = <int>[
+        shrunk.grid.at(2, 2),
+        shrunk.grid.at(57, 2),
+        shrunk.grid.at(2, 42),
+        shrunk.grid.at(57, 42),
+      ];
+      expect(corners.toSet(), hasLength(4));
+      final GeneratedPattern small = const ImageToGridPipeline().run(request(columns: 20, rows: 15));
+      expect(small.grid.width, 20, reason: 'без fullSize размер как у запроса');
+    });
+  });
 }

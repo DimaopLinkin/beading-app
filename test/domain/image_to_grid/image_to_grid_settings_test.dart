@@ -369,4 +369,34 @@ void main() {
       expect(ImageToGridSettings(technique: technique).supportsMargins, !noMargins, reason: '$technique');
     }
   });
+
+  group('черновик большой схемы (T98)', () {
+    const ImageToGridSettings big = ImageToGridSettings(technique: Technique.crossStitch, columns: 400);
+    final SourceImage tall = SourceImage.solid(width: 400, height: 800, r: 10, g: 20, b: 30);
+
+    test('больше предела клеток — сетка уменьшается с теми же пропорциями и помнит полный размер', () {
+      final ImageToGridRequest full = big.toRequest(image: tall, draft: true);
+      final ImageToGridRequest draft = big.toRequest(
+        image: tall,
+        draft: true,
+        draftMaxCells: ImageToGridSettings.draftMaxCells,
+      );
+      expect(draft.fullSize, (columns: full.columns, rows: full.rows));
+      expect(draft.columns * draft.rows, lessThanOrEqualTo(ImageToGridSettings.draftMaxCells * 1.05));
+      expect(draft.columns * draft.rows, greaterThan(ImageToGridSettings.draftMaxCells * 0.9));
+      expect(draft.columns / draft.rows, closeTo(full.columns / full.rows, 0.02));
+      expect(draft.maxColors, full.maxColors);
+    });
+
+    test('схема в пределах, полный расчёт и запрос без предела не меняются', () {
+      final ImageToGridRequest small = const ImageToGridSettings(
+        technique: Technique.crossStitch,
+        columns: 60,
+      ).toRequest(image: tall, draft: true, draftMaxCells: ImageToGridSettings.draftMaxCells);
+      expect(small.fullSize, isNull);
+      expect(small.columns, 60);
+      expect(big.toRequest(image: tall, draftMaxCells: 100).fullSize, isNull, reason: 'не черновик');
+      expect(big.toRequest(image: tall, draft: true).fullSize, isNull, reason: 'предела нет');
+    });
+  });
 }

@@ -386,6 +386,9 @@ final class ImageToGridSettings extends Equatable {
   }
 
   /// Запрос к конвейеру. Если каталожных цветов под размер и бренд нет, палитра выбирается свободно.
+  /// Больше стольких клеток живой черновик не считается: его сетка уменьшается, а результат растягивается (T98).
+  static const int draftMaxCells = 40000;
+
   ImageToGridRequest toRequest({
     required SourceImage image,
     List<CatalogColor> catalog = const <CatalogColor>[],
@@ -398,6 +401,7 @@ final class ImageToGridSettings extends Equatable {
     bool measure = false,
     Uint8List? subjectMask,
     FramePlan? frame,
+    int? draftMaxCells,
   }) {
     final List<CatalogColor> allowed = catalogFor(catalog, brand: brand, stash: stash);
     // Пустой запас сюда не доходит: мастер при onlyStash и пустом отборе схему не считает (T34).
@@ -417,8 +421,15 @@ final class ImageToGridSettings extends Equatable {
                 crop: CropRect.full,
                 settings: this,
               );
-    final int innerColumns = plan?.innerColumns ?? columns;
-    final int innerRows = plan?.innerRows ?? effectiveRows(image);
+    final int fullColumns = plan?.innerColumns ?? columns;
+    final int fullRows = plan?.innerRows ?? effectiveRows(image);
+    // Живой предпросмотр большой схемы (T98): черновик считается по уменьшенной сетке тех же пропорций, а конвейер
+    // растягивает его обратно до полной. Схемы не больше [draftMaxCells] клеток считаются как есть.
+    final int? cap = draft ? draftMaxCells : null;
+    final bool shrink = cap != null && fullColumns * fullRows > cap;
+    final double shrinkBy = shrink ? math.sqrt(cap / (fullColumns * fullRows)) : 1;
+    final int innerColumns = shrink ? math.max(1, (fullColumns * shrinkBy).round()) : fullColumns;
+    final int innerRows = shrink ? math.max(1, (fullRows * shrinkBy).round()) : fullRows;
     final bool voting = detailVoting || (active?.detailVoting ?? false);
     final FaceGuide? faceGuide = active == null || masks == null || masks.faces.isEmpty ? null : FaceGuide(masks);
     return ImageToGridRequest(
@@ -429,6 +440,7 @@ final class ImageToGridSettings extends Equatable {
       columns: innerColumns,
       rows: innerRows,
       frame: plan,
+      fullSize: shrink ? (columns: fullColumns, rows: fullRows) : null,
       maxColors: colorsFor(innerRows),
       constraint: useCatalog
           ? PaletteConstraint.catalog(

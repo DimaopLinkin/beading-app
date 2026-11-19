@@ -9,6 +9,33 @@ import 'package:beading/domain/stitch/partial_stitch.dart';
 
 /// Поля вокруг готовой схемы (T88a): последний дешёвый шаг конвейера.
 abstract final class PatternFrame {
+  /// Растягивает сетку [pattern] до [columns] × [rows] (ближайший сосед): так уменьшенный черновик занимает место
+  /// схемы полного размера. Палитра и метрики остаются; контуры, неполные крестики и блендов у черновика нет, поэтому
+  /// они не переносятся.
+  static GeneratedPattern stretch(GeneratedPattern pattern, int columns, int rows) {
+    final Grid small = pattern.grid;
+    if (columns == small.width && rows == small.height) return pattern;
+    final Uint16List source = small.cells;
+    final Uint16List cells = Uint16List(columns * rows);
+    // Столбец источника для каждого столбца результата считается один раз.
+    final Int32List sourceColumn = Int32List(columns);
+    for (int c = 0; c < columns; c++) {
+      sourceColumn[c] = (c * small.width) ~/ columns;
+    }
+    for (int row = 0; row < rows; row++) {
+      final int sourceRow = ((row * small.height) ~/ rows) * small.width;
+      final int base = row * columns;
+      for (int c = 0; c < columns; c++) {
+        cells[base + c] = source[sourceRow + sourceColumn[c]];
+      }
+    }
+    return GeneratedPattern(
+      grid: Grid.fromCells(width: columns, height: rows, cells: cells),
+      palette: pattern.palette,
+      stats: pattern.stats,
+    );
+  }
+
   /// Ставит внутреннюю сетку [pattern] в пустую сетку [columns] × [rows] со смещением из [plan]. Контуры, неполные
   /// крестики и клетки блендов сдвигаются вместе с ней; палитра и метрики остаются как есть (метрики считаются по
   /// внутренней сетке). Без полей возвращает [pattern] как есть.
