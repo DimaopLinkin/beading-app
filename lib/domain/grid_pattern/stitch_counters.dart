@@ -1,5 +1,6 @@
 import 'dart:typed_data';
 
+import 'package:beading/domain/grid/cell_position.dart';
 import 'package:beading/domain/grid/grid.dart';
 import 'package:beading/domain/grid_pattern/cell_progress.dart';
 import 'package:equatable/equatable.dart';
@@ -97,6 +98,64 @@ abstract final class StitchCounters {
             ),
       ],
     );
+  }
+
+  /// Счётчики [tally] после того, как клетки [flipped] сменили отметку на [done] (в каждой из них отметка действительно
+  /// изменилась, иначе счётчики разойдутся). Работает за число клеток, а не за размер схемы: касание на большой
+  /// схеме не должно пересчитывать сотни тысяч клеток. Клетки вне схемы и пустые пропускаются.
+  static StitchTally applyChanges(
+    Grid grid,
+    StitchTally tally,
+    Iterable<CellPosition> flipped, {
+    required bool done,
+    required int paletteSize,
+  }) {
+    const int block = StitchBlocks.side;
+    final int blockColumns = (grid.width + block - 1) ~/ block;
+    final int step = done ? 1 : -1;
+    List<ColorCount>? byColor;
+    List<BlockCount>? blocks;
+    int doneTotal = tally.done;
+    for (final CellPosition c in flipped) {
+      if (c.column < 0 || c.row < 0 || c.column >= grid.width || c.row >= grid.height) {
+        continue;
+      }
+      final int value = grid.at(c.column, c.row);
+      if (value == 0) {
+        continue;
+      }
+      doneTotal += step;
+      if (value <= paletteSize) {
+        final List<ColorCount> colors = byColor ??= List<ColorCount>.of(tally.byColor);
+        final ColorCount old = colors[value - 1];
+        colors[value - 1] = ColorCount(color: old.color, total: old.total, done: old.done + step);
+      }
+      final int key = (c.row ~/ block) * blockColumns + c.column ~/ block;
+      final List<BlockCount> list = blocks ??= List<BlockCount>.of(tally.blocks);
+      // Блоки лежат по порядку «ряд за рядом», поэтому нужный находится бинарным поиском по ключу.
+      int low = 0;
+      int high = list.length - 1;
+      while (low <= high) {
+        final int mid = (low + high) >> 1;
+        final BlockCount b = list[mid];
+        final int midKey = b.blockRow * blockColumns + b.blockColumn;
+        if (midKey == key) {
+          list[mid] = BlockCount(
+            blockColumn: b.blockColumn,
+            blockRow: b.blockRow,
+            total: b.total,
+            done: b.done + step,
+          );
+          break;
+        }
+        if (midKey < key) {
+          low = mid + 1;
+        } else {
+          high = mid - 1;
+        }
+      }
+    }
+    return (byColor: byColor ?? tally.byColor, total: tally.total, done: doneTotal, blocks: blocks ?? tally.blocks);
   }
 
   /// По одному элементу на каждый из [paletteSize] цветов, в порядке палитры.

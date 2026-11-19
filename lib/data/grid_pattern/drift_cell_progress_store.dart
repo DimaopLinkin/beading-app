@@ -86,17 +86,25 @@ class DriftCellProgressStore implements CellProgressStore {
     }
     final Result<Result<void>> guarded = await guardStorage<Result<void>>(
       () => _dao.transaction(() async {
-        final GridPatternRow? pattern = await _dao.findAlive(patternId);
-        if (pattern == null) {
+        final int? width = await _dao.aliveWidth(patternId);
+        if (width == null) {
           return Err<void>(NotFoundFailure('Сетка $patternId не найдена'));
         }
+        // Читаем только блоки, которых касаются клетки: на большой схеме остальные тысячи блоков не нужны.
+        final List<CellPosition> touched = cells.toList(growable: false);
+        final Set<int> needed = <int>{
+          for (final CellPosition c in touched)
+            if (c.column >= 0 && c.row >= 0 && c.column < width)
+              (c.row ~/ CellProgress.blockSide) * CellProgress.blockStride + c.column ~/ CellProgress.blockSide,
+        };
         final CellProgress before = CellProgress(
-          width: pattern.width,
+          width: width,
           blocks: <int, Uint8List>{
-            for (final GridProgressCellRecord r in await _dao.aliveProgressCells(patternId)) r.blockIndex: r.bits,
+            for (final GridProgressCellRecord r in await _dao.progressCellsAt(patternId, needed))
+              if (r.deletedAt == null) r.blockIndex: r.bits,
           },
         );
-        final Map<int, Uint8List> changed = before.withCells(cells, done: done).changedBlocksFrom(before);
+        final Map<int, Uint8List> changed = before.withCells(touched, done: done).changedBlocksFrom(before);
         if (changed.isNotEmpty) {
           await writeCellBlocks(
             _dao,
