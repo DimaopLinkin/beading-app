@@ -2,6 +2,7 @@ import 'package:beading/core/failure.dart';
 import 'package:beading/domain/editor/cell_rect.dart';
 import 'package:beading/domain/grid/cell_position.dart';
 import 'package:beading/domain/grid_pattern/cell_progress.dart';
+import 'package:beading/domain/grid_pattern/grid_pattern.dart';
 import 'package:beading/domain/grid_pattern/use_cases/cell_progress_commands.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -85,5 +86,27 @@ void main() {
     await mark(projectId: 'proj-1', color: 1, done: false);
     expect((await state()).isEmpty, isTrue);
     expect((await mark(projectId: 'proj-1', color: 5, done: true)).failureOrNull, isA<ValidationFailure>());
+  });
+
+  test('схема, переданная вызывающим, не читается из репозитория', () async {
+    final GridPattern known = sampleGridPattern();
+    patterns.byProject.clear();
+    final MarkCells mark = MarkCells(patterns: patterns, progress: store);
+    final result = await mark(
+      projectId: 'нет',
+      pattern: known,
+      cells: const <CellPosition>[CellPosition(0, 0)],
+      done: true,
+    );
+    expect(result.isSuccess, isTrue);
+    expect((await state()).isDone(0, 0), isTrue);
+    await MarkRect(patterns: patterns, progress: store)(
+      projectId: 'нет',
+      pattern: known,
+      rect: const CellRect(left: 0, top: 0, width: 2, height: 1),
+      done: true,
+    );
+    await MarkColor(patterns: patterns, progress: store)(projectId: 'нет', pattern: known, color: 1, done: true);
+    expect((await state()).isDone(1, 0), isTrue);
   });
 }

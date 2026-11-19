@@ -16,6 +16,14 @@ class GridPatternsDao extends DatabaseAccessor<AppDatabase> with _$GridPatternsD
   Future<GridPatternRow?> findAlive(String id) =>
       (select(gridPatterns)..where((t) => t.id.equals(id) & t.deletedAt.isNull())).getSingleOrNull();
 
+  /// Ширина живой схемы или `null`, если её нет; BLOB сетки не читается (вызывается на каждое касание клетки).
+  Future<int?> aliveWidth(String id) async {
+    final JoinedSelectStatement<GridPatterns, GridPatternRow> query = selectOnly(gridPatterns)
+      ..addColumns(<Expression<Object>>[gridPatterns.width])
+      ..where(gridPatterns.id.equals(id) & gridPatterns.deletedAt.isNull());
+    return (await query.getSingleOrNull())?.read(gridPatterns.width);
+  }
+
   /// Строка по id, включая удалённую.
   Future<GridPatternRow?> find(String id) => (select(gridPatterns)..where((t) => t.id.equals(id))).getSingleOrNull();
 
@@ -87,6 +95,11 @@ class GridPatternsDao extends DatabaseAccessor<AppDatabase> with _$GridPatternsD
   /// Блоки отметок клеток (живые).
   Future<List<GridProgressCellRecord>> aliveProgressCells(String patternId) =>
       (select(gridProgressCells)..where((t) => t.gridPatternId.equals(patternId) & t.deletedAt.isNull())).get();
+
+  /// Блоки схемы с индексами [blockIndexes], включая с надгробием: остальные блоки не читаются.
+  Future<List<GridProgressCellRecord>> progressCellsAt(String patternId, Iterable<int> blockIndexes) => (select(
+    gridProgressCells,
+  )..where((t) => t.gridPatternId.equals(patternId) & t.blockIndex.isIn(blockIndexes))).get();
 
   /// Все блоки схемы, включая с надгробием.
   Future<List<GridProgressCellRecord>> allProgressCells(String patternId) =>

@@ -74,6 +74,9 @@ class StitchCubit extends Cubit<StitchState> {
   final AppEvents _events;
 
   String? _patternId;
+
+  // Отметки, под которые посчитаны счётчики в состоянии: новые счётчики получаются правкой старых по сменившимся клеткам.
+  CellProgress _counted = const CellProgress.none();
   Future<void> _writes = Future<void>.value();
 
   // Откат: последние действия с клетками, которые они реально изменили.
@@ -141,6 +144,30 @@ class StitchCubit extends Cubit<StitchState> {
   StitchState _recount(StitchState s) {
     final Grid grid = s.pattern!.grid;
     final StitchTally tally = StitchCounters.tally(grid, s.progress, paletteSize: s.pattern!.palette.colors.length);
+    _counted = s.progress;
+    return s.copyWith(byColor: tally.byColor, blocks: tally.blocks, total: tally.total, done: tally.done);
+  }
+
+  /// Правит счётчики только по клеткам, у которых отметка сменилась с прошлого подсчёта: на большой схеме полный проход
+  /// по сотням тысяч клеток после каждого касания заметен на экране.
+  StitchState _recountChanged(StitchState s, List<CellPosition> touched, {required bool done}) {
+    final CellProgress now = s.progress;
+    final CellProgress was = _counted;
+    final List<CellPosition> flipped = <CellPosition>[
+      for (final CellPosition c in touched.toSet())
+        if (was.isDone(c.column, c.row) != now.isDone(c.column, c.row)) c,
+    ];
+    _counted = now;
+    if (flipped.isEmpty) {
+      return s;
+    }
+    final StitchTally tally = StitchCounters.applyChanges(
+      s.pattern!.grid,
+      (byColor: s.byColor, total: s.total, done: s.done, blocks: s.blocks),
+      flipped,
+      done: done,
+      paletteSize: s.pattern!.palette.colors.length,
+    );
     return s.copyWith(byColor: tally.byColor, blocks: tally.blocks, total: tally.total, done: tally.done);
   }
 
@@ -184,9 +211,17 @@ class StitchCubit extends Cubit<StitchState> {
     if (!state.isReady || !_isStitch(cell)) {
       return;
     }
+    final GridPattern pattern = state.pattern!;
     final bool done = !state.progress.isDone(cell.column, cell.row);
     _apply(<CellPosition>[cell], done: done);
-    _enqueue(() async => (await _markCells(projectId: _projectId, cells: <CellPosition>[cell], done: done)).isFailure);
+    _enqueue(
+      () async => (await _markCells(
+        projectId: _projectId,
+        pattern: pattern,
+        cells: <CellPosition>[cell],
+        done: done,
+      )).isFailure,
+    );
   }
 
   // Мазок: первая клетка выбирает, отмечаем мы или снимаем отметки на всём мазке.
@@ -222,9 +257,12 @@ class StitchCubit extends Cubit<StitchState> {
     final List<CellPosition> cells = List<CellPosition>.of(_strokeCells);
     final bool done = _strokeDone;
     _strokeCells.clear();
+    final GridPattern pattern = state.pattern!;
     _afterChange(done: done, touched: cells);
     _record(List<CellPosition>.of(_strokeChanged), done: done);
-    _enqueue(() async => (await _markCells(projectId: _projectId, cells: cells, done: done)).isFailure);
+    _enqueue(
+      () async => (await _markCells(projectId: _projectId, pattern: pattern, cells: cells, done: done)).isFailure,
+    );
   }
 
   /// Область: угол нажатия и текущая клетка; рамка видна, пока палец на экране.
@@ -242,7 +280,8 @@ class StitchCubit extends Cubit<StitchState> {
       return;
     }
     emit(state.copyWith(clearAreaPreview: true));
-    final Grid grid = state.pattern!.grid;
+    final GridPattern pattern = state.pattern!;
+    final Grid grid = pattern.grid;
     final CellRect? clipped = rect.clipTo(grid);
     if (clipped == null) {
       return;
@@ -257,7 +296,9 @@ class StitchCubit extends Cubit<StitchState> {
     }
     final bool done = cells.any((c) => !state.progress.isDone(c.column, c.row));
     _apply(cells, done: done);
-    _enqueue(() async => (await _markRect(projectId: _projectId, rect: clipped, done: done)).isFailure);
+    _enqueue(
+      () async => (await _markRect(projectId: _projectId, pattern: pattern, rect: clipped, done: done)).isFailure,
+    );
   }
 
   /// Все клетки цвета [color] (номер в палитре с нуля): сделаны или сняты. Если всё уже сделано, отметки снимаются.
@@ -270,14 +311,17 @@ class StitchCubit extends Cubit<StitchState> {
       return;
     }
     final bool done = count.remaining > 0;
-    final Grid grid = state.pattern!.grid;
+    final GridPattern pattern = state.pattern!;
+    final Grid grid = pattern.grid;
     final List<CellPosition> cells = <CellPosition>[
       for (int r = 0; r < grid.height; r++)
         for (int c = 0; c < grid.width; c++)
           if (grid.at(c, r) == color + 1) CellPosition(c, r),
     ];
     _apply(cells, done: done);
-    _enqueue(() async => (await _markColor(projectId: _projectId, color: color, done: done)).isFailure);
+    _enqueue(
+      () async => (await _markColor(projectId: _projectId, pattern: pattern, color: color, done: done)).isFailure,
+    );
   }
 
   /// Парковка: запоминает клетку, на которой остановились.
@@ -347,11 +391,14 @@ class StitchCubit extends Cubit<StitchState> {
     }
     _noticeTimer?.cancel();
     final ({List<CellPosition> cells, bool done}) last = _history.removeLast();
+    final GridPattern pattern = state.pattern!;
     final bool done = !last.done;
     emit(state.copyWith(progress: state.progress.withCells(last.cells, done: done)));
     _afterChange(done: done, touched: last.cells);
     emit(state.copyWith(canUndo: _history.isNotEmpty, clearUndoNotice: true));
-    _enqueue(() async => (await _markCells(projectId: _projectId, cells: last.cells, done: done)).isFailure);
+    _enqueue(
+      () async => (await _markCells(projectId: _projectId, pattern: pattern, cells: last.cells, done: done)).isFailure,
+    );
   }
 
   /// Скрывает тост, не откатывая.
@@ -369,7 +416,7 @@ class StitchCubit extends Cubit<StitchState> {
     if (done && parked != null && touched.contains(parked)) {
       clearParked();
     }
-    final StitchState counted = _recount(state);
+    final StitchState counted = _recountChanged(state, touched, done: done);
     final int closedBlocks = counted.blocks.where((b) => b.isComplete).length;
     final int wasClosed = before.blocks.where((b) => b.isComplete).length;
     emit(

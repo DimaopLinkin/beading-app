@@ -206,4 +206,61 @@ void main() {
       expect(StitchCounters.tally(grid, narrow, paletteSize: 2).done, 1);
     });
   });
+
+  group('StitchCounters.applyChanges', () {
+    test('после случайных отметок и снятий равен полному пересчёту', () {
+      final math.Random random = math.Random(11);
+      const int width = 53;
+      const int height = 47;
+      final Grid grid = Grid.fromCells(
+        width: width,
+        height: height,
+        cells: List<int>.generate(width * height, (_) => random.nextInt(6)),
+      );
+      CellProgress progress = CellProgress(width: width);
+      StitchTally tally = StitchCounters.tally(grid, progress, paletteSize: 4);
+      for (int step = 0; step < 200; step++) {
+        final bool done = random.nextBool();
+        final List<CellPosition> picked = <CellPosition>[
+          for (int i = 0; i < 1 + random.nextInt(40); i++)
+            CellPosition(random.nextInt(width + 2) - 1, random.nextInt(height)),
+        ];
+        final CellProgress next = progress.withCells(picked, done: done);
+        final List<CellPosition> flipped = <CellPosition>[
+          for (final CellPosition c in picked.toSet())
+            if (progress.isDone(c.column, c.row) != next.isDone(c.column, c.row)) c,
+        ];
+        tally = StitchCounters.applyChanges(grid, tally, flipped, done: done, paletteSize: 4);
+        progress = next;
+        final StitchTally full = StitchCounters.tally(grid, progress, paletteSize: 4);
+        expect(tally.byColor, full.byColor, reason: 'шаг $step');
+        expect(tally.blocks, full.blocks, reason: 'шаг $step');
+        expect(tally.done, full.done, reason: 'шаг $step');
+        expect(tally.total, full.total);
+      }
+    });
+
+    test('не меняет прежний результат и без клеток возвращает те же списки', () {
+      final Grid grid = Grid.fromCells(width: 3, height: 1, cells: const <int>[1, 2, 1]);
+      final StitchTally before = StitchCounters.tally(grid, const CellProgress.none(), paletteSize: 2);
+      final StitchTally same = StitchCounters.applyChanges(
+        grid,
+        before,
+        const <CellPosition>[],
+        done: true,
+        paletteSize: 2,
+      );
+      expect(identical(same.blocks, before.blocks), isTrue);
+      final StitchTally after = StitchCounters.applyChanges(
+        grid,
+        before,
+        const <CellPosition>[CellPosition(0, 0)],
+        done: true,
+        paletteSize: 2,
+      );
+      expect(before.done, 0);
+      expect(after.done, 1);
+      expect(after.byColor[0].done, 1);
+    });
+  });
 }

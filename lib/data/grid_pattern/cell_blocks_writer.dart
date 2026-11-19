@@ -14,7 +14,7 @@ Future<void> writeCellBlocks(
   required String deviceId,
 }) async {
   final Map<int, GridProgressCellRecord> existing = <int, GridProgressCellRecord>{
-    for (final GridProgressCellRecord r in await dao.allProgressCells(patternId)) r.blockIndex: r,
+    for (final GridProgressCellRecord r in await dao.progressCellsAt(patternId, blocks.keys)) r.blockIndex: r,
   };
   for (final MapEntry<int, Uint8List> e in blocks.entries) {
     final GridProgressCellRecord? row = existing[e.key];

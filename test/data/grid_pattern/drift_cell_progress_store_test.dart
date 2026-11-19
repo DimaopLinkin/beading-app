@@ -105,6 +105,30 @@ void main() {
     );
   });
 
+  test('setCells трогает только блоки отметок: чужие блоки не переписываются, снятый блок оживает', () async {
+    await repository.save(wide(80, 80));
+    await store.setCells('pat-1', const <CellPosition>[CellPosition(0, 0), CellPosition(70, 70)], done: true);
+    final Map<String, int> stamp = <String, int>{
+      for (final GridProgressCellRecord r in await db.select(db.gridProgressCells).get()) r.id: r.updatedAt,
+    };
+    clock.advance(const Duration(minutes: 5));
+    await store.setCells('pat-1', const <CellPosition>[CellPosition(1, 0)], done: true);
+    final List<GridProgressCellRecord> rows = await db.select(db.gridProgressCells).get();
+    expect(rows, hasLength(2));
+    final int touched = rows.where((r) => stamp[r.id] != r.updatedAt).length;
+    expect(touched, 1, reason: 'записан только блок с клеткой (1, 0)');
+    // Снять единственную отметку блока (надгробие) и отметить снова.
+    await store.setCells('pat-1', const <CellPosition>[CellPosition(70, 70)], done: false);
+    expect((await store.load('pat-1')).valueOrNull!.count, 2);
+    await store.setCells('pat-1', const <CellPosition>[
+      CellPosition(70, 70),
+      CellPosition(-1, 0),
+      CellPosition(99, 0),
+    ], done: true);
+    expect((await store.load('pat-1')).valueOrNull!.count, 3);
+    expect(await db.select(db.gridProgressCells).get(), hasLength(2), reason: 'надгробие ожило, а не продублировалось');
+  });
+
   test('запись блока ставит служебные колонки', () async {
     await repository.save(wide(8, 8));
     clock.advance(const Duration(minutes: 1));

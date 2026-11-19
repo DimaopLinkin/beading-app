@@ -7,7 +7,7 @@ import 'package:beading/domain/grid_pattern/cell_progress_store.dart';
 import 'package:beading/domain/grid_pattern/grid_pattern.dart';
 import 'package:beading/domain/grid_pattern/grid_pattern_repository.dart';
 
-/// Общая часть команд отметки: находит схему, считает новый прогресс и пишет только изменившиеся блоки.
+/// Общая часть команд отметки: берёт схему у вызывающего или находит её, считает новый прогресс и пишет только изменившиеся блоки.
 abstract class _MarkCommand {
   const _MarkCommand({required GridPatternRepository patterns, required CellProgressStore progress})
     : _patterns = patterns,
@@ -21,12 +21,19 @@ abstract class _MarkCommand {
     String projectId, {
     required bool done,
     required Result<Iterable<CellPosition>> Function(GridPattern pattern) pick,
+    GridPattern? known,
   }) async {
-    final Result<GridPattern> found = await _patterns.getByProject(projectId);
-    if (found case Err<GridPattern>(:final Failure failure)) {
-      return Err<void>(failure);
+    // Экран вышивки уже держит схему в памяти и передаёт её: на каждое касание схему из базы не читаем.
+    final GridPattern pattern;
+    if (known != null) {
+      pattern = known;
+    } else {
+      final Result<GridPattern> loaded = await _patterns.getByProject(projectId);
+      if (loaded case Err<GridPattern>(:final Failure failure)) {
+        return Err<void>(failure);
+      }
+      pattern = loaded.valueOrNull!;
     }
-    final GridPattern pattern = found.valueOrNull!;
     final Result<Iterable<CellPosition>> picked = pick(pattern);
     if (picked case Err<Iterable<CellPosition>>(:final Failure failure)) {
       return Err<void>(failure);
@@ -45,9 +52,15 @@ bool _inside(Grid grid, CellPosition c) => c.column >= 0 && c.row >= 0 && c.colu
 class MarkCells extends _MarkCommand {
   const MarkCells({required super.patterns, required super.progress});
 
-  Future<Result<void>> call({required String projectId, required List<CellPosition> cells, required bool done}) => run(
+  Future<Result<void>> call({
+    required String projectId,
+    required List<CellPosition> cells,
+    required bool done,
+    GridPattern? pattern,
+  }) => run(
     projectId,
     done: done,
+    known: pattern,
     pick: (pattern) {
       final Grid grid = pattern.grid;
       for (final CellPosition c in cells) {
@@ -64,9 +77,15 @@ class MarkCells extends _MarkCommand {
 class MarkRect extends _MarkCommand {
   const MarkRect({required super.patterns, required super.progress});
 
-  Future<Result<void>> call({required String projectId, required CellRect rect, required bool done}) => run(
+  Future<Result<void>> call({
+    required String projectId,
+    required CellRect rect,
+    required bool done,
+    GridPattern? pattern,
+  }) => run(
     projectId,
     done: done,
+    known: pattern,
     pick: (pattern) {
       final Grid grid = pattern.grid;
       final CellRect? clipped = rect.clipTo(grid);
@@ -85,9 +104,15 @@ class MarkRect extends _MarkCommand {
 class MarkColor extends _MarkCommand {
   const MarkColor({required super.patterns, required super.progress});
 
-  Future<Result<void>> call({required String projectId, required int color, required bool done}) => run(
+  Future<Result<void>> call({
+    required String projectId,
+    required int color,
+    required bool done,
+    GridPattern? pattern,
+  }) => run(
     projectId,
     done: done,
+    known: pattern,
     pick: (pattern) {
       final Grid grid = pattern.grid;
       if (color < 0 || color >= pattern.palette.colors.length) {
