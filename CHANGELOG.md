@@ -8,6 +8,18 @@
 
 Смотри `changelog.d/`.
 
+## [0.6.0] — 2026-11-19
+
+### Добавлено
+
+- `scripts/kanitel.sh`: меню на стрелках (запустить или собрать, iPhone или Mac), всегда release; сборка копируется в `artifacts/beading-v<версия из pubspec>.app|.ipa`. (T93)
+- Параметры Supabase читаются из `config/supabase.json` (в git нет, образец `config/supabase.example.json`). `docs/release.md` обновлён. (T93)
+
+### Исправлено
+
+- Вышивки и стежки, которые пришли с другого устройства, теперь появляются на открытых экранах сами: список работ и экран работы с вышивкой больше не нужно закрывать и открывать заново. (T91)
+- `DriftSyncStore` пишет сырым SQL, а он не будит потоки drift. После `applyIncoming` и `discardLocalData` вызывается `markTablesUpdated(allTables)`; тест в `drift_sync_store_test.dart`. (T91)
+
 ## [0.5.0] — 2026-11-19
 
 ### Добавлено
