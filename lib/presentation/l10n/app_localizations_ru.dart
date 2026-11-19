@@ -1493,18 +1493,6 @@ class AppLocalizationsRu extends AppLocalizations {
   String get imageWizardLookRealistic => 'Как будет';
 
   @override
-  String get imageWizardFullPreviewOpen => 'Во весь экран';
-
-  @override
-  String get imageWizardFullPreviewTitle => 'Предпросмотр';
-
-  @override
-  String get imageWizardFullPreviewBack => 'Параметры';
-
-  @override
-  String get imageWizardFullPreviewHint => 'Щипком меняйте масштаб, пальцем двигайте схему';
-
-  @override
   String get imageWizardCompareHint => 'Удерживайте схему, чтобы увидеть исходную картинку';
 
   @override
@@ -2030,13 +2018,28 @@ class AppLocalizationsRu extends AppLocalizations {
   String get imageWizardName => 'Название';
 
   @override
-  String get imageWizardSave => 'Сохранить схему';
+  String get imageWizardSave => 'Сохранить';
+
+  @override
+  String get imageWizardToolBase => 'Основа';
+
+  @override
+  String get imageWizardToolSize => 'Размер';
+
+  @override
+  String get imageWizardToolColors => 'Цвета';
+
+  @override
+  String get imageWizardToolDetails => 'Детали';
+
+  @override
+  String get imageWizardToolStitches => 'Стежки';
+
+  @override
+  String get imageWizardToolTotal => 'Итог';
 
   @override
   String get imageWizardEditTitle => 'Изменить схему';
-
-  @override
-  String get imageWizardSaveChanges => 'Сохранить изменения';
 
   @override
   String get imageWizardEditNoPhoto =>
@@ -2191,6 +2194,15 @@ class AppLocalizationsRu extends AppLocalizations {
     );
     return 'Снято $_temp0';
   }
+
+  @override
+  String get zoomOut => 'Уменьшить';
+
+  @override
+  String get zoomIn => 'Увеличить';
+
+  @override
+  String get zoomSliderLabel => 'Масштаб';
 
   @override
   String get stitchZoomHint => 'Приблизьте, чтобы отметить касанием';

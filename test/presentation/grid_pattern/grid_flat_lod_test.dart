@@ -108,7 +108,7 @@ void main() {
       expect(await boundaryRgb(realistic: true), isNot(0xF2B84B), reason: 'в «как будет» там подложка');
     });
 
-    test('обзор прямоугольной схемы — текстура: пиксель на клетку, без блоков (T95)', () async {
+    test('обзор прямоугольной схемы — текстура: пиксель на клетку, без блоков (T97)', () async {
       final Grid grid = Grid.fromCells(width: 3, height: 2, cells: const <int>[1, 2, 0, 3, 3, 1]);
       final GridScene scene = GridScene(
         geometry: const GridGeometry.rectangular(),

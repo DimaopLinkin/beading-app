@@ -182,6 +182,25 @@ void main() {
     expect(other.files['step_patterns/sp/i1.png'], <int>[1, 2, 3]);
   });
 
+  test('исходное фото рецепта мастера едет файлом; слишком большое уходит без файла (T96)', () async {
+    files.files['recipes/p.src'] = Uint8List.fromList(<int>[4, 5, 6]);
+    files.files['recipes/big.src'] = Uint8List(BlobExternalizer.maxFileBytes + 1);
+    await remote.push(<SyncRecord>[
+      rec('image_recipe', 'p', at: 10, data: <String, Object?>{'params': '{}', 'path': 'recipes/p.src'}),
+      rec('image_recipe', 'big', at: 10, data: <String, Object?>{'params': '{}', 'path': 'recipes/big.src'}),
+    ]);
+    expect((records.rows['image_recipe/big']!['data']! as Map<String, Object?>).containsKey('file'), isFalse);
+
+    final FakeFileStore other = FakeFileStore();
+    final SupabaseSyncRemote macRemote = SupabaseSyncRemote(
+      records: records,
+      externalizer: BlobExternalizer(blobs: blobs, files: other),
+    );
+    await macRemote.pullSince(0);
+    expect(other.files['recipes/p.src'], <int>[4, 5, 6]);
+    expect(other.files.containsKey('recipes/big.src'), isFalse);
+  });
+
   test('файл не скачался: pull падает, запись не применяется, курсор вызывающий не двигает', () async {
     await remote.push(<SyncRecord>[
       rec(

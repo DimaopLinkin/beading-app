@@ -27,8 +27,14 @@ abstract final class SyncTriggers {
 
   /// Триггеры до появления инструкций (схема v14–v17): таблиц `step_*` в этих версиях ещё нет.
   static List<String> get statementsBeforeSteps => <String>[
-    for (final String sql in statements)
+    for (final String sql in statementsBeforeRecipes)
       if (!sql.contains(' ON step_')) sql,
+  ];
+
+  /// Триггеры до появления рецептов мастера в базе (схема v18): таблицы `image_recipes` ещё нет.
+  static List<String> get statementsBeforeRecipes => <String>[
+    for (final String sql in statements)
+      if (!sql.contains(' ON image_recipes ')) sql,
   ];
 
   /// Ставит в очередь инструкции, созданные до появления триггеров (миграция v17→v18).
@@ -97,6 +103,8 @@ abstract final class SyncTriggers {
     both('grid_progress_cells', 'progress_cell', "${_projectOfGrid('NEW.grid_pattern_id')} || ':' || NEW.block_index");
 
     both('image_patterns', 'image_pattern', 'NEW.project_id');
+    // Рецепт мастера (T96): параметры строкой, фото через Storage (поле `file`).
+    both('image_recipes', 'image_recipe', 'NEW.id');
     both(
       'image_pattern_pages',
       'image_pattern_page',

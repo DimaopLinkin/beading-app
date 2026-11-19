@@ -18,6 +18,7 @@ import 'package:beading/data/db/tables/easter_egg_log_table.dart';
 import 'package:beading/data/db/tables/floss_stock_table.dart';
 import 'package:beading/data/db/tables/grid_pattern_tables.dart';
 import 'package:beading/data/db/tables/image_pattern_tables.dart';
+import 'package:beading/data/db/tables/image_recipe_table.dart';
 import 'package:beading/data/db/tables/projects_table.dart';
 import 'package:beading/data/db/tables/settings_table.dart';
 import 'package:beading/data/db/tables/step_pattern_tables.dart';
@@ -49,6 +50,7 @@ part 'app_database.g.dart';
     StepPatterns,
     StepImages,
     StepProgressRows,
+    ImageRecipes,
     SyncOutbox,
     SyncShadow,
     SyncApplying,
@@ -71,7 +73,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase(super.e);
 
   @override
-  int get schemaVersion => 18;
+  int get schemaVersion => 19;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -151,10 +153,15 @@ class AppDatabase extends _$AppDatabase {
       },
       // v18 (T33b): триггеры очереди для инструкций; уже созданные инструкции уходят в очередь целиком.
       from17To18: (m, schema) async {
-        await _createSyncTriggers();
+        await _createSyncTriggers(SyncTriggers.statementsBeforeRecipes);
         for (final String sql in SyncTriggers.enqueueExistingSteps) {
           await customStatement(sql);
         }
+      },
+      // v19 (T96): рецепты мастера в базе, чтобы исходное фото ехало на другие устройства.
+      from18To19: (m, schema) async {
+        await m.createTable(schema.imageRecipes);
+        await _createSyncTriggers();
       },
     ),
     beforeOpen: (details) => customStatement('PRAGMA foreign_keys = ON'),

@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:typed_data';
 
+import 'package:beading/core/failure.dart';
 import 'package:beading/core/result.dart';
 import 'package:beading/domain/catalog/bead_finish_group.dart';
 import 'package:beading/domain/catalog/bead_series.dart';
@@ -151,33 +152,106 @@ abstract final class ImageRecipeCodec {
   }
 }
 
-/// Рецепты схем в файлах приложения: `recipes/<id проекта>.json` и `recipes/<id проекта>.src`.
-/// Не синхронизируются между устройствами и не попадают в копию проекта: это только удобство правки.
+/// Параметры рецептов в базе (T96): строка на проект, синхронизируется между устройствами вместе с фото.
+abstract interface class ImageRecipeIndex {
+  /// JSON параметров ([ImageRecipeCodec]) живого рецепта; `null`, если его нет.
+  Future<String?> params(String projectId);
+
+  /// Записывает или оживляет рецепт; [sourcePath] — относительный путь фото в [FileStore].
+  Future<void> put(String projectId, {required String params, required String sourcePath});
+
+  /// Надгробие рецепта; отсутствующий рецепт — не ошибка.
+  Future<void> remove(String projectId);
+
+  /// Живые проекты со схемой-сеткой, у которых рецепта в базе нет (кандидаты на перенос старых файлов).
+  Future<List<String>> projectsWithoutRecipe();
+}
+
+/// Рецепты схем: фото файлом `recipes/<id проекта>.src`, параметры строкой в [ImageRecipeIndex].
+/// До T96 параметры лежали файлом `recipes/<id проекта>.json` и не синхронизировались; такие рецепты
+/// переносятся в базу при чтении и в [adoptLegacy]. Без индекса (тесты) параметры по-прежнему пишутся файлом.
+/// В копию проекта рецепт не попадает: это только удобство правки.
 class ImageRecipeStore {
-  const ImageRecipeStore(FileStore files) : _files = files;
+  const ImageRecipeStore(FileStore files, {ImageRecipeIndex? index}) : _files = files, _index = index;
 
   final FileStore _files;
+  final ImageRecipeIndex? _index;
 
   static String _json(String projectId) => 'recipes/$projectId.json';
-  static String _src(String projectId) => 'recipes/$projectId.src';
+
+  /// Путь фото рецепта. Одинаков на всех устройствах: по нему файл кладёт синхронизация.
+  static String sourcePath(String projectId) => 'recipes/$projectId.src';
 
   Future<Result<void>> save(String projectId, ImageRecipe recipe) async {
-    final Result<void> source = await _files.write(_src(projectId), recipe.source);
+    final Result<void> source = await _files.write(sourcePath(projectId), recipe.source);
     if (source case Err<void>()) return source;
-    return _files.write(_json(projectId), Uint8List.fromList(utf8.encode(ImageRecipeCodec.encode(recipe))));
+    final String params = ImageRecipeCodec.encode(recipe);
+    final ImageRecipeIndex? index = _index;
+    if (index == null) {
+      return _files.write(_json(projectId), Uint8List.fromList(utf8.encode(params)));
+    }
+    return _guard(() => index.put(projectId, params: params, sourcePath: sourcePath(projectId)));
   }
 
-  /// Рецепт проекта; `null` — схема создана не в мастере, до T79 или файлы пропали.
+  /// Рецепт проекта; `null` — схема создана не в мастере, до T79, фото не доехало или файлы пропали.
   Future<ImageRecipe?> load(String projectId) async {
-    final Result<Uint8List> json = await _files.read(_json(projectId));
-    final Result<Uint8List> source = await _files.read(_src(projectId));
-    if (json.valueOrNull == null || source.valueOrNull == null) return null;
-    return ImageRecipeCodec.decode(utf8.decode(json.valueOrNull!), source.valueOrNull!);
+    final Uint8List? source = (await _files.read(sourcePath(projectId))).valueOrNull;
+    if (source == null) return null;
+    String? params;
+    try {
+      params = await _index?.params(projectId);
+    } on Object {
+      params = null;
+    }
+    params ??= await _legacy(projectId);
+    return params == null ? null : ImageRecipeCodec.decode(params, source);
   }
 
   Future<Result<void>> delete(String projectId) async {
+    final ImageRecipeIndex? index = _index;
+    if (index != null) {
+      final Result<void> removed = await _guard(() => index.remove(projectId));
+      if (removed case Err<void>()) return removed;
+    }
     await _files.delete(_json(projectId));
-    return _files.delete(_src(projectId));
+    return _files.delete(sourcePath(projectId));
+  }
+
+  /// Переносит в базу рецепты, записанные до T96 только файлами, чтобы они уехали на другие устройства.
+  Future<void> adoptLegacy() async {
+    final ImageRecipeIndex? index = _index;
+    if (index == null) return;
+    try {
+      for (final String id in await index.projectsWithoutRecipe()) {
+        await _legacy(id);
+      }
+    } on Object {
+      // Перенос повторится при следующем запуске.
+    }
+  }
+
+  /// Параметры из старого файла; при наличии индекса и фото переносит их в базу.
+  Future<String?> _legacy(String projectId) async {
+    final Uint8List? json = (await _files.read(_json(projectId))).valueOrNull;
+    if (json == null) return null;
+    final String params = utf8.decode(json, allowMalformed: true);
+    final ImageRecipeIndex? index = _index;
+    if (index != null && (await _files.read(sourcePath(projectId))).valueOrNull != null) {
+      final Result<void> put = await _guard(
+        () => index.put(projectId, params: params, sourcePath: sourcePath(projectId)),
+      );
+      if (put case Success<void>()) await _files.delete(_json(projectId));
+    }
+    return params;
+  }
+
+  static Future<Result<void>> _guard(Future<void> Function() action) async {
+    try {
+      await action();
+      return const Success<void>(null);
+    } on Object catch (error) {
+      return Err<void>(StorageFailure('Рецепт не записан: $error'));
+    }
   }
 }
 

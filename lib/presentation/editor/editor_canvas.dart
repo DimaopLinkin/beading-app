@@ -9,13 +9,15 @@ import 'package:beading/domain/palette/catalog_ref.dart';
 import 'package:beading/domain/palette/rgb.dart';
 import 'package:beading/domain/stitch/lattice_node.dart';
 import 'package:beading/domain/stitch/stitch_layers.dart';
+import 'package:beading/presentation/common/zoom/canvas_zoom.dart';
+import 'package:beading/presentation/common/zoom/zoom_control.dart';
 import 'package:beading/presentation/editor/editor_state.dart';
 import 'package:beading/presentation/grid_pattern/grid_pattern_view.dart';
 import 'package:beading/presentation/grid_pattern/grid_scene.dart';
 import 'package:beading/presentation/grid_pattern/grid_view_options.dart';
 import 'package:beading/presentation/theme/tokens.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/gestures.dart';
+import 'package:flutter/foundation.dart' show defaultTargetPlatform;
 
 /// Полотно редактора: схема с зумом и сдвигом, мазки одним пальцем (или мышью), два пальца — зум и сдвиг.
 ///
@@ -79,7 +81,6 @@ class EditorCanvas extends StatefulWidget {
 }
 
 class _EditorCanvasState extends State<EditorCanvas> {
-  static const double _minScale = 0.25;
   static const double _maxScale = 10;
   static const double _tapSlop = 8;
 
@@ -100,6 +101,8 @@ class _EditorCanvasState extends State<EditorCanvas> {
   /// За это касание был второй палец: ни тап, ни одиночная точка не засчитываются.
   bool _multiTouch = false;
   CellPosition? _pendingCell;
+
+  late final CanvasZoom _zoom = CanvasZoom(controller: _controller, maxScale: _maxScale);
 
   TransformationController get _controller => widget.controller ?? (_own ??= TransformationController());
 
@@ -129,7 +132,11 @@ class _EditorCanvasState extends State<EditorCanvas> {
     super.dispose();
   }
 
+  Size _viewport = Size.zero;
+
   void _fit(Size viewport) {
+    _viewport = viewport;
+    _zoom.minScale = math.min(1, math.min(viewport.width / _scene.size.width, viewport.height / _scene.size.height));
     if (_fitted) return;
     _fitted = true;
     final double scale = math.min(3, viewport.width / _scene.size.width);
@@ -163,6 +170,9 @@ class _EditorCanvasState extends State<EditorCanvas> {
   }
 
   void _down(PointerDownEvent e) {
+    if (_zoom.middleDown(e)) {
+      return;
+    }
     _pointers[e.pointer] = e.localPosition;
     if (_pointers.length > 1) {
       _enterGestureMode();
@@ -208,6 +218,9 @@ class _EditorCanvasState extends State<EditorCanvas> {
   }
 
   void _move(PointerMoveEvent e) {
+    if (_zoom.middleMove(e)) {
+      return;
+    }
     final Offset? before = _pointers[e.pointer];
     if (before == null) return;
     if (_gestureMode && _pointers.length >= 2) {
@@ -235,7 +248,7 @@ class _EditorCanvasState extends State<EditorCanvas> {
     final Offset newCenter = _center();
     final double newSpread = _spread();
     final double factor = oldSpread < 1 ? 1 : newSpread / oldSpread;
-    _transform(newCenter, factor, newCenter - oldCenter);
+    _zoom.transform(newCenter, factor, newCenter - oldCenter);
   }
 
   Offset _center() {
@@ -251,21 +264,10 @@ class _EditorCanvasState extends State<EditorCanvas> {
     return (points[0] - points[1]).distance;
   }
 
-  /// Масштаб вокруг [focal] и сдвиг [pan] в координатах экрана; зум ограничен.
-  void _transform(Offset focal, double factor, Offset pan) {
-    final Matrix4 current = _controller.value;
-    final double scale = current.getMaxScaleOnAxis();
-    final double clamped = (scale * factor).clamp(_minScale, _maxScale);
-    final double k = clamped / scale;
-    _controller.value = Matrix4.identity()
-      ..translateByDouble(pan.dx, pan.dy, 0, 1)
-      ..translateByDouble(focal.dx, focal.dy, 0, 1)
-      ..scaleByDouble(k, k, 1, 1)
-      ..translateByDouble(-focal.dx, -focal.dy, 0, 1)
-      ..multiply(current);
-  }
-
   void _up(PointerUpEvent e) {
+    if (_zoom.middleEnd(e)) {
+      return;
+    }
     final bool wasPrimary = e.pointer == _primary;
     _pointers.remove(e.pointer);
     if (_pointers.isEmpty) _gestureMode = false;
@@ -296,6 +298,9 @@ class _EditorCanvasState extends State<EditorCanvas> {
   }
 
   void _cancel(PointerCancelEvent e) {
+    if (_zoom.middleEnd(e)) {
+      return;
+    }
     _pointers.remove(e.pointer);
     if (_pointers.isEmpty) _gestureMode = false;
     if (e.pointer == _primary) {
@@ -304,27 +309,20 @@ class _EditorCanvasState extends State<EditorCanvas> {
     }
   }
 
-  void _signal(PointerSignalEvent e) {
-    if (e is PointerScrollEvent) {
-      _transform(e.localPosition, 1, -e.scrollDelta);
-    } else if (e is PointerScaleEvent) {
-      _transform(e.localPosition, e.scale, Offset.zero);
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     return LayoutBuilder(
       builder: (context, constraints) {
         _fit(Size(constraints.maxWidth, constraints.maxHeight));
-        return Listener(
+        final Widget canvas = Listener(
           behavior: HitTestBehavior.opaque,
           onPointerDown: _down,
           onPointerMove: _move,
           onPointerUp: _up,
           onPointerCancel: _cancel,
-          onPointerSignal: _signal,
-          onPointerPanZoomUpdate: (e) => _transform(e.localPosition, e.scale == 1 ? 1 : e.scale, e.panDelta),
+          onPointerSignal: _zoom.signal,
+          onPointerPanZoomStart: (_) => _zoom.panZoomStart(),
+          onPointerPanZoomUpdate: _zoom.panZoomUpdate,
           child: ClipRect(
             child: Stack(
               children: <Widget>[
@@ -380,6 +378,17 @@ class _EditorCanvasState extends State<EditorCanvas> {
               ],
             ),
           ),
+        );
+        return Stack(
+          children: <Widget>[
+            Positioned.fill(child: canvas),
+            if (defaultTargetPlatform == TargetPlatform.macOS)
+              Positioned(
+                right: 12,
+                bottom: 12,
+                child: ZoomControl(zoom: _zoom, viewport: _viewport),
+              ),
+          ],
         );
       },
     );
