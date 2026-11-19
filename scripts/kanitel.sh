@@ -3,7 +3,7 @@
 #   scripts/kanitel.sh                 — интерактивно
 #   scripts/kanitel.sh build macos     — без меню (build|run, ios|macos; для run ios спросит устройство)
 # Всегда --release (macOS только arm64). Результат сборки копируется в artifacts/ (в git не попадает):
-#   artifacts/beading-v<версия из pubspec>.app  (macOS)
+#   artifacts/beading-v<версия из pubspec>.app  (macOS, ad-hoc подпись) + …-macos.zip для передачи на другой Mac
 #   artifacts/beading-v<версия из pubspec>.ipa  (iPhone)
 # Параметры Supabase берутся из config/supabase.json (в git нет, образец: config/supabase.example.json).
 # Работает на bash 3.2 (системный macOS), без внешних зависимостей кроме flutter.
@@ -97,6 +97,17 @@ if [ "$PLATFORM" = macos ]; then
   [ -n "$APP" ] || die 'не нашёл собранный .app'
   OUT="$ARTIFACTS/$SUFFIX.app"
   rm -rf "$OUT"; ditto "$APP" "$OUT"
+  # Переподписываем ad-hoc: сборка с рабочей командой Apple Development запускается только на Mac,
+  # внесённых в эту команду, на другом Mac (у Насти) значок перечёркнут. Ad-hoc подпись работает на любом
+  # Apple Silicon Mac после снятия карантина. Сессия Supabase лежит в обычной связке, ей команда не нужна.
+  rm -f "$OUT/Contents/embedded.provisionprofile"
+  codesign --force --deep --options runtime --timestamp=none \
+    --entitlements macos/Runner/Release.entitlements --sign - "$OUT"
+  codesign --verify --deep --strict "$OUT" || die 'ad-hoc подпись не прошла проверку'
+  ZIP="$ARTIFACTS/$SUFFIX-macos.zip"
+  rm -f "$ZIP"; ditto -c -k --keepParent "$OUT" "$ZIP"
+  echo "→ Для другого Mac передайте $ZIP. Там: распаковать, затем один раз"
+  echo "  xattr -dr com.apple.quarantine <путь к .app>  (или правой кнопкой → Открыть)"
 else
   flutter build ios --release ${DEFINES[@]+"${DEFINES[@]}"}
   APP=build/ios/iphoneos/Runner.app
