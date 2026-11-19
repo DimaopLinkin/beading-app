@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:beading/core/id_generator.dart';
 import 'package:beading/data/db/app_database.dart';
 import 'package:beading/data/sync/drift_sync_store.dart';
@@ -287,5 +289,31 @@ void main() {
     expect(<Object?>[for (final Row r in visible) r['id']], <String>['p1']);
     // Чужой проект на сервер не ушёл.
     expect(remote.rows.keys.where((k) => k.contains('x1')), isEmpty);
+  });
+
+  test('пришедшее с сервера будит открытые потоки: список работ и прогресс обновляются без перезапуска экрана', () async {
+    await phone.project('p1');
+    await phone.grid('g1', 'p1');
+    await phone.sync(remote);
+    await mac.sync(remote);
+
+    final List<int> works = <int>[];
+    final List<int> cells = <int>[];
+    final StreamSubscription<Object?> sub1 = mac.db.projectsDao.watchAlive().listen((r) => works.add(r.length));
+    final StreamSubscription<Object?> sub2 = mac.db.select(mac.db.gridProgressCells).watch().listen((r) => cells.add(r.length));
+    await pumpEventQueue();
+    expect(works.last, 1);
+    expect(cells.last, 0);
+
+    await phone.project('p2');
+    await phone.cells('b1', 'g1', 3);
+    await phone.sync(remote);
+    await mac.sync(remote);
+    await pumpEventQueue();
+
+    expect(works.last, 2, reason: 'новая вышивка с другого устройства');
+    expect(cells.last, 1, reason: 'новые стежки с другого устройства');
+    await sub1.cancel();
+    await sub2.cancel();
   });
 }

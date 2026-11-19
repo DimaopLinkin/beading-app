@@ -38,7 +38,12 @@ class DriftSyncStore implements SyncStore {
 
   /// Надгробия с `updated_at = 0`: любая серверная версия новее и вернёт запись. Очередь и копии сервера сбрасываются.
   @override
-  Future<void> discardLocalData() => _db.transaction(() async {
+  Future<void> discardLocalData() async {
+    await _discardLocalData();
+    _notifyScreens();
+  }
+
+  Future<void> _discardLocalData() => _db.transaction(() async {
     await ctx.run('INSERT OR IGNORE INTO sync_applying (flag) VALUES (1)');
     for (final String entity in const <String>['project', 'floss_stock', 'bead_stock']) {
       final SyncEntityMapper m = _mappers[entity]!;
@@ -168,6 +173,19 @@ class DriftSyncStore implements SyncStore {
 
   @override
   Future<void> applyIncoming({
+    required List<SyncRecord> records,
+    required List<SyncRecord> held,
+    required int cursor,
+  }) async {
+    await _applyIncoming(records: records, held: held, cursor: cursor);
+    _notifyScreens();
+  }
+
+  /// Запись идёт сырым SQL (`customStatement`), а он не будит потоки drift: без этого открытые экраны
+  /// («Мои работы», работа с вышивкой) не видели бы пришедшего с сервера до перезапуска.
+  void _notifyScreens() => _db.markTablesUpdated(_db.allTables);
+
+  Future<void> _applyIncoming({
     required List<SyncRecord> records,
     required List<SyncRecord> held,
     required int cursor,
