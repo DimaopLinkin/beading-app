@@ -2196,6 +2196,15 @@ class AppLocalizationsRu extends AppLocalizations {
   }
 
   @override
+  String get zoomOut => 'Уменьшить';
+
+  @override
+  String get zoomIn => 'Увеличить';
+
+  @override
+  String get zoomSliderLabel => 'Масштаб';
+
+  @override
   String get stitchZoomHint => 'Приблизьте, чтобы отметить касанием';
 
   @override
