@@ -1,4 +1,5 @@
 import 'dart:math' as math;
+import 'dart:typed_data';
 
 import 'package:beading/domain/image_to_grid/generated_pattern.dart';
 import 'package:beading/domain/palette/lab.dart';
@@ -96,8 +97,10 @@ List<BlendSuggestion> suggestBlends(
 
   // Кандидаты пары: клетка и выигрыш по ΔE2000. Пара годится клетке, только если её цвет ближе лучшего одиночного
   // минимум на margin: цвета пар разложены по кубикам Lab, и клетка смотрит лишь кубики в этом радиусе (T70, без этого
-  // вышивка в миллион клеток и 120 цветов считала бленды минуту). Клетки идут по возрастанию, как раньше.
-  final List<Map<int, double>> candidates = <Map<int, double>>[for (int p = 0; p < pairs.length; p++) <int, double>{}];
+  // вышивка в миллион клеток и 120 цветов считала бленды минуту). Клетки идут по возрастанию, как раньше, поэтому
+  // клетки каждой пары лежат в буфере по возрастанию (T99: типизированные буферы вместо карт, на большой схеме
+  // кандидатов десятки миллионов).
+  final List<_Candidates> candidates = <_Candidates>[for (int p = 0; p < pairs.length; p++) _Candidates()];
   final _MixGrid grid = _MixGrid(<Lab>[for (final (int, int, Rgb, Lab) pair in pairs) pair.$4]);
   for (int cell = 0; cell < targets.length; cell++) {
     final Lab? target = targets[cell];
@@ -107,50 +110,88 @@ List<BlendSuggestion> suggestBlends(
       final Lab mix = pairs[p].$4;
       if (_distance(target, mix) + margin >= single[cell]) return;
       final double gain = singleDe[cell] - deltaE2000(target, mix);
-      if (gain > 0) candidates[p][cell] = gain;
+      if (gain > 0) candidates[p].add(cell, gain);
     });
   }
 
-  final Set<int> taken = <int>{};
+  // Жадный отбор: каждый раз берётся пара с наибольшим суммарным выигрышем по ещё не занятым клеткам. Суммарный
+  // выигрыш пары только падает (занятые клетки выбывают), поэтому последний посчитанный итог — верхняя граница, и
+  // заново считать нужно лишь пары, чья граница не ниже лучшего найденного итога. Выбор тот же, что при полном
+  // переборе: итоги считаются теми же суммами в том же порядке, а при равенстве побеждает пара с меньшим номером.
+  final Uint8List taken = Uint8List(targets.length);
+  final List<double> bound = <double>[for (final _Candidates c in candidates) c.total(taken).total];
   final List<BlendSuggestion> out = <BlendSuggestion>[];
-  final Set<int> used = <int>{};
+  final Uint8List used = Uint8List(pairs.length);
+  final List<int> order = List<int>.generate(pairs.length, (p) => p);
   while (out.length < limit) {
+    order.sort((x, y) {
+      final int byBound = bound[y].compareTo(bound[x]);
+      return byBound != 0 ? byBound : x - y;
+    });
     int bestPair = -1;
     double bestTotal = 0;
-    for (int p = 0; p < pairs.length; p++) {
-      if (used.contains(p)) continue;
-      double total = 0;
-      int cells = 0;
-      for (final MapEntry<int, double> e in candidates[p].entries) {
-        if (taken.contains(e.key)) continue;
-        total += e.value;
-        cells++;
+    for (final int p in order) {
+      if (used[p] == 1) continue;
+      // Дальше границы только ниже: лучше уже не найти (при равной границе пара с большим номером не побеждает).
+      if (bound[p] < bestTotal || (bound[p] == bestTotal && bestPair >= 0 && p > bestPair)) {
+        if (bound[p] < bestTotal) break;
+        continue;
       }
-      if (cells < minCells || total / cells < minGain) continue;
-      if (total > bestTotal) {
-        bestTotal = total;
+      final ({double total, int cells}) now = candidates[p].total(taken);
+      bound[p] = now.total;
+      if (now.cells < minCells || now.total / now.cells < minGain) continue;
+      if (now.total > bestTotal || (now.total == bestTotal && bestPair >= 0 && p < bestPair)) {
+        bestTotal = now.total;
         bestPair = p;
       }
     }
     if (bestPair < 0) break;
-    used.add(bestPair);
-    final List<int> cells = <int>[
-      for (final int cell in candidates[bestPair].keys)
-        if (!taken.contains(cell)) cell,
-    ]..sort();
-    taken.addAll(cells);
+    used[bestPair] = 1;
+    final _Candidates chosen = candidates[bestPair];
+    final List<int> cells = <int>[];
+    double gainSum = 0;
+    for (int i = 0; i < chosen.length; i++) {
+      final int cell = chosen.cells[i];
+      if (taken[cell] == 1) continue;
+      cells.add(cell);
+      gainSum += chosen.gains[i];
+    }
+    for (final int cell in cells) {
+      taken[cell] = 1;
+    }
     final (int first, int second, Rgb mix, Lab _) = pairs[bestPair];
-    out.add(
-      BlendSuggestion(
-        first: first,
-        second: second,
-        rgb: mix,
-        cells: cells,
-        meanGain: cells.fold<double>(0, (sum, c) => sum + candidates[bestPair][c]!) / cells.length,
-      ),
-    );
+    out.add(BlendSuggestion(first: first, second: second, rgb: mix, cells: cells, meanGain: gainSum / cells.length));
   }
   return out;
+}
+
+/// Клетки пары и выигрыш по каждой, по возрастанию клетки; буферы растут вдвое.
+final class _Candidates {
+  Int32List cells = Int32List(16);
+  Float64List gains = Float64List(16);
+  int length = 0;
+
+  void add(int cell, double gain) {
+    if (length == cells.length) {
+      cells = Int32List(length * 2)..setRange(0, length, cells);
+      gains = Float64List(length * 2)..setRange(0, length, gains);
+    }
+    cells[length] = cell;
+    gains[length] = gain;
+    length++;
+  }
+
+  /// Сумма выигрыша и число клеток, ещё не занятых другим предложением (отмечены в [taken]).
+  ({double total, int cells}) total(Uint8List taken) {
+    double sum = 0;
+    int count = 0;
+    for (int i = 0; i < length; i++) {
+      if (taken[cells[i]] == 1) continue;
+      sum += gains[i];
+      count++;
+    }
+    return (total: sum, cells: count);
+  }
 }
 
 /// Цвета пар, разложенные по кубикам Lab со стороной [_side]: поиск всех цветов не дальше радиуса без перебора.
