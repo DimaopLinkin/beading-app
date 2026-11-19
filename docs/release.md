@@ -4,18 +4,26 @@
 
 ## Сборка
 
-```bash
-scripts/setup.sh                   # flutter pub get + build_runner (один раз и после смены схемы БД или .arb)
-flutter run --release              # на подключённый iPhone (-d <id>, список: flutter devices)
-flutter run --release -d macos     # на этот Mac
-flutter build macos --release      # только собрать .app: build/macos/Build/Products/Release/
-```
-
-Синхронизация (Supabase): адрес и публичный ключ передаются при сборке, в git их нет. Без них приложение собирается и работает локально, строка «Синхронизация» в настройках пишет «Не настроена в этой сборке»:
+Основной путь: интерактивный скрипт. Стрелками выбираете «Запустить» или «Собрать», затем iPhone или Mac:
 
 ```bash
-flutter run --release --dart-define=SUPABASE_URL=https://<ref>.supabase.co --dart-define=SUPABASE_PUBLISHABLE_KEY=sb_publishable_…
+scripts/kanitel.sh                # меню; q — выйти
+scripts/kanitel.sh build macos    # без меню: build|run, ios|macos
 ```
+
+Всегда `--release` (macOS только arm64). Запуск на iPhone покажет подключённые устройства. Сборка кладёт результат в `artifacts/` (в git нет): `beading-v<версия из pubspec>.app` для Mac и `beading-v<версия>.ipa` для iPhone, например `beading-v0.5.0+1.app`. `.ipa` подписан вашим профилем для установки на телефон через Xcode (Window → Devices) и не годится для App Store. Первый раз скрипт сам запустит `scripts/setup.sh`.
+
+Вручную то же самое: `scripts/setup.sh`, затем `flutter run --release [-d <id>|macos]` или `flutter build macos --release`.
+
+### Синхронизация (Supabase)
+
+Адрес проекта и публичный ключ скрипт берёт из `config/supabase.json`. Файл в `.gitignore`; образец: `config/supabase.example.json`:
+
+```bash
+cp config/supabase.example.json config/supabase.json   # вписать URL и sb_publishable_…
+```
+
+Публичный (publishable) ключ создан для клиентов, данные защищает RLS, так что коммитить его технически безопасно. Но репозиторий публичный, и правило проекта: ни URL, ни ключей в git, поэтому файл локальный. Без файла скрипт предупредит и соберёт приложение без синхронизации («Не настроена в этой сборке»). Вручную: `flutter run --release --dart-define-from-file=config/supabase.json`.
 
 ## Передать сборку ей
 

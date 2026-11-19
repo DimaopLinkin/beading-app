@@ -48,3 +48,7 @@ app.*.map.json
 *.g.dart
 !/lib/presentation/l10n/**
 **/failures/
+
+# Сборки и локальные параметры (scripts/kanitel.sh)
+/artifacts/
+/config/supabase.json
