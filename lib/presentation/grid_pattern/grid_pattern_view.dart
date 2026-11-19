@@ -278,6 +278,8 @@ class _GridPatternViewState extends State<GridPatternView> {
                       viewportSize: viewport,
                       revision: _revision,
                       wholeScene: !widget.interactive,
+                      fittedScale: math.min(viewport.width / _scene.size.width, viewport.height / _scene.size.height),
+                      devicePixelRatio: MediaQuery.maybeDevicePixelRatioOf(context) ?? 1,
                     ),
                   ),
                 ),

@@ -1,4 +1,5 @@
 import 'dart:math' as math;
+import 'dart:typed_data';
 import 'dart:ui' as ui;
 import 'dart:ui';
 
@@ -16,6 +17,7 @@ import 'package:beading/presentation/grid_pattern/grid_scene.dart';
 import 'package:beading/presentation/grid_pattern/grid_view_options.dart';
 import 'package:beading/presentation/grid_pattern/realistic_cells.dart';
 import 'package:beading/presentation/grid_pattern/stitch_cells.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/painting.dart';
 
 /// Цвета слоя ячеек, уже приведённые к яркости темы. Часть ключа кеша: сменилась тема — слой строится заново.
@@ -74,8 +76,31 @@ final class GridLayerCache {
   /// Сколько блоков построено за всё время (для тестов и профилирования).
   int buildCount = 0;
 
+  /// Обзор прямоугольной схемы одной текстурой: пиксель на клетку (T97).
+  ///
+  /// Тысячи соседних прямоугольников со сглаживанием при сильном уменьшении дают муар — тёмные и светлые полосы
+  /// поперёк схемы, особенно на Mac — и стоят тысяч фигур на кадр. Текстура рисуется одной командой, а при уменьшении
+  /// усредняется видеокартой (мип-уровни), поэтому полос нет. Пока новая текстура готовится, рисуется прежняя (правка
+  /// в редакторе не мигает) или, если её ещё нет, блоки.
+  ui.Image? _overview;
+  bool _overviewFresh = false;
+  int _overviewToken = 0;
+
+  /// Сколько текстур обзора построено (для тестов и профилирования).
+  int overviewBuildCount = 0;
+
+  /// Растёт, когда текстура обзора готова: слой надо перерисовать.
+  final ValueNotifier<int> overviewChanged = ValueNotifier<int>(0);
+
+  /// Текстура обзора (для тестов).
+  @visibleForTesting
+  ui.Image? get overview => _overviewFresh ? _overview : null;
+
   /// Слой рисуется обзорно (клетка на экране мельче нескольких пикселей).
   bool get flat => _flat;
+
+  /// Размер клетки в сцене (пока кеш не настроен — нулевой).
+  Size get cellSize => _scene?.cellSize ?? Size.zero;
 
   /// Сколько блоков лежит в кеше.
   int get cachedBlocks => _blocks.length;
@@ -136,6 +161,8 @@ final class GridLayerCache {
       picture.dispose();
     }
     _blocks.clear();
+    _overviewFresh = false;
+    _overviewToken++;
     // Знаки рассчитаны под размер ячейки: после смены раскладки их считаем заново.
     for (final TextPainter painter in _symbols.values) {
       painter.dispose();
@@ -145,16 +172,34 @@ final class GridLayerCache {
 
   void dispose() {
     invalidate();
+    _overview?.dispose();
+    _overview = null;
+    overviewChanged.dispose();
   }
 
-  /// Рисует блоки, пересекающие [visible] (прямоугольник в сцене).
-  void paintVisible(Canvas canvas, Rect visible) {
+  /// Рисует блоки, пересекающие [visible] (прямоугольник в сцене). [devicePxPerCell] — сколько физических пикселей
+  /// экрана приходится на клетку: по нему обзор выбирает, усреднять текстуру (мельче пикселя) или показывать клетки
+  /// чёткими квадратами.
+  void paintVisible(Canvas canvas, Rect visible, {double devicePxPerCell = 1}) {
     final GridScene? scene = _scene;
     if (scene == null) return;
     final CellRange range = scene.visibleCells(visible);
     if (range.isEmpty) return;
     if ((_options?.realistic ?? false) || _isStitch(scene)) {
       RealisticCells.paintSurface(canvas, visible.intersect(Offset.zero & scene.size), _style!.realistic);
+    }
+    if (_flat && _overviewFits(scene)) {
+      if (!_overviewFresh) _requestOverview(scene);
+      final ui.Image? image = _overview;
+      if (image != null && image.width == scene.columns && image.height == scene.rows) {
+        canvas.drawImageRect(
+          image,
+          Rect.fromLTWH(0, 0, scene.columns.toDouble(), scene.rows.toDouble()),
+          Offset.zero & scene.size,
+          Paint()..filterQuality = devicePxPerCell < 1 ? FilterQuality.medium : FilterQuality.none,
+        );
+        return;
+      }
     }
     final int blocksPerRow = _blocksAcross(scene);
     for (int by = range.firstRow ~/ blockSize; by <= range.lastRow ~/ blockSize; by++) {
@@ -163,6 +208,65 @@ final class GridLayerCache {
         canvas.drawPicture(picture);
       }
     }
+  }
+
+  /// Самая большая сторона текстуры обзора: с запасом меньше предела видеокарт iPhone и Mac.
+  static const int maxOverviewSide = 8192;
+
+  /// Насколько подложка просвечивает между бусинами и крестиками в обзоре вида «как будет».
+  static const double realisticSurfaceShare = 0.3;
+
+  static bool _overviewFits(GridScene scene) =>
+      scene.geometry is RectangularGeometry &&
+      scene.columns <= maxOverviewSide &&
+      scene.rows <= maxOverviewSide &&
+      scene.columns > 0 &&
+      scene.rows > 0;
+
+  /// Пиксели обзора: цвет клетки (с приглушением подсветки и подложкой «как будет»), пустая клетка прозрачна.
+  @visibleForTesting
+  Uint8List overviewPixels() {
+    final GridScene scene = _scene!;
+    final Grid grid = _grid!;
+    final PaletteSnapshot palette = _palette!;
+    final GridViewOptions options = _options!;
+    final GridPaintStyle style = _style!;
+    final Color surface = style.realistic.surface;
+    final Map<int, int> packed = <int, int>{};
+    int pack(int value) {
+      final PatternColor? color = palette.colorAt(value);
+      Color base = color == null ? style.unknown : Color.fromARGB(255, color.rgb.r, color.rgb.g, color.rgb.b);
+      if (options.highlightColor != null && options.highlightColor != value) base = StitchCells.dim(base, surface);
+      if (options.realistic) base = Color.lerp(base, surface, realisticSurfaceShare)!;
+      // RGBA в памяти: R младший байт.
+      return (base.toARGB32() & 0xFF00FF00) | ((base.toARGB32() >> 16) & 0xFF) | ((base.toARGB32() & 0xFF) << 16);
+    }
+
+    final Uint32List pixels = Uint32List(scene.columns * scene.rows);
+    for (int row = 0; row < scene.rows; row++) {
+      final int offset = row * scene.columns;
+      for (int column = 0; column < scene.columns; column++) {
+        final int value = grid.at(column, row);
+        if (value != 0) pixels[offset + column] = packed[value] ??= pack(value);
+      }
+    }
+    return pixels.buffer.asUint8List();
+  }
+
+  void _requestOverview(GridScene scene) {
+    _overviewFresh = true;
+    final int token = _overviewToken;
+    overviewBuildCount++;
+    ui.decodeImageFromPixels(overviewPixels(), scene.columns, scene.rows, ui.PixelFormat.rgba8888, (image) {
+      if (token != _overviewToken) {
+        // Пока текстура готовилась, схема сменилась: эта уже устарела, свежую закажет следующий кадр.
+        image.dispose();
+        return;
+      }
+      _overview?.dispose();
+      _overview = image;
+      overviewChanged.value++;
+    });
   }
 
   static bool _isStitch(GridScene scene) =>
