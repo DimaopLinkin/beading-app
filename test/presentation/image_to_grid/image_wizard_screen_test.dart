@@ -25,7 +25,6 @@ import 'package:beading/domain/image_to_grid/use_cases/create_pattern_from_image
 import 'package:beading/domain/palette/rgb.dart';
 import 'package:beading/domain/projects/craft.dart';
 import 'package:beading/domain/projects/use_cases/create_project.dart';
-import 'package:beading/presentation/grid_pattern/grid_pattern_view.dart';
 import 'package:beading/presentation/image_to_grid/image_wizard_cubit.dart';
 import 'package:beading/presentation/image_to_grid/image_wizard_screen.dart';
 import 'package:beading/presentation/image_to_grid/image_wizard_state.dart';
@@ -136,9 +135,7 @@ void main() {
       'wizard-floss-brand' ||
       'wizard-fabric-color' ||
       'wizard-bead-size' => 'base',
-      final String k
-          when k.startsWith('wizard-width') || k.startsWith('wizard-face') || k.startsWith('wizard-height') =>
-        'size',
+      final String k when k.startsWith('wizard-width') || k.startsWith('wizard-height') => 'size',
       final String k
           when k.startsWith('slider-') ||
               k.startsWith('wizard-shadows') ||
@@ -191,12 +188,10 @@ void main() {
         ..devicePixelRatio = 1;
       addTearDown(tester.view.reset);
       await openPhoto(tester, theme);
-      await toolFor(tester, 'wizard-grid');
       expect(find.byKey(const ValueKey<String>('wizard-grid')), findsOneWidget);
       expect(find.textContaining('3 × 2 бусин'), findsOneWidget);
       expect(find.text('Станок', skipOffstage: false), findsOneWidget);
       expect(find.text('Delica 11/0', skipOffstage: false), findsOneWidget);
-      await toolFor(tester, 'wizard-save');
       expect(tester.widget<CupertinoButton>(find.byKey(const ValueKey<String>('wizard-save'))).onPressed, isNotNull);
 
       await toolFor(tester, 'wizard-technique');
@@ -211,45 +206,25 @@ void main() {
     });
   }
 
-  testWidgets('полный предпросмотр: открывается из мастера, зумится и возвращает к параметрам без потерь', (
-    tester,
-  ) async {
+  testWidgets('масштаб и сдвиг схемы прямо в результате, двойной тап возвращает вид', (tester) async {
     await openPhoto(tester, AppTheme.light);
-    final settingsBefore = cubit.state.settings;
-    await toolFor(tester, 'wizard-preview-open');
-    await tester.tap(find.byKey(const ValueKey<String>('wizard-preview-open')));
+    final Finder zoom = find.byKey(const ValueKey<String>('wizard-zoom'));
+    final TransformationController controller = tester.widget<InteractiveViewer>(zoom).transformationController!;
+    expect(controller.value.getMaxScaleOnAxis(), 1);
+    final Offset center = tester.getCenter(zoom);
+    final TestGesture first = await tester.startGesture(center - const Offset(20, 0));
+    final TestGesture second = await tester.startGesture(center + const Offset(20, 0));
+    await first.moveBy(const Offset(-40, 0));
+    await second.moveBy(const Offset(40, 0));
+    await first.up();
+    await second.up();
     await tester.pumpAndSettle();
-
-    await toolFor(tester, 'full-preview');
-    expect(find.byKey(const ValueKey<String>('full-preview')), findsOneWidget);
-    expect(find.byType(GridPatternView), findsOneWidget);
-    expect(find.byType(InteractiveViewer), findsOneWidget);
-
-    // «Как будет» переключается и сохраняется в мастере.
-    await tester.tap(
-      find.descendant(of: find.byKey(const ValueKey<String>('full-preview-look')), matching: find.text('Как будет')),
-    );
-    await tester.pumpAndSettle();
-    expect(cubit.state.realistic, isTrue);
-
-    await toolFor(tester, 'full-preview-back');
-    await tester.tap(find.byKey(const ValueKey<String>('full-preview-back')));
-    await tester.pumpAndSettle();
-    await toolFor(tester, 'full-preview');
-    expect(find.byKey(const ValueKey<String>('full-preview')), findsNothing);
-    await toolFor(tester, 'wizard-grid');
-    expect(find.byKey(const ValueKey<String>('wizard-grid')), findsOneWidget);
-    expect(cubit.state.settings, settingsBefore);
-    expect(cubit.state.step, ImageWizardStep.edit);
-  });
-
-  testWidgets('полный предпросмотр: тап по предпросмотру тоже открывает его', (tester) async {
-    await openPhoto(tester, AppTheme.light);
-    await toolFor(tester, 'wizard-preview');
+    expect(controller.value.getMaxScaleOnAxis(), greaterThan(1));
+    await tester.tap(find.byKey(const ValueKey<String>('wizard-preview')));
+    await tester.pump(const Duration(milliseconds: 50));
     await tester.tap(find.byKey(const ValueKey<String>('wizard-preview')));
     await tester.pumpAndSettle();
-    await toolFor(tester, 'full-preview');
-    expect(find.byKey(const ValueKey<String>('full-preview')), findsOneWidget);
+    expect(controller.value.getMaxScaleOnAxis(), 1);
   });
 
   testWidgets('переключатель «Выделять главное» виден, только когда на фото нашлись лица или объект', (tester) async {
@@ -294,8 +269,6 @@ void main() {
       await finger.up();
       await tester.pump();
       expect(cubit.state.brush.strokes, hasLength(1));
-
-      await toolFor(tester, 'brush-done');
       await tester.tap(find.byKey(const ValueKey<String>('brush-done')));
       await tester.pumpAndSettle();
       expect(cubit.state.brushing, isFalse);
@@ -395,7 +368,6 @@ void main() {
     expect(find.byType(CupertinoNavigationBar), findsOneWidget);
     expect(find.text('Отмена'), findsOneWidget);
     expect(find.text('Выделить важное'), findsOneWidget);
-    await toolFor(tester, 'brush-done');
     expect(find.byKey(const ValueKey<String>('brush-done')), findsOneWidget);
     final Size panel = tester.getSize(find.byKey(const ValueKey<String>('brush-panel')));
     expect(panel.width, 430);
@@ -450,29 +422,22 @@ void main() {
   testWidgets('мелкое лицо: плашка с двумя действиями, обрезка и ширина меняют настройки', (tester) async {
     masks.result = faceOfWidth(0.2);
     await openPhoto(tester, AppTheme.light);
-    await toolFor(tester, 'wizard-face-warning');
     final Finder warning = find.byKey(const ValueKey<String>('wizard-face-warning'));
-    await tester.scrollUntilVisible(warning, 200, scrollable: find.byType(Scrollable).last);
+    expect(warning, findsOneWidget);
     expect(find.textContaining('Лицо шириной всего'), findsOneWidget);
-
-    await toolFor(tester, 'wizard-face-wider');
     await tester.ensureVisible(find.byKey(const ValueKey<String>('wizard-face-wider')));
     await tester.pumpAndSettle();
     await tester.tap(find.byKey(const ValueKey<String>('wizard-face-wider')));
     await tester.pumpAndSettle();
     expect(cubit.state.settings.columns, 100);
-    await toolFor(tester, 'wizard-face-warning');
     expect(find.byKey(const ValueKey<String>('wizard-face-warning'), skipOffstage: false), findsNothing);
   });
 
   testWidgets('мелкое лицо: «Обрезать по лицу» сужает рамку', (tester) async {
     masks.result = faceOfWidth(0.2);
     await openPhoto(tester, AppTheme.light);
-    await toolFor(tester, 'wizard-face-warning');
     final Finder warning = find.byKey(const ValueKey<String>('wizard-face-warning'));
-    await tester.scrollUntilVisible(warning, 200, scrollable: find.byType(Scrollable).last);
-
-    await toolFor(tester, 'wizard-face-crop');
+    expect(warning, findsOneWidget);
     await tester.ensureVisible(find.byKey(const ValueKey<String>('wizard-face-crop')));
     await tester.pumpAndSettle();
     await tester.tap(find.byKey(const ValueKey<String>('wizard-face-crop')));
@@ -484,7 +449,6 @@ void main() {
   testWidgets('крупное лицо или выключенное «Выделять главное»: плашки нет', (tester) async {
     masks.result = faceOfWidth(0.6);
     await openPhoto(tester, AppTheme.light);
-    await toolFor(tester, 'wizard-face-warning');
     expect(find.byKey(const ValueKey<String>('wizard-face-warning'), skipOffstage: false), findsNothing);
 
     masks.result = faceOfWidth(0.2);
@@ -494,7 +458,6 @@ void main() {
     cubit.setUseMasks(value: false);
     await tester.pumpAndSettle();
     expect(cubit.state.faceAdvice, isNull);
-    await toolFor(tester, 'wizard-face-warning');
     expect(find.byKey(const ValueKey<String>('wizard-face-warning'), skipOffstage: false), findsNothing);
   });
 
@@ -595,7 +558,6 @@ void main() {
       await tester.pumpAndSettle();
       expect(find.text('Что купить'), findsOneWidget);
       expect(find.textContaining('Итого:'), findsOneWidget);
-      await toolFor(tester, 'shopping-close');
       await tester.tap(find.byKey(const ValueKey<String>('shopping-close')));
       await tester.pumpAndSettle();
     });
@@ -652,7 +614,6 @@ void main() {
       await toolFor(tester, 'wizard-width-cm');
       await tester.tap(find.byKey(const ValueKey<String>('wizard-width-cm')));
       await tester.pumpAndSettle();
-      await toolFor(tester, 'step-slider-input');
       await tester.enterText(find.byKey(const ValueKey<String>('step-slider-input')), '102');
       await tester.tap(find.text('Готово'));
       await tester.pumpAndSettle();
@@ -676,7 +637,6 @@ void main() {
       await toolFor(tester, 'slider-value-Цветов в схеме');
       await tester.tap(find.byKey(const ValueKey<String>('slider-value-Цветов в схеме')));
       await tester.pumpAndSettle();
-      await toolFor(tester, 'step-slider-input');
       await tester.enterText(find.byKey(const ValueKey<String>('step-slider-input')), '500');
       await tester.tap(find.text('Готово'));
       await tester.pumpAndSettle();

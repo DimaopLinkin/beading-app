@@ -26,7 +26,6 @@ import 'package:beading/presentation/grid_pattern/grid_pattern_view.dart';
 import 'package:beading/presentation/grid_pattern/grid_view_options.dart';
 import 'package:beading/presentation/image_to_grid/floss_shopping_sheet.dart';
 import 'package:beading/presentation/image_to_grid/frame_overlay.dart';
-import 'package:beading/presentation/image_to_grid/full_preview_screen.dart';
 import 'package:beading/presentation/image_to_grid/image_wizard_cubit.dart';
 import 'package:beading/presentation/image_to_grid/image_wizard_state.dart';
 import 'package:beading/presentation/image_to_grid/importance_brush_mode.dart';
@@ -38,6 +37,7 @@ import 'package:beading/presentation/theme/app_icons.dart';
 import 'package:beading/presentation/theme/tokens.dart';
 import 'package:beading/presentation/widgets/app_list_section.dart';
 import 'package:beading/presentation/widgets/glass/glass_panel.dart';
+import 'package:beading/presentation/widgets/wheel_scale.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -450,7 +450,17 @@ class _EditState extends State<_Edit> {
     };
     final Widget preview = Padding(
       padding: EdgeInsets.fromLTRB(gap, 0, gap, gap / 2),
-      child: _Preview(state: state, showHint: !_hintSeen),
+      child: _Preview(
+        state: state,
+        showHint: !_hintSeen,
+        banner: state.faceAdvice == null
+            ? null
+            : _FaceWarning(
+                advice: state.faceAdvice!,
+                onCrop: state.faceAdvice!.cropRect == null ? null : context.read<ImageWizardCubit>().cropToFace,
+                onWiden: state.faceAdvice!.neededColumns == null ? null : context.read<ImageWizardCubit>().widenForFace,
+              ),
+      ),
     );
     final Widget panel = GlassPanel(
       key: const ValueKey<String>('wizard-panel'),
@@ -663,8 +673,6 @@ class _EditState extends State<_Edit> {
     final ImageWizardCubit cubit = context.read<ImageWizardCubit>();
     final ImageWizardState state = widget.state;
     final ImageToGridSettings settings = state.settings;
-    final AppTokensData tokens = context.tokens;
-    final double gap = tokens.spacing.m;
     return <Widget>[
       if (settings.craft == Craft.crossStitch)
         _WidthCmRow(settings: settings, onChanged: cubit.setWidthCm)
@@ -678,14 +686,6 @@ class _EditState extends State<_Edit> {
         ),
       _HeightSection(state: state, cubit: cubit),
       _SizeAssist(state: state, cubit: cubit),
-      if (state.faceAdvice case final FaceSizeAdvice advice) ...<Widget>[
-        SizedBox(height: gap),
-        _FaceWarning(
-          advice: advice,
-          onCrop: advice.cropRect == null ? null : cubit.cropToFace,
-          onWiden: advice.neededColumns == null ? null : cubit.widenForFace,
-        ),
-      ],
     ];
   }
 
@@ -1226,7 +1226,6 @@ class _StepSlider extends StatelessWidget {
     final double at = sliderValue ?? value;
     final bool canDecrease = at > min + 1e-9;
     final bool canIncrease = at < max - 1e-9;
-    final int divisions = ((max - min) / step).round();
     return Padding(
       padding: EdgeInsets.only(bottom: context.tokens.spacing.s),
       child: Column(
@@ -1266,13 +1265,17 @@ class _StepSlider extends StatelessWidget {
               ),
             ],
           ),
-          CupertinoSlider(
-            key: sliderKey,
-            value: (sliderValue ?? value).clamp(min, max),
-            min: min,
-            max: max,
-            divisions: divisions,
-            onChanged: (v) => onChanged(_snap(v)),
+          Semantics(
+            label: title,
+            value: format(value),
+            child: WheelScale(
+              key: sliderKey,
+              value: (sliderValue ?? value).clamp(min, max),
+              min: min,
+              max: max,
+              step: step,
+              onChanged: (v) => onChanged(_snap(v)),
+            ),
           ),
         ],
       ),
@@ -1304,16 +1307,35 @@ class _IconAction extends StatelessWidget {
 }
 
 /// Предпросмотр схемы. Пока палец на нём, вместо схемы показана исходная картинка («до/после»).
-class _Preview extends StatelessWidget {
-  const _Preview({required this.state, required this.showHint});
+class _Preview extends StatefulWidget {
+  const _Preview({required this.state, required this.showHint, this.banner});
 
   final ImageWizardState state;
+
+  /// Предупреждение поверх результата (лицо слишком мелкое), макет 18.
+  final Widget? banner;
 
   /// Подсказка «Удерживайте схему…» (только при первом открытии).
   final bool showHint;
 
   @override
+  State<_Preview> createState() => _PreviewState();
+}
+
+class _PreviewState extends State<_Preview> {
+  /// Масштаб и сдвиг схемы прямо в области результата: щипок, перетаскивание, двойной тап сбрасывает.
+  final TransformationController _zoom = TransformationController();
+
+  @override
+  void dispose() {
+    _zoom.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final ImageWizardState state = widget.state;
+    final bool showHint = widget.showHint;
     final AppLocalizations l10n = AppLocalizations.of(context);
     final ImageWizardCubit cubit = context.read<ImageWizardCubit>();
     final AppTokensData tokens = context.tokens;
@@ -1420,7 +1442,6 @@ class _Preview extends StatelessWidget {
           child: GestureDetector(
             key: const ValueKey<String>('wizard-preview'),
             behavior: HitTestBehavior.opaque,
-            onTap: grid == null ? null : () => showFullPreview(context),
             onLongPressStart: (_) => cubit.setComparing(value: true),
             onLongPressEnd: (_) => cubit.setComparing(value: false),
             onLongPressCancel: () => cubit.setComparing(value: false),
@@ -1432,21 +1453,28 @@ class _Preview extends StatelessWidget {
                   color: CupertinoColors.secondarySystemFill.resolveFrom(context),
                   child: Stack(
                     children: <Widget>[
-                      Positioned.fill(child: Center(child: content)),
-                      if (grid != null)
+                      Positioned.fill(
+                        // Двойной тап стоит только на схеме: на баннере он задерживал бы нажатия кнопок.
+                        child: GestureDetector(
+                          behavior: HitTestBehavior.opaque,
+                          onDoubleTap: () => _zoom.value = Matrix4.identity(),
+                          child: InteractiveViewer(
+                            key: const ValueKey<String>('wizard-zoom'),
+                            transformationController: _zoom,
+                            maxScale: 12,
+                            child: Center(child: content),
+                          ),
+                        ),
+                      ),
+                      if (widget.banner != null)
                         Positioned(
-                          bottom: 0,
-                          right: 0,
-                          child: CupertinoButton(
-                            key: const ValueKey<String>('wizard-preview-open'),
-                            padding: EdgeInsets.all(tokens.spacing.s),
-                            minimumSize: Size.square(tokens.minTapTarget),
-                            onPressed: () => showFullPreview(context),
-                            child: Semantics(
-                              label: l10n.imageWizardFullPreviewOpen,
-                              button: true,
-                              child: const Icon(CupertinoIcons.arrow_up_left_arrow_down_right),
-                            ),
+                          top: tokens.spacing.s,
+                          left: tokens.spacing.s,
+                          right: tokens.spacing.s,
+                          child: GlassPanel(
+                            key: const ValueKey<String>('wizard-banner'),
+                            padding: EdgeInsets.all(tokens.spacing.m),
+                            child: widget.banner!,
                           ),
                         ),
                       if (state.calculating)
