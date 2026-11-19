@@ -1,7 +1,7 @@
 ---
 id: 18-generator-editor
 title: Мастер «Схема из картинки» как редактор: результат на весь экран, параметры в нижней панели (T92)
-status: delivered
+status: accepted
 depends: 17-frame-height
 ---
 
