@@ -3,7 +3,7 @@
 #   scripts/kanitel.sh                 — интерактивно
 #   scripts/kanitel.sh build macos     — без меню (build|run, ios|macos; для run ios спросит устройство)
 # Всегда --release (macOS только arm64). Результат сборки копируется в artifacts/ (в git не попадает):
-#   artifacts/beading-v<версия из pubspec>.app  (macOS, ad-hoc подпись) + …-macos.zip для передачи на другой Mac
+#   artifacts/beading-v<версия из pubspec>.app  (macOS, ad-hoc подпись) + .dmg для передачи на другой Mac
 #   artifacts/beading-v<версия из pubspec>.ipa  (iPhone)
 # Параметры Supabase берутся из config/supabase.json (в git нет, образец: config/supabase.example.json).
 # Работает на bash 3.2 (системный macOS), без внешних зависимостей кроме flutter.
@@ -104,10 +104,12 @@ if [ "$PLATFORM" = macos ]; then
   codesign --force --deep --options runtime --timestamp=none \
     --entitlements macos/Runner/Release.entitlements --sign - "$OUT"
   codesign --verify --deep --strict "$OUT" || die 'ad-hoc подпись не прошла проверку'
-  ZIP="$ARTIFACTS/$SUFFIX-macos.zip"
-  rm -f "$ZIP"; ditto -c -k --keepParent "$OUT" "$ZIP"
-  echo "→ Для другого Mac передайте $ZIP. Там: распаковать, затем один раз"
-  echo "  xattr -dr com.apple.quarantine <путь к .app>  (или правой кнопкой → Открыть)"
+  # Образ диска, а не zip: мессенджеры и облака при распаковке zip теряют право на запуск и ломают подпись.
+  DMG="$ARTIFACTS/$SUFFIX.dmg"
+  rm -f "$DMG"
+  hdiutil create -quiet -volname "Канитель" -srcfolder "$OUT" -ov -format UDZO "$DMG"
+  echo "→ Для другого Mac передайте $DMG. Там: открыть, перетащить приложение в «Программы», затем один раз"
+  echo "  xattr -dr com.apple.quarantine /Applications/$SUFFIX.app  (или правой кнопкой → Открыть)"
 else
   flutter build ios --release ${DEFINES[@]+"${DEFINES[@]}"}
   APP=build/ios/iphoneos/Runner.app
