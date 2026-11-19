@@ -3745,6 +3745,24 @@ abstract class AppLocalizations {
   /// **'Снято {count, plural, one{{count} крестик} few{{count} крестика} many{{count} крестиков} other{{count} крестика}}'**
   String stitchUndoUnmarked(int count);
 
+  /// Кнопка «−» панели масштаба схемы (VoiceOver)
+  ///
+  /// In ru, this message translates to:
+  /// **'Уменьшить'**
+  String get zoomOut;
+
+  /// Кнопка «+» панели масштаба схемы (VoiceOver)
+  ///
+  /// In ru, this message translates to:
+  /// **'Увеличить'**
+  String get zoomIn;
+
+  /// Ползунок масштаба схемы (VoiceOver)
+  ///
+  /// In ru, this message translates to:
+  /// **'Масштаб'**
+  String get zoomSliderLabel;
+
   /// Подсказка, когда касание по мелким клеткам вышивки ничего не отметило
   ///
   /// In ru, this message translates to:
