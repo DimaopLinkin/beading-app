@@ -11,7 +11,7 @@ scripts/kanitel.sh                # меню; q — выйти
 scripts/kanitel.sh build macos    # без меню: build|run, ios|macos
 ```
 
-Всегда `--release` (macOS только arm64). Запуск на iPhone покажет подключённые устройства. Сборка кладёт результат в `artifacts/` (в git нет): `beading-v<версия из pubspec>.app` для Mac и `beading-v<версия>.ipa` для iPhone, например `beading-v0.5.0+1.app`. `.ipa` подписан вашим профилем для установки на телефон через Xcode (Window → Devices) и не годится для App Store. Первый раз скрипт сам запустит `scripts/setup.sh`.
+Всегда `--release` (macOS только arm64). Запуск на iPhone покажет подключённые устройства. Сборка кладёт результат в `artifacts/` (в git нет): `beading-v<версия из pubspec>.app` для Mac и `beading-v<версия>.ipa` для iPhone, например `beading-v0.5.0+1.app`. `.app` переподписан ad-hoc (без вашей команды Apple), чтобы запускаться и на другом Mac; для передачи рядом лежит образ `beading-v<версия>.dmg` (zip не годится: мессенджеры при распаковке теряют право на запуск). На другом Mac: открыть .dmg, перетащить приложение в «Программы» и один раз выполнить `xattr -dr com.apple.quarantine /Applications/beading-v<версия>.app` (или правой кнопкой → «Открыть»). `.ipa` подписан вашим профилем для установки на телефон через Xcode (Window → Devices) и не годится для App Store. Первый раз скрипт сам запустит `scripts/setup.sh`.
 
 Вручную то же самое: `scripts/setup.sh`, затем `flutter run --release [-d <id>|macos]` или `flutter build macos --release`.
 
