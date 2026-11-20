@@ -222,7 +222,15 @@ class ImageWizardCubit extends Cubit<ImageWizardState> {
       );
       return;
     }
-    emit(state.copyWith(settings: recipe.settings, catalogColors: _countCatalog(recipe.settings)));
+    // Производитель берётся из рецепта, а не из последнего выбора в других схемах (T101); у старых рецептов его нет.
+    if (recipe.flossBrand.isNotEmpty) _flossBrand = recipe.flossBrand;
+    emit(
+      state.copyWith(
+        settings: recipe.settings,
+        flossBrand: _flossBrand,
+        catalogColors: _countCatalog(recipe.settings),
+      ),
+    );
     await _loadSource(
       recipe.source,
       project.name,
@@ -577,7 +585,7 @@ class ImageWizardCubit extends Cubit<ImageWizardState> {
   /// Цвет канвы: фон схемы (невышитые места).
   void setFabricColor(Rgb color) => _change(state.settings.copyWith(fabric: state.settings.fabric.withColor(color)));
 
-  /// Производитель мулине для схемы: запоминается как бренд по умолчанию.
+  /// Производитель мулине для схемы: в новой схеме запоминается как бренд по умолчанию.
   Future<void> setFlossBrand(String brand) async {
     if (brand == _flossBrand) {
       return;
@@ -587,7 +595,8 @@ class ImageWizardCubit extends Cubit<ImageWizardState> {
     if (_image != null) {
       _schedule();
     }
-    await _settings.write(SettingKeys.defaultFlossBrand, brand);
+    // При правке готовой схемы выбор остаётся за этой схемой и не меняет бренд для новых (T101).
+    if (!state.editing) await _settings.write(SettingKeys.defaultFlossBrand, brand);
   }
 
   /// Ширина готовой вышивки в сантиметрах: клетки считаются по канве.
@@ -1146,6 +1155,7 @@ class ImageWizardCubit extends Cubit<ImageWizardState> {
           crop: state.crop,
           brush: state.brush,
           settings: state.settings,
+          flossBrand: _flossBrand,
         ),
       );
     } on Object {

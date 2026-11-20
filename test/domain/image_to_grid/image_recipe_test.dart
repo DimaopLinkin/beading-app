@@ -24,6 +24,7 @@ void main() {
     brush: const ImportanceBrush(<BrushStroke>[
       BrushStroke(points: <double>[0.1, 0.2, 0.3, 0.4], radius: 0.04),
     ]),
+    flossBrand: 'Anchor',
     settings: ImageToGridSettings(
       technique: Technique.crossStitch,
       columns: 77,
@@ -50,6 +51,15 @@ void main() {
   test('рецепт записывается и читается без потерь', () {
     final ImageRecipe? back = ImageRecipeCodec.decode(ImageRecipeCodec.encode(recipe), recipe.source);
     expect(back, recipe);
+  });
+
+  test('основной производитель ниток пишется и читается; в старом рецепте его нет (T101)', () {
+    final Map<String, Object?> json = jsonDecode(ImageRecipeCodec.encode(recipe)) as Map<String, Object?>;
+    expect((json['settings']! as Map<String, Object?>)['flossBrand'], 'Anchor');
+    (json['settings']! as Map<String, Object?>).remove('flossBrand');
+    final ImageRecipe? old = ImageRecipeCodec.decode(jsonEncode(json), recipe.source);
+    expect(old, isNotNull);
+    expect(old!.flossBrand, isEmpty);
   });
 
   test('старый рецепт без ключа запаса читается с выключенным запасом (T34)', () {

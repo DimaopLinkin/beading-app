@@ -1254,6 +1254,47 @@ void main() {
       expect(runner.requests, isNotEmpty);
     });
 
+    test('правка открывается с производителем ниток из рецепта, а не из последнего выбора (T101)', () async {
+      await settings.write(SettingKeys.defaultFlossBrand, 'DMC');
+      await recipes.save(
+        'proj-1',
+        ImageRecipe(
+          source: Uint8List.fromList(<int>[9, 9]),
+          quarterTurns: 0,
+          crop: CropRect.full,
+          brush: ImportanceBrush.empty,
+          flossBrand: 'Anchor',
+          settings: const ImageToGridSettings(technique: Technique.crossStitch),
+        ),
+      );
+      cubit = buildEditor();
+      addTearDown(cubit.close);
+      await cubit.startEditing('proj-1');
+      await settle();
+      expect(cubit.state.flossBrand, 'Anchor');
+      await cubit.setFlossBrand('Гамма');
+      expect(await settings.read(SettingKeys.defaultFlossBrand), const Success<String>('DMC'));
+    });
+
+    test('рецепт без производителя (старый) открывается с последним выбранным', () async {
+      await settings.write(SettingKeys.defaultFlossBrand, 'DMC');
+      await recipes.save(
+        'proj-1',
+        ImageRecipe(
+          source: Uint8List.fromList(<int>[9, 9]),
+          quarterTurns: 0,
+          crop: CropRect.full,
+          brush: ImportanceBrush.empty,
+          settings: const ImageToGridSettings(technique: Technique.crossStitch),
+        ),
+      );
+      cubit = buildEditor();
+      addTearDown(cubit.close);
+      await cubit.startEditing('proj-1');
+      await settle();
+      expect(cubit.state.flossBrand, 'DMC');
+    });
+
     test('сохранение правки заменяет сетку того же проекта и не создаёт нового', () async {
       await recipes.save(
         'proj-1',

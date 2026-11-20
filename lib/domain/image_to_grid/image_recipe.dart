@@ -29,6 +29,7 @@ final class ImageRecipe extends Equatable {
     required this.crop,
     required this.brush,
     required this.settings,
+    this.flossBrand = '',
   });
 
   /// Фото как выбрано, до поворота и обрезки.
@@ -38,8 +39,11 @@ final class ImageRecipe extends Equatable {
   final ImageToGridSettings settings;
   final ImportanceBrush brush;
 
+  /// Основной производитель мулине этой схемы (T101); пусто — не записан (старый рецепт), тогда берётся последний выбранный.
+  final String flossBrand;
+
   @override
-  List<Object?> get props => <Object?>[source, quarterTurns, crop, brush, settings];
+  List<Object?> get props => <Object?>[source, quarterTurns, crop, brush, settings, flossBrand];
 }
 
 /// Запись параметров рецепта в JSON. Имена полей менять нельзя: по ним читаются уже сохранённые рецепты.
@@ -79,6 +83,7 @@ abstract final class ImageRecipeCodec {
         'shadows': s.shadows,
         'stash': s.onlyStash,
         'mixed': s.mixedStitches,
+        if (recipe.flossBrand.isNotEmpty) 'flossBrand': recipe.flossBrand,
       },
     });
   }
@@ -145,6 +150,7 @@ abstract final class ImageRecipeCodec {
             ),
         ]),
         settings: settings,
+        flossBrand: (s['flossBrand'] as String?) ?? '',
       );
     } on Object {
       return null;
