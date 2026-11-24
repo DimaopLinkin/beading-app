@@ -113,15 +113,31 @@ if [ "$PLATFORM" = macos ]; then
   # Образ диска, а не zip: мессенджеры и облака при распаковке zip теряют право на запуск и ломают подпись.
   DMG="$ARTIFACTS/$SUFFIX.dmg"
   rm -f "$DMG"
-  hdiutil create -quiet -volname "Канитель" -srcfolder "$OUT" -ov -format UDZO "$DMG"
+  # В образе: приложение, ярлык «Applications» для установки перетаскиванием и README с командой снятия карантина.
+  STAGE=$(mktemp -d)
+  ditto "$OUT" "$STAGE/$SUFFIX.app"
+  ln -s /Applications "$STAGE/Applications"
+  cat > "$STAGE/README.txt" <<README
+Установка «Канители»
+
+1. Перетащите $SUFFIX.app на папку Applications рядом.
+2. Откройте Терминал и выполните (скопируйте и вставьте целиком), один раз:
+
+xattr -dr com.apple.quarantine /Applications/$SUFFIX.app
+
+3. Запускайте приложение из «Программ». Если macOS всё равно ругается:
+   правая кнопка по приложению → Открыть.
+README
+  hdiutil create -quiet -volname "Канитель" -srcfolder "$STAGE" -ov -format UDZO "$DMG"
+  rm -rf "$STAGE"
   MOUNT_CHECK=$(mktemp -d)
   hdiutil attach -quiet -nobrowse -readonly -mountpoint "$MOUNT_CHECK" "$DMG"
   IN_DMG=$(/usr/libexec/PlistBuddy -c 'Print :CFBundleShortVersionString' "$MOUNT_CHECK/$SUFFIX.app/Contents/Info.plist" || true)
   hdiutil detach -quiet "$MOUNT_CHECK" || true
   [ "$IN_DMG" = "${VERSION%%+*}" ] || die "в dmg версия '$IN_DMG', а в pubspec ${VERSION%%+*}"
   echo "✓ Версия в dmg: $IN_DMG"
-  echo "→ Для другого Mac передайте $DMG. Там: открыть, перетащить приложение в «Программы», затем один раз"
-  echo "  xattr -dr com.apple.quarantine /Applications/$SUFFIX.app  (или правой кнопкой → Открыть)"
+  echo "→ Для другого Mac передайте $DMG: открыть, перетащить приложение на Applications, затем команду из README.txt в образе"
+  echo "  (xattr -dr com.apple.quarantine /Applications/$SUFFIX.app)"
 else
   flutter build ios --release ${DEFINES[@]+"${DEFINES[@]}"}
   APP=build/ios/iphoneos/Runner.app
