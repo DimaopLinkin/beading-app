@@ -12,11 +12,11 @@ import '../../support/fake_platform.dart';
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  test('окно macOS по умолчанию 480×900, минимум 400×700, скрытый заголовок', () {
+  test('окно macOS по умолчанию 1100×820, минимум 560×640, скрытый заголовок', () {
     const DesktopWindowConfig config = DesktopWindowConfig();
 
-    expect(config.size, const Size(480, 900));
-    expect(config.minimumSize, const Size(400, 700));
+    expect(config.size, const Size(1100, 820));
+    expect(config.minimumSize, const Size(560, 640));
     expect(config.hiddenTitleBar, isTrue);
   });
 

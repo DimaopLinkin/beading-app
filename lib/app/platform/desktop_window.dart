@@ -3,11 +3,14 @@ import 'dart:ui';
 import 'package:flutter/foundation.dart';
 import 'package:window_manager/window_manager.dart';
 
-/// Параметры окна macOS: «портретное» окно, как на телефоне.
+/// Высота полосы заголовка macOS, под которую заходят кнопки закрытия, сворачивания и полного экрана.
+const double macTitleBarInset = 28;
+
+/// Параметры окна macOS: просторное окно, на котором схема и панели помещаются без тесноты.
 class DesktopWindowConfig {
   const DesktopWindowConfig({
-    this.size = const Size(480, 900),
-    this.minimumSize = const Size(400, 700),
+    this.size = const Size(1100, 820),
+    this.minimumSize = const Size(560, 640),
     this.hiddenTitleBar = true,
   });
 

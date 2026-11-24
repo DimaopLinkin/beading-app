@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:beading/app/composition/app_dependencies.dart';
 import 'package:beading/app/platform/app_menu_bar.dart';
+import 'package:beading/app/platform/title_bar_inset.dart';
 import 'package:beading/app/router.dart';
 import 'package:beading/domain/easter_eggs/easter_egg_service.dart';
 import 'package:beading/domain/easter_eggs/long_session_watcher.dart';
@@ -87,7 +88,7 @@ class _BeadingAppState extends State<BeadingApp> {
                   cubit: widget.dependencies.sharing.dataTransferCubit,
                   incoming: widget.dependencies.sharing.incomingFiles,
                   navigatorKey: _router.routerDelegate.navigatorKey,
-                  child: ComplimentOverlay(child: child ?? const SizedBox.shrink()),
+                  child: ComplimentOverlay(child: TitleBarInset(child: child ?? const SizedBox.shrink())),
                 ),
               ),
             ),
