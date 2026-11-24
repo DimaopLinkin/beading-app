@@ -92,11 +92,17 @@ fi
 
 mkdir -p "$ARTIFACTS"
 if [ "$PLATFORM" = macos ]; then
+  # Чистим старые .app: раньше `find | head -1` мог взять устаревший .app (другое имя продукта, прошлая сборка).
+  PRODUCTS=build/macos/Build/Products/Release
+  rm -rf "$PRODUCTS"/*.app
   flutter build macos --release ${DEFINES[@]+"${DEFINES[@]}"}
-  APP=$(find build/macos/Build/Products/Release -maxdepth 1 -name '*.app' | head -1)
-  [ -n "$APP" ] || die 'не нашёл собранный .app'
+  APP="$PRODUCTS/beading.app"
+  [ -d "$APP" ] || die "не нашёл $APP (содержимое: $(ls "$PRODUCTS" 2>/dev/null | tr '\n' ' '))"
   OUT="$ARTIFACTS/$SUFFIX.app"
   rm -rf "$OUT"; ditto "$APP" "$OUT"
+  # Версия внутри собранного .app должна совпасть с pubspec, иначе упаковали не то.
+  BUILT=$(/usr/libexec/PlistBuddy -c 'Print :CFBundleShortVersionString' "$OUT/Contents/Info.plist")
+  [ "$BUILT" = "${VERSION%%+*}" ] || die "в .app версия $BUILT, а в pubspec ${VERSION%%+*}"
   # Переподписываем ad-hoc: сборка с рабочей командой Apple Development запускается только на Mac,
   # внесённых в эту команду, на другом Mac (у Насти) значок перечёркнут. Ad-hoc подпись работает на любом
   # Apple Silicon Mac после снятия карантина. Сессия Supabase лежит в обычной связке, ей команда не нужна.
@@ -108,6 +114,12 @@ if [ "$PLATFORM" = macos ]; then
   DMG="$ARTIFACTS/$SUFFIX.dmg"
   rm -f "$DMG"
   hdiutil create -quiet -volname "Канитель" -srcfolder "$OUT" -ov -format UDZO "$DMG"
+  MOUNT_CHECK=$(mktemp -d)
+  hdiutil attach -quiet -nobrowse -readonly -mountpoint "$MOUNT_CHECK" "$DMG"
+  IN_DMG=$(/usr/libexec/PlistBuddy -c 'Print :CFBundleShortVersionString' "$MOUNT_CHECK/$SUFFIX.app/Contents/Info.plist" || true)
+  hdiutil detach -quiet "$MOUNT_CHECK" || true
+  [ "$IN_DMG" = "${VERSION%%+*}" ] || die "в dmg версия '$IN_DMG', а в pubspec ${VERSION%%+*}"
+  echo "✓ Версия в dmg: $IN_DMG"
   echo "→ Для другого Mac передайте $DMG. Там: открыть, перетащить приложение в «Программы», затем один раз"
   echo "  xattr -dr com.apple.quarantine /Applications/$SUFFIX.app  (или правой кнопкой → Открыть)"
 else
