@@ -46,7 +46,13 @@ final class AppDependencies {
     );
     stats = StatsModule(core: core, projects: projects, grid: grid, weaving: weaving);
     book = BookModule(core: core, projects: projects);
-    imageToGrid = ImageToGridModule(core: core, projects: projects, grid: grid, catalog: catalog);
+    imageToGrid = ImageToGridModule(
+      core: core,
+      projects: projects,
+      grid: grid,
+      catalog: catalog,
+      appInfo: settings.appInfo,
+    );
     sharing = SharingModule(
       core: core,
       projects: projects,

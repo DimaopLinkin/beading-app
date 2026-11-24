@@ -25,6 +25,7 @@ import 'package:beading/domain/image_to_grid/cell_sampler.dart';
 import 'package:beading/domain/image_to_grid/frame_planner.dart';
 import 'package:beading/domain/image_to_grid/generated_pattern.dart';
 import 'package:beading/domain/image_to_grid/generation_preset.dart';
+import 'package:beading/domain/image_to_grid/generation_stamp.dart';
 import 'package:beading/domain/image_to_grid/image_decoder.dart';
 import 'package:beading/domain/image_to_grid/image_mask_set.dart';
 import 'package:beading/domain/image_to_grid/image_masks.dart';
@@ -72,6 +73,7 @@ class ImageWizardCubit extends Cubit<ImageWizardState> {
     FlossStockRepository? flossStock,
     BeadStockRepository? beadStock,
     ImageRecipeStore? recipes,
+    GenerationBuildProvider? generationBuild,
     ReplacePatternFromImage? replacePattern,
     ProjectRepository? projects,
     GridPatternRepository? patterns,
@@ -89,6 +91,7 @@ class ImageWizardCubit extends Cubit<ImageWizardState> {
        _flossStock = flossStock,
        _beadStock = beadStock,
        _recipes = recipes,
+       _generationBuild = generationBuild,
        _replace = replacePattern,
        _projects = projects,
        _patterns = patterns,
@@ -112,6 +115,9 @@ class ImageWizardCubit extends Cubit<ImageWizardState> {
 
   /// Нужны для правки готовой схемы (T79); без них мастер только создаёт новые.
   final ImageRecipeStore? _recipes;
+
+  /// Сборка для отпечатка генерации в рецепте (T103); без неё рецепт пишется без отпечатка.
+  final GenerationBuildProvider? _generationBuild;
   final ReplacePatternFromImage? _replace;
   final ProjectRepository? _projects;
   final GridPatternRepository? _patterns;
@@ -1147,17 +1153,16 @@ class ImageWizardCubit extends Cubit<ImageWizardState> {
     final Uint8List? source = state.source;
     if (_recipes == null || source == null) return;
     try {
-      await _recipes.save(
-        projectId,
-        ImageRecipe(
-          source: source,
-          quarterTurns: state.quarterTurns,
-          crop: state.crop,
-          brush: state.brush,
-          settings: state.settings,
-          flossBrand: _flossBrand,
-        ),
+      final ImageRecipe recipe = ImageRecipe(
+        source: source,
+        quarterTurns: state.quarterTurns,
+        crop: state.crop,
+        brush: state.brush,
+        settings: state.settings,
+        flossBrand: _flossBrand,
       );
+      final GenerationBuild? build = await _generationBuild?.load();
+      await _recipes.save(projectId, build == null ? recipe : recipe.stamped(build));
     } on Object {
       // Без рецепта схема просто не откроется на правку.
     }

@@ -7,6 +7,7 @@ import 'package:beading/domain/grid/fabric.dart';
 import 'package:beading/domain/image_pattern/crop_rect.dart';
 import 'package:beading/domain/image_to_grid/background_stage.dart';
 import 'package:beading/domain/image_to_grid/generation_preset.dart';
+import 'package:beading/domain/image_to_grid/generation_stamp.dart';
 import 'package:beading/domain/image_to_grid/image_recipe.dart';
 import 'package:beading/domain/image_to_grid/image_to_grid_settings.dart';
 import 'package:beading/domain/image_to_grid/importance_brush.dart';
@@ -167,5 +168,75 @@ void main() {
     final ImageRecipe? back = ImageRecipeCodec.decode(jsonEncode(json), recipe.source);
     expect(back!.settings.rows, 40);
     expect(back.settings.fit, FrameFit.crop);
+  });
+
+  group('отпечаток генерации (T103)', () {
+    const GenerationBuild build = GenerationBuild(app: '0.6.0 (1)', commit: 'a1b2c3d4e5', algo: 7);
+
+    test('записывается, читается и переживает пересохранение', () {
+      final ImageRecipe stamped = recipe.stamped(build);
+      expect(stamped.stamp!.build, build);
+      final ImageRecipe? back = ImageRecipeCodec.decode(ImageRecipeCodec.encode(stamped), recipe.source);
+      expect(back, stamped);
+      final ImageRecipe? again = ImageRecipeCodec.decode(ImageRecipeCodec.encode(back!), recipe.source);
+      expect(again!.stamp, stamped.stamp);
+    });
+
+    test('у рецепта без отпечатка версия неизвестна, лишних ключей нет', () {
+      final Map<String, Object?> json = jsonDecode(ImageRecipeCodec.encode(recipe)) as Map<String, Object?>;
+      expect(json.containsKey('gen'), isFalse);
+      expect(ImageRecipeCodec.decode(jsonEncode(json), recipe.source)!.stamp, isNull);
+    });
+
+    test('непонятный gen читается как неизвестная версия', () {
+      final Map<String, Object?> json = jsonDecode(ImageRecipeCodec.encode(recipe)) as Map<String, Object?>;
+      json['gen'] = <String, Object?>{'algo': 'x'};
+      final ImageRecipe? back = ImageRecipeCodec.decode(jsonEncode(json), recipe.source);
+      expect(back, isNotNull);
+      expect(back!.stamp, isNull);
+    });
+
+    test('хэш параметров: те же параметры дают тот же хэш, другие дают другой; фото в него не входит', () {
+      final String base = ImageRecipeCodec.configHash(recipe);
+      expect(base, hasLength(12));
+      expect(ImageRecipeCodec.configHash(recipe), base);
+      final ImageRecipe otherPhoto = ImageRecipe(
+        source: Uint8List.fromList(<int>[9, 9]),
+        quarterTurns: recipe.quarterTurns,
+        crop: recipe.crop,
+        brush: recipe.brush,
+        settings: recipe.settings,
+        flossBrand: recipe.flossBrand,
+      );
+      expect(ImageRecipeCodec.configHash(otherPhoto), base);
+      expect(otherPhoto.stamped(build).stamp!.src, isNot(recipe.stamped(build).stamp!.src));
+      final ImageRecipe otherColors = ImageRecipe(
+        source: recipe.source,
+        quarterTurns: recipe.quarterTurns,
+        crop: recipe.crop,
+        brush: recipe.brush,
+        settings: recipe.settings.copyWith(maxColors: 34),
+        flossBrand: recipe.flossBrand,
+      );
+      expect(ImageRecipeCodec.configHash(otherColors), isNot(base));
+    });
+
+    test('хэш не зависит от порядка наборов в настройках', () {
+      final ImageRecipe a = ImageRecipe(
+        source: recipe.source,
+        quarterTurns: 0,
+        crop: recipe.crop,
+        brush: recipe.brush,
+        settings: recipe.settings.copyWith(otherBrandsOnly: <String>{'Anchor', 'DMC'}),
+      );
+      final ImageRecipe b = ImageRecipe(
+        source: recipe.source,
+        quarterTurns: 0,
+        crop: recipe.crop,
+        brush: recipe.brush,
+        settings: recipe.settings.copyWith(otherBrandsOnly: <String>{'DMC', 'Anchor'}),
+      );
+      expect(ImageRecipeCodec.configHash(a), ImageRecipeCodec.configHash(b));
+    });
   });
 }

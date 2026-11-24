@@ -60,6 +60,8 @@ GoRouter createRouter(AppDependencies dependencies, {bool showDeveloperTools = !
           onOpenStats: () => context.push(AppRoutes.stats),
           onOpenCatalog: () => unawaited(_chooseCatalog(context)),
           onEditInGenerator: (context, project) => unawaited(_editInGenerator(context, project)),
+          onShowGenerationInfo: (context, project) =>
+              unawaited(dependencies.imageToGrid.showGenerationInfo(context, project)),
           onOpenMaterials: (context, project) => context.push(
             project.craft == Craft.crossStitch ? AppRoutes.floss(project.id) : AppRoutes.materials(project.id),
           ),
