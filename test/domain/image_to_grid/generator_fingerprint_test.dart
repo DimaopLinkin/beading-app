@@ -130,7 +130,6 @@ void main() {
     'stitch-shadows': const ImageToGridSettings(
       technique: Technique.crossStitch,
       columns: 60,
-      maxColors: 8,
       shadows: 80,
     ),
   };
