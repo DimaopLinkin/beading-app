@@ -73,8 +73,8 @@ void main() {
       }
     });
 
-    test('светлее 60 не меняется при любом γ', () {
-      for (final double l in <double>[60, 61, 75, 100]) {
+    test('светлее 40 не меняется при любом γ: средние тона (красные, оранжевые) остаются сочными', () {
+      for (final double l in <double>[40, 41, 50, 60, 75, 100]) {
         expect(ShadowLift.liftL(l, 0.5), closeTo(l, 1e-9));
       }
     });
@@ -82,7 +82,7 @@ void main() {
     test('глубокая тень становится светлее, чёрное и белое остаются на местах', () {
       expect(ShadowLift.liftL(0, 0.5), closeTo(0, 1e-9));
       expect(ShadowLift.liftL(100, 0.5), closeTo(100, 1e-9));
-      expect(ShadowLift.liftL(18, 0.6), closeTo(32.0, 0.3));
+      expect(ShadowLift.liftL(18, 0.6), closeTo(29.6, 0.3));
       expect(ShadowLift.liftL(10, 0.5), greaterThan(ShadowLift.liftL(10, 0.8)));
       expect(ShadowLift.liftL(18, 0.6), greaterThan(18));
     });
@@ -116,6 +116,18 @@ void main() {
     test('при γ = 1 возвращается тот же объект', () {
       final SourceImage image = _stripes(<(int, Lab)>[(4, const Lab(15, 5, 5))]);
       expect(identical(ShadowLift.liftImage(image, 1), image), isTrue);
+    });
+
+    test('насыщенный красный и оранжевый средней светлоты не бледнеют даже при самом сильном подъёме (T103)', () {
+      const List<Lab> mids = <Lab>[Lab(45, 55, 40), Lab(55, 45, 60), Lab(38, 30, 25)];
+      final SourceImage image = _stripes(<(int, Lab)>[for (final Lab lab in mids) (2, lab)]);
+      final SourceImage lifted = ShadowLift.liftImage(image, 0.5);
+      for (int i = 0; i < mids.length; i++) {
+        final Lab before = Lab.fromRgb(Rgb(image.rgba[i * 8], image.rgba[i * 8 + 1], image.rgba[i * 8 + 2]));
+        final Lab after = Lab.fromRgb(Rgb(lifted.rgba[i * 8], lifted.rgba[i * 8 + 1], lifted.rgba[i * 8 + 2]));
+        // Светлее 40 кривая не трогает; у L ниже 40 подъём остаётся небольшим.
+        expect(after.l - before.l, lessThan(before.l >= 40 ? 0.5 : 6), reason: 'цвет $i');
+      }
     });
 
     test('тёмные пиксели светлеют, светлые и прозрачность остаются', () {
