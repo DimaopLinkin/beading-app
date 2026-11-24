@@ -94,7 +94,7 @@ void main() {
     await tester.pumpWidget(app);
 
     expect(orientation.portraitCalls, 1);
-    expect(window.configs.single.size, const Size(480, 900));
+    expect(window.configs.single.size, const Size(1100, 820));
     expect(lock.calls, <String>['enable']);
     await unmountApp(tester);
   });
