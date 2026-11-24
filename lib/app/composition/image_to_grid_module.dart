@@ -82,7 +82,7 @@ final class ImageToGridModule {
     sizeHints: true,
   );
 
-  /// «Сведения о генерации» (T104): отпечаток из рецепта схемы.
+  /// «Сведения о генерации» (T105): отпечаток из рецепта схемы.
   Future<void> showGenerationInfo(BuildContext context, Project project) async {
     final ImageRecipe? recipe = await recipes.describe(project.id);
     if (!context.mounted) return;

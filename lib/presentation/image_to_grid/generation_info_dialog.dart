@@ -4,7 +4,7 @@ import 'package:beading/domain/image_to_grid/image_to_grid_settings.dart';
 import 'package:beading/presentation/l10n/app_localizations.dart';
 import 'package:flutter/cupertino.dart';
 
-/// Диалог «Сведения о генерации» (T104): версия приложения и генератора, сборка и короткие хэши параметров и фото.
+/// Диалог «Сведения о генерации» (T105): версия приложения и генератора, сборка и короткие хэши параметров и фото.
 /// [recipe] `null` — рецепта нет; у старого рецепта отпечатка нет.
 Future<void> showGenerationInfoDialog(BuildContext context, String name, ImageRecipe? recipe) {
   final AppLocalizations l10n = AppLocalizations.of(context);

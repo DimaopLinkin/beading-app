@@ -116,7 +116,7 @@ class ImageWizardCubit extends Cubit<ImageWizardState> {
   /// Нужны для правки готовой схемы (T79); без них мастер только создаёт новые.
   final ImageRecipeStore? _recipes;
 
-  /// Сборка для отпечатка генерации в рецепте (T104); без неё рецепт пишется без отпечатка.
+  /// Сборка для отпечатка генерации в рецепте (T105); без неё рецепт пишется без отпечатка.
   final GenerationBuildProvider? _generationBuild;
   final ReplacePatternFromImage? _replace;
   final ProjectRepository? _projects;

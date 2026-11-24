@@ -16,14 +16,14 @@ abstract final class ShadowLift {
   static const double minGamma = 0.5;
 
   /// Выше этой светлоты кривая ничего не меняет; к ней вес подъёма плавно сходит на нет.
-  static const double fadeL = 60;
+  static const double fadeL = 40;
 
   /// Кандидаты автоподбора, от слабого к сильному (0, 20, …, 100 %).
   static const List<double> autoCandidates = <double>[1.0, 0.9, 0.8, 0.7, 0.6, 0.5];
 
   /// Цена силы подъёма в автоподборе: к средней ΔE2000 добавляется `penaltyPerGamma * (1 − γ)`, чтобы не светлить
   /// без пользы.
-  static const double penaltyPerGamma = 3;
+  static const double penaltyPerGamma = 5;
 
   /// Сколько образцов берёт автоподбор (примерно 110 × 160).
   static const int sampleBudget = 17600;
@@ -37,7 +37,7 @@ abstract final class ShadowLift {
   /// Обратное к [gammaForPercent], округлённое до целого процента.
   static int percentForGamma(double gamma) => ((1 - gamma) / (1 - minGamma) * 100).round().clamp(0, 100);
 
-  /// Светлота [l] после подъёма с показателем [gamma]: `l + (100 (l/100)^γ − l) · w`, `w = ((60 − l)/60)^0,7`.
+  /// Светлота [l] после подъёма с показателем [gamma]: `l + (100 (l/100)^γ − l) · w`, `w = ((40 − l)/40)^0,7`.
   static double liftL(double l, double gamma) {
     final double c = l.clamp(0, 100).toDouble();
     if (gamma >= 1 || c >= fadeL) return c;
@@ -54,8 +54,8 @@ abstract final class ShadowLift {
     if (gamma >= 1) return image;
     final Uint8List src = image.rgba;
     final Uint8List out = Uint8List.fromList(src);
-    // Быстрый отсев: светлее L = 60, то есть Y ≥ ((60 + 16) / 116)³, кривая не трогает — Lab можно не считать.
-    const double yLimit = 0.28127;
+    // Быстрый отсев: светлее L = 40, то есть Y ≥ ((40 + 16) / 116)³, кривая не трогает — Lab можно не считать.
+    const double yLimit = 0.11251;
     final List<double> linear = _linearTable;
     final Map<int, int> memo = <int, int>{};
     for (int i = 0; i < src.length; i += 4) {
