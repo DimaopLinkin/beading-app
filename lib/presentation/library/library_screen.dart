@@ -44,7 +44,7 @@ class LibraryScreen extends StatefulWidget {
   /// Открыть схему проекта в генераторе и изменить (T79); `null` — действия нет.
   final void Function(BuildContext context, Project project)? onEditInGenerator;
 
-  /// Показать, какой версией и с какими параметрами создана схема (T103); `null` — действия нет.
+  /// Показать, какой версией и с какими параметрами создана схема (T104); `null` — действия нет.
   final void Function(BuildContext context, Project project)? onShowGenerationInfo;
   final ProjectThumbnailRegistry thumbnails;
 

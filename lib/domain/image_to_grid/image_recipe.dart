@@ -45,7 +45,7 @@ final class ImageRecipe extends Equatable {
   /// Основной производитель мулине этой схемы (T101); пусто — не записан (старый рецепт), тогда берётся последний выбранный.
   final String flossBrand;
 
-  /// Чем создана схема (ADR-0009, T103); `null` — рецепт записан до T103, версия неизвестна.
+  /// Чем создана схема (ADR-0009, T104); `null` — рецепт записан до T104, версия неизвестна.
   final GenerationStamp? stamp;
 
   /// Рецепт с отпечатком сборки [build]; хэши параметров и фото считаются здесь.
@@ -266,7 +266,7 @@ class ImageRecipeStore {
     return params == null ? null : ImageRecipeCodec.decode(params, source);
   }
 
-  /// Параметры и отпечаток рецепта без фото (T103); `null`, если рецепта нет. У рецепта до T103 [ImageRecipe.stamp] пуст.
+  /// Параметры и отпечаток рецепта без фото (T104); `null`, если рецепта нет. У рецепта до T104 [ImageRecipe.stamp] пуст.
   Future<ImageRecipe?> describe(String projectId) async {
     String? params;
     try {

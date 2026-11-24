@@ -170,7 +170,7 @@ void main() {
     expect(back.settings.fit, FrameFit.crop);
   });
 
-  group('отпечаток генерации (T103)', () {
+  group('отпечаток генерации (T104)', () {
     const GenerationBuild build = GenerationBuild(app: '0.6.0 (1)', commit: 'a1b2c3d4e5', algo: 7);
 
     test('записывается, читается и переживает пересохранение', () {
