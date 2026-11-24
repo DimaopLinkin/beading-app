@@ -67,6 +67,11 @@ else
   echo "⚠ Нет $CONFIG: соберу без синхронизации. Образец: config/supabase.example.json" >&2
 fi
 
+# Отпечаток генерации схем (ADR-0009): короткий хэш коммита; «+dirty», если в рабочей копии есть правки.
+GIT_SHA=$(git rev-parse --short=10 HEAD 2>/dev/null || true)
+if [ -n "$GIT_SHA" ] && [ -n "$(git status --porcelain 2>/dev/null)" ]; then GIT_SHA="$GIT_SHA+dirty"; fi
+[ -z "$GIT_SHA" ] || DEFINES+=(--dart-define=GIT_SHA="$GIT_SHA")
+
 # Кодогенерация drift (в git не лежит): нужна после чистого клона.
 if ! ls lib/data/db/*.g.dart >/dev/null 2>&1 && ! find lib/data/db -name '*.g.dart' 2>/dev/null | grep -q .; then
   echo '→ Первый запуск: scripts/setup.sh'

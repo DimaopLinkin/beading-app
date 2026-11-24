@@ -143,6 +143,53 @@ class AppLocalizationsRu extends AppLocalizations {
   String get projectEditInGenerator => 'Изменить в генераторе';
 
   @override
+  String get projectGenerationInfo => 'Сведения о генерации';
+
+  @override
+  String get generationInfoNone =>
+      'О создании этой схемы ничего не записано: она сделана не в генераторе или до того, как приложение стало запоминать версию.';
+
+  @override
+  String get generationInfoUnknownVersion =>
+      'Схема создана до того, как приложение стало запоминать версию генератора. Параметры сохранены, их можно открыть через «Изменить в генераторе».';
+
+  @override
+  String generationInfoApp(String value) {
+    return 'Приложение: $value';
+  }
+
+  @override
+  String generationInfoCommit(String value) {
+    return 'Сборка: $value';
+  }
+
+  @override
+  String generationInfoAlgo(int value) {
+    return 'Версия генератора: $value';
+  }
+
+  @override
+  String generationInfoConfig(String value) {
+    return 'Параметры: $value';
+  }
+
+  @override
+  String generationInfoPhoto(String value) {
+    return 'Фото: $value';
+  }
+
+  @override
+  String generationInfoSummary(int columns, String rows, int colors) {
+    return 'Размер $columns × $rows, цветов до $colors';
+  }
+
+  @override
+  String get generationInfoNote => 'Так схема была создана. Правки руками после этого здесь не видны.';
+
+  @override
+  String get generationInfoRowsAuto => 'по фото';
+
+  @override
   String get ok => 'Понятно';
 
   @override

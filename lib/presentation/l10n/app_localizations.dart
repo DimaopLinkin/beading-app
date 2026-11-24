@@ -349,6 +349,72 @@ abstract class AppLocalizations {
   /// **'Изменить в генераторе'**
   String get projectEditInGenerator;
 
+  /// Действие над схемой: показать, какой версией и с какими параметрами она создана (T105)
+  ///
+  /// In ru, this message translates to:
+  /// **'Сведения о генерации'**
+  String get projectGenerationInfo;
+
+  /// No description provided for @generationInfoNone.
+  ///
+  /// In ru, this message translates to:
+  /// **'О создании этой схемы ничего не записано: она сделана не в генераторе или до того, как приложение стало запоминать версию.'**
+  String get generationInfoNone;
+
+  /// No description provided for @generationInfoUnknownVersion.
+  ///
+  /// In ru, this message translates to:
+  /// **'Схема создана до того, как приложение стало запоминать версию генератора. Параметры сохранены, их можно открыть через «Изменить в генераторе».'**
+  String get generationInfoUnknownVersion;
+
+  /// No description provided for @generationInfoApp.
+  ///
+  /// In ru, this message translates to:
+  /// **'Приложение: {value}'**
+  String generationInfoApp(String value);
+
+  /// No description provided for @generationInfoCommit.
+  ///
+  /// In ru, this message translates to:
+  /// **'Сборка: {value}'**
+  String generationInfoCommit(String value);
+
+  /// No description provided for @generationInfoAlgo.
+  ///
+  /// In ru, this message translates to:
+  /// **'Версия генератора: {value}'**
+  String generationInfoAlgo(int value);
+
+  /// No description provided for @generationInfoConfig.
+  ///
+  /// In ru, this message translates to:
+  /// **'Параметры: {value}'**
+  String generationInfoConfig(String value);
+
+  /// No description provided for @generationInfoPhoto.
+  ///
+  /// In ru, this message translates to:
+  /// **'Фото: {value}'**
+  String generationInfoPhoto(String value);
+
+  /// No description provided for @generationInfoSummary.
+  ///
+  /// In ru, this message translates to:
+  /// **'Размер {columns} × {rows}, цветов до {colors}'**
+  String generationInfoSummary(int columns, String rows, int colors);
+
+  /// No description provided for @generationInfoNote.
+  ///
+  /// In ru, this message translates to:
+  /// **'Так схема была создана. Правки руками после этого здесь не видны.'**
+  String get generationInfoNote;
+
+  /// No description provided for @generationInfoRowsAuto.
+  ///
+  /// In ru, this message translates to:
+  /// **'по фото'**
+  String get generationInfoRowsAuto;
+
   /// No description provided for @ok.
   ///
   /// In ru, this message translates to:

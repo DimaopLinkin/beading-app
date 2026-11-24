@@ -12,13 +12,18 @@ import 'package:beading/data/image_to_grid/drift_image_recipe_index.dart';
 import 'package:beading/data/image_to_grid/isolate_image_to_grid_runner.dart';
 import 'package:beading/data/image_to_grid/ui_image_decoder.dart';
 import 'package:beading/data/platform/method_channel_image_masks.dart';
+import 'package:beading/data/settings/package_info_generation_build_provider.dart';
 import 'package:beading/domain/image_to_grid/image_decoder.dart';
 import 'package:beading/domain/image_to_grid/image_recipe.dart';
 import 'package:beading/domain/image_to_grid/use_cases/create_pattern_from_image.dart';
 import 'package:beading/domain/image_to_grid/use_cases/replace_pattern_from_image.dart';
 import 'package:beading/domain/projects/craft.dart';
+import 'package:beading/domain/projects/project.dart';
+import 'package:beading/domain/settings/app_info.dart';
+import 'package:beading/presentation/image_to_grid/generation_info_dialog.dart';
 import 'package:beading/presentation/image_to_grid/image_wizard_cubit.dart';
 import 'package:beading/presentation/image_to_grid/image_wizard_screen.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
@@ -29,15 +34,18 @@ final class ImageToGridModule {
     required ProjectsModule projects,
     required GridModule grid,
     required CatalogModule catalog,
+    required AppInfoProvider appInfo,
   }) : _core = core,
        _projects = projects,
        _grid = grid,
-       _catalog = catalog;
+       _catalog = catalog,
+       _appInfo = appInfo;
 
   final CoreModule _core;
   final ProjectsModule _projects;
   final GridModule _grid;
   final CatalogModule _catalog;
+  final AppInfoProvider _appInfo;
 
   /// Рецепты схем: фото файлом рядом с проектами, параметры в базе; синхронизируются вместе (T96).
   late final ImageRecipeStore recipes = ImageRecipeStore(
@@ -61,6 +69,7 @@ final class ImageToGridModule {
     beadStock: _catalog.beadStock,
     createPattern: CreatePatternFromImage(_grid.createGridPattern()),
     recipes: recipes,
+    generationBuild: AppInfoGenerationBuildProvider(_appInfo),
     replacePattern: ReplacePatternFromImage(
       patterns: _grid.patterns,
       rows: _grid.progress,
@@ -72,6 +81,13 @@ final class ImageToGridModule {
     printer: _grid.printer,
     sizeHints: true,
   );
+
+  /// «Сведения о генерации» (T105): отпечаток из рецепта схемы.
+  Future<void> showGenerationInfo(BuildContext context, Project project) async {
+    final ImageRecipe? recipe = await recipes.describe(project.id);
+    if (!context.mounted) return;
+    await showGenerationInfoDialog(context, project.name, recipe);
+  }
 
   List<RouteBase> routes() => <RouteBase>[
     GoRoute(

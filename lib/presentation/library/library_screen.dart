@@ -32,6 +32,7 @@ class LibraryScreen extends StatefulWidget {
     this.onOpenCatalog,
     this.onOpenMaterials,
     this.onEditInGenerator,
+    this.onShowGenerationInfo,
     this.onShareFile,
     super.key,
   });
@@ -42,6 +43,9 @@ class LibraryScreen extends StatefulWidget {
 
   /// Открыть схему проекта в генераторе и изменить (T79); `null` — действия нет.
   final void Function(BuildContext context, Project project)? onEditInGenerator;
+
+  /// Показать, какой версией и с какими параметрами создана схема (T105); `null` — действия нет.
+  final void Function(BuildContext context, Project project)? onShowGenerationInfo;
   final ProjectThumbnailRegistry thumbnails;
 
   /// Картинка и процент готовности на карточках; в тестах можно не задавать.
@@ -134,6 +138,11 @@ class _LibraryScreenState extends State<LibraryScreen> {
               onPressed: () => Navigator.of(sheetContext).pop('edit'),
               child: Text(l10n.projectEditInGenerator),
             ),
+          if (widget.onShowGenerationInfo != null && project.contentKind == ContentKind.grid)
+            CupertinoActionSheetAction(
+              onPressed: () => Navigator.of(sheetContext).pop('info'),
+              child: Text(l10n.projectGenerationInfo),
+            ),
           CupertinoActionSheetAction(
             onPressed: () => Navigator.of(sheetContext).pop('rename'),
             child: Text(l10n.projectRename),
@@ -167,6 +176,8 @@ class _LibraryScreenState extends State<LibraryScreen> {
         widget.onOpenMaterials!(context, project);
       case 'edit':
         widget.onEditInGenerator!(context, project);
+      case 'info':
+        widget.onShowGenerationInfo!(context, project);
       case 'rename':
         await _rename(project);
       case 'duplicate':

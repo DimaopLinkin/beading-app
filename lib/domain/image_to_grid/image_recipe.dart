@@ -13,11 +13,13 @@ import 'package:beading/domain/image_pattern/crop_rect.dart';
 import 'package:beading/domain/image_pattern/file_store.dart';
 import 'package:beading/domain/image_to_grid/background_stage.dart';
 import 'package:beading/domain/image_to_grid/generation_preset.dart';
+import 'package:beading/domain/image_to_grid/generation_stamp.dart';
 import 'package:beading/domain/image_to_grid/image_to_grid_settings.dart';
 import 'package:beading/domain/image_to_grid/importance_brush.dart';
 import 'package:beading/domain/projects/craft.dart';
 import 'package:beading/domain/projects/project.dart';
 import 'package:beading/domain/projects/project_content_cleaner.dart';
+import 'package:crypto/crypto.dart';
 import 'package:equatable/equatable.dart';
 
 /// Всё, из чего мастер «Схема из картинки» собрал схему (T79): исходное фото, поворот, рамка, мазки «важного» и
@@ -30,6 +32,7 @@ final class ImageRecipe extends Equatable {
     required this.brush,
     required this.settings,
     this.flossBrand = '',
+    this.stamp,
   });
 
   /// Фото как выбрано, до поворота и обрезки.
@@ -42,15 +45,64 @@ final class ImageRecipe extends Equatable {
   /// Основной производитель мулине этой схемы (T101); пусто — не записан (старый рецепт), тогда берётся последний выбранный.
   final String flossBrand;
 
+  /// Чем создана схема (ADR-0009, T105); `null` — рецепт записан до T105, версия неизвестна.
+  final GenerationStamp? stamp;
+
+  /// Рецепт с отпечатком сборки [build]; хэши параметров и фото считаются здесь.
+  ImageRecipe stamped(GenerationBuild build) => ImageRecipe(
+    source: source,
+    quarterTurns: quarterTurns,
+    crop: crop,
+    brush: brush,
+    settings: settings,
+    flossBrand: flossBrand,
+    stamp: GenerationStamp(
+      app: build.app,
+      commit: build.commit,
+      algo: build.algo,
+      cfg: ImageRecipeCodec.configHash(this),
+      src: ImageRecipeCodec.shortHash(source),
+    ),
+  );
+
   @override
-  List<Object?> get props => <Object?>[source, quarterTurns, crop, brush, settings, flossBrand];
+  List<Object?> get props => <Object?>[source, quarterTurns, crop, brush, settings, flossBrand, stamp];
 }
 
 /// Запись параметров рецепта в JSON. Имена полей менять нельзя: по ним читаются уже сохранённые рецепты.
 abstract final class ImageRecipeCodec {
   static String encode(ImageRecipe recipe) {
+    final GenerationStamp? stamp = recipe.stamp;
+    return jsonEncode(<String, Object?>{..._params(recipe), if (stamp != null) 'gen': stamp.toJson()});
+  }
+
+  /// Первые 12 символов SHA-256: хватает, чтобы различать параметры и фото одного человека.
+  static String shortHash(List<int> bytes) => sha256.convert(bytes).toString().substring(0, 12);
+
+  /// Хэш параметров рецепта без фото и отпечатка. Числа рамки и мазков округляются, чтобы запись `1.0` и `1` не меняла
+  /// хэш; порядок ключей и наборов фиксирован.
+  static String configHash(ImageRecipe recipe) {
+    String r(double v) => v.toStringAsFixed(4);
+    final Map<String, Object?> params = _params(recipe);
+    params['crop'] = <String>[
+      r(recipe.crop.left),
+      r(recipe.crop.top),
+      r(recipe.crop.right),
+      r(recipe.crop.bottom),
+    ];
+    params['brush'] = <Object?>[
+      for (final BrushStroke stroke in recipe.brush.strokes)
+        <Object?>[
+          r(stroke.radius),
+          <String>[for (final double p in stroke.points) r(p)],
+        ],
+    ];
+    return shortHash(utf8.encode(jsonEncode(params)));
+  }
+
+  static Map<String, Object?> _params(ImageRecipe recipe) {
     final ImageToGridSettings s = recipe.settings;
-    return jsonEncode(<String, Object?>{
+    return <String, Object?>{
       'v': 1,
       'turns': recipe.quarterTurns,
       'crop': <double>[recipe.crop.left, recipe.crop.top, recipe.crop.right, recipe.crop.bottom],
@@ -69,7 +121,7 @@ abstract final class ImageRecipeCodec {
         'maxColors': s.maxColors,
         'paletteSource': s.paletteSource.name,
         'series': s.beadSeries?.name,
-        'finish': <String>[for (final BeadFinishGroup g in s.finishGroups) g.name],
+        'finish': <String>[for (final BeadFinishGroup g in s.finishGroups) g.name]..sort(),
         'dither': s.dither,
         'voting': s.detailVoting,
         'masks': s.useMasks,
@@ -85,7 +137,7 @@ abstract final class ImageRecipeCodec {
         'mixed': s.mixedStitches,
         if (recipe.flossBrand.isNotEmpty) 'flossBrand': recipe.flossBrand,
       },
-    });
+    };
   }
 
   /// Читает рецепт; `null`, если запись повреждена.
@@ -151,6 +203,7 @@ abstract final class ImageRecipeCodec {
         ]),
         settings: settings,
         flossBrand: (s['flossBrand'] as String?) ?? '',
+        stamp: GenerationStamp.fromJson(map['gen']),
       );
     } on Object {
       return null;
@@ -211,6 +264,18 @@ class ImageRecipeStore {
     }
     params ??= await _legacy(projectId);
     return params == null ? null : ImageRecipeCodec.decode(params, source);
+  }
+
+  /// Параметры и отпечаток рецепта без фото (T105); `null`, если рецепта нет. У рецепта до T105 [ImageRecipe.stamp] пуст.
+  Future<ImageRecipe?> describe(String projectId) async {
+    String? params;
+    try {
+      params = await _index?.params(projectId);
+    } on Object {
+      params = null;
+    }
+    params ??= await _legacy(projectId);
+    return params == null ? null : ImageRecipeCodec.decode(params, Uint8List(0));
   }
 
   Future<Result<void>> delete(String projectId) async {
