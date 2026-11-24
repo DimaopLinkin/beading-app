@@ -118,7 +118,7 @@ void main() {
       expect(identical(ShadowLift.liftImage(image, 1), image), isTrue);
     });
 
-    test('насыщенный красный и оранжевый средней светлоты не бледнеют даже при самом сильном подъёме (T103)', () {
+    test('насыщенный красный и оранжевый средней светлоты не бледнеют даже при самом сильном подъёме (T104)', () {
       const List<Lab> mids = <Lab>[Lab(45, 55, 40), Lab(55, 45, 60), Lab(38, 30, 25)];
       final SourceImage image = _stripes(<(int, Lab)>[for (final Lab lab in mids) (2, lab)]);
       final SourceImage lifted = ShadowLift.liftImage(image, 0.5);
